@@ -1,0 +1,136 @@
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// This file is a part of the 'esoco-business' project.
+// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+package de.esoco.process;
+
+import de.esoco.lib.expression.Predicate;
+
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.obrel.core.RelationType;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import static org.obrel.core.RelationTypes.newMapType;
+import static org.obrel.core.RelationTypes.newRelationType;
+
+
+/********************************************************************
+ * A base class for the test of processes and process steps.
+ *
+ * @author eso
+ */
+public class AbstractProcessTest
+{
+	//~ Static fields/initializers ---------------------------------------------
+
+	/**
+	 * Stores the current test process; can be used to apply postcondition
+	 * predicates to the current process
+	 */
+	protected static final RelationType<Process> TEST_PROCESS =
+		newRelationType("de.esoco.process.test.TEST_PROCESS", Process.class);
+
+	/** Postconditions for the automatic testing of processes */
+	protected static final RelationType<Map<RelationType<?>, Predicate<?>>> POSTCONDITIONS =
+		newMapType("de.esoco.process.test.POSTCONDITIONS",
+				   RelationType.class,
+				   Predicate.class,
+				   true,
+				   true);
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * A method for subclasses to create a process from a process definition,
+	 * execute it, and assert a set of postconditions. The postconditions must
+	 * be set as a map relation of type {@link #POSTCONDITIONS} in the given
+	 * process definition. The map keys are the relation types to be asserted
+	 * and the map values are predicates that check the relation value by
+	 * evaluating it and returning TRUE if the postcondition is valid and FALSE
+	 * if not. If the map value is NULL it will be asserted that NO relation
+	 * with the given type exists. If the relation type is {@link #TEST_PROCESS}
+	 * the predicate will we applied to the current process instead of one of
+	 * it's parameters.
+	 *
+	 * <p>This method can also be used to test interactive processes. The
+	 * postconditions to be checked after the execution stopped at a particular
+	 * process step must be set on the definition of the respective step. The
+	 * postconditions that are set on the process definition will always be
+	 * checked after the process has finished execution completely.</p>
+	 *
+	 * @param  rProcessDefinition The definition of the process to execute
+	 *
+	 * @return The finished process
+	 *
+	 * @throws ProcessException If executing the process fails
+	 */
+	@SuppressWarnings("boxing")
+	protected Process executeProcess(ProcessDefinition rProcessDefinition)
+		throws ProcessException
+	{
+		Process aProcess = rProcessDefinition.createProcess();
+
+		// add TEST_PROCESS as self-reference so that predicates can be applied
+		// to the process itself
+		aProcess.setParameter(TEST_PROCESS, aProcess);
+
+		do
+		{
+			Set<Entry<RelationType<?>, Predicate<?>>> rConditions;
+
+			aProcess.execute();
+
+			if (aProcess.isFinished())
+			{
+				rConditions = rProcessDefinition.get(POSTCONDITIONS).entrySet();
+			}
+			else
+			{
+				rConditions =
+					aProcess.getCurrentStep().get(POSTCONDITIONS).entrySet();
+			}
+
+			for (Map.Entry<RelationType<?>, Predicate<?>> e : rConditions)
+			{
+				RelationType<?> rType = e.getKey();
+
+				@SuppressWarnings("unchecked")
+				Predicate<Object> rPredicate = (Predicate<Object>) e.getValue();
+
+				if (rPredicate != null)
+				{
+					Object rValue = aProcess.getParameter(rType);
+
+					assertTrue("Expected: " + rType + " " + rPredicate +
+							   " but is " + rValue,
+							   rPredicate.evaluate(rValue));
+				}
+				else
+				{
+					assertFalse(rType + " exists",
+								aProcess.hasParameter(rType));
+				}
+			}
+		}
+		while (!aProcess.isFinished());
+
+		return aProcess;
+	}
+}
