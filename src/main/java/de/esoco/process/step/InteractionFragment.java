@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,21 +141,68 @@ public abstract class InteractionFragment extends ProcessFragment
 	public abstract void init() throws Exception;
 
 	/***************************************
-	 * Adds parameters to the lists returned by the methods {@link
-	 * #getInteractionParameters()} and {@link #getInputParameters()}. These
-	 * lists must therefore be mutable!
+	 * @see #addInputParameters(Collection)
+	 */
+	@Override
+	public void addInputParameters(RelationType<?>... rParams)
+	{
+		addInputParameters(Arrays.asList(rParams));
+	}
+
+	/***************************************
+	 * Adds the given parameters to the interaction and input parameters of this
+	 * instance. The input parameters are queried with the method {@link
+	 * #getInputParameters()}, the interaction parameters are updated with
+	 * {@link #addInteractionParameters(Collection)}.
 	 *
-	 * <p>This implementation replaces the base class implementation because the
-	 * parent method changes the interaction parameters of the process step.</p>
+	 * <p>This implementation replaces the base class implementation which
+	 * changes the interaction parameters of the process step instead of the
+	 * fragment.</p>
 	 *
-	 * @param rParams The parameters to add
+	 * @param rParams The input parameters to add
+	 *
+	 * @see   #addInteractionParameters(Collection)
 	 */
 	@Override
 	public void addInputParameters(
 		Collection<? extends RelationType<?>> rParams)
 	{
-		getInteractionParameters().addAll(rParams);
+		addInteractionParameters(rParams);
 		getInputParameters().addAll(rParams);
+	}
+
+	/***************************************
+	 * @see #addInteractionParameters(Collection)
+	 */
+	public void addInteractionParameters(RelationType<?>... rParams)
+	{
+		addInteractionParameters(Arrays.asList(rParams));
+	}
+
+	/***************************************
+	 * Adds nonexistent parameters to the list of interaction parameters of this
+	 * instance as returned by the method {@link #getInteractionParameters()}.
+	 * The returned collection must therefore be mutable (as is the case with
+	 * the default parameter collection).
+	 *
+	 * <p>This implementation replaces the base class implementation which
+	 * changes the interaction parameters of the process step instead of the
+	 * fragment.</p>
+	 *
+	 * @param rParams The interaction parameters to add
+	 */
+	public void addInteractionParameters(
+		Collection<? extends RelationType<?>> rParams)
+	{
+		List<RelationType<?>> rInteractionParams = getInteractionParameters();
+
+		for (RelationType<?> rParam : rParams)
+		{
+			if (!rInteractionParams.contains(rParam))
+			{
+				rInteractionParams.add(rParam);
+			}
+		}
 	}
 
 	/***************************************
