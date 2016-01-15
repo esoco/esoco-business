@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'osgi'
 
 project.version = "1.0.0"
 
@@ -16,13 +17,6 @@ dependencies {
     
     testCompile 'junit:junit:4.+'
     testCompile 'com.h2database:h2:1.+'
-}
-
-eclipse {
-	jdt { 
-		sourceCompatibility = "1.7"
-		targetCompatibility = "1.7"
-	}
 }
 
 jar { from sourceSets.main.allJava }

@@ -17,23 +17,18 @@
 package de.esoco.data.validate;
 
 import de.esoco.data.element.HierarchicalDataObject;
-import de.esoco.data.element.SelectionDataElement;
-
-import de.esoco.lib.model.ColumnDefinition;
 
 import java.util.List;
 
 
 /********************************************************************
- * A validator for the selection of a certain object from a list of data
- * objects. The value of the {@link SelectionDataElement} will be the index of
- * the selected data element, therefore this class validates the integer value
- * of the selection index.
+ * A validator for the selection of a certain object from a hierarchy of data
+ * objects.
  *
  * @author eso
  */
-public class SelectionValidator extends TabularDataValidator
-	implements HasValueList<HierarchicalDataObject>
+public class HierarchyValidator implements Validator<HierarchicalDataObject>,
+										   HasValueList<HierarchicalDataObject>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -51,19 +46,15 @@ public class SelectionValidator extends TabularDataValidator
 	 *
 	 * @see #SelectionValidator(List, List, boolean)
 	 */
-	public SelectionValidator(
-		List<HierarchicalDataObject> rValues,
-		List<ColumnDefinition>		 rColumns)
+	public HierarchyValidator(List<HierarchicalDataObject> rValues)
 	{
-		super(rColumns);
-
 		this.rValues = rValues;
 	}
 
 	/***************************************
 	 * Default constructor for serialization.
 	 */
-	SelectionValidator()
+	HierarchyValidator()
 	{
 	}
 
@@ -75,12 +66,17 @@ public class SelectionValidator extends TabularDataValidator
 	@Override
 	public boolean equals(Object rObj)
 	{
-		if (!super.equals(rObj))
+		if (this == rObj)
+		{
+			return true;
+		}
+
+		if (rObj == null || getClass() != rObj.getClass())
 		{
 			return false;
 		}
 
-		SelectionValidator rOther = (SelectionValidator) rObj;
+		HierarchyValidator rOther = (HierarchyValidator) rObj;
 
 		return rValues.equals(rOther.rValues);
 	}
@@ -100,15 +96,16 @@ public class SelectionValidator extends TabularDataValidator
 	@Override
 	public int hashCode()
 	{
-		return 37 * super.hashCode() + rValues.hashCode();
+		return 37 * rValues.hashCode();
 	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(String sId)
+	public boolean isValid(HierarchicalDataObject rObject)
 	{
+		// always return true because the object must be from the validated set
 		return true;
 	}
 }
