@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,24 +44,24 @@ public class EditInteraction extends InteractionFragment implements Updatable
 
 	//~ Instance fields --------------------------------------------------------
 
+	private List<RelationType<?>> rRootParams;
+
 	private InteractionElementTree aElementTree;
 	private EditInteractionElement aElementEditor;
 
-	private InteractionFragment rRootFragment;
-
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Updates this instance to edit the hierarchy of the given root fragment.
+	 * Creates a new instance.
 	 *
-	 * @param rRootFragment The root fragment to edit
+	 * @param rRootParams The root fragment to edit
 	 */
-	public void editInteraction(InteractionFragment rRootFragment)
+	public EditInteraction(List<RelationType<?>> rRootParams)
 	{
-		this.rRootFragment = rRootFragment;
-
-		update();
+		this.rRootParams = rRootParams;
 	}
+
+	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * {@inheritDoc}

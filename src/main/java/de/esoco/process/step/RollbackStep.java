@@ -18,6 +18,13 @@ package de.esoco.process.step;
 
 import de.esoco.process.ProcessStep;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.obrel.core.RelationType;
+
+import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
+
 
 /********************************************************************
  * A base class for process steps that can perform a (simple) rollback of their
@@ -33,6 +40,7 @@ public abstract class RollbackStep extends ProcessStep
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+	
 
 	//~ Constructors -----------------------------------------------------------
 

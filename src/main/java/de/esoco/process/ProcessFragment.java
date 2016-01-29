@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
+import de.esoco.process.step.Interaction;
+import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -63,6 +66,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -132,6 +136,11 @@ public abstract class ProcessFragment extends ProcessElement
 
 	private static final Set<PropertyName<?>> NON_MODIFYING_PROPERTIES =
 		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
+
+	//~ Instance fields --------------------------------------------------------
+
+	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
+		new LinkedHashMap<>();
 
 	//~ Static methods ---------------------------------------------------------
 
@@ -397,6 +406,38 @@ public abstract class ProcessFragment extends ProcessElement
 		addPanel(rPanelParam,
 				 ListDisplayMode.STACK,
 				 Arrays.asList(rPanelContentParams));
+	}
+
+	/***************************************
+	 * Adds a subordinate fragment that handles a part of this interaction and
+	 * is displayed in a certain parameter. The fragment parameter will not be
+	 * added to the display parameters on this instance, this must be done
+	 * separately (e.g. with {@link #addDisplayParameters(RelationType...)} to
+	 * allow the invoking code to separate fragment creation from fragment
+	 * placement.
+	 *
+	 * @param rFragmentParam The interactive process parameter in which the
+	 *                       fragment will be displayed
+	 * @param rSubFragment   The fragment to add
+	 */
+	public void addSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam,
+		InteractionFragment					rSubFragment)
+	{
+		if (aSubFragments.containsKey(rFragmentParam))
+		{
+			InteractionFragment rPreviousFragment =
+				aSubFragments.remove(rFragmentParam);
+
+			rPreviousFragment.cleanup();
+		}
+
+		rSubFragment.attach((Interaction) getProcessStep(), rFragmentParam);
+		aSubFragments.put(rFragmentParam, rSubFragment);
+
+		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
+
+		rSubFragment.markFragmentInputParams();
 	}
 
 	/***************************************
@@ -1952,7 +1993,7 @@ public abstract class ProcessFragment extends ProcessElement
 		String			 sResourceId,
 		Class<? super T> rElementType)
 	{
-		String sReleationTypeName = UUID.randomUUID().toString();
+		String sReleationTypeName = sResourceId + UUID.randomUUID().toString();
 
 		RelationType<List<T>> rTemporaryListType =
 			getTemporaryListType(sReleationTypeName, rElementType);
@@ -1978,7 +2019,8 @@ public abstract class ProcessFragment extends ProcessElement
 		String			 sResourceId,
 		Class<? super T> rDatatype)
 	{
-		String		    sRelationTypeName	    = UUID.randomUUID().toString();
+		String sRelationTypeName = sResourceId + UUID.randomUUID().toString();
+
 		RelationType<T> rTemporaryParameterType =
 			getTemporaryParameterType(sRelationTypeName, rDatatype);
 
@@ -2007,6 +2049,16 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return nSelection;
+	}
+
+	/***************************************
+	 * Returns the subordinate fragments of this instance.
+	 *
+	 * @return The subordinate fragments
+	 */
+	protected final Collection<InteractionFragment> getSubFragments()
+	{
+		return aSubFragments.values();
 	}
 
 	/***************************************
