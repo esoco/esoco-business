@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,13 +18,6 @@ package de.esoco.process.step;
 
 import de.esoco.process.ProcessStep;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.obrel.core.RelationType;
-
-import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
-
 
 /********************************************************************
  * A base class for process steps that can perform a (simple) rollback of their
@@ -40,7 +33,6 @@ public abstract class RollbackStep extends ProcessStep
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
-	
 
 	//~ Constructors -----------------------------------------------------------
 
