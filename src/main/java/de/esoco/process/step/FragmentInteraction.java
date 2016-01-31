@@ -91,6 +91,16 @@ public class FragmentInteraction extends Interaction
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns the root fragment that of this interaction.
+	 *
+	 * @return The root fragment
+	 */
+	public final InteractionFragment getRootFragment()
+	{
+		return rRootFragment;
+	}
+
+	/***************************************
 	 * Overridden to ignore a single fragment parameter without content to
 	 * prevent process lockup.
 	 *

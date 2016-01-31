@@ -2085,6 +2085,21 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Returns the package name for temporary parameter types created by the
+	 * method {@link #getTemporaryParameterType(String, Class)}. Subclasses may
+	 * override this method to modify the default which creates a package name
+	 * that is unique for the current process instance (but will be shared by
+	 * all process steps). The package name must be returned without leading or
+	 * trailing dots.
+	 *
+	 * @return The package name for temporary parameter types
+	 */
+	protected String getTemporaryParameterPackage()
+	{
+		return "process" + getProcess().getId();
+	}
+
+	/***************************************
 	 * Returns a temporary parameter relation type with a certain name. If the
 	 * parameter doesn't exist yet it will be created. The name string will be
 	 * converted to standard relation type notation, i.e. upper case text with
@@ -2111,8 +2126,7 @@ public abstract class ProcessFragment extends ProcessElement
 			sName = "_" + sName;
 		}
 
-		// add process ID to make the parameter unique for the process instance
-		sName = "tmp" + getProcess().getId() + "." + sName;
+		sName = getTemporaryParameterPackage() + "." + sName;
 
 		@SuppressWarnings("unchecked")
 		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);

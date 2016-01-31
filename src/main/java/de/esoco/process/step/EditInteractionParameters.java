@@ -24,30 +24,25 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
-import static org.obrel.core.RelationTypes.newListType;
-
 
 /********************************************************************
  * A fragment that allows to edit the elements of an interaction.
  *
  * @author eso
  */
-public class EditInteraction extends InteractionFragment implements Updatable
+public class EditInteractionParameters extends InteractionFragment
+	implements Updatable
 {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
 
-	/** Standard parameter to display this fragment in. */
-	public static final RelationType<List<RelationType<?>>> EDIT_INTERACTION_FRAGMENT =
-		newListType();
-
 	//~ Instance fields --------------------------------------------------------
 
 	private List<RelationType<?>> rRootParams;
 
-	private InteractionElementTree aElementTree;
-	private EditInteractionElement aElementEditor;
+	private InteractionParameterTree aElementTree;
+	private EditInteractionParameter aElementEditor;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -56,7 +51,7 @@ public class EditInteraction extends InteractionFragment implements Updatable
 	 *
 	 * @param rRootParams The root fragment to edit
 	 */
-	public EditInteraction(List<RelationType<?>> rRootParams)
+	public EditInteractionParameters(List<RelationType<?>> rRootParams)
 	{
 		this.rRootParams = rRootParams;
 	}
@@ -69,14 +64,13 @@ public class EditInteraction extends InteractionFragment implements Updatable
 	@Override
 	public void init() throws Exception
 	{
-		aElementTree   = new InteractionElementTree();
-		aElementEditor = new EditInteractionElement();
-
-		addSubFragment(InteractionElementTree.INTERACTION_ELEMENT_TREE_FRAGMENT,
-					   aElementTree);
-		addSubFragment(EditInteractionElement.EDIT_INTERACTION_ELEMENT_FRAGMENT,
-					   aElementEditor);
 		setListDisplayMode(ListDisplayMode.SPLIT, getFragmentParameter());
+
+		aElementTree   = new InteractionParameterTree(rRootParams);
+		aElementEditor = new EditInteractionParameter();
+
+		addSubFragment(aElementTree).width("300px");
+		addSubFragment(aElementEditor);
 	}
 
 	/***************************************
@@ -95,15 +89,11 @@ public class EditInteraction extends InteractionFragment implements Updatable
 	 *
 	 * @author eso
 	 */
-	public static class EditInteractionElement extends InteractionFragment
+	public static class EditInteractionParameter extends InteractionFragment
 	{
 		//~ Static fields/initializers -----------------------------------------
 
 		private static final long serialVersionUID = 1L;
-
-		/** Standard parameter to display this fragment in. */
-		public static final RelationType<List<RelationType<?>>> EDIT_INTERACTION_ELEMENT_FRAGMENT =
-			newListType();
 
 		//~ Methods ------------------------------------------------------------
 
@@ -122,6 +112,8 @@ public class EditInteraction extends InteractionFragment implements Updatable
 		@Override
 		public void init() throws Exception
 		{
+			textParam("NoInteractionParmaSelected").display()
+												   .setValue("Please select a parameter");
 		}
 	}
 
@@ -131,15 +123,27 @@ public class EditInteraction extends InteractionFragment implements Updatable
 	 *
 	 * @author eso
 	 */
-	static class InteractionElementTree extends InteractionFragment
+	static class InteractionParameterTree extends InteractionFragment
 	{
 		//~ Static fields/initializers -----------------------------------------
 
 		private static final long serialVersionUID = 1L;
 
-		/** Standard parameter to display this fragment in. */
-		public static final RelationType<List<RelationType<?>>> INTERACTION_ELEMENT_TREE_FRAGMENT =
-			newListType();
+		//~ Instance fields ----------------------------------------------------
+
+		private List<RelationType<?>> rRootParams;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param rRootParams The root parameters to display in the tree
+		 */
+		public InteractionParameterTree(List<RelationType<?>> rRootParams)
+		{
+			this.rRootParams = rRootParams;
+		}
 
 		//~ Methods ------------------------------------------------------------
 

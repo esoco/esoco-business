@@ -18,6 +18,7 @@ package de.esoco.process;
 
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
+import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
@@ -29,10 +30,14 @@ import java.util.Map;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CSS_STYLES;
+import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
+import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
+import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 
 
@@ -92,18 +97,18 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Marks the parameter to be displayed as interactive buttons. It's list
+	 * Marks this parameter to be displayed as interactive buttons. It's list
 	 * style will be set to {@link ListStyle#IMMEDIATE}, it will have the flag
 	 * {@link UserInterfaceProperties#HIDE_LABEL} set, and for enums {@link
 	 * UserInterfaceProperties#COLUMNS} will be set to the number of enum
-	 * constants.
+	 * constants. This will also add this parameter as an input parameter to the
+	 * fragment.
 	 *
 	 * @return This instance for concatenation
 	 */
-	public Parameter<T> buttons()
+	public final Parameter<T> buttons()
 	{
-		rFragment.setInteractive(rParamType, null, ListStyle.IMMEDIATE);
-		rFragment.setUIFlag(HIDE_LABEL, rParamType);
+		interactive(ListStyle.IMMEDIATE).hideLabel();
 
 		Class<? super T> rDatatype = rParamType.getTargetType();
 
@@ -126,6 +131,18 @@ public class Parameter<T>
 		rFragment.clearUIFlag(rProperty, rParamType);
 
 		return this;
+	}
+
+	/***************************************
+	 * Sets the content type of this parameter.
+	 *
+	 * @param  eContentType The content type
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> content(ContentType eContentType)
+	{
+		return set(CONTENT_TYPE, eContentType);
 	}
 
 	/***************************************
@@ -155,6 +172,16 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Marks this parameter to be disabled in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> disable()
+	{
+		return set(DISABLED);
+	}
+
+	/***************************************
 	 * Marks the wrapped relation type to be displayed as readonly in the
 	 * fragment this parameter belongs to.
 	 *
@@ -168,15 +195,45 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Marks this parameter to be disabled in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> enable()
+	{
+		return clear(DISABLED);
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}.
 	 *
 	 * @param  sHeight The HTML height string
 	 *
 	 * @return This instance for concatenation
 	 */
-	public Parameter<T> height(String sHeight)
+	public final Parameter<T> height(String sHeight)
 	{
 		return set(HTML_HEIGHT, sHeight);
+	}
+
+	/***************************************
+	 * Marks this parameter to be hidden in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> hide()
+	{
+		return set(HIDDEN);
+	}
+
+	/***************************************
+	 * Hides the label of this parameter.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> hideLabel()
+	{
+		return set(HIDE_LABEL);
 	}
 
 	/***************************************
@@ -193,19 +250,37 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Marks the wrapped relation type to be displayed as editable and
-	 * initializes it to generate interaction events according to the given
-	 * interactive input mode.
+	 * Sets a parameter with a list of allowed values to be displayed in a
+	 * certain interactive list style. This will also add this parameter as an
+	 * input parameter to the fragment.
 	 *
-	 * @param  eMode The interactive input mode
+	 * @param  eListStyle The style in which to display the allowed values
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> input(InteractiveInputMode eMode)
+	public final Parameter<T> interactive(ListStyle eListStyle)
 	{
-		rFragment.setInteractive(eMode, rParamType);
+		input();
+		rFragment.setInteractive(rParamType, null, eListStyle);
 
-		return input();
+		return this;
+	}
+
+	/***************************************
+	 * Sets the interactive input mode for this parameter. This will also add
+	 * this parameter as an input parameter to the fragment.
+	 *
+	 * @param  eInputMode eListStyle The style in which to display the allowed
+	 *                    values
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> interactive(InteractiveInputMode eInputMode)
+	{
+		input();
+		rFragment.setInteractive(eInputMode, rParamType);
+
+		return this;
 	}
 
 	/***************************************
@@ -218,6 +293,17 @@ public class Parameter<T>
 		rFragment.removeUIProperties(rParamType);
 
 		return this;
+	}
+
+	/***************************************
+	 * Marks this parameter to be displayed in the same row as the previous
+	 * parameter (in table-based layouts).
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> sameRow()
+	{
+		return set(SAME_ROW);
 	}
 
 	/***************************************
@@ -269,6 +355,16 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Marks this parameter to be visible in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> show()
+	{
+		return clear(HIDDEN);
+	}
+
+	/***************************************
 	 * Sets the UI properties {@link UserInterfaceProperties#HTML_WIDTH} and
 	 * {@link UserInterfaceProperties#HTML_HEIGHT}.
 	 *
@@ -277,7 +373,7 @@ public class Parameter<T>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public Parameter<T> size(String sWidth, String sHeight)
+	public final Parameter<T> size(String sWidth, String sHeight)
 	{
 		return width(sWidth).height(sHeight);
 	}
@@ -289,7 +385,7 @@ public class Parameter<T>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public Parameter<T> style(String sStyle)
+	public final Parameter<T> style(String sStyle)
 	{
 		return set(STYLE, sStyle);
 	}
@@ -311,7 +407,7 @@ public class Parameter<T>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public Parameter<T> width(String sWidth)
+	public final Parameter<T> width(String sWidth)
 	{
 		return set(HTML_WIDTH, sWidth);
 	}

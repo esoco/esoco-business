@@ -72,6 +72,7 @@ import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
+import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.URL;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
@@ -105,7 +106,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	/** The resource string for an info message box icon. */
 	public static final String MESSAGE_BOX_INFO_ICON = "#imInfoMessage";
 
+	private static int nNextFragmentId = 0;
+
 	//~ Instance fields --------------------------------------------------------
+
+	private int nFragmentId = nNextFragmentId++;
 
 	private Interaction						    rProcessStep;
 	private InteractionFragment				    rParent;
@@ -218,9 +223,51 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * A variant of {@link #addSubFragment(String, InteractionFragment)} that
+	 * uses the name of the fragment class for the temporary fragment parameter.
+	 *
+	 * @see #addSubFragment(String, InteractionFragment)
+	 */
+	public Parameter<List<RelationType<?>>> addSubFragment(
+		InteractionFragment rSubFragment)
+	{
+		return addSubFragment(rSubFragment.getClass().getSimpleName(),
+							  rSubFragment);
+	}
+
+	/***************************************
+	 * Adds a subordinate fragment to this instance into a temporary parameter.
+	 * The temporary parameter relation type will be created with the given name
+	 * by invoking {@link #listParam(String, Class)} and the parameter wrapper
+	 * will be returned. The fragment will be added by invoking {@link
+	 * #addSubFragment(RelationType, InteractionFragment)}. Furthermore the UI
+	 * property {@link UserInterfaceProperties#HIDE_LABEL} will be set on the
+	 * new fragment parameter because fragments are typically displayed without
+	 * a label.
+	 *
+	 * @param  sName        The name of the temporary fragment parameter
+	 * @param  rSubFragment The fragment to add
+	 *
+	 * @return The wrapper for the fragment parameter
+	 */
+	public Parameter<List<RelationType<?>>> addSubFragment(
+		String				sName,
+		InteractionFragment rSubFragment)
+	{
+		Parameter<List<RelationType<?>>> rSubFragmentParam =
+			listParam(sName, RelationType.class);
+
+		addSubFragment(rSubFragmentParam.type(), rSubFragment);
+
+		return rSubFragmentParam.set(HIDE_LABEL);
+	}
+
+	/***************************************
 	 * Overridden to set the parent of the sub-fragment to this instance.
 	 *
-	 * @see ProcessFragment#addSubFragment(RelationType, InteractionFragment)
+	 * @return
+	 *
+	 * @see    ProcessFragment#addSubFragment(RelationType, InteractionFragment)
 	 */
 	@Override
 	public void addSubFragment(
@@ -574,8 +621,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return the parameter instance
 	 */
-	public <T> Parameter<List<T>> listParam(String   sName,
-											Class<T> rElementType)
+	public <T> Parameter<List<T>> listParam(
+		String			 sName,
+		Class<? super T> rElementType)
 	{
 		return param(getTemporaryListType(sName, rElementType));
 	}
@@ -685,7 +733,8 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * Create a new parameter wrapper for this fragment with a temporary
-	 * relation type.
+	 * relation type. If no matching temporary relation type exists already it
+	 * will be created.
 	 *
 	 * @param  sName     The name of the relation type
 	 * @param  rDatatype The parameter datatype
@@ -801,6 +850,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * a string datatype.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public Parameter<String> textParam(String sName)
+	{
+		return param(sName, String.class);
+	}
+
+	/***************************************
 	 * Request a complete update of this fragment's UI by marking all
 	 * interaction parameters including their hierarchy as modified.
 	 */
@@ -862,6 +922,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	protected boolean canRollback()
 	{
 		return true;
+	}
+
+	/***************************************
+	 * Overridden to return a package name that is relative to the current
+	 * fragment instance.
+	 *
+	 * @see ProcessFragment#getTemporaryParameterPackage()
+	 */
+	@Override
+	protected String getTemporaryParameterPackage()
+	{
+		return getClass().getSimpleName().toLowerCase() + nFragmentId;
 	}
 
 	/***************************************
