@@ -37,8 +37,11 @@ import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
+import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
+import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
 import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
+import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
 
 
 /********************************************************************
@@ -284,6 +287,18 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
+	 *
+	 * @param  sWidth The label string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> label(String sLabel)
+	{
+		return set(LABEL, sLabel);
+	}
+	
+	/***************************************
 	 * Sets a certain property flag.
 	 *
 	 * @see ProcessFragment#setUIFlag(PropertyName, RelationType...)
@@ -295,6 +310,18 @@ public class Parameter<T>
 		return this;
 	}
 
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#RESOURCE_ID}.
+	 *
+	 * @param  sWidth The resource ID string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> resid(String sResourceId)
+	{
+		return set(RESOURCE_ID, sResourceId);
+	}
+	
 	/***************************************
 	 * Marks this parameter to be displayed in the same row as the previous
 	 * parameter (in table-based layouts).
@@ -388,6 +415,18 @@ public class Parameter<T>
 	public final Parameter<T> style(String sStyle)
 	{
 		return set(STYLE, sStyle);
+	}
+	
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#TOOLTIP}.
+	 *
+	 * @param  sWidth The tooltip string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> tooltip(String sTooltip)
+	{
+		return set(TOOLTIP, sTooltip);
 	}
 
 	/***************************************
