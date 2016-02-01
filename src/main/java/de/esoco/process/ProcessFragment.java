@@ -108,7 +108,7 @@ import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
-import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
+import static de.esoco.process.ProcessRelationTypes.*;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS;
@@ -437,6 +437,8 @@ public abstract class ProcessFragment extends ProcessElement
 
 		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
 
+		// fragment parameters must be marked as input for fragments that 
+		get(INPUT_PARAMS).add(rFragmentParam);
 		rSubFragment.markFragmentInputParams();
 	}
 
