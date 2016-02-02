@@ -72,7 +72,6 @@ import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.URL;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
@@ -197,17 +196,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public void addInputParameters(
 		Collection<? extends RelationType<?>> rParams)
 	{
-		Collection<RelationType<?>> rInputParams = getInputParameters();
-
 		addDisplayParameters(rParams);
-
-		for (RelationType<?> rParam : rParams)
-		{
-			if (!rInputParams.contains(rParam))
-			{
-				rInputParams.add(rParam);
-			}
-		}
+		markInputParams(true, rParams);
 	}
 
 	/***************************************
@@ -259,7 +249,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		addSubFragment(rSubFragmentParam.type(), rSubFragment);
 
-		return rSubFragmentParam.set(HIDE_LABEL);
+		return rSubFragmentParam.hideLabel();
 	}
 
 	/***************************************

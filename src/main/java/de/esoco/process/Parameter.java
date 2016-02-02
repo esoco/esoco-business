@@ -108,7 +108,8 @@ public class Parameter<T>
 	 */
 	public final Parameter<T> buttons()
 	{
-		interactive(ListStyle.IMMEDIATE).hideLabel();
+		interactive(ListStyle.IMMEDIATE);
+		hideLabel();
 
 		Class<? super T> rDatatype = rParamType.getTargetType();
 
@@ -388,6 +389,15 @@ public class Parameter<T>
 	public final Parameter<T> style(String sStyle)
 	{
 		return set(STYLE, sStyle);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString()
+	{
+		return "Parameter[" + rParamType + "]";
 	}
 
 	/***************************************
