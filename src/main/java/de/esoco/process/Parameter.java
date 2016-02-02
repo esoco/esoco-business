@@ -22,6 +22,7 @@ import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
+import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
@@ -75,25 +76,53 @@ public class Parameter<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
-	 * mode {@link InteractiveInputMode#ACTION}.
+	 * Enables action events without setting an event handler. The event handler
+	 * must either be set later or the containing fragment must implement {@link
+	 * InteractionFragment#handleInteraction(RelationType)}.
 	 *
-	 * @see #interactive(InteractiveInputMode)
+	 * @see #actionEvents(InteractionHandler)
 	 */
 	public final Parameter<T> actionEvents()
 	{
-		return interactive(InteractiveInputMode.ACTION);
+		return actionEvents(null);
+	}
+
+	/***************************************
+	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
+	 * mode {@link InteractiveInputMode#ACTION}.
+	 *
+	 * @param rEventHandler The event handler for the parameter
+	 *
+	 * @see   #interactive(InteractiveInputMode)
+	 */
+	public final Parameter<T> actionEvents(InteractionHandler rEventHandler)
+	{
+		return interactive(InteractiveInputMode.ACTION, rEventHandler);
+	}
+
+	/***************************************
+	 * Enables all events without setting an event handler. The event handler
+	 * must either be set later or the containing fragment must implement {@link
+	 * InteractionFragment#handleInteraction(RelationType)}.
+	 *
+	 * @see #actionEvents(InteractionHandler)
+	 */
+	public final Parameter<T> allEvents()
+	{
+		return actionEvents(null);
 	}
 
 	/***************************************
 	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
 	 * mode {@link InteractiveInputMode#BOTH}.
 	 *
-	 * @see #interactive(InteractiveInputMode)
+	 * @param rEventHandler The event handler for the parameter
+	 *
+	 * @see   #interactive(InteractiveInputMode)
 	 */
-	public final Parameter<T> allEvents()
+	public final Parameter<T> allEvents(InteractionHandler rEventHandler)
 	{
-		return interactive(InteractiveInputMode.BOTH);
+		return interactive(InteractiveInputMode.BOTH, rEventHandler);
 	}
 
 	/***************************************
@@ -172,14 +201,28 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
-	 * mode {@link InteractiveInputMode#CONTINUOUS}.
+	 * Enables continuous events without setting an event handler. The event
+	 * handler must either be set later or the containing fragment must
+	 * implement {@link InteractionFragment#handleInteraction(RelationType)}.
 	 *
-	 * @see #interactive(InteractiveInputMode)
+	 * @see #actionEvents(InteractionHandler)
 	 */
 	public final Parameter<T> continuousEvents()
 	{
-		return interactive(InteractiveInputMode.CONTINUOUS);
+		return actionEvents(null);
+	}
+
+	/***************************************
+	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
+	 * mode {@link InteractiveInputMode#CONTINUOUS}.
+	 *
+	 * @param rEventHandler The event handler for the parameter
+	 *
+	 * @see   #interactive(InteractiveInputMode)
+	 */
+	public final Parameter<T> continuousEvents(InteractionHandler rEventHandler)
+	{
+		return interactive(InteractiveInputMode.CONTINUOUS, rEventHandler);
 	}
 
 	/***************************************
@@ -288,8 +331,7 @@ public class Parameter<T>
 
 	/***************************************
 	 * Sets a parameter with a list of allowed values to be displayed in a
-	 * certain interactive list style. This will also add this parameter as an
-	 * input parameter to the fragment.
+	 * certain interactive list style.
 	 *
 	 * @param  eListStyle The style in which to display the allowed values
 	 *
@@ -297,24 +339,32 @@ public class Parameter<T>
 	 */
 	public final Parameter<T> interactive(ListStyle eListStyle)
 	{
-		input();
 		rFragment.setInteractive(rParamType, null, eListStyle);
 
 		return this;
 	}
 
 	/***************************************
-	 * Sets the interactive input mode for this parameter. This will also add
-	 * this parameter as an input parameter to the fragment.
+	 * Sets the interactive input mode for this parameter. If an event handler
+	 * is given it will be registered with {@link
+	 * InteractionFragment#setParameterInteractionHandler(RelationType,
+	 * InteractionHandler)}.
 	 *
-	 * @param  eInputMode The interactive input mode
+	 * @param  eInputMode    The interactive input mode
+	 * @param  rEventHandler An optional event handler or NULL for none
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> interactive(InteractiveInputMode eInputMode)
+	public final Parameter<T> interactive(
+		InteractiveInputMode eInputMode,
+		InteractionHandler   rEventHandler)
 	{
-		input();
 		rFragment.setInteractive(eInputMode, rParamType);
+
+		if (rEventHandler != null)
+		{
+			rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
+		}
 
 		return this;
 	}

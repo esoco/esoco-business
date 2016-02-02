@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -344,6 +345,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * a {@link Date} datatype.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public Parameter<Date> dateParam(String sName)
+	{
+		return param(sName, Date.class);
+	}
+
+	/***************************************
 	 * Overridden to forward the call to the enclosing process step.
 	 *
 	 * @see ProcessStep#deleteRelation(Relation)
@@ -391,6 +403,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public void finish() throws Exception
 	{
+	}
+
+	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * a boolean datatype.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public Parameter<Boolean> flagParam(String sName)
+	{
+		return param(sName, Boolean.class);
 	}
 
 	/***************************************
@@ -603,6 +626,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * an integer datatype.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public Parameter<Integer> intParam(String sName)
+	{
+		return param(sName, Integer.class);
+	}
+
+	/***************************************
 	 * Create a new parameter wrapper for this fragment with a temporary
 	 * relation type.
 	 *
@@ -719,6 +753,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <T> Parameter<T> param(RelationType<T> rParam)
 	{
 		return new Parameter<>(this, rParam);
+	}
+
+	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * an enum datatype. The parameter will be named with the simple name of the
+	 * enum class.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public <E extends Enum<E>> Parameter<E> param(Class<E> rEnumClass)
+	{
+		return param(rEnumClass.getSimpleName(), rEnumClass);
 	}
 
 	/***************************************
