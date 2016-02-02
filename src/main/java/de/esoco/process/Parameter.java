@@ -75,6 +75,28 @@ public class Parameter<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
+	 * mode {@link InteractiveInputMode#ACTION}.
+	 *
+	 * @see #interactive(InteractiveInputMode)
+	 */
+	public final Parameter<T> actionEvents()
+	{
+		return interactive(InteractiveInputMode.ACTION);
+	}
+
+	/***************************************
+	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
+	 * mode {@link InteractiveInputMode#BOTH}.
+	 *
+	 * @see #interactive(InteractiveInputMode)
+	 */
+	public final Parameter<T> allEvents()
+	{
+		return interactive(InteractiveInputMode.BOTH);
+	}
+
+	/***************************************
 	 * Sets the allowed values for the parameter.
 	 *
 	 * @see ProcessFragment#setAllowedValues(RelationType, Object...)
@@ -147,6 +169,17 @@ public class Parameter<T>
 	public final Parameter<T> content(ContentType eContentType)
 	{
 		return set(CONTENT_TYPE, eContentType);
+	}
+
+	/***************************************
+	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
+	 * mode {@link InteractiveInputMode#CONTINUOUS}.
+	 *
+	 * @see #interactive(InteractiveInputMode)
+	 */
+	public final Parameter<T> continuousEvents()
+	{
+		return interactive(InteractiveInputMode.CONTINUOUS);
 	}
 
 	/***************************************
@@ -274,8 +307,7 @@ public class Parameter<T>
 	 * Sets the interactive input mode for this parameter. This will also add
 	 * this parameter as an input parameter to the fragment.
 	 *
-	 * @param  eInputMode eListStyle The style in which to display the allowed
-	 *                    values
+	 * @param  eInputMode The interactive input mode
 	 *
 	 * @return This instance for concatenation
 	 */
@@ -290,7 +322,7 @@ public class Parameter<T>
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
 	 *
-	 * @param  sWidth The label string
+	 * @param  sLabel sWidth The label string
 	 *
 	 * @return This instance for concatenation
 	 */
@@ -298,7 +330,7 @@ public class Parameter<T>
 	{
 		return set(LABEL, sLabel);
 	}
-	
+
 	/***************************************
 	 * Sets a certain property flag.
 	 *
@@ -314,7 +346,7 @@ public class Parameter<T>
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#RESOURCE_ID}.
 	 *
-	 * @param  sWidth The resource ID string
+	 * @param  sResourceId sWidth The resource ID string
 	 *
 	 * @return This instance for concatenation
 	 */
@@ -322,7 +354,7 @@ public class Parameter<T>
 	{
 		return set(RESOURCE_ID, sResourceId);
 	}
-	
+
 	/***************************************
 	 * Marks this parameter to be displayed in the same row as the previous
 	 * parameter (in table-based layouts).
@@ -371,18 +403,6 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Sets the parameter value.
-	 *
-	 * @see ProcessFragment#setParameter(RelationType, Object)
-	 */
-	public final Parameter<T> setValue(T rValue)
-	{
-		rFragment.setParameter(rParamType, rValue);
-
-		return this;
-	}
-
-	/***************************************
 	 * Marks this parameter to be visible in the user interface.
 	 *
 	 * @return This instance for concatenation
@@ -417,11 +437,11 @@ public class Parameter<T>
 	{
 		return set(STYLE, sStyle);
 	}
-	
+
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#TOOLTIP}.
 	 *
-	 * @param  sWidth The tooltip string
+	 * @param  sTooltip sWidth The tooltip string
 	 *
 	 * @return This instance for concatenation
 	 */
@@ -447,6 +467,18 @@ public class Parameter<T>
 	public final RelationType<T> type()
 	{
 		return rParamType;
+	}
+
+	/***************************************
+	 * Sets the parameter value.
+	 *
+	 * @see ProcessFragment#setParameter(RelationType, Object)
+	 */
+	public final Parameter<T> value(T rValue)
+	{
+		rFragment.setParameter(rParamType, rValue);
+
+		return this;
 	}
 
 	/***************************************

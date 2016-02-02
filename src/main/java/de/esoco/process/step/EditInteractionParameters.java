@@ -112,8 +112,8 @@ public class EditInteractionParameters extends InteractionFragment
 		@Override
 		public void init() throws Exception
 		{
-			textParam("NoInteractionParmaSelected").display()
-												   .setValue("Please select a parameter");
+			textParam("NoInteractionParamSelected").display()
+												   .value("Please select a parameter");
 		}
 	}
 
@@ -151,8 +151,12 @@ public class EditInteractionParameters extends InteractionFragment
 		 * {@inheritDoc}
 		 */
 		@Override
+		@SuppressWarnings("unused")
 		public void init() throws Exception
 		{
+			for (RelationType<?> rParam : rRootParams)
+			{
+			}
 		}
 	}
 }

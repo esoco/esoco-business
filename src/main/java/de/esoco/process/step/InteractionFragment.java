@@ -1534,6 +1534,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		{
 			rSubFragment.initFragment();
 		}
+
+		markFragmentInputParams();
 	}
 
 	/***************************************
