@@ -470,6 +470,16 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Returns the parameter value.
+	 *
+	 * @see ProcessFragment#getParameter(RelationType)
+	 */
+	public final T value()
+	{
+		return rFragment.getParameter(rParamType);
+	}
+
+	/***************************************
 	 * Sets the parameter value.
 	 *
 	 * @see ProcessFragment#setParameter(RelationType, Object)
