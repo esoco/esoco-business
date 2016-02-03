@@ -31,6 +31,8 @@ import java.util.Map;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
+import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CSS_STYLES;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
@@ -40,9 +42,12 @@ import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
 import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
+import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
+import static de.esoco.lib.property.UserInterfaceProperties.ROW_SPAN;
 import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
+import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
 
 
 /********************************************************************
@@ -186,6 +191,30 @@ public class Parameter<T>
 		rFragment.clearUIFlag(rProperty, rParamType);
 
 		return this;
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#COLUMN_SPAN}.
+	 *
+	 * @param  nColumns the number of columns to span.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> colSpan(int nColumns)
+	{
+		return set(nColumns, COLUMN_SPAN);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#COLUMNS}.
+	 *
+	 * @param  nColumns the number of columns.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> columns(int nColumns)
+	{
+		return set(nColumns, COLUMNS);
 	}
 
 	/***************************************
@@ -339,6 +368,7 @@ public class Parameter<T>
 	 */
 	public final Parameter<T> interactive(ListStyle eListStyle)
 	{
+		input();
 		rFragment.setInteractive(rParamType, null, eListStyle);
 
 		return this;
@@ -403,6 +433,30 @@ public class Parameter<T>
 	public final Parameter<T> resid(String sResourceId)
 	{
 		return set(RESOURCE_ID, sResourceId);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#ROWS}.
+	 *
+	 * @param  nRows the number of rows.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> rows(int nRows)
+	{
+		return set(nRows, ROWS);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#ROW_SPAN}.
+	 *
+	 * @param  nRows the number of rows to span.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> rowSpan(int nRows)
+	{
+		return set(nRows, ROW_SPAN);
 	}
 
 	/***************************************
@@ -539,6 +593,17 @@ public class Parameter<T>
 		rFragment.setParameter(rParamType, rValue);
 
 		return this;
+	}
+
+	/***************************************
+	 * Marks this parameter to have a vertical orientation (instead if the
+	 * horizontal default).
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> vertical()
+	{
+		return set(VERTICAL);
 	}
 
 	/***************************************

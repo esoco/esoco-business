@@ -76,6 +76,7 @@ import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
 import static de.esoco.lib.property.UserInterfaceProperties.URL;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
+import static de.esoco.process.ProcessRelationTypes.IS_PANEL_ELEMENT;
 import static de.esoco.process.ProcessRelationTypes.PARAM_UPDATE_LISTENERS;
 
 import static org.obrel.type.StandardTypes.ERROR_MESSAGE;
@@ -163,7 +164,13 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		for (RelationType<?> rParam : rParams)
 		{
-			if (!rInteractionParams.contains(rParam))
+			Relation<?> rParamRelation = getParameterRelation(rParam);
+
+			// do not add parameters that are displayed in panels because they
+			// are stored in the parameter list of the panel parameter
+			if ((rParamRelation == null ||
+				 !rParamRelation.hasFlag(IS_PANEL_ELEMENT)) &&
+				!rInteractionParams.contains(rParam))
 			{
 				rInteractionParams.add(rParam);
 			}

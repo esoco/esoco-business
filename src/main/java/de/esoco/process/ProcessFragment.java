@@ -105,10 +105,12 @@ import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
 import static de.esoco.lib.property.UserInterfaceProperties.WRAP;
 
 import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
+import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
-import static de.esoco.process.ProcessRelationTypes.*;
+import static de.esoco.process.ProcessRelationTypes.IS_PANEL_ELEMENT;
+import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS;
@@ -252,6 +254,20 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		setParameter(rPanelParam, rPanelContentParams);
 		setListDisplayMode(eDisplayMode, rPanelParam);
+
+		// mark the content parameter relations as panel elements so that they
+		// can be detected as subordinate parameters
+		for (RelationType<?> rContentParam : rPanelContentParams)
+		{
+			Relation<?> rParamRelation = getParameterRelation(rContentParam);
+
+			if (rParamRelation == null)
+			{
+				rParamRelation = setParameter(rContentParam, null);
+			}
+
+			rParamRelation.set(IS_PANEL_ELEMENT);
+		}
 	}
 
 	/***************************************
@@ -437,7 +453,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
 
-		// fragment parameters must be marked as input for fragments that 
+		// fragment parameters must be marked as input for fragments that
 		get(INPUT_PARAMS).add(rFragmentParam);
 		rSubFragment.markFragmentInputParams();
 	}
