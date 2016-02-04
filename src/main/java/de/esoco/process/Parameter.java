@@ -272,10 +272,10 @@ public class Parameter<T>
 		if (rCssStyles == null)
 		{
 			rCssStyles = new HashMap<>();
-			rFragment.setUIProperty(CSS_STYLES, rCssStyles, rParamType);
 		}
 
 		rCssStyles.put(sCssProperty, sValue != null ? sValue : "");
+		set(CSS_STYLES, rCssStyles);
 
 		return this;
 	}
@@ -389,6 +389,7 @@ public class Parameter<T>
 		InteractiveInputMode eInputMode,
 		InteractionHandler   rEventHandler)
 	{
+		input();
 		rFragment.setInteractive(eInputMode, rParamType);
 
 		if (rEventHandler != null)
