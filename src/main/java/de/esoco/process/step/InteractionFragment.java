@@ -35,6 +35,7 @@ import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
 
 import de.esoco.process.Parameter;
+import de.esoco.process.ParameterList;
 import de.esoco.process.Process;
 import de.esoco.process.ProcessElement;
 import de.esoco.process.ProcessException;
@@ -190,7 +191,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Adds the given parameters to the interaction and input parameters of this
 	 * instance. The input parameters are queried with the method {@link
 	 * #getInputParameters()}, the interaction parameters are updated with
-	 * {@link #addInteractionParameters(Collection)}.
+	 * {@link #addDisplayParameters(Collection)}.
 	 *
 	 * <p>This implementation replaces the base class implementation which
 	 * changes the interaction parameters of the process step instead of the
@@ -198,7 +199,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @param rParams The input parameters to add
 	 *
-	 * @see   #addInteractionParameters(Collection)
+	 * @see   #addDisplayParameters(Collection)
 	 */
 	@Override
 	public void addInputParameters(
@@ -429,9 +430,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return the parameter instance for the fragment parameter
 	 */
-	public Parameter<List<RelationType<?>>> fragmentParam()
+	public ParameterList fragmentParam()
 	{
-		return new Parameter<>(this, getFragmentParameter());
+		return new ParameterList(rParent != null ? rParent : this,
+								 getFragmentParameter());
 	}
 
 	/***************************************
