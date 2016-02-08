@@ -508,6 +508,36 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Enables or disables this parameter based on the boolean parameter.
+	 *
+	 * @param  bEnabled TRUE to enable the parameter, FALSE to disable it
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #enable()
+	 * @see    #disable()
+	 */
+	public final Parameter<T> setEnabled(boolean bEnabled)
+	{
+		return bEnabled ? enable() : disable();
+	}
+
+	/***************************************
+	 * Sets the visibility of this parameter based on the boolean parameter.
+	 *
+	 * @param  bVisible TRUE to show the parameter, FALSE to hide it
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #hide()
+	 * @see    #show()
+	 */
+	public final Parameter<T> setVisible(boolean bVisible)
+	{
+		return bVisible ? show() : hide();
+	}
+
+	/***************************************
 	 * Marks this parameter to be visible in the user interface.
 	 *
 	 * @return This instance for concatenation
