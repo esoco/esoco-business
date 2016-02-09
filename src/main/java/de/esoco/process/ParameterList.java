@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataElementList.ListDisplayMode;
 
 import de.esoco.process.step.InteractionFragment;
@@ -62,6 +63,31 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	}
 
 	/***************************************
+	 * Adds a certain sub-fragment parameter to this list.
+	 *
+	 * @param  rSubFragment The sub-fragment to add
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList add(InteractionFragment rSubFragment)
+	{
+		return add(fragment().addSubFragment(rSubFragment));
+	}
+
+	/***************************************
+	 * Overridden to return a {@link ParameterList}.
+	 *
+	 * @see Parameter#display()
+	 */
+	@Override
+	public ParameterList display()
+	{
+		super.display();
+
+		return this;
+	}
+
+	/***************************************
 	 * Sets the list display mode to display this parameter list with.
 	 *
 	 * @param  eMode The list display mode
@@ -70,6 +96,8 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	 */
 	public ParameterList as(ListDisplayMode eMode)
 	{
+		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+
 		return this;
 	}
 }

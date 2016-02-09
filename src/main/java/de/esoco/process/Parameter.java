@@ -90,20 +90,7 @@ public class Parameter<T>
 	 */
 	public final Parameter<T> actionEvents()
 	{
-		return actionEvents(null);
-	}
-
-	/***************************************
-	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
-	 * mode {@link InteractiveInputMode#ACTION}.
-	 *
-	 * @param rEventHandler The event handler for the parameter
-	 *
-	 * @see   #interactive(InteractiveInputMode)
-	 */
-	public final Parameter<T> actionEvents(InteractionHandler rEventHandler)
-	{
-		return interactive(InteractiveInputMode.ACTION, rEventHandler);
+		return interactive(InteractiveInputMode.ACTION);
 	}
 
 	/***************************************
@@ -115,20 +102,7 @@ public class Parameter<T>
 	 */
 	public final Parameter<T> allEvents()
 	{
-		return actionEvents(null);
-	}
-
-	/***************************************
-	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
-	 * mode {@link InteractiveInputMode#BOTH}.
-	 *
-	 * @param rEventHandler The event handler for the parameter
-	 *
-	 * @see   #interactive(InteractiveInputMode)
-	 */
-	public final Parameter<T> allEvents(InteractionHandler rEventHandler)
-	{
-		return interactive(InteractiveInputMode.BOTH, rEventHandler);
+		return interactive(InteractiveInputMode.BOTH);
 	}
 
 	/***************************************
@@ -159,9 +133,9 @@ public class Parameter<T>
 	/***************************************
 	 * Marks this parameter to be displayed as interactive buttons. It's list
 	 * style will be set to {@link ListStyle#IMMEDIATE}, it will have the flag
-	 * {@link UserInterfaceProperties#HIDE_LABEL} set, and for enums {@link
-	 * UserInterfaceProperties#COLUMNS} will be set to the number of enum
-	 * constants. This will also add this parameter as an input parameter to the
+	 * {@link UserInterfaceProperties#HIDE_LABEL} set, and the property {@link
+	 * UserInterfaceProperties#COLUMNS} will be set to the number of allowed
+	 * values. This will also add this parameter as an input parameter to the
 	 * fragment.
 	 *
 	 * @return This instance for concatenation
@@ -171,13 +145,8 @@ public class Parameter<T>
 		interactive(ListStyle.IMMEDIATE);
 		hideLabel();
 
-		Class<? super T> rDatatype = rParamType.getTargetType();
-
-		if (rDatatype.isEnum())
-		{
-			set(rDatatype.getEnumConstants().length,
-				UserInterfaceProperties.COLUMNS);
-		}
+		set(rFragment.getAllowedValues(rParamType).size(),
+			UserInterfaceProperties.COLUMNS);
 
 		return this;
 	}
@@ -239,20 +208,7 @@ public class Parameter<T>
 	 */
 	public final Parameter<T> continuousEvents()
 	{
-		return actionEvents(null);
-	}
-
-	/***************************************
-	 * Shortcut to invoke {@link #interactive(InteractiveInputMode)} with the
-	 * mode {@link InteractiveInputMode#CONTINUOUS}.
-	 *
-	 * @param rEventHandler The event handler for the parameter
-	 *
-	 * @see   #interactive(InteractiveInputMode)
-	 */
-	public final Parameter<T> continuousEvents(InteractionHandler rEventHandler)
-	{
-		return interactive(InteractiveInputMode.CONTINUOUS, rEventHandler);
+		return interactive(InteractiveInputMode.CONTINUOUS);
 	}
 
 	/***************************************
@@ -297,7 +253,7 @@ public class Parameter<T>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> display()
+	public Parameter<T> display()
 	{
 		rFragment.addDisplayParameters(rParamType);
 
@@ -319,7 +275,7 @@ public class Parameter<T>
 	 *
 	 * @return The fragment
 	 */
-	public InteractionFragment fragment()
+	public final InteractionFragment fragment()
 	{
 		return rFragment;
 	}
@@ -370,6 +326,24 @@ public class Parameter<T>
 	}
 
 	/***************************************
+	 * Sets the interactive input mode for this parameter. If an event handler
+	 * is given it will be registered with {@link
+	 * InteractionFragment#setParameterInteractionHandler(RelationType,
+	 * InteractionHandler)}.
+	 *
+	 * @param  eInputMode The interactive input mode
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> interactive(InteractiveInputMode eInputMode)
+	{
+		input();
+		rFragment.setInteractive(eInputMode, rParamType);
+
+		return this;
+	}
+
+	/***************************************
 	 * Sets a parameter with a list of allowed values to be displayed in a
 	 * certain interactive list style.
 	 *
@@ -386,32 +360,6 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Sets the interactive input mode for this parameter. If an event handler
-	 * is given it will be registered with {@link
-	 * InteractionFragment#setParameterInteractionHandler(RelationType,
-	 * InteractionHandler)}.
-	 *
-	 * @param  eInputMode    The interactive input mode
-	 * @param  rEventHandler An optional event handler or NULL for none
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final Parameter<T> interactive(
-		InteractiveInputMode eInputMode,
-		InteractionHandler   rEventHandler)
-	{
-		input();
-		rFragment.setInteractive(eInputMode, rParamType);
-
-		if (rEventHandler != null)
-		{
-			rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
-		}
-
-		return this;
-	}
-
-	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
 	 *
 	 * @param  sLabel sWidth The label string
@@ -421,6 +369,28 @@ public class Parameter<T>
 	public final Parameter<T> label(String sLabel)
 	{
 		return set(LABEL, sLabel);
+	}
+
+	/***************************************
+	 * Sets the event handler for this parameter. The handler will only be
+	 * invoked if events have been enabled for this parameter with one of the
+	 * corresponding methods.
+	 *
+	 * @param  rEventHandler The event handler to register
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #interactive(InteractiveInputMode)
+	 * @see    #interactive(ListStyle)
+	 * @see    #continuousEvents()
+	 * @see    #actionEvents()
+	 * @see    #allEvents()
+	 */
+	public final Parameter<T> onEvent(InteractionHandler rEventHandler)
+	{
+		rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
+
+		return this;
 	}
 
 	/***************************************
@@ -602,7 +572,7 @@ public class Parameter<T>
 	@Override
 	public String toString()
 	{
-		return "Parameter[" + rParamType + "]";
+		return getClass().getSimpleName() + "[" + rParamType + "]";
 	}
 
 	/***************************************
