@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.element.DataElementList.ListDisplayMode;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.List;
@@ -41,5 +43,33 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 		RelationType<List<RelationType<?>>> rParamType)
 	{
 		super(rFragment, rParamType);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a certain parameter to this list.
+	 *
+	 * @param  rParam The parameter to add
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList add(Parameter<?> rParam)
+	{
+		fragment().getParameter(type()).add(rParam.type());
+
+		return this;
+	}
+
+	/***************************************
+	 * Sets the list display mode to display this parameter list with.
+	 *
+	 * @param  eMode The list display mode
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList as(ListDisplayMode eMode)
+	{
+		return this;
 	}
 }

@@ -78,6 +78,7 @@ import static de.esoco.lib.property.UserInterfaceProperties.URL;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.IS_PANEL_ELEMENT;
+import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PARAM_UPDATE_LISTENERS;
 
 import static org.obrel.type.StandardTypes.ERROR_MESSAGE;
@@ -428,7 +429,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Creates a new parameter wrapper for the relation type this fragment is
 	 * stored in.
 	 *
-	 * @return the parameter instance for the fragment parameter
+	 * @return the parameter wrapper for the fragment parameter
 	 */
 	public ParameterList fragmentParam()
 	{
@@ -752,12 +753,28 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a new parameter wrapper for this fragment and the given relation
-	 * type.
+	 * Creates a new temporary relation type for a list of relation types and
+	 * returns a parameter wrapper for it.
 	 *
-	 * @param  rParam The parameter
+	 * @param  sName The name of the parameter list
 	 *
-	 * @return the parameter instance
+	 * @return the parameter wrapper for the parameter list
+	 */
+	public ParameterList panel(String sName)
+	{
+		RelationType<List<RelationType<?>>> rListType =
+			getTemporaryListType(sName, RelationType.class);
+
+		return new ParameterList(this, rListType);
+	}
+
+	/***************************************
+	 * Creates a new parameter wrapper for the given relation type in this
+	 * fragment.
+	 *
+	 * @param  rParam The parameter to wrap
+	 *
+	 * @return the parameter wrapper
 	 */
 	public <T> Parameter<T> param(RelationType<T> rParam)
 	{
@@ -784,11 +801,33 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @param  sName     The name of the relation type
 	 * @param  rDatatype The parameter datatype
 	 *
-	 * @return the parameter instance
+	 * @return the parameter wrapper
 	 */
 	public <T> Parameter<T> param(String sName, Class<? super T> rDatatype)
 	{
 		return param(getTemporaryParameterType(sName, rDatatype));
+	}
+
+	/***************************************
+	 * Creates a new temporary parameter relation type that is derived from
+	 * another relation type. The other type must be from a different scope
+	 * (i.e. not the same fragment) or else a name conflict will occur. The
+	 * derived relation type will have the original relation in a meta relation
+	 * with the type {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
+	 *
+	 * @param  rOriginalType The original relation type the new parameter is
+	 *                       based on
+	 *
+	 * @return A new parameter wrapper for the derived relation type
+	 */
+	public <T> Parameter<T> paramLike(RelationType<T> rOriginalType)
+	{
+		Parameter<T> rDerivedParam =
+			param(rOriginalType.getSimpleName(), rOriginalType.getTargetType());
+
+		rDerivedParam.type().set(ORIGINAL_RELATION_TYPE, rOriginalType);
+
+		return rDerivedParam;
 	}
 
 	/***************************************

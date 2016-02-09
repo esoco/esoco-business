@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	/********************************************************************
 	 * Enumeration of the display modes for data element lists.
 	 */
-	public enum ListDisplayMode { GRID, PLAIN, TABS, STACK, SPLIT }
+	public enum ListDisplayMode { GRID, FLOW, FILL, PLAIN, SPLIT, TABS, STACK }
 
 	/********************************************************************
 	 * Enumeration of the style for displaying data element lists in separate

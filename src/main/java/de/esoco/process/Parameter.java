@@ -61,7 +61,8 @@ public class Parameter<T>
 	//~ Instance fields --------------------------------------------------------
 
 	private final InteractionFragment rFragment;
-	private final RelationType<T>     rParamType;
+
+	private final RelationType<T> rParamType;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -311,6 +312,16 @@ public class Parameter<T>
 	public final Parameter<T> enable()
 	{
 		return clear(DISABLED);
+	}
+
+	/***************************************
+	 * Returns the fragment this parameter belongs to.
+	 *
+	 * @return The fragment
+	 */
+	public InteractionFragment fragment()
+	{
+		return rFragment;
 	}
 
 	/***************************************
