@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.element.DataElementList.ListDisplayMode;
+
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -39,6 +41,7 @@ import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CSS_STYLES;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
+import static de.esoco.lib.property.UserInterfaceProperties.HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
@@ -51,6 +54,7 @@ import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
 import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
+import static de.esoco.lib.property.UserInterfaceProperties.WIDTH;
 
 
 /********************************************************************
@@ -284,15 +288,61 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}.
+	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT} which
+	 * defines the table cell height in a panel with a {@link
+	 * ListDisplayMode#GRID GRID} layout.
 	 *
 	 * @param  sHeight The HTML height string
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> height(String sHeight)
+	public final Parameter<T> gridHeight(String sHeight)
 	{
 		return set(HTML_HEIGHT, sHeight);
+	}
+
+	/***************************************
+	 * Sets the UI properties {@link UserInterfaceProperties#HTML_WIDTH} and
+	 * {@link UserInterfaceProperties#HTML_HEIGHT} which defines the table cell
+	 * size in a panel with a {@link ListDisplayMode#GRID GRID} layout.
+	 *
+	 * @param  sWidth  The HTML width string
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> gridSize(String sWidth, String sHeight)
+	{
+		return gridWidth(sWidth).gridHeight(sHeight);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH} which
+	 * defines the table cell width in a panel with a {@link
+	 * ListDisplayMode#GRID GRID} layout.
+	 *
+	 * @param  sWidth The HTML width string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> gridWidth(String sWidth)
+	{
+		return set(HTML_WIDTH, sWidth);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#HEIGHT} which defines
+	 * the height of the parameter component in panels with a layout that
+	 * requires a size value (like {@link ListDisplayMode#DOCK} and {@link
+	 * ListDisplayMode#SPLIT}).
+	 *
+	 * @param  nHeight nWidth The width
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final Parameter<T> height(int nHeight)
+	{
+		return set(nHeight, HEIGHT);
 	}
 
 	/***************************************
@@ -557,20 +607,6 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Sets the UI properties {@link UserInterfaceProperties#HTML_WIDTH} and
-	 * {@link UserInterfaceProperties#HTML_HEIGHT}.
-	 *
-	 * @param  sWidth  The HTML width string
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final Parameter<T> size(String sWidth, String sHeight)
-	{
-		return width(sWidth).height(sHeight);
-	}
-
-	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#STYLE}.
 	 *
 	 * @param  sStyle The style name(s)
@@ -647,14 +683,17 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH}.
+	 * Sets the UI property {@link UserInterfaceProperties#WIDTH} which defines
+	 * the width of the parameter component in panels with a layout that
+	 * requires a size value (like {@link ListDisplayMode#DOCK} and {@link
+	 * ListDisplayMode#SPLIT}).
 	 *
-	 * @param  sWidth The HTML width string
+	 * @param  nWidth The width
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> width(String sWidth)
+	public final Parameter<T> width(int nWidth)
 	{
-		return set(HTML_WIDTH, sWidth);
+		return set(nWidth, WIDTH);
 	}
 }
