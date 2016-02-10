@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
@@ -29,6 +30,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.obrel.core.Relation;
+import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
@@ -369,6 +372,31 @@ public class Parameter<T>
 	public final Parameter<T> label(String sLabel)
 	{
 		return set(LABEL, sLabel);
+	}
+
+	/***************************************
+	 * Registers an event handler that will be notified of changes of this
+	 * parameter's relation.
+	 *
+	 * @param  rEventHandler The event handler to register
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    Relation#addUpdateListener(EventHandler)
+	 */
+	public final Parameter<T> onChange(
+		EventHandler<RelationEvent<T>> rEventHandler)
+	{
+		Relation<T> rRelation = rFragment.getParameterRelation(rParamType);
+
+		if (rRelation == null)
+		{
+			rRelation = rFragment.setParameter(rParamType, null);
+		}
+
+		rRelation.addUpdateListener(rEventHandler);
+
+		return this;
 	}
 
 	/***************************************
