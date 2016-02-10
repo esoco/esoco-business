@@ -310,7 +310,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		addPanel(rPanelParam,
-				 bResizable ? ListDisplayMode.SPLIT : ListDisplayMode.PLAIN,
+				 bResizable ? ListDisplayMode.SPLIT : ListDisplayMode.DOCK,
 				 rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
