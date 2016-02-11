@@ -1034,8 +1034,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Prepares the upload of a file into a process parameter. This requires two
 	 * parameters. One string parameter that will be configured to invoke a file
-	 * chooser and then holds the name of the selected file. And a target
-	 * parameter that will receive the result of a successful file upload.
+	 * chooser and then holds the name of the selected file. This parameter must
+	 * be configured as an input parameter. And a target parameter that will
+	 * receive the result of a successful file upload.
 	 *
 	 * @param  rFileSelectParam    The parameter for the file selection
 	 * @param  rTargetParam        The target parameter for the file content
@@ -1046,7 +1047,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @throws Exception If preparing the upload fails
 	 */
 	protected void prepareUpload(RelationType<String> rFileSelectParam,
-								 RelationType<String> rTargetParam,
+								 RelationType<byte[]> rTargetParam,
 								 Pattern			  rContentTypePattern,
 								 int				  nMaxSize) throws Exception
 	{
@@ -1745,7 +1746,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private RelationType<String> rTargetParam;
+		private RelationType<byte[]> rTargetParam;
 		private Pattern				 rContentTypePattern;
 		private int					 nMaxSize;
 
@@ -1760,7 +1761,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		 * @param nMaxSize            The maximum upload size
 		 */
 		public ProcessParamUploadHandler(
-			RelationType<String> rTargetParam,
+			RelationType<byte[]> rTargetParam,
 			Pattern				 rContentTypePattern,
 			int					 nMaxSize)
 		{
@@ -1802,7 +1803,7 @@ public abstract class InteractionFragment extends ProcessFragment
 				}
 			}
 
-			setParameter(rTargetParam, aOutStream.toString("UTF-8"));
+			setParameter(rTargetParam, aOutStream.toByteArray());
 			removeParameterAnnotation(rTargetParam, ERROR_MESSAGE);
 		}
 
