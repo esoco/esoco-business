@@ -480,7 +480,7 @@ public class EntityManager
 		Class<E> rQueryType = qEntities.getQueryType();
 		Storage  rStorage   = StorageManager.getStorage(rQueryType);
 
-		try (Query<E> rQuery = rStorage.query(qEntities))
+		try(Query<E> rQuery = rStorage.query(qEntities))
 		{
 			QueryResult<E> rResult = rQuery.execute();
 
@@ -587,7 +587,7 @@ public class EntityManager
 			forEntity(rChildType,
 					  ifAttribute(rChildMasterAttribute, equalTo(rParent)));
 
-		try (Query<C> rQuery = rStorage.query(qChildren))
+		try(Query<C> rQuery = rStorage.query(qChildren))
 		{
 			QueryResult<C> rResult = rQuery.execute();
 
@@ -738,7 +738,7 @@ public class EntityManager
 		Storage		  rStorage		  = StorageManager.getStorage(rQueryType);
 		Collection<T> aDistinctValues = null;
 
-		try (Query<E> rQuery = rStorage.query(qEntities))
+		try(Query<E> rQuery = rStorage.query(qEntities))
 		{
 			aDistinctValues = (Collection<T>) rQuery.getDistinct(rAttribute);
 		}
@@ -1156,6 +1156,36 @@ public class EntityManager
 
 	/***************************************
 	 * Queries a list of entities with a certain type that have a a global extra
+	 * attribute.The attributes value is not important.
+	 *
+	 * @param  rEntityClass       The class of the entity to query
+	 * @param  rExtraAttributeKey The extra attribute key to search for
+	 * @param  nMax               The maximum number of entities to read
+	 *
+	 * @return A collection of the distinct entities that have a matching extra
+	 *         attribute (may be empty but will never be NULL)
+	 *
+	 * @throws StorageException If the storage access fails
+	 */
+	public static <E extends Entity, T> Collection<E> queryEntitiesByExtraAttribute(
+		Class<E>		rEntityClass,
+		RelationType<T> rExtraAttributeKey,
+		int				nMax) throws StorageException
+	{
+		Predicate<Relatable> pExtraAttr =
+			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)));
+
+		addEntityPrefixPredicate(rEntityClass, pExtraAttr);
+
+		@SuppressWarnings("unchecked")
+		Collection<E> aEntities =
+			(Collection<E>) queryEntitiesByExtraAttribute(pExtraAttr, nMax);
+
+		return aEntities;
+	}
+
+	/***************************************
+	 * Queries a list of entities with a certain type that have a a global extra
 	 * attribute with the given key and value.
 	 *
 	 * @param  rEntityClass         The class of the entity to query
@@ -1181,13 +1211,7 @@ public class EntityManager
 			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)))
 									   .and(ExtraAttribute.VALUE.is(equalTo(sValue)));
 
-		if (rEntityClass != null)
-		{
-			String sIdPrefix = getEntityDefinition(rEntityClass).getIdPrefix();
-
-			pExtraAttr =
-				pExtraAttr.and(ExtraAttribute.ENTITY.is(like(sIdPrefix + "%")));
-		}
+		addEntityPrefixPredicate(rEntityClass, pExtraAttr);
 
 		@SuppressWarnings("unchecked")
 		Collection<E> aEntities =
@@ -2059,6 +2083,26 @@ public class EntityManager
 		}
 
 		aIdPrefixRegistry.put(sIdPrefix, rEntityClass);
+	}
+
+	/***************************************
+	 * Extends the given {@link Predicate} to also match the Entity-prefix if
+	 * the given entity class is not NULL.
+	 *
+	 * @param rEntityClass The entity class which prefix to match
+	 * @param pExtraAttr   The {@link Predicate} to extend.
+	 */
+	private static <E extends Entity> void addEntityPrefixPredicate(
+		Class<E>			 rEntityClass,
+		Predicate<Relatable> pExtraAttr)
+	{
+		if (rEntityClass != null)
+		{
+			String sIdPrefix = getEntityDefinition(rEntityClass).getIdPrefix();
+
+			pExtraAttr =
+				pExtraAttr.and(ExtraAttribute.ENTITY.is(like(sIdPrefix + "%")));
+		}
 	}
 
 	/***************************************
