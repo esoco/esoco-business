@@ -55,7 +55,6 @@ import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.greaterOrEqual;
 import static de.esoco.lib.expression.Predicates.greaterThan;
 import static de.esoco.lib.expression.Predicates.lessOrEqual;
-import static de.esoco.lib.expression.Predicates.not;
 
 import static de.esoco.storage.StoragePredicates.like;
 
@@ -270,7 +269,8 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 															ExtraAttribute.KEY
 															.is(equalTo(XA1))
 															.and(ExtraAttribute
-																 .VALUE.is(not(equalTo(null))))),
+																 .VALUE.is(elementOf("XA1-Test",
+																					 "XA2-Test")))),
 										10);
 
 		assertEquals(2, rEntities.size());
