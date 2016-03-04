@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
+import de.esoco.process.step.Interaction;
+import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -63,6 +66,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -101,9 +105,11 @@ import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
 import static de.esoco.lib.property.UserInterfaceProperties.WRAP;
 
 import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
+import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.IS_PANEL_ELEMENT;
 import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
@@ -113,6 +119,7 @@ import static de.esoco.process.ProcessRelationTypes.PROGRESS_INDICATOR_TEMPLATE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_MAXIMUM;
 import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
 
+import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newRelationType;
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 import static org.obrel.type.StandardTypes.MAXIMUM;
@@ -132,6 +139,11 @@ public abstract class ProcessFragment extends ProcessElement
 
 	private static final Set<PropertyName<?>> NON_MODIFYING_PROPERTIES =
 		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
+
+	//~ Instance fields --------------------------------------------------------
+
+	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
+		new LinkedHashMap<>();
 
 	//~ Static methods ---------------------------------------------------------
 
@@ -243,6 +255,20 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		setParameter(rPanelParam, rPanelContentParams);
 		setListDisplayMode(eDisplayMode, rPanelParam);
+
+		// mark the content parameter relations as panel elements so that they
+		// can be detected as subordinate parameters
+		for (RelationType<?> rContentParam : rPanelContentParams)
+		{
+			Relation<?> rParamRelation = getParameterRelation(rContentParam);
+
+			if (rParamRelation == null)
+			{
+				rParamRelation = setParameter(rContentParam, null);
+			}
+
+			rParamRelation.set(IS_PANEL_ELEMENT);
+		}
 	}
 
 	/***************************************
@@ -284,7 +310,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		addPanel(rPanelParam,
-				 bResizable ? ListDisplayMode.SPLIT : ListDisplayMode.PLAIN,
+				 bResizable ? ListDisplayMode.SPLIT : ListDisplayMode.DOCK,
 				 rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
@@ -397,6 +423,40 @@ public abstract class ProcessFragment extends ProcessElement
 		addPanel(rPanelParam,
 				 ListDisplayMode.STACK,
 				 Arrays.asList(rPanelContentParams));
+	}
+
+	/***************************************
+	 * Adds a subordinate fragment that handles a part of this interaction and
+	 * is displayed in a certain parameter. The fragment parameter will not be
+	 * added to the display parameters on this instance, this must be done
+	 * separately (e.g. with {@link #addDisplayParameters(RelationType...)} to
+	 * allow the invoking code to separate fragment creation from fragment
+	 * placement.
+	 *
+	 * @param rFragmentParam The interactive process parameter in which the
+	 *                       fragment will be displayed
+	 * @param rSubFragment   The fragment to add
+	 */
+	public void addSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam,
+		InteractionFragment					rSubFragment)
+	{
+		if (aSubFragments.containsKey(rFragmentParam))
+		{
+			InteractionFragment rPreviousFragment =
+				aSubFragments.remove(rFragmentParam);
+
+			rPreviousFragment.cleanup();
+		}
+
+		rSubFragment.attach((Interaction) getProcessStep(), rFragmentParam);
+		aSubFragments.put(rFragmentParam, rSubFragment);
+
+		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
+
+		// fragment parameters must be marked as input for fragments that
+		get(INPUT_PARAMS).add(rFragmentParam);
+		rSubFragment.markFragmentInputParams();
 	}
 
 	/***************************************
@@ -760,11 +820,14 @@ public abstract class ProcessFragment extends ProcessElement
 	@SuppressWarnings("unchecked")
 	public <T> Collection<T> getAllowedValues(RelationType<T> rParam)
 	{
-		// mark the parameter as modified because it is probable the the list
+		// mark the parameter as modified because it is probable the list
 		// is queried for modification
 		markParameterAsModified(rParam);
 
-		return (Collection<T>) getParameterRelation(rParam).get(ALLOWED_VALUES);
+		Relation<T> rRelation = getParameterRelation(rParam);
+
+		return rRelation != null ? (Collection<T>) rRelation.get(ALLOWED_VALUES)
+								 : null;
 	}
 
 	/***************************************
@@ -903,6 +966,20 @@ public abstract class ProcessFragment extends ProcessElement
 	public final Entity getProcessUser()
 	{
 		return getProcess().getProcessUser();
+	}
+
+	/***************************************
+	 * Returns the sub fragment that is associated with a certain fragment
+	 * parameter.
+	 *
+	 * @param  rFragmentParam The sub fragment parameter
+	 *
+	 * @return The sub fragment (NULL for none)
+	 */
+	public InteractionFragment getSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam)
+	{
+		return aSubFragments.get(rFragmentParam);
 	}
 
 	/***************************************
@@ -1952,7 +2029,7 @@ public abstract class ProcessFragment extends ProcessElement
 		String			 sResourceId,
 		Class<? super T> rElementType)
 	{
-		String sReleationTypeName = UUID.randomUUID().toString();
+		String sReleationTypeName = sResourceId + UUID.randomUUID().toString();
 
 		RelationType<List<T>> rTemporaryListType =
 			getTemporaryListType(sReleationTypeName, rElementType);
@@ -1978,7 +2055,8 @@ public abstract class ProcessFragment extends ProcessElement
 		String			 sResourceId,
 		Class<? super T> rDatatype)
 	{
-		String		    sRelationTypeName	    = UUID.randomUUID().toString();
+		String sRelationTypeName = sResourceId + UUID.randomUUID().toString();
+
 		RelationType<T> rTemporaryParameterType =
 			getTemporaryParameterType(sRelationTypeName, rDatatype);
 
@@ -2010,11 +2088,22 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Returns the subordinate fragments of this instance.
+	 *
+	 * @return The subordinate fragments
+	 */
+	protected final Collection<InteractionFragment> getSubFragments()
+	{
+		return aSubFragments.values();
+	}
+
+	/***************************************
 	 * Returns a temporary parameter relation type that references a list with a
-	 * certain element datatype.
+	 * certain element datatype. The parameter will have an empty list as it's
+	 * initial value.
 	 *
 	 * @param  sName        The name of the parameter
-	 * @param  rElementType The collection element datatype
+	 * @param  rElementType The list element datatype
 	 *
 	 * @return The temporary list parameter type
 	 *
@@ -2024,12 +2113,63 @@ public abstract class ProcessFragment extends ProcessElement
 		String			 sName,
 		Class<? super T> rElementType)
 	{
-		RelationType<List<T>> rParam =
-			getTemporaryParameterType(sName, List.class);
+		sName = getTemporaryParameterName(sName);
 
-		rParam.set(ELEMENT_DATATYPE, rElementType);
+		@SuppressWarnings("unchecked")
+		RelationType<List<T>> rParam =
+			(RelationType<List<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newListType(sName, rElementType);
+
+			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
+		}
+		else
+		{
+			assert rParam.getTargetType() == List.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
+		}
 
 		return rParam;
+	}
+
+	/***************************************
+	 * Returns the name for a temporary parameter relation type that is derived
+	 * from a certain base name. The name will be local to the current fragment.
+	 *
+	 * @param  sBaseName The temporary parameter base name
+	 *
+	 * @return The temporary parameter name
+	 */
+	protected String getTemporaryParameterName(String sBaseName)
+	{
+		sBaseName =
+			TextConvert.uppercaseIdentifier(sBaseName).replaceAll("[.-]", "_");
+
+		if (Character.isDigit(sBaseName.charAt(0)))
+		{
+			sBaseName = "_" + sBaseName;
+		}
+
+		sBaseName = getTemporaryParameterPackage() + "." + sBaseName;
+
+		return sBaseName;
+	}
+
+	/***************************************
+	 * Returns the package name for temporary parameter types created by the
+	 * method {@link #getTemporaryParameterType(String, Class)}. Subclasses may
+	 * override this method to modify the default which creates a package name
+	 * that is unique for the current process instance (but will be shared by
+	 * all process steps). The package name must be returned without leading or
+	 * trailing dots.
+	 *
+	 * @return The package name for temporary parameter types
+	 */
+	protected String getTemporaryParameterPackage()
+	{
+		return "process" + getProcess().getId();
 	}
 
 	/***************************************
@@ -2052,15 +2192,7 @@ public abstract class ProcessFragment extends ProcessElement
 		String			 sName,
 		Class<? super T> rDatatype)
 	{
-		sName = TextConvert.uppercaseIdentifier(sName).replaceAll("[.-]", "_");
-
-		if (Character.isDigit(sName.charAt(0)))
-		{
-			sName = "_" + sName;
-		}
-
-		// add process ID to make the parameter unique for the process instance
-		sName = "tmp" + getProcess().getId() + "." + sName;
+		sName = getTemporaryParameterName(sName);
 
 		@SuppressWarnings("unchecked")
 		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);
@@ -2068,6 +2200,7 @@ public abstract class ProcessFragment extends ProcessElement
 		if (rParam == null)
 		{
 			rParam = newRelationType(sName, rDatatype);
+
 			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
 		}
 		else
@@ -2294,17 +2427,22 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (rAllowedValues == null || rAllowedValues.size() == 0)
 		{
-			Class<?> rDatatype = rParam.getTargetType();
+			rAllowedValues = (Collection<E>) getAllowedValues(rParam);
 
-			if (Collection.class.isAssignableFrom(rDatatype))
+			if (rAllowedValues == null || rAllowedValues.size() == 0)
 			{
-				rDatatype = rParam.get(ELEMENT_DATATYPE);
-			}
+				Class<?> rDatatype = rParam.getTargetType();
 
-			if (rDatatype.isEnum())
-			{
-				rAllowedValues =
-					Arrays.asList((E[]) rDatatype.getEnumConstants());
+				if (Collection.class.isAssignableFrom(rDatatype))
+				{
+					rDatatype = rParam.get(ELEMENT_DATATYPE);
+				}
+
+				if (rDatatype.isEnum())
+				{
+					rAllowedValues =
+						Arrays.asList((E[]) rDatatype.getEnumConstants());
+				}
 			}
 		}
 

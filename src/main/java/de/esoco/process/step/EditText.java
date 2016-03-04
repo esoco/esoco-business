@@ -256,7 +256,7 @@ public class EditText extends InteractionFragment
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());
-		setListDisplayMode(ListDisplayMode.PLAIN, getFragmentParameter());
+		setListDisplayMode(ListDisplayMode.DOCK, getFragmentParameter());
 
 		setEditInfo("");
 		stopEditing(null);

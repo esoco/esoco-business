@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.step.InteractionEvent.EventType;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,50 +68,22 @@ public class Interaction extends RollbackStep
 
 	//~ Instance fields --------------------------------------------------------
 
-	private List<InteractionFragment> aFragments =
-		new ArrayList<InteractionFragment>();
-
 	private Map<RelationType<?>, InteractionHandler> aParamInteractionHandlers;
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a fragment that handles a part of this interaction and is displayed
-	 * in a certain parameter.
+	 * Replaced by {@link #addSubFragment(RelationType, InteractionFragment)}.
 	 *
-	 * @param  rFragmentParam The interactive process parameter in which the
-	 *                        fragment shall be displayed
-	 * @param  rFragment      The fragment to add
-	 *
-	 * @return Returns the input fragment to allow easy assignment of the
-	 *         fragment after creation
+	 * @see        #addSubFragment(RelationType, InteractionFragment)
+	 * @deprecated
 	 */
-	public <F extends InteractionFragment> F addFragment(
+	@Deprecated
+	public <F extends InteractionFragment> void addFragment(
 		RelationType<List<RelationType<?>>> rFragmentParam,
 		F									rFragment)
 	{
-		Iterator<InteractionFragment> rFragmentIterator = aFragments.iterator();
-
-		// prevent duplicate fragment entries
-		while (rFragmentIterator.hasNext())
-		{
-			InteractionFragment rExistingFragment = rFragmentIterator.next();
-
-			if (rExistingFragment.getClass() == rFragment.getClass())
-			{
-				rFragmentIterator.remove();
-			}
-		}
-
-		addFragment(rFragment);
-		rFragment.setFragmentParam(rFragmentParam);
-		rFragment.setup();
-
-		setParameter(rFragmentParam, rFragment.getInteractionParameters());
-		markInputParams(true, rFragmentParam);
-		rFragment.markFragmentInputParams();
-
-		return rFragment;
+		addSubFragment(rFragmentParam, rFragment);
 	}
 
 	/***************************************
@@ -203,7 +174,7 @@ public class Interaction extends RollbackStep
 	@Override
 	protected void abort() throws Exception
 	{
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			rFragment.abortFragment();
 		}
@@ -217,7 +188,7 @@ public class Interaction extends RollbackStep
 	@Override
 	protected boolean canRollback()
 	{
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			if (!rFragment.canRollback())
 			{
@@ -234,7 +205,7 @@ public class Interaction extends RollbackStep
 	@Override
 	protected void cleanup()
 	{
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			rFragment.cleanup();
 		}
@@ -260,14 +231,12 @@ public class Interaction extends RollbackStep
 	 */
 	protected Collection<InteractionFragment> getFragments()
 	{
-		return aFragments;
+		return getSubFragments();
 	}
 
 	/***************************************
-	 * Handles any interactions that may occur in one of the fragments that have
-	 * been registered through {@link #addFragment(InteractionFragment)}. This
-	 * method should be invoked from the {@link #execute()} method of a
-	 * subclass.
+	 * Handles any interactions that may occur in a sub-fragment. This method
+	 * should be invoked from the {@link #execute()} method of a subclass.
 	 *
 	 * @param  rInteractionParam The interaction parameter
 	 *
@@ -276,7 +245,7 @@ public class Interaction extends RollbackStep
 	protected void handleFragmentInteractions(RelationType<?> rInteractionParam)
 		throws Exception
 	{
-		Iterator<InteractionFragment> rIterator = aFragments.iterator();
+		Iterator<InteractionFragment> rIterator = getSubFragments().iterator();
 		InteractionFragment			  rFragment = null;
 
 		InteractionHandler rInteractionHandler =
@@ -315,14 +284,13 @@ public class Interaction extends RollbackStep
 	}
 
 	/***************************************
-	 * Initializes all fragments that have been added to this instance through
-	 * {@link #addFragment(InteractionFragment)}.
+	 * Initializes all sub-fragments.
 	 *
 	 * @throws Exception If an error occurs
 	 */
 	protected void initFragments() throws Exception
 	{
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			rFragment.initFragment();
 		}
@@ -347,7 +315,7 @@ public class Interaction extends RollbackStep
 		if (rInteractionParam == null ||
 			get(CONTINUATION_PARAMS).contains(rInteractionParam))
 		{
-			for (InteractionFragment rFragment : aFragments)
+			for (InteractionFragment rFragment : getSubFragments())
 			{
 				rFragment.finishFragment();
 			}
@@ -357,7 +325,7 @@ public class Interaction extends RollbackStep
 
 		if (rInteractionParam != null)
 		{
-			for (InteractionFragment rFragment : aFragments)
+			for (InteractionFragment rFragment : getSubFragments())
 			{
 				rFragment.afterFragmentInteraction(rInteractionParam);
 			}
@@ -374,7 +342,7 @@ public class Interaction extends RollbackStep
 	{
 		RelationType<?> rContinuationParam = getParameter(CONTINUATION_PARAM);
 
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			InteractionFragment rContinuationFragment =
 				rFragment.getContinuationFragment(rContinuationParam);
@@ -404,8 +372,7 @@ public class Interaction extends RollbackStep
 	}
 
 	/***************************************
-	 * Prepares the interactions of all fragments that have been added to this
-	 * instance through {@link #addFragment(InteractionFragment)}.
+	 * Prepares the interactions of all sub-fragments.
 	 *
 	 * @throws Exception If an error occurs
 	 */
@@ -413,7 +380,7 @@ public class Interaction extends RollbackStep
 	{
 		setParameter(CONTINUATION_FRAGMENT_CLASS, null);
 
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			rFragment.prepareFragmentInteraction();
 		}
@@ -433,30 +400,28 @@ public class Interaction extends RollbackStep
 	}
 
 	/***************************************
-	 * Removes all fragments that have been added to this instance through
-	 * {@link #addFragment(RelationType, InteractionFragment)}.
+	 * Removes all sub-fragments.
 	 */
 	protected void removeAllFragments()
 	{
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			removeInteractionParameters(rFragment.getInteractionParameters());
 			rFragment.setProcessStep(null);
 		}
 
-		aFragments.clear();
+		getSubFragments().clear();
 	}
 
 	/***************************************
-	 * Removes a certain fragment that has been added to this instance through
-	 * {@link #addFragment(RelationType, InteractionFragment)}.
+	 * Removes a certain sub-fragment.
 	 *
 	 * @param rFragment The fragment to remove
 	 */
 	protected void removeFragment(InteractionFragment rFragment)
 	{
 		removeInteractionParameters(rFragment.getInteractionParameters());
-		aFragments.remove(rFragment);
+		getSubFragments().remove(rFragment);
 		rFragment.setProcessStep(null);
 	}
 
@@ -466,7 +431,7 @@ public class Interaction extends RollbackStep
 	@Override
 	protected void rollback() throws Exception
 	{
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			rFragment.rollbackFragment();
 		}
@@ -487,8 +452,7 @@ public class Interaction extends RollbackStep
 	}
 
 	/***************************************
-	 * Overridden to also validate the parameters of fragments that have been
-	 * registered with {@link #addFragment(RelationType, InteractionFragment)}.
+	 * Overridden to also validate the parameters of sub-fragments.
 	 *
 	 * @see RollbackStep#validateParameters(boolean)
 	 */
@@ -499,24 +463,12 @@ public class Interaction extends RollbackStep
 		Map<RelationType<?>, String> rValidationErrors =
 			super.validateParameters(bOnInteraction);
 
-		for (InteractionFragment rFragment : aFragments)
+		for (InteractionFragment rFragment : getSubFragments())
 		{
 			rValidationErrors.putAll(rFragment.validateFragmentParameters(bOnInteraction));
 		}
 
 		return rValidationErrors;
-	}
-
-	/***************************************
-	 * Internal method that adds a fragment that handles a part of this
-	 * interaction.
-	 *
-	 * @param rFragment The fragment to add
-	 */
-	void addFragment(InteractionFragment rFragment)
-	{
-		rFragment.setProcessStep(this);
-		aFragments.add(rFragment);
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

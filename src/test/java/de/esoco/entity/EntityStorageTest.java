@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityPredicates.ifAttribute;
+import static de.esoco.entity.EntityPredicates.ifHasExtraAttribute;
 import static de.esoco.entity.ExtraAttributes.newExtraAttribute;
 import static de.esoco.entity.TestContact.CONTACT_VALUE;
 import static de.esoco.entity.TestPerson.AGE;
@@ -248,6 +249,47 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 														Integer.MAX_VALUE);
 
 		assertEquals(2, rEntities.size());
+	}
+
+	/***************************************
+	 * Test of storing, updating and accessing extra entity attributes.
+	 *
+	 * @throws StorageException
+	 * @throws TransactionException
+	 */
+	@Test
+	public void testExtraAttributeReference() throws StorageException,
+													 TransactionException
+	{
+		setupExtraAttributes();
+
+		List<TestPerson> rEntities =
+			EntityManager.queryEntities(TestPerson.class,
+										ifHasExtraAttribute(TestPerson.class,
+															ExtraAttribute.KEY
+															.is(equalTo(XA1))
+															.and(ExtraAttribute
+																 .VALUE.is(elementOf("XA1-Test",
+																					 "XA2-Test")))),
+										10);
+
+		assertEquals(2, rEntities.size());
+
+		rEntities =
+			EntityManager.queryEntities(TestPerson.class,
+										ifHasExtraAttribute(TestPerson.class,
+															ExtraAttribute.VALUE
+															.is(like("%-Test"))),
+										10);
+		assertEquals(2, rEntities.size());
+
+		rEntities =
+			EntityManager.queryEntities(TestPerson.class,
+										ifHasExtraAttribute(TestPerson.class,
+															ExtraAttribute.VALUE
+															.is(equalTo("42"))),
+										10);
+		assertEquals(1, rEntities.size());
 	}
 
 	/***************************************
