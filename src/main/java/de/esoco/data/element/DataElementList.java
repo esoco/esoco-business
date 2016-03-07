@@ -39,7 +39,10 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	/********************************************************************
 	 * Enumeration of the display modes for data element lists.
 	 */
-	public enum ListDisplayMode { GRID, FLOW, FILL, DOCK, SPLIT, TABS, STACK }
+	public enum ListDisplayMode
+	{
+		GRID, FLOW, FILL, DOCK, SPLIT, TABS, STACK, FORM
+	}
 
 	/********************************************************************
 	 * Enumeration of the style for displaying data element lists in separate
