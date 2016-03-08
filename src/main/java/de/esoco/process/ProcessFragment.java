@@ -66,6 +66,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +110,6 @@ import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
-import static de.esoco.process.ProcessRelationTypes.IS_PANEL_ELEMENT;
 import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
@@ -141,6 +141,8 @@ public abstract class ProcessFragment extends ProcessElement
 		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
 
 	//~ Instance fields --------------------------------------------------------
+
+	private Collection<RelationType<?>> aPanelParameters;
 
 	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
 		new LinkedHashMap<>();
@@ -256,19 +258,14 @@ public abstract class ProcessFragment extends ProcessElement
 		setParameter(rPanelParam, rPanelContentParams);
 		setListDisplayMode(eDisplayMode, rPanelParam);
 
-		// mark the content parameter relations as panel elements so that they
-		// can be detected as subordinate parameters
-		for (RelationType<?> rContentParam : rPanelContentParams)
+		if (aPanelParameters == null)
 		{
-			Relation<?> rParamRelation = getParameterRelation(rContentParam);
-
-			if (rParamRelation == null)
-			{
-				rParamRelation = setParameter(rContentParam, null);
-			}
-
-			rParamRelation.set(IS_PANEL_ELEMENT);
+			aPanelParameters = new HashSet<>();
 		}
+
+		// mark the content parameters as panel elements so that they
+		// can be detected as subordinate parameters
+		aPanelParameters.addAll(rPanelContentParams);
 	}
 
 	/***************************************
@@ -1273,6 +1270,24 @@ public abstract class ProcessFragment extends ProcessElement
 				getParameterRelation(rParam).deleteRelation(DISPLAY_PROPERTIES);
 			}
 		}
+	}
+
+	/***************************************
+	 * Removes all parameters for a panel parameter that had previously been
+	 * added through {@link #addPanel(RelationType, ListDisplayMode, List)}.
+	 *
+	 * @param rPanelParam The parameter of the panel to remove
+	 */
+	public void removePanel(RelationType<List<RelationType<?>>> rPanelParam)
+	{
+		List<RelationType<?>> rPanelElements = getParameter(rPanelParam);
+
+		if (rPanelElements != null)
+		{
+			aPanelParameters.removeAll(rPanelElements);
+		}
+
+		deleteParameters(rPanelParam);
 	}
 
 	/***************************************
@@ -2299,6 +2314,19 @@ public abstract class ProcessFragment extends ProcessElement
 						  checkParameter(PROGRESS_MAXIMUM));
 
 		setUIProperty(CONTENT_TYPE, ContentType.PROGRESS, PROGRESS);
+	}
+
+	/***************************************
+	 * Checks whether a certain parameter is contained in a subordinate
+	 * parameter list of a panel instead of directly in this fragment.
+	 *
+	 * @param  rParam The parameter relation type to check
+	 *
+	 * @return TRUE if the given parameter is an element of a panel
+	 */
+	protected boolean isPanelParameter(RelationType<?> rParam)
+	{
+		return aPanelParameters.contains(rParam);
 	}
 
 	/***************************************

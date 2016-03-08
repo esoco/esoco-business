@@ -484,11 +484,6 @@ public class ProcessRelationTypes
 	 */
 	public static final RelationType<String> DUMMY_PARAMETER = newType();
 
-	/**
-	 * A flag that marks parameters that belong to a panel in an interaction.
-	 */
-	public static final RelationType<Boolean> IS_PANEL_ELEMENT = newFlagType();
-
 	static
 	{
 		RelationTypes.init(ProcessRelationTypes.class);
