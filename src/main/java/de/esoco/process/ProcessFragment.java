@@ -2326,7 +2326,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected boolean isPanelParameter(RelationType<?> rParam)
 	{
-		return aPanelParameters.contains(rParam);
+		return aPanelParameters != null && aPanelParameters.contains(rParam);
 	}
 
 	/***************************************
