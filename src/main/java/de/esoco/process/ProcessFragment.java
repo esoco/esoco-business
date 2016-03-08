@@ -2455,9 +2455,10 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (rAllowedValues == null || rAllowedValues.size() == 0)
 		{
-			rAllowedValues = (Collection<E>) getAllowedValues(rParam);
+			Collection<E> rExistingValues =
+				(Collection<E>) getAllowedValues(rParam);
 
-			if (rAllowedValues == null || rAllowedValues.size() == 0)
+			if (rExistingValues == null || rExistingValues.size() == 0)
 			{
 				Class<?> rDatatype = rParam.getTargetType();
 
