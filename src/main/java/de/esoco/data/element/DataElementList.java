@@ -41,7 +41,7 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 */
 	public enum ListDisplayMode
 	{
-		GRID, FLOW, FILL, DOCK, SPLIT, TABS, STACK, FORM
+		GRID, FLOW, FILL, DOCK, SPLIT, TABS, STACK, FORM, GROUP
 	}
 
 	/********************************************************************
