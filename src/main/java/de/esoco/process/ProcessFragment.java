@@ -2473,6 +2473,10 @@ public abstract class ProcessFragment extends ProcessElement
 						Arrays.asList((E[]) rDatatype.getEnumConstants());
 				}
 			}
+			else
+			{
+				rAllowedValues = rExistingValues;
+			}
 		}
 
 		annotateParameter(rParam, rIntialValue, ALLOWED_VALUES, rAllowedValues);
