@@ -137,9 +137,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * Must be implemented to initialize the interaction parameters of this
-	 * fragment. This method will be invoked before the interaction parameters
-	 * are queried from the fragment. This allows implementations to modify the
-	 * parameter list based on the process state.
+	 * fragment.
 	 *
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
