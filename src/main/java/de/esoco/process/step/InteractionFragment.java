@@ -428,7 +428,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public ParameterList fragmentParam()
 	{
 		return new ParameterList(rParent != null ? rParent : this,
-								 getFragmentParameter());
+								 getFragmentParameter(),
+								 false);
 	}
 
 	/***************************************
@@ -759,7 +760,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rListType =
 			getTemporaryListType(sName, RelationType.class);
 
-		return new ParameterList(this, rListType);
+		return new ParameterList(this, rListType, true);
 	}
 
 	/***************************************
