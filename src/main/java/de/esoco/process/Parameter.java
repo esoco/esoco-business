@@ -145,12 +145,20 @@ public class Parameter<T>
 	 * values. This will also add this parameter as an input parameter to the
 	 * fragment.
 	 *
+	 * @param  rAllowedValues Optionally the allowed values for this parameter
+	 *                        (NULL or empty for the default)
+	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> buttons()
+	public final Parameter<T> buttons(T... rAllowedValues)
 	{
 		interactive(ListStyle.IMMEDIATE);
 		hideLabel();
+
+		if (rAllowedValues != null && rAllowedValues.length > 0)
+		{
+			allow(rAllowedValues);
+		}
 
 		set(rFragment.getAllowedValues(rParamType).size(),
 			UserInterfaceProperties.COLUMNS);

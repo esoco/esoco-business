@@ -258,14 +258,9 @@ public abstract class ProcessFragment extends ProcessElement
 		setParameter(rPanelParam, rPanelContentParams);
 		setListDisplayMode(eDisplayMode, rPanelParam);
 
-		if (aPanelParameters == null)
-		{
-			aPanelParameters = new HashSet<>();
-		}
-
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
-		aPanelParameters.addAll(rPanelContentParams);
+		addPanelParameters(rPanelContentParams);
 	}
 
 	/***************************************
@@ -1925,6 +1920,21 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @return The process step of this fragment
 	 */
 	protected abstract ProcessStep getProcessStep();
+
+	/***************************************
+	 * Marks a parameter as an element of a subordinate panel in this fragment.
+	 *
+	 * @param rPanelParams The parameters to mark as panel elements
+	 */
+	protected void addPanelParameters(Collection<RelationType<?>> rPanelParams)
+	{
+		if (aPanelParameters == null)
+		{
+			aPanelParameters = new HashSet<>();
+		}
+
+		aPanelParameters.addAll(rPanelParams);
+	}
 
 	/***************************************
 	 * Stores the value of a derived process parameter under the original

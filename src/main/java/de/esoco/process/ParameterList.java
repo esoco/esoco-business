@@ -34,30 +34,54 @@ import org.obrel.core.RelationType;
  */
 public class ParameterList extends Parameter<List<RelationType<?>>>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private boolean		   bIsPanel;
+	private Parameter<?>[] rLastAddedParams;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Creates a new instance.
+	 *
+	 * @param rFragment  The fragment to handle the parameter for
+	 * @param rParamType The parameter relation type to handle
+	 * @param bIsPanel   TRUE if this parameter represents a subordinate panel
+	 *                   of it's fragment
 	 */
-	public ParameterList(
-		InteractionFragment					rFragment,
-		RelationType<List<RelationType<?>>> rParamType)
+	public ParameterList(InteractionFragment				 rFragment,
+						 RelationType<List<RelationType<?>>> rParamType,
+						 boolean							 bIsPanel)
 	{
 		super(rFragment, rParamType);
+
+		this.bIsPanel = bIsPanel;
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a certain parameter to this list.
+	 * Adds certain parameters to this list.
 	 *
-	 * @param  rParam The parameter to add
+	 * @param  rParams The parameters to add
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList add(Parameter<?> rParam)
+	public ParameterList add(Parameter<?>... rParams)
 	{
-		fragment().getParameter(type()).add(rParam.type());
+		rLastAddedParams = rParams;
+
+		for (Parameter<?> rParam : rParams)
+		{
+			RelationType<?> rParamType = rParam.type();
+
+			value().add(rParamType);
+
+			if (bIsPanel)
+			{
+				fragment().addPanelParameters(ProcessElement.params(rParamType));
+			}
+		}
 
 		return this;
 	}
@@ -75,6 +99,20 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	}
 
 	/***************************************
+	 * Sets the list display mode to display this parameter list with.
+	 *
+	 * @param  eMode The list display mode
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList as(ListDisplayMode eMode)
+	{
+		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+
+		return this;
+	}
+
+	/***************************************
 	 * Overridden to return a {@link ParameterList}.
 	 *
 	 * @see Parameter#display()
@@ -88,15 +126,20 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	}
 
 	/***************************************
-	 * Sets the list display mode to display this parameter list with.
-	 *
-	 * @param  eMode The list display mode
+	 * Marks the parameters that have been added to this parameter's fragment
+	 * with the last call to {@link #add(Parameter...)} for input.
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(ListDisplayMode eMode)
+	public ParameterList forInput()
 	{
-		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+		if (rLastAddedParams != null)
+		{
+			for (Parameter<?> rParam : rLastAddedParams)
+			{
+				rParam.input();
+			}
+		}
 
 		return this;
 	}
