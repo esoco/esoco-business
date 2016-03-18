@@ -1,18 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//	  http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// esoco-business source file
+// Copyright (c) 2016 by Elmar Sonnenschein / esoco GmbH
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
@@ -1175,7 +1163,7 @@ public class EntityManager
 		Predicate<Relatable> pExtraAttr =
 			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)));
 
-		addEntityPrefixPredicate(rEntityClass, pExtraAttr);
+		pExtraAttr = addEntityPrefixPredicate(rEntityClass, pExtraAttr);
 
 		@SuppressWarnings("unchecked")
 		Collection<E> aEntities =
@@ -1211,7 +1199,7 @@ public class EntityManager
 			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)))
 									   .and(ExtraAttribute.VALUE.is(equalTo(sValue)));
 
-		addEntityPrefixPredicate(rEntityClass, pExtraAttr);
+		pExtraAttr = addEntityPrefixPredicate(rEntityClass, pExtraAttr);
 
 		@SuppressWarnings("unchecked")
 		Collection<E> aEntities =
@@ -2089,10 +2077,12 @@ public class EntityManager
 	 * Extends the given {@link Predicate} to also match the Entity-prefix if
 	 * the given entity class is not NULL.
 	 *
-	 * @param rEntityClass The entity class which prefix to match
-	 * @param pExtraAttr   The {@link Predicate} to extend.
+	 * @param  rEntityClass The entity class which prefix to match
+	 * @param  pExtraAttr   The {@link Predicate} to extend.
+	 *
+	 * @return The extended {@link Predicate}
 	 */
-	private static <E extends Entity> void addEntityPrefixPredicate(
+	private static <E extends Entity> Predicate<Relatable> addEntityPrefixPredicate(
 		Class<E>			 rEntityClass,
 		Predicate<Relatable> pExtraAttr)
 	{
@@ -2103,6 +2093,8 @@ public class EntityManager
 			pExtraAttr =
 				pExtraAttr.and(ExtraAttribute.ENTITY.is(like(sIdPrefix + "%")));
 		}
+
+		return pExtraAttr;
 	}
 
 	/***************************************
