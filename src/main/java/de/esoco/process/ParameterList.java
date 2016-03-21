@@ -95,7 +95,10 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	 */
 	public ParameterList add(InteractionFragment rSubFragment)
 	{
-		return add(fragment().addSubFragment(rSubFragment));
+		return add(fragment().addSubFragment(rSubFragment.getClass()
+											 .getSimpleName(),
+											 rSubFragment,
+											 !bIsPanel));
 	}
 
 	/***************************************

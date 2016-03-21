@@ -230,19 +230,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Adds a subordinate fragment to this instance into a temporary parameter.
-	 * The temporary parameter relation type will be created with the given name
-	 * by invoking {@link #listParam(String, Class)} and the parameter wrapper
-	 * will be returned. The fragment will be added by invoking {@link
-	 * #addSubFragment(RelationType, InteractionFragment)}. Furthermore the UI
-	 * property {@link UserInterfaceProperties#HIDE_LABEL} will be set on the
-	 * new fragment parameter because fragments are typically displayed without
-	 * a label.
+	 * Adds a subordinate fragment to this instance into a temporary parameter
+	 * and directly displays it.
 	 *
-	 * @param  sName        The name of the temporary fragment parameter
-	 * @param  rSubFragment The fragment to add
-	 *
-	 * @return The wrapper for the fragment parameter
+	 * @see #addSubFragment(String, InteractionFragment, boolean)
 	 */
 	public Parameter<List<RelationType<?>>> addSubFragment(
 		String				sName,
@@ -253,7 +244,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		addSubFragment(rSubFragmentParam.type(), rSubFragment);
 
-		return rSubFragmentParam.hideLabel();
+		return addSubFragment(sName, rSubFragment, true);
 	}
 
 	/***************************************
@@ -271,6 +262,41 @@ public abstract class InteractionFragment extends ProcessFragment
 		rSubFragment.rParent = this;
 
 		super.addSubFragment(rFragmentParam, rSubFragment);
+	}
+
+	/***************************************
+	 * Adds a subordinate fragment to this instance into a temporary parameter
+	 * and optionally displays it. The temporary parameter relation type will be
+	 * created with the given name by invoking {@link #listParam(String, Class)}
+	 * and the parameter wrapper will be returned. The fragment will be added by
+	 * invoking {@link #addSubFragment(RelationType, InteractionFragment)}.
+	 * Furthermore the UI property {@link UserInterfaceProperties#HIDE_LABEL}
+	 * will be set on the new fragment parameter because fragments are typically
+	 * displayed without a label.
+	 *
+	 * @param  sName        The name of the temporary fragment parameter
+	 * @param  rSubFragment The fragment to add
+	 * @param  bDisplay     TRUE to invoke {@link Parameter#display()} on the
+	 *                      new fragment parameter
+	 *
+	 * @return The wrapper for the fragment parameter
+	 */
+	public Parameter<List<RelationType<?>>> addSubFragment(
+		String				sName,
+		InteractionFragment rSubFragment,
+		boolean				bDisplay)
+	{
+		Parameter<List<RelationType<?>>> rSubFragmentParam =
+			listParam(sName, RelationType.class);
+
+		addSubFragment(rSubFragmentParam.type(), rSubFragment);
+
+		if (bDisplay)
+		{
+			rSubFragmentParam.display();
+		}
+
+		return rSubFragmentParam.hideLabel();
 	}
 
 	/***************************************

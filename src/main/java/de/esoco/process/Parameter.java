@@ -150,6 +150,7 @@ public class Parameter<T>
 	 *
 	 * @return This instance for concatenation
 	 */
+	@SafeVarargs
 	public final Parameter<T> buttons(T... rAllowedValues)
 	{
 		interactive(ListStyle.IMMEDIATE);
