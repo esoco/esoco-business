@@ -891,11 +891,11 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rFragmentParam,
 		InteractionFragment					rSubFragment)
 	{
-		deleteParameters(rFragmentParam);
-
 		get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
 		get(INPUT_PARAMS).remove(rFragmentParam);
+		getInteractionParameters().remove(rFragmentParam);
 		getSubFragments().remove(rSubFragment);
+		deleteParameters(rFragmentParam);
 		rSubFragment.setProcessStep(null);
 
 		rSubFragment.rParent = null;
