@@ -161,8 +161,12 @@ public class Parameter<T>
 			allow(rAllowedValues);
 		}
 
-		set(rFragment.getAllowedValues(rParamType).size(),
-			UserInterfaceProperties.COLUMNS);
+		int nValueCount = rFragment.getAllowedValues(rParamType).size();
+
+		if (nValueCount > 0)
+		{
+			set(nValueCount, UserInterfaceProperties.COLUMNS);
+		}
 
 		return this;
 	}
