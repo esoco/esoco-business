@@ -42,6 +42,7 @@ import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
+import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -113,6 +114,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	//~ Instance fields --------------------------------------------------------
 
 	private int nFragmentId = nNextFragmentId++;
+
+	private boolean bInitialized = false;
 
 	private Interaction						    rProcessStep;
 	private InteractionFragment				    rParent;
@@ -257,6 +260,20 @@ public abstract class InteractionFragment extends ProcessFragment
 		rSubFragment.rParent = this;
 
 		super.addSubFragment(rFragmentParam, rSubFragment);
+
+		if (bInitialized)
+		{
+			// if a fragment is added after initialization of the parent has
+			// already completed it's init() method needs to be invoked too
+			try
+			{
+				rSubFragment.init();
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeProcessException(rSubFragment, e);
+			}
+		}
 	}
 
 	/***************************************
@@ -1646,6 +1663,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		markFragmentInputParams();
+		bInitialized = true;
 	}
 
 	/***************************************
