@@ -1497,6 +1497,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		abort();
+		bInitialized = false;
 	}
 
 	/***************************************
