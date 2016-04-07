@@ -303,7 +303,7 @@ public class Parameter<T>
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT} which
 	 * defines the table cell height in a panel with a {@link
-	 * ListDisplayMode#GRID GRID} layout.
+	 * ListDisplayMode#TABLE GRID} layout.
 	 *
 	 * @param  sHeight The HTML height string
 	 *
@@ -317,7 +317,7 @@ public class Parameter<T>
 	/***************************************
 	 * Sets the UI properties {@link UserInterfaceProperties#HTML_WIDTH} and
 	 * {@link UserInterfaceProperties#HTML_HEIGHT} which defines the table cell
-	 * size in a panel with a {@link ListDisplayMode#GRID GRID} layout.
+	 * size in a panel with a {@link ListDisplayMode#TABLE GRID} layout.
 	 *
 	 * @param  sWidth  The HTML width string
 	 * @param  sHeight The HTML height string
@@ -332,7 +332,7 @@ public class Parameter<T>
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH} which
 	 * defines the table cell width in a panel with a {@link
-	 * ListDisplayMode#GRID GRID} layout.
+	 * ListDisplayMode#TABLE GRID} layout.
 	 *
 	 * @param  sWidth The HTML width string
 	 *

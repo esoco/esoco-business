@@ -42,11 +42,8 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * possible values are:
 	 *
 	 * <ul>
-	 *   <li>{@link #GRID}: A regular grid structure (HTML: table).</li>
-	 *   <li>{@link #FLOW}: UI elements flow in the natural order defined by the
-	 *     UI context (HTML: div).</li>
-	 *   <li>{@link #FILL}: A single UI elements fills the available area (HTML:
-	 *     div with 100% size).</li>
+	 *   <li>{@link #TABLE}: Data elements are placed in the cells of a
+	 *     table-like structure (HTML: table).</li>
 	 *   <li>{@link #DOCK}: Elements are arranged arround the edges of a center
 	 *     element (HTML: divs with the center at 100% size). The size and
 	 *     orientation (horizontal or vertical) of the surrounding must be set
@@ -59,6 +56,10 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 *     of collapsing stacks for each element child.</li>
 	 *   <li>{@link #DECK}: Like {@link #TABS} but without an UI for selecting
 	 *     child elements. Selection must occur programmatically.</li>
+	 *   <li>{@link #FILL}: A single UI elements fills the available area (HTML:
+	 *     div with 100% size).</li>
+	 *   <li>{@link #FLOW}: UI elements flow in the natural order defined by the
+	 *     UI context (HTML: div).</li>
 	 *   <li>{@link #FORM}: Arranges data elements as an input form (HTML:
 	 *     form).</li>
 	 *   <li>{@link #GROUP}: Arranges data elements in a distinctive group
@@ -67,7 +68,7 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 */
 	public enum ListDisplayMode
 	{
-		GRID, FLOW, FILL, DOCK, SPLIT, TABS, STACK, DECK, FORM, GROUP
+		TABLE, DOCK, SPLIT, TABS, STACK, DECK, FILL, FLOW, FORM, GROUP
 	}
 
 	/********************************************************************

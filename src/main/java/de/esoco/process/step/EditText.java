@@ -252,7 +252,7 @@ public class EditText extends InteractionFragment
 		setUIProperty(STYLE, "EditTextValue", rValueParam);
 		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
 
-		addPanel(aActionPanelParam, ListDisplayMode.GRID, aActionPanelParams);
+		addPanel(aActionPanelParam, ListDisplayMode.TABLE, aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());
