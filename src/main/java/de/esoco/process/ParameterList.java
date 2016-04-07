@@ -146,4 +146,17 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 
 		return this;
 	}
+
+	/***************************************
+	 * Overridden to return a {@link ParameterList}.
+	 *
+	 * @see Parameter#input()
+	 */
+	@Override
+	public ParameterList input()
+	{
+		super.input();
+
+		return this;
+	}
 }

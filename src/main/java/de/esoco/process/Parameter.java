@@ -384,7 +384,7 @@ public class Parameter<T>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final Parameter<T> input()
+	public Parameter<T> input()
 	{
 		rFragment.addInputParameters(rParamType);
 
