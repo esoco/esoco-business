@@ -60,15 +60,20 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 *     div with 100% size).</li>
 	 *   <li>{@link #FLOW}: UI elements flow in the natural order defined by the
 	 *     UI context (HTML: div).</li>
-	 *   <li>{@link #FORM}: Arranges data elements as an input form (HTML:
-	 *     form).</li>
+	 *   <li>{@link #GRID}: Like FLOW but elements are automatically arranged
+	 *     according to their properties like in a {@link #FORM} (HTML: div with
+	 *     a CSS grid layout).</li>
+	 *   <li>{@link #FORM}: Arranges data elements according to their properties
+	 *     in an input form (HTML: form).</li>
 	 *   <li>{@link #GROUP}: Arranges data elements in a distinctive group
 	 *     (HTML: fieldset).</li>
+	 *   <li>{@link #MENU}: A menu or navigation structure (HTML: nav).</li>
 	 * </ul>
 	 */
 	public enum ListDisplayMode
 	{
-		TABLE, DOCK, SPLIT, TABS, STACK, DECK, FILL, FLOW, FORM, GROUP
+		TABLE, DOCK, SPLIT, TABS, STACK, DECK, FILL, FLOW, GRID, FORM, GROUP,
+		MENU
 	}
 
 	/********************************************************************
