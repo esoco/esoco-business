@@ -267,7 +267,7 @@ public abstract class InteractionFragment extends ProcessFragment
 			// already completed it's init() method needs to be invoked too
 			try
 			{
-				rSubFragment.init();
+				rSubFragment.initFragment();
 			}
 			catch (Exception e)
 			{
