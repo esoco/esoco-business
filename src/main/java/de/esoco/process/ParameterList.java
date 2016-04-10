@@ -19,11 +19,15 @@ package de.esoco.process;
 import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataElementList.ListDisplayMode;
 
+import de.esoco.lib.property.UserInterfaceProperties;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.List;
 
 import org.obrel.core.RelationType;
+
+import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 
 
 /********************************************************************
@@ -156,6 +160,46 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	public ParameterList input()
 	{
 		super.input();
+
+		return this;
+	}
+
+	/***************************************
+	 * A convenience method that invokes the {@link #row(Parameter...)} and
+	 * {@link #forInput()} methods.
+	 *
+	 * @see #row(Parameter...)
+	 * @see #forInput()
+	 */
+	public ParameterList inputRow(Parameter<?>... rRowParams)
+	{
+		return row(rRowParams).forInput();
+	}
+
+	/***************************************
+	 * Adds a row of parameters to this list. For all parameters after the first
+	 * in the row will the flag {@link UserInterfaceProperties#SAME_ROW} will be
+	 * set.
+	 *
+	 * @param  rRowParams Optional additional parameters in the row
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList row(Parameter<?>... rRowParams)
+	{
+		boolean bAdditionalParam = false;
+
+		add(rRowParams);
+
+		for (Parameter<?> rParam : rRowParams)
+		{
+			if (bAdditionalParam)
+			{
+				rParam.set(SAME_ROW);
+			}
+
+			bAdditionalParam = true;
+		}
 
 		return this;
 	}
