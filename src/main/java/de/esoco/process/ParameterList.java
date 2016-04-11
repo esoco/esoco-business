@@ -177,6 +177,20 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	}
 
 	/***************************************
+	 * Sets the layout to display the panel of this parameter list with.
+	 *
+	 * @param  eMode The list display mode for the panel layout
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList layout(ListDisplayMode eMode)
+	{
+		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+
+		return this;
+	}
+
+	/***************************************
 	 * Adds a row of parameters to this list. For all parameters after the first
 	 * in the row will the flag {@link UserInterfaceProperties#SAME_ROW} will be
 	 * set.
