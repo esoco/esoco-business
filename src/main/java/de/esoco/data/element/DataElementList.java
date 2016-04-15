@@ -466,6 +466,39 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	}
 
 	/***************************************
+	 * Returns a formatted multi-line string that describes the data element
+	 * hierarchy of this instance.
+	 *
+	 * @param  sIndent The initial indent of the hierarchy (empty for none)
+	 *
+	 * @return The data element hierarchy string
+	 */
+	public String getElementHierarchy(String sIndent)
+	{
+		StringBuilder aBuilder = new StringBuilder(getName());
+
+		aBuilder.append('\n');
+		sIndent += "  ";
+
+		for (DataElement<?> e : this)
+		{
+			aBuilder.append(sIndent);
+
+			if (e instanceof DataElementList)
+			{
+				aBuilder.append(((DataElementList) e).getElementHierarchy(sIndent));
+			}
+			else
+			{
+				aBuilder.append(e.getName());
+				aBuilder.append('\n');
+			}
+		}
+
+		return aBuilder.toString();
+	}
+
+	/***************************************
 	 * Returns the integer value of a certain data element. The returned value
 	 * will be the result of invoking {@link Number#intValue()} on the
 	 * type-casted value of the data element with the given name if such exists.
