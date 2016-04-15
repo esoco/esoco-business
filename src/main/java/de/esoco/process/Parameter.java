@@ -392,10 +392,7 @@ public class Parameter<T>
 	}
 
 	/***************************************
-	 * Sets the interactive input mode for this parameter. If an event handler
-	 * is given it will be registered with {@link
-	 * InteractionFragment#setParameterInteractionHandler(RelationType,
-	 * InteractionHandler)}.
+	 * Sets the interactive input mode for this parameter.
 	 *
 	 * @param  eInputMode The interactive input mode
 	 *
