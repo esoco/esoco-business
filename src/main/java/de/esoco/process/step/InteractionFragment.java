@@ -1052,8 +1052,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		String sName = getClass().getSimpleName();
 
 		// anonymous inner classes don't have a name, use default then
-		return sName.length() > 0 ? sName.toLowerCase()
-								  : "fragment" + nFragmentId;
+		return (sName.length() > 0 ? sName.toLowerCase() : "fragment") +
+			   nFragmentId;
 	}
 
 	/***************************************
