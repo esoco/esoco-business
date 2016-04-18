@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,6 +73,11 @@ public interface SessionManager
 	 * @throws Exception If the session data cannot be accessed
 	 */
 	public Collection<SessionData> getSessions() throws Exception;
+
+	/***************************************
+	 * Terminates the current session to logout the associated user.
+	 */
+	public void logoutCurrentUser();
 
 	/***************************************
 	 * Prepares the download of a certain data object. Each prepared download
