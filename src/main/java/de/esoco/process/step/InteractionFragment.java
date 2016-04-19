@@ -34,6 +34,7 @@ import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
 
+import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
 import de.esoco.process.Process;
@@ -435,6 +436,38 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Create a new parameter wrapper for entity process parameters that is
+	 * named after the entity type.
+	 *
+	 * @see #entityParam(String, Class)
+	 */
+	public <E extends Entity> EntityParameter<E> entityParam(
+		Class<E> rEntityType)
+	{
+		return entityParam(rEntityType.getClass().getSimpleName(), rEntityType);
+	}
+
+	/***************************************
+	 * Create a new parameter wrapper for entity process parameters.
+	 *
+	 * @param  sName       The name of the parameter relation type
+	 * @param  rEntityType The entity type for the parameter
+	 *
+	 * @return the entity parameter wrapper
+	 *
+	 * @see    #param(String, Class)
+	 */
+	public <E extends Entity> EntityParameter<E> entityParam(
+		String   sName,
+		Class<E> rEntityType)
+	{
+		RelationType<E> rParamType =
+			getTemporaryParameterType(sName, rEntityType);
+
+		return new EntityParameter<>(this, rParamType);
+	}
+
+	/***************************************
 	 * Can be overridden by a fragment to execute actions when the process flow
 	 * leaves this fragment.
 	 *
@@ -831,7 +864,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * relation type. If no matching temporary relation type exists already it
 	 * will be created.
 	 *
-	 * @param  sName     The name of the relation type
+	 * @param  sName     The name of the parameter relation type
 	 * @param  rDatatype The parameter datatype
 	 *
 	 * @return the parameter wrapper

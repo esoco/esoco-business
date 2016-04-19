@@ -36,12 +36,13 @@ import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
  *
  * @author eso
  */
-public class ParameterList extends Parameter<List<RelationType<?>>>
+public class ParameterList
+	extends ParameterBase<List<RelationType<?>>, ParameterList>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private boolean		   bIsPanel;
-	private Parameter<?>[] rLastAddedParams;
+	private boolean				  bIsPanel;
+	private ParameterBase<?, ?>[] rLastAddedParams;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -71,11 +72,11 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList add(Parameter<?>... rParams)
+	public ParameterList add(ParameterBase<?, ?>... rParams)
 	{
 		rLastAddedParams = rParams;
 
-		for (Parameter<?> rParam : rParams)
+		for (ParameterBase<?, ?> rParam : rParams)
 		{
 			RelationType<?> rParamType = rParam.type();
 
@@ -120,19 +121,6 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	}
 
 	/***************************************
-	 * Overridden to return a {@link ParameterList}.
-	 *
-	 * @see Parameter#display()
-	 */
-	@Override
-	public ParameterList display()
-	{
-		super.display();
-
-		return this;
-	}
-
-	/***************************************
 	 * Marks the parameters that have been added to this parameter's fragment
 	 * with the last call to {@link #add(Parameter...)} for input.
 	 *
@@ -142,24 +130,11 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	{
 		if (rLastAddedParams != null)
 		{
-			for (Parameter<?> rParam : rLastAddedParams)
+			for (ParameterBase<?, ?> rParam : rLastAddedParams)
 			{
 				rParam.input();
 			}
 		}
-
-		return this;
-	}
-
-	/***************************************
-	 * Overridden to return a {@link ParameterList}.
-	 *
-	 * @see Parameter#input()
-	 */
-	@Override
-	public ParameterList input()
-	{
-		super.input();
 
 		return this;
 	}
@@ -171,7 +146,7 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	 * @see #row(Parameter...)
 	 * @see #forInput()
 	 */
-	public ParameterList inputRow(Parameter<?>... rRowParams)
+	public ParameterList inputRow(ParameterBase<?, ?>... rRowParams)
 	{
 		return row(rRowParams).forInput();
 	}
@@ -199,13 +174,13 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList row(Parameter<?>... rRowParams)
+	public ParameterList row(ParameterBase<?, ?>... rRowParams)
 	{
 		boolean bAdditionalParam = false;
 
 		add(rRowParams);
 
-		for (Parameter<?> rParam : rRowParams)
+		for (ParameterBase<?, ?> rParam : rRowParams)
 		{
 			if (bAdditionalParam)
 			{
