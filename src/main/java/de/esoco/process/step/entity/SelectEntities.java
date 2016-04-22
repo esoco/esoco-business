@@ -39,6 +39,7 @@ import de.esoco.storage.StorageException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -474,7 +475,7 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 
 		if (aSelectedEntityIds.size() > 0)
 		{
-			pIsSelected = elementOf(aSelectedEntityIds);
+			pIsSelected = elementOf(new HashSet<Integer>(aSelectedEntityIds));
 			pCriteria   =
 				Predicates.and(pCriteria,
 							   ifAttribute(rIdAttr, not(pIsSelected)));
