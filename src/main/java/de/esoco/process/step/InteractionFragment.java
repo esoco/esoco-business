@@ -229,8 +229,23 @@ public abstract class InteractionFragment extends ProcessFragment
 	public Parameter<List<RelationType<?>>> addSubFragment(
 		InteractionFragment rSubFragment)
 	{
-		return addSubFragment(rSubFragment.getClass().getSimpleName(),
-							  rSubFragment);
+		Class<? extends InteractionFragment> rFragmentClass =
+			rSubFragment.getClass();
+
+		String sFragmentName;
+
+		if (rFragmentClass.isAnonymousClass())
+		{
+			sFragmentName = rFragmentClass.getName();
+			sFragmentName =
+				sFragmentName.substring(sFragmentName.lastIndexOf('.') + 1);
+		}
+		else
+		{
+			sFragmentName = rFragmentClass.getSimpleName();
+		}
+
+		return addSubFragment(sFragmentName, rSubFragment);
 	}
 
 	/***************************************
