@@ -37,11 +37,43 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	//~ Enums ------------------------------------------------------------------
 
 	/********************************************************************
-	 * Enumeration of the display modes for data element lists.
+	 * Enumeration of the display modes for data element lists that define how
+	 * data elements will be arranged in the generated user interface. The
+	 * possible values are:
+	 *
+	 * <ul>
+	 *   <li>{@link #TABLE}: Data elements are placed in the cells of a
+	 *     table-like structure (HTML: table).</li>
+	 *   <li>{@link #DOCK}: Elements are arranged arround the edges of a center
+	 *     element (HTML: divs with the center at 100% size). The size and
+	 *     orientation (horizontal or vertical) of the surrounding must be set
+	 *     as UI properties.</li>
+	 *   <li>{@link #SPLIT}: Like {@link #DOCK} but with resizable side areas.
+	 *   </li>
+	 *   <li>{@link #TABS}: A panel with selectable tabs for each contained data
+	 *     element (HTML: full size div).</li>
+	 *   <li>{@link #STACK}: Like {@link #TABS} but arranged as a vertical stack
+	 *     of collapsing stacks for each element child.</li>
+	 *   <li>{@link #DECK}: Like {@link #TABS} but without an UI for selecting
+	 *     child elements. Selection must occur programmatically.</li>
+	 *   <li>{@link #FILL}: A single UI elements fills the available area (HTML:
+	 *     div with 100% size).</li>
+	 *   <li>{@link #FLOW}: UI elements flow in the natural order defined by the
+	 *     UI context (HTML: div).</li>
+	 *   <li>{@link #GRID}: Like FLOW but elements are automatically arranged
+	 *     according to their properties like in a {@link #FORM} (HTML: div with
+	 *     a CSS grid layout).</li>
+	 *   <li>{@link #FORM}: Arranges data elements according to their properties
+	 *     in an input form (HTML: form).</li>
+	 *   <li>{@link #GROUP}: Arranges data elements in a distinctive group
+	 *     (HTML: fieldset).</li>
+	 *   <li>{@link #MENU}: A menu or navigation structure (HTML: nav).</li>
+	 * </ul>
 	 */
 	public enum ListDisplayMode
 	{
-		GRID, FLOW, FILL, DOCK, SPLIT, TABS, STACK, FORM, GROUP
+		TABLE, DOCK, SPLIT, TABS, STACK, DECK, FILL, FLOW, GRID, FORM, GROUP,
+		MENU
 	}
 
 	/********************************************************************
@@ -431,6 +463,39 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 		}
 
 		return rResult;
+	}
+
+	/***************************************
+	 * Returns a formatted multi-line string that describes the data element
+	 * hierarchy of this instance.
+	 *
+	 * @param  sIndent The initial indent of the hierarchy (empty for none)
+	 *
+	 * @return The data element hierarchy string
+	 */
+	public String getElementHierarchy(String sIndent)
+	{
+		StringBuilder aBuilder = new StringBuilder(getName());
+
+		aBuilder.append('\n');
+		sIndent += "  ";
+
+		for (DataElement<?> e : this)
+		{
+			aBuilder.append(sIndent);
+
+			if (e instanceof DataElementList)
+			{
+				aBuilder.append(((DataElementList) e).getElementHierarchy(sIndent));
+			}
+			else
+			{
+				aBuilder.append(e.getName());
+				aBuilder.append('\n');
+			}
+		}
+
+		return aBuilder.toString();
 	}
 
 	/***************************************

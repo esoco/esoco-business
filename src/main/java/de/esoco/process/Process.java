@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
+
+import de.esoco.data.DataRelationTypes;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
@@ -685,6 +687,27 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Performs a logout of the process user which will terminate this process.
+	 *
+	 * @throws ProcessException
+	 */
+	public void logoutProcessUser()
+	{
+		try
+		{
+			cancel();
+		}
+		catch (ProcessException e)
+		{
+			throw new RuntimeProcessException(rCurrentStep, e);
+		}
+		finally
+		{
+			getParameter(DataRelationTypes.SESSION_MANAGER).logoutCurrentUser();
+		}
+	}
+
+	/***************************************
 	 * Removes the current entity modification lock rule by invoking the method
 	 * {@link EntityManager#removeEntityModificationLock(String)} with the ID of
 	 * this process.
@@ -1116,7 +1139,7 @@ public class Process extends SerializableRelatedObject
 				ProcessStep rNextStep = getStep(rCurrentStep.perform());
 
 				// only add step if progressing to next step, not on interaction
-				if (rNextStep != rCurrentStep)
+				if (rCurrentStep != null && rNextStep != rCurrentStep)
 				{
 					if (rCurrentStep.canRollback())
 					{

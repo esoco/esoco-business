@@ -1,3 +1,5 @@
+rootProject.name = "esoco-business" 
+
 include ':esoco-common'
 project(':esoco-common').projectDir = new File('../esoco-common')
 

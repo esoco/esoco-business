@@ -34,6 +34,7 @@ import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
 
+import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
 import de.esoco.process.Process;
@@ -42,6 +43,7 @@ import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
+import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -114,6 +116,8 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	private int nFragmentId = nNextFragmentId++;
 
+	private boolean bInitialized = false;
+
 	private Interaction						    rProcessStep;
 	private InteractionFragment				    rParent;
 	private RelationType<List<RelationType<?>>> rFragmentParam;
@@ -137,9 +141,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * Must be implemented to initialize the interaction parameters of this
-	 * fragment. This method will be invoked before the interaction parameters
-	 * are queried from the fragment. This allows implementations to modify the
-	 * parameter list based on the process state.
+	 * fragment.
 	 *
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
@@ -227,35 +229,36 @@ public abstract class InteractionFragment extends ProcessFragment
 	public Parameter<List<RelationType<?>>> addSubFragment(
 		InteractionFragment rSubFragment)
 	{
-		return addSubFragment(rSubFragment.getClass().getSimpleName(),
-							  rSubFragment);
+		Class<? extends InteractionFragment> rFragmentClass =
+			rSubFragment.getClass();
+
+		String sFragmentName;
+
+		if (rFragmentClass.isAnonymousClass())
+		{
+			sFragmentName = rFragmentClass.getName();
+			sFragmentName =
+				sFragmentName.substring(sFragmentName.lastIndexOf('.') + 1);
+		}
+		else
+		{
+			sFragmentName = rFragmentClass.getSimpleName();
+		}
+
+		return addSubFragment(sFragmentName, rSubFragment);
 	}
 
 	/***************************************
-	 * Adds a subordinate fragment to this instance into a temporary parameter.
-	 * The temporary parameter relation type will be created with the given name
-	 * by invoking {@link #listParam(String, Class)} and the parameter wrapper
-	 * will be returned. The fragment will be added by invoking {@link
-	 * #addSubFragment(RelationType, InteractionFragment)}. Furthermore the UI
-	 * property {@link UserInterfaceProperties#HIDE_LABEL} will be set on the
-	 * new fragment parameter because fragments are typically displayed without
-	 * a label.
+	 * Adds a subordinate fragment to this instance into a temporary parameter
+	 * and directly displays it.
 	 *
-	 * @param  sName        The name of the temporary fragment parameter
-	 * @param  rSubFragment The fragment to add
-	 *
-	 * @return The wrapper for the fragment parameter
+	 * @see #addSubFragment(String, InteractionFragment, boolean)
 	 */
 	public Parameter<List<RelationType<?>>> addSubFragment(
 		String				sName,
 		InteractionFragment rSubFragment)
 	{
-		Parameter<List<RelationType<?>>> rSubFragmentParam =
-			listParam(sName, RelationType.class);
-
-		addSubFragment(rSubFragmentParam.type(), rSubFragment);
-
-		return rSubFragmentParam.hideLabel();
+		return addSubFragment(sName, rSubFragment, true);
 	}
 
 	/***************************************
@@ -273,6 +276,55 @@ public abstract class InteractionFragment extends ProcessFragment
 		rSubFragment.rParent = this;
 
 		super.addSubFragment(rFragmentParam, rSubFragment);
+
+		if (bInitialized)
+		{
+			// if a fragment is added after initialization of the parent has
+			// already completed it's init() method needs to be invoked too
+			try
+			{
+				rSubFragment.initFragment();
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeProcessException(rSubFragment, e);
+			}
+		}
+	}
+
+	/***************************************
+	 * Adds a subordinate fragment to this instance into a temporary parameter
+	 * and optionally displays it. The temporary parameter relation type will be
+	 * created with the given name by invoking {@link #listParam(String, Class)}
+	 * and the parameter wrapper will be returned. The fragment will be added by
+	 * invoking {@link #addSubFragment(RelationType, InteractionFragment)}.
+	 * Furthermore the UI property {@link UserInterfaceProperties#HIDE_LABEL}
+	 * will be set on the new fragment parameter because fragments are typically
+	 * displayed without a label.
+	 *
+	 * @param  sName        The name of the temporary fragment parameter
+	 * @param  rSubFragment The fragment to add
+	 * @param  bDisplay     TRUE to invoke {@link Parameter#display()} on the
+	 *                      new fragment parameter
+	 *
+	 * @return The wrapper for the fragment parameter
+	 */
+	public Parameter<List<RelationType<?>>> addSubFragment(
+		String				sName,
+		InteractionFragment rSubFragment,
+		boolean				bDisplay)
+	{
+		Parameter<List<RelationType<?>>> rSubFragmentParam =
+			listParam(sName, RelationType.class);
+
+		addSubFragment(rSubFragmentParam.type(), rSubFragment);
+
+		if (bDisplay)
+		{
+			rSubFragmentParam.display();
+		}
+
+		return rSubFragmentParam.hideLabel();
 	}
 
 	/***************************************
@@ -399,6 +451,38 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Create a new parameter wrapper for entity process parameters that is
+	 * named after the entity type.
+	 *
+	 * @see #entityParam(String, Class)
+	 */
+	public <E extends Entity> EntityParameter<E> entityParam(
+		Class<E> rEntityType)
+	{
+		return entityParam(rEntityType.getClass().getSimpleName(), rEntityType);
+	}
+
+	/***************************************
+	 * Create a new parameter wrapper for entity process parameters.
+	 *
+	 * @param  sName       The name of the parameter relation type
+	 * @param  rEntityType The entity type for the parameter
+	 *
+	 * @return the entity parameter wrapper
+	 *
+	 * @see    #param(String, Class)
+	 */
+	public <E extends Entity> EntityParameter<E> entityParam(
+		String   sName,
+		Class<E> rEntityType)
+	{
+		RelationType<E> rParamType =
+			getTemporaryParameterType(sName, rEntityType);
+
+		return new EntityParameter<>(this, rParamType);
+	}
+
+	/***************************************
 	 * Can be overridden by a fragment to execute actions when the process flow
 	 * leaves this fragment.
 	 *
@@ -430,7 +514,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public ParameterList fragmentParam()
 	{
 		return new ParameterList(rParent != null ? rParent : this,
-								 getFragmentParameter());
+								 getFragmentParameter(),
+								 false);
 	}
 
 	/***************************************
@@ -761,7 +846,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rListType =
 			getTemporaryListType(sName, RelationType.class);
 
-		return new ParameterList(this, rListType);
+		return new ParameterList(this, rListType, true);
 	}
 
 	/***************************************
@@ -794,7 +879,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * relation type. If no matching temporary relation type exists already it
 	 * will be created.
 	 *
-	 * @param  sName     The name of the relation type
+	 * @param  sName     The name of the parameter relation type
 	 * @param  rDatatype The parameter datatype
 	 *
 	 * @return the parameter wrapper
@@ -866,11 +951,10 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rFragmentParam,
 		InteractionFragment					rSubFragment)
 	{
-		deleteParameters(rFragmentParam);
-
 		get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
 		get(INPUT_PARAMS).remove(rFragmentParam);
 		getSubFragments().remove(rSubFragment);
+		deleteParameters(rFragmentParam);
 		rSubFragment.setProcessStep(null);
 
 		rSubFragment.rParent = null;
@@ -1013,7 +1097,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	@Override
 	protected String getTemporaryParameterPackage()
 	{
-		return getClass().getSimpleName().toLowerCase() + nFragmentId;
+		String sName = getClass().getSimpleName();
+
+		// anonymous inner classes don't have a name, use default then
+		return (sName.length() > 0 ? sName.toLowerCase() : "fragment") +
+			   nFragmentId;
 	}
 
 	/***************************************
@@ -1159,6 +1247,42 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	protected void setup()
 	{
+	}
+
+	/***************************************
+	 * Displays a confirmation message that can either be accepted or rejected.
+	 *
+	 * @param sMessage           The message to display
+	 * @param bYesNoQuestion     TRUE for YES and NO dialog buttons, FALSE for
+	 *                           OK and CANCEL
+	 * @param rRunOnComfirmation The code to be executed if the user accepts the
+	 *                           message
+	 */
+	protected void showConfirmationMessage(String		  sMessage,
+										   boolean		  bYesNoQuestion,
+										   final Runnable rRunOnComfirmation)
+	{
+		if (rRunOnComfirmation == null)
+		{
+			throw new IllegalArgumentException("Runnable parameter must not be NULL");
+		}
+
+		showMessageBox(sMessage,
+					   MESSAGE_BOX_QUESTION_ICON,
+			new DialogActionListener()
+			{
+				@Override
+				public void onDialogAction(DialogAction eAction)
+				{
+					if (eAction == DialogAction.OK ||
+						eAction == DialogAction.YES)
+					{
+						rRunOnComfirmation.run();
+					}
+				}
+			},
+					   bYesNoQuestion ? DialogAction.YES_NO
+									  : DialogAction.OK_CANCEL);
 	}
 
 	/***************************************
@@ -1461,6 +1585,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		abort();
+		bInitialized = false;
 	}
 
 	/***************************************
@@ -1627,6 +1752,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		markFragmentInputParams();
+		bInitialized = true;
 	}
 
 	/***************************************

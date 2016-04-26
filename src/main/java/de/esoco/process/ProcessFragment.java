@@ -258,14 +258,9 @@ public abstract class ProcessFragment extends ProcessElement
 		setParameter(rPanelParam, rPanelContentParams);
 		setListDisplayMode(eDisplayMode, rPanelParam);
 
-		if (aPanelParameters == null)
-		{
-			aPanelParameters = new HashSet<>();
-		}
-
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
-		aPanelParameters.addAll(rPanelContentParams);
+		addPanelParameters(rPanelContentParams);
 	}
 
 	/***************************************
@@ -674,7 +669,7 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Convenience method that applies to all elements of an enum.
+	 * Convenience method with a varargs parameter.
 	 *
 	 * @see #disableElements(RelationType, Collection)
 	 */
@@ -683,7 +678,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<E> rEnumParam,
 		E... 			rDisabledElements)
 	{
-		disableElements(rEnumParam, null, Arrays.asList(rDisabledElements));
+		disableElements(rEnumParam, Arrays.asList(rDisabledElements));
 	}
 
 	/***************************************
@@ -692,30 +687,24 @@ public abstract class ProcessFragment extends ProcessElement
 	 * certain set of enum values.
 	 *
 	 * @param rEnumParam        The parameter to disabled the elements of
-	 * @param rAllElements      All elements that will be displayed (NULL for
-	 *                          the allowed values of the parameter enum)
 	 * @param rDisabledElements The elements to disable (NULL or none to enable
 	 *                          all)
 	 */
 	public <E extends Enum<E>> void disableElements(
 		RelationType<E> rEnumParam,
-		Collection<E>   rAllElements,
 		Collection<E>   rDisabledElements)
 	{
 		if (rDisabledElements != null && rDisabledElements.size() > 0)
 		{
+			Collection<E> rAllElements = getAllowedValues(rEnumParam);
+
 			if (rAllElements == null)
 			{
-				rAllElements = getAllowedValues(rEnumParam);
+				@SuppressWarnings("unchecked")
+				E[] rEnumConstants =
+					(E[]) rEnumParam.getTargetType().getEnumConstants();
 
-				if (rAllElements == null)
-				{
-					@SuppressWarnings("unchecked")
-					E[] rEnumConstants =
-						(E[]) rEnumParam.getTargetType().getEnumConstants();
-
-					rAllElements = Arrays.asList(rEnumConstants);
-				}
+				rAllElements = Arrays.asList(rEnumConstants);
 			}
 
 			StringBuilder aDisabledElements = new StringBuilder();
@@ -741,20 +730,6 @@ public abstract class ProcessFragment extends ProcessElement
 		{
 			removeUIProperties(rEnumParam, DISABLED_ELEMENTS);
 		}
-	}
-
-	/***************************************
-	 * @see #disableElements(RelationType, Collection)
-	 */
-	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>> void disableElements(
-		RelationType<E> rEnumParam,
-		Collection<E>   rAllElements,
-		E... 			rDisabledElements)
-	{
-		disableElements(rEnumParam,
-						rAllElements,
-						Arrays.asList(rDisabledElements));
 	}
 
 	/***************************************
@@ -1925,6 +1900,21 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @return The process step of this fragment
 	 */
 	protected abstract ProcessStep getProcessStep();
+
+	/***************************************
+	 * Marks a parameter as an element of a subordinate panel in this fragment.
+	 *
+	 * @param rPanelParams The parameters to mark as panel elements
+	 */
+	protected void addPanelParameters(Collection<RelationType<?>> rPanelParams)
+	{
+		if (aPanelParameters == null)
+		{
+			aPanelParameters = new HashSet<>();
+		}
+
+		aPanelParameters.addAll(rPanelParams);
+	}
 
 	/***************************************
 	 * Stores the value of a derived process parameter under the original

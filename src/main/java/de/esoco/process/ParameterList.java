@@ -19,11 +19,15 @@ package de.esoco.process;
 import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataElementList.ListDisplayMode;
 
+import de.esoco.lib.property.UserInterfaceProperties;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.List;
 
 import org.obrel.core.RelationType;
+
+import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 
 
 /********************************************************************
@@ -32,32 +36,57 @@ import org.obrel.core.RelationType;
  *
  * @author eso
  */
-public class ParameterList extends Parameter<List<RelationType<?>>>
+public class ParameterList
+	extends ParameterBase<List<RelationType<?>>, ParameterList>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private boolean				  bIsPanel;
+	private ParameterBase<?, ?>[] rLastAddedParams;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Creates a new instance.
+	 *
+	 * @param rFragment  The fragment to handle the parameter for
+	 * @param rParamType The parameter relation type to handle
+	 * @param bIsPanel   TRUE if this parameter represents a subordinate panel
+	 *                   of it's fragment
 	 */
-	public ParameterList(
-		InteractionFragment					rFragment,
-		RelationType<List<RelationType<?>>> rParamType)
+	public ParameterList(InteractionFragment				 rFragment,
+						 RelationType<List<RelationType<?>>> rParamType,
+						 boolean							 bIsPanel)
 	{
 		super(rFragment, rParamType);
+
+		this.bIsPanel = bIsPanel;
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a certain parameter to this list.
+	 * Adds certain parameters to this list.
 	 *
-	 * @param  rParam The parameter to add
+	 * @param  rParams The parameters to add
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList add(Parameter<?> rParam)
+	public ParameterList add(ParameterBase<?, ?>... rParams)
 	{
-		fragment().getParameter(type()).add(rParam.type());
+		rLastAddedParams = rParams;
+
+		for (ParameterBase<?, ?> rParam : rParams)
+		{
+			RelationType<?> rParamType = rParam.type();
+
+			value().add(rParamType);
+
+			if (bIsPanel)
+			{
+				fragment().addPanelParameters(ProcessElement.params(rParamType));
+			}
+		}
 
 		return this;
 	}
@@ -71,20 +100,10 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	 */
 	public ParameterList add(InteractionFragment rSubFragment)
 	{
-		return add(fragment().addSubFragment(rSubFragment));
-	}
-
-	/***************************************
-	 * Overridden to return a {@link ParameterList}.
-	 *
-	 * @see Parameter#display()
-	 */
-	@Override
-	public ParameterList display()
-	{
-		super.display();
-
-		return this;
+		return add(fragment().addSubFragment(rSubFragment.getClass()
+											 .getSimpleName(),
+											 rSubFragment,
+											 !bIsPanel));
 	}
 
 	/***************************************
@@ -97,6 +116,79 @@ public class ParameterList extends Parameter<List<RelationType<?>>>
 	public ParameterList as(ListDisplayMode eMode)
 	{
 		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+
+		return this;
+	}
+
+	/***************************************
+	 * Marks the parameters that have been added to this parameter's fragment
+	 * with the last call to {@link #add(Parameter...)} for input.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList forInput()
+	{
+		if (rLastAddedParams != null)
+		{
+			for (ParameterBase<?, ?> rParam : rLastAddedParams)
+			{
+				rParam.input();
+			}
+		}
+
+		return this;
+	}
+
+	/***************************************
+	 * A convenience method that invokes the {@link #row(Parameter...)} and
+	 * {@link #forInput()} methods.
+	 *
+	 * @see #row(Parameter...)
+	 * @see #forInput()
+	 */
+	public ParameterList inputRow(ParameterBase<?, ?>... rRowParams)
+	{
+		return row(rRowParams).forInput();
+	}
+
+	/***************************************
+	 * Sets the layout to display the panel of this parameter list with.
+	 *
+	 * @param  eMode The list display mode for the panel layout
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList layout(ListDisplayMode eMode)
+	{
+		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+
+		return this;
+	}
+
+	/***************************************
+	 * Adds a row of parameters to this list. For all parameters after the first
+	 * in the row will the flag {@link UserInterfaceProperties#SAME_ROW} will be
+	 * set.
+	 *
+	 * @param  rRowParams Optional additional parameters in the row
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList row(ParameterBase<?, ?>... rRowParams)
+	{
+		boolean bAdditionalParam = false;
+
+		add(rRowParams);
+
+		for (ParameterBase<?, ?> rParam : rRowParams)
+		{
+			if (bAdditionalParam)
+			{
+				rParam.set(SAME_ROW);
+			}
+
+			bAdditionalParam = true;
+		}
 
 		return this;
 	}
