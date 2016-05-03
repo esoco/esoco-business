@@ -161,6 +161,14 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * This method should be invoked to initialize the property name constants
+	 * for de-serialization.
+	 */
+	public static void init()
+	{
+	}
+
+	/***************************************
 	 * Helper method to compare two object references for equality. Any of the
 	 * references can be NULL.
 	 *

@@ -219,6 +219,14 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 		return rResult;
 	}
 
+	/***************************************
+	 * This method should be invoked to initialize the property name constants
+	 * for de-serialization.
+	 */
+	public static void init()
+	{
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
