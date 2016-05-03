@@ -84,6 +84,9 @@ public class ProcessRelationTypes
 	/** A unique process ID. */
 	public static final RelationType<Integer> PROCESS_ID = newType();
 
+	/** The process name. */
+	public static final RelationType<String> PROCESS_NAME = newType();
+
 	/** An information string describing the process or it's current state. */
 	public static final RelationType<String> PROCESS_INFO = newType();
 
