@@ -22,7 +22,7 @@ import de.esoco.data.FileType;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.DataElement;
 import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.data.element.DataElementList.Layout;
 import de.esoco.data.element.DataSetDataElement;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
@@ -252,7 +252,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		ListDisplayMode						eDisplayMode,
+		Layout						eDisplayMode,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
@@ -302,7 +302,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		addPanel(rPanelParam,
-				 bResizable ? ListDisplayMode.SPLIT : ListDisplayMode.DOCK,
+				 bResizable ? Layout.SPLIT : Layout.DOCK,
 				 rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
@@ -413,7 +413,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<?>... 					rPanelContentParams)
 	{
 		addPanel(rPanelParam,
-				 ListDisplayMode.STACK,
+				 Layout.STACK,
 				 Arrays.asList(rPanelContentParams));
 	}
 
@@ -463,7 +463,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<?>... 					rPanelContentParams)
 	{
 		addPanel(rPanelParam,
-				 ListDisplayMode.TABS,
+				 Layout.TABS,
 				 Arrays.asList(rPanelContentParams));
 	}
 
@@ -1249,7 +1249,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Removes all parameters for a panel parameter that had previously been
-	 * added through {@link #addPanel(RelationType, ListDisplayMode, List)}.
+	 * added through {@link #addPanel(RelationType, Layout, List)}.
 	 *
 	 * @param rPanelParam The parameter of the panel to remove
 	 */
@@ -1571,17 +1571,17 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Sets the {@link DataElementList#LIST_DISPLAY_MODE LIST_DISPLAY_MODE}
+	 * Sets the {@link DataElementList#LAYOUT LIST_DISPLAY_MODE}
 	 * property for a {@link DataElementList} parameter.
 	 *
 	 * @param eMode  The list display mode
 	 * @param rParam The parameter
 	 */
 	public void setListDisplayMode(
-		ListDisplayMode						eMode,
+		Layout						eMode,
 		RelationType<List<RelationType<?>>> rParam)
 	{
-		setUIProperty(DataElementList.LIST_DISPLAY_MODE, eMode, rParam);
+		setUIProperty(DataElementList.LAYOUT, eMode, rParam);
 	}
 
 	/***************************************

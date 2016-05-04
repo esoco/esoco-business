@@ -70,7 +70,7 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 *   <li>{@link #MENU}: A menu or navigation structure (HTML: nav).</li>
 	 * </ul>
 	 */
-	public enum ListDisplayMode
+	public enum Layout
 	{
 		TABLE, DOCK, SPLIT, TABS, STACK, DECK, FILL, FLOW, GRID, FORM, GROUP,
 		MENU
@@ -93,8 +93,8 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * UI property: the display mode for data elements lists. Defaults to a
 	 * simple panel if not set.
 	 */
-	public static final PropertyName<ListDisplayMode> LIST_DISPLAY_MODE =
-		PropertyName.newEnumName("LIST_DISPLAY_MODE", ListDisplayMode.class);
+	public static final PropertyName<Layout> LAYOUT =
+		PropertyName.newEnumName("LAYOUT", Layout.class);
 
 	/**
 	 * UI property: the display style for a data element list that is displayed

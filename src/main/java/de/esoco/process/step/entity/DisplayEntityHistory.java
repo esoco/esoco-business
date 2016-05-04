@@ -17,7 +17,7 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.data.element.DataElementList.Layout;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
@@ -367,8 +367,8 @@ public class DisplayEntityHistory extends InteractionFragment
 			getFragmentParameter();
 
 		setUIFlag(VERTICAL, rFragmentParam);
-		setUIProperty(DataElementList.LIST_DISPLAY_MODE,
-					  ListDisplayMode.SPLIT,
+		setUIProperty(DataElementList.LAYOUT,
+					  Layout.SPLIT,
 					  rFragmentParam);
 
 		setInteractive(InteractiveInputMode.BOTH, ENTITY_HISTORY);

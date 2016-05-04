@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step.entity;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.data.element.DataElementList.Layout;
 import de.esoco.data.element.DateDataElement.DateInputType;
 
 import de.esoco.entity.Entity;
@@ -650,7 +650,7 @@ public class EditEntity extends InteractionFragment
 
 		if (bDisplayAsTabPanel)
 		{
-			setListDisplayMode(ListDisplayMode.TABS, aParam);
+			setListDisplayMode(Layout.TABS, aParam);
 		}
 
 		setUIFlag(HIERARCHICAL, aParam);

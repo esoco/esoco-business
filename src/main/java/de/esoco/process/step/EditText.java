@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.data.element.DataElementList.Layout;
 
 import de.esoco.lib.event.EditListener;
 import de.esoco.lib.event.EditListener.EditAction;
@@ -252,11 +252,11 @@ public class EditText extends InteractionFragment
 		setUIProperty(STYLE, "EditTextValue", rValueParam);
 		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
 
-		addPanel(aActionPanelParam, ListDisplayMode.TABLE, aActionPanelParams);
+		addPanel(aActionPanelParam, Layout.TABLE, aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());
-		setListDisplayMode(ListDisplayMode.DOCK, getFragmentParameter());
+		setListDisplayMode(Layout.DOCK, getFragmentParameter());
 
 		setEditInfo("");
 		stopEditing(null);

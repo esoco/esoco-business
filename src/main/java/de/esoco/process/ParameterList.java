@@ -17,7 +17,7 @@
 package de.esoco.process;
 
 import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.data.element.DataElementList.Layout;
 
 import de.esoco.lib.property.UserInterfaceProperties;
 
@@ -113,9 +113,9 @@ public class ParameterList
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(ListDisplayMode eMode)
+	public ParameterList as(Layout eMode)
 	{
-		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+		set(DataElementList.LAYOUT, eMode);
 
 		return this;
 	}
@@ -158,9 +158,9 @@ public class ParameterList
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList layout(ListDisplayMode eMode)
+	public ParameterList layout(Layout eMode)
 	{
-		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+		set(DataElementList.LAYOUT, eMode);
 
 		return this;
 	}
