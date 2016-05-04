@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataElementList.Layout;
 
 import de.esoco.lib.event.EventHandler;
@@ -317,8 +318,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT} which
-	 * defines the table cell height in a panel with a {@link
-	 * Layout#TABLE GRID} layout.
+	 * defines the table cell height in a panel with a {@link Layout#TABLE GRID}
+	 * layout.
 	 *
 	 * @param  sHeight The HTML height string
 	 *
@@ -346,8 +347,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH} which
-	 * defines the table cell width in a panel with a {@link
-	 * Layout#TABLE GRID} layout.
+	 * defines the table cell width in a panel with a {@link Layout#TABLE GRID}
+	 * layout.
 	 *
 	 * @param  sWidth The HTML width string
 	 *
@@ -450,6 +451,23 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P label(String sLabel)
 	{
 		return set(LABEL, sLabel);
+	}
+
+	/***************************************
+	 * Sets the layout for the panel of a parameter. This will only be valid if
+	 * the given parameter is rendered in a panel (like {@link DataElementList}
+	 * or buttons).
+	 *
+	 * @param  eLayout The panel layout
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P layout(Layout eLayout)
+	{
+		set(DataElementList.LAYOUT, eLayout);
+
+		return (P) this;
 	}
 
 	/***************************************
