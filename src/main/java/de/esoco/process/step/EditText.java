@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.data.element.DataElementList.Layout;
-
 import de.esoco.lib.event.EditListener;
 import de.esoco.lib.event.EditListener.EditAction;
 import de.esoco.lib.expression.Action;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
+import de.esoco.lib.property.UserInterfaceProperties.Layout;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
 import java.util.LinkedHashMap;
@@ -252,11 +252,13 @@ public class EditText extends InteractionFragment
 		setUIProperty(STYLE, "EditTextValue", rValueParam);
 		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
 
-		addPanel(aActionPanelParam, Layout.TABLE, aActionPanelParams);
+		addPanel(aActionPanelParam,
+				 UserInterfaceProperties.Layout.TABLE,
+				 aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());
-		setListDisplayMode(Layout.DOCK, getFragmentParameter());
+		setLayout(Layout.DOCK, getFragmentParameter());
 
 		setEditInfo("");
 		stopEditing(null);

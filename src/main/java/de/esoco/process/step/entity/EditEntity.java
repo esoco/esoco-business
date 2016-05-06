@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step.entity;
 
-import de.esoco.data.element.DataElementList.Layout;
 import de.esoco.data.element.DateDataElement.DateInputType;
 
 import de.esoco.entity.Entity;
@@ -34,6 +33,7 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
+import de.esoco.lib.property.UserInterfaceProperties.Layout;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
@@ -650,7 +650,7 @@ public class EditEntity extends InteractionFragment
 
 		if (bDisplayAsTabPanel)
 		{
-			setListDisplayMode(Layout.TABS, aParam);
+			setLayout(Layout.TABS, aParam);
 		}
 
 		setUIFlag(HIERARCHICAL, aParam);

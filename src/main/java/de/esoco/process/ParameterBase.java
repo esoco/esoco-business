@@ -17,13 +17,12 @@
 package de.esoco.process;
 
 import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.Layout;
-
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
+import de.esoco.lib.property.UserInterfaceProperties.Layout;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -463,9 +462,9 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P layout(Layout eLayout)
+	public P layout(UserInterfaceProperties.Layout eLayout)
 	{
-		set(DataElementList.LAYOUT, eLayout);
+		set(UserInterfaceProperties.LAYOUT, eLayout);
 
 		return (P) this;
 	}

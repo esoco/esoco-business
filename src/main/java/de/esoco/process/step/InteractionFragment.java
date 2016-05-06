@@ -19,7 +19,6 @@ package de.esoco.process.step;
 import de.esoco.data.DataRelationTypes;
 import de.esoco.data.SessionManager;
 import de.esoco.data.UploadHandler;
-import de.esoco.data.element.DataElementList.ViewDisplayType;
 import de.esoco.data.element.SelectionDataElement;
 
 import de.esoco.entity.Entity;
@@ -33,7 +32,7 @@ import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-
+import de.esoco.lib.property.UserInterfaceProperties.ViewDisplayType;
 import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
@@ -1511,8 +1510,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		ViewFragment aViewFragment =
 			new ViewFragment(sParamNameTemplate,
 							 rContentFragment,
-							 bModal ? ViewDisplayType.MODAL_VIEW
-									: ViewDisplayType.VIEW);
+							 bModal ? UserInterfaceProperties.ViewDisplayType.MODAL_VIEW
+									: UserInterfaceProperties.ViewDisplayType.VIEW);
 
 		aViewFragment.show(this);
 

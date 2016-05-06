@@ -22,7 +22,6 @@ import de.esoco.data.FileType;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.DataElement;
 import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.Layout;
 import de.esoco.data.element.DataSetDataElement;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
@@ -51,6 +50,7 @@ import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
+import de.esoco.lib.property.UserInterfaceProperties.Layout;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
@@ -97,6 +97,7 @@ import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
 import static de.esoco.lib.property.UserInterfaceProperties.INTERACTIVE_INPUT_MODE;
+import static de.esoco.lib.property.UserInterfaceProperties.LAYOUT;
 import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
 import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
@@ -252,11 +253,11 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		Layout						eDisplayMode,
+		Layout								eDisplayMode,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
-		setListDisplayMode(eDisplayMode, rPanelParam);
+		setLayout(eDisplayMode, rPanelParam);
 
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
@@ -412,9 +413,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam,
-				 Layout.STACK,
-				 Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, Layout.STACK, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -462,9 +461,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam,
-				 Layout.TABS,
-				 Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, Layout.TABS, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -1571,17 +1568,17 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Sets the {@link DataElementList#LAYOUT LIST_DISPLAY_MODE}
-	 * property for a {@link DataElementList} parameter.
+	 * Sets the {@link UserInterfaceProperties#LAYOUT LAYOUT} property for a
+	 * {@link DataElementList} parameter.
 	 *
 	 * @param eMode  The list display mode
 	 * @param rParam The parameter
 	 */
-	public void setListDisplayMode(
-		Layout						eMode,
+	public void setLayout(
+		Layout								eMode,
 		RelationType<List<RelationType<?>>> rParam)
 	{
-		setUIProperty(DataElementList.LAYOUT, eMode, rParam);
+		setUIProperty(LAYOUT, eMode, rParam);
 	}
 
 	/***************************************

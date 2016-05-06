@@ -16,11 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.Layout;
-
 import de.esoco.lib.property.UserInterfaceProperties;
-
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.List;
@@ -113,9 +109,9 @@ public class ParameterList
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(Layout eMode)
+	public ParameterList as(UserInterfaceProperties.Layout eMode)
 	{
-		set(DataElementList.LAYOUT, eMode);
+		set(UserInterfaceProperties.LAYOUT, eMode);
 
 		return this;
 	}

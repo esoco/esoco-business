@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step.entity;
 
-import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.Layout;
-
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
 import de.esoco.entity.EntityManager;
@@ -35,6 +32,7 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.Updatable;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
@@ -367,8 +365,8 @@ public class DisplayEntityHistory extends InteractionFragment
 			getFragmentParameter();
 
 		setUIFlag(VERTICAL, rFragmentParam);
-		setUIProperty(DataElementList.LAYOUT,
-					  Layout.SPLIT,
+		setUIProperty(UserInterfaceProperties.LAYOUT,
+					  UserInterfaceProperties.Layout.SPLIT,
 					  rFragmentParam);
 
 		setInteractive(InteractiveInputMode.BOTH, ENTITY_HISTORY);
