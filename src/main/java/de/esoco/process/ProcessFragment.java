@@ -143,6 +143,8 @@ public abstract class ProcessFragment extends ProcessElement
 
 	//~ Instance fields --------------------------------------------------------
 
+	private int nAnonymousParameterCount = 0;
+
 	private Collection<RelationType<?>> aPanelParameters;
 
 	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
@@ -1911,6 +1913,10 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		aPanelParameters.addAll(rPanelParams);
+
+		// if the parameters have already been added to this fragment remove
+		// them because they are already displayed as members of their panel
+		get(INTERACTION_PARAMS).removeAll(rPanelParams);
 	}
 
 	/***************************************
@@ -2146,8 +2152,16 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected String getTemporaryParameterName(String sBaseName)
 	{
-		sBaseName =
-			TextConvert.uppercaseIdentifier(sBaseName).replaceAll("[.-]", "_");
+		if (sBaseName == null)
+		{
+			sBaseName = "P" + nAnonymousParameterCount++;
+		}
+		else
+		{
+			sBaseName =
+				TextConvert.uppercaseIdentifier(sBaseName)
+						   .replaceAll("[.-]", "_");
+		}
 
 		if (Character.isDigit(sBaseName.charAt(0)))
 		{

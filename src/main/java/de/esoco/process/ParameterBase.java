@@ -17,6 +17,7 @@
 package de.esoco.process;
 
 import de.esoco.data.element.DataElementList;
+
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -670,6 +671,22 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P style(String sStyle)
 	{
 		return set(STYLE, sStyle);
+	}
+
+	/***************************************
+	 * Appends a parameter to the row of this one. This is the same as invoking
+	 * the method {@link #sameRow()} on the argument parameter.
+	 *
+	 * @param  rParameter The parameter to add to the current row
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P then(Parameter<?> rParameter)
+	{
+		rParameter.sameRow();
+
+		return (P) this;
 	}
 
 	/***************************************

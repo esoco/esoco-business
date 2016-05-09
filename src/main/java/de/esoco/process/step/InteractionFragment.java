@@ -19,6 +19,7 @@ package de.esoco.process.step;
 import de.esoco.data.DataRelationTypes;
 import de.esoco.data.SessionManager;
 import de.esoco.data.UploadHandler;
+import de.esoco.data.element.DateDataElement.DateInputType;
 import de.esoco.data.element.SelectionDataElement;
 
 import de.esoco.entity.Entity;
@@ -32,7 +33,9 @@ import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ViewDisplayType;
+import de.esoco.lib.property.UserInterfaceProperties.LabelStyle;
+import de.esoco.lib.property.UserInterfaceProperties.Layout;
+
 import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
@@ -69,12 +72,15 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 
+import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
+
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
+import static de.esoco.lib.property.UserInterfaceProperties.LABEL_STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.URL;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
@@ -341,6 +347,18 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		setProcessStep(rProcessStep);
 		setup();
+	}
+
+	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum.
+	 *
+	 * @param  rEnumClass The enum class to create the buttons from
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> buttons(Class<E> rEnumClass)
+	{
+		return param(rEnumClass).buttons();
 	}
 
 	/***************************************
@@ -658,6 +676,19 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a parameter that displays a label string with the default label
+	 * style.
+	 *
+	 * @param  sIconName sLabelText The label text
+	 *
+	 * @return The label parameter
+	 */
+	public Parameter<String> icon(String sIconName)
+	{
+		return label(sIconName, LabelStyle.ICON);
+	}
+
+	/***************************************
 	 * Initializes a parameter for the display of a storage query.
 	 *
 	 * @param  rParam       The parameter to initialize the query for
@@ -685,6 +716,45 @@ public abstract class InteractionFragment extends ProcessFragment
 		annotateForEntityQuery(rParam, qEntities, pSortOrder, rColumns);
 
 		return qEntities;
+	}
+
+	/***************************************
+	 * Creates an input parameter for a certain datatype. This method first
+	 * invokes {@link #param(String, Class)} and then {@link Parameter#input()}.
+	 *
+	 * @param  sName     The parameter name or NULL for a default
+	 * @param  rDatatype The datatype class
+	 *
+	 * @return A new parameter instance
+	 */
+	public <T> Parameter<T> input(String sName, Class<T> rDatatype)
+	{
+		return param(sName, rDatatype).input();
+	}
+
+	/***************************************
+	 * Creates a parameter for a date input field.
+	 *
+	 * @param  sName The parameter name or NULL for a default
+	 *
+	 * @return The label parameter
+	 */
+	public Parameter<Date> inputDate(String sName)
+	{
+		return input(sName, Date.class).set(DATE_INPUT_TYPE,
+											DateInputType.INPUT_FIELD);
+	}
+
+	/***************************************
+	 * Creates a parameter for a text input field.
+	 *
+	 * @param  sName The parameter name or NULL for a default
+	 *
+	 * @return The label parameter
+	 */
+	public Parameter<String> inputText(String sName)
+	{
+		return input(sName, String.class);
 	}
 
 	/***************************************
@@ -724,6 +794,46 @@ public abstract class InteractionFragment extends ProcessFragment
 	public Parameter<Integer> intParam(String sName)
 	{
 		return param(sName, Integer.class);
+	}
+
+	/***************************************
+	 * Creates a parameter that displays a label string with the default label
+	 * style.
+	 *
+	 * @param  sLabelText The label text
+	 *
+	 * @return The label parameter
+	 */
+	public Parameter<String> label(String sLabelText)
+	{
+		return label(sLabelText, LabelStyle.DEFAULT);
+	}
+
+	/***************************************
+	 * Creates a new display parameter for a string value with a certain label
+	 * style.
+	 *
+	 * @param  sLabelString The label string
+	 * @param  eStyle       The style of the label
+	 *
+	 * @return The new parameter
+	 */
+	public Parameter<String> label(String sLabelString, LabelStyle eStyle)
+	{
+		return textParam(null).set(LABEL_STYLE, eStyle).hideLabel()
+							  .value(sLabelString);
+	}
+
+	/***************************************
+	 * Sets the layout of this fragment.
+	 *
+	 * @param  eLayout The layout
+	 *
+	 * @return
+	 */
+	public ParameterList layout(Layout eLayout)
+	{
+		return fragmentParam().layout(eLayout);
 	}
 
 	/***************************************
@@ -885,7 +995,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <T> Parameter<T> param(String sName, Class<? super T> rDatatype)
 	{
-		return param(getTemporaryParameterType(sName, rDatatype));
+		return param(getTemporaryParameterType(sName, rDatatype)).display();
 	}
 
 	/***************************************
@@ -1510,8 +1620,9 @@ public abstract class InteractionFragment extends ProcessFragment
 		ViewFragment aViewFragment =
 			new ViewFragment(sParamNameTemplate,
 							 rContentFragment,
-							 bModal ? UserInterfaceProperties.ViewDisplayType.MODAL_VIEW
-									: UserInterfaceProperties.ViewDisplayType.VIEW);
+							 bModal
+							 ? UserInterfaceProperties.ViewDisplayType.MODAL_VIEW
+							 : UserInterfaceProperties.ViewDisplayType.VIEW);
 
 		aViewFragment.show(this);
 
