@@ -720,6 +720,19 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * Creates an input parameter for a certain datatype. This method first
+	 * invokes {@link #param(RelationType)} and then {@link Parameter#input()}.
+	 *
+	 * @param  rParam The parameter to wrap
+	 *
+	 * @return A new parameter instance
+	 */
+	public <T> Parameter<T> input(RelationType<T> rParam)
+	{
+		return param(rParam).input();
+	}
+
+	/***************************************
+	 * Creates an input parameter for a certain datatype. This method first
 	 * invokes {@link #param(String, Class)} and then {@link Parameter#input()}.
 	 *
 	 * @param  sName     The parameter name or NULL for a default
@@ -964,7 +977,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @param  rParam The parameter to wrap
 	 *
-	 * @return the parameter wrapper
+	 * @return A new parameter instance
 	 */
 	public <T> Parameter<T> param(RelationType<T> rParam)
 	{
