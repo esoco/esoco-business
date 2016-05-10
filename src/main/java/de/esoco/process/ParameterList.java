@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-
 
 /********************************************************************
  * A {@link Parameter} subclasses for that manages a parameter that refers to a
@@ -118,34 +116,6 @@ public class ParameterList
 	}
 
 	/***************************************
-	 * Adds a row of parameters to this list. For all parameters after the first
-	 * in the row will the flag {@link UserInterfaceProperties#SAME_ROW} will be
-	 * set.
-	 *
-	 * @param  rRowParams Optional additional parameters in the row
-	 *
-	 * @return This instance for concatenation
-	 */
-	public ParameterList display(ParameterBase<?, ?>... rRowParams)
-	{
-		boolean bAdditionalParam = false;
-
-		add(rRowParams);
-
-		for (ParameterBase<?, ?> rParam : rRowParams)
-		{
-			if (bAdditionalParam)
-			{
-				rParam.set(SAME_ROW);
-			}
-
-			bAdditionalParam = true;
-		}
-
-		return this;
-	}
-
-	/***************************************
 	 * Marks the parameters that have been added to this parameter's fragment
 	 * with the last call to {@link #add(Parameter...)} for input.
 	 *
@@ -162,17 +132,5 @@ public class ParameterList
 		}
 
 		return this;
-	}
-
-	/***************************************
-	 * A convenience method that invokes the {@link #row(Parameter...)} and
-	 * {@link #forInput()} methods.
-	 *
-	 * @see #display(ParameterBase...)
-	 * @see #forInput()
-	 */
-	public ParameterList input(ParameterBase<?, ?>... rRowParams)
-	{
-		return display(rRowParams).forInput();
 	}
 }
