@@ -254,19 +254,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Adds a subordinate fragment to this instance into a temporary parameter
-	 * and directly displays it.
-	 *
-	 * @see #addSubFragment(String, InteractionFragment, boolean)
-	 */
-	public Parameter<List<RelationType<?>>> addSubFragment(
-		String				sName,
-		InteractionFragment rSubFragment)
-	{
-		return addSubFragment(sName, rSubFragment, true);
-	}
-
-	/***************************************
 	 * Overridden to set the parent of the sub-fragment to this instance.
 	 *
 	 * @return
@@ -309,25 +296,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @param  sName        The name of the temporary fragment parameter
 	 * @param  rSubFragment The fragment to add
-	 * @param  bDisplay     TRUE to invoke {@link Parameter#display()} on the
-	 *                      new fragment parameter
 	 *
 	 * @return The wrapper for the fragment parameter
 	 */
 	public Parameter<List<RelationType<?>>> addSubFragment(
 		String				sName,
-		InteractionFragment rSubFragment,
-		boolean				bDisplay)
+		InteractionFragment rSubFragment)
 	{
 		Parameter<List<RelationType<?>>> rSubFragmentParam =
 			listParam(sName, RelationType.class);
 
 		addSubFragment(rSubFragmentParam.type(), rSubFragment);
-
-		if (bDisplay)
-		{
-			rSubFragmentParam.display();
-		}
+		rSubFragmentParam.display();
 
 		return rSubFragmentParam.hideLabel();
 	}

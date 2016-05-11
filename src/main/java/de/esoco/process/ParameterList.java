@@ -97,8 +97,7 @@ public class ParameterList
 	{
 		return add(fragment().addSubFragment(rSubFragment.getClass()
 											 .getSimpleName(),
-											 rSubFragment,
-											 !bIsPanel));
+											 rSubFragment));
 	}
 
 	/***************************************
