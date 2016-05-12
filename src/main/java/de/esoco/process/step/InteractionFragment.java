@@ -214,6 +214,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addPanelParameters(Collection<RelationType<?>> rPanelParams)
+	{
+		super.addPanelParameters(rPanelParams);
+
+		getInteractionParameters().removeAll(rPanelParams);
+	}
+
+	/***************************************
 	 * Convenience method to add a listener to the process step relation with
 	 * the type {@link ProcessRelationTypes#PARAM_UPDATE_LISTENERS}. To remove a
 	 * listener it should be removed from the parameter set directly.
@@ -948,7 +959,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rListType =
 			getTemporaryListType(sName, RelationType.class);
 
-		return new ParameterList(this, rListType, true);
+		return new ParameterList(this, rListType, true).input();
 	}
 
 	/***************************************
