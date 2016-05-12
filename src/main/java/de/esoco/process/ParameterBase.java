@@ -27,6 +27,7 @@ import de.esoco.lib.property.UserInterfaceProperties.Layout;
 import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
+import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
@@ -471,6 +472,24 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Sets a simple event handler for action events of this parameter. This
+	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
+	 * with the mode {@link InteractiveInputMode#ACTION}.
+	 *
+	 * @param  rRunnable The runnable to be invoked on an action event
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P onAction(final Runnable rRunnable)
+	{
+		interactive(InteractiveInputMode.ACTION);
+		setRunnableEventHandler(rRunnable);
+
+		return (P) this;
+	}
+
+	/***************************************
 	 * Registers an event handler that will be notified of changes of this
 	 * parameter's relation.
 	 *
@@ -514,6 +533,24 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P onEvent(InteractionHandler rEventHandler)
 	{
 		rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Sets a simple event handler for update events of this parameter. This
+	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
+	 * with the mode {@link InteractiveInputMode#CONTINUOUS}.
+	 *
+	 * @param  rRunnable The runnable to be invoked on an action event
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P onUpdate(final Runnable rRunnable)
+	{
+		interactive(InteractiveInputMode.CONTINUOUS);
+		setRunnableEventHandler(rRunnable);
 
 		return (P) this;
 	}
@@ -767,5 +804,25 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P width(int nWidth)
 	{
 		return set(nWidth, WIDTH);
+	}
+
+	/***************************************
+	 * Helper method to set a parameter event handler that forwards interaction
+	 * events to a runnable object.
+	 *
+	 * @param rRunnable The runnable to be invoked on interaction events
+	 */
+	private void setRunnableEventHandler(final Runnable rRunnable)
+	{
+		rFragment.setParameterInteractionHandler(rParamType,
+			new InteractionHandler()
+			{
+				@Override
+				public void handleInteraction(InteractionEvent rEvent)
+					throws Exception
+				{
+					rRunnable.run();
+				}
+			});
 	}
 }
