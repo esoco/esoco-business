@@ -318,49 +318,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT} which
-	 * defines the table cell height in a panel with a {@link Layout#TABLE GRID}
-	 * layout.
-	 *
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P gridHeight(String sHeight)
-	{
-		return set(HTML_HEIGHT, sHeight);
-	}
-
-	/***************************************
-	 * Sets the UI properties {@link UserInterfaceProperties#HTML_WIDTH} and
-	 * {@link UserInterfaceProperties#HTML_HEIGHT} which defines the table cell
-	 * size in a panel with a {@link Layout#TABLE GRID} layout.
-	 *
-	 * @param  sWidth  The HTML width string
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P gridSize(String sWidth, String sHeight)
-	{
-		return gridWidth(sWidth).gridHeight(sHeight);
-	}
-
-	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH} which
-	 * defines the table cell width in a panel with a {@link Layout#TABLE GRID}
-	 * layout.
-	 *
-	 * @param  sWidth The HTML width string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P gridWidth(String sWidth)
-	{
-		return set(HTML_WIDTH, sWidth);
-	}
-
-	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#HEIGHT} which defines
 	 * the height of the parameter component in panels with a layout that
 	 * requires a size value (like {@link Layout#DOCK} and {@link
@@ -393,6 +350,47 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P hideLabel()
 	{
 		return set(HIDE_LABEL);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}. This is
+	 * currently only used to define the table cell height in a panel with a
+	 * {@link Layout#TABLE} layout.
+	 *
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P htmlHeight(String sHeight)
+	{
+		return set(HTML_HEIGHT, sHeight);
+	}
+
+	/***************************************
+	 * Invokes {@link #htmlWidth(String)} and {@link #htmlHeight(String)}.
+	 *
+	 * @param  sWidth  The HTML width string
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P htmlSize(String sWidth, String sHeight)
+	{
+		return htmlWidth(sWidth).htmlHeight(sHeight);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH}. This is
+	 * currently only used to define the table cell width in a panel with a
+	 * {@link Layout#TABLE} layout.
+	 *
+	 * @param  sWidth The HTML width string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P htmlWidth(String sWidth)
+	{
+		return set(HTML_WIDTH, sWidth);
 	}
 
 	/***************************************

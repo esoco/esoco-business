@@ -68,7 +68,7 @@ public class EditInteractionParameters extends InteractionFragment
 		aElementTree   = new InteractionParameterTree(rRootParams);
 		aElementEditor = new EditInteractionParameter();
 
-		addSubFragment(aElementTree).gridWidth("300px");
+		addSubFragment(aElementTree).htmlWidth("300px");
 		addSubFragment(aElementEditor);
 	}
 
