@@ -29,13 +29,13 @@ import de.esoco.entity.ExtraAttributes;
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractAction;
+import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.LabelStyle;
+import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.LabelStyle;
-import de.esoco.lib.property.UserInterfaceProperties.Layout;
-
+import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
@@ -1625,8 +1625,8 @@ public abstract class InteractionFragment extends ProcessFragment
 			new ViewFragment(sParamNameTemplate,
 							 rContentFragment,
 							 bModal
-							 ? UserInterfaceProperties.ViewDisplayType.MODAL_VIEW
-							 : UserInterfaceProperties.ViewDisplayType.VIEW);
+							 ? ViewDisplayType.MODAL_VIEW
+							 : ViewDisplayType.VIEW);
 
 		aViewFragment.show(this);
 

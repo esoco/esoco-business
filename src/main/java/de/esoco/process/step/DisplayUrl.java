@@ -16,8 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
+import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.InteractiveInputMode;
 
 import java.net.URL;
 

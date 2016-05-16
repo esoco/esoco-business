@@ -17,9 +17,8 @@
 package de.esoco.entity;
 
 import de.esoco.lib.logging.LogLevel;
+import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-
 import de.esoco.storage.StorageRelationTypes;
 
 import java.util.Date;

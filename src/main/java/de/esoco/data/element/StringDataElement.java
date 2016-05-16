@@ -17,9 +17,8 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
-
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
 import java.util.ArrayList;
 import java.util.Arrays;

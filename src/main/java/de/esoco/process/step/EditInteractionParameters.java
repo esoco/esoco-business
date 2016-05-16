@@ -16,8 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
+import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.Updatable;
-import de.esoco.lib.property.UserInterfaceProperties.Layout;
 
 import java.util.List;
 

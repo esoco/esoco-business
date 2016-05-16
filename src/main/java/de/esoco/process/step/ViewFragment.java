@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.lib.property.UserInterfaceProperties.ViewDisplayType;
+import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.lib.text.TextConvert;
 
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ import java.util.List;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
+import static de.esoco.lib.property.LayoutProperties.VIEW_DISPLAY_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.VIEW_DISPLAY_TYPE;
 
 import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 

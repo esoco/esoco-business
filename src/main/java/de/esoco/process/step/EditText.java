@@ -19,10 +19,9 @@ package de.esoco.process.step;
 import de.esoco.lib.event.EditListener;
 import de.esoco.lib.event.EditListener.EditAction;
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.Layout;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,13 +29,13 @@ import java.util.Map;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.EDITABLE;
 import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
@@ -252,9 +251,7 @@ public class EditText extends InteractionFragment
 		setUIProperty(STYLE, "EditTextValue", rValueParam);
 		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
 
-		addPanel(aActionPanelParam,
-				 UserInterfaceProperties.Layout.TABLE,
-				 aActionPanelParams);
+		addPanel(aActionPanelParam, Layout.TABLE, aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());

@@ -26,9 +26,8 @@ import de.esoco.history.HistoryManager;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.net.ExternalServiceAccess;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
-
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;

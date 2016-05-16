@@ -31,11 +31,11 @@ import de.esoco.lib.event.EditListener;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
-
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.EditText;
@@ -366,7 +366,7 @@ public class DisplayEntityHistory extends InteractionFragment
 
 		setUIFlag(VERTICAL, rFragmentParam);
 		setUIProperty(UserInterfaceProperties.LAYOUT,
-					  UserInterfaceProperties.Layout.SPLIT,
+					  Layout.SPLIT,
 					  rFragmentParam);
 
 		setInteractive(InteractiveInputMode.BOTH, ENTITY_HISTORY);

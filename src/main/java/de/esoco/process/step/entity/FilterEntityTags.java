@@ -25,9 +25,8 @@ import de.esoco.entity.ExtraAttribute;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
-
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.QueryPredicate;

@@ -19,13 +19,12 @@ package de.esoco.process;
 import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.Layout;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
-
 import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
@@ -38,25 +37,25 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
+import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
+import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.CSS_STYLES;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
 import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.ROW_SPAN;
 import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
 import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
-import static de.esoco.lib.property.UserInterfaceProperties.WIDTH;
 
 
 /********************************************************************
@@ -247,9 +246,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets a CSS style property for the parameter. The style values must be
-	 * instances of {@link HasCssName} as defined in the GWT class {@link
-	 * Style}.
+	 * Sets a CSS style property for the parameter.
 	 *
 	 * @param  sCssProperty The name of the CSS property
 	 * @param  sValue       The value of the CSS property or NULL to clear
@@ -462,7 +459,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P layout(UserInterfaceProperties.Layout eLayout)
+	public P layout(Layout eLayout)
 	{
 		set(UserInterfaceProperties.LAYOUT, eLayout);
 

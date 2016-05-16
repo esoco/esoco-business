@@ -16,8 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
+import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.Layout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;

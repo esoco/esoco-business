@@ -21,8 +21,7 @@ import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.manage.TransactionException;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
-
+import de.esoco.lib.property.ListStyle;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;

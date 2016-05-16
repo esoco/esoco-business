@@ -17,9 +17,9 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ProcessRelationTypes.ListAction;

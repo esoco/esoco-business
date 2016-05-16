@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.lib.property.UserInterfaceProperties;
+import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.process.InvalidParametersException;
 
 import java.util.Collection;
@@ -172,7 +172,7 @@ public class DialogFragment extends ViewFragment
 	{
 		super(sParamNameTemplate,
 			  rContentFragment,
-			  bModal ? UserInterfaceProperties.ViewDisplayType.MODAL_DIALOG : UserInterfaceProperties.ViewDisplayType.DIALOG);
+			  bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 
 		this.sQuestion	    = sQuestion;
 		this.rDialogActions = rDialogActions;

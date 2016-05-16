@@ -43,15 +43,15 @@ import de.esoco.lib.expression.function.CalendarFunctions;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.model.DataSet;
 import de.esoco.lib.model.IntDataSet;
+import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.Layout;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
@@ -88,19 +88,19 @@ import static de.esoco.lib.expression.Functions.doIfElse;
 import static de.esoco.lib.expression.Functions.value;
 import static de.esoco.lib.expression.Predicates.isNull;
 import static de.esoco.lib.expression.Predicates.lessThan;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.LAYOUT;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
 import static de.esoco.lib.property.UserInterfaceProperties.INTERACTIVE_INPUT_MODE;
-import static de.esoco.lib.property.UserInterfaceProperties.LAYOUT;
 import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.SELECTION_DEPENDENCY;
 import static de.esoco.lib.property.UserInterfaceProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
 import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
@@ -249,17 +249,17 @@ public abstract class ProcessFragment extends ProcessElement
 	 *
 	 * @param rPanelParam         The data element list parameter to be
 	 *                            displayed as a panel
-	 * @param eDisplayMode        The display mode for the panel
+	 * @param eLayout             The layout for the panel
 	 * @param rPanelContentParams The list of parameters to be displayed in the
 	 *                            panel
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		Layout								eDisplayMode,
+		Layout								eLayout,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
-		setLayout(eDisplayMode, rPanelParam);
+		setLayout(eLayout, rPanelParam);
 
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
