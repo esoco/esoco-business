@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.ListStyle;
+
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;
@@ -38,8 +39,8 @@ import org.obrel.core.RelationTypes;
 
 import static de.esoco.entity.EntityRelationTypes.ENTITY_TAGS;
 
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newSetType;
@@ -245,16 +246,16 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 											  Collections.unmodifiableSet(rNewTags));
 				}
 
-				if (rFilterEntityTags != null)
-				{
-					rFilterEntityTags.updateTagList();
-				}
-
 				rCurrentTags = rNewTags;
 
 				if (bAutoStore)
 				{
 					EntityManager.storeEntity(rEntity, getProcessUser());
+				}
+
+				if (rFilterEntityTags != null)
+				{
+					rFilterEntityTags.updateTagList();
 				}
 			}
 		}
