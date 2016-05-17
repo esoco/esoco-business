@@ -19,12 +19,16 @@ package de.esoco.process;
 import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.property.UserInterfaceProperties;
+
 import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
@@ -37,6 +41,13 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.ContentProperties.ICON;
+import static de.esoco.lib.property.ContentProperties.ICON_ALIGNMENT;
+import static de.esoco.lib.property.ContentProperties.ICON_SIZE;
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HEIGHT;
@@ -44,18 +55,14 @@ import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
-import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.CSS_STYLES;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
-import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
+import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.STYLE;
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
@@ -388,6 +395,66 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P htmlWidth(String sWidth)
 	{
 		return set(HTML_WIDTH, sWidth);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link ContentProperties#ICON}.
+	 *
+	 * @param  sIconName The name of the icon to be displayed in the target
+	 *                   object
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sIconName)
+	{
+		return set(ICON, sIconName);
+	}
+
+	/***************************************
+	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
+	 * ContentProperties#ICON_SIZE}.
+	 *
+	 * @param  sName The name of the icon to be displayed in the target object
+	 * @param  eSize The relative size of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sName, RelativeScale eSize)
+	{
+		return icon(sName).set(ICON_SIZE, eSize);
+	}
+
+	/***************************************
+	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
+	 * ContentProperties#ICON_ALIGNMENT}. Not all types of {@link Alignment} may
+	 * be supported in an UI implementation.
+	 *
+	 * @param  sName      The name of the icon to be displayed in the target
+	 *                    object
+	 * @param  eAlignment The position alignment of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sName, Alignment eAlignment)
+	{
+		return icon(sName).set(ICON_ALIGNMENT, eAlignment);
+	}
+
+	/***************************************
+	 * Sets all icon UI properties ({@link ContentProperties#ICON}. {@link
+	 * ContentProperties#ICON_SIZE}, and {@link
+	 * ContentProperties#ICON_ALIGNMENT}).
+	 *
+	 * @param  sName      The name of the icon to be displayed in the target
+	 *                    object
+	 * @param  eSize      The relative size of the icon
+	 * @param  eAlignment The position alignment of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sName, RelativeScale eSize, Alignment eAlignment)
+	{
+		return icon(sName, eSize).set(ICON_ALIGNMENT, eAlignment);
 	}
 
 	/***************************************
