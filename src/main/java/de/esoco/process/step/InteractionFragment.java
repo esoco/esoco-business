@@ -29,6 +29,7 @@ import de.esoco.entity.ExtraAttributes;
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractAction;
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LabelStyle;
@@ -36,6 +37,7 @@ import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
+
 import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
@@ -77,11 +79,13 @@ import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 
-import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL_STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.URL;
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.ContentProperties.URL;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
@@ -350,6 +354,21 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <E extends Enum<E>> Parameter<E> buttons(Class<E> rEnumClass)
 	{
 		return param(rEnumClass).buttons();
+	}
+
+	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum.
+	 *
+	 * @param  rEnumClass The enum class to create the buttons from
+	 * @param  eStyle     The button style
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> buttons(
+		Class<E>    rEnumClass,
+		ButtonStyle eStyle)
+	{
+		return param(rEnumClass).buttons().set(BUTTON_STYLE, eStyle);
 	}
 
 	/***************************************
@@ -680,6 +699,33 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum.
+	 *
+	 * @param  rEnumClass The enum class to create the buttons from
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> iconButtons(Class<E> rEnumClass)
+	{
+		return iconButtons(rEnumClass, ButtonStyle.ICON).set(HAS_IMAGES);
+	}
+
+	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum.
+	 *
+	 * @param  rEnumClass The enum class to create the buttons from
+	 * @param  eStyle     The button style (not all styles may support icons)
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> iconButtons(
+		Class<E>    rEnumClass,
+		ButtonStyle eStyle)
+	{
+		return buttons(rEnumClass, eStyle).set(HAS_IMAGES);
+	}
+
+	/***************************************
 	 * Initializes a parameter for the display of a storage query.
 	 *
 	 * @param  rParam       The parameter to initialize the query for
@@ -798,6 +844,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	public Parameter<Integer> intParam(String sName)
 	{
 		return param(sName, Integer.class);
+	}
+
+	/***************************************
+	 * Checks whether this instance has already been initialized, i.e. returned
+	 * from it's {@link #init()} method.
+	 *
+	 * @return TRUE if this instance has been completely initialized
+	 */
+	public final boolean isInitialized()
+	{
+		return bInitialized;
 	}
 
 	/***************************************
@@ -1218,6 +1275,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * This method will be invoked after the initialization of a fragment and
+	 * it's hierarchy of sub-fragments has been completed. This can be used by
+	 * subclasses to execute code that depends on a full initialization. The
+	 * default implementation does nothing.
+	 */
+	protected void initComplete()
+	{
+	}
+
+	/***************************************
 	 * Will be invoked after the process step of this fragment has been set. Can
 	 * be implemented by subclasses to initialize process step-specific
 	 * parameters. The default implementation does nothing.
@@ -1624,9 +1691,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		ViewFragment aViewFragment =
 			new ViewFragment(sParamNameTemplate,
 							 rContentFragment,
-							 bModal
-							 ? ViewDisplayType.MODAL_VIEW
-							 : ViewDisplayType.VIEW);
+							 bModal ? ViewDisplayType.MODAL_VIEW
+									: ViewDisplayType.VIEW);
 
 		aViewFragment.show(this);
 
@@ -1867,6 +1933,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		markFragmentInputParams();
 		bInitialized = true;
+		initComplete();
 	}
 
 	/***************************************

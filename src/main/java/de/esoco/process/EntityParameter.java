@@ -45,8 +45,7 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
  * @author eso
  * @see    ParameterBase
  */
-public class EntityParameter<E extends Entity>
-	extends ParameterBase<E, EntityParameter<E>>
+public class EntityParameter<E extends Entity> extends Parameter<E>
 {
 	//~ Constructors -----------------------------------------------------------
 

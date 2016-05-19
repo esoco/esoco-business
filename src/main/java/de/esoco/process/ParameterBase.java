@@ -24,9 +24,12 @@ import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeScale;
+import de.esoco.lib.property.RelativeSize;
+import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -37,14 +40,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.ICON;
-import static de.esoco.lib.property.ContentProperties.ICON_ALIGNMENT;
-import static de.esoco.lib.property.ContentProperties.ICON_SIZE;
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.ContentProperties.TOOLTIP;
@@ -53,6 +55,8 @@ import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.RELATIVE_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
 import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
@@ -61,6 +65,8 @@ import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.ICON_ALIGNMENT;
+import static de.esoco.lib.property.StyleProperties.ICON_SIZE;
 import static de.esoco.lib.property.StyleProperties.STYLE;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -80,6 +86,7 @@ import static de.esoco.lib.property.StyleProperties.VERTICAL;
  * @author eso
  */
 public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
+	extends RelatedObject
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -322,10 +329,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HEIGHT} which defines
-	 * the height of the parameter component in panels with a layout that
-	 * requires a size value (like {@link Layout#DOCK} and {@link
-	 * Layout#SPLIT}).
+	 * Sets the pixel width of an element in the UI property {@link
+	 * LayoutProperties#WIDTH}.
 	 *
 	 * @param  nHeight nWidth The width
 	 *
@@ -334,6 +339,30 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P height(int nHeight)
 	{
 		return set(nHeight, HEIGHT);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link LayoutProperties#RELATIVE_WIDTH}.
+	 *
+	 * @param  eHeight sWidth The relative width constant
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P height(RelativeSize eHeight)
+	{
+		return set(RELATIVE_HEIGHT, eHeight);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}.
+	 *
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P height(String sHeight)
+	{
+		return set(HTML_HEIGHT, sHeight);
 	}
 
 	/***************************************
@@ -357,47 +386,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}. This is
-	 * currently only used to define the table cell height in a panel with a
-	 * {@link Layout#TABLE} layout.
-	 *
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P htmlHeight(String sHeight)
-	{
-		return set(HTML_HEIGHT, sHeight);
-	}
-
-	/***************************************
-	 * Invokes {@link #htmlWidth(String)} and {@link #htmlHeight(String)}.
-	 *
-	 * @param  sWidth  The HTML width string
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P htmlSize(String sWidth, String sHeight)
-	{
-		return htmlWidth(sWidth).htmlHeight(sHeight);
-	}
-
-	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH}. This is
-	 * currently only used to define the table cell width in a panel with a
-	 * {@link Layout#TABLE} layout.
-	 *
-	 * @param  sWidth The HTML width string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P htmlWidth(String sWidth)
-	{
-		return set(HTML_WIDTH, sWidth);
-	}
-
-	/***************************************
 	 * Sets the UI property {@link ContentProperties#ICON}.
 	 *
 	 * @param  sIconName The name of the icon to be displayed in the target
@@ -412,7 +400,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
-	 * ContentProperties#ICON_SIZE}.
+	 * StyleProperties#ICON_SIZE}.
 	 *
 	 * @param  sName The name of the icon to be displayed in the target object
 	 * @param  eSize The relative size of the icon
@@ -426,7 +414,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
-	 * ContentProperties#ICON_ALIGNMENT}. Not all types of {@link Alignment} may
+	 * StyleProperties#ICON_ALIGNMENT}. Not all types of {@link Alignment} may
 	 * be supported in an UI implementation.
 	 *
 	 * @param  sName      The name of the icon to be displayed in the target
@@ -442,8 +430,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets all icon UI properties ({@link ContentProperties#ICON}. {@link
-	 * ContentProperties#ICON_SIZE}, and {@link
-	 * ContentProperties#ICON_ALIGNMENT}).
+	 * StyleProperties#ICON_SIZE}, and {@link StyleProperties#ICON_ALIGNMENT}).
 	 *
 	 * @param  sName      The name of the icon to be displayed in the target
 	 *                    object
@@ -761,6 +748,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Invokes {@link #width(String)} and {@link #height(String)}.
+	 *
+	 * @param  sWidth  The HTML width string
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P size(String sWidth, String sHeight)
+	{
+		return width(sWidth).height(sHeight);
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#STYLE}.
 	 *
 	 * @param  sStyle The style name(s)
@@ -854,10 +854,32 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#WIDTH} which defines
-	 * the width of the parameter component in panels with a layout that
-	 * requires a size value (like {@link Layout#DOCK} and {@link
-	 * Layout#SPLIT}).
+	 * Sets the UI property {@link LayoutProperties#HTML_WIDTH}.
+	 *
+	 * @param  sWidth The HTML width string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P width(String sWidth)
+	{
+		return set(HTML_WIDTH, sWidth);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link LayoutProperties#RELATIVE_WIDTH}.
+	 *
+	 * @param  eWidth The relative width constant
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P width(RelativeSize eWidth)
+	{
+		return set(RELATIVE_WIDTH, eWidth);
+	}
+
+	/***************************************
+	 * Sets the pixel width of an element in the UI property {@link
+	 * LayoutProperties#WIDTH}.
 	 *
 	 * @param  nWidth The width
 	 *
