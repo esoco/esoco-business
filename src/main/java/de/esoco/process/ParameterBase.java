@@ -525,15 +525,15 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
 	 * with the mode {@link InteractiveInputMode#ACTION}.
 	 *
-	 * @param  rRunnable The runnable to be invoked on an action event
+	 * @param  rEventHandler The runnable to be invoked on an action event
 	 *
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onAction(final Runnable rRunnable)
+	public final P onAction(ParameterEventHandler<T> rEventHandler)
 	{
 		interactive(InteractiveInputMode.ACTION);
-		setRunnableEventHandler(rRunnable);
+		setParameterEventHandler(rEventHandler);
 
 		return (P) this;
 	}
@@ -591,15 +591,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
 	 * with the mode {@link InteractiveInputMode#CONTINUOUS}.
 	 *
-	 * @param  rRunnable The runnable to be invoked on an action event
+	 * @param  rEventHandler rRunnable The runnable to be invoked on an action
+	 *                       event
 	 *
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onUpdate(final Runnable rRunnable)
+	public final P onUpdate(ParameterEventHandler<T> rEventHandler)
 	{
 		interactive(InteractiveInputMode.CONTINUOUS);
-		setRunnableEventHandler(rRunnable);
+		setParameterEventHandler(rEventHandler);
 
 		return (P) this;
 	}
@@ -655,13 +656,41 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Marks this parameter to be displayed in the same row as the previous
-	 * parameter (in table-based layouts).
+	 * parameter (in grid and table layouts).
 	 *
 	 * @return This instance for concatenation
 	 */
 	public final P sameRow()
 	{
 		return set(SAME_ROW);
+	}
+
+	/***************************************
+	 * Marks this parameter to be displayed in the same row as the previous
+	 * parameter with a certain column span in a grid or table layout.
+	 *
+	 * @param  nColumnSpan The number of columns that the parameter UI should
+	 *                     span
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P sameRow(int nColumnSpan)
+	{
+		return sameRow().colSpan(nColumnSpan);
+	}
+
+	/***************************************
+	 * Marks this parameter to be displayed in the same row as the previous
+	 * parameter with a certain width in a grid layout.
+	 *
+	 * @param  eColumnWidth The relative width of the parameter UI in a grid
+	 *                      layout
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P sameRow(RelativeSize eColumnWidth)
+	{
+		return sameRow().width(eColumnWidth);
 	}
 
 	/***************************************
@@ -894,9 +923,11 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Helper method to set a parameter event handler that forwards interaction
 	 * events to a runnable object.
 	 *
-	 * @param rRunnable The runnable to be invoked on interaction events
+	 * @param rEventHandler rRunnable The runnable to be invoked on interaction
+	 *                      events
 	 */
-	private void setRunnableEventHandler(final Runnable rRunnable)
+	private void setParameterEventHandler(
+		final ParameterEventHandler<T> rEventHandler)
 	{
 		rFragment.setParameterInteractionHandler(rParamType,
 			new InteractionHandler()
@@ -905,8 +936,27 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 				public void handleInteraction(InteractionEvent rEvent)
 					throws Exception
 				{
-					rRunnable.run();
+					rEventHandler.handleParameterUpdate(value());
 				}
 			});
+	}
+
+	//~ Inner Interfaces -------------------------------------------------------
+
+	/********************************************************************
+	 * TODO: DOCUMENT ME!
+	 *
+	 * @author eso
+	 */
+	public static interface ParameterEventHandler<T>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * TODO: DOCUMENT ME!
+		 *
+		 * @param rParamValue TODO: DOCUMENT ME!
+		 */
+		public void handleParameterUpdate(T rParamValue);
 	}
 }

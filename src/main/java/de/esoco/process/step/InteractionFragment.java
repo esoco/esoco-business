@@ -80,6 +80,7 @@ import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.DISABLED;
@@ -686,8 +687,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a parameter that displays a label string with the default label
-	 * style.
+	 * Creates a parameter that displays a label with an icon.
 	 *
 	 * @param  sIconName sLabelText The label text
 	 *
@@ -695,11 +695,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public Parameter<String> icon(String sIconName)
 	{
-		return label(sIconName, LabelStyle.ICON);
+		return label("", LabelStyle.ICON).set(ICON, sIconName);
 	}
 
 	/***************************************
-	 * Creates a parameter that displays interactive buttons from an enum.
+	 * Creates a parameter that displays interactive buttons from an enum as
+	 * icons.
 	 *
 	 * @param  rEnumClass The enum class to create the buttons from
 	 *
@@ -707,22 +708,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> Parameter<E> iconButtons(Class<E> rEnumClass)
 	{
-		return iconButtons(rEnumClass, ButtonStyle.ICON).set(HAS_IMAGES);
-	}
-
-	/***************************************
-	 * Creates a parameter that displays interactive buttons from an enum.
-	 *
-	 * @param  rEnumClass The enum class to create the buttons from
-	 * @param  eStyle     The button style (not all styles may support icons)
-	 *
-	 * @return The new parameter
-	 */
-	public <E extends Enum<E>> Parameter<E> iconButtons(
-		Class<E>    rEnumClass,
-		ButtonStyle eStyle)
-	{
-		return buttons(rEnumClass, eStyle).set(HAS_IMAGES);
+		return buttons(rEnumClass, ButtonStyle.ICON).set(HAS_IMAGES);
 	}
 
 	/***************************************
@@ -769,42 +755,38 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates an input parameter for a certain datatype. This method first
-	 * invokes {@link #param(String, Class)} and then {@link Parameter#input()}.
+	 * Creates an anonymous input parameter for a certain datatype. This method
+	 * first invokes {@link #param(String, Class)} and then {@link
+	 * Parameter#input()}.
 	 *
-	 * @param  sName     The parameter name or NULL for a default
 	 * @param  rDatatype The datatype class
 	 *
 	 * @return A new parameter instance
 	 */
-	public <T> Parameter<T> input(String sName, Class<T> rDatatype)
+	public <T> Parameter<T> input(Class<T> rDatatype)
 	{
-		return param(sName, rDatatype).input();
+		return param(null, rDatatype).input();
 	}
 
 	/***************************************
 	 * Creates a parameter for a date input field.
 	 *
-	 * @param  sName The parameter name or NULL for a default
-	 *
 	 * @return The label parameter
 	 */
-	public Parameter<Date> inputDate(String sName)
+	public Parameter<Date> inputDate()
 	{
-		return input(sName, Date.class).set(DATE_INPUT_TYPE,
-											DateInputType.INPUT_FIELD);
+		return input(Date.class).set(DATE_INPUT_TYPE,
+									 DateInputType.INPUT_FIELD);
 	}
 
 	/***************************************
-	 * Creates a parameter for a text input field.
-	 *
-	 * @param  sName The parameter name or NULL for a default
+	 * Creates an anonymous parameter for a text input field.
 	 *
 	 * @return The label parameter
 	 */
-	public Parameter<String> inputText(String sName)
+	public Parameter<String> inputText()
 	{
-		return input(sName, String.class);
+		return input(String.class);
 	}
 
 	/***************************************
@@ -1276,11 +1258,18 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * This method will be invoked after the initialization of a fragment and
-	 * it's hierarchy of sub-fragments has been completed. This can be used by
-	 * subclasses to execute code that depends on a full initialization. The
-	 * default implementation does nothing.
+	 * it's hierarchy of sub-fragments has been completed. This means that when
+	 * this method is invoked on a child fragment it's parent has been
+	 * initialized but it's {@link #initComplete()} method hasn't been invoked
+	 * yet.
+	 *
+	 * <p>The purpose of this method is for subclasses to execute code that
+	 * depends on a full initialization. The default implementation does
+	 * nothing.</p>
+	 *
+	 * @throws Exception If the post-initialization code fails
 	 */
-	protected void initComplete()
+	protected void initComplete() throws Exception
 	{
 	}
 
