@@ -40,7 +40,6 @@ import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.EditText;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 

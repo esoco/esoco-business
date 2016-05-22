@@ -26,7 +26,6 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.process.step.DialogFragment;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 
 import java.util.ArrayList;

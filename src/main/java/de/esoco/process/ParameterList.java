@@ -18,7 +18,6 @@ package de.esoco.process;
 
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.UserInterfaceProperties;
-
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.List;

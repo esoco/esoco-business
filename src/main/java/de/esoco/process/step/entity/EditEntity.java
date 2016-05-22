@@ -37,10 +37,8 @@ import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
-
-import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.InteractionFragment;
-
+import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 

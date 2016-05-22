@@ -20,9 +20,7 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StoragePredicates;
 

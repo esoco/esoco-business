@@ -32,7 +32,6 @@ import de.esoco.lib.text.TextConvert;
 import de.esoco.process.ProcessRelationTypes.ListAction;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 

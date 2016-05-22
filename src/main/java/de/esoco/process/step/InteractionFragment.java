@@ -29,6 +29,7 @@ import de.esoco.entity.ExtraAttributes;
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractAction;
+import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
@@ -259,7 +260,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		{
 			sFragmentName = rFragmentClass.getName();
 			sFragmentName =
-				sFragmentName.substring(sFragmentName.lastIndexOf('.') + 1);
+				sFragmentName.substring(sFragmentName.lastIndexOf('.') + 1) +
+				rSubFragment.nFragmentId;
 		}
 		else
 		{
@@ -986,12 +988,40 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a new anonymous interaction fragment and the associated parameter
+	 * relation type. The initializer argument must perform the initialization
+	 * of the new fragment which it receives as the argument to it's {@link
+	 * Initializer#init(Object)} method. This method is mainly intended to be
+	 * used with lambda expressions introduced with Java 8. In that case it
+	 * allows concise in-line declarations of panel by simply forwarding the
+	 * initialization to a corresponding method in form of a method reference
+	 * with an {@link InteractionFragment} parameter.
+	 *
+	 * @param  rInitializer The fragment initializer
+	 *
+	 * @return the parameter wrapper for the panel parameter
+	 */
+	@SuppressWarnings("serial")
+	public Parameter<List<RelationType<?>>> panel(
+		final Initializer<InteractionFragment> rInitializer)
+	{
+		return addSubFragment(new InteractionFragment()
+			{
+				@Override
+				public void init() throws Exception
+				{
+					rInitializer.init(this);
+				}
+			});
+	}
+
+	/***************************************
 	 * Creates a new temporary relation type for a list of relation types and
 	 * returns a parameter wrapper for it.
 	 *
 	 * @param  sName The name of the parameter list
 	 *
-	 * @return the parameter wrapper for the parameter list
+	 * @return the parameter wrapper for the panel parameter
 	 */
 	public ParameterList panel(String sName)
 	{
