@@ -35,6 +35,7 @@ import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LabelStyle;
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
@@ -372,6 +373,23 @@ public abstract class InteractionFragment extends ProcessFragment
 		ButtonStyle eStyle)
 	{
 		return param(rEnumClass).buttons().set(BUTTON_STYLE, eStyle);
+	}
+
+	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum as
+	 * icons.
+	 *
+	 * @param  rEnumClass The enum class to create the buttons from
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<List<E>> checkBoxes(
+		Class<E> rEnumClass)
+	{
+		return listParam(rEnumClass.getSimpleName(), rEnumClass).interactive(ListStyle.DISCRETE)
+																.hideLabel()
+																.layout(Layout.TABLE)
+																.columns(1);
 	}
 
 	/***************************************
@@ -1103,6 +1121,21 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public void prepareInteraction() throws Exception
 	{
+	}
+
+	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum as
+	 * icons.
+	 *
+	 * @param  rEnumClass The enum class to create the buttons from
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> radioButtons(Class<E> rEnumClass)
+	{
+		return buttons(rEnumClass).interactive(ListStyle.DISCRETE)
+								  .layout(Layout.TABLE)
+								  .columns(1);
 	}
 
 	/***************************************

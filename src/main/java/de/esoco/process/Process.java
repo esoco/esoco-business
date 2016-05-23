@@ -257,6 +257,7 @@ public class Process extends SerializableRelatedObject
 	private boolean bRollbackRestart  = false;
 	private int     nHistoryLevel     = 0;
 	private int     nTransactionLevel = 0;
+	private int     nNextParameterId  = 0;
 
 	private transient HashMap<String, ProcessStep> aProcessSteps;
 	private transient Stack<ProcessStep>		   aExecutionStack;
@@ -1005,6 +1006,16 @@ public class Process extends SerializableRelatedObject
 	{
 		return rContext != null ? rContext.getInteractionHandler()
 								: rInteractionHandler;
+	}
+
+	/***************************************
+	 * Returns an integer ID for the automatic naming of process parameters.
+	 *
+	 * @return The next generated parameter ID
+	 */
+	int getNextParameterId()
+	{
+		return nNextParameterId++;
 	}
 
 	/***************************************

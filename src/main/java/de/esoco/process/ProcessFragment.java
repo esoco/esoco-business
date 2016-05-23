@@ -57,6 +57,7 @@ import de.esoco.lib.text.TextUtil;
 
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -87,23 +88,23 @@ import static de.esoco.lib.expression.Functions.doIfElse;
 import static de.esoco.lib.expression.Functions.value;
 import static de.esoco.lib.expression.Predicates.isNull;
 import static de.esoco.lib.expression.Predicates.lessThan;
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED_ELEMENTS;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.INTERACTIVE_INPUT_MODE;
-import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.SELECTION_DEPENDENCY;
-import static de.esoco.lib.property.UserInterfaceProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
-import static de.esoco.lib.property.UserInterfaceProperties.WRAP;
+import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
+import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY;
+import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
+import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
+import static de.esoco.lib.property.StyleProperties.WRAP;
 
 import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
@@ -141,8 +142,6 @@ public abstract class ProcessFragment extends ProcessElement
 		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
 
 	//~ Instance fields --------------------------------------------------------
-
-	private int nAnonymousParameterCount = 0;
 
 	private Collection<RelationType<?>> aPanelParameters;
 
@@ -2153,7 +2152,7 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (sBaseName == null)
 		{
-			sBaseName = "P" + nAnonymousParameterCount++;
+			sBaseName = "P" + getProcess().getNextParameterId();
 		}
 		else
 		{
