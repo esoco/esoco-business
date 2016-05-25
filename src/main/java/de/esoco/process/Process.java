@@ -257,6 +257,7 @@ public class Process extends SerializableRelatedObject
 	private boolean bRollbackRestart  = false;
 	private int     nHistoryLevel     = 0;
 	private int     nTransactionLevel = 0;
+	private int     nNextFragmentId   = 0;
 	private int     nNextParameterId  = 0;
 
 	private transient HashMap<String, ProcessStep> aProcessSteps;
@@ -569,6 +570,19 @@ public class Process extends SerializableRelatedObject
 	public final String getName()
 	{
 		return sProcessName;
+	}
+
+	/***************************************
+	 * Returns an integer ID for the automatic naming of process fragments. This
+	 * method is intended to be used internally by the framework.
+	 *
+	 * @return   The next generated fragment ID
+	 *
+	 * @category internal
+	 */
+	public int getNextFragmentId()
+	{
+		return nNextFragmentId++;
 	}
 
 	/***************************************
