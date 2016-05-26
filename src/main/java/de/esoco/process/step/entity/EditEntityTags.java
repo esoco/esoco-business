@@ -19,28 +19,23 @@ package de.esoco.process.step.entity;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
+
 import de.esoco.lib.manage.TransactionException;
-import de.esoco.lib.property.ListStyle;
+import de.esoco.lib.property.Layout;
+
+import de.esoco.process.ParameterEventHandler;
+import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.step.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.StorageException;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-
 import static de.esoco.entity.EntityRelationTypes.ENTITY_TAGS;
-
-import static de.esoco.lib.property.ContentProperties.LABEL;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-
-import static org.obrel.core.RelationTypes.newListType;
-import static org.obrel.core.RelationTypes.newSetType;
 
 
 /********************************************************************
@@ -51,31 +46,11 @@ import static org.obrel.core.RelationTypes.newSetType;
  * @author eso
  */
 public class EditEntityTags<E extends Entity> extends InteractionFragment
+	implements ParameterEventHandler<Set<String>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * A standard parameter that can be used to display this fragment in a
-	 * process step.
-	 */
-	public static final RelationType<List<RelationType<?>>> EDIT_ENTITY_TAGS_FRAGMENT =
-		newListType();
-
-	private static final RelationType<Set<String>> SELECTED_ENTITY_TAGS =
-		newSetType(true);
-
-	private static final List<RelationType<?>> INTERACTION_PARAMS =
-		Arrays.<RelationType<?>>asList(SELECTED_ENTITY_TAGS);
-
-	private static final List<RelationType<?>> INPUT_PARAMS =
-		INTERACTION_PARAMS;
-
-	static
-	{
-		RelationTypes.init(EditEntityTags.class);
-	}
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -86,7 +61,10 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	private boolean			    bAutoStore;
 
 	private E		    rEntity;
-	private Set<String> rCurrentTags;
+	private Set<String> rCurrentEntityTags;
+	private Set<String> aInputTags = new LinkedHashSet<>();
+
+	private SetParameter<String> aTagInput;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -130,13 +108,13 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	{
 		this.rEntity = rEntity;
 
-		Set<String> aTags = new LinkedHashSet<>();
+		aInputTags.clear();
 
 		if (rEntity != null)
 		{
 			if (rTagOwner != null)
 			{
-				rCurrentTags =
+				rCurrentEntityTags =
 					rEntity.getExtraAttributeFor(rTagOwner,
 												 ENTITY_TAGS,
 												 null,
@@ -144,16 +122,21 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 			}
 			else
 			{
-				rCurrentTags = rEntity.getExtraAttribute(ENTITY_TAGS, null);
+				rCurrentEntityTags =
+					rEntity.getExtraAttribute(ENTITY_TAGS, null);
 			}
 
-			if (rCurrentTags != null)
+			if (rCurrentEntityTags != null)
 			{
-				aTags.addAll(rCurrentTags);
+				aInputTags.addAll(rCurrentEntityTags);
 			}
 		}
 
-		setParameter(SELECTED_ENTITY_TAGS, aTags);
+		if (aTagInput != null)
+		{
+			aTagInput.value(aInputTags);
+		}
+
 		enableEdit(rEntity != null);
 	}
 
@@ -161,31 +144,16 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<RelationType<?>> getInputParameters()
+	public void handleParameterUpdate(Set<String> aValues)
 	{
-		return INPUT_PARAMS;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<RelationType<?>> getInteractionParameters()
-	{
-		return INTERACTION_PARAMS;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
-		throws Exception
-	{
-		if (rInteractionParam == SELECTED_ENTITY_TAGS)
+		try
 		{
 			updateEntityTags();
-			getAllowedElements(SELECTED_ENTITY_TAGS).addAll(rCurrentTags);
+			aTagInput.allowedElements().addAll(rCurrentEntityTags);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeProcessException(this, e);
 		}
 	}
 
@@ -195,22 +163,27 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		if (sLabel != null)
-		{
-			if (sLabel.length() > 0)
-			{
-				setUIProperty(LABEL, sLabel, SELECTED_ENTITY_TAGS);
-			}
-			else
-			{
-				setUIFlag(HIDE_LABEL, SELECTED_ENTITY_TAGS);
-			}
-		}
+		layout(Layout.TABLE);
+		fragmentParam().resid("EditEntityTagsFragment");
 
 		Set<String> aTags =
 			FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
 
-		setInteractive(SELECTED_ENTITY_TAGS, null, ListStyle.EDITABLE, aTags);
+		aTagInput =
+			inputTags(aTags).onUpdate(this).resid("SelectedEntityTags")
+							.value(aInputTags);
+
+		if (sLabel != null)
+		{
+			if (sLabel.length() > 0)
+			{
+				aTagInput.label(sLabel);
+			}
+			else
+			{
+				aTagInput.hideLabel();
+			}
+		}
 	}
 
 	/***************************************
@@ -221,12 +194,15 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public void updateEntityTags() throws StorageException, TransactionException
 	{
-		Set<String> rSelectedTags = getParameter(SELECTED_ENTITY_TAGS);
+		Set<String> rSelectedTags =
+			aTagInput != null ? aTagInput.value()
+							  : Collections.<String>emptySet();
 
 		if (rSelectedTags.size() > 0 ||
-			(rCurrentTags != null && rCurrentTags.size() > 0))
+			(rCurrentEntityTags != null && rCurrentEntityTags.size() > 0))
 		{
-			if (rCurrentTags == null || !rCurrentTags.equals(rSelectedTags))
+			if (rCurrentEntityTags == null ||
+				!rCurrentEntityTags.equals(rSelectedTags))
 			{
 				HashSet<String> rNewTags = new LinkedHashSet<>(rSelectedTags);
 
@@ -243,7 +219,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 											  Collections.unmodifiableSet(rNewTags));
 				}
 
-				rCurrentTags = rNewTags;
+				rCurrentEntityTags = rNewTags;
 
 				if (bAutoStore)
 				{

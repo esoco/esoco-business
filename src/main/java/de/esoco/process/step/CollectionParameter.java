@@ -51,7 +51,18 @@ public class CollectionParameter<T, C extends Collection<T>,
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the allowed values for a collection parameter.
+	 * Returns the collection of elements that this collection parameter is
+	 * allowed to contain.
+	 *
+	 * @return The collection of allowed elements
+	 */
+	public Collection<T> allowedElements()
+	{
+		return fragment().getAllowedElements(type());
+	}
+
+	/***************************************
+	 * Sets the elements that this collection parameter is allowed to contain.
 	 *
 	 * @see ProcessFragment#setAllowedElements(RelationType, Collection)
 	 */

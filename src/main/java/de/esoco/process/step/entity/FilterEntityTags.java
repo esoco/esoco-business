@@ -399,7 +399,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public void updateTagList() throws StorageException
 	{
-		aTagInput.allow(getAllEntityTags(rEntityType, rTagOwner));
+		aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------
