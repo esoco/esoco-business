@@ -122,6 +122,7 @@ import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
 
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newRelationType;
+import static org.obrel.core.RelationTypes.newSetType;
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 import static org.obrel.type.StandardTypes.MAXIMUM;
 import static org.obrel.type.StandardTypes.MINIMUM;
@@ -2220,6 +2221,45 @@ public abstract class ProcessFragment extends ProcessElement
 		else
 		{
 			assert rParam.getTargetType() == rDatatype;
+		}
+
+		return rParam;
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type that references a {@link Set}
+	 * with a certain element datatype. The parameter will have an empty set as
+	 * it's initial value.
+	 *
+	 * @param  sName        The name of the parameter
+	 * @param  rElementType The set element datatype
+	 * @param  bOrdered     TRUE for a set that keeps the order of it's elements
+	 *
+	 * @return The temporary set parameter type
+	 *
+	 * @see    #getTemporaryParameterType(String, Class)
+	 */
+	protected <T> RelationType<Set<T>> getTemporarySetType(
+		String			 sName,
+		Class<? super T> rElementType,
+		boolean			 bOrdered)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<Set<T>> rParam =
+			(RelationType<Set<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newSetType(sName, rElementType, true, bOrdered);
+
+			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
+		}
+		else
+		{
+			assert rParam.getTargetType() == Set.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
 
 		return rParam;

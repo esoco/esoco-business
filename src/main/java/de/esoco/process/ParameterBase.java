@@ -156,7 +156,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @see ProcessFragment#setAllowedValues(RelationType, Object...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final <C extends Collection<T>> P allow(C rValues)
+	public final P allow(Collection<T> rValues)
 	{
 		rFragment.setAllowedValues(rParamType, rValues);
 
@@ -516,6 +516,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public P layout(Layout eLayout)
 	{
 		set(UserInterfaceProperties.LAYOUT, eLayout);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Marks this parameter as modified.
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P modified()
+	{
+		rFragment.markParameterAsModified(rParamType);
 
 		return (P) this;
 	}
@@ -939,24 +952,5 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 					rEventHandler.handleParameterUpdate(value());
 				}
 			});
-	}
-
-	//~ Inner Interfaces -------------------------------------------------------
-
-	/********************************************************************
-	 * TODO: DOCUMENT ME!
-	 *
-	 * @author eso
-	 */
-	public static interface ParameterEventHandler<T>
-	{
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * TODO: DOCUMENT ME!
-		 *
-		 * @param rParamValue TODO: DOCUMENT ME!
-		 */
-		public void handleParameterUpdate(T rParamValue);
 	}
 }
