@@ -28,7 +28,6 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.step.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 
@@ -60,8 +59,6 @@ import static de.esoco.lib.expression.Predicates.not;
 
 import static de.esoco.storage.StoragePredicates.like;
 
-import static org.obrel.core.RelationTypes.newListType;
-
 
 /********************************************************************
  * A generic interaction fragment for the viewing and editing of entity tags
@@ -88,13 +85,6 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * A standard parameter that can be used to display this fragment in a
-	 * process step.
-	 */
-	public static final RelationType<List<RelationType<?>>> FILTER_ENTITY_TAGS_FRAGMENT =
-		newListType();
-
 	//~ Instance fields --------------------------------------------------------
 
 	private Class<E>    rEntityType;
@@ -104,9 +94,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	private TagFilterListener<E> rTagFilterListener;
 	private String				 sLabel;
 
-	private SetParameter<String>	   aTagInput;
-	private Parameter<TagFilterJoin>   aFilterJoin;
-	private Parameter<Boolean>		   aFilterNegate;
+	private SetParameter<String>     aTagInput;
+	private Parameter<TagFilterJoin> aFilterJoin;
+	private Parameter<Boolean>		 aFilterNegate;
+
 	private Parameter<TagFilterAction> aFilterAction;
 
 	//~ Constructors -----------------------------------------------------------
@@ -217,7 +208,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public Set<Integer> getFilteredEntityIds() throws StorageException
 	{
-		Set<String>  rFilterTags  = aTagInput.value();
+		Set<String> rFilterTags =
+			aTagInput != null ? aTagInput.value()
+							  : Collections.<String>emptySet();
+
 		Set<Integer> aFilteredIds = null;
 
 		if (rFilterTags.size() > 0)
@@ -319,23 +313,60 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void handleInteraction(RelationType<?> rInteractionParam)
+		throws Exception
+	{
+		Set<String> rFilterTags = aTagInput.value();
+
+		if (rInteractionParam == aFilterAction.type())
+		{
+			switch (aFilterAction.value())
+			{
+				case CLEAR:
+					rFilterTags.clear();
+					break;
+
+				case REMOVE:
+
+					// remove the last element in the tag set
+					Iterator<String> rIterator = rFilterTags.iterator();
+
+					while (rIterator.hasNext())
+					{
+						rIterator.next();
+					}
+
+					rIterator.remove();
+					break;
+			}
+
+			aTagInput.modified();
+		}
+
+		rTagFilterListener.filterTagsChanged(this);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void init() throws StorageException
 	{
 		layout(Layout.TABLE);
+		fragmentParam().resid("FilterEntityTagsFragment");
 
-		aTagInput     = inputTags(getAllEntityTags(rEntityType, rTagOwner));
-		aFilterJoin   = dropDown(TagFilterJoin.OR, TagFilterJoin.AND).sameRow();
-		aFilterNegate = checkBox().value(false).sameRow();
+		aTagInput     =
+			inputTags(getAllEntityTags(rEntityType, rTagOwner)).resid("FilterEntityTags")
+															   .continuousEvents();
+		aFilterJoin   =
+			dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
+										 .continuousEvents();
+		aFilterNegate =
+			checkBox(false).sameRow().resid("TagFilterNegate").actionEvents();
+
 		aFilterAction =
 			imageButtons(TagFilterAction.class).sameRow().columns(2)
-											   .onAction(new ParameterEventHandler<TagFilterAction>()
-				{
-					@Override
-					public void handleParameterUpdate(TagFilterAction eAction)
-					{
-						handleAction(eAction);
-					}
-				});
+											   .resid("TagFilterAction");
 
 		if (sLabel != null)
 		{
@@ -369,38 +400,6 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public void updateTagList() throws StorageException
 	{
 		aTagInput.allow(getAllEntityTags(rEntityType, rTagOwner));
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	private void handleAction(TagFilterAction eAction)
-	{
-		Set<String> rFilterTags = aTagInput.value();
-
-		switch (eAction)
-		{
-			case CLEAR:
-				rFilterTags.clear();
-				break;
-
-			case REMOVE:
-
-				// remove the last element in the tag set
-				Iterator<String> rIterator = rFilterTags.iterator();
-
-				while (rIterator.hasNext())
-				{
-					rIterator.next();
-				}
-
-				rIterator.remove();
-				break;
-		}
-
-		aTagInput.modified();
-
-		rTagFilterListener.filterTagsChanged(this);
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

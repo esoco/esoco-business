@@ -383,11 +383,14 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Creates a boolean parameter that displays a checkbox for the input of a
 	 * flag.
 	 *
+	 * @param  bInitialValue The initial value of the checkbox
+	 *
 	 * @return The new parameter
 	 */
-	public Parameter<Boolean> checkBox()
+	@SuppressWarnings("boxing")
+	public Parameter<Boolean> checkBox(boolean bInitialValue)
 	{
-		return flagParam(null).hideLabel();
+		return flagParam(null).hideLabel().value(bInitialValue);
 	}
 
 	/***************************************
@@ -492,8 +495,36 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a new anonymous parameter relation type for the display of a
+	 * certain value.
+	 *
+	 * @param  rDatatype The datatype of the values to display
+	 *
+	 * @return The parameter wrapper
+	 */
+	public <T> Parameter<T> display(Class<T> rDatatype)
+	{
+		return param(null, rDatatype);
+	}
+
+	/***************************************
+	 * Creates a new temporary parameter relation type for the selection of an
+	 * enum value from a drop down box.
+	 *
+	 * @param  rEnumClass The enum class to display the values of
+	 *
+	 * @return The new parameter
+	 */
+	public final <E extends Enum<E>> Parameter<E> dropDown(Class<E> rEnumClass)
+	{
+		return dropDown(rEnumClass.getEnumConstants());
+	}
+
+	/***************************************
 	 * Creates a new temporary parameter relation type for the selection of
-	 * values from a drop down box.
+	 * values from a drop down box. The first value will be used to determine
+	 * the datatype of the parameter type and it will be preset as the parameter
+	 * value.
 	 *
 	 * @param  rAllowedValues The values to be displayed in the drop down box
 	 *                        (must not be empty)
@@ -507,6 +538,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		Class<T> rDatatype = (Class<T>) rAllowedValues[0].getClass();
 
 		return input(rDatatype).set(LIST_STYLE, ListStyle.DROP_DOWN)
+							   .value(rAllowedValues[0])
 							   .allow(rAllowedValues);
 	}
 
@@ -862,7 +894,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		SetParameter<String> aSetParam = setParam(null, String.class, true);
 
-		return aSetParam.set(LIST_STYLE, ListStyle.EDITABLE)
+		return aSetParam.input().set(LIST_STYLE, ListStyle.EDITABLE)
 						.allowElements(rPresetValues);
 	}
 

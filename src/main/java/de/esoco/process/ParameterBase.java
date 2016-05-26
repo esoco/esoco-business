@@ -833,7 +833,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P then(Parameter<?> rParameter)
+	public P then(ParameterBase<?, ?> rParameter)
 	{
 		rParameter.sameRow();
 
