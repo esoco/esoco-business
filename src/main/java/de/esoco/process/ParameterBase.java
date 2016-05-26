@@ -164,6 +164,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Returns the values that this parameter is allowed to contain.
+	 *
+	 * @return The allowed values (can be NULL)
+	 */
+	public Collection<T> allowedValues()
+	{
+		return rFragment.getAllowedValues(rParamType);
+	}
+
+	/***************************************
 	 * Marks this parameter to be displayed as interactive buttons. It's list
 	 * style will be set to {@link ListStyle#IMMEDIATE}, it will have the flag
 	 * {@link UserInterfaceProperties#HIDE_LABEL} set, and the property {@link

@@ -777,7 +777,10 @@ public abstract class ProcessFragment extends ProcessElement
 		// is queried for modification
 		markParameterAsModified(rParam);
 
-		return (Collection<T>) getParameterRelation(rParam).get(ALLOWED_VALUES);
+		Relation<C> rRelation = getParameterRelation(rParam);
+
+		return rRelation != null ? (Collection<T>) rRelation.get(ALLOWED_VALUES)
+								 : null;
 	}
 
 	/***************************************
@@ -2153,7 +2156,8 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (sBaseName == null)
 		{
-			sBaseName = "P" + getProcess().getNextParameterId();
+			// two underscores signal to DataElementUI to omit the style name
+			sBaseName = "__P" + getProcess().getNextParameterId();
 		}
 		else
 		{

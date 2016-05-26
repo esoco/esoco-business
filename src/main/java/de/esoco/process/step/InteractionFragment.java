@@ -125,12 +125,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	/** The resource string for an info message box icon. */
 	public static final String MESSAGE_BOX_INFO_ICON = "#imInfoMessage";
 
-	private static int nNextFragmentId = 0;
-
 	//~ Instance fields --------------------------------------------------------
 
-	private int nFragmentId = nNextFragmentId++;
-
+	private int     nFragmentId  = -1;
 	private boolean bInitialized = false;
 
 	private Interaction						    rProcessStep;
@@ -261,6 +258,8 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		if (rFragmentClass.isAnonymousClass())
 		{
+			rSubFragment.nFragmentId = getProcess().getNextFragmentId();
+
 			sFragmentName = rFragmentClass.getName();
 			sFragmentName =
 				sFragmentName.substring(sFragmentName.lastIndexOf('.') + 1) +
@@ -343,6 +342,11 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
 		this.rFragmentParam = rFragmentParam;
+
+		if (nFragmentId == -1)
+		{
+			nFragmentId = rProcessStep.getProcess().getNextFragmentId();
+		}
 
 		setProcessStep(rProcessStep);
 		setup();
@@ -1067,6 +1071,19 @@ public abstract class InteractionFragment extends ProcessFragment
 				rListener.update();
 			}
 		}
+	}
+
+	/***************************************
+	 * Adds another fragment as a subordinate panel of this fragment. This is
+	 * just a semantic variant of {@link #addSubFragment(InteractionFragment)}.
+	 *
+	 * @param  rPanelFragment The panel fragment to add
+	 *
+	 * @return The parameter wrapper for the panel
+	 */
+	public ParameterList panel(InteractionFragment rPanelFragment)
+	{
+		return addSubFragment(rPanelFragment);
 	}
 
 	/***************************************
