@@ -127,8 +127,9 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	//~ Instance fields --------------------------------------------------------
 
-	private int     nFragmentId  = -1;
-	private boolean bInitialized = false;
+	private int     nFragmentId		 = -1;
+	private int     nNextParameterId = 0;
+	private boolean bInitialized     = false;
 
 	private Interaction						    rProcessStep;
 	private InteractionFragment				    rParent;
@@ -260,10 +261,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		{
 			rSubFragment.nFragmentId = getProcess().getNextFragmentId();
 
-			sFragmentName = rFragmentClass.getName();
 			sFragmentName =
-				sFragmentName.substring(sFragmentName.lastIndexOf('.') + 1) +
-				rSubFragment.nFragmentId;
+				getClass().getSimpleName() + "_" + rSubFragment.nFragmentId;
 		}
 		else
 		{
@@ -495,8 +494,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a new anonymous parameter relation type for the display of a
-	 * certain value.
+	 * Creates a new anonymous parameter type for the display of a value. This
+	 * is just a shortcut for the invocation of {@link #param(String, Class)}
+	 * with the name argument set to NULL.
 	 *
 	 * @param  rDatatype The datatype of the values to display
 	 *
@@ -1434,6 +1434,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	protected boolean canRollback()
 	{
 		return true;
+	}
+
+	/***************************************
+	 * Overridden to return a parameter ID that is relative to the current
+	 * fragment instance.
+	 *
+	 * @see ProcessFragment#getTemporaryParameterId()
+	 */
+	@Override
+	protected int getTemporaryParameterId()
+	{
+		return nNextParameterId++;
 	}
 
 	/***************************************

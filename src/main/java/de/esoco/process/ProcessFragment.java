@@ -2145,6 +2145,18 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Returns an integer ID for the automatic naming of process parameters. The
+	 * default implementation return the result of {@link
+	 * Process#getNextParameterId()}.
+	 *
+	 * @return A new temporary parameter ID
+	 */
+	protected int getTemporaryParameterId()
+	{
+		return getProcess().getNextParameterId();
+	}
+
+	/***************************************
 	 * Returns the name for a temporary parameter relation type that is derived
 	 * from a certain base name. The name will be local to the current fragment.
 	 *
@@ -2156,8 +2168,7 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (sBaseName == null)
 		{
-			// two underscores signal to DataElementUI to omit the style name
-			sBaseName = "__P" + getProcess().getNextParameterId();
+			sBaseName = "__" + getTemporaryParameterId();
 		}
 		else
 		{
