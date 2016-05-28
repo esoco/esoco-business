@@ -255,19 +255,9 @@ public abstract class InteractionFragment extends ProcessFragment
 		Class<? extends InteractionFragment> rFragmentClass =
 			rSubFragment.getClass();
 
-		String sFragmentName;
-
-		if (rFragmentClass.isAnonymousClass())
-		{
-			rSubFragment.nFragmentId = getProcess().getNextFragmentId();
-
-			sFragmentName =
-				getClass().getSimpleName() + "_" + rSubFragment.nFragmentId;
-		}
-		else
-		{
-			sFragmentName = rFragmentClass.getSimpleName();
-		}
+		String sFragmentName =
+			rFragmentClass.isAnonymousClass() ? null
+											  : rFragmentClass.getSimpleName();
 
 		return addSubFragment(sFragmentName, rSubFragment);
 	}
@@ -480,6 +470,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		return inputText().set(LIST_STYLE, ListStyle.EDITABLE)
 						  .allow(rPresetValues);
+	}
+
+	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * a string datatype.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public Parameter<Date> dateParam(String sName)
+	{
+		return param(sName, Date.class);
 	}
 
 	/***************************************

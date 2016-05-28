@@ -2168,7 +2168,9 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (sBaseName == null)
 		{
-			sBaseName = "__" + getTemporaryParameterId();
+			sBaseName =
+				"__" + getClass().getSimpleName() + "P" +
+				getTemporaryParameterId();
 		}
 		else
 		{
