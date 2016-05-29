@@ -63,6 +63,7 @@ import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StyleProperties.ALIGNMENT;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.ICON_ALIGNMENT;
@@ -122,6 +123,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P actionEvents()
 	{
 		return interactive(InteractiveInputMode.ACTION);
+	}
+
+	/***************************************
+	 * Sets the property {@link StyleProperties#ALIGNMENT}.
+	 *
+	 * @param  eAlignment The alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P align(Alignment eAlignment)
+	{
+		return set(ALIGNMENT, eAlignment);
 	}
 
 	/***************************************
@@ -419,7 +432,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	public final P icon(String sName, RelativeScale eSize)
 	{
-		return icon(sName).set(ICON_SIZE, eSize);
+		return icon(sName).iconSize(eSize);
 	}
 
 	/***************************************
@@ -435,23 +448,31 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	public final P icon(String sName, Alignment eAlignment)
 	{
-		return icon(sName).set(ICON_ALIGNMENT, eAlignment);
+		return icon(sName).iconAlign(eAlignment);
 	}
 
 	/***************************************
-	 * Sets all icon UI properties ({@link ContentProperties#ICON}. {@link
-	 * StyleProperties#ICON_SIZE}, and {@link StyleProperties#ICON_ALIGNMENT}).
+	 * Sets the property {@link StyleProperties#ICON_ALIGNMENT}.
 	 *
-	 * @param  sName      The name of the icon to be displayed in the target
-	 *                    object
-	 * @param  eSize      The relative size of the icon
-	 * @param  eAlignment The position alignment of the icon
+	 * @param  eAlignment The alignment of the icon
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P icon(String sName, RelativeScale eSize, Alignment eAlignment)
+	public final P iconAlign(Alignment eAlignment)
 	{
-		return icon(sName, eSize).set(ICON_ALIGNMENT, eAlignment);
+		return set(ICON_ALIGNMENT, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link StyleProperties#ICON_SIZE}.
+	 *
+	 * @param  eSize The relative size of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P iconSize(RelativeScale eSize)
+	{
+		return set(ICON_SIZE, eSize);
 	}
 
 	/***************************************

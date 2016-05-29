@@ -804,6 +804,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a parameter that displays interactive buttons from an enum as
+	 * icons with a particular button style.
+	 *
+	 * @param  rEnumClass   The enum class to create the buttons from
+	 * @param  eButtonStyle The button style
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> iconButtons(
+		Class<E>    rEnumClass,
+		ButtonStyle eButtonStyle)
+	{
+		return buttons(rEnumClass, eButtonStyle).set(HAS_IMAGES);
+	}
+
+	/***************************************
 	 * Creates a parameter that displays interactive buttons from an enum with
 	 * images.
 	 *
