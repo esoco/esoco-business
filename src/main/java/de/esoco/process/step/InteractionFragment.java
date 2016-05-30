@@ -265,9 +265,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Overridden to set the parent of the sub-fragment to this instance.
 	 *
-	 * @return
-	 *
-	 * @see    ProcessFragment#addSubFragment(RelationType, InteractionFragment)
+	 * @see ProcessFragment#addSubFragment(RelationType, InteractionFragment)
 	 */
 	@Override
 	public void addSubFragment(
@@ -321,7 +319,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * Internal method that will be invoked to attach this fragment to the given
-	 * process step and fragment parameter.
+	 * process step and fragment parameter. Multiple invocations are possible.
 	 *
 	 * @param rProcessStep   The process step to attach this instance to
 	 * @param rFragmentParam The parameter this fragment will be stored in
@@ -338,7 +336,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		setProcessStep(rProcessStep);
-		setup();
 	}
 
 	/***************************************
@@ -1379,6 +1376,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Can be overridden to setup the internal state of a new fragment instance.
+	 * Other than {@link #init()} this method will only be invoked once, right
+	 * after an instance has been added to it's process step. The default
+	 * implementation does nothing.
+	 */
+	public void setup()
+	{
+	}
+
+	/***************************************
 	 * Convenience method to create a new temporary parameter relation type with
 	 * a string datatype.
 	 *
@@ -1631,16 +1638,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	protected final void setParent(InteractionFragment rParent)
 	{
 		this.rParent = rParent;
-	}
-
-	/***************************************
-	 * Can be overridden to setup the internal state of a new fragment instance.
-	 * Other than {@link #init()} this method will only be invoked once, right
-	 * after an instance has been added to it's process step. The default
-	 * implementation does nothing.
-	 */
-	protected void setup()
-	{
 	}
 
 	/***************************************

@@ -25,10 +25,10 @@ import java.util.List;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.VIEW_DISPLAY_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.STYLE;
 
 import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
@@ -184,23 +184,20 @@ public class ViewFragment extends InteractionFragment
 	 */
 	public void show(InteractionFragment rParent) throws Exception
 	{
-		setProcessStep(rParent.getProcessStep());
-
 		aViewFragmentParam =
-			getTemporaryListType(sParamBaseName, RelationType.class);
+			rParent.getTemporaryListType(sParamBaseName, RelationType.class);
+
+		attach(rParent.getProcessStep(), aViewFragmentParam);
 
 		aViewContentParam =
 			getTemporaryListType(sParamBaseName + "_CONTENT",
 								 RelationType.class);
 
 		aInteractionParams.add(aViewContentParam);
-
 		addExtraViewInteractionParams(sParamBaseName);
 
 		get(VIEW_PARAMS).add(aViewFragmentParam);
 		rParent.addSubFragment(aViewFragmentParam, this);
-
-//		initFragment();
 	}
 
 	/***************************************

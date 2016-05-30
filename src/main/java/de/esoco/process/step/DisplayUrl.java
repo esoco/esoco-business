@@ -269,7 +269,7 @@ public class DisplayUrl extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void setup()
+	public void setup()
 	{
 		aUrlParameter		   = getNamedTmpParameterType("URL", URL.class);
 		aUrlInputParameter     =

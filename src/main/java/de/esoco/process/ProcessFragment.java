@@ -442,6 +442,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		rSubFragment.attach((Interaction) getProcessStep(), rFragmentParam);
+		rSubFragment.setup();
 		aSubFragments.put(rFragmentParam, rSubFragment);
 
 		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
@@ -953,6 +954,43 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
 		return aSubFragments.get(rFragmentParam);
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type that references a list with a
+	 * certain element datatype. The parameter will have an empty list as it's
+	 * initial value.
+	 *
+	 * @param  sName        The name of the parameter
+	 * @param  rElementType The list element datatype
+	 *
+	 * @return The temporary list parameter type
+	 *
+	 * @see    #getTemporaryParameterType(String, Class)
+	 */
+	public <T> RelationType<List<T>> getTemporaryListType(
+		String			 sName,
+		Class<? super T> rElementType)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<List<T>> rParam =
+			(RelationType<List<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newListType(sName, rElementType);
+
+			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
+		}
+		else
+		{
+			assert rParam.getTargetType() == List.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
+		}
+
+		return rParam;
 	}
 
 	/***************************************
@@ -2105,43 +2143,6 @@ public abstract class ProcessFragment extends ProcessElement
 	protected final Collection<InteractionFragment> getSubFragments()
 	{
 		return aSubFragments.values();
-	}
-
-	/***************************************
-	 * Returns a temporary parameter relation type that references a list with a
-	 * certain element datatype. The parameter will have an empty list as it's
-	 * initial value.
-	 *
-	 * @param  sName        The name of the parameter
-	 * @param  rElementType The list element datatype
-	 *
-	 * @return The temporary list parameter type
-	 *
-	 * @see    #getTemporaryParameterType(String, Class)
-	 */
-	protected <T> RelationType<List<T>> getTemporaryListType(
-		String			 sName,
-		Class<? super T> rElementType)
-	{
-		sName = getTemporaryParameterName(sName);
-
-		@SuppressWarnings("unchecked")
-		RelationType<List<T>> rParam =
-			(RelationType<List<T>>) RelationType.valueOf(sName);
-
-		if (rParam == null)
-		{
-			rParam = newListType(sName, rElementType);
-
-			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
-		}
-		else
-		{
-			assert rParam.getTargetType() == List.class &&
-				   rParam.get(ELEMENT_DATATYPE) == rElementType;
-		}
-
-		return rParam;
 	}
 
 	/***************************************

@@ -346,7 +346,7 @@ public class EditText extends InteractionFragment
 	 * Creates the temporary interaction parameters of this instance.
 	 */
 	@Override
-	protected void setup()
+	public void setup()
 	{
 		String sName = rValueParam.getSimpleName();
 
