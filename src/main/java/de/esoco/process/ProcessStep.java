@@ -38,6 +38,7 @@ import org.obrel.type.StandardTypes;
 
 import static de.esoco.history.HistoryManager.HISTORIZED;
 
+import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_END;
@@ -284,13 +285,14 @@ public abstract class ProcessStep extends ProcessFragment
 	{
 		String sNextStep;
 
-		if (getParameter(INTERACTIVE_INPUT_PARAM) == null)
+		if (isContinuedInteraction())
+		{
+			// re-execute this step again after an interactive input event
+			sNextStep = getName();
+		}
+		else
 		{
 			sNextStep = get(NEXT_STEP);
-		}
-		else // re-execute this step again after an interactive input event
-		{
-			sNextStep = getName();
 		}
 
 		return sNextStep;
@@ -527,9 +529,7 @@ public abstract class ProcessStep extends ProcessFragment
 		RelationType<?> rInteractionParam =
 			getParameter(INTERACTIVE_INPUT_PARAM);
 
-		if (rInteractionParam == null ||
-			(hasRelation(CONTINUATION_PARAMS) &&
-			 get(CONTINUATION_PARAMS).contains(rInteractionParam)))
+		if (!isContinuedInteraction() || isContinuationParam(rInteractionParam))
 		{
 			handleParamValidation(false);
 		}
@@ -639,6 +639,18 @@ public abstract class ProcessStep extends ProcessFragment
 	}
 
 	/***************************************
+	 * Checks whether this step is a interaction that has been initialized
+	 * before.
+	 *
+	 * @return TRUE if this interaction performs a continued interaction
+	 */
+	final boolean isContinuedInteraction()
+	{
+		return getParameter(INTERACTIVE_INPUT_PARAM) != null ||
+			   hasFlag(AUTO_UPDATE);
+	}
+
+	/***************************************
 	 * Records a parameter modification that can then later be queried with
 	 * {@link #isParameterModified(RelationType)}. Parameter modifications can
 	 * be value or property changes.
@@ -697,12 +709,11 @@ public abstract class ProcessStep extends ProcessFragment
 		RelationType<?> rInteractionParam =
 			getParameter(INTERACTIVE_INPUT_PARAM);
 
-		if (rInteractionParam == null)
+		if (!isContinuedInteraction())
 		{
 			executeFinishActions();
 		}
-		else if (hasRelation(CONTINUATION_PARAMS) &&
-				 get(CONTINUATION_PARAMS).contains(rInteractionParam))
+		else if (isContinuationParam(rInteractionParam))
 		{
 			setParameter(CONTINUATION_PARAM, rInteractionParam);
 			setParameter(INTERACTIVE_INPUT_PARAM, null);
@@ -728,14 +739,14 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	boolean prepareStep() throws Exception
 	{
-		if (getParameter(INTERACTIVE_INPUT_PARAM) == null)
+		if (isContinuedInteraction())
 		{
-			aFinishActions.clear();
-			prepareExecution();
+			prepareInteraction();
 		}
 		else
 		{
-			prepareInteraction();
+			aFinishActions.clear();
+			prepareExecution();
 		}
 
 		return !needsInteraction();
@@ -796,5 +807,19 @@ public abstract class ProcessStep extends ProcessFragment
 		{
 			throw new InvalidParametersException(this, rInvalidParams);
 		}
+	}
+
+	/***************************************
+	 * Checks whether an interaction on the given parameter should continue the
+	 * process execution.
+	 *
+	 * @param  rParam The parameter to check
+	 *
+	 * @return TRUE if the parameter will continue the process execution
+	 */
+	private boolean isContinuationParam(RelationType<?> rParam)
+	{
+		return hasRelation(CONTINUATION_PARAMS) &&
+			   get(CONTINUATION_PARAMS).contains(rParam);
 	}
 }

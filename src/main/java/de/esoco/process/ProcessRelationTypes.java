@@ -28,6 +28,7 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.net.ExternalServiceAccess;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;
@@ -251,12 +252,26 @@ public class ProcessRelationTypes
 		newFlagType();
 
 	/**
-	 * A flag to signal that the process interaction should automatically
-	 * continue after a process interaction. This can be used to interactively
-	 * display intermediate results of a process. The re-execution of the
-	 * process must be handled by the code which handles the interaction.
+	 * Signals that a process should automatically continue to run after a
+	 * process interaction. This can be used to interactively display
+	 * intermediate results of a process. This can be used to create repeated
+	 * process loops where an interactive step displays the results or the
+	 * progress of an operation. The re-execution of the process must be handled
+	 * by the code which handles the interaction.
 	 */
 	public static final RelationType<Boolean> AUTO_CONTINUE = newFlagType();
+
+	/**
+	 * Similar to {@link #AUTO_CONTINUE} but stays in the same interaction when
+	 * the process is re-executed (instead of continuing with the next process
+	 * step). This can be used to inform the user while an interactive step
+	 * prepares data during it's initialization or because of an interaction.
+	 * The update of the interaction will continue as long as this flag is set.
+	 * Because this is basically an endless loop the code setting this flag must
+	 * take appropriate measures to reduce the processing load on the client and
+	 * server (e.g. by invoking {@link Thread#sleep(long)} between invocations.
+	 */
+	public static final RelationType<Boolean> AUTO_UPDATE = newFlagType();
 
 	/**
 	 * A flag to indicate that a certain process step is the final interactive
