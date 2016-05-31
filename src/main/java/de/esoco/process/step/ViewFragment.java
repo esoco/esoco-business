@@ -146,7 +146,7 @@ public class ViewFragment extends InteractionFragment
 
 		get(VIEW_PARAMS).remove(aViewFragmentParam);
 		rParent.removeInteractionParameters(aViewFragmentParam);
-		rParent.removeSubFragment(aViewFragmentParam, this);
+		rParent.removeSubFragment(aViewFragmentParam);
 	}
 
 	/***************************************

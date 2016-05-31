@@ -350,6 +350,23 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a parameter that displays interactive buttons from certain values
+	 * of an enum.
+	 *
+	 * @param  rAllowedValues The enum values to create the buttons from (must
+	 *                        not be empty)
+	 *
+	 * @return The new parameter
+	 */
+	public <E extends Enum<E>> Parameter<E> buttons(E... rAllowedValues)
+	{
+		@SuppressWarnings("unchecked")
+		Class<E> rEnumClass = (Class<E>) rAllowedValues[0].getClass();
+
+		return param(rEnumClass).buttons(rAllowedValues);
+	}
+
+	/***************************************
 	 * Creates a parameter that displays interactive buttons from an enum.
 	 *
 	 * @param  rEnumClass The enum class to create the buttons from
@@ -1282,23 +1299,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Removes a subordinate fragment that had been added previously by means of
-	 * {@link #addSubFragment(RelationType, InteractionFragment)}.
-	 *
-	 * @param rFragmentParam The target parameter of the fragment parameters
-	 * @param rSubFragment   The sub-fragment instance to remove
+	 * {@inheritDoc}
 	 */
-	public void removeSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam,
-		InteractionFragment					rSubFragment)
+	@Override
+	public InteractionFragment removeSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
-		get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
-		get(INPUT_PARAMS).remove(rFragmentParam);
-		getSubFragments().remove(rSubFragment);
-		deleteParameters(rFragmentParam);
-		rSubFragment.setProcessStep(null);
+		InteractionFragment rSubFragment =
+			super.removeSubFragment(rFragmentParam);
 
-		rSubFragment.rParent = null;
+		if (rSubFragment != null)
+		{
+			rSubFragment.setProcessStep(null);
+			rSubFragment.rParent = null;
+		}
+
+		return rSubFragment;
 	}
 
 	/***************************************

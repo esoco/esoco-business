@@ -1325,6 +1325,29 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Removes a subordinate fragment that had been added previously by means of
+	 * {@link #addSubFragment(RelationType, InteractionFragment)}.
+	 *
+	 * @param  rFragmentParam The parameter the fragment is stored in
+	 *
+	 * @return The removed fragment instance (may be NULL)
+	 */
+	public InteractionFragment removeSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam)
+	{
+		InteractionFragment rSubFragment = aSubFragments.remove(rFragmentParam);
+
+		if (rSubFragment != null)
+		{
+			get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
+			get(INPUT_PARAMS).remove(rFragmentParam);
+			deleteParameters(rFragmentParam);
+		}
+
+		return rSubFragment;
+	}
+
+	/***************************************
 	 * Removes display properties from a certain parameter.
 	 *
 	 * @param rParam      The parameter
