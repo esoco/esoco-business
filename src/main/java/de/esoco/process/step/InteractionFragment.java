@@ -89,7 +89,6 @@ import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
-import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -797,7 +796,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> Parameter<E> iconButtons(Class<E> rEnumClass)
 	{
-		return buttons(rEnumClass, ButtonStyle.ICON).set(HAS_IMAGES);
+		return buttons(rEnumClass, ButtonStyle.ICON).images();
 	}
 
 	/***************************************
@@ -813,7 +812,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		Class<E>    rEnumClass,
 		ButtonStyle eButtonStyle)
 	{
-		return buttons(rEnumClass, eButtonStyle).set(HAS_IMAGES);
+		return buttons(rEnumClass, eButtonStyle).images();
 	}
 
 	/***************************************
@@ -826,7 +825,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> Parameter<E> imageButtons(Class<E> rEnumClass)
 	{
-		return buttons(rEnumClass).set(HAS_IMAGES);
+		return buttons(rEnumClass).images();
 	}
 
 	/***************************************

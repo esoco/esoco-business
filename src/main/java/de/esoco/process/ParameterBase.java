@@ -65,6 +65,7 @@ import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
 import static de.esoco.lib.property.StyleProperties.ALIGNMENT;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.ICON_ALIGNMENT;
 import static de.esoco.lib.property.StyleProperties.ICON_SIZE;
@@ -473,6 +474,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P iconSize(RelativeScale eSize)
 	{
 		return set(ICON_SIZE, eSize);
+	}
+
+	/***************************************
+	 * Sets the flag property {@link StyleProperties#HAS_IMAGES}.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P images()
+	{
+		return set(HAS_IMAGES);
 	}
 
 	/***************************************
