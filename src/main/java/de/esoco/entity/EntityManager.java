@@ -614,6 +614,8 @@ public class EntityManager
 						   rChildParentAttribute,
 						   rChildAttribute);
 		}
+
+		cacheEntity(rParent);
 	}
 
 	/***************************************
@@ -1486,7 +1488,6 @@ public class EntityManager
 	public static void removeCachedEntity(Entity rEntity)
 	{
 		removeCachedEntity(getGlobalEntityId(rEntity));
-		rEntity.set(CACHE_ENTITY, false);
 	}
 
 	/***************************************
@@ -1496,7 +1497,12 @@ public class EntityManager
 	 */
 	public static void removeCachedEntity(String sId)
 	{
-		aEntityCache.remove(sId);
+		Entity rRemovedEntity = aEntityCache.remove(sId);
+
+		if (rRemovedEntity != null)
+		{
+			rRemovedEntity.set(CACHE_ENTITY, false);
+		}
 	}
 
 	/***************************************

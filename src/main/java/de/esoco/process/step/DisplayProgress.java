@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import de.esoco.process.ProcessFragment;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS;
@@ -147,6 +147,7 @@ public class DisplayProgress extends Interaction
 	@Override
 	protected void prepareValues()
 	{
+		markParameterAsModified(PROGRESS_DESCRIPTION);
 		setProgressIndicator();
 	}
 
