@@ -1484,7 +1484,6 @@ public class EntityManager
 	 *
 	 * @param rEntity The entity to remove
 	 */
-	@SuppressWarnings("boxing")
 	public static void removeCachedEntity(Entity rEntity)
 	{
 		removeCachedEntity(getGlobalEntityId(rEntity));
@@ -1501,7 +1500,7 @@ public class EntityManager
 
 		if (rRemovedEntity != null)
 		{
-			rRemovedEntity.set(CACHE_ENTITY, false);
+			rRemovedEntity.set(CACHE_ENTITY, Boolean.FALSE);
 		}
 	}
 
