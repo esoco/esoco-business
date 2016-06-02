@@ -358,9 +358,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new parameter
 	 */
+	@SuppressWarnings("unchecked")
 	public <E extends Enum<E>> Parameter<E> buttons(E... rAllowedValues)
 	{
-		@SuppressWarnings("unchecked")
 		Class<E> rEnumClass = (Class<E>) rAllowedValues[0].getClass();
 
 		return param(rEnumClass).buttons(rAllowedValues);
