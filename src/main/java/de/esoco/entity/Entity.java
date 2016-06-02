@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import org.obrel.core.SerializableRelatedObject;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
+import static de.esoco.entity.EntityRelationTypes.CACHE_ENTITY;
 import static de.esoco.entity.EntityRelationTypes.DEPENDENT_STORE_ENTITIES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_STORE_ORIGIN;
 import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTES_MODIFIED;
@@ -879,6 +880,16 @@ public class Entity extends SerializableRelatedObject
 		}
 
 		return nHashCode;
+	}
+
+	/***************************************
+	 * Checks whether this entity is currently cached.
+	 *
+	 * @return TRUE if this instance is cached
+	 */
+	public final boolean isCached()
+	{
+		return hasFlag(CACHE_ENTITY);
 	}
 
 	/***************************************

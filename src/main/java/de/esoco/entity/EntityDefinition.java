@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -333,9 +333,20 @@ public class EntityDefinition<E extends Entity>
 	public E createObject(List<?> rAttributeValues, boolean bAsChild)
 		throws StorageException
 	{
+		boolean bHasCaching =
+			EntityManager.isCachingEnabledFor(getMappedType());
+
 		E aEntity = null;
 
-		if (!bAsChild && EntityManager.isCachingEnabledFor(getMappedType()))
+		if (rParentAttribute == null && bHasCaching)
+		{
+			int     nIdIndex = aAttributes.indexOf(rIdAttribute);
+			Integer rId		 = (Integer) rAttributeValues.get(nIdIndex);
+
+			aEntity =
+				EntityManager.getCachedEntity(getMappedType(), rId.intValue());
+		}
+		else if (!bAsChild && bHasCaching)
 		{
 			aEntity = tryToGetFromParent(rAttributeValues);
 		}
