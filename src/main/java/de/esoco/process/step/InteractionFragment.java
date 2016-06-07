@@ -408,7 +408,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		ListParameter<E> aListParam =
 			listParam(rEnumClass.getSimpleName(), rEnumClass);
 
-		return aListParam.set(LIST_STYLE, ListStyle.DISCRETE).hideLabel()
+		return aListParam.input().hideLabel()
+						 .set(LIST_STYLE, ListStyle.DISCRETE)
 						 .layout(Layout.TABLE)
 						 .columns(1);
 	}
