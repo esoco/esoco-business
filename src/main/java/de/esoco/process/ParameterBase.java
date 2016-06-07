@@ -391,6 +391,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Returns the value of a certain property for the wrapped parameter.
+	 *
+	 * @see ProcessFragment#getUIProperty(PropertyName, RelationType)
+	 */
+	public final <V> V get(PropertyName<V> rProperty)
+	{
+		return rFragment.getUIProperty(rProperty, rParamType);
+	}
+
+	/***************************************
 	 * Sets the pixel width of an element in the UI property {@link
 	 * LayoutProperties#WIDTH}.
 	 *
@@ -510,6 +520,24 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P images()
 	{
 		return set(HAS_IMAGES);
+	}
+
+	/***************************************
+	 * Transfers certain properties from the parent fragment to this parameter.
+	 *
+	 * @param  rProperties The properties to transfer
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public final P inherit(PropertyName<?>... rProperties)
+	{
+		for (PropertyName rProperty : rProperties)
+		{
+			set(rProperty, rFragment.fragmentParam().get(rProperty));
+		}
+
+		return (P) this;
 	}
 
 	/***************************************
