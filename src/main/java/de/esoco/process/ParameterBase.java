@@ -53,22 +53,24 @@ import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ICON_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
 import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.LayoutProperties.TEXT_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
-import static de.esoco.lib.property.StyleProperties.ALIGNMENT;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-import static de.esoco.lib.property.StyleProperties.ICON_ALIGNMENT;
-import static de.esoco.lib.property.StyleProperties.ICON_SIZE;
 import static de.esoco.lib.property.StyleProperties.STYLE;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -127,15 +129,51 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the property {@link StyleProperties#ALIGNMENT}.
+	 * Sets the property {@link LayoutProperties#HORIZONTAL_ALIGN}.
 	 *
 	 * @param  eAlignment The alignment
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P align(Alignment eAlignment)
+	public final P alignHorizontal(Alignment eAlignment)
 	{
-		return set(ALIGNMENT, eAlignment);
+		return set(HORIZONTAL_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link LayoutProperties#ICON_ALIGN}.
+	 *
+	 * @param  eAlignment The alignment of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignIcon(Alignment eAlignment)
+	{
+		return set(ICON_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link LayoutProperties#TEXT_ALIGNMENT}.
+	 *
+	 * @param  eAlignment The alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignText(Alignment eAlignment)
+	{
+		return set(TEXT_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link LayoutProperties#VERTICAL_ALIGN}.
+	 *
+	 * @param  eAlignment The alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignVertical(Alignment eAlignment)
+	{
+		return set(VERTICAL_ALIGN, eAlignment);
 	}
 
 	/***************************************
@@ -449,19 +487,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	public final P icon(String sName, Alignment eAlignment)
 	{
-		return icon(sName).iconAlign(eAlignment);
-	}
-
-	/***************************************
-	 * Sets the property {@link StyleProperties#ICON_ALIGNMENT}.
-	 *
-	 * @param  eAlignment The alignment of the icon
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P iconAlign(Alignment eAlignment)
-	{
-		return set(ICON_ALIGNMENT, eAlignment);
+		return icon(sName).alignIcon(eAlignment);
 	}
 
 	/***************************************
