@@ -382,17 +382,20 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a boolean parameter that displays a checkbox for the input of a
-	 * flag.
+	 * Creates a boolean parameter that displays a checkbox. If the checkbox
+	 * shall be used for input the methode {@link Parameter#input()} needs to be
+	 * invoked on the returned parameter.
 	 *
+	 * @param  sName         The name of the parameter (used for the checkbox
+	 *                       label)
 	 * @param  bInitialValue The initial value of the checkbox
 	 *
 	 * @return The new parameter
 	 */
 	@SuppressWarnings("boxing")
-	public Parameter<Boolean> checkBox(boolean bInitialValue)
+	public Parameter<Boolean> checkBox(String sName, boolean bInitialValue)
 	{
-		return flagParam(null).hideLabel().value(bInitialValue);
+		return flagParam(sName).hideLabel().value(bInitialValue);
 	}
 
 	/***************************************
@@ -476,14 +479,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * combo box that combines an editable text box with a drop-down list of
 	 * value presets.
 	 *
+	 * @param  sName         The name of the parameter
 	 * @param  rPresetValues The preset values the user can select from
 	 *
 	 * @return The new parameter
 	 */
-	public final Parameter<String> comboBox(Collection<String> rPresetValues)
+	public final Parameter<String> comboBox(
+		String			   sName,
+		Collection<String> rPresetValues)
 	{
-		return inputText().set(LIST_STYLE, ListStyle.EDITABLE)
-						  .allow(rPresetValues);
+		return inputText(sName).set(LIST_STYLE, ListStyle.EDITABLE)
+							   .allow(rPresetValues);
 	}
 
 	/***************************************
@@ -890,9 +896,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates an anonymous input parameter for a certain datatype. This method
-	 * first invokes {@link #param(String, Class)} and then {@link
-	 * Parameter#input()}.
+	 * Creates an anonymous input parameter for a certain datatype. The label of
+	 * the parameter will be hidden because the parameter has no name so that no
+	 * label resource will be available.
 	 *
 	 * @param  rDatatype The datatype class
 	 *
@@ -900,18 +906,34 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <T> Parameter<T> input(Class<T> rDatatype)
 	{
-		return param(null, rDatatype).input();
+		return input(null, rDatatype).hideLabel();
+	}
+
+	/***************************************
+	 * Creates an input parameter for a certain datatype. This method combines
+	 * {@link #param(String, Class)} and {@link Parameter#input()}.
+	 *
+	 * @param  sName     The name of the input parameter
+	 * @param  rDatatype The datatype class
+	 *
+	 * @return A new parameter instance
+	 */
+	public <T> Parameter<T> input(String sName, Class<T> rDatatype)
+	{
+		return param(sName, rDatatype).input();
 	}
 
 	/***************************************
 	 * Creates a parameter for a date input field.
 	 *
+	 * @param  sName The name of the input parameter
+	 *
 	 * @return The label parameter
 	 */
-	public Parameter<Date> inputDate()
+	public Parameter<Date> inputDate(String sName)
 	{
-		return input(Date.class).set(DATE_INPUT_TYPE,
-									 DateInputType.INPUT_FIELD);
+		return input(sName, Date.class).set(DATE_INPUT_TYPE,
+											DateInputType.INPUT_FIELD);
 	}
 
 	/***************************************
@@ -932,11 +954,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Creates an anonymous parameter for a text input field.
 	 *
+	 * @param  sName The name of the input parameter
+	 *
 	 * @return The label parameter
 	 */
-	public Parameter<String> inputText()
+	public Parameter<String> inputText(String sName)
 	{
-		return input(String.class);
+		return input(sName, String.class);
 	}
 
 	/***************************************

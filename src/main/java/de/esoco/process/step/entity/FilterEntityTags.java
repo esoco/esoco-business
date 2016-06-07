@@ -362,7 +362,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 			dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
 										 .continuousEvents();
 		aFilterNegate =
-			checkBox(false).sameRow().resid("TagFilterNegate").actionEvents();
+			checkBox("TagFilterNegate", false).sameRow().actionEvents();
 
 		aFilterAction =
 			imageButtons(TagFilterAction.class).sameRow().columns(2)
