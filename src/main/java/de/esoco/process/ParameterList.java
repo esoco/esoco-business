@@ -18,6 +18,7 @@ package de.esoco.process;
 
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.UserInterfaceProperties;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.List;
@@ -131,5 +132,16 @@ public class ParameterList
 		}
 
 		return this;
+	}
+
+	/***************************************
+	 * Returns the sub-fragment this parameter list represents. If this
+	 * parameter doesn't represent a fragment NULL will be returned.
+	 *
+	 * @return The sub-fragment this parameter list represents
+	 */
+	public InteractionFragment subFragment()
+	{
+		return fragment().getSubFragment(type());
 	}
 }

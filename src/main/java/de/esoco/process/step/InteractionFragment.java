@@ -1177,11 +1177,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Creates a new anonymous interaction fragment and the associated parameter
 	 * relation type. The initializer argument must perform the initialization
 	 * of the new fragment which it receives as the argument to it's {@link
-	 * Initializer#init(Object)} method. This method is mainly intended to be
-	 * used with lambda expressions introduced with Java 8. In that case it
-	 * allows concise in-line declarations of panel by simply forwarding the
-	 * initialization to a corresponding method in form of a method reference
-	 * with an {@link InteractionFragment} parameter.
+	 * Initializer#init(Object)} method. The panel layout will be pre-set to
+	 * {@link Layout#GRID}. If another layout type is needed it can be
+	 * overridden by invoking {@link Parameter#layout(Layout)}.
+	 *
+	 * <p>This method is mainly intended to be used with lambda expressions
+	 * introduced with Java 8. In that case it allows concise in-line
+	 * declarations of panel by simply forwarding the initialization to a
+	 * corresponding method in form of a method reference with an {@link
+	 * InteractionFragment} parameter.</p>
 	 *
 	 * @param  rInitializer The fragment initializer
 	 *
@@ -1198,7 +1202,7 @@ public abstract class InteractionFragment extends ProcessFragment
 				{
 					rInitializer.init(this);
 				}
-			});
+			}).layout(Layout.GRID);
 	}
 
 	/***************************************
