@@ -254,7 +254,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 		if (nValueCount > 0)
 		{
-			set(nValueCount, UserInterfaceProperties.COLUMNS);
+			set(nValueCount, COLUMNS);
 		}
 
 		return (P) this;
