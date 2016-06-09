@@ -21,7 +21,7 @@ package de.esoco.data;
  */
 public enum FileType
 {
-	CSV("text/csv", ".csv"), PDF("application/x-pdf", ".pdf"),
+	CSV("text/csv", ".csv"), PDF("application/pdf", ".pdf"),
 	XLS("application/vnd.ms-excel", ".xls"),
 	XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		 ".xlsx");
