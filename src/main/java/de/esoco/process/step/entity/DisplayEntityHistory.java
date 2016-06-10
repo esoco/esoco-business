@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step.entity;
 
-import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.ListDisplayMode;
-
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
 import de.esoco.entity.EntityManager;
@@ -34,15 +31,15 @@ import de.esoco.lib.event.EditListener;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
-
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.EditText;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -367,8 +364,8 @@ public class DisplayEntityHistory extends InteractionFragment
 			getFragmentParameter();
 
 		setUIFlag(VERTICAL, rFragmentParam);
-		setUIProperty(DataElementList.LIST_DISPLAY_MODE,
-					  ListDisplayMode.SPLIT,
+		setUIProperty(UserInterfaceProperties.LAYOUT,
+					  Layout.SPLIT,
 					  rFragmentParam);
 
 		setInteractive(InteractiveInputMode.BOTH, ENTITY_HISTORY);

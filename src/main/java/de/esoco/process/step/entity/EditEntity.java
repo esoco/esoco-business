@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step.entity;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
 import de.esoco.data.element.DateDataElement.DateInputType;
 
 import de.esoco.entity.Entity;
@@ -33,14 +32,13 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.manage.TransactionException;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
-
-import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.InteractionFragment;
-
+import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -66,18 +64,18 @@ import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
 import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.HIERARCHICAL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
 import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.TABLE_ROWS;
@@ -650,7 +648,7 @@ public class EditEntity extends InteractionFragment
 
 		if (bDisplayAsTabPanel)
 		{
-			setListDisplayMode(ListDisplayMode.TABS, aParam);
+			setLayout(Layout.TABS, aParam);
 		}
 
 		setUIFlag(HIERARCHICAL, aParam);

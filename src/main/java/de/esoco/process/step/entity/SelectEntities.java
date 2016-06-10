@@ -26,13 +26,12 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
+import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ProcessRelationTypes.ListAction;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 

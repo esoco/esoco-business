@@ -22,7 +22,6 @@ import de.esoco.data.FileType;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.DataElement;
 import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.ListDisplayMode;
 import de.esoco.data.element.DataSetDataElement;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
@@ -44,14 +43,15 @@ import de.esoco.lib.expression.function.CalendarFunctions;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.model.DataSet;
 import de.esoco.lib.model.IntDataSet;
+import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
@@ -88,22 +88,23 @@ import static de.esoco.lib.expression.Functions.doIfElse;
 import static de.esoco.lib.expression.Functions.value;
 import static de.esoco.lib.expression.Predicates.isNull;
 import static de.esoco.lib.expression.Predicates.lessThan;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
-import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED_ELEMENTS;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
-import static de.esoco.lib.property.UserInterfaceProperties.INTERACTIVE_INPUT_MODE;
-import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.SELECTION_DEPENDENCY;
-import static de.esoco.lib.property.UserInterfaceProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
-import static de.esoco.lib.property.UserInterfaceProperties.WRAP;
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.LAYOUT;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
+import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
+import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY;
+import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
+import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
+import static de.esoco.lib.property.StyleProperties.WRAP;
 
 import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
@@ -121,6 +122,7 @@ import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
 
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newRelationType;
+import static org.obrel.core.RelationTypes.newSetType;
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 import static org.obrel.type.StandardTypes.MAXIMUM;
 import static org.obrel.type.StandardTypes.MINIMUM;
@@ -246,17 +248,17 @@ public abstract class ProcessFragment extends ProcessElement
 	 *
 	 * @param rPanelParam         The data element list parameter to be
 	 *                            displayed as a panel
-	 * @param eDisplayMode        The display mode for the panel
+	 * @param eLayout             The layout for the panel
 	 * @param rPanelContentParams The list of parameters to be displayed in the
 	 *                            panel
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		ListDisplayMode						eDisplayMode,
+		Layout								eLayout,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
-		setListDisplayMode(eDisplayMode, rPanelParam);
+		setLayout(eLayout, rPanelParam);
 
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
@@ -302,7 +304,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		addPanel(rPanelParam,
-				 bResizable ? ListDisplayMode.SPLIT : ListDisplayMode.DOCK,
+				 bResizable ? Layout.SPLIT : Layout.DOCK,
 				 rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
@@ -412,9 +414,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam,
-				 ListDisplayMode.STACK,
-				 Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, Layout.STACK, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -442,6 +442,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		rSubFragment.attach((Interaction) getProcessStep(), rFragmentParam);
+		rSubFragment.setup();
 		aSubFragments.put(rFragmentParam, rSubFragment);
 
 		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
@@ -462,9 +463,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam,
-				 ListDisplayMode.TABS,
-				 Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, Layout.TABS, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -779,7 +778,10 @@ public abstract class ProcessFragment extends ProcessElement
 		// is queried for modification
 		markParameterAsModified(rParam);
 
-		return (Collection<T>) getParameterRelation(rParam).get(ALLOWED_VALUES);
+		Relation<C> rRelation = getParameterRelation(rParam);
+
+		return rRelation != null ? (Collection<T>) rRelation.get(ALLOWED_VALUES)
+								 : null;
 	}
 
 	/***************************************
@@ -952,6 +954,43 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
 		return aSubFragments.get(rFragmentParam);
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type that references a list with a
+	 * certain element datatype. The parameter will have an empty list as it's
+	 * initial value.
+	 *
+	 * @param  sName        The name of the parameter
+	 * @param  rElementType The list element datatype
+	 *
+	 * @return The temporary list parameter type
+	 *
+	 * @see    #getTemporaryParameterType(String, Class)
+	 */
+	public <T> RelationType<List<T>> getTemporaryListType(
+		String			 sName,
+		Class<? super T> rElementType)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<List<T>> rParam =
+			(RelationType<List<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newListType(sName, rElementType);
+
+			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
+		}
+		else
+		{
+			assert rParam.getTargetType() == List.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
+		}
+
+		return rParam;
 	}
 
 	/***************************************
@@ -1249,7 +1288,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Removes all parameters for a panel parameter that had previously been
-	 * added through {@link #addPanel(RelationType, ListDisplayMode, List)}.
+	 * added through {@link #addPanel(RelationType, Layout, List)}.
 	 *
 	 * @param rPanelParam The parameter of the panel to remove
 	 */
@@ -1283,6 +1322,29 @@ public abstract class ProcessFragment extends ProcessElement
 		{
 			rRelation.deleteRelation(rAnnotationType);
 		}
+	}
+
+	/***************************************
+	 * Removes a subordinate fragment that had been added previously by means of
+	 * {@link #addSubFragment(RelationType, InteractionFragment)}.
+	 *
+	 * @param  rFragmentParam The parameter the fragment is stored in
+	 *
+	 * @return The removed fragment instance (may be NULL)
+	 */
+	public InteractionFragment removeSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam)
+	{
+		InteractionFragment rSubFragment = aSubFragments.remove(rFragmentParam);
+
+		if (rSubFragment != null)
+		{
+			get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
+			get(INPUT_PARAMS).remove(rFragmentParam);
+			deleteParameters(rFragmentParam);
+		}
+
+		return rSubFragment;
 	}
 
 	/***************************************
@@ -1571,17 +1633,17 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Sets the {@link DataElementList#LIST_DISPLAY_MODE LIST_DISPLAY_MODE}
-	 * property for a {@link DataElementList} parameter.
+	 * Sets the {@link UserInterfaceProperties#LAYOUT LAYOUT} property for a
+	 * {@link DataElementList} parameter.
 	 *
 	 * @param eMode  The list display mode
 	 * @param rParam The parameter
 	 */
-	public void setListDisplayMode(
-		ListDisplayMode						eMode,
+	public void setLayout(
+		Layout								eMode,
 		RelationType<List<RelationType<?>>> rParam)
 	{
-		setUIProperty(DataElementList.LIST_DISPLAY_MODE, eMode, rParam);
+		setUIProperty(LAYOUT, eMode, rParam);
 	}
 
 	/***************************************
@@ -1914,6 +1976,10 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		aPanelParameters.addAll(rPanelParams);
+
+		// if the parameters have already been added to this fragment remove
+		// them because they are already displayed as members of their panel
+		get(INTERACTION_PARAMS).removeAll(rPanelParams);
 	}
 
 	/***************************************
@@ -2103,40 +2169,15 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Returns a temporary parameter relation type that references a list with a
-	 * certain element datatype. The parameter will have an empty list as it's
-	 * initial value.
+	 * Returns an integer ID for the automatic naming of process parameters. The
+	 * default implementation return the result of {@link
+	 * Process#getNextParameterId()}.
 	 *
-	 * @param  sName        The name of the parameter
-	 * @param  rElementType The list element datatype
-	 *
-	 * @return The temporary list parameter type
-	 *
-	 * @see    #getTemporaryParameterType(String, Class)
+	 * @return A new temporary parameter ID
 	 */
-	protected <T> RelationType<List<T>> getTemporaryListType(
-		String			 sName,
-		Class<? super T> rElementType)
+	protected int getTemporaryParameterId()
 	{
-		sName = getTemporaryParameterName(sName);
-
-		@SuppressWarnings("unchecked")
-		RelationType<List<T>> rParam =
-			(RelationType<List<T>>) RelationType.valueOf(sName);
-
-		if (rParam == null)
-		{
-			rParam = newListType(sName, rElementType);
-
-			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
-		}
-		else
-		{
-			assert rParam.getTargetType() == List.class &&
-				   rParam.get(ELEMENT_DATATYPE) == rElementType;
-		}
-
-		return rParam;
+		return getProcess().getNextParameterId();
 	}
 
 	/***************************************
@@ -2149,8 +2190,18 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected String getTemporaryParameterName(String sBaseName)
 	{
-		sBaseName =
-			TextConvert.uppercaseIdentifier(sBaseName).replaceAll("[.-]", "_");
+		if (sBaseName == null)
+		{
+			sBaseName =
+				"__" + getClass().getSimpleName() + "P" +
+				getTemporaryParameterId();
+		}
+		else
+		{
+			sBaseName =
+				TextConvert.uppercaseIdentifier(sBaseName)
+						   .replaceAll("[.-]", "_");
+		}
 
 		if (Character.isDigit(sBaseName.charAt(0)))
 		{
@@ -2211,6 +2262,45 @@ public abstract class ProcessFragment extends ProcessElement
 		else
 		{
 			assert rParam.getTargetType() == rDatatype;
+		}
+
+		return rParam;
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type that references a {@link Set}
+	 * with a certain element datatype. The parameter will have an empty set as
+	 * it's initial value.
+	 *
+	 * @param  sName        The name of the parameter
+	 * @param  rElementType The set element datatype
+	 * @param  bOrdered     TRUE for a set that keeps the order of it's elements
+	 *
+	 * @return The temporary set parameter type
+	 *
+	 * @see    #getTemporaryParameterType(String, Class)
+	 */
+	protected <T> RelationType<Set<T>> getTemporarySetType(
+		String			 sName,
+		Class<? super T> rElementType,
+		boolean			 bOrdered)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<Set<T>> rParam =
+			(RelationType<Set<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newSetType(sName, rElementType, true, bOrdered);
+
+			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
+		}
+		else
+		{
+			assert rParam.getTargetType() == Set.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
 
 		return rParam;

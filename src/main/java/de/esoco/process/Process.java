@@ -60,6 +60,7 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_EXCEPTION;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_ID;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_LISTENERS;
+import static de.esoco.process.ProcessRelationTypes.PROCESS_NAME;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_SCHEDULER;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_START_TIME;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_SUSPEND_TIME;
@@ -68,7 +69,6 @@ import static de.esoco.process.ProcessRelationTypes.RESUME_PROCESSES;
 import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
 
 import static org.obrel.type.MetaTypes.TRANSACTIONAL;
-import static org.obrel.type.StandardTypes.NAME;
 
 
 /********************************************************************
@@ -237,8 +237,7 @@ public class Process extends SerializableRelatedObject
 	 * the actual need for an interaction.
 	 */
 	private static final RelationType<Boolean> STEP_WAS_INTERACTIVE =
-		RelationTypes.newBooleanType("de.esoco.process.STEP_WAS_INTERACTIVE",
-									 RelationTypeModifier.PRIVATE);
+		RelationTypes.newFlagType(RelationTypeModifier.PRIVATE);
 
 	//- Relation types ---------------------------------------------------------
 
@@ -249,6 +248,7 @@ public class Process extends SerializableRelatedObject
 
 	//~ Instance fields --------------------------------------------------------
 
+	private final String sProcessName;
 	private final String sUniqueProcessName;
 
 	private Process rContext		  = null;
@@ -257,6 +257,8 @@ public class Process extends SerializableRelatedObject
 	private boolean bRollbackRestart  = false;
 	private int     nHistoryLevel     = 0;
 	private int     nTransactionLevel = 0;
+	private int     nNextFragmentId   = 0;
+	private int     nNextParameterId  = 0;
 
 	private transient HashMap<String, ProcessStep> aProcessSteps;
 	private transient Stack<ProcessStep>		   aExecutionStack;
@@ -284,11 +286,13 @@ public class Process extends SerializableRelatedObject
 
 		int nId = nNextProcessId++;
 
+		sProcessName	   = sName;
 		sUniqueProcessName = sName + "-" + nId;
 
-		setParameter(PROCESS_ID, nId);
-		setParameter(NAME, sName);
 		setParameter(PROCESS, this);
+		setParameter(PROCESS_ID, nId);
+		setParameter(PROCESS_NAME, sProcessName);
+
 		initFields();
 	}
 
@@ -516,14 +520,14 @@ public class Process extends SerializableRelatedObject
 	 */
 	public String getFullName()
 	{
-		String sName = get(NAME);
+		String sFullName = sProcessName;
 
 		if (rContext != null)
 		{
-			sName = rContext.getFullName() + '.' + sName;
+			sFullName = rContext.getFullName() + '.' + sFullName;
 		}
 
-		return sName;
+		return sFullName;
 	}
 
 	/***************************************
@@ -565,7 +569,20 @@ public class Process extends SerializableRelatedObject
 	 */
 	public final String getName()
 	{
-		return getParameter(NAME);
+		return sProcessName;
+	}
+
+	/***************************************
+	 * Returns an integer ID for the automatic naming of process fragments. This
+	 * method is intended to be used internally by the framework.
+	 *
+	 * @return   The next generated fragment ID
+	 *
+	 * @category internal
+	 */
+	public int getNextFragmentId()
+	{
+		return nNextFragmentId++;
 	}
 
 	/***************************************
@@ -890,7 +907,7 @@ public class Process extends SerializableRelatedObject
 	public String toString()
 	{
 		return String.format("Process %s (current step: %s)",
-							 get(NAME),
+							 getName(),
 							 rCurrentStep);
 	}
 
@@ -1003,6 +1020,16 @@ public class Process extends SerializableRelatedObject
 	{
 		return rContext != null ? rContext.getInteractionHandler()
 								: rInteractionHandler;
+	}
+
+	/***************************************
+	 * Returns an integer ID for the automatic naming of process parameters.
+	 *
+	 * @return The next generated parameter ID
+	 */
+	int getNextParameterId()
+	{
+		return nNextParameterId++;
 	}
 
 	/***************************************
@@ -1289,7 +1316,7 @@ public class Process extends SerializableRelatedObject
 		{
 			beginTransaction(bHistory,
 							 getParameter(HistoryRecord.TARGET),
-							 getParameter(NAME));
+							 getName());
 		}
 	}
 

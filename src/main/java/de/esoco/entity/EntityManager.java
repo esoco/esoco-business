@@ -1,6 +1,18 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// esoco-business source file
-// Copyright (c) 2016 by Elmar Sonnenschein / esoco GmbH
+// This file is a part of the 'esoco-business' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
@@ -468,7 +480,7 @@ public class EntityManager
 		Class<E> rQueryType = qEntities.getQueryType();
 		Storage  rStorage   = StorageManager.getStorage(rQueryType);
 
-		try(Query<E> rQuery = rStorage.query(qEntities))
+		try (Query<E> rQuery = rStorage.query(qEntities))
 		{
 			QueryResult<E> rResult = rQuery.execute();
 
@@ -575,7 +587,7 @@ public class EntityManager
 			forEntity(rChildType,
 					  ifAttribute(rChildMasterAttribute, equalTo(rParent)));
 
-		try(Query<C> rQuery = rStorage.query(qChildren))
+		try (Query<C> rQuery = rStorage.query(qChildren))
 		{
 			QueryResult<C> rResult = rQuery.execute();
 
@@ -602,6 +614,8 @@ public class EntityManager
 						   rChildParentAttribute,
 						   rChildAttribute);
 		}
+
+		cacheEntity(rParent);
 	}
 
 	/***************************************
@@ -726,7 +740,7 @@ public class EntityManager
 		Storage		  rStorage		  = StorageManager.getStorage(rQueryType);
 		Collection<T> aDistinctValues = null;
 
-		try(Query<E> rQuery = rStorage.query(qEntities))
+		try (Query<E> rQuery = rStorage.query(qEntities))
 		{
 			aDistinctValues = (Collection<T>) rQuery.getDistinct(rAttribute);
 		}
@@ -1010,7 +1024,8 @@ public class EntityManager
 	 * criteria.
 	 *
 	 * @param  rEntityClass The entity type to query
-	 * @param  pCriteria    The criteria to search the entities by
+	 * @param  pCriteria    The criteria to search the entities by or NULL for
+	 *                      none
 	 * @param  nMax         The maximum number of entities to read
 	 *
 	 * @return A list of entities for the given criteria (may be empty but will
@@ -1469,11 +1484,9 @@ public class EntityManager
 	 *
 	 * @param rEntity The entity to remove
 	 */
-	@SuppressWarnings("boxing")
 	public static void removeCachedEntity(Entity rEntity)
 	{
 		removeCachedEntity(getGlobalEntityId(rEntity));
-		rEntity.set(CACHE_ENTITY, false);
 	}
 
 	/***************************************
@@ -1483,7 +1496,12 @@ public class EntityManager
 	 */
 	public static void removeCachedEntity(String sId)
 	{
-		aEntityCache.remove(sId);
+		Entity rRemovedEntity = aEntityCache.remove(sId);
+
+		if (rRemovedEntity != null)
+		{
+			rRemovedEntity.set(CACHE_ENTITY, Boolean.FALSE);
+		}
 	}
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,6 +97,16 @@ public class DateDataElement extends DataElement<Date>
 	 * Default constructor for serialization.
 	 */
 	DateDataElement()
+	{
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * This method should be invoked to initialize the property name constants
+	 * for de-serialization.
+	 */
+	public static void init()
 	{
 	}
 

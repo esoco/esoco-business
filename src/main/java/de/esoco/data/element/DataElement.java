@@ -26,7 +26,7 @@ import de.esoco.lib.text.TextConvert;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 
 
 /********************************************************************
@@ -158,6 +158,14 @@ public abstract class DataElement<T> extends StringProperties
 		}
 
 		return aItem.toString();
+	}
+
+	/***************************************
+	 * This method should be invoked to initialize the property name constants
+	 * for de-serialization.
+	 */
+	public static void init()
+	{
 	}
 
 	/***************************************
@@ -531,7 +539,18 @@ public abstract class DataElement<T> extends StringProperties
 	 */
 	protected String createResourceId()
 	{
-		return TextConvert.capitalizedLastElementOf(getName());
+		String sResId = TextConvert.lastElementOf(sName);
+
+		if (sResId.startsWith("__"))
+		{
+			sResId = "";
+		}
+		else
+		{
+			sResId = TextConvert.capitalizedIdentifier(sResId);
+		}
+
+		return sResId;
 	}
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,16 +25,16 @@ import de.esoco.entity.ExtraAttribute;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
+import de.esoco.lib.property.Layout;
 
+import de.esoco.process.Parameter;
+import de.esoco.process.step.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,7 +45,6 @@ import java.util.Set;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
 
 import static de.esoco.entity.EntityFunctions.getEntityId;
 import static de.esoco.entity.EntityFunctions.getExtraAttributeValue;
@@ -57,19 +56,8 @@ import static de.esoco.lib.expression.CollectionFunctions.collectInto;
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.not;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
-import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 
 import static de.esoco.storage.StoragePredicates.like;
-
-import static org.obrel.core.RelationTypes.newInitialValueType;
-import static org.obrel.core.RelationTypes.newListType;
-import static org.obrel.core.RelationTypes.newSetType;
-import static org.obrel.core.RelationTypes.newType;
 
 
 /********************************************************************
@@ -97,41 +85,6 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * A standard parameter that can be used to display this fragment in a
-	 * process step.
-	 */
-	public static final RelationType<List<RelationType<?>>> FILTER_ENTITY_TAGS_FRAGMENT =
-		newListType();
-
-	private static final RelationType<Set<String>> FILTER_ENTITY_TAGS =
-		newSetType(true);
-
-	private static final RelationType<TagFilterJoin> TAG_FILTER_JOIN =
-		newInitialValueType(TagFilterJoin.OR);
-
-	private static final RelationType<Boolean> TAG_FILTER_NEGATE = newType();
-
-	private static final RelationType<TagFilterAction> TAG_FILTER_ACTION =
-		newType();
-
-	private static final List<RelationType<?>> INTERACTION_PARAMS =
-		Arrays.<RelationType<?>>asList(FILTER_ENTITY_TAGS,
-									   TAG_FILTER_JOIN,
-									   TAG_FILTER_NEGATE,
-									   TAG_FILTER_ACTION);
-
-	private static final List<RelationType<?>> INPUT_PARAMS =
-		Arrays.<RelationType<?>>asList(FILTER_ENTITY_TAGS,
-									   TAG_FILTER_JOIN,
-									   TAG_FILTER_NEGATE,
-									   TAG_FILTER_ACTION);
-
-	static
-	{
-		RelationTypes.init(FilterEntityTags.class);
-	}
-
 	//~ Instance fields --------------------------------------------------------
 
 	private Class<E>    rEntityType;
@@ -140,6 +93,12 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	private Entity				 rTagOwner;
 	private TagFilterListener<E> rTagFilterListener;
 	private String				 sLabel;
+
+	private SetParameter<String>     aTagInput;
+	private Parameter<TagFilterJoin> aFilterJoin;
+	private Parameter<Boolean>		 aFilterNegate;
+
+	private Parameter<TagFilterAction> aFilterAction;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -249,7 +208,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public Set<Integer> getFilteredEntityIds() throws StorageException
 	{
-		Set<String>  rFilterTags  = getParameter(FILTER_ENTITY_TAGS);
+		Set<String> rFilterTags =
+			aTagInput != null ? aTagInput.value()
+							  : Collections.<String>emptySet();
+
 		Set<Integer> aFilteredIds = null;
 
 		if (rFilterTags.size() > 0)
@@ -258,7 +220,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 			Predicate<Relatable> pHasFilterTags = null;
 
-			boolean bOr = (getParameter(TAG_FILTER_JOIN) == TagFilterJoin.OR);
+			boolean bOr = (aFilterJoin.value() == TagFilterJoin.OR);
 
 			for (String sTag : rFilterTags)
 			{
@@ -344,25 +306,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public Collection<String> getFilteredTags()
 	{
-		return new LinkedHashSet<>(getParameter(FILTER_ENTITY_TAGS));
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<RelationType<?>> getInputParameters()
-	{
-		return INPUT_PARAMS;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<RelationType<?>> getInteractionParameters()
-	{
-		return INTERACTION_PARAMS;
+		return new LinkedHashSet<>(aTagInput.value());
 	}
 
 	/***************************************
@@ -372,11 +316,11 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public void handleInteraction(RelationType<?> rInteractionParam)
 		throws Exception
 	{
-		Set<String> rFilterTags = getParameter(FILTER_ENTITY_TAGS);
+		Set<String> rFilterTags = aTagInput.value();
 
-		if (rInteractionParam == TAG_FILTER_ACTION)
+		if (rInteractionParam == aFilterAction.type())
 		{
-			switch (getParameter(TAG_FILTER_ACTION))
+			switch (aFilterAction.value())
 			{
 				case CLEAR:
 					rFilterTags.clear();
@@ -396,7 +340,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 					break;
 			}
 
-			markParameterAsModified(FILTER_ENTITY_TAGS);
+			aTagInput.modified();
 		}
 
 		rTagFilterListener.filterTagsChanged(this);
@@ -408,36 +352,31 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	@Override
 	public void init() throws StorageException
 	{
-		setImmediateAction(TAG_FILTER_ACTION);
+		layout(Layout.TABLE);
+		fragmentParam().resid("FilterEntityTagsFragment");
 
-		setInteractive(InteractiveInputMode.CONTINUOUS, TAG_FILTER_JOIN);
-		setInteractive(InteractiveInputMode.ACTION, TAG_FILTER_NEGATE);
-		setInteractive(FILTER_ENTITY_TAGS,
-					   null,
-					   ListStyle.EDITABLE,
-					   getAllEntityTags(rEntityType, rTagOwner));
+		aTagInput     =
+			inputTags(getAllEntityTags(rEntityType, rTagOwner)).resid("FilterEntityTags")
+															   .continuousEvents();
+		aFilterJoin   =
+			dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
+										 .continuousEvents();
+		aFilterNegate =
+			checkBox("TagFilterNegate", false).sameRow().actionEvents();
 
-		setAllowedValues(TAG_FILTER_JOIN, TagFilterJoin.OR, TagFilterJoin.AND);
-
-		setUIFlag(SAME_ROW,
-				  TAG_FILTER_JOIN,
-				  TAG_FILTER_NEGATE,
-				  TAG_FILTER_ACTION);
-		setUIFlag(HAS_IMAGES, TAG_FILTER_ACTION);
-
-		setUIProperty(2, COLUMNS, TAG_FILTER_ACTION);
-
-		setUIProperty(LIST_STYLE, ListStyle.DROP_DOWN, TAG_FILTER_JOIN);
+		aFilterAction =
+			imageButtons(TagFilterAction.class).sameRow().columns(2)
+											   .resid("TagFilterAction");
 
 		if (sLabel != null)
 		{
 			if (sLabel.length() > 0)
 			{
-				setUIProperty(LABEL, sLabel, FILTER_ENTITY_TAGS);
+				aTagInput.label(sLabel);
 			}
 			else
 			{
-				setUIFlag(HIDE_LABEL, FILTER_ENTITY_TAGS);
+				aTagInput.hideLabel();
 			}
 		}
 	}
@@ -447,9 +386,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 *
 	 * @return The filter negation flag state
 	 */
+	@SuppressWarnings("boxing")
 	public boolean isNegateFilter()
 	{
-		return hasFlagParameter(TAG_FILTER_NEGATE);
+		return aFilterNegate.value();
 	}
 
 	/***************************************
@@ -459,8 +399,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public void updateTagList() throws StorageException
 	{
-		setAllowedElements(FILTER_ENTITY_TAGS,
-						   getAllEntityTags(rEntityType, rTagOwner));
+		aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

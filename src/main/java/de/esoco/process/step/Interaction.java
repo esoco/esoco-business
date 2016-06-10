@@ -17,7 +17,6 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.collection.CollectionUtil;
-
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.step.InteractionEvent.EventType;

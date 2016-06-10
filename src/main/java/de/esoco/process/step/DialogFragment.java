@@ -16,8 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.data.element.DataElementList.ViewDisplayType;
-
+import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.process.InvalidParametersException;
 
 import java.util.Collection;

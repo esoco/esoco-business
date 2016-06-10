@@ -20,9 +20,7 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StoragePredicates;
 
@@ -45,8 +43,7 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
  * @author eso
  * @see    ParameterBase
  */
-public class EntityParameter<E extends Entity>
-	extends ParameterBase<E, EntityParameter<E>>
+public class EntityParameter<E extends Entity> extends Parameter<E>
 {
 	//~ Constructors -----------------------------------------------------------
 

@@ -16,7 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.UserInterfaceProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,10 +25,8 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.data.element.DataElementList.LIST_DISPLAY_MODE;
-
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
@@ -189,7 +188,7 @@ public class FragmentInteraction extends Interaction
 		@Override
 		public void init() throws Exception
 		{
-			fragmentParam().set(LIST_DISPLAY_MODE, ListDisplayMode.TABS)
+			fragmentParam().set(UserInterfaceProperties.LAYOUT, Layout.TABS)
 						   .set(HTML_HEIGHT, "100%");
 
 			addDisplayParameters(rFragmentParams);

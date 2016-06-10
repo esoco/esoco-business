@@ -16,9 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.data.element.DataElementList;
-import de.esoco.data.element.DataElementList.ListDisplayMode;
-
+import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.InteractionFragment;
@@ -26,8 +24,6 @@ import de.esoco.process.step.InteractionFragment;
 import java.util.List;
 
 import org.obrel.core.RelationType;
-
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 
 
 /********************************************************************
@@ -102,8 +98,7 @@ public class ParameterList
 	{
 		return add(fragment().addSubFragment(rSubFragment.getClass()
 											 .getSimpleName(),
-											 rSubFragment,
-											 !bIsPanel));
+											 rSubFragment));
 	}
 
 	/***************************************
@@ -113,9 +108,9 @@ public class ParameterList
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(ListDisplayMode eMode)
+	public ParameterList as(Layout eMode)
 	{
-		set(DataElementList.LIST_DISPLAY_MODE, eMode);
+		set(UserInterfaceProperties.LAYOUT, eMode);
 
 		return this;
 	}
@@ -140,56 +135,13 @@ public class ParameterList
 	}
 
 	/***************************************
-	 * A convenience method that invokes the {@link #row(Parameter...)} and
-	 * {@link #forInput()} methods.
+	 * Returns the sub-fragment this parameter list represents. If this
+	 * parameter doesn't represent a fragment NULL will be returned.
 	 *
-	 * @see #row(Parameter...)
-	 * @see #forInput()
+	 * @return The sub-fragment this parameter list represents
 	 */
-	public ParameterList inputRow(ParameterBase<?, ?>... rRowParams)
+	public InteractionFragment subFragment()
 	{
-		return row(rRowParams).forInput();
-	}
-
-	/***************************************
-	 * Sets the layout to display the panel of this parameter list with.
-	 *
-	 * @param  eMode The list display mode for the panel layout
-	 *
-	 * @return This instance for concatenation
-	 */
-	public ParameterList layout(ListDisplayMode eMode)
-	{
-		set(DataElementList.LIST_DISPLAY_MODE, eMode);
-
-		return this;
-	}
-
-	/***************************************
-	 * Adds a row of parameters to this list. For all parameters after the first
-	 * in the row will the flag {@link UserInterfaceProperties#SAME_ROW} will be
-	 * set.
-	 *
-	 * @param  rRowParams Optional additional parameters in the row
-	 *
-	 * @return This instance for concatenation
-	 */
-	public ParameterList row(ParameterBase<?, ?>... rRowParams)
-	{
-		boolean bAdditionalParam = false;
-
-		add(rRowParams);
-
-		for (ParameterBase<?, ?> rParam : rRowParams)
-		{
-			if (bAdditionalParam)
-			{
-				rParam.set(SAME_ROW);
-			}
-
-			bAdditionalParam = true;
-		}
-
-		return this;
+		return fragment().getSubFragment(type());
 	}
 }

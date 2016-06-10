@@ -25,8 +25,7 @@ import de.esoco.history.HistoryRecord;
 import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-
+import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;

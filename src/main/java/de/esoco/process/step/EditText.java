@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
-
 import de.esoco.lib.event.EditListener;
 import de.esoco.lib.event.EditListener.EditAction;
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,13 +29,13 @@ import java.util.Map;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.EDITABLE;
 import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.HEIGHT;
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
 import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
@@ -252,11 +251,11 @@ public class EditText extends InteractionFragment
 		setUIProperty(STYLE, "EditTextValue", rValueParam);
 		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
 
-		addPanel(aActionPanelParam, ListDisplayMode.TABLE, aActionPanelParams);
+		addPanel(aActionPanelParam, Layout.TABLE, aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());
-		setListDisplayMode(ListDisplayMode.DOCK, getFragmentParameter());
+		setLayout(Layout.DOCK, getFragmentParameter());
 
 		setEditInfo("");
 		stopEditing(null);
@@ -347,7 +346,7 @@ public class EditText extends InteractionFragment
 	 * Creates the temporary interaction parameters of this instance.
 	 */
 	@Override
-	protected void setup()
+	public void setup()
 	{
 		String sName = rValueParam.getSimpleName();
 

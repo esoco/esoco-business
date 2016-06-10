@@ -25,10 +25,9 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ProcessStep;
+import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
-import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 
 import java.util.List;

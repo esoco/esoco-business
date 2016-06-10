@@ -16,8 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
-
+import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.Updatable;
 
 import java.util.List;
@@ -64,12 +63,12 @@ public class EditInteractionParameters extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		setListDisplayMode(ListDisplayMode.SPLIT, getFragmentParameter());
+		setLayout(Layout.SPLIT, getFragmentParameter());
 
 		aElementTree   = new InteractionParameterTree(rRootParams);
 		aElementEditor = new EditInteractionParameter();
 
-		addSubFragment(aElementTree).gridWidth("300px");
+		addSubFragment(aElementTree).width("300px");
 		addSubFragment(aElementEditor);
 	}
 

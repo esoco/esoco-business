@@ -18,9 +18,8 @@ package de.esoco.history;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityRelationTypes;
-
+import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
 
 import java.util.Date;
 import java.util.HashMap;

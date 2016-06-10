@@ -19,7 +19,6 @@ package de.esoco.process.step;
 import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
-
 import de.esoco.lib.manage.TransactionException;
 
 import de.esoco.storage.StorageException;

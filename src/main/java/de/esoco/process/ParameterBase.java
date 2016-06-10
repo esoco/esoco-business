@@ -16,45 +16,63 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.data.element.DataElementList.ListDisplayMode;
+import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.ContentProperties;
+import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.InteractiveInputMode;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutProperties;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.RelativeScale;
+import de.esoco.lib.property.RelativeSize;
+import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
-import de.esoco.lib.property.UserInterfaceProperties.ContentType;
-import de.esoco.lib.property.UserInterfaceProperties.InteractiveInputMode;
-import de.esoco.lib.property.UserInterfaceProperties.ListStyle;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
+import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
-import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.CSS_STYLES;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.ROW_SPAN;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
-import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
-import static de.esoco.lib.property.UserInterfaceProperties.WIDTH;
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.ContentProperties.ICON;
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ICON_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
+import static de.esoco.lib.property.LayoutProperties.RELATIVE_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
+import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.LayoutProperties.TEXT_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.WIDTH;
+import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.STYLE;
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
@@ -72,6 +90,7 @@ import static de.esoco.lib.property.UserInterfaceProperties.WIDTH;
  * @author eso
  */
 public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
+	extends RelatedObject
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -110,6 +129,54 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Sets the property {@link LayoutProperties#HORIZONTAL_ALIGN}.
+	 *
+	 * @param  eAlignment The alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignHorizontal(Alignment eAlignment)
+	{
+		return set(HORIZONTAL_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link LayoutProperties#ICON_ALIGN}.
+	 *
+	 * @param  eAlignment The alignment of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignIcon(Alignment eAlignment)
+	{
+		return set(ICON_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link LayoutProperties#TEXT_ALIGNMENT}.
+	 *
+	 * @param  eAlignment The alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignText(Alignment eAlignment)
+	{
+		return set(TEXT_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link LayoutProperties#VERTICAL_ALIGN}.
+	 *
+	 * @param  eAlignment The alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P alignVertical(Alignment eAlignment)
+	{
+		return set(VERTICAL_ALIGN, eAlignment);
+	}
+
+	/***************************************
 	 * Enables all events without setting an event handler. The event handler
 	 * must either be set later or the containing fragment must implement {@link
 	 * InteractionFragment#handleInteraction(RelationType)}.
@@ -141,11 +208,21 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @see ProcessFragment#setAllowedValues(RelationType, Object...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final <C extends Collection<T>> P allow(C rValues)
+	public final P allow(Collection<T> rValues)
 	{
 		rFragment.setAllowedValues(rParamType, rValues);
 
 		return (P) this;
+	}
+
+	/***************************************
+	 * Returns the values that this parameter is allowed to contain.
+	 *
+	 * @return The allowed values (can be NULL)
+	 */
+	public Collection<T> allowedValues()
+	{
+		return rFragment.getAllowedValues(rParamType);
 	}
 
 	/***************************************
@@ -177,7 +254,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 		if (nValueCount > 0)
 		{
-			set(nValueCount, UserInterfaceProperties.COLUMNS);
+			set(nValueCount, COLUMNS);
 		}
 
 		return (P) this;
@@ -245,9 +322,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets a CSS style property for the parameter. The style values must be
-	 * instances of {@link HasCssName} as defined in the GWT class {@link
-	 * Style}.
+	 * Sets a CSS style property for the parameter.
 	 *
 	 * @param  sCssProperty The name of the CSS property
 	 * @param  sValue       The value of the CSS property or NULL to clear
@@ -316,53 +391,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT} which
-	 * defines the table cell height in a panel with a {@link
-	 * ListDisplayMode#TABLE GRID} layout.
+	 * Returns the value of a certain property for the wrapped parameter.
 	 *
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
+	 * @see ProcessFragment#getUIProperty(PropertyName, RelationType)
 	 */
-	public final P gridHeight(String sHeight)
+	public final <V> V get(PropertyName<V> rProperty)
 	{
-		return set(HTML_HEIGHT, sHeight);
+		return rFragment.getUIProperty(rProperty, rParamType);
 	}
 
 	/***************************************
-	 * Sets the UI properties {@link UserInterfaceProperties#HTML_WIDTH} and
-	 * {@link UserInterfaceProperties#HTML_HEIGHT} which defines the table cell
-	 * size in a panel with a {@link ListDisplayMode#TABLE GRID} layout.
-	 *
-	 * @param  sWidth  The HTML width string
-	 * @param  sHeight The HTML height string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P gridSize(String sWidth, String sHeight)
-	{
-		return gridWidth(sWidth).gridHeight(sHeight);
-	}
-
-	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HTML_WIDTH} which
-	 * defines the table cell width in a panel with a {@link
-	 * ListDisplayMode#TABLE GRID} layout.
-	 *
-	 * @param  sWidth The HTML width string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P gridWidth(String sWidth)
-	{
-		return set(HTML_WIDTH, sWidth);
-	}
-
-	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#HEIGHT} which defines
-	 * the height of the parameter component in panels with a layout that
-	 * requires a size value (like {@link ListDisplayMode#DOCK} and {@link
-	 * ListDisplayMode#SPLIT}).
+	 * Sets the pixel width of an element in the UI property {@link
+	 * LayoutProperties#WIDTH}.
 	 *
 	 * @param  nHeight nWidth The width
 	 *
@@ -371,6 +411,30 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P height(int nHeight)
 	{
 		return set(nHeight, HEIGHT);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link LayoutProperties#RELATIVE_WIDTH}.
+	 *
+	 * @param  eHeight sWidth The relative width constant
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P height(RelativeSize eHeight)
+	{
+		return set(RELATIVE_HEIGHT, eHeight);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}.
+	 *
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P height(String sHeight)
+	{
+		return set(HTML_HEIGHT, sHeight);
 	}
 
 	/***************************************
@@ -391,6 +455,89 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P hideLabel()
 	{
 		return set(HIDE_LABEL);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link ContentProperties#ICON}.
+	 *
+	 * @param  sIconName The name of the icon to be displayed in the target
+	 *                   object
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sIconName)
+	{
+		return set(ICON, sIconName);
+	}
+
+	/***************************************
+	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
+	 * StyleProperties#ICON_SIZE}.
+	 *
+	 * @param  sName The name of the icon to be displayed in the target object
+	 * @param  eSize The relative size of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sName, RelativeScale eSize)
+	{
+		return icon(sName).iconSize(eSize);
+	}
+
+	/***************************************
+	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
+	 * StyleProperties#ICON_ALIGNMENT}. Not all types of {@link Alignment} may
+	 * be supported in an UI implementation.
+	 *
+	 * @param  sName      The name of the icon to be displayed in the target
+	 *                    object
+	 * @param  eAlignment The position alignment of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P icon(String sName, Alignment eAlignment)
+	{
+		return icon(sName).alignIcon(eAlignment);
+	}
+
+	/***************************************
+	 * Sets the property {@link StyleProperties#ICON_SIZE}.
+	 *
+	 * @param  eSize The relative size of the icon
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P iconSize(RelativeScale eSize)
+	{
+		return set(ICON_SIZE, eSize);
+	}
+
+	/***************************************
+	 * Sets the flag property {@link StyleProperties#HAS_IMAGES}.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P images()
+	{
+		return set(HAS_IMAGES);
+	}
+
+	/***************************************
+	 * Transfers certain properties from the parent fragment to this parameter.
+	 *
+	 * @param  rProperties The properties to transfer
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public final P inherit(PropertyName<?>... rProperties)
+	{
+		for (PropertyName rProperty : rProperties)
+		{
+			set(rProperty, rFragment.fragmentParam().get(rProperty));
+		}
+
+		return (P) this;
 	}
 
 	/***************************************
@@ -453,6 +600,54 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Sets the layout for the panel of a parameter. This will only be valid if
+	 * the given parameter is rendered in a panel (like {@link DataElementList}
+	 * or buttons).
+	 *
+	 * @param  eLayout The panel layout
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P layout(Layout eLayout)
+	{
+		set(UserInterfaceProperties.LAYOUT, eLayout);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Marks this parameter as modified.
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P modified()
+	{
+		rFragment.markParameterAsModified(rParamType);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Sets a simple event handler for action events of this parameter. This
+	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
+	 * with the mode {@link InteractiveInputMode#ACTION}.
+	 *
+	 * @param  rEventHandler The runnable to be invoked on an action event
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P onAction(ParameterEventHandler<T> rEventHandler)
+	{
+		interactive(InteractiveInputMode.ACTION);
+		setParameterEventHandler(rEventHandler);
+
+		return (P) this;
+	}
+
+	/***************************************
 	 * Registers an event handler that will be notified of changes of this
 	 * parameter's relation.
 	 *
@@ -496,6 +691,25 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P onEvent(InteractionHandler rEventHandler)
 	{
 		rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Sets a simple event handler for update events of this parameter. This
+	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
+	 * with the mode {@link InteractiveInputMode#CONTINUOUS}.
+	 *
+	 * @param  rEventHandler rRunnable The runnable to be invoked on an action
+	 *                       event
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P onUpdate(ParameterEventHandler<T> rEventHandler)
+	{
+		interactive(InteractiveInputMode.CONTINUOUS);
+		setParameterEventHandler(rEventHandler);
 
 		return (P) this;
 	}
@@ -551,13 +765,41 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Marks this parameter to be displayed in the same row as the previous
-	 * parameter (in table-based layouts).
+	 * parameter (in grid and table layouts).
 	 *
 	 * @return This instance for concatenation
 	 */
 	public final P sameRow()
 	{
 		return set(SAME_ROW);
+	}
+
+	/***************************************
+	 * Marks this parameter to be displayed in the same row as the previous
+	 * parameter with a certain column span in a grid or table layout.
+	 *
+	 * @param  nColumnSpan The number of columns that the parameter UI should
+	 *                     span
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P sameRow(int nColumnSpan)
+	{
+		return sameRow().colSpan(nColumnSpan);
+	}
+
+	/***************************************
+	 * Marks this parameter to be displayed in the same row as the previous
+	 * parameter with a certain width in a grid layout.
+	 *
+	 * @param  eColumnWidth The relative width of the parameter UI in a grid
+	 *                      layout
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P sameRow(RelativeSize eColumnWidth)
+	{
+		return sameRow().width(eColumnWidth);
 	}
 
 	/***************************************
@@ -644,6 +886,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Invokes {@link #width(String)} and {@link #height(String)}.
+	 *
+	 * @param  sWidth  The HTML width string
+	 * @param  sHeight The HTML height string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P size(String sWidth, String sHeight)
+	{
+		return width(sWidth).height(sHeight);
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#STYLE}.
 	 *
 	 * @param  sStyle The style name(s)
@@ -653,6 +908,22 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P style(String sStyle)
 	{
 		return set(STYLE, sStyle);
+	}
+
+	/***************************************
+	 * Appends a parameter to the row of this one. This is the same as invoking
+	 * the method {@link #sameRow()} on the argument parameter.
+	 *
+	 * @param  rParameter The parameter to add to the current row
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P then(ParameterBase<?, ?> rParameter)
+	{
+		rParameter.sameRow();
+
+		return (P) this;
 	}
 
 	/***************************************
@@ -721,10 +992,32 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#WIDTH} which defines
-	 * the width of the parameter component in panels with a layout that
-	 * requires a size value (like {@link ListDisplayMode#DOCK} and {@link
-	 * ListDisplayMode#SPLIT}).
+	 * Sets the UI property {@link LayoutProperties#HTML_WIDTH}.
+	 *
+	 * @param  sWidth The HTML width string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P width(String sWidth)
+	{
+		return set(HTML_WIDTH, sWidth);
+	}
+
+	/***************************************
+	 * Sets the UI property {@link LayoutProperties#RELATIVE_WIDTH}.
+	 *
+	 * @param  eWidth The relative width constant
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P width(RelativeSize eWidth)
+	{
+		return set(RELATIVE_WIDTH, eWidth);
+	}
+
+	/***************************************
+	 * Sets the pixel width of an element in the UI property {@link
+	 * LayoutProperties#WIDTH}.
 	 *
 	 * @param  nWidth The width
 	 *
@@ -733,5 +1026,27 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P width(int nWidth)
 	{
 		return set(nWidth, WIDTH);
+	}
+
+	/***************************************
+	 * Helper method to set a parameter event handler that forwards interaction
+	 * events to a runnable object.
+	 *
+	 * @param rEventHandler rRunnable The runnable to be invoked on interaction
+	 *                      events
+	 */
+	private void setParameterEventHandler(
+		final ParameterEventHandler<T> rEventHandler)
+	{
+		rFragment.setParameterInteractionHandler(rParamType,
+			new InteractionHandler()
+			{
+				@Override
+				public void handleInteraction(InteractionEvent rEvent)
+					throws Exception
+				{
+					rEventHandler.handleParameterUpdate(value());
+				}
+			});
 	}
 }
