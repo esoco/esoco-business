@@ -338,15 +338,7 @@ public class EntityDefinition<E extends Entity>
 
 		E aEntity = null;
 
-		if (rParentAttribute == null && bHasCaching)
-		{
-			int     nIdIndex = aAttributes.indexOf(rIdAttribute);
-			Integer rId		 = (Integer) rAttributeValues.get(nIdIndex);
-
-			aEntity =
-				EntityManager.getCachedEntity(getMappedType(), rId.intValue());
-		}
-		else if (!bAsChild && bHasCaching)
+		if (!bAsChild && bHasCaching)
 		{
 			aEntity = tryToGetFromParent(rAttributeValues);
 		}
