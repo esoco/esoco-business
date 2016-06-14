@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -361,9 +362,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	@SuppressWarnings("unchecked")
 	public <E extends Enum<E>> Parameter<E> buttons(E... rAllowedValues)
 	{
-		Class<E> rEnumClass = (Class<E>) rAllowedValues[0].getClass();
-
-		return param(rEnumClass).buttons(rAllowedValues);
+		return param(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
 	}
 
 	/***************************************
@@ -538,7 +537,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public final <E extends Enum<E>> Parameter<E> dropDown(Class<E> rEnumClass)
 	{
-		return dropDown(rEnumClass.getEnumConstants());
+		return dropDown(rEnumClass.getSimpleName(), EnumSet.allOf(rEnumClass));
 	}
 
 	/***************************************
@@ -547,20 +546,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * the datatype of the parameter type and it will be preset as the parameter
 	 * value.
 	 *
+	 * @param  sName          The name of the parameter
 	 * @param  rAllowedValues The values to be displayed in the drop down box
 	 *                        (must not be empty)
 	 *
 	 * @return The new parameter
 	 */
-	@SafeVarargs
-	public final <T> Parameter<T> dropDown(T... rAllowedValues)
+	public final <T> Parameter<T> dropDown(
+		String		  sName,
+		Collection<T> rAllowedValues)
 	{
-		@SuppressWarnings("unchecked")
-		Class<T> rDatatype = (Class<T>) rAllowedValues[0].getClass();
+		T		 rFirstValue = CollectionUtil.firstElementOf(rAllowedValues);
+		Class<T> rDatatype   = getValueDatatype(rFirstValue);
 
-		return input(rDatatype).set(LIST_STYLE, ListStyle.DROP_DOWN)
-							   .value(rAllowedValues[0])
-							   .allow(rAllowedValues);
+		return input(sName, rDatatype).set(LIST_STYLE, ListStyle.DROP_DOWN)
+									  .value(rFirstValue)
+									  .allow(rAllowedValues);
 	}
 
 	/***************************************
@@ -1530,6 +1531,27 @@ public abstract class InteractionFragment extends ProcessFragment
 		// anonymous inner classes don't have a name, use default then
 		return (sName.length() > 0 ? sName.toLowerCase() : "fragment") +
 			   nFragmentId;
+	}
+
+	/***************************************
+	 * Determines the datatype of a certain value. This especially recognizes
+	 * anonymous subclasses of enums and returns the correct enum type instead.
+	 *
+	 * @param  rValue The value to determine the datatype of
+	 *
+	 * @return The value datatype
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T> Class<T> getValueDatatype(T rValue)
+	{
+		Class<T> rDatatype = (Class<T>) rValue.getClass();
+
+		if (rDatatype.isAnonymousClass() && rDatatype.getSuperclass().isEnum())
+		{
+			rDatatype = (Class<T>) rDatatype.getSuperclass();
+		}
+
+		return rDatatype;
 	}
 
 	/***************************************
