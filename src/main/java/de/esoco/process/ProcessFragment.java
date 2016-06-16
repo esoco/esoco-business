@@ -425,6 +425,9 @@ public abstract class ProcessFragment extends ProcessElement
 	 * allow the invoking code to separate fragment creation from fragment
 	 * placement.
 	 *
+	 * <p>If a fragment already exist in the given parameter it will be replaced
+	 * with the new instance.</p>
+	 *
 	 * @param rFragmentParam The interactive process parameter in which the
 	 *                       fragment will be displayed
 	 * @param rSubFragment   The fragment to add

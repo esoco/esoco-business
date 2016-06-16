@@ -147,10 +147,14 @@ public abstract class DataElement<T> extends StringProperties
 
 		if (rValue != null)
 		{
-			String sClassName = rValue.getClass().getName();
+			Class<? extends Object> rDatatype  = rValue.getClass();
+			String				    sClassName = rDatatype.getSimpleName();
 
-			sClassName = sClassName.substring(sClassName.lastIndexOf('.') + 1);
-			sClassName = sClassName.substring(sClassName.lastIndexOf('$') + 1);
+			// replace empty name of anonymous classes with name of parent class
+			if (sClassName.isEmpty())
+			{
+				sClassName = rDatatype.getSuperclass().getSimpleName();
+			}
 
 			aItem.append(ITEM_RESOURCE_PREFIX);
 			aItem.append(sClassName);

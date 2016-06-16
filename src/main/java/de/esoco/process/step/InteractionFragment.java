@@ -30,6 +30,7 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.Initializer;
+import de.esoco.lib.manage.Initializable;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
@@ -89,7 +90,6 @@ import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.DISABLED;
-import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -108,6 +108,7 @@ import static org.obrel.type.StandardTypes.ERROR_MESSAGE;
  * @author eso
  */
 public abstract class InteractionFragment extends ProcessFragment
+	implements Initializable
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -158,6 +159,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
+	@Override
 	public abstract void init() throws Exception;
 
 	/***************************************
@@ -292,6 +294,29 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Convenience method for the common case where the same sub-fragment type
+	 * needs to be added multiple times to this parent fragment. The name of the
+	 * fragment will be created from the fragment class and the given index
+	 * (which must be different for each new instance). The fragment class name
+	 * will also be set as the resource ID.
+	 *
+	 * @param  nIndex       The fragment index
+	 * @param  rSubFragment The fragment to add
+	 *
+	 * @return The wrapper for the fragment parameter
+	 *
+	 * @see    #addSubFragment(String, InteractionFragment)
+	 */
+	public ParameterList addSubFragment(
+		int					nIndex,
+		InteractionFragment rSubFragment)
+	{
+		String sName = rSubFragment.getClass().getSimpleName();
+
+		return addSubFragment(sName + nIndex, rSubFragment).resid(sName);
+	}
+
+	/***************************************
 	 * Adds a subordinate fragment to this instance into a temporary parameter
 	 * and optionally displays it. The temporary parameter relation type will be
 	 * created with the given name by invoking {@link #listParam(String, Class)}
@@ -359,25 +384,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new parameter
 	 */
-	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>> Parameter<E> buttons(E... rAllowedValues)
+	@SafeVarargs
+	public final <E extends Enum<E>> Parameter<E> buttons(E... rAllowedValues)
 	{
 		return param(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
-	}
-
-	/***************************************
-	 * Creates a parameter that displays interactive buttons from an enum.
-	 *
-	 * @param  rEnumClass The enum class to create the buttons from
-	 * @param  eStyle     The button style
-	 *
-	 * @return The new parameter
-	 */
-	public <E extends Enum<E>> Parameter<E> buttons(
-		Class<E>    rEnumClass,
-		ButtonStyle eStyle)
-	{
-		return param(rEnumClass).buttons().set(BUTTON_STYLE, eStyle);
 	}
 
 	/***************************************
@@ -394,7 +404,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	@SuppressWarnings("boxing")
 	public Parameter<Boolean> checkBox(String sName, boolean bInitialValue)
 	{
-		return flagParam(sName).hideLabel().value(bInitialValue);
+		return flagParam(sName).input().hideLabel().value(bInitialValue);
 	}
 
 	/***************************************
@@ -812,6 +822,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a parameter that displays interactive buttons for certain enum
+	 * values as icons.
+	 *
+	 * @param  rAllowedValues rEnumClass The enum class to create the buttons
+	 *                        from
+	 *
+	 * @return The new parameter
+	 */
+	@SafeVarargs
+	public final <E extends Enum<E>> Parameter<E> iconButtons(
+		E... rAllowedValues)
+	{
+		return buttons(rAllowedValues).buttonStyle(ButtonStyle.ICON).images();
+	}
+
+	/***************************************
 	 * Creates a parameter that displays interactive buttons from an enum as
 	 * icons.
 	 *
@@ -821,23 +847,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> Parameter<E> iconButtons(Class<E> rEnumClass)
 	{
-		return buttons(rEnumClass, ButtonStyle.ICON).images();
-	}
-
-	/***************************************
-	 * Creates a parameter that displays interactive buttons from an enum as
-	 * icons with a particular button style.
-	 *
-	 * @param  rEnumClass   The enum class to create the buttons from
-	 * @param  eButtonStyle The button style
-	 *
-	 * @return The new parameter
-	 */
-	public <E extends Enum<E>> Parameter<E> iconButtons(
-		Class<E>    rEnumClass,
-		ButtonStyle eButtonStyle)
-	{
-		return buttons(rEnumClass, eButtonStyle).images();
+		return buttons(rEnumClass).buttonStyle(ButtonStyle.ICON).images();
 	}
 
 	/***************************************

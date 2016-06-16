@@ -20,6 +20,7 @@ import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
@@ -68,6 +69,7 @@ import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
@@ -258,6 +260,20 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		}
 
 		return (P) this;
+	}
+
+	/***************************************
+	 * Mark this parameter to be displayed with a certain button style.
+	 *
+	 * @param  eButtonStyle The button style
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #buttons(Object...)
+	 */
+	public final P buttonStyle(ButtonStyle eButtonStyle)
+	{
+		return set(BUTTON_STYLE, eButtonStyle);
 	}
 
 	/***************************************
