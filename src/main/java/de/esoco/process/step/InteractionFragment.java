@@ -32,6 +32,7 @@ import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.manage.Initializable;
 import de.esoco.lib.property.ButtonStyle;
+import de.esoco.lib.property.CheckBoxStyle;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LabelStyle;
@@ -90,6 +91,7 @@ import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -391,20 +393,30 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a boolean parameter that displays a checkbox. If the checkbox
-	 * shall be used for input the methode {@link Parameter#input()} needs to be
-	 * invoked on the returned parameter.
+	 * Creates a boolean parameter that displays a checkbox for the input of a
+	 * boolean value. The value will initially be set to FALSE.
 	 *
-	 * @param  sName         The name of the parameter (used for the checkbox
-	 *                       label)
-	 * @param  bInitialValue The initial value of the checkbox
+	 * @param  sName The name of the parameter (used for the checkbox label)
 	 *
 	 * @return The new parameter
 	 */
-	@SuppressWarnings("boxing")
-	public Parameter<Boolean> checkBox(String sName, boolean bInitialValue)
+	public Parameter<Boolean> checkBox(String sName)
 	{
-		return flagParam(sName).input().hideLabel().value(bInitialValue);
+		return flagParam(sName).input().hideLabel().value(Boolean.FALSE);
+	}
+
+	/***************************************
+	 * Creates a boolean parameter that displays a checkbox for the input of a
+	 * boolean value with a certain style.
+	 *
+	 * @param  sName  The name of the parameter (used for the checkbox label)
+	 * @param  eStyle The checkbox style
+	 *
+	 * @return The new parameter
+	 */
+	public Parameter<Boolean> checkBox(String sName, CheckBoxStyle eStyle)
+	{
+		return checkBox(sName).set(CHECK_BOX_STYLE, eStyle);
 	}
 
 	/***************************************
