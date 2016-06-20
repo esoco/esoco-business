@@ -397,7 +397,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Returns the fragment this parameter belongs to.
+	 * Returns the fragment this parameter belongs to (i.e. where it is
+	 * displayed).
 	 *
 	 * @return The fragment
 	 */

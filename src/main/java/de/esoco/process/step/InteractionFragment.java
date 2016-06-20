@@ -1053,15 +1053,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Creates a new display parameter for a string value with a certain label
 	 * style.
 	 *
-	 * @param  sLabelString The label string
-	 * @param  eStyle       The style of the label
+	 * @param  sLabelText The label text
+	 * @param  eStyle     The style of the label
 	 *
 	 * @return The new parameter
 	 */
-	public Parameter<String> label(String sLabelString, LabelStyle eStyle)
+	public Parameter<String> label(String sLabelText, LabelStyle eStyle)
 	{
 		return textParam(null).set(LABEL_STYLE, eStyle).hideLabel()
-							  .value(sLabelString);
+							  .value(sLabelText);
 	}
 
 	/***************************************

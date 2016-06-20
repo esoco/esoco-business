@@ -116,6 +116,19 @@ public class ParameterList
 	}
 
 	/***************************************
+	 * Returns the sub-fragment of the content that this parameter list
+	 * represents (as {@link #fragment()} returns the parent fragment this
+	 * parameter belongs to). If this parameter doesn't represent a fragment
+	 * NULL will be returned.
+	 *
+	 * @return The sub-fragment this parameter list represents
+	 */
+	public InteractionFragment contentFragment()
+	{
+		return fragment().getSubFragment(type());
+	}
+
+	/***************************************
 	 * Marks the parameters that have been added to this parameter's fragment
 	 * with the last call to {@link #add(Parameter...)} for input.
 	 *
@@ -132,16 +145,5 @@ public class ParameterList
 		}
 
 		return this;
-	}
-
-	/***************************************
-	 * Returns the sub-fragment this parameter list represents. If this
-	 * parameter doesn't represent a fragment NULL will be returned.
-	 *
-	 * @return The sub-fragment this parameter list represents
-	 */
-	public InteractionFragment subFragment()
-	{
-		return fragment().getSubFragment(type());
 	}
 }
