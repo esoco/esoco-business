@@ -1343,7 +1343,7 @@ public abstract class ProcessFragment extends ProcessElement
 		if (rSubFragment != null)
 		{
 			get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
-			get(INPUT_PARAMS).remove(rFragmentParam);
+			removeInteractionParameters(rFragmentParam);
 			deleteParameters(rFragmentParam);
 		}
 
