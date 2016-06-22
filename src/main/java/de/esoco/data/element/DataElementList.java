@@ -542,6 +542,16 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	}
 
 	/***************************************
+	 * Returns the full hierarchy of this data element list as a string.
+	 *
+	 * @return The hierarchy string
+	 */
+	public String toHierarchyString()
+	{
+		return toHierarchyString("");
+	}
+
+	/***************************************
 	 * Can be overridden by subclasses to return a resource id prefix for child
 	 * elements. This default implementation returns an empty string.
 	 *
@@ -559,6 +569,42 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	protected List<DataElement<?>> getList()
 	{
 		return aDataElements;
+	}
+
+	/***************************************
+	 * Returns the full hierarchy of this data element list.
+	 *
+	 * @param  sIndent The indentation of the hierarchy
+	 *
+	 * @return The hierarchy string
+	 */
+	private String toHierarchyString(String sIndent)
+	{
+		StringBuilder aHierarchy = new StringBuilder();
+
+		aHierarchy.append(sIndent);
+		aHierarchy.append(getName());
+		aHierarchy.append(" [");
+		aHierarchy.append(aDataElements.size());
+		aHierarchy.append("]\n");
+
+		sIndent += "  ";
+
+		for (DataElement<?> rChild : this)
+		{
+			if (rChild instanceof DataElementList)
+			{
+				aHierarchy.append(((DataElementList) rChild).toHierarchyString(sIndent));
+			}
+			else
+			{
+				aHierarchy.append(sIndent);
+				aHierarchy.append(rChild.getName());
+				aHierarchy.append('\n');
+			}
+		}
+
+		return aHierarchy.toString();
 	}
 
 	/***************************************
