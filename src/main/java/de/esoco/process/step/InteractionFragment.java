@@ -1464,6 +1464,19 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a parameter that displays a title string (i.e. with the style
+	 * {@link LabelStyle#TITLE}).
+	 *
+	 * @param  sTitleText The title text
+	 *
+	 * @return The label parameter
+	 */
+	public Parameter<String> title(String sTitleText)
+	{
+		return label(sTitleText, LabelStyle.TITLE);
+	}
+
+	/***************************************
 	 * Request a complete update of this fragment's UI by marking all
 	 * interaction parameters including their hierarchy as modified.
 	 */
