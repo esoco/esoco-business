@@ -1328,7 +1328,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> Parameter<E> radioButtons(Class<E> rEnumClass)
 	{
-		return param(rEnumClass).set(LIST_STYLE, ListStyle.DISCRETE).hideLabel()
+		return param(rEnumClass).input().set(LIST_STYLE, ListStyle.DISCRETE)
+								.hideLabel()
 								.layout(Layout.TABLE)
 								.columns(1);
 	}
