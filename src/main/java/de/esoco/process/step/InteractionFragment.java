@@ -276,7 +276,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rFragmentParam,
 		InteractionFragment					rSubFragment)
 	{
-		rSubFragment.rParent = this;
+		rSubFragment.setParent(this);
 
 		super.addSubFragment(rFragmentParam, rSubFragment);
 
@@ -1364,7 +1364,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		if (rSubFragment != null)
 		{
 			rSubFragment.setProcessStep(null);
-			rSubFragment.rParent = null;
+			rSubFragment.setParent(null);
 		}
 
 		return rSubFragment;
@@ -1733,11 +1733,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Sets the parent value.
+	 * Sets the parent fragment of this instance.
 	 *
-	 * @param rParent The parent value
+	 * @param rParent The parent fragment
 	 */
-	protected final void setParent(InteractionFragment rParent)
+	protected void setParent(InteractionFragment rParent)
 	{
 		this.rParent = rParent;
 	}
