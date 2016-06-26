@@ -42,6 +42,7 @@ import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
+import de.esoco.process.EntityAttributeParameter;
 import de.esoco.process.EntityParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
@@ -96,7 +97,6 @@ import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PARAM_UPDATE_LISTENERS;
 
 import static org.obrel.type.StandardTypes.ERROR_MESSAGE;
@@ -947,6 +947,41 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a new process parameter for the input of an entity attribute that
+	 * is named like the original attribute relation type.
+	 *
+	 * @param  rAttribute The attribute to edit
+	 *
+	 * @return The parameter wrapper
+	 */
+	public <E extends Entity, T> EntityAttributeParameter<E, T> inputAttr(
+		RelationType<T> rAttribute)
+	{
+		return inputAttr(null, rAttribute);
+	}
+
+	/***************************************
+	 * Creates a new process parameter for the input of an entity attribute.
+	 *
+	 * @param  sName      The name of the parameter
+	 * @param  rAttribute The attribute to edit
+	 *
+	 * @return The parameter wrapper
+	 */
+	public <E extends Entity, T> EntityAttributeParameter<E, T> inputAttr(
+		String			sName,
+		RelationType<T> rAttribute)
+	{
+		RelationType<T> rDerivedParam =
+			getTemporaryParameterType(sName, rAttribute);
+
+		EntityAttributeParameter<E, T> rParam =
+			new EntityAttributeParameter<>(this, rDerivedParam);
+
+		return rParam.input();
+	}
+
+	/***************************************
 	 * Creates a parameter for a date input field.
 	 *
 	 * @param  sName The name of the input parameter
@@ -1285,11 +1320,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a new temporary parameter relation type that is derived from
-	 * another relation type. The other type must be from a different scope
-	 * (i.e. not the same fragment) or else a name conflict will occur. The
-	 * derived relation type will have the original relation in a meta relation
-	 * with the type {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
+	 * Returns a parameter for a derived temporary parameter type created by
+	 * {@link #getTemporaryParameterType(RelationType)}.
 	 *
 	 * @param  rOriginalType The original relation type the new parameter is
 	 *                       based on
@@ -1298,12 +1330,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <T> Parameter<T> paramLike(RelationType<T> rOriginalType)
 	{
-		Parameter<T> rDerivedParam =
-			param(rOriginalType.getSimpleName(), rOriginalType.getTargetType());
-
-		rDerivedParam.type().set(ORIGINAL_RELATION_TYPE, rOriginalType);
-
-		return rDerivedParam;
+		return param(getTemporaryParameterType(null, rOriginalType));
 	}
 
 	/***************************************

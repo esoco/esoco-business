@@ -82,6 +82,7 @@ import static de.esoco.data.DataRelationTypes.STORAGE_ADAPTER_ID;
 import static de.esoco.data.DataRelationTypes.STORAGE_ADAPTER_REGISTRY;
 
 import static de.esoco.entity.EntityRelationTypes.DISPLAY_PROPERTIES;
+import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTE_FLAG;
 
 import static de.esoco.lib.expression.Functions.doIf;
 import static de.esoco.lib.expression.Functions.doIfElse;
@@ -565,6 +566,52 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Stores the value of a derived process parameter under the original
+	 * relation type in a target object. For details about derived parameters
+	 * see {@link ProcessRelationTypes#deriveParameter(String, RelationType)}.
+	 * If the target object is an {@link Entity} and the original relation type
+	 * is an extra attribute type this method will set the extra attribute
+	 * value.
+	 *
+	 * @param rDerivedParam The derived parameter
+	 * @param rTarget       The target object to set the derived parameter on
+	 */
+	public <T> void applyDerivedParameter(
+		RelationType<T> rDerivedParam,
+		Relatable		rTarget)
+	{
+		@SuppressWarnings("unchecked")
+		RelationType<T> rOriginalType =
+			(RelationType<T>) rDerivedParam.get(ORIGINAL_RELATION_TYPE);
+
+		T rParamValue = getParameter(rDerivedParam);
+
+		if (rParamValue instanceof String &&
+			((String) rParamValue).length() == 0)
+		{
+			rParamValue = null;
+		}
+
+		if (rTarget instanceof Entity &&
+			rOriginalType.hasFlag(EXTRA_ATTRIBUTE_FLAG))
+		{
+			try
+			{
+				((Entity) rTarget).setExtraAttribute(rOriginalType,
+													 rParamValue);
+			}
+			catch (StorageException e)
+			{
+				throw new RuntimeProcessException(this, e);
+			}
+		}
+		else
+		{
+			rTarget.set(rOriginalType, rParamValue);
+		}
+	}
+
+	/***************************************
 	 * Applies multiple derived parameters to a certain target. See the method
 	 * {@link #applyDerivedParameter(RelationType, Relatable)} for details.
 	 *
@@ -632,6 +679,30 @@ public abstract class ProcessFragment extends ProcessElement
 		Collection<? extends RelationType<?>> rParams)
 	{
 		setUIProperty(rProperty, Boolean.FALSE, rParams);
+	}
+
+	/***************************************
+	 * Reads the value of a derived process parameter with the original relation
+	 * type from a certain object and stores it in the process. For details see
+	 * {@link ProcessRelationTypes#deriveParameter(String, RelationType)}. If
+	 * the source object is an {@link Entity} and the original relation type is
+	 * an extra attribute type this method will retrieve the extra attribute
+	 * value.
+	 *
+	 * @param rSource       The source object to read the parameter value from
+	 * @param rDerivedParam The derived parameter
+	 * @param bSkipExisting If TRUE only parameters that don't exist already
+	 *                      will be collected from the source object
+	 */
+	public <T> void collectDerivedParameter(Relatable		rSource,
+											RelationType<T> rDerivedParam,
+											boolean			bSkipExisting)
+	{
+		if (!bSkipExisting || !hasParameter(rDerivedParam))
+		{
+			setParameter(rDerivedParam,
+						 getDerivedParameterValue(rSource, rDerivedParam));
+		}
 	}
 
 	/***************************************
@@ -845,6 +916,48 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return pQuery;
+	}
+
+	/***************************************
+	 * Retrieves the value for a derived parameter type from a source object.
+	 * The value will be determined by retrieving the original relation type
+	 * from the source. If the source object is an {@link Entity} and the
+	 * original relation type is an extra attribute type this method will
+	 * retrieve the extra attribute value.
+	 *
+	 * @param  rSource       The source object to get the value from
+	 * @param  rDerivedParam The derived parameter type
+	 *
+	 * @return The value
+	 */
+	public <T> T getDerivedParameterValue(
+		Relatable		rSource,
+		RelationType<T> rDerivedParam)
+	{
+		T			    rValue;
+		@SuppressWarnings("unchecked")
+		RelationType<T> rOriginalType =
+			(RelationType<T>) rDerivedParam.get(ORIGINAL_RELATION_TYPE);
+
+		if (rSource instanceof Entity &&
+			rOriginalType.hasFlag(EXTRA_ATTRIBUTE_FLAG))
+		{
+			try
+			{
+				rValue =
+					((Entity) rSource).getExtraAttribute(rOriginalType, null);
+			}
+			catch (StorageException e)
+			{
+				throw new RuntimeProcessException(this, e);
+			}
+		}
+		else
+		{
+			rValue = rSource.get(rOriginalType);
+		}
+
+		return rValue;
 	}
 
 	/***************************************
@@ -1986,33 +2099,6 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Stores the value of a derived process parameter under the original
-	 * relation type in a target object. For details about derived parameters
-	 * see {@link ProcessRelationTypes#deriveParameter(String, RelationType)}.
-	 *
-	 * @param rDerivedParam The derived parameter
-	 * @param rTarget       The target object to set the derived parameter on
-	 */
-	protected <T> void applyDerivedParameter(
-		RelationType<T> rDerivedParam,
-		Relatable		rTarget)
-	{
-		@SuppressWarnings("unchecked")
-		RelationType<T> rTargetType =
-			(RelationType<T>) rDerivedParam.get(ORIGINAL_RELATION_TYPE);
-
-		T rParamValue = getParameter(rDerivedParam);
-
-		if (rParamValue instanceof String &&
-			((String) rParamValue).length() == 0)
-		{
-			rParamValue = null;
-		}
-
-		rTarget.set(rTargetType, rParamValue);
-	}
-
-	/***************************************
 	 * Method for subclasses to check and retrieve the value of a certain
 	 * parameter. Invokes {@link #getParameter(RelationType)} to retrieve the
 	 * value and if it is NULL but the parameter has been marked as mandatory an
@@ -2038,30 +2124,6 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return rParam;
-	}
-
-	/***************************************
-	 * Reads the value of a derived process parameter with the original relation
-	 * type from a certain object and stores it in the process. For details see
-	 * {@link ProcessRelationTypes#deriveParameter(String, RelationType)}.
-	 *
-	 * @param rSource       The source object to read the parameter value from
-	 * @param rDerivedParam The derived parameter
-	 * @param bSkipExisting If TRUE only parameters that don't exist already
-	 *                      will be collected from the source object
-	 */
-	protected <T> void collectDerivedParameter(Relatable	   rSource,
-											   RelationType<T> rDerivedParam,
-											   boolean		   bSkipExisting)
-	{
-		if (!(bSkipExisting && hasParameter(rDerivedParam)))
-		{
-			@SuppressWarnings("unchecked")
-			RelationType<T> rSourceType =
-				(RelationType<T>) rDerivedParam.get(ORIGINAL_RELATION_TYPE);
-
-			setParameter(rDerivedParam, rSource.get(rSourceType));
-		}
 	}
 
 	/***************************************
@@ -2229,6 +2291,34 @@ public abstract class ProcessFragment extends ProcessElement
 	protected String getTemporaryParameterPackage()
 	{
 		return "process" + getProcess().getId();
+	}
+
+	/***************************************
+	 * Returns a temporary parameter type for another relation type. The derived
+	 * type will also contain the original relation type in the meta-relation
+	 * {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
+	 *
+	 * @param  sName         The name of the new relation type or NULL to use
+	 *                       the simple name of the original type
+	 * @param  rOriginalType The original parameter relation type
+	 *
+	 * @return The temporary parameter relation type
+	 */
+	protected <T> RelationType<T> getTemporaryParameterType(
+		String			sName,
+		RelationType<T> rOriginalType)
+	{
+		if (sName == null)
+		{
+			sName = rOriginalType.getSimpleName();
+		}
+
+		RelationType<T> aDerivedType =
+			getTemporaryParameterType(sName, rOriginalType.getTargetType());
+
+		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
+
+		return aDerivedType;
 	}
 
 	/***************************************
