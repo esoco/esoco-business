@@ -622,7 +622,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <E extends Entity> EntityParameter<E> entityParam(
 		Class<E> rEntityType)
 	{
-		return entityParam(rEntityType.getClass().getSimpleName(), rEntityType);
+		return entityParam(rEntityType.getSimpleName(), rEntityType);
 	}
 
 	/***************************************
