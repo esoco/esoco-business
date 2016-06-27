@@ -420,22 +420,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a list parameter that displays checkboxes for the selection of
-	 * multiple enum values
+	 * Creates a parameter that displays checkboxes for the selection of
+	 * multiple enum values.
 	 *
-	 * @param  rEnumClass The enum class to create the checkboxes for
+	 * @param  rEnumClass The enum class to create the checkboxes parameter for
 	 *
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> ListParameter<E> checkBoxes(Class<E> rEnumClass)
+	public <E extends Enum<E>> SetParameter<E> checkBoxes(Class<E> rEnumClass)
 	{
-		ListParameter<E> aListParam =
-			listParam(rEnumClass.getSimpleName(), rEnumClass);
+		SetParameter<E> aCheckBoxes =
+			setParam(rEnumClass.getSimpleName(), rEnumClass, true);
 
-		return aListParam.input().hideLabel()
-						 .set(LIST_STYLE, ListStyle.DISCRETE)
-						 .layout(Layout.TABLE)
-						 .columns(1);
+		return aCheckBoxes.input().hideLabel()
+						  .set(LIST_STYLE, ListStyle.DISCRETE)
+						  .layout(Layout.TABLE)
+						  .columns(1);
 	}
 
 	/***************************************

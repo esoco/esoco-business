@@ -19,6 +19,7 @@ package de.esoco.process;
 import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentProperties;
@@ -274,6 +275,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P buttonStyle(ButtonStyle eButtonStyle)
 	{
 		return set(BUTTON_STYLE, eButtonStyle);
+	}
+
+	/***************************************
+	 * Checks whether the value of this parameter fulfills a certain condition.
+	 *
+	 * @param  pValueCondition The predicate that checks the condition
+	 *
+	 * @return TRUE if the condition is fulfilled
+	 */
+	@SuppressWarnings("boxing")
+	public boolean check(Predicate<? super T> pValueCondition)
+	{
+		return pValueCondition.evaluate(value());
 	}
 
 	/***************************************
@@ -972,6 +986,53 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final RelationType<T> type()
 	{
 		return rParamType;
+	}
+
+	/***************************************
+	 * Validates that the value of this parameter fulfills a certain constraint.
+	 * If not an exception will be thrown.
+	 *
+	 * @param  pValueConstraint The constraint to be validated
+	 * @param  sErrorMessage    The error message to be displayed for the
+	 *                          parameter in the case of a constraint violation
+	 *
+	 * @throws InvalidParametersException If the constraint is violated
+	 */
+	public void validate(
+		Predicate<? super T> pValueConstraint,
+		String				 sErrorMessage) throws InvalidParametersException
+	{
+		validate(pValueConstraint, sErrorMessage, null);
+	}
+
+	/***************************************
+	 * Validates that the value of this parameter fulfills a certain constraint.
+	 * If not an exception will be thrown.
+	 *
+	 * @param  pValueConstraint The constraint to be validated
+	 * @param  sErrorMessage    The error message to be displayed for the
+	 *                          parameter in the case of a constraint violation
+	 * @param  rRunOnViolation  A runnable to be executed if the constraint is
+	 *                          violated
+	 *
+	 * @throws InvalidParametersException If the constraint is violated
+	 */
+	public void validate(Predicate<? super T> pValueConstraint,
+						 String				  sErrorMessage,
+						 Runnable			  rRunOnViolation)
+		throws InvalidParametersException
+	{
+		if (!check(pValueConstraint))
+		{
+			if (rRunOnViolation != null)
+			{
+				rRunOnViolation.run();
+			}
+
+			throw new InvalidParametersException(fragment(),
+												 sErrorMessage,
+												 type());
+		}
 	}
 
 	/***************************************

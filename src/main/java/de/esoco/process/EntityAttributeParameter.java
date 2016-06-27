@@ -20,6 +20,8 @@ import de.esoco.entity.Entity;
 
 import de.esoco.process.step.InteractionFragment;
 
+import java.util.Objects;
+
 import org.obrel.core.RelationType;
 
 
@@ -72,13 +74,9 @@ public class EntityAttributeParameter<E extends Entity, T>
 
 		if (rEntity != null)
 		{
-			T rParamValue = value();
-			T rAttrValue  =
-				fragment().getDerivedParameterValue(rEntity, type());
+			T rAttrValue = fragment().getDerivedParameterValue(rEntity, type());
 
-			bChanged =
-				rParamValue == null && rAttrValue != null ||
-				rParamValue != null && !rParamValue.equals(rAttrValue);
+			bChanged = !Objects.equals(value(), rAttrValue);
 		}
 
 		return bChanged;
