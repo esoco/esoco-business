@@ -74,9 +74,13 @@ public class EntityAttributeParameter<E extends Entity, T>
 
 		if (rEntity != null)
 		{
-			T rAttrValue = fragment().getDerivedParameterValue(rEntity, type());
+			T rAttrValue  =
+				fragment().getDerivedParameterValue(rEntity, type());
+			T rParamValue = value();
 
-			bChanged = !Objects.equals(value(), rAttrValue);
+			bChanged =
+				!Objects.equals(rParamValue, rAttrValue) &&
+				!(rAttrValue == null && "".equals(rParamValue));
 		}
 
 		return bChanged;
