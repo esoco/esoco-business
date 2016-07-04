@@ -33,7 +33,7 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	 * Redefinition of chart types to make them available on the server side.
 	 */
 
-	public enum ChartType { AREA, BAR, COLUMN, GEO_MAP, LINE, PIE, NETWORK }
+	public enum ChartType { AREA, BAR, COLUMN, GEO_MAP, LINE, PIE, GAUGE }
 
 	/********************************************************************
 	 * Redefinition of legend positions to make them available on the server
