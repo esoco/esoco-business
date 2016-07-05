@@ -619,6 +619,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Checks the value of a boolean property.
+	 *
+	 * @see #get(PropertyName)
+	 */
+	public final boolean is(PropertyName<Boolean> rFlagProperty)
+	{
+		return get(rFlagProperty) == Boolean.TRUE;
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
 	 *
 	 * @param  sLabel sWidth The label string
