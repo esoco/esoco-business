@@ -355,17 +355,21 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		layout(Layout.TABLE);
 		fragmentParam().resid("FilterEntityTagsFragment");
 
-		aTagInput     =
-			inputTags(getAllEntityTags(rEntityType, rTagOwner)).resid("FilterEntityTags")
-															   .continuousEvents();
-		aFilterJoin   =
-			dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
-										 .continuousEvents();
-		aFilterNegate = checkBox("TagFilterNegate").sameRow().actionEvents();
+		if (aTagInput == null)
+		{
+			aTagInput     =
+				inputTags(getAllEntityTags(rEntityType, rTagOwner)).resid("FilterEntityTags")
+																   .continuousEvents();
+			aFilterJoin   =
+				dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
+											 .continuousEvents();
+			aFilterNegate =
+				checkBox("TagFilterNegate").sameRow().actionEvents();
 
-		aFilterAction =
-			imageButtons(TagFilterAction.class).sameRow().columns(2)
-											   .resid("TagFilterAction");
+			aFilterAction =
+				imageButtons(TagFilterAction.class).sameRow().columns(2)
+												   .resid("TagFilterAction");
+		}
 
 		if (sLabel != null)
 		{

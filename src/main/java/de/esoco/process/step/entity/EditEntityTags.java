@@ -169,9 +169,12 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 		Set<String> aTags =
 			FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
 
-		aTagInput =
-			inputTags(aTags).onUpdate(this).resid("SelectedEntityTags")
-							.value(aInputTags);
+		if (aTagInput == null)
+		{
+			aTagInput =
+				inputTags(aTags).onUpdate(this).resid("SelectedEntityTags")
+								.value(aInputTags);
+		}
 
 		aTagInput.allowElements(new LinkedHashSet<String>());
 
