@@ -19,7 +19,6 @@ package de.esoco.process.step;
 import de.esoco.lib.event.EditListener;
 import de.esoco.lib.event.EditListener.EditAction;
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
 
@@ -29,16 +28,16 @@ import java.util.Map;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.LayoutProperties.HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.EDITABLE;
-import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.StyleProperties.EDITABLE;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.STYLE;
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
@@ -217,7 +216,6 @@ public class EditText extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		setInteractive(InteractiveInputMode.ACTION, rValueParam);
 		setInteractive(aTextActionParam, null, ListStyle.IMMEDIATE);
 		setInteractive(aEditActionParam, null, ListStyle.IMMEDIATE);
 
@@ -284,6 +282,38 @@ public class EditText extends InteractionFragment
 	}
 
 	/***************************************
+	 * Creates the temporary interaction parameters of this instance.
+	 */
+	@Override
+	public void setup()
+	{
+		String sName = rValueParam.getSimpleName();
+
+		aActionPanelParam =
+			getTemporaryListType(sName + "_ACTION_PANEL", RelationType.class);
+		aTextActionParam  =
+			getTemporaryParameterType(sName + "_TEXT_ACTION", TextAction.class);
+		aEditActionParam  =
+			getTemporaryParameterType(sName + "_EDIT_ACTION", EditAction.class);
+		aEditInfoParam    =
+			getTemporaryParameterType(sName + "_EDIT_INFO", String.class);
+
+		aInteractionParams = params(rValueParam, aActionPanelParam);
+		aInputParams	   = params(rValueParam, aActionPanelParam);
+		aActionPanelParams =
+			params(aTextActionParam, aEditActionParam, aEditInfoParam);
+
+		aInputParams.add(aTextActionParam);
+		aInputParams.add(aEditActionParam);
+
+		if (aAdditionalActions != null)
+		{
+			aActionPanelParams.addAll(aAdditionalActions.keySet());
+			aInputParams.addAll(aAdditionalActions.keySet());
+		}
+	}
+
+	/***************************************
 	 * Starts editing the text.
 	 *
 	 * @param bNewValue TRUE if a new value should be created
@@ -340,37 +370,5 @@ public class EditText extends InteractionFragment
 	protected void abort()
 	{
 		stopEditing(EditAction.CANCEL);
-	}
-
-	/***************************************
-	 * Creates the temporary interaction parameters of this instance.
-	 */
-	@Override
-	public void setup()
-	{
-		String sName = rValueParam.getSimpleName();
-
-		aActionPanelParam =
-			getTemporaryListType(sName + "_ACTION_PANEL", RelationType.class);
-		aTextActionParam  =
-			getTemporaryParameterType(sName + "_TEXT_ACTION", TextAction.class);
-		aEditActionParam  =
-			getTemporaryParameterType(sName + "_EDIT_ACTION", EditAction.class);
-		aEditInfoParam    =
-			getTemporaryParameterType(sName + "_EDIT_INFO", String.class);
-
-		aInteractionParams = params(rValueParam, aActionPanelParam);
-		aInputParams	   = params(rValueParam, aActionPanelParam);
-		aActionPanelParams =
-			params(aTextActionParam, aEditActionParam, aEditInfoParam);
-
-		aInputParams.add(aTextActionParam);
-		aInputParams.add(aEditActionParam);
-
-		if (aAdditionalActions != null)
-		{
-			aActionPanelParams.addAll(aAdditionalActions.keySet());
-			aInputParams.addAll(aAdditionalActions.keySet());
-		}
 	}
 }
