@@ -1081,7 +1081,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public Parameter<String> label(String sLabelText)
 	{
-		return label(sLabelText, LabelStyle.DEFAULT);
+		return label(sLabelText, null);
 	}
 
 	/***************************************

@@ -746,13 +746,11 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	@SuppressWarnings("unchecked")
 	public final P onUpdate(ParameterEventHandler<T> rEventHandler)
 	{
-		interactive(InteractiveInputMode.CONTINUOUS);
 		setParameterEventHandler(rEventHandler);
 
-		return (P) this;
+		return continuousEvents();
 	}
 
 	/***************************************
