@@ -47,6 +47,7 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.expression.Predicates.not;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.LABEL;
@@ -762,6 +763,27 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P remove(PropertyName<?> rProperty)
 	{
 		rFragment.removeUIProperties(rParamType);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Adds a general validation for this parameter.
+	 *
+	 * @param  pValueConstraint The constraint that must be valid
+	 * @param  sErrorMessage    The error message to be displayed for the
+	 *                          parameter in the case of a constraint violation
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P ensure(
+		Predicate<? super T> pValueConstraint,
+		String				 sErrorMessage)
+	{
+		fragment().setParameterValidation(type(),
+										  sErrorMessage,
+										  not(pValueConstraint));
 
 		return (P) this;
 	}
