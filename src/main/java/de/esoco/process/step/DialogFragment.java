@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.property.ViewDisplayType;
+
 import de.esoco.process.InvalidParametersException;
 
 import java.util.Collection;
@@ -31,13 +32,13 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
 
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
 /********************************************************************
@@ -109,6 +110,8 @@ public class DialogFragment extends ViewFragment
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+
+	private static boolean bUseFillParam = true;
 
 	/**
 	 * A listener relation type for the {@link DialogActionListener} interface.
@@ -183,6 +186,20 @@ public class DialogFragment extends ViewFragment
 		}
 	}
 
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Global configuration method to disable the addition of a fill parameter
+	 * to the button panel.
+	 *
+	 * <p>TODO This is just a workaround until a complete rework of the view
+	 * fragment has been done (JIRA issue Framework-191).</p>
+	 */
+	public static void disableButtonFillParameter()
+	{
+		bUseFillParam = false;
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -255,7 +272,13 @@ public class DialogFragment extends ViewFragment
 				  aDialogActionFillParam,
 				  aDialogActionParam,
 				  aDialogActionQuestionParam);
-		setUIFlag(SAME_ROW, aDialogActionParam, aDialogActionQuestionParam);
+
+		if (bUseFillParam)
+		{
+			setUIFlag(SAME_ROW, aDialogActionQuestionParam);
+		}
+
+		setUIFlag(SAME_ROW, aDialogActionParam);
 		setUIProperty(3, COLUMN_SPAN, getViewContentParam());
 		setUIProperty(TOOLTIP,
 					  "",
@@ -278,9 +301,10 @@ public class DialogFragment extends ViewFragment
 	@Override
 	protected void addExtraViewInteractionParams(String sParamBaseName)
 	{
-		aDialogActionFillParam     =
+		aDialogActionFillParam =
 			getTemporaryParameterType(sParamBaseName + "_ACTION_FILL",
 									  String.class);
+
 		aDialogActionQuestionParam =
 			getTemporaryParameterType(sParamBaseName + "_ACTION_QUESTION",
 									  String.class);
@@ -288,7 +312,11 @@ public class DialogFragment extends ViewFragment
 			getTemporaryParameterType(sParamBaseName + "_ACTION",
 									  DialogAction.class);
 
-		getInteractionParameters().add(aDialogActionFillParam);
+		if (bUseFillParam)
+		{
+			getInteractionParameters().add(aDialogActionFillParam);
+		}
+
 		getInteractionParameters().add(aDialogActionQuestionParam);
 		addInputParameters(aDialogActionParam);
 	}

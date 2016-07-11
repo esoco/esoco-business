@@ -1772,23 +1772,26 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Displays a confirmation message that can either be accepted or rejected.
 	 *
-	 * @param sMessage           The message to display
-	 * @param bYesNoQuestion     TRUE for YES and NO dialog buttons, FALSE for
-	 *                           OK and CANCEL
-	 * @param rRunOnComfirmation The code to be executed if the user accepts the
-	 *                           message
+	 * @param  sMessage           The message to display
+	 * @param  bYesNoQuestion     TRUE for YES and NO dialog buttons, FALSE for
+	 *                            OK and CANCEL
+	 * @param  rRunOnComfirmation The code to be executed if the user accepts
+	 *                            the message
+	 *
+	 * @return
 	 */
-	protected void showConfirmationMessage(String		  sMessage,
-										   boolean		  bYesNoQuestion,
-										   final Runnable rRunOnComfirmation)
+	protected MessageBoxFragment showConfirmationMessage(
+		String		   sMessage,
+		boolean		   bYesNoQuestion,
+		final Runnable rRunOnComfirmation)
 	{
 		if (rRunOnComfirmation == null)
 		{
 			throw new IllegalArgumentException("Runnable parameter must not be NULL");
 		}
 
-		showMessageBox(sMessage,
-					   MESSAGE_BOX_QUESTION_ICON,
+		return showMessageBox(sMessage,
+							  MESSAGE_BOX_QUESTION_ICON,
 			new DialogActionListener()
 			{
 				@Override
@@ -1801,8 +1804,8 @@ public abstract class InteractionFragment extends ProcessFragment
 					}
 				}
 			},
-					   bYesNoQuestion ? DialogAction.YES_NO
-									  : DialogAction.OK_CANCEL);
+							  bYesNoQuestion ? DialogAction.YES_NO
+											 : DialogAction.OK_CANCEL);
 	}
 
 	/***************************************
