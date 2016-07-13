@@ -2255,27 +2255,29 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected String getTemporaryParameterName(String sBaseName)
 	{
+		StringBuilder aParamName =
+			new StringBuilder(getTemporaryParameterPackage());
+
+		aParamName.append('.');
+
 		if (sBaseName == null)
 		{
-			sBaseName =
-				"__" + getClass().getSimpleName() + "P" +
-				getTemporaryParameterId();
+			aParamName.append("__").append(getClass().getSimpleName())
+					  .append('P')
+					  .append(getTemporaryParameterId());
 		}
 		else
 		{
-			sBaseName =
-				TextConvert.uppercaseIdentifier(sBaseName)
-						   .replaceAll("[.-]", "_");
+			aParamName.append(TextConvert.uppercaseIdentifier(sBaseName)
+							  .replaceAll("[.-]", "_"));
 		}
 
-		if (Character.isDigit(sBaseName.charAt(0)))
+		if (Character.isDigit(aParamName.charAt(0)))
 		{
-			sBaseName = "_" + sBaseName;
+			aParamName.insert(0, '_');
 		}
 
-		sBaseName = getTemporaryParameterPackage() + "." + sBaseName;
-
-		return sBaseName;
+		return aParamName.toString();
 	}
 
 	/***************************************

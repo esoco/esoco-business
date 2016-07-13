@@ -1589,11 +1589,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	@Override
 	protected String getTemporaryParameterPackage()
 	{
-		String sName = getClass().getSimpleName();
+		StringBuilder aPackage =
+			new StringBuilder(super.getTemporaryParameterPackage());
+
+		String sFragmentName = getClass().getSimpleName().toLowerCase();
 
 		// anonymous inner classes don't have a name, use default then
-		return (sName.length() > 0 ? sName.toLowerCase() : "fragment") +
-			   nFragmentId;
+		if (sFragmentName.length() == 0)
+		{
+			sFragmentName = "fragment";
+		}
+
+		aPackage.append('.');
+		aPackage.append(sFragmentName);
+		aPackage.append(nFragmentId);
+
+		return aPackage.toString();
 	}
 
 	/***************************************
