@@ -39,6 +39,7 @@ import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -412,6 +413,25 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Adds a general validation for this parameter.
+	 *
+	 * @param  pValueConstraint The constraint that must be valid
+	 * @param  sErrorMessage    The error message to be displayed for the
+	 *                          parameter in the case of a constraint violation
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P ensure(Predicate<? super T> pValueConstraint, String sErrorMessage)
+	{
+		fragment().setParameterValidation(type(),
+										  sErrorMessage,
+										  not(pValueConstraint));
+
+		return (P) this;
+	}
+
+	/***************************************
 	 * Returns the fragment this parameter belongs to (i.e. where it is
 	 * displayed).
 	 *
@@ -768,27 +788,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Adds a general validation for this parameter.
-	 *
-	 * @param  pValueConstraint The constraint that must be valid
-	 * @param  sErrorMessage    The error message to be displayed for the
-	 *                          parameter in the case of a constraint violation
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	public P ensure(
-		Predicate<? super T> pValueConstraint,
-		String				 sErrorMessage)
-	{
-		fragment().setParameterValidation(type(),
-										  sErrorMessage,
-										  not(pValueConstraint));
-
-		return (P) this;
-	}
-
-	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#RESOURCE_ID}.
 	 *
 	 * @param  sResourceId sWidth The resource ID string
@@ -1058,6 +1057,10 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 			{
 				rRunOnViolation.run();
 			}
+
+			fragment().validationError(Collections
+									   .<RelationType<?>, String>singletonMap(type(),
+																			  sErrorMessage));
 
 			throw new InvalidParametersException(fragment(),
 												 sErrorMessage,

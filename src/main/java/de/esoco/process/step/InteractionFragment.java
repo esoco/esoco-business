@@ -1529,6 +1529,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Signals validation errors that occurred in this fragment. The default
+	 * implementation delegates the handling to the parent fragment (if such
+	 * exists). Subclasses can override this method somewhere in the hierarchy
+	 * if they need to display validation errors more prominently. This will not
+	 * override the default process parameter validation.
+	 *
+	 * @param rValidationErrors A mapping from parameters to validation error
+	 *                          messages
+	 */
+	public void validationError(Map<RelationType<?>, String> rValidationErrors)
+	{
+		if (rParent != null)
+		{
+			rParent.validationError(rValidationErrors);
+		}
+	}
+
+	/***************************************
 	 * This method will be invoked if the current execution of this fragment is
 	 * aborted and can be overridden by subclasses to perform data resets
 	 * similar to the {@link #rollback()} method.
@@ -2104,6 +2122,36 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Internal method to validate the fragment's process parameters during
+	 * state changes of the process. Subclasses must implement {@link
+	 * #validateParameters(boolean)} instead.
+	 *
+	 * @see ProcessStep#validateParameters(boolean)
+	 */
+	protected Map<RelationType<?>, String> validateFragmentParameters(
+		boolean bOnInteraction)
+	{
+		Map<RelationType<?>, String> rErrorParams = new HashMap<>();
+
+		for (InteractionFragment rSubFragment : getSubFragments())
+		{
+			rErrorParams.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
+		}
+
+		Map<RelationType<?>, String> rFragmentErrors =
+			validateParameters(bOnInteraction);
+
+		if (!rFragmentErrors.isEmpty())
+		{
+			validationError(rFragmentErrors);
+		}
+
+		rErrorParams.putAll(rFragmentErrors);
+
+		return rErrorParams;
+	}
+
+	/***************************************
 	 * Internal method to abort the current execution of this fragment. It can
 	 * be used to undo data and parameter initializations or interactive
 	 * modifications that have been performed by this fragment. Subclasses must
@@ -2344,29 +2392,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		this.rProcessStep = rProcessStep;
 		initProcessStep(rProcessStep);
-	}
-
-	/***************************************
-	 * Internal method to validate the fragment's process parameters during
-	 * state changes of the process. Subclasses must implement {@link
-	 * #validateParameters(boolean)} instead.
-	 *
-	 * @see ProcessStep#validateParameters(boolean)
-	 */
-	Map<RelationType<?>, String> validateFragmentParameters(
-		boolean bOnInteraction)
-	{
-		HashMap<RelationType<?>, String> rErrorParams =
-			new HashMap<RelationType<?>, String>();
-
-		for (InteractionFragment rSubFragment : getSubFragments())
-		{
-			rErrorParams.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
-		}
-
-		rErrorParams.putAll(validateParameters(bOnInteraction));
-
-		return rErrorParams;
 	}
 
 	/***************************************

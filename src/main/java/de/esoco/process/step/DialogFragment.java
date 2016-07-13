@@ -328,7 +328,7 @@ public class DialogFragment extends ViewFragment
 	 * @see ViewFragment#validateFragmentParameters(boolean)
 	 */
 	@Override
-	Map<RelationType<?>, String> validateFragmentParameters(
+	protected Map<RelationType<?>, String> validateFragmentParameters(
 		boolean bOnInteraction)
 	{
 		if (bOnInteraction)
