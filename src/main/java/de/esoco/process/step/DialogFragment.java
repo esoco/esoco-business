@@ -57,7 +57,8 @@ public class DialogFragment extends ViewFragment
 	 */
 	public enum DialogAction
 	{
-		OK(true), YES(true), SAVE(true), CANCEL(false), NO(false), CLOSE(false);
+		OK(true), YES(true), APPLY(true), SAVE(true), START(true), SEND(true),
+		CANCEL(false), NO(false), CLOSE(false);
 
 		//~ Static fields/initializers -----------------------------------------
 
