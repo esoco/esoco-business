@@ -30,8 +30,7 @@ public interface ParameterEventHandler<T>
 	 *
 	 * @param  rParamValue The current parameter value
 	 *
-	 * @throws ProcessException May throw an exception on errors
-	 * @throws Exception        TODO: DOCUMENT ME!
+	 * @throws Exception May throw an exception on errors
 	 */
 	public void handleParameterUpdate(T rParamValue) throws Exception;
 }
