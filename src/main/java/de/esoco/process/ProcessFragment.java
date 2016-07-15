@@ -1110,6 +1110,25 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Returns the UI properties for a certain parameter.
+	 *
+	 * @param  rParam The parameter relation type
+	 *
+	 * @return The UI properties or NULL for none
+	 */
+	public MutableProperties getUIProperties(RelationType<?> rParam)
+	{
+		MutableProperties rProperties = null;
+
+		if (hasParameter(rParam))
+		{
+			rProperties = getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
+		}
+
+		return rProperties;
+	}
+
+	/***************************************
 	 * Returns a certain user interface property value for a particular
 	 * parameter.
 	 *
@@ -1122,17 +1141,12 @@ public abstract class ProcessFragment extends ProcessElement
 		PropertyName<T> rProperty,
 		RelationType<?> rParam)
 	{
-		T rValue = null;
+		HasProperties rProperties = getUIProperties(rParam);
+		T			  rValue	  = null;
 
-		if (hasParameter(rParam))
+		if (rProperties != null)
 		{
-			HasProperties rProperties =
-				getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
-
-			if (rProperties != null)
-			{
-				rValue = rProperties.getProperty(rProperty, null);
-			}
+			rValue = rProperties.getProperty(rProperty, null);
 		}
 
 		return rValue;
@@ -1473,22 +1487,16 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<?>    rParam,
 		PropertyName<?>... rProperties)
 	{
-		MutableProperties rDisplayProperties = null;
+		MutableProperties rDisplayProperties = getUIProperties(rParam);
 
-		if (hasParameter(rParam))
+		if (rDisplayProperties != null)
 		{
-			rDisplayProperties =
-				getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
-
-			if (rDisplayProperties != null)
+			for (PropertyName<?> rProperty : rProperties)
 			{
-				for (PropertyName<?> rProperty : rProperties)
-				{
-					rDisplayProperties.removeProperty(rProperty);
-				}
-
-				markParameterAsModified(rParam);
+				rDisplayProperties.removeProperty(rProperty);
 			}
+
+			markParameterAsModified(rParam);
 		}
 	}
 
@@ -2014,13 +2022,7 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		for (RelationType<?> rParam : rParams)
 		{
-			MutableProperties rDisplayProperties = null;
-
-			if (hasParameter(rParam))
-			{
-				rDisplayProperties =
-					getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
-			}
+			MutableProperties rDisplayProperties = getUIProperties(rParam);
 
 			if (rDisplayProperties == null)
 			{

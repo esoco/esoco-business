@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
+import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.lib.text.TextConvert;
 
@@ -26,6 +27,7 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VIEW_DISPLAY_TYPE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.STYLE;
@@ -255,5 +257,23 @@ public class ViewFragment extends InteractionFragment
 
 		return bUpperCase ? TextConvert.uppercaseIdentifier(sBaseName)
 						  : sBaseName;
+	}
+
+	/***************************************
+	 * Overridden to transfer properties from the content fragment parameter to
+	 * the view parameter after all child fragments have been initialized.
+	 *
+	 * @see InteractionFragment#initComplete()
+	 */
+	@Override
+	protected void initComplete() throws Exception
+	{
+		Alignment eViewAlignment =
+			getUIProperty(VERTICAL_ALIGN, aViewContentParam);
+
+		if (eViewAlignment != null)
+		{
+			setUIProperty(VERTICAL_ALIGN, eViewAlignment, aViewFragmentParam);
+		}
 	}
 }
