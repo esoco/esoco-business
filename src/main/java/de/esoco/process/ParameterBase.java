@@ -413,7 +413,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Adds a general validation for this parameter.
+	 * Sets a general validation for this parameter.
 	 *
 	 * @param  pValueConstraint The constraint that must be valid
 	 * @param  sErrorMessage    The error message to be displayed for the
@@ -427,6 +427,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		fragment().setParameterValidation(type(),
 										  sErrorMessage,
 										  not(pValueConstraint));
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Sets a not empty validation for this parameter.
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public P ensureNotEmpty()
+	{
+		fragment().setParameterNotEmptyValidations(type());
 
 		return (P) this;
 	}
@@ -1025,13 +1038,15 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @param  sErrorMessage    The error message to be displayed for the
 	 *                          parameter in the case of a constraint violation
 	 *
+	 * @return This instance for concatenation
+	 *
 	 * @throws InvalidParametersException If the constraint is violated
 	 */
-	public void validate(
+	public P validate(
 		Predicate<? super T> pValueConstraint,
 		String				 sErrorMessage) throws InvalidParametersException
 	{
-		validate(pValueConstraint, sErrorMessage, null);
+		return validate(pValueConstraint, sErrorMessage, null);
 	}
 
 	/***************************************
@@ -1044,11 +1059,14 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @param  rRunOnViolation  A runnable to be executed if the constraint is
 	 *                          violated
 	 *
+	 * @return This instance for concatenation
+	 *
 	 * @throws InvalidParametersException If the constraint is violated
 	 */
-	public void validate(Predicate<? super T> pValueConstraint,
-						 String				  sErrorMessage,
-						 Runnable			  rRunOnViolation)
+	@SuppressWarnings("unchecked")
+	public P validate(Predicate<? super T> pValueConstraint,
+					  String			   sErrorMessage,
+					  Runnable			   rRunOnViolation)
 		throws InvalidParametersException
 	{
 		if (!check(pValueConstraint))
@@ -1066,6 +1084,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 												 sErrorMessage,
 												 type());
 		}
+
+		return (P) this;
 	}
 
 	/***************************************
