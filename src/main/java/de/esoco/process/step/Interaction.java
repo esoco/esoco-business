@@ -17,9 +17,10 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.property.InteractionEventType;
+
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessStep;
-import de.esoco.process.step.InteractionEvent.EventType;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_ACTION_EVENT;
+import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_EVENT_TYPE;
 
 import static org.obrel.type.MetaTypes.INTERACTIVE;
 
@@ -252,12 +253,8 @@ public class Interaction extends RollbackStep
 
 		if (rInteractionHandler != null)
 		{
-			EventType eEventType = EventType.INPUT;
-
-			if (hasFlagParameter(INTERACTIVE_INPUT_ACTION_EVENT))
-			{
-				eEventType = EventType.ACTION;
-			}
+			InteractionEventType eEventType =
+				getParameter(INTERACTIVE_INPUT_EVENT_TYPE);
 
 			InteractionEvent aEvent =
 				new InteractionEvent(this, rInteractionParam, eEventType);

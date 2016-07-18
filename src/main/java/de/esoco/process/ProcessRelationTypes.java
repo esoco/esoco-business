@@ -26,6 +26,7 @@ import de.esoco.history.HistoryManager;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.net.ExternalServiceAccess;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 
@@ -194,6 +195,10 @@ public class ProcessRelationTypes
 	 * ProcessFragment#getInteractiveInputParameter()}.
 	 */
 	public static final RelationType<RelationType<?>> INTERACTIVE_INPUT_PARAM =
+		newType();
+
+	/** The event type of an interaction. */
+	public static final RelationType<InteractionEventType> INTERACTIVE_INPUT_EVENT_TYPE =
 		newType();
 
 	/**

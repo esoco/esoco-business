@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.event.GenericEvent;
+import de.esoco.lib.property.InteractionEventType;
 
 import org.obrel.core.RelationType;
 
@@ -25,23 +26,14 @@ import org.obrel.core.RelationType;
  * An interaction event that hold information about the event source and the
  * type of event that occurred.
  *
- * @author ueggers
+ * @author eso
  */
 public final class InteractionEvent extends GenericEvent<RelationType<?>>
 {
-	//~ Enums ------------------------------------------------------------------
-
-	/********************************************************************
-	 * The available event types.<br>
-	 * {@link EventType#ACTION} a single action event<br>
-	 * {@link EventType#INPUT} a continuous input event
-	 */
-	public enum EventType { ACTION, INPUT }
-
 	//~ Instance fields --------------------------------------------------------
 
-	private EventType   eEventType;
-	private Interaction rInteraction;
+	private Interaction			 rInteraction;
+	private InteractionEventType eEventType;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -53,13 +45,14 @@ public final class InteractionEvent extends GenericEvent<RelationType<?>>
 	 *                              event occurred.
 	 * @param eEventType            The type of event that occurred.
 	 */
-	public InteractionEvent(Interaction		rInteraction,
-							RelationType<?> rInteractionParameter,
-							EventType		eEventType)
+	public InteractionEvent(Interaction			 rInteraction,
+							RelationType<?>		 rInteractionParameter,
+							InteractionEventType eEventType)
 	{
 		super(rInteractionParameter);
-		this.eEventType   = eEventType;
+
 		this.rInteraction = rInteraction;
+		this.eEventType   = eEventType;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -81,7 +74,7 @@ public final class InteractionEvent extends GenericEvent<RelationType<?>>
 	 *
 	 * @return The type of event that occurred.
 	 */
-	public EventType getType()
+	public InteractionEventType getType()
 	{
 		return eEventType;
 	}

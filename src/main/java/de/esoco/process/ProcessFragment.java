@@ -45,6 +45,7 @@ import de.esoco.lib.model.DataSet;
 import de.esoco.lib.model.IntDataSet;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
@@ -66,6 +67,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,6 +101,7 @@ import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_TYPES;
 import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
 import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY;
 import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
@@ -2015,11 +2018,21 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rValue    The property value
 	 * @param rParams   The parameters to set the property on
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> void setUIProperty(
 		PropertyName<T>						  rProperty,
 		T									  rValue,
 		Collection<? extends RelationType<?>> rParams)
 	{
+		// check whether the deprecated input mode needs to be converted into
+		// the corresponding event types
+		if (rProperty == INTERACTIVE_INPUT_MODE)
+		{
+			rProperty = (PropertyName<T>) INTERACTION_EVENT_TYPES;
+			rValue    =
+				(T) convertInputModeToEventTypes((InteractiveInputMode) rValue);
+		}
+
 		for (RelationType<?> rParam : rParams)
 		{
 			MutableProperties rDisplayProperties = getUIProperties(rParam);
@@ -2613,6 +2626,39 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		throw new IllegalStateException(String.format("Parameter %s not set",
 													  rParamType));
+	}
+
+	/***************************************
+	 * Converts (deprecated) {@link InteractiveInputMode} values into a set of
+	 * {@link InteractionEventType InteractionEventTypes}.
+	 *
+	 * @param  eMode The interactive input mode to convert
+	 *
+	 * @return The set of event types
+	 */
+	private Set<InteractionEventType> convertInputModeToEventTypes(
+		InteractiveInputMode eMode)
+	{
+		EnumSet<InteractionEventType> aEventTypes =
+			EnumSet.noneOf(InteractionEventType.class);
+
+		switch (eMode)
+		{
+			case ACTION:
+				aEventTypes.add(InteractionEventType.ACTION);
+				break;
+
+			case CONTINUOUS:
+				aEventTypes.add(InteractionEventType.UPDATE);
+				break;
+
+			case BOTH:
+				aEventTypes.add(InteractionEventType.ACTION);
+				aEventTypes.add(InteractionEventType.UPDATE);
+				break;
+		}
+
+		return aEventTypes;
 	}
 
 	/***************************************
