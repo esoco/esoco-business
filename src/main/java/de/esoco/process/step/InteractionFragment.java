@@ -44,6 +44,7 @@ import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.EntityAttributeParameter;
 import de.esoco.process.EntityParameter;
+import de.esoco.process.EnumParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
 import de.esoco.process.Process;
@@ -53,8 +54,8 @@ import de.esoco.process.ProcessFragment;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
-import de.esoco.process.step.CollectionParameter.ListParameter;
-import de.esoco.process.step.CollectionParameter.SetParameter;
+import de.esoco.process.CollectionParameter.ListParameter;
+import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -372,7 +373,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> Parameter<E> buttons(Class<E> rEnumClass)
+	public <E extends Enum<E>> EnumParameter<E> buttons(Class<E> rEnumClass)
 	{
 		return param(rEnumClass).buttons();
 	}
@@ -387,7 +388,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The new parameter
 	 */
 	@SafeVarargs
-	public final <E extends Enum<E>> Parameter<E> buttons(E... rAllowedValues)
+	public final <E extends Enum<E>> EnumParameter<E> buttons(
+		E... rAllowedValues)
 	{
 		return param(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
 	}
@@ -843,7 +845,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The new parameter
 	 */
 	@SafeVarargs
-	public final <E extends Enum<E>> Parameter<E> iconButtons(
+	public final <E extends Enum<E>> EnumParameter<E> iconButtons(
 		E... rAllowedValues)
 	{
 		return buttons(rAllowedValues).buttonStyle(ButtonStyle.ICON).images();
@@ -857,7 +859,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> Parameter<E> iconButtons(Class<E> rEnumClass)
+	public <E extends Enum<E>> EnumParameter<E> iconButtons(Class<E> rEnumClass)
 	{
 		return buttons(rEnumClass).buttonStyle(ButtonStyle.ICON).images();
 	}
@@ -870,7 +872,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> Parameter<E> imageButtons(Class<E> rEnumClass)
+	public <E extends Enum<E>> EnumParameter<E> imageButtons(
+		Class<E> rEnumClass)
 	{
 		return buttons(rEnumClass).images();
 	}
@@ -1299,9 +1302,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #param(String, Class)
 	 */
-	public <E extends Enum<E>> Parameter<E> param(Class<E> rEnumClass)
+	public <E extends Enum<E>> EnumParameter<E> param(Class<E> rEnumClass)
 	{
-		return param(rEnumClass.getSimpleName(), rEnumClass);
+		return new EnumParameter<>(this,
+								   getTemporaryParameterType(rEnumClass
+															 .getSimpleName(),
+															 rEnumClass));
 	}
 
 	/***************************************
@@ -1353,7 +1359,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> Parameter<E> radioButtons(Class<E> rEnumClass)
+	public <E extends Enum<E>> EnumParameter<E> radioButtons(
+		Class<E> rEnumClass)
 	{
 		return param(rEnumClass).input().set(LIST_STYLE, ListStyle.DISCRETE)
 								.hideLabel()

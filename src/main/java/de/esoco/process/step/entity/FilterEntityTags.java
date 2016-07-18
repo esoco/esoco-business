@@ -27,8 +27,9 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.Layout;
 
+import de.esoco.process.CollectionParameter.SetParameter;
+import de.esoco.process.EnumParameter;
 import de.esoco.process.Parameter;
-import de.esoco.process.step.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.QueryPredicate;
@@ -98,7 +99,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	private Parameter<TagFilterJoin> aFilterJoin;
 	private Parameter<Boolean>		 aFilterNegate;
 
-	private Parameter<TagFilterAction> aFilterAction;
+	private EnumParameter<TagFilterAction> aFilterAction;
 
 	//~ Constructors -----------------------------------------------------------
 

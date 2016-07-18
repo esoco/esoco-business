@@ -24,6 +24,7 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.LayoutProperties;
@@ -40,8 +41,10 @@ import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
@@ -72,6 +75,7 @@ import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_TYPES;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
@@ -622,17 +626,37 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/***************************************
 	 * Sets the interactive input mode for this parameter.
 	 *
+	 * @param  eEventType eInputMode The interactive input mode
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P interactive(InteractionEventType eEventType)
+	{
+		Set<InteractionEventType> rInteractionEventTypes =
+			get(INTERACTION_EVENT_TYPES);
+
+		if (rInteractionEventTypes == null)
+		{
+			rInteractionEventTypes = EnumSet.noneOf(InteractionEventType.class);
+		}
+
+		rInteractionEventTypes.add(eEventType);
+
+		return input().set(INTERACTION_EVENT_TYPES, rInteractionEventTypes);
+	}
+
+	/***************************************
+	 * Sets the interactive input mode for this parameter.
+	 *
 	 * @param  eInputMode The interactive input mode
 	 *
 	 * @return This instance for concatenation
 	 */
-	@SuppressWarnings("unchecked")
 	public final P interactive(InteractiveInputMode eInputMode)
 	{
-		input();
 		rFragment.setInteractive(eInputMode, rParamType);
 
-		return (P) this;
+		return input();
 	}
 
 	/***************************************
@@ -643,13 +667,11 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	@SuppressWarnings("unchecked")
 	public final P interactive(ListStyle eListStyle)
 	{
-		input();
 		rFragment.setInteractive(rParamType, null, eListStyle);
 
-		return (P) this;
+		return input();
 	}
 
 	/***************************************
@@ -705,21 +727,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets a simple event handler for action events of this parameter. This
-	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
-	 * with the mode {@link InteractiveInputMode#ACTION}.
+	 * Sets a simple event handler for action events of this parameter.
 	 *
-	 * @param  rEventHandler The runnable to be invoked on an action event
+	 * @param  rEventHandler The event handler to be invoked on an event
 	 *
 	 * @return This instance for concatenation
 	 */
-	@SuppressWarnings("unchecked")
 	public final P onAction(ParameterEventHandler<T> rEventHandler)
 	{
-		interactive(InteractiveInputMode.ACTION);
-		setParameterEventHandler(rEventHandler);
-
-		return (P) this;
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
 	}
 
 	/***************************************
@@ -771,20 +788,29 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets a simple event handler for update events of this parameter. This
-	 * will also invoke the method {@link #interactive(InteractiveInputMode)}
-	 * with the mode {@link InteractiveInputMode#CONTINUOUS}.
+	 * Sets a simple event handler for action events of this parameter.
 	 *
-	 * @param  rEventHandler rRunnable The runnable to be invoked on an action
-	 *                       event
+	 * @param  rEventHandler The event handler to be invoked on an event
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P onFocusLost(ParameterEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
+										rEventHandler);
+	}
+
+	/***************************************
+	 * Sets an event handler for update events of this parameter.
+	 *
+	 * @param  rEventHandler The event handler to be invoked on an event
 	 *
 	 * @return This instance for concatenation
 	 */
 	public final P onUpdate(ParameterEventHandler<T> rEventHandler)
 	{
-		setParameterEventHandler(rEventHandler);
-
-		return continuousEvents();
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										rEventHandler);
 	}
 
 	/***************************************
@@ -1163,21 +1189,91 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Helper method to set a parameter event handler that forwards interaction
 	 * events to a runnable object.
 	 *
-	 * @param rEventHandler rRunnable The runnable to be invoked on interaction
-	 *                      events
+	 * @param  eEventType    The event type to set the event handler for
+	 * @param  rEventHandler rRunnable The runnable to be invoked on interaction
+	 *                       events
+	 *
+	 * @return This instance for concatenation
 	 */
-	private void setParameterEventHandler(
+	@SuppressWarnings("unchecked")
+	private P setParameterEventHandler(
+		InteractionEventType		   eEventType,
 		final ParameterEventHandler<T> rEventHandler)
 	{
-		rFragment.setParameterInteractionHandler(rParamType,
-			new InteractionHandler()
+		InteractionHandler rInteractionHandler =
+			rFragment.getParameterInteractionHandler(rParamType);
+
+		if (rInteractionHandler instanceof
+			ParameterBase.ParameterInteractionHandler)
+		{
+			((ParameterInteractionHandler) rInteractionHandler)
+			.setEventTypeHandler(eEventType, rEventHandler);
+		}
+		else
+		{
+			ParameterInteractionHandler rHandler =
+				new ParameterInteractionHandler();
+
+			rHandler.setEventTypeHandler(eEventType, rEventHandler);
+
+			rFragment.setParameterInteractionHandler(rParamType, rHandler);
+		}
+
+		return interactive(eEventType);
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * An interaction handler implementation for parameter-related events.
+	 *
+	 * @author eso
+	 */
+	class ParameterInteractionHandler implements InteractionHandler
+	{
+		//~ Instance fields ----------------------------------------------------
+
+		private Map<InteractionEventType, ParameterEventHandler<T>> aEventTypeHandlers =
+			new HashMap<>();
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void handleInteraction(InteractionEvent rEvent) throws Exception
+		{
+			ParameterEventHandler<T> rEventHandler =
+				aEventTypeHandlers.get(rEvent.getType());
+
+			if (rEventHandler != null)
 			{
-				@Override
-				public void handleInteraction(InteractionEvent rEvent)
-					throws Exception
-				{
-					rEventHandler.handleParameterUpdate(value());
-				}
-			});
+				rEventHandler.handleParameterUpdate(value());
+			}
+		}
+
+		/***************************************
+		 * Remove the event handler for a certain event type.
+		 *
+		 * @param eEventType The event type
+		 */
+		void removeEventTypeHandler(InteractionEventType eEventType)
+		{
+			aEventTypeHandlers.remove(eEventType);
+		}
+
+		/***************************************
+		 * Sets or replaces an event handler for a certain event type.
+		 *
+		 * @param eEventType The event type
+		 * @param rHandler   The event handler
+		 */
+		void setEventTypeHandler(
+			InteractionEventType	 eEventType,
+			ParameterEventHandler<T> rHandler)
+		{
+			aEventTypeHandlers.put(eEventType, rHandler);
+		}
 	}
 }

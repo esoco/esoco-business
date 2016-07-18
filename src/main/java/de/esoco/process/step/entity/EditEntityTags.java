@@ -25,7 +25,7 @@ import de.esoco.lib.property.Layout;
 
 import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.RuntimeProcessException;
-import de.esoco.process.step.CollectionParameter.SetParameter;
+import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;
