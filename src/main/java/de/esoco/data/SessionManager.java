@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data;
 
+import de.esoco.data.element.DataElementList;
+import de.esoco.data.element.StringDataElement;
+
 import java.util.Collection;
 
 
@@ -73,6 +76,23 @@ public interface SessionManager
 	 * @throws Exception If the session data cannot be accessed
 	 */
 	public Collection<SessionData> getSessions() throws Exception;
+
+	/***************************************
+	 * Performs the login of a certain user. The data element parameter must
+	 * contain the login name as it's name and the password as it's value. It
+	 * may also carry application-specific properties that are needed by the
+	 * respective implementation.
+	 *
+	 * @param  rLoginData A data element containing the login credentials
+	 *
+	 * @return A data element list containing the user data if the
+	 *         authentication was successful
+	 *
+	 * @throws Exception May throw any kind of exception if the authentication
+	 *                   fails
+	 */
+	public DataElementList loginUser(StringDataElement rLoginData)
+		throws Exception;
 
 	/***************************************
 	 * Terminates the current session to logout the associated user.
