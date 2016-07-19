@@ -81,6 +81,8 @@ public class EnumParameter<E extends Enum<E>>
 	 */
 	public EnumParameter<E> enableAll()
 	{
-		return disable();
+		fragment().enableAllElements(type());
+
+		return this;
 	}
 }
