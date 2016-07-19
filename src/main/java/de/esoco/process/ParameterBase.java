@@ -346,6 +346,26 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Sets whether the process should continue on an interaction with this
+	 * parameter or not. If an application needs to change this state during an
+	 * interaction it should first be set to TRUE so that the (final) process
+	 * step validations that are performed on transitions to another step work
+	 * correctly.
+	 *
+	 * @param  bContinue TRUE to continue process execution, FALSE to stay in
+	 *                   the current step and wait for further interactions
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P continueOnInteraction(boolean bContinue)
+	{
+		fragment().setContinueOnInteraction(bContinue, type());
+
+		return (P) this;
+	}
+
+	/***************************************
 	 * Enables continuous events without setting an event handler. The event
 	 * handler must either be set later or the containing fragment must
 	 * implement {@link InteractionFragment#handleInteraction(RelationType)}.
