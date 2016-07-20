@@ -1549,6 +1549,34 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Displays a message with an error icon and a single OK button.
+	 *
+	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
+	 *      RelationType...)
+	 */
+	public MessageBoxFragment showErrorMessage(String sMessage)
+	{
+		return showMessageBox(sMessage,
+							  MESSAGE_BOX_ERROR_ICON,
+							  null,
+							  DialogAction.OK);
+	}
+
+	/***************************************
+	 * Displays a message with an info icon and a single OK button.
+	 *
+	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
+	 *      RelationType...)
+	 */
+	public MessageBoxFragment showInfoMessage(String sMessage)
+	{
+		return showMessageBox(sMessage,
+							  MESSAGE_BOX_INFO_ICON,
+							  null,
+							  DialogAction.OK);
+	}
+
+	/***************************************
 	 * Convenience method to create a new temporary parameter relation type with
 	 * a string datatype.
 	 *
@@ -1990,34 +2018,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		showDialogImpl(aDialog, rDialogListener);
 
 		return aDialog;
-	}
-
-	/***************************************
-	 * Displays a message with an error icon and a single OK button.
-	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
-	 */
-	protected MessageBoxFragment showErrorMessage(String sMessage)
-	{
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_ERROR_ICON,
-							  null,
-							  DialogAction.OK);
-	}
-
-	/***************************************
-	 * Displays a message with an info icon and a single OK button.
-	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
-	 */
-	protected MessageBoxFragment showInfoMessage(String sMessage)
-	{
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_INFO_ICON,
-							  null,
-							  DialogAction.OK);
 	}
 
 	/***************************************
