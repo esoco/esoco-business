@@ -431,9 +431,8 @@ public abstract class ProcessElement extends SerializableRelatedObject
 										   String				sInvalidInfo,
 										   Predicate<? super T> pIsInvalid)
 	{
-		Map<RelationType<?>, Function<?, String>> rMap = get(PARAM_VALIDATIONS);
-
-		rMap.put(rParam,
-				 Functions.<T, String>doIf(pIsInvalid, value(sInvalidInfo)));
+		setParameterValidation(rParam,
+							   Functions.<T, String>doIf(pIsInvalid,
+														 value(sInvalidInfo)));
 	}
 }

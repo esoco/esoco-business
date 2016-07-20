@@ -68,6 +68,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -2517,6 +2518,55 @@ public abstract class ProcessFragment extends ProcessElement
 	protected boolean isPanelParameter(RelationType<?> rParam)
 	{
 		return aPanelParameters != null && aPanelParameters.contains(rParam);
+	}
+
+	/***************************************
+	 * Performs the actual parameter validation for this process element by
+	 * executing the validation functions on the parameter values. The argument
+	 * is a mapping from parameter relation types to their respective validation
+	 * functions. The returned map contains a mapping from invalid parameters to
+	 * the corresponding error message. The map will never be empty and may be
+	 * modified by the receiver.
+	 *
+	 * @param  rValidations The mapping from parameters to validation functions
+	 *
+	 * @return A mapping for all invalid parameters to the corresponding error
+	 *         messages (may be empty but will never be NULL)
+	 */
+	@SuppressWarnings("unchecked")
+	protected Map<RelationType<?>, String> performParameterValidations(
+		Map<RelationType<?>, Function<?, String>> rValidations)
+	{
+		Map<RelationType<?>, String> aInvalidParams =
+			new HashMap<RelationType<?>, String>();
+
+		for (Entry<RelationType<?>, Function<?, String>> rEntry :
+			 rValidations.entrySet())
+		{
+			RelationType<Object>     rParam    =
+				(RelationType<Object>) rEntry.getKey();
+			Function<Object, String> fValidate =
+				(Function<Object, String>) rEntry.getValue();
+
+			Object rParamValue  = getParameter(rParam);
+			String sInvalidInfo;
+
+			try
+			{
+				sInvalidInfo = fValidate.evaluate(rParamValue);
+			}
+			catch (Exception e)
+			{
+				sInvalidInfo = "ParamValidationFailed";
+			}
+
+			if (sInvalidInfo != null)
+			{
+				aInvalidParams.put(rParam, sInvalidInfo);
+			}
+		}
+
+		return aInvalidParams;
 	}
 
 	/***************************************

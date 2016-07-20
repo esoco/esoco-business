@@ -27,6 +27,7 @@ import de.esoco.entity.EntityRelationTypes.HierarchicalQueryMode;
 import de.esoco.entity.ExtraAttributes;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.Initializer;
@@ -42,6 +43,8 @@ import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
+import de.esoco.process.CollectionParameter.ListParameter;
+import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.EntityAttributeParameter;
 import de.esoco.process.EntityParameter;
 import de.esoco.process.EnumParameter;
@@ -54,8 +57,6 @@ import de.esoco.process.ProcessFragment;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
-import de.esoco.process.CollectionParameter.ListParameter;
-import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -143,6 +144,9 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	private List<RelationType<?>> aInteractionParams = new ArrayList<>();
 	private Set<RelationType<?>>  aInputParams		 = new HashSet<>();
+
+	private Map<RelationType<?>, Function<?, String>> aFragmentValidations =
+		new HashMap<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -462,6 +466,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		getInteractionParameters().clear();
 		getInputParameters().clear();
+	}
+
+	/***************************************
+	 * Overridden to handle fragment-local validation.
+	 *
+	 * @see #setParameterValidation(RelationType, Function)
+	 * @see ProcessFragment#clearParameterValidations()
+	 */
+	@Override
+	public void clearParameterValidations()
+	{
+		aFragmentValidations.clear();
 	}
 
 	/***************************************
@@ -1025,6 +1041,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates an anonymous parameter for multi-line text input (a text area).
+	 *
+	 * @param  sName The name of the input parameter
+	 *
+	 * @return The label parameter
+	 */
+	public Parameter<String> inputTextLines(String sName)
+	{
+		return inputText(sName).rows(-1);
+	}
+
+	/***************************************
 	 * @see #insertInputParameters(RelationType, RelationType...)
 	 */
 	public void insertInputParameters(
@@ -1386,6 +1414,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Overridden to handle fragment-local validation.
+	 *
+	 * @see #setParameterValidation(RelationType, Function)
+	 * @see ProcessFragment#removeParameterValidations(Collection)
+	 */
+	@Override
+	public void removeParameterValidations(
+		Collection<? extends RelationType<?>> rParams)
+	{
+		for (RelationType<?> rParam : rParams)
+		{
+			aFragmentValidations.remove(rParam);
+		}
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -1475,6 +1519,23 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		getProcessStep().setParameterInteractionHandler(rParam,
 														rInteractionHandler);
+	}
+
+	/***************************************
+	 * Overridden to store parameter validations in the fragment to allow
+	 * fragment-local validations. This is necessary because normally pre-set
+	 * validations only occur if the process execution continues to the next
+	 * step which doesn't happen in certain scenarios, e.g. if a view fragment
+	 * is closed.
+	 *
+	 * @see ProcessFragment#setParameterValidation(RelationType, Function)
+	 */
+	@Override
+	public <T> void setParameterValidation(
+		RelationType<T>				rParam,
+		Function<? super T, String> fValidation)
+	{
+		aFragmentValidations.put(rParam, fValidation);
 	}
 
 	/***************************************
@@ -2138,24 +2199,29 @@ public abstract class InteractionFragment extends ProcessFragment
 	protected Map<RelationType<?>, String> validateFragmentParameters(
 		boolean bOnInteraction)
 	{
-		Map<RelationType<?>, String> rErrorParams = new HashMap<>();
+		Map<RelationType<?>, String> aValidationErrors = new HashMap<>();
 
 		for (InteractionFragment rSubFragment : getSubFragments())
 		{
-			rErrorParams.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
+			aValidationErrors.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
 		}
 
-		Map<RelationType<?>, String> rFragmentErrors =
+		Map<RelationType<?>, String> aFragmentErrors =
 			validateParameters(bOnInteraction);
 
-		if (!rFragmentErrors.isEmpty())
+		if (!bOnInteraction)
 		{
-			validationError(rFragmentErrors);
+			aFragmentErrors.putAll(performParameterValidations(aFragmentValidations));
 		}
 
-		rErrorParams.putAll(rFragmentErrors);
+		if (!aFragmentErrors.isEmpty())
+		{
+			validationError(aFragmentErrors);
+		}
 
-		return rErrorParams;
+		aValidationErrors.putAll(aFragmentErrors);
+
+		return aValidationErrors;
 	}
 
 	/***************************************

@@ -27,7 +27,6 @@ import de.esoco.lib.expression.Function;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.obrel.core.RelationType;
@@ -556,7 +555,6 @@ public abstract class ProcessStep extends ProcessFragment
 	 * @return The mapping from invalid parameters to the corresponding error
 	 *         messages
 	 */
-	@SuppressWarnings("unchecked")
 	protected Map<RelationType<?>, String> validateParameters(
 		boolean bOnInteraction)
 	{
@@ -564,36 +562,7 @@ public abstract class ProcessStep extends ProcessFragment
 			bOnInteraction ? get(INTERACTION_PARAM_VALIDATIONS)
 						   : get(PARAM_VALIDATIONS);
 
-		Map<RelationType<?>, String> aInvalidParams =
-			new HashMap<RelationType<?>, String>(rParamValidations.size());
-
-		for (Entry<RelationType<?>, Function<?, String>> rEntry :
-			 rParamValidations.entrySet())
-		{
-			RelationType<Object>     rParam    =
-				(RelationType<Object>) rEntry.getKey();
-			Function<Object, String> fValidate =
-				(Function<Object, String>) rEntry.getValue();
-
-			Object rParamValue  = getParameter(rParam);
-			String sInvalidInfo;
-
-			try
-			{
-				sInvalidInfo = fValidate.evaluate(rParamValue);
-			}
-			catch (Exception e)
-			{
-				sInvalidInfo = "ParamValidationFailed";
-			}
-
-			if (sInvalidInfo != null)
-			{
-				aInvalidParams.put(rParam, sInvalidInfo);
-			}
-		}
-
-		return aInvalidParams;
+		return performParameterValidations(rParamValidations);
 	}
 
 	/***************************************
