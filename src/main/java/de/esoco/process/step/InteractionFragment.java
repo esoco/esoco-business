@@ -438,8 +438,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		SetParameter<E> aCheckBoxes =
 			setParam(rEnumClass.getSimpleName(), rEnumClass, true);
 
-		return aCheckBoxes.input().hideLabel()
-						  .set(LIST_STYLE, ListStyle.DISCRETE)
+		return aCheckBoxes.input().set(LIST_STYLE, ListStyle.DISCRETE)
 						  .layout(Layout.TABLE)
 						  .columns(1);
 	}
