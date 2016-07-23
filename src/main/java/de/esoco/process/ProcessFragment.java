@@ -32,6 +32,7 @@ import de.esoco.data.storage.StorageAdapterRegistry;
 
 import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
+import de.esoco.entity.EntityManager;
 
 import de.esoco.history.HistoryRecord;
 
@@ -2086,6 +2087,19 @@ public abstract class ProcessFragment extends ProcessElement
 		{
 			setUIFlag(HIDDEN, rParams);
 		}
+	}
+
+	/***************************************
+	 * Stores an entity through the {@link EntityManager} with the current
+	 * process user as the change origin.
+	 *
+	 * @param  rEntity The entity to store
+	 *
+	 * @throws TransactionException If storing the entity fails
+	 */
+	public void storeEntity(Entity rEntity) throws TransactionException
+	{
+		EntityManager.storeEntity(rEntity, getProcessUser());
 	}
 
 	/***************************************
