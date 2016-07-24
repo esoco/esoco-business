@@ -1018,6 +1018,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Queries the UI property {@link UserInterfaceProperties#STYLE}.
+	 *
+	 * @return The style name (NULL for none)
+	 */
+	public final String style()
+	{
+		return get(STYLE);
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#STYLE}.
 	 *
 	 * @param  sStyle The style name(s)
