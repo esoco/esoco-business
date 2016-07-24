@@ -93,7 +93,6 @@ import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
-import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
@@ -615,14 +614,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public void enableEdit(boolean bEnable)
 	{
-		if (bEnable)
-		{
-			clearUIFlag(DISABLED, getInputParameters());
-		}
-		else
-		{
-			setUIFlag(DISABLED, getInputParameters());
-		}
+		setEnabled(bEnable, getInputParameters());
 
 		for (InteractionFragment rSubFragment : getSubFragments())
 		{

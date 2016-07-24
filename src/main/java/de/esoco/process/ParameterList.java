@@ -80,7 +80,7 @@ public class ParameterList
 
 			if (bIsPanel)
 			{
-				fragment().addPanelParameters(ProcessElement.params(rParamType));
+				contentFragment().addPanelParameters(ProcessElement.params(rParamType));
 			}
 		}
 
@@ -96,9 +96,7 @@ public class ParameterList
 	 */
 	public ParameterList add(InteractionFragment rSubFragment)
 	{
-		return add(fragment().addSubFragment(rSubFragment.getClass()
-											 .getSimpleName(),
-											 rSubFragment));
+		return add(contentFragment().addSubFragment(rSubFragment));
 	}
 
 	/***************************************
@@ -116,16 +114,31 @@ public class ParameterList
 	}
 
 	/***************************************
-	 * Returns the sub-fragment of the content that this parameter list
-	 * represents (as {@link #fragment()} returns the parent fragment this
-	 * parameter belongs to). If this parameter doesn't represent a fragment
-	 * NULL will be returned.
+	 * Returns the fragment of the content that this parameter list represents
+	 * (as {@link #fragment()} returns the parent fragment this parameter
+	 * belongs to). If this parameter doesn't represent a fragment NULL will be
+	 * returned.
 	 *
 	 * @return The sub-fragment this parameter list represents
 	 */
 	public InteractionFragment contentFragment()
 	{
 		return fragment().getSubFragment(type());
+	}
+
+	/***************************************
+	 * Enables or disables the editing of this fragment and of all it's
+	 * children.
+	 *
+	 * @param  bEnable TRUE to enable editing, FALSE to disable
+	 *
+	 * @return This instance for concatenation
+	 */
+	public ParameterList enableEdit(boolean bEnable)
+	{
+		contentFragment().enableEdit(bEnable);
+
+		return this;
 	}
 
 	/***************************************
