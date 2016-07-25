@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,9 +37,9 @@ import static org.obrel.core.RelationTypes.newType;
  * graylog endpoint can be created by providing a URL to the standard factory
  * method {@link Endpoint#at(String)}. The format of the URL must be like this:
  *
- * <p><code>graylog://[server]:[host]?[protocol]</code></p>
+ * <p><code>graylog://host[:port]?protocol</code></p>
  *
- * <p>Where [protocol] stands for one of the enum constants in {@link Protocol}.
+ * <p>Where protocol stands for one of the enum constants in {@link Protocol}.
  * For an encrypted connection the scheme <code>graylogs</code> can be used
  * instead.</p>
  *
