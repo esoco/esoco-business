@@ -90,7 +90,6 @@ import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
@@ -831,15 +830,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a parameter that displays a label with an icon.
+	 * Creates a parameter for an empty label with the {@link LabelStyle#ICON}
+	 * that displays a certain icon.
 	 *
-	 * @param  sIconName sLabelText The label text
+	 * @param  rIconIdentifier An identifier that describes the icon to display;
+	 *                         will be converted to a string and should
+	 *                         typically either be a string of an enum constant
 	 *
-	 * @return The label parameter
+	 * @return The new parameter
 	 */
-	public Parameter<String> icon(String sIconName)
+	public Parameter<String> icon(Object rIconIdentifier)
 	{
-		return label("", LabelStyle.ICON).set(ICON, sIconName);
+		return label("", LabelStyle.ICON).icon(rIconIdentifier);
 	}
 
 	/***************************************
@@ -869,6 +871,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <E extends Enum<E>> EnumParameter<E> iconButtons(Class<E> rEnumClass)
 	{
 		return buttons(rEnumClass).buttonStyle(ButtonStyle.ICON).images();
+	}
+
+	/***************************************
+	 * Creates a parameter that displays an image.
+	 *
+	 * @param  sImageName The image name
+	 *
+	 * @return The new parameter
+	 */
+	public Parameter<String> image(String sImageName)
+	{
+		return label(sImageName, LabelStyle.IMAGE);
 	}
 
 	/***************************************

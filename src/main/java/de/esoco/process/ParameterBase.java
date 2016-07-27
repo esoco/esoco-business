@@ -549,28 +549,29 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/***************************************
 	 * Sets the UI property {@link ContentProperties#ICON}.
 	 *
-	 * @param  sIconName The name of the icon to be displayed in the target
-	 *                   object
+	 * @param  rIconIdentifier An identifier that describes the icon to display;
+	 *                         will be converted to a string and should
+	 *                         typically either be a string of an enum constant
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P icon(String sIconName)
+	public final P icon(Object rIconIdentifier)
 	{
-		return set(ICON, sIconName);
+		return set(ICON, rIconIdentifier.toString());
 	}
 
 	/***************************************
 	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
 	 * StyleProperties#ICON_SIZE}.
 	 *
-	 * @param  sName The name of the icon to be displayed in the target object
-	 * @param  eSize The relative size of the icon
+	 * @param  rIconIdentifier The icon identifier ({@link #icon(Object)})
+	 * @param  eSize           The relative size of the icon
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P icon(String sName, RelativeScale eSize)
+	public final P icon(Object rIconIdentifier, RelativeScale eSize)
 	{
-		return icon(sName).iconSize(eSize);
+		return icon(rIconIdentifier).iconSize(eSize);
 	}
 
 	/***************************************
@@ -578,15 +579,14 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * StyleProperties#ICON_ALIGNMENT}. Not all types of {@link Alignment} may
 	 * be supported in an UI implementation.
 	 *
-	 * @param  sName      The name of the icon to be displayed in the target
-	 *                    object
-	 * @param  eAlignment The position alignment of the icon
+	 * @param  rIconIdentifier The icon identifier ({@link #icon(Object)})
+	 * @param  eAlignment      The position alignment of the icon
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P icon(String sName, Alignment eAlignment)
+	public final P icon(Object rIconIdentifier, Alignment eAlignment)
 	{
-		return icon(sName).alignIcon(eAlignment);
+		return icon(rIconIdentifier).alignIcon(eAlignment);
 	}
 
 	/***************************************
