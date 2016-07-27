@@ -19,6 +19,7 @@ package de.esoco.process.step;
 import de.esoco.data.DataRelationTypes;
 import de.esoco.data.SessionManager;
 import de.esoco.data.UploadHandler;
+import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DateDataElement.DateInputType;
 import de.esoco.data.element.SelectionDataElement;
 
@@ -401,14 +402,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Create a parameter that displays a chart for a certain set of data.
 	 *
-	 * @param  sName    The parameter name
-	 * @param  rDataSet The data set for the chart
+	 * @param  sName      The parameter name
+	 * @param  eChartType The initial type of the chart
+	 * @param  rDataSet   The data set for the chart
 	 *
 	 * @return The new parameter
 	 */
 	public <T, D extends DataSet<T>> DataSetParameter<T, D> chart(
-		String sName,
-		D	   rDataSet)
+		String    sName,
+		ChartType eChartType,
+		D		  rDataSet)
 	{
 		@SuppressWarnings("unchecked")
 		RelationType<D> rParamType =
