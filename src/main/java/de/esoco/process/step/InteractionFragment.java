@@ -417,7 +417,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<D> rParamType =
 			getTemporaryParameterType(sName, (Class<D>) rDataSet.getClass());
 
-		return new DataSetParameter<T, D>(this, rParamType).value(rDataSet);
+		return new DataSetParameter<T, D>(this, rParamType).value(rDataSet)
+														   .chartType(eChartType);
 	}
 
 	/***************************************
