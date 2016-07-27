@@ -19,6 +19,8 @@ package de.esoco.data.element;
 import de.esoco.lib.model.DataSet;
 import de.esoco.lib.property.PropertyName;
 
+import java.util.Set;
+
 
 /********************************************************************
  * A data element that stores a {@link DataSet} for a chart.
@@ -78,10 +80,13 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	 *
 	 * @param sName    The name of the data element
 	 * @param rDataSet The data set for the chart
+	 * @param rFlags   The flags for this instance
 	 */
-	public DataSetDataElement(String sName, DataSet<?> rDataSet)
+	public DataSetDataElement(String	 sName,
+							  DataSet<?> rDataSet,
+							  Set<Flag>  rFlags)
 	{
-		super(sName, null, DISPLAY_FLAGS);
+		super(sName, null, rFlags);
 
 		this.rDataSet = rDataSet;
 	}
@@ -105,7 +110,7 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 							  String		 sBackgroundColor,
 							  boolean		 b3D)
 	{
-		this(sName, aDataSet);
+		this(sName, aDataSet, DISPLAY_FLAGS);
 
 		setProperty(CHART_BACKGROUND, sBackgroundColor);
 		setProperty(CHART_LEGEND_POSITION, eLegendPosition);

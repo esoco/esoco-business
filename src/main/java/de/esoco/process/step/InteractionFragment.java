@@ -32,6 +32,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.manage.Initializable;
+import de.esoco.lib.model.DataSet;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.CheckBoxStyle;
 import de.esoco.lib.property.ContentType;
@@ -45,6 +46,7 @@ import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.CollectionParameter.ListParameter;
 import de.esoco.process.CollectionParameter.SetParameter;
+import de.esoco.process.DataSetParameter;
 import de.esoco.process.EntityAttributeParameter;
 import de.esoco.process.EntityParameter;
 import de.esoco.process.EnumParameter;
@@ -394,6 +396,25 @@ public abstract class InteractionFragment extends ProcessFragment
 		E... rAllowedValues)
 	{
 		return param(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
+	}
+
+	/***************************************
+	 * Create a parameter that displays a chart for a certain set of data.
+	 *
+	 * @param  sName    The parameter name
+	 * @param  rDataSet The data set for the chart
+	 *
+	 * @return The new parameter
+	 */
+	public <T, D extends DataSet<T>> DataSetParameter<T, D> chart(
+		String sName,
+		D	   rDataSet)
+	{
+		@SuppressWarnings("unchecked")
+		RelationType<D> rParamType =
+			getTemporaryParameterType(sName, (Class<D>) rDataSet.getClass());
+
+		return new DataSetParameter<T, D>(this, rParamType).value(rDataSet);
 	}
 
 	/***************************************
