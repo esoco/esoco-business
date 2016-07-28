@@ -120,16 +120,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	private static final long serialVersionUID = 1L;
 
 	/** The resource string for an error message box icon. */
-	public static final String MESSAGE_BOX_ERROR_ICON = "#imErrorMessage";
+	public static final String MESSAGE_BOX_ERROR_ICON = "#$imErrorMessage";
 
 	/** The resource string for a warning message box icon. */
-	public static final String MESSAGE_BOX_WARNING_ICON = "#imWarningMessage";
+	public static final String MESSAGE_BOX_WARNING_ICON = "#$imWarningMessage";
 
 	/** The resource string for a question message box icon. */
-	public static final String MESSAGE_BOX_QUESTION_ICON = "#imQuestionMessage";
+	public static final String MESSAGE_BOX_QUESTION_ICON =
+		"#$imQuestionMessage";
 
 	/** The resource string for an info message box icon. */
-	public static final String MESSAGE_BOX_INFO_ICON = "#imInfoMessage";
+	public static final String MESSAGE_BOX_INFO_ICON = "#$imInfoMessage";
 
 	//~ Instance fields --------------------------------------------------------
 
