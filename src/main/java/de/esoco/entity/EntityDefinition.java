@@ -20,6 +20,7 @@ import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
+import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.MutableProperties;
@@ -345,7 +346,19 @@ public class EntityDefinition<E extends Entity>
 
 		if (aEntity == null)
 		{
-			aEntity = createNewEntity(rAttributeValues);
+			try
+			{
+				aEntity = createNewEntity(rAttributeValues);
+			}
+			catch (Exception e)
+			{
+				Log.errorf(e,
+						   "Error creating entity %s from data %s",
+						   rEntityClass.getSimpleName(),
+						   rAttributeValues);
+
+				throw e;
+			}
 		}
 
 		return aEntity;
