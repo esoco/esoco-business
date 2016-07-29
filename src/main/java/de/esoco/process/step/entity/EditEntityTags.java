@@ -22,10 +22,11 @@ import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.StyleProperties;
 
+import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.RuntimeProcessException;
-import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;
@@ -58,7 +59,9 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	private Entity			    rTagOwner;
 	private FilterEntityTags<?> rFilterEntityTags;
 	private String			    sLabel;
-	private boolean			    bAutoStore;
+	private boolean			    bUseHeaderLabel;
+
+	private boolean bAutoStore;
 
 	private E		    rEntity;
 	private Set<String> rCurrentEntityTags;
@@ -174,6 +177,11 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 			aTagInput =
 				inputTags(aTags).onUpdate(this).resid("SelectedEntityTags")
 								.value(aInputTags);
+
+			if (bUseHeaderLabel)
+			{
+				aTagInput.set(StyleProperties.HEADER_LABEL);
+			}
 		}
 
 		aTagInput.allowElements(new LinkedHashSet<String>());
@@ -189,6 +197,17 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 				aTagInput.hideLabel();
 			}
 		}
+	}
+
+	/***************************************
+	 * Controls whether the label of the tag input should be displayed above the
+	 * field instead of in front.
+	 *
+	 * @param bUseHeaderLabel TRUE to use a header label
+	 */
+	public final void setUseHeaderLabel(boolean bUseHeaderLabel)
+	{
+		this.bUseHeaderLabel = bUseHeaderLabel;
 	}
 
 	/***************************************

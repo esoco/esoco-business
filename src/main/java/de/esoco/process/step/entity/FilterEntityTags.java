@@ -17,7 +17,6 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
-import de.esoco.entity.EntityDefinition;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
 import de.esoco.entity.ExtraAttribute;
@@ -25,7 +24,9 @@ import de.esoco.entity.ExtraAttribute;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.EnumParameter;
@@ -88,12 +89,14 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Class<E>    rEntityType;
-	EntityDefinition<E> rEntityDefinition;
+	private Class<E> rEntityType;
+	private Entity   rTagOwner;
 
-	private Entity				 rTagOwner;
 	private TagFilterListener<E> rTagFilterListener;
 	private String				 sLabel;
+
+	private boolean     bUseHeaderLabel = false;
+	private ButtonStyle eButtonStyle    = ButtonStyle.DEFAULT;
 
 	private SetParameter<String>     aTagInput;
 	private Parameter<TagFilterJoin> aFilterJoin;
@@ -122,8 +125,6 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		this.rTagOwner		    = rTagOwner;
 		this.rTagFilterListener = rTagFilterListener;
 		this.sLabel			    = sLabel;
-
-		rEntityDefinition = EntityManager.getEntityDefinition(rEntityType);
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -311,6 +312,16 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
+	 * Returns the owner of which the tags are filtered.
+	 *
+	 * @return The tag owner entity
+	 */
+	public final Entity getTagOwner()
+	{
+		return rTagOwner;
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -332,12 +343,16 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 					// remove the last element in the tag set
 					Iterator<String> rIterator = rFilterTags.iterator();
 
-					while (rIterator.hasNext())
+					if (rIterator.hasNext())
 					{
-						rIterator.next();
+						while (rIterator.hasNext())
+						{
+							rIterator.next();
+						}
+
+						rIterator.remove();
 					}
 
-					rIterator.remove();
 					break;
 			}
 
@@ -358,9 +373,17 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 		if (aTagInput == null)
 		{
-			aTagInput     =
-				inputTags(getAllEntityTags(rEntityType, rTagOwner)).resid("FilterEntityTags")
-																   .continuousEvents();
+			Set<String> rAllTags = getAllEntityTags(rEntityType, rTagOwner);
+
+			aTagInput =
+				inputTags(rAllTags).resid("FilterEntityTags")
+								   .continuousEvents();
+
+			if (bUseHeaderLabel)
+			{
+				aTagInput.set(StyleProperties.HEADER_LABEL);
+			}
+
 			aFilterJoin   =
 				dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
 											 .continuousEvents();
@@ -368,7 +391,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 				checkBox("TagFilterNegate").sameRow().actionEvents();
 
 			aFilterAction =
-				imageButtons(TagFilterAction.class).sameRow().columns(2)
+				imageButtons(TagFilterAction.class).buttonStyle(eButtonStyle)
+												   .layout(Layout.TABLE)
+												   .sameRow()
+												   .columns(2)
 												   .resid("TagFilterAction");
 		}
 
@@ -394,6 +420,27 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public boolean isNegateFilter()
 	{
 		return aFilterNegate.value();
+	}
+
+	/***************************************
+	 * Sets the button style to be used for the fragment buttons.
+	 *
+	 * @param eButtonStyle The new button style
+	 */
+	public final void setButtonStyle(ButtonStyle eButtonStyle)
+	{
+		this.eButtonStyle = eButtonStyle;
+	}
+
+	/***************************************
+	 * Controls whether the label of the tag input should be displayed above the
+	 * field instead of in front.
+	 *
+	 * @param bUseHeaderLabel TRUE to use a header label
+	 */
+	public final void setUseHeaderLabel(boolean bUseHeaderLabel)
+	{
+		this.bUseHeaderLabel = bUseHeaderLabel;
 	}
 
 	/***************************************
