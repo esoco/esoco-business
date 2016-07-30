@@ -80,7 +80,7 @@ public class ParameterList
 
 			if (bIsPanel)
 			{
-				contentFragment().addPanelParameters(ProcessElement.params(rParamType));
+				fragment().addPanelParameters(ProcessElement.params(rParamType));
 			}
 		}
 
