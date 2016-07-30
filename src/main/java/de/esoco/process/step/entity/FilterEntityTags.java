@@ -200,6 +200,24 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns the tags that can be selected in this tag filter.
+	 *
+	 * @return A new ordered set instance containing the allowed tag string
+	 *         which may be modified by the receiver
+	 */
+	public Set<String> getAllowedTags()
+	{
+		LinkedHashSet<String> aAllowedTags = new LinkedHashSet<String>();
+
+		if (aTagInput != null)
+		{
+			aAllowedTags.addAll(aTagInput.allowedElements());
+		}
+
+		return aAllowedTags;
+	}
+
+	/***************************************
 	 * Returns a set of the filtered entity IDs for the currently selected
 	 * filter tags.
 	 *
@@ -444,11 +462,12 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
-	 * Updates this list of all tags that can be selected for the entity type.
+	 * Updates the set of tags that can be selected for the entity type and tag
+	 * owner.
 	 *
 	 * @throws StorageException
 	 */
-	public void updateTagList() throws StorageException
+	public void updateAllowedTags() throws StorageException
 	{
 		aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
 	}

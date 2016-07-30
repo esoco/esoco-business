@@ -169,22 +169,34 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 		layout(Layout.TABLE);
 		fragmentParam().resid("EditEntityTagsFragment");
 
-		Set<String> aTags =
-			FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
+		Set<String> aAllowedTags;
+
+		if (rFilterEntityTags != null)
+		{
+			aAllowedTags = rFilterEntityTags.getAllowedTags();
+		}
+		else
+		{
+			aAllowedTags =
+				FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
+		}
 
 		if (aTagInput == null)
 		{
 			aTagInput =
-				inputTags(aTags).onUpdate(this).resid("SelectedEntityTags")
-								.value(aInputTags);
+				inputTags(aAllowedTags).resid("SelectedEntityTags")
+									   .value(aInputTags)
+									   .onUpdate(this);
 
 			if (bUseHeaderLabel)
 			{
 				aTagInput.set(StyleProperties.HEADER_LABEL);
 			}
 		}
-
-		aTagInput.allowElements(new LinkedHashSet<String>());
+		else
+		{
+			aTagInput.allowElements(aAllowedTags);
+		}
 
 		if (sLabel != null)
 		{
@@ -252,7 +264,8 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 
 				if (rFilterEntityTags != null)
 				{
-					rFilterEntityTags.updateTagList();
+					rFilterEntityTags.updateAllowedTags();
+					aTagInput.allowElements(rFilterEntityTags.getAllowedTags());
 				}
 			}
 		}
