@@ -185,6 +185,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 		{
 			aTagInput =
 				inputTags(aAllowedTags).resid("SelectedEntityTags")
+									   .tooltip("$ttSelectedEntityTags")
 									   .value(aInputTags)
 									   .onUpdate(this);
 
