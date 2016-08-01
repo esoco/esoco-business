@@ -109,6 +109,18 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	/***************************************
 	 * Creates a new instance.
 	 *
+	 * @param rEntityType The type of entity to filter
+	 * @param rTagOwner   The owner of the tags to filter by or NULL to filter
+	 *                    global tags
+	 */
+	public FilterEntityTags(Class<E> rEntityType, Entity rTagOwner)
+	{
+		this(rEntityType, rTagOwner, null, null);
+	}
+
+	/***************************************
+	 * Creates a new instance.
+	 *
 	 * @param rEntityType        The type of entity to filter
 	 * @param rTagOwner          The owner of the tags to filter by or NULL to
 	 *                           filter global tags
@@ -282,7 +294,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * Returns a predicate that filters the IDs of the this instance's entity
 	 * type that represents the current tag selection.
 	 *
-	 * @param  rIdAttr The entity ID attribute to filter
+	 * @param  rTagFilterAttr The entity ID or reference attribute to filter
 	 *
 	 * @return The predicate on the filtered entity IDs or NULL if no tags are
 	 *         filtered
@@ -291,7 +303,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	@SuppressWarnings("boxing")
 	public Predicate<Entity> getFilteredIdsPredicate(
-		RelationType<Integer> rIdAttr) throws StorageException
+		RelationType<?> rTagFilterAttr) throws StorageException
 	{
 		Predicate<Entity> pTagFilter   = null;
 		Set<Integer>	  rFilteredIds = getFilteredEntityIds();
@@ -307,11 +319,11 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 					pHasFilteredId = not(pHasFilteredId);
 				}
 
-				pTagFilter = rIdAttr.is(pHasFilteredId);
+				pTagFilter = rTagFilterAttr.is(pHasFilteredId);
 			}
 			else
 			{
-				pTagFilter = rIdAttr.is(equalTo(-1));
+				pTagFilter = rTagFilterAttr.is(equalTo(-1));
 			}
 		}
 
@@ -327,6 +339,16 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public Collection<String> getFilteredTags()
 	{
 		return new LinkedHashSet<>(aTagInput.value());
+	}
+
+	/***************************************
+	 * Returns the listener for tag filter changes.
+	 *
+	 * @return The current tag filter listener or NULL for none
+	 */
+	public final TagFilterListener<E> getTagFilterListener()
+	{
+		return rTagFilterListener;
 	}
 
 	/***************************************
@@ -443,11 +465,21 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	/***************************************
 	 * Sets the button style to be used for the fragment buttons.
 	 *
-	 * @param eButtonStyle The new button style
+	 * @param eStyle The new button style
 	 */
-	public final void setButtonStyle(ButtonStyle eButtonStyle)
+	public final void setButtonStyle(ButtonStyle eStyle)
 	{
-		this.eButtonStyle = eButtonStyle;
+		eButtonStyle = eStyle;
+	}
+
+	/***************************************
+	 * Sets the listener for tag filter changes.
+	 *
+	 * @param rListener The new tag filter listener
+	 */
+	public final void setTagFilterListener(TagFilterListener<E> rListener)
+	{
+		rTagFilterListener = rListener;
 	}
 
 	/***************************************
