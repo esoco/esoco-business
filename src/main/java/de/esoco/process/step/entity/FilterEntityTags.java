@@ -230,6 +230,16 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
+	 * Returns the entity type on which this tag filter operates.
+	 *
+	 * @return The entity type
+	 */
+	public Class<E> getEntityType()
+	{
+		return rEntityType;
+	}
+
+	/***************************************
 	 * Returns a set of the filtered entity IDs for the currently selected
 	 * filter tags.
 	 *
@@ -470,6 +480,19 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public final void setButtonStyle(ButtonStyle eStyle)
 	{
 		eButtonStyle = eStyle;
+	}
+
+	/***************************************
+	 * Sets the entity type on which this tag filter operates.
+	 *
+	 * @param  rEntityType The new entity type
+	 *
+	 * @throws StorageException If querying the allowed tags fails
+	 */
+	public void setEntityType(Class<E> rEntityType) throws StorageException
+	{
+		this.rEntityType = rEntityType;
+		updateAllowedTags();
 	}
 
 	/***************************************

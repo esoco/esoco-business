@@ -144,6 +144,40 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
+	 * Returns all existing tags that can be set on the entity.
+	 *
+	 * @return The allowed tags
+	 *
+	 * @throws StorageException If querying the tags fails
+	 */
+	public Set<String> getAllowedTags() throws StorageException
+	{
+		Set<String> aAllowedTags;
+
+		if (rFilterEntityTags != null)
+		{
+			aAllowedTags = rFilterEntityTags.getAllowedTags();
+		}
+		else
+		{
+			aAllowedTags =
+				FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
+		}
+
+		return aAllowedTags;
+	}
+
+	/***************************************
+	 * Returns the entity type of which this tag editor displays the tags.
+	 *
+	 * @return The entity type
+	 */
+	public Class<E> getEntityType()
+	{
+		return rEntityType;
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -169,17 +203,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 		layout(Layout.TABLE);
 		fragmentParam().resid("EditEntityTagsFragment");
 
-		Set<String> aAllowedTags;
-
-		if (rFilterEntityTags != null)
-		{
-			aAllowedTags = rFilterEntityTags.getAllowedTags();
-		}
-		else
-		{
-			aAllowedTags =
-				FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
-		}
+		Set<String> aAllowedTags = getAllowedTags();
 
 		if (aTagInput == null)
 		{
@@ -209,6 +233,23 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 			{
 				aTagInput.hideLabel();
 			}
+		}
+	}
+
+	/***************************************
+	 * Sets the entity type of which this tag editor displays the tags.
+	 *
+	 * @param  rEntityType The new entity type
+	 *
+	 * @throws StorageException If querying the allowed tags fails
+	 */
+	public void setEntityType(Class<E> rEntityType) throws StorageException
+	{
+		this.rEntityType = rEntityType;
+
+		if (aTagInput != null)
+		{
+			aTagInput.allowElements(getAllowedTags());
 		}
 	}
 
