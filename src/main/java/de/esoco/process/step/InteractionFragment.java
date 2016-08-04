@@ -1294,35 +1294,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a new anonymous interaction fragment and the associated parameter
-	 * relation type. The initializer argument must perform the initialization
-	 * of the new fragment which it receives as the argument to it's {@link
-	 * Initializer#init(Object)} method. The panel layout will be pre-set to
-	 * {@link Layout#GRID}. If another layout type is needed it can be
-	 * overridden by invoking {@link Parameter#layout(Layout)}.
-	 *
-	 * <p>This method is mainly intended to be used with lambda expressions
-	 * introduced with Java 8. In that case it allows concise in-line
-	 * declarations of panel by simply forwarding the initialization to a
-	 * corresponding method in form of a method reference with an {@link
-	 * InteractionFragment} parameter.</p>
+	 * Adds a new panel fragment with a grid layout.
 	 *
 	 * @param  rInitializer The fragment initializer
 	 *
 	 * @return the parameter wrapper for the panel parameter
+	 *
+	 * @see    #panel(Layout, Initializer)
 	 */
-	@SuppressWarnings("serial")
-	public ParameterList panel(
-		final Initializer<InteractionFragment> rInitializer)
+	public ParameterList panel(Initializer<InteractionFragment> rInitializer)
 	{
-		return addSubFragment(new InteractionFragment()
-			{
-				@Override
-				public void init() throws Exception
-				{
-					rInitializer.init(this);
-				}
-			}).layout(Layout.GRID);
+		return panel(Layout.GRID, rInitializer);
 	}
 
 	/***************************************
@@ -1339,6 +1321,38 @@ public abstract class InteractionFragment extends ProcessFragment
 			getTemporaryListType(sName, RelationType.class);
 
 		return new ParameterList(this, rListType, true).input();
+	}
+
+	/***************************************
+	 * Creates a new anonymous interaction fragment and the associated parameter
+	 * relation type. The initializer argument must perform the initialization
+	 * of the new fragment which it receives as the argument to it's {@link
+	 * Initializer#init(Object)} method.
+	 *
+	 * <p>This method is mainly intended to be used with lambda expressions
+	 * introduced with Java 8. In that case it allows concise in-line
+	 * declarations of panel by simply forwarding the initialization to a
+	 * corresponding method in form of a method reference with an {@link
+	 * InteractionFragment} parameter.</p>
+	 *
+	 * @param  ePanelLayout The layout of the panel fragment
+	 * @param  rInitializer The fragment initializer
+	 *
+	 * @return A new parameter wrapper for the panel parameter
+	 */
+	@SuppressWarnings("serial")
+	public ParameterList panel(
+		Layout								   ePanelLayout,
+		final Initializer<InteractionFragment> rInitializer)
+	{
+		return addSubFragment(new InteractionFragment()
+			{
+				@Override
+				public void init() throws Exception
+				{
+					rInitializer.init(this);
+				}
+			}).layout(ePanelLayout);
 	}
 
 	/***************************************
