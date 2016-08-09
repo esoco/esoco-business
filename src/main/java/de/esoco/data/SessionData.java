@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import static org.obrel.core.RelationTypes.newType;
 
 /********************************************************************
  * A structure that contains data that is associated with a certain session
- * managed by a {@link SessionManager}. The data is stored and accessed as
- * relations.
+ * managed by a {@link SessionManager}. All session data is stored and accessed
+ * as relations.
  *
  * @author eso
  */
@@ -72,19 +72,28 @@ public class SessionData extends SerializableRelatedObject
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with certain user data.
+	 * Creates a new instance.
+	 */
+	public SessionData()
+	{
+		set(StandardTypes.START_DATE, new Date());
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Updates this instance with the given values.
 	 *
 	 * @param rUser      The entity that describes the session user
 	 * @param sLoginName The login name of the session user
 	 * @param rUserData  The user data
 	 */
-	public SessionData(Entity		   rUser,
+	public void update(Entity		   rUser,
 					   String		   sLoginName,
 					   DataElementList rUserData)
 	{
 		set(SESSION_USER, rUser);
 		set(SESSION_LOGIN_NAME, sLoginName);
 		set(SESSION_USER_DATA, rUserData);
-		set(StandardTypes.START_DATE, new Date());
 	}
 }

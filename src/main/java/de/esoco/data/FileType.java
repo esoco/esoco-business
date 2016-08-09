@@ -21,28 +21,70 @@ package de.esoco.data;
  */
 public enum FileType
 {
-	CSV("text/csv", ".csv"), PDF("application/pdf", ".pdf"),
-	XLS("application/vnd.ms-excel", ".xls"),
-	XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		 ".xlsx");
+	CSV(MimeType.TEXT_CSV, ".csv"), PDF(MimeType.PDF, ".pdf"),
+	XLS(MimeType.MS_EXCEL, ".xls"), XLSX(MimeType.MS_XLSX, ".xlsx");
 
 	//~ Instance fields --------------------------------------------------------
 
-	private String sMimeType;
-	private String sFileExtension;
+	private MimeType eMimeType;
+	private String   sFileExtension;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param sMimeType      The MIME type string
+	 * @param eMimeType      The MIME type string
 	 * @param sFileExtension The file extension string (including the .)
 	 */
-	FileType(String sMimeType, String sFileExtension)
+	private FileType(MimeType eMimeType, String sFileExtension)
 	{
-		this.sMimeType	    = sMimeType;
+		this.eMimeType	    = eMimeType;
 		this.sFileExtension = sFileExtension;
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns the file type for a certain file extension.
+	 *
+	 * @param  sExtension The file extension to search for
+	 *
+	 * @return The file type for the given extension or NULL if no match could
+	 *         be found
+	 */
+	public static FileType forFileExtension(String sExtension)
+	{
+		for (FileType eFileType : values())
+		{
+			if (eFileType.sFileExtension.equalsIgnoreCase(sExtension))
+			{
+				return eFileType;
+			}
+		}
+
+		return null;
+	}
+
+	/***************************************
+	 * Returns the first file type for a certain MIME type.
+	 *
+	 * @param  eMimeType The MIME type to search the file type for
+	 *
+	 * @return The file type for the given extension or NULL if no match could
+	 *         be found
+	 */
+	public static FileType forMimeType(MimeType eMimeType)
+	{
+		for (FileType eFileType : values())
+		{
+			if (eFileType.eMimeType == eMimeType)
+			{
+				return eFileType;
+			}
+		}
+
+		return null;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -62,8 +104,8 @@ public enum FileType
 	 *
 	 * @return The MIME type
 	 */
-	public String getMimeType()
+	public MimeType getMimeType()
 	{
-		return sMimeType;
+		return eMimeType;
 	}
 }
