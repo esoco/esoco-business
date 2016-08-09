@@ -710,18 +710,7 @@ public class Process extends SerializableRelatedObject
 	 */
 	public void logoutProcessUser()
 	{
-		try
-		{
-			cancel();
-		}
-		catch (ProcessException e)
-		{
-			throw new RuntimeProcessException(rCurrentStep, e);
-		}
-		finally
-		{
-			getParameter(DataRelationTypes.SESSION_MANAGER).logoutCurrentUser();
-		}
+		getParameter(DataRelationTypes.SESSION_MANAGER).logoutCurrentUser();
 	}
 
 	/***************************************
