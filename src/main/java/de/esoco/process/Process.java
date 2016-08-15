@@ -1039,8 +1039,6 @@ public class Process extends SerializableRelatedObject
 		if (!rTemporaryParamTypes.contains(rTempParam))
 		{
 			rTemporaryParamTypes.add(rTempParam);
-			System.out.printf("REGISTER TEMP PARAM: %s\n",
-							  rTempParam.getName());
 
 			// ensure that usage count update is atomic
 			synchronized (rTempParam)
@@ -1111,8 +1109,6 @@ public class Process extends SerializableRelatedObject
 				rTempParam.set(PARAM_USAGE_COUNT, nUsageCount - 1);
 			}
 		}
-
-		System.out.printf("UNREGISTER TEMP PARAM: %s\n", rTempParam.getName());
 
 		if (bRemove)
 		{

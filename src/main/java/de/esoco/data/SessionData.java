@@ -28,7 +28,6 @@ import java.util.Map;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.core.SerializableRelatedObject;
-import org.obrel.type.StandardTypes;
 
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newType;
@@ -57,6 +56,9 @@ public class SessionData extends SerializableRelatedObject
 	public static final RelationType<DataElementList> SESSION_USER_DATA =
 		newType();
 
+	/** The creation time of the session. */
+	public static final RelationType<Date> SESSION_START_TIME = newType();
+
 	/** The session-specific log level. */
 	public static final RelationType<LogLevel> SESSION_LOG_LEVEL = newType();
 
@@ -76,7 +78,7 @@ public class SessionData extends SerializableRelatedObject
 	 */
 	public SessionData()
 	{
-		set(StandardTypes.START_DATE, new Date());
+		set(SESSION_START_TIME, new Date());
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -95,5 +97,7 @@ public class SessionData extends SerializableRelatedObject
 		set(SESSION_USER, rUser);
 		set(SESSION_LOGIN_NAME, sLoginName);
 		set(SESSION_USER_DATA, rUserData);
+
+		set(SESSION_START_TIME, new Date());
 	}
 }
