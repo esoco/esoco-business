@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Stack;
 
 import org.obrel.core.Relatable;
@@ -56,6 +57,7 @@ import static de.esoco.history.HistoryManager.HISTORIZED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
 import static de.esoco.process.ProcessRelationTypes.PARAM_INITIALIZATIONS;
+import static de.esoco.process.ProcessRelationTypes.PARAM_USAGE_COUNT;
 import static de.esoco.process.ProcessRelationTypes.PROCESS;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_EXCEPTION;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_ID;
@@ -1022,16 +1024,50 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Removes all temporary parameter types in this process by invoking the
-	 * method {@link RelationType#unregisterRelationType(RelationType)}.
+	 * Registers a temporary parameter type for this process.
+	 *
+	 * @param rTempParam The parameter relation type+
+	 *
+	 * @see   #unregisterTemporaryParameterType(RelationType, boolean)
+	 */
+	@SuppressWarnings("boxing")
+	void registerTemporaryParameterType(RelationType<?> rTempParam)
+	{
+		Set<RelationType<?>> rTemporaryParamTypes =
+			getParameter(TEMPORARY_PARAM_TYPES);
+
+		if (!rTemporaryParamTypes.contains(rTempParam))
+		{
+			rTemporaryParamTypes.add(rTempParam);
+			System.out.printf("REGISTER TEMP PARAM: %s\n",
+							  rTempParam.getName());
+
+			// ensure that usage count update is atomic
+			synchronized (rTempParam)
+			{
+				rTempParam.set(PARAM_USAGE_COUNT,
+							   rTempParam.get(PARAM_USAGE_COUNT) + 1);
+			}
+		}
+	}
+
+	/***************************************
+	 * Unregisters all temporary parameter types that have been used in this
+	 * process.
+	 *
+	 * @see #unregisterTemporaryParameterType(RelationType, boolean)
 	 */
 	final void removeTemporaryParameterTypes()
 	{
-		for (RelationType<?> rTemporaryType :
-			 getParameter(TEMPORARY_PARAM_TYPES))
+		Set<RelationType<?>> rTemporaryParamTypes =
+			getParameter(TEMPORARY_PARAM_TYPES);
+
+		for (RelationType<?> rTempParam : rTemporaryParamTypes)
 		{
-			RelationType.unregisterRelationType(rTemporaryType);
+			unregisterTemporaryParameterType(rTempParam, false);
 		}
+
+		rTemporaryParamTypes.clear();
 	}
 
 	/***************************************
@@ -1044,6 +1080,44 @@ public class Process extends SerializableRelatedObject
 	final void setContext(Process rContext)
 	{
 		this.rContext = rContext;
+	}
+
+	/***************************************
+	 * Removes a temporary parameter relation type that had been used in this
+	 * process.
+	 *
+	 * @param rTempParam The temporary parameter relation type to remove
+	 * @param bRemove    TRUE if it should also be removed from this process
+	 *
+	 * @see   #registerTemporaryParameterType(RelationType)
+	 */
+	@SuppressWarnings("boxing")
+	void unregisterTemporaryParameterType(
+		RelationType<?> rTempParam,
+		boolean			bRemove)
+	{
+		// ensure that usage count update is atomic
+		synchronized (rTempParam)
+		{
+			int nUsageCount = rTempParam.get(PARAM_USAGE_COUNT);
+
+			if (nUsageCount == 1)
+			{
+				RelationType.unregisterRelationType(rTempParam);
+				rTempParam.deleteRelation(PARAM_USAGE_COUNT);
+			}
+			else
+			{
+				rTempParam.set(PARAM_USAGE_COUNT, nUsageCount - 1);
+			}
+		}
+
+		System.out.printf("UNREGISTER TEMP PARAM: %s\n", rTempParam.getName());
+
+		if (bRemove)
+		{
+			getParameter(TEMPORARY_PARAM_TYPES).remove(rTempParam);
+		}
 	}
 
 	/***************************************

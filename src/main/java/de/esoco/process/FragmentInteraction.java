@@ -14,10 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step;
+package de.esoco.process;
 
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.UserInterfaceProperties;
+
+import de.esoco.process.step.Interaction;
+import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,12 +28,12 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.STYLE;
 
 
 /********************************************************************
@@ -45,9 +48,7 @@ public class FragmentInteraction extends Interaction
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String FRAGMENT_PARAM = "ProcessStepFragment";
-
-	private static int nFragmentId = 0;
+	private static final String FRAGMENT_PARAM_NAME = "ProcessStepFragment";
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -123,7 +124,8 @@ public class FragmentInteraction extends Interaction
 		if (rRootFragmentParam == null)
 		{
 			rRootFragmentParam =
-				getTemporaryListType(FRAGMENT_PARAM + "_" + nFragmentId++,
+				getTemporaryListType(FRAGMENT_PARAM_NAME + "_" +
+									 getProcess().getNextParameterId(),
 									 RelationType.class);
 		}
 
@@ -131,7 +133,7 @@ public class FragmentInteraction extends Interaction
 		addSubFragment(rRootFragmentParam, rRootFragment);
 
 		rRootFragment.fragmentParam().set(HIDE_LABEL)
-					 .set(RESOURCE_ID, FRAGMENT_PARAM)
+					 .set(RESOURCE_ID, FRAGMENT_PARAM_NAME)
 					 .set(LABEL, "")
 					 .set(TOOLTIP, "")
 					 .set(STYLE, rRootFragment.getClass().getSimpleName());

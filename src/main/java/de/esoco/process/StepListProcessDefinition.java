@@ -28,7 +28,6 @@ import de.esoco.lib.text.TextUtil;
 
 import de.esoco.process.step.BranchStep;
 import de.esoco.process.step.DisplayMessage;
-import de.esoco.process.step.FragmentInteraction;
 import de.esoco.process.step.FunctionStep;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;

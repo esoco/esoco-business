@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
+import de.esoco.process.ViewFragment;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

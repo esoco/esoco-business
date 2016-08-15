@@ -1078,43 +1078,6 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Returns a temporary parameter relation type that references a list with a
-	 * certain element datatype. The parameter will have an empty list as it's
-	 * initial value.
-	 *
-	 * @param  sName        The name of the parameter
-	 * @param  rElementType The list element datatype
-	 *
-	 * @return The temporary list parameter type
-	 *
-	 * @see    #getTemporaryParameterType(String, Class)
-	 */
-	public <T> RelationType<List<T>> getTemporaryListType(
-		String			 sName,
-		Class<? super T> rElementType)
-	{
-		sName = getTemporaryParameterName(sName);
-
-		@SuppressWarnings("unchecked")
-		RelationType<List<T>> rParam =
-			(RelationType<List<T>>) RelationType.valueOf(sName);
-
-		if (rParam == null)
-		{
-			rParam = newListType(sName, rElementType);
-
-			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
-		}
-		else
-		{
-			assert rParam.getTargetType() == List.class &&
-				   rParam.get(ELEMENT_DATATYPE) == rElementType;
-		}
-
-		return rParam;
-	}
-
-	/***************************************
 	 * Returns the UI properties for a certain parameter.
 	 *
 	 * @param  rParam The parameter relation type
@@ -2264,6 +2227,43 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Returns a temporary parameter relation type that references a list with a
+	 * certain element datatype. The parameter will have an empty list as it's
+	 * initial value.
+	 *
+	 * @param  sName        The name of the parameter
+	 * @param  rElementType The list element datatype
+	 *
+	 * @return The temporary list parameter type
+	 *
+	 * @see    #getTemporaryParameterType(String, Class)
+	 */
+	protected <T> RelationType<List<T>> getTemporaryListType(
+		String			 sName,
+		Class<? super T> rElementType)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<List<T>> rParam =
+			(RelationType<List<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newListType(sName, rElementType);
+		}
+		else
+		{
+			assert rParam.getTargetType() == List.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
+		}
+
+		getProcess().registerTemporaryParameterType(rParam);
+
+		return rParam;
+	}
+
+	/***************************************
 	 * Returns an integer ID for the automatic naming of process parameters. The
 	 * default implementation return the result of {@link
 	 * Process#getNextParameterId()}.
@@ -2322,7 +2322,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected String getTemporaryParameterPackage()
 	{
-		return "process" + getProcess().getId();
+		return "process";
 	}
 
 	/***************************************
@@ -2381,13 +2381,13 @@ public abstract class ProcessFragment extends ProcessElement
 		if (rParam == null)
 		{
 			rParam = newRelationType(sName, rDatatype);
-
-			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
 		}
 		else
 		{
 			assert rParam.getTargetType() == rDatatype;
 		}
+
+		getProcess().registerTemporaryParameterType(rParam);
 
 		return rParam;
 	}
@@ -2427,6 +2427,8 @@ public abstract class ProcessFragment extends ProcessElement
 			assert rParam.getTargetType() == Set.class &&
 				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
+
+		getProcess().registerTemporaryParameterType(rParam);
 
 		return rParam;
 	}
@@ -2591,8 +2593,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected void removeTemporaryParameterType(RelationType<?> rTempParam)
 	{
-		getParameter(TEMPORARY_PARAM_TYPES).remove(rTempParam);
-		RelationType.unregisterRelationType(rTempParam);
+		getProcess().unregisterTemporaryParameterType(rTempParam, true);
 	}
 
 	/***************************************

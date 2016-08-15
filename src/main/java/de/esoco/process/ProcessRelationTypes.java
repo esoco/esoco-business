@@ -234,13 +234,6 @@ public class ProcessRelationTypes
 		newType();
 
 	/**
-	 * A list of temporary parameter relation types that are only valid while a
-	 * process runs.
-	 */
-	public static final RelationType<List<RelationType<?>>> TEMPORARY_PARAM_TYPES =
-		newListType();
-
-	/**
 	 * If this flag is set on a process it should not be executed again if an
 	 * error (i.e. an exception) occurred. This is mainly intended to be used on
 	 * automatically executed background processes.
@@ -505,6 +498,21 @@ public class ProcessRelationTypes
 	 * interaction parameter to force a layout rebuild
 	 */
 	public static final RelationType<String> DUMMY_PARAMETER = newType();
+
+	//- Internal types ---------------------------------------------------------
+
+	/**
+	 * A package-internal set of the temporary parameter relation types used by
+	 * a process.
+	 */
+	static final RelationType<Set<RelationType<?>>> TEMPORARY_PARAM_TYPES =
+		newSetType(false);
+
+	/**
+	 * A package-internal usage count for the management of temporary parameter
+	 * relation types.
+	 */
+	static final RelationType<Integer> PARAM_USAGE_COUNT = newIntType();
 
 	static
 	{

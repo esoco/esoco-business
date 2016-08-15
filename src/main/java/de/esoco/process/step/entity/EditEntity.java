@@ -37,8 +37,10 @@ import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
-import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.process.step.DialogFragment.DialogAction;
+import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -64,21 +66,21 @@ import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
-import static de.esoco.lib.property.UserInterfaceProperties.DISABLED;
-import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HIERARCHICAL;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
-import static de.esoco.lib.property.UserInterfaceProperties.TABLE_ROWS;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.DISABLED;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.HIERARCHICAL;
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
+import static de.esoco.lib.property.StyleProperties.STYLE;
+import static de.esoco.lib.property.StyleProperties.TABLE_ROWS;
 
 import static de.esoco.storage.StoragePredicates.sortBy;
 
@@ -452,7 +454,7 @@ public class EditEntity extends InteractionFragment
 		DetailAction... 			 rAllowedActions)
 	{
 		RelationType<List<RelationType<?>>> aTabParam =
-			createTemporarySubPanelParameter(sBaseName + "_TAB", false);
+			getTemporarySubPanelParameter(sBaseName + "_TAB", false);
 
 		RelationType<E> aListParam =
 			getTemporaryParameterType(sBaseName + "_LIST", rDetailType);
@@ -511,11 +513,10 @@ public class EditEntity extends InteractionFragment
 			rEntityDef.getChildAttributes();
 
 		RelationType<List<RelationType<?>>> aEntityTabsParam =
-			createTemporarySubPanelParameter(sEntityPrefix + "TABS", true);
+			getTemporarySubPanelParameter(sEntityPrefix + "TABS", true);
 
 		RelationType<List<RelationType<?>>> aAttrTabParam =
-			createTemporarySubPanelParameter(sEntityPrefix + "ATTRIBUTES",
-											 false);
+			getTemporarySubPanelParameter(sEntityPrefix + "ATTRIBUTES", false);
 
 		List<RelationType<?>> aTabParams =
 			new ArrayList<RelationType<?>>(rChildAttributes.size() + 2);
@@ -639,7 +640,7 @@ public class EditEntity extends InteractionFragment
 	 *
 	 * @return The new temporary parameter type
 	 */
-	private RelationType<List<RelationType<?>>> createTemporarySubPanelParameter(
+	private RelationType<List<RelationType<?>>> getTemporarySubPanelParameter(
 		String  sName,
 		boolean bDisplayAsTabPanel)
 	{

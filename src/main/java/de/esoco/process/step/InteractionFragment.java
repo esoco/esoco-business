@@ -60,6 +60,7 @@ import de.esoco.process.ProcessFragment;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.ViewFragment;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -1738,6 +1739,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Internal method to finish the fragment execution. Subclasses must
+	 * implement {@link #finish()} instead.
+	 *
+	 * @throws Exception Any kind of exception may be thrown in case of errors
+	 */
+	protected final void finishFragment() throws Exception
+	{
+		for (InteractionFragment rSubFragment : getSubFragments())
+		{
+			rSubFragment.finishFragment();
+		}
+
+		finish();
+	}
+
+	/***************************************
 	 * Overridden to return a parameter ID that is relative to the current
 	 * fragment instance.
 	 *
@@ -1758,22 +1775,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	@Override
 	protected String getTemporaryParameterPackage()
 	{
-		StringBuilder aPackage =
-			new StringBuilder(super.getTemporaryParameterPackage());
+		String sName = getClass().getSimpleName().toLowerCase();
 
-		String sFragmentName = getClass().getSimpleName().toLowerCase();
-
-		// anonymous inner classes don't have a name, use default then
-		if (sFragmentName.length() == 0)
+		if (sName.length() == 0)
 		{
-			sFragmentName = "fragment";
+			// anonymous inner classes don't have a name, use default
+			sName = "fragment";
 		}
 
-		aPackage.append('.');
-		aPackage.append(sFragmentName);
-		aPackage.append(nFragmentId);
-
-		return aPackage.toString();
+		return sName + nFragmentId;
 	}
 
 	/***************************************
@@ -2340,22 +2350,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		return canRollback();
-	}
-
-	/***************************************
-	 * Internal method to finish the fragment execution. Subclasses must
-	 * implement {@link #finish()} instead.
-	 *
-	 * @throws Exception Any kind of exception may be thrown in case of errors
-	 */
-	final void finishFragment() throws Exception
-	{
-		for (InteractionFragment rSubFragment : getSubFragments())
-		{
-			rSubFragment.finishFragment();
-		}
-
-		finish();
 	}
 
 	/***************************************

@@ -19,6 +19,7 @@ package de.esoco.process.step;
 import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.InvalidParametersException;
+import de.esoco.process.ViewFragment;
 
 import java.util.Collection;
 import java.util.Collections;
