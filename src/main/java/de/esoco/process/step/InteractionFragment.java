@@ -1486,25 +1486,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public InteractionFragment removeSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam)
-	{
-		InteractionFragment rSubFragment =
-			super.removeSubFragment(rFragmentParam);
-
-		if (rSubFragment != null)
-		{
-			rSubFragment.setProcessStep(null);
-			rSubFragment.setParent(null);
-		}
-
-		return rSubFragment;
-	}
-
-	/***************************************
 	 * Overridden to forward the call to the enclosing process step.
 	 *
 	 * @see ProcessStep#set(RelationType, Object)

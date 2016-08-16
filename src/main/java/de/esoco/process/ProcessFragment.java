@@ -1356,6 +1356,21 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Removes all sub-fragments from this instance.
+	 */
+	public void removeAllSubFragments()
+	{
+		List<RelationType<List<RelationType<?>>>> aSubFragmentParams =
+			new ArrayList<>(aSubFragments.keySet());
+
+		for (RelationType<List<RelationType<?>>> rSubFragmentParam :
+			 aSubFragmentParams)
+		{
+			removeSubFragment(rSubFragmentParam);
+		}
+	}
+
+	/***************************************
 	 * Completely removes all display properties for one or more process
 	 * parameters.
 	 *
