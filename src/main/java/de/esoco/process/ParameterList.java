@@ -88,18 +88,6 @@ public class ParameterList
 	}
 
 	/***************************************
-	 * Adds a certain sub-fragment parameter to this list.
-	 *
-	 * @param  rSubFragment The sub-fragment to add
-	 *
-	 * @return This instance for concatenation
-	 */
-	public ParameterList add(InteractionFragment rSubFragment)
-	{
-		return add(contentFragment().addSubFragment(rSubFragment));
-	}
-
-	/***************************************
 	 * Sets the list display mode to display this parameter list with.
 	 *
 	 * @param  eMode The list display mode
