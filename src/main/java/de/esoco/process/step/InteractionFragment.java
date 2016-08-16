@@ -1476,13 +1476,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Removes a certain sub-fragment instance.
-	 *
-	 * @param rSubFragment The sub-fragment to remove
+	 * {@inheritDoc}
 	 */
-	public void removeSubFragment(InteractionFragment rSubFragment)
+	@Override
+	public InteractionFragment removeSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
-		removeSubFragment(rSubFragment.getFragmentParameter());
+		InteractionFragment rSubFragment =
+			super.removeSubFragment(rFragmentParam);
+
+		if (rSubFragment != null)
+		{
+			rSubFragment.setProcessStep(null);
+			rSubFragment.setParent(null);
+		}
+
+		return rSubFragment;
 	}
 
 	/***************************************

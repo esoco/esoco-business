@@ -584,7 +584,7 @@ public class Process extends SerializableRelatedObject
 	 */
 	public int getNextFragmentId()
 	{
-		return nNextFragmentId++;
+		return getContext().nNextFragmentId++;
 	}
 
 	/***************************************
@@ -1003,14 +1003,13 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Returns the process interaction handler of this context.
+	 * Returns the process interaction handler for this process.
 	 *
 	 * @return The interaction handler
 	 */
 	final ProcessInteractionHandler getInteractionHandler()
 	{
-		return rContext != null ? rContext.getInteractionHandler()
-								: rInteractionHandler;
+		return getContext().rInteractionHandler;
 	}
 
 	/***************************************
@@ -1018,9 +1017,9 @@ public class Process extends SerializableRelatedObject
 	 *
 	 * @return The next generated parameter ID
 	 */
-	int getNextParameterId()
+	final int getNextParameterId()
 	{
-		return nNextParameterId++;
+		return getContext().nNextParameterId++;
 	}
 
 	/***************************************
@@ -1077,7 +1076,9 @@ public class Process extends SerializableRelatedObject
 	 */
 	final void setContext(Process rContext)
 	{
-		this.rContext = rContext;
+		// invoke getContext() so that all sub-process contexts point to the
+		// root, even in process hierarchies
+		this.rContext = rContext.getContext();
 	}
 
 	/***************************************

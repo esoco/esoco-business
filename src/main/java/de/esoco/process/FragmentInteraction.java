@@ -28,12 +28,7 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.ContentProperties.LABEL;
-import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
-import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-import static de.esoco.lib.property.StyleProperties.STYLE;
 
 
 /********************************************************************
@@ -123,20 +118,20 @@ public class FragmentInteraction extends Interaction
 		// generate a temporary parameter type for a single fragment
 		if (rRootFragmentParam == null)
 		{
+			String sName =
+				FRAGMENT_PARAM_NAME + "_" + getProcess().getNextParameterId();
+
 			rRootFragmentParam =
-				getTemporaryListType(FRAGMENT_PARAM_NAME + "_" +
-									 getProcess().getNextParameterId(),
-									 RelationType.class);
+				getTemporaryListType(sName, RelationType.class);
 		}
 
 		addDisplayParameters(rRootFragmentParam);
 		addSubFragment(rRootFragmentParam, rRootFragment);
 
-		rRootFragment.fragmentParam().set(HIDE_LABEL)
-					 .set(RESOURCE_ID, FRAGMENT_PARAM_NAME)
-					 .set(LABEL, "")
-					 .set(TOOLTIP, "")
-					 .set(STYLE, rRootFragment.getClass().getSimpleName());
+		rRootFragment.fragmentParam().hideLabel().resid(FRAGMENT_PARAM_NAME)
+					 .label("")
+					 .tooltip("")
+					 .style(rRootFragment.getClass().getSimpleName());
 
 		super.prepareExecution();
 	}

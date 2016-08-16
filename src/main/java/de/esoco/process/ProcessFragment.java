@@ -1438,6 +1438,16 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Removes a certain sub-fragment instance.
+	 *
+	 * @param rSubFragment The sub-fragment to remove
+	 */
+	public void removeSubFragment(InteractionFragment rSubFragment)
+	{
+		removeSubFragment(rSubFragment.getFragmentParameter());
+	}
+
+	/***************************************
 	 * Removes a subordinate fragment that had been added previously by means of
 	 * {@link #addSubFragment(RelationType, InteractionFragment)}.
 	 *
