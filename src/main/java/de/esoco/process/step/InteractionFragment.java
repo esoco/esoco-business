@@ -1175,6 +1175,30 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Creates a new temporary parameter relation type for the selection of
+	 * values from a list. The first value will be used to determine the
+	 * datatype of the parameter type and it will be preset as the parameter
+	 * value.
+	 *
+	 * @param  sName          The name of the parameter
+	 * @param  rAllowedValues The values to be displayed in the list (must not
+	 *                        be empty)
+	 *
+	 * @return The new parameter
+	 */
+	public final <T> Parameter<T> list(
+		String		  sName,
+		Collection<T> rAllowedValues)
+	{
+		T		 rFirstValue = CollectionUtil.firstElementOf(rAllowedValues);
+		Class<T> rDatatype   = getValueDatatype(rFirstValue);
+
+		return input(sName, rDatatype).set(LIST_STYLE, ListStyle.LIST)
+									  .value(rFirstValue)
+									  .allow(rAllowedValues);
+	}
+
+	/***************************************
 	 * Create a new temporary relation type with a {@link List} datatype and
 	 * returns a parameter wrapper for it.
 	 *
