@@ -1078,7 +1078,7 @@ public class Process extends SerializableRelatedObject
 	{
 		// invoke getContext() so that all sub-process contexts point to the
 		// root, even in process hierarchies
-		this.rContext = rContext.getContext();
+		this.rContext = rContext != null ? rContext.getContext() : null;
 	}
 
 	/***************************************
