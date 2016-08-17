@@ -118,8 +118,7 @@ public class FragmentInteraction extends Interaction
 		// generate a temporary parameter type for a single fragment
 		if (rRootFragmentParam == null)
 		{
-			String sName =
-				FRAGMENT_PARAM_NAME + "_" + getProcess().getNextParameterId();
+			String sName = FRAGMENT_PARAM_NAME + "_" + getFragmentId();
 
 			rRootFragmentParam =
 				getTemporaryListType(sName, RelationType.class);

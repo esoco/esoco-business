@@ -150,6 +150,9 @@ public abstract class ProcessFragment extends ProcessElement
 
 	//~ Instance fields --------------------------------------------------------
 
+	private int    nFragmentId			 = -1;
+	private String sFragmentParamPackage = null;
+
 	private Collection<RelationType<?>> aPanelParameters;
 
 	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
@@ -963,6 +966,21 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return rValue;
+	}
+
+	/***************************************
+	 * Returns the process-relative ID of this fragment.
+	 *
+	 * @return The fragment ID
+	 */
+	public int getFragmentId()
+	{
+		if (nFragmentId == -1)
+		{
+			nFragmentId = getProcess().getNextFragmentId();
+		}
+
+		return nFragmentId;
 	}
 
 	/***************************************
@@ -2347,7 +2365,33 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected String getTemporaryParameterPackage()
 	{
-		return "process";
+		if (sFragmentParamPackage == null)
+		{
+			Class<?> rClass		   = getClass();
+			String   sFragmentName = rClass.getSimpleName().toLowerCase();
+
+			StringBuilder aPackageBuilder =
+				new StringBuilder(getProcess().getName());
+
+			aPackageBuilder.append(getProcess().getId());
+			aPackageBuilder.append('.');
+
+			if (sFragmentName.length() == 0)
+			{
+				// anonymous inner classes don't have a name, create from parent
+				aPackageBuilder.append(rClass.getSuperclass().getSimpleName());
+				aPackageBuilder.append(".__F");
+			}
+			else
+			{
+				aPackageBuilder.append(sFragmentName);
+			}
+
+			aPackageBuilder.append(getFragmentId());
+			sFragmentParamPackage = aPackageBuilder.toString();
+		}
+
+		return sFragmentParamPackage;
 	}
 
 	/***************************************

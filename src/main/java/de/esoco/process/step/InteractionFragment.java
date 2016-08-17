@@ -135,7 +135,6 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	//~ Instance fields --------------------------------------------------------
 
-	private int     nFragmentId		 = -1;
 	private int     nNextParameterId = 0;
 	private boolean bInitialized     = false;
 
@@ -364,11 +363,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
 		this.rFragmentParam = rFragmentParam;
-
-		if (nFragmentId == -1)
-		{
-			nFragmentId = rProcessStep.getProcess().getNextFragmentId();
-		}
 
 		setProcessStep(rProcessStep);
 	}
@@ -1778,26 +1772,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	protected int getTemporaryParameterId()
 	{
 		return nNextParameterId++;
-	}
-
-	/***************************************
-	 * Overridden to return a package name that is relative to the current
-	 * fragment instance.
-	 *
-	 * @see ProcessFragment#getTemporaryParameterPackage()
-	 */
-	@Override
-	protected String getTemporaryParameterPackage()
-	{
-		String sName = getClass().getSimpleName().toLowerCase();
-
-		if (sName.length() == 0)
-		{
-			// anonymous inner classes don't have a name, use default
-			sName = "fragment";
-		}
-
-		return sName + nFragmentId;
 	}
 
 	/***************************************

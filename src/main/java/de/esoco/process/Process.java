@@ -16,8 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.data.DataRelationTypes;
-
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 
@@ -703,16 +701,6 @@ public class Process extends SerializableRelatedObject
 	public final boolean isSubProcess()
 	{
 		return rContext != null;
-	}
-
-	/***************************************
-	 * Performs a logout of the process user which will terminate this process.
-	 *
-	 * @throws ProcessException
-	 */
-	public void logoutProcessUser()
-	{
-		getParameter(DataRelationTypes.SESSION_MANAGER).logoutCurrentUser();
 	}
 
 	/***************************************
