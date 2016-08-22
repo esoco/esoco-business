@@ -153,6 +153,10 @@ public class LoginFragment extends InteractionFragment
 		{
 			handleLoginAction(LoginAction.LOGIN);
 		}
+		else
+		{
+			aPassword.set(FOCUSED);
+		}
 	}
 
 	/***************************************
