@@ -21,8 +21,10 @@ package de.esoco.data;
  */
 public enum FileType
 {
-	CSV(MimeType.TEXT_CSV, ".csv"), PDF(MimeType.PDF, ".pdf"),
-	XLS(MimeType.MS_EXCEL, ".xls"), XLSX(MimeType.MS_XLSX, ".xlsx");
+	ANY(MimeType.OCTET_STREAM, ".*"), CSV(MimeType.TEXT_CSV, ".csv"),
+	HTML(MimeType.TEXT_HTML, ".html"), PDF(MimeType.PDF, ".pdf"),
+	TXT(MimeType.TEXT_PLAIN, ".txt"), XLS(MimeType.MS_EXCEL, ".xls"),
+	XLSX(MimeType.MS_XLSX, ".xlsx");
 
 	//~ Instance fields --------------------------------------------------------
 
