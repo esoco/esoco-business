@@ -259,6 +259,15 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 			allow(rAllowedValues);
 			set(rAllowedValues.length, COLUMNS);
 		}
+		else
+		{
+			int nValueCount = rFragment.getAllowedValues(rParamType).size();
+
+			if (nValueCount > 0)
+			{
+				set(nValueCount, COLUMNS);
+			}
+		}
 
 		return (P) this;
 	}
