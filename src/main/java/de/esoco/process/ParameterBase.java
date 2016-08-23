@@ -257,13 +257,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		if (rAllowedValues != null && rAllowedValues.length > 0)
 		{
 			allow(rAllowedValues);
-		}
-
-		int nValueCount = rFragment.getAllowedValues(rParamType).size();
-
-		if (nValueCount > 0)
-		{
-			set(nValueCount, COLUMNS);
+			set(rAllowedValues.length, COLUMNS);
 		}
 
 		return (P) this;
