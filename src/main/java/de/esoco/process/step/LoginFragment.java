@@ -27,6 +27,7 @@ import de.esoco.lib.property.Layout;
 
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterEventHandler;
+import de.esoco.process.ProcessRelationTypes;
 
 import org.obrel.type.MetaTypes;
 
@@ -55,9 +56,48 @@ public class LoginFragment extends InteractionFragment
 
 	//~ Instance fields --------------------------------------------------------
 
+	private final int nMaxLoginAttempts;
+	private final int nInitialLoginErrorWaitTime;
+
 	private Parameter<String> aLoginName;
 	private Parameter<String> aPassword;
 	private Parameter<String> aErrorMessage;
+
+	private int  nErrorCount     = 0;
+	private int  nErrorWaitTime  = 0;
+	private long nErrorWaitStart;
+
+	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Default constructor with 3 allowed login attempts and 5 seconds initial
+	 * wait time.
+	 */
+	public LoginFragment()
+	{
+		this(3, 5);
+	}
+
+	/***************************************
+	 * Creates a new instance with the given login failure parameters.
+	 *
+	 * @param nMaxLoginAttemptsUntilDelay The maximum number of login attempts
+	 *                                    that can be done until the user must
+	 *                                    wait a certain time before the next
+	 *                                    attempt. -1 disabled login attempt
+	 *                                    delays completely.
+	 * @param nInitialLoginErrorWaitTime  The initial time in seconds the user
+	 *                                    must wait after the maximum number of
+	 *                                    login attempts has been reached; this
+	 *                                    will double with each failure cycle.
+	 */
+	public LoginFragment(
+		int nMaxLoginAttemptsUntilDelay,
+		int nInitialLoginErrorWaitTime)
+	{
+		this.nMaxLoginAttempts		    = nMaxLoginAttemptsUntilDelay;
+		this.nInitialLoginErrorWaitTime = nInitialLoginErrorWaitTime;
+	}
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -102,44 +142,54 @@ public class LoginFragment extends InteractionFragment
 				public void handleParameterUpdate(LoginAction eAction)
 					throws Exception
 				{
-					handleLoginAction(eAction);
+					performLogin();
 				}
 			});
 	}
 
 	/***************************************
-	 * Handles the login action that occurred.
+	 * Adds the next domain availability check result to this fragment on an
+	 * auto-update interaction.
 	 *
-	 * @param eAction The login action
+	 * @see InteractionFragment#prepareInteraction()
 	 */
-	private void handleLoginAction(LoginAction eAction)
+	@Override
+	@SuppressWarnings("boxing")
+	public void prepareInteraction() throws Exception
 	{
-		String sLoginName = aLoginName.value();
-		String sPassword  = aPassword.value();
-
-		StringDataElement aLoginData =
-			new StringDataElement(sLoginName, sPassword);
-
-		try
+		if (nErrorWaitTime > 0)
 		{
-			SessionManager rSessionManager =
-				getParameter(DataRelationTypes.SESSION_MANAGER);
+			int nWaitSeconds =
+				(int) ((System.currentTimeMillis() - nErrorWaitStart) / 1000);
 
-			rSessionManager.loginUser(aLoginData);
-
-			// update the process user to use the authenticated person
-			setParameter(PROCESS_USER,
-						 rSessionManager.getSessionData()
-						 .get(SessionData.SESSION_USER));
-
-			aPassword.value("");
-			setParameter(MetaTypes.AUTHENTICATED, true);
-			continueOnInteraction(getInteractiveInputParameter());
+			if (nWaitSeconds > nErrorWaitTime)
+			{
+				aErrorMessage.hide().value("");
+				fragmentParam().enableEdit(true);
+				set(ProcessRelationTypes.AUTO_UPDATE, false);
+			}
+			else
+			{
+				aErrorMessage.value(createErrorWaitMessage(nErrorWaitTime -
+														   nWaitSeconds));
+				Thread.sleep(1000);
+			}
 		}
-		catch (Exception e)
-		{
-			aErrorMessage.show().value("$msgLoginError");
-		}
+	}
+
+	/***************************************
+	 * Creates the waiting message after successive login failures.
+	 *
+	 * @param  nRemainingSeconds The number of seconds the user has to wait
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("boxing")
+	private String createErrorWaitMessage(int nRemainingSeconds)
+	{
+		return String.format("$${$msgSuccessiveLoginErrorStart} %d " +
+							 "{$msgSuccessiveLoginErrorEnd}",
+							 nRemainingSeconds);
 	}
 
 	/***************************************
@@ -151,7 +201,7 @@ public class LoginFragment extends InteractionFragment
 	{
 		if (aPassword.value().length() > 5)
 		{
-			handleLoginAction(LoginAction.LOGIN);
+			performLogin();
 		}
 		else
 		{
@@ -166,6 +216,58 @@ public class LoginFragment extends InteractionFragment
 	 */
 	private void handlePasswordInput(String sPassword)
 	{
-		handleLoginAction(LoginAction.LOGIN);
+		performLogin();
+	}
+
+	/***************************************
+	 * Handles the login action that occurred.
+	 */
+	private void performLogin()
+	{
+		String sLoginName = aLoginName.value();
+		String sPassword  = aPassword.value();
+
+		StringDataElement aLoginData =
+			new StringDataElement(sLoginName, sPassword);
+
+		try
+		{
+			SessionManager rSessionManager =
+				getParameter(DataRelationTypes.SESSION_MANAGER);
+
+			rSessionManager.loginUser(aLoginData);
+
+			nErrorCount    = 0;
+			nErrorWaitTime = 0;
+
+			// update the process user to use the authenticated person
+			setParameter(PROCESS_USER,
+						 rSessionManager.getSessionData()
+						 .get(SessionData.SESSION_USER));
+
+			aPassword.value("");
+			setParameter(MetaTypes.AUTHENTICATED, true);
+			continueOnInteraction(getInteractiveInputParameter());
+		}
+		catch (Exception e)
+		{
+			String sMessage = "$msgLoginError";
+
+			if (nMaxLoginAttempts > 0 && ++nErrorCount >= nMaxLoginAttempts)
+			{
+				nErrorWaitTime =
+					nErrorWaitTime == 0 ? nInitialLoginErrorWaitTime
+										: nErrorWaitTime * 2;
+
+				nErrorCount     = 0;
+				nErrorWaitStart = System.currentTimeMillis();
+				sMessage	    = createErrorWaitMessage(nErrorWaitTime);
+
+				fragmentParam().enableEdit(false);
+				set(ProcessRelationTypes.AUTO_UPDATE);
+			}
+
+			aErrorMessage.show().value(sMessage);
+		}
 	}
 }
