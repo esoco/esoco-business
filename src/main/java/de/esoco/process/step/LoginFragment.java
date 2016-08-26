@@ -33,6 +33,7 @@ import org.obrel.type.MetaTypes;
 
 import static de.esoco.lib.property.StateProperties.FOCUSED;
 
+import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 
 
@@ -164,9 +165,12 @@ public class LoginFragment extends InteractionFragment
 
 			if (nWaitSeconds > nErrorWaitTime)
 			{
-				aErrorMessage.hide().value("");
-				fragmentParam().enableEdit(true);
-				set(ProcessRelationTypes.AUTO_UPDATE, false);
+				if (hasFlag(AUTO_UPDATE))
+				{
+					aErrorMessage.hide();
+					fragmentParam().enableEdit(true);
+					set(AUTO_UPDATE, false);
+				}
 			}
 			else
 			{
