@@ -50,6 +50,7 @@ import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
+import org.obrel.type.StandardTypes;
 
 import static de.esoco.lib.expression.Predicates.not;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
@@ -845,6 +846,31 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P remove(PropertyName<?> rProperty)
 	{
 		rFragment.removeUIProperties(rParamType);
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Removes an parameter update listener that had been set with {@link
+	 * #onChange(EventHandler)}.
+	 *
+	 * @param  rEventHandler The event listener to remove
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #onChange(EventHandler)
+	 */
+	@SuppressWarnings("unchecked")
+	public final P removeChangeListener(
+		EventHandler<RelationEvent<T>> rEventHandler)
+	{
+		Relation<T> rRelation = rFragment.getParameterRelation(rParamType);
+
+		if (rRelation != null)
+		{
+			rRelation.get(StandardTypes.RELATION_UPDATE_LISTENERS)
+					 .remove(rEventHandler);
+		}
 
 		return (P) this;
 	}
