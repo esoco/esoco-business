@@ -752,6 +752,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Notifies all listeners that have been registered to listen for parameter
+	 * updates with {@link #onChange(EventHandler)}.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P notifyParameterChangeListeners()
+	{
+		value(value());
+
+		return (P) this;
+	}
+
+	/***************************************
 	 * Sets a simple event handler for action events of this parameter.
 	 *
 	 * @param  rEventHandler The event handler to be invoked on an event
