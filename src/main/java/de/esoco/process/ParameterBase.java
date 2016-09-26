@@ -757,7 +757,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P notifyParameterChangeListeners()
+	@SuppressWarnings("unchecked")
+	public final P notifyChangeListeners()
 	{
 		value(value());
 
