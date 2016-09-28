@@ -237,6 +237,16 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
+	 * Returns the current number of entities that are displayed in a list page.
+	 *
+	 * @return The current page size
+	 */
+	public final int getPageSize()
+	{
+		return nPageSize;
+	}
+
+	/***************************************
 	 * Returns the currently selected entity.
 	 *
 	 * @return The selected entity or NULL for none
@@ -377,6 +387,19 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
+	 * Sets the number of entities to be displayed in a list page. Sets the page
+	 * size value.
+	 *
+	 * @param rPageSize The new page size
+	 */
+	public final void setPageSize(int rPageSize)
+	{
+		nPageSize = rPageSize;
+
+		updateQuery();
+	}
+
+	/***************************************
 	 * Sets the currently selected list item.
 	 *
 	 * @param rItem The new selection
@@ -459,16 +482,6 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
-	 * Returns the current number of entities that are displayed in a list page.
-	 *
-	 * @return The current page size
-	 */
-	final int getPageSize()
-	{
-		return nPageSize;
-	}
-
-	/***************************************
 	 * Queries the current page of entities according to the given criteria and
 	 * updates the display.
 	 *
@@ -529,17 +542,6 @@ public class EntityList<E extends Entity,
 		{
 			aAllowedListSizes.add(Integer.toString(nSize));
 		}
-	}
-
-	/***************************************
-	 * Sets the number of entities to be displayed in a list page. Sets the page
-	 * size value.
-	 *
-	 * @param rPageSize The new page size
-	 */
-	final void setPageSize(int rPageSize)
-	{
-		nPageSize = rPageSize;
 	}
 
 	/***************************************
