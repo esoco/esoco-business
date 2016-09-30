@@ -56,10 +56,10 @@ public class GraylogEndpoint extends Endpoint
 
 	//~ Static fields/initializers ---------------------------------------------
 
-	private static final RelationType<Connection> GRAYLOG_CONNECTION =
+	private static final RelationType<Connection> GRAYLOG_SERVER_CONNECTION =
 		newType(PRIVATE);
 
-	private static final RelationType<CommunicationMethod<byte[], ?>> GRAYLOG_METHOD =
+	private static final RelationType<CommunicationMethod<byte[], ?>> GRAYLOG_SERVER_METHOD =
 		newType(PRIVATE);
 
 	//~ Static methods ---------------------------------------------------------
@@ -106,7 +106,7 @@ public class GraylogEndpoint extends Endpoint
 	@Override
 	protected void closeConnection(Connection rConnection) throws IOException
 	{
-		rConnection.get(GRAYLOG_CONNECTION).close();
+		rConnection.get(GRAYLOG_SERVER_CONNECTION).close();
 	}
 
 	/***************************************
@@ -133,9 +133,9 @@ public class GraylogEndpoint extends Endpoint
 			String sSocketAddress =
 				SocketEndpoint.url(sHost, nPort, hasFlag(ENCRYPTED_CONNECTION));
 
-			rConnection.set(GRAYLOG_CONNECTION,
+			rConnection.set(GRAYLOG_SERVER_CONNECTION,
 							Endpoint.at(sSocketAddress).connect(rConnection));
-			rConnection.set(GRAYLOG_METHOD,
+			rConnection.set(GRAYLOG_SERVER_METHOD,
 							SocketEndpoint.binaryRequest(null, null));
 		}
 		else
@@ -173,8 +173,8 @@ public class GraylogEndpoint extends Endpoint
 		@Override
 		public Void doOn(Connection rConnection, GraylogMessage rMessage)
 		{
-			rConnection.get(GRAYLOG_METHOD)
-					   .doOn(rConnection.get(GRAYLOG_CONNECTION),
+			rConnection.get(GRAYLOG_SERVER_METHOD)
+					   .doOn(rConnection.get(GRAYLOG_SERVER_CONNECTION),
 							 rMessage.toJson()
 							 .getBytes(StandardCharsets.UTF_8));
 
