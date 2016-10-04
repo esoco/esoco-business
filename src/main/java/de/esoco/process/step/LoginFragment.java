@@ -21,6 +21,8 @@ import de.esoco.data.SessionData;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.StringDataElement;
 
+import de.esoco.entity.Entity;
+
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.Layout;
@@ -29,12 +31,12 @@ import de.esoco.process.Parameter;
 import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.ProcessRelationTypes;
 
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.lib.property.StateProperties.FOCUSED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
+
+import static org.obrel.type.MetaTypes.AUTHENTICATED;
 
 
 /********************************************************************
@@ -182,6 +184,26 @@ public class LoginFragment extends InteractionFragment
 	}
 
 	/***************************************
+	 * Will be invoked after the user has been successfully authenticated to
+	 * check whether she is authorized to use the application. Can be overridden
+	 * by subclasses that need to check additional constraints. Only if this
+	 * method returns TRUE the process will be initialized with the
+	 * authentication data.
+	 *
+	 * <p>The default implementation always returns TRUE.</p>
+	 *
+	 * @param  rUser The user that has been authenticated
+	 *
+	 * @return TRUE if the user is authorized to use the application
+	 *
+	 * @throws Exception If the authorization fails
+	 */
+	protected boolean userAuthorized(Entity rUser) throws Exception
+	{
+		return true;
+	}
+
+	/***************************************
 	 * Creates the waiting message after successive login failures.
 	 *
 	 * @param  nRemainingSeconds The number of seconds the user has to wait
@@ -220,7 +242,10 @@ public class LoginFragment extends InteractionFragment
 	 */
 	private void handlePasswordInput(String sPassword)
 	{
-		performLogin();
+		if (aLoginName.value().length() > 2)
+		{
+			performLogin();
+		}
 	}
 
 	/***************************************
@@ -244,13 +269,18 @@ public class LoginFragment extends InteractionFragment
 			nErrorCount    = 0;
 			nErrorWaitTime = 0;
 
-			// update the process user to use the authenticated person
-			setParameter(PROCESS_USER,
-						 rSessionManager.getSessionData()
-						 .get(SessionData.SESSION_USER));
+			Entity rUser =
+				rSessionManager.getSessionData().get(SessionData.SESSION_USER);
 
-			aPassword.value("");
-			setParameter(MetaTypes.AUTHENTICATED, true);
+			if (userAuthorized(rUser))
+			{
+				aPassword.value("");
+
+				// update the process user to the authenticated person
+				setParameter(PROCESS_USER, rUser);
+				setParameter(AUTHENTICATED, true);
+			}
+
 			continueOnInteraction(getInteractiveInputParameter());
 		}
 		catch (Exception e)
