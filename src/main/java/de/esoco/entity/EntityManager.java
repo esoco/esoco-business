@@ -1857,8 +1857,6 @@ public class EntityManager
 									  rChangeOrigin,
 									  rEntity,
 									  sChange);
-
-				System.out.printf("---- CHANGELOG ----\n%s", sChange);
 			}
 
 			if (rDependentEntities != null)
