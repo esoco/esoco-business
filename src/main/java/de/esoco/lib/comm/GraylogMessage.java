@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.comm;
 
+import de.esoco.lib.json.JsonUtil;
 import de.esoco.lib.text.TextConvert;
 
 import java.net.InetAddress;
@@ -203,89 +204,11 @@ public class GraylogMessage extends RelatedObject
 			else
 			{
 				rJsonMessage.append('\"');
-				escapeJson(rJsonMessage, rValue.toString());
+				JsonUtil.escapeJsonValue(rJsonMessage, rValue.toString());
 				rJsonMessage.append('\"');
 			}
 		}
 
 		return bHasValue;
-	}
-
-	/***************************************
-	 * Creates a JSON string by escaping the control characters in a string.
-	 *
-	 * @param aTarget The string builder to write the escaped value to
-	 * @param sValue  The original string to escape
-	 */
-	private void escapeJson(StringBuilder aTarget, CharSequence sValue)
-	{
-		final int nLength = sValue.length();
-
-		for (int nChar = 0; nChar < nLength; nChar++)
-		{
-			char c = sValue.charAt(nChar);
-
-			switch (c)
-			{
-				case '"':
-					aTarget.append("\\\"");
-					break;
-
-				case '\\':
-					aTarget.append("\\\\");
-					break;
-
-				case '\b':
-					aTarget.append("\\b");
-					break;
-
-				case '\f':
-					aTarget.append("\\f");
-					break;
-
-				case '\n':
-					aTarget.append("\\n");
-					break;
-
-				case '\r':
-					aTarget.append("\\r");
-					break;
-
-				case '\t':
-					aTarget.append("\\t");
-					break;
-
-				case '/':
-					aTarget.append("\\/");
-					break;
-
-				default:
-					if (isControlCharacter(c))
-					{
-						String sHexValue = Integer.toHexString(c).toUpperCase();
-
-						aTarget.append("\\u");
-						aTarget.append(TextConvert.padLeft(sHexValue, 4, '0'));
-					}
-					else
-					{
-						aTarget.append(c);
-					}
-			}
-		}
-	}
-
-	/***************************************
-	 * Returns TRUE if the given character is a the control character.
-	 *
-	 * @param  c The character value to check
-	 *
-	 * @return TRUE if it is a control character
-	 */
-	private boolean isControlCharacter(char c)
-	{
-		return (c >= '\u0000' && c <= '\u001F') ||
-			   (c >= '\u007F' && c <= '\u009F') ||
-			   (c >= '\u2000' && c <= '\u20FF');
 	}
 }
