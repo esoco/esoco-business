@@ -439,8 +439,9 @@ public class Entity extends SerializableRelatedObject
 	 * Creates a description string for the modified values of this entity and
 	 * it's hierarchy. Value changes are recorded by the entity modification
 	 * tracking with annotations of type {@link StandardTypes#PREVIOUS_VALUE}.
+	 * <<<<<<< HEAD @return The change description string =======
 	 *
-	 * @return The change description string
+	 * @return The resulting string >>>>>>> refs/heads/develop
 	 */
 	public String createChangeDescription()
 	{
