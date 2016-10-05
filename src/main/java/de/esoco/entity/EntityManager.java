@@ -1810,7 +1810,7 @@ public class EntityManager
 				(!(rEntity instanceof HistoryRecord) ||
 				 rEntity.get(HistoryRecord.TYPE) == HistoryType.NOTE))
 			{
-				sChange     = rEntity.createChangeDescription("");
+				sChange     = rEntity.createChangeDescription();
 				bHasChanges = (sChange != null && sChange.length() > 0);
 			}
 

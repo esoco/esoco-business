@@ -439,90 +439,11 @@ public class Entity extends SerializableRelatedObject
 	 * it's hierarchy. Value changes are recorded by the entity modification
 	 * tracking with annotations of type {@link StandardTypes#PREVIOUS_VALUE}.
 	 *
-	 * @param  sIndent The indentation of the resulting string
-	 *
 	 * @return The resulting string
 	 */
-	public String createChangeDescription(String sIndent)
+	public String createChangeDescription()
 	{
-		EntityDefinition<?> rDefinition = getDefinition();
-		StringBuilder	    aResult     = new StringBuilder();
-		String			    sSubIndent  = sIndent + "  ";
-
-		if (isPersistent())
-		{
-			if (hasFlag(MODIFIED))
-			{
-				for (RelationType<?> rAttribute : rDefinition.getAttributes())
-				{
-					Relation<?> rRelation = getRelation(rAttribute);
-
-					if (rRelation != null &&
-						rRelation.hasRelation(PREVIOUS_VALUE))
-					{
-						aResult.append(sSubIndent);
-						appendAttributeChange(aResult,
-											  rAttribute.getSimpleName(),
-											  rRelation);
-					}
-				}
-			}
-
-			if (hasFlag(EXTRA_ATTRIBUTES_MODIFIED))
-			{
-				for (ExtraAttribute rExtraAttribute :
-					 get(EXTRA_ATTRIBUTE_MAP).values())
-				{
-					if (rExtraAttribute.hasFlag(MODIFIED) &&
-						rExtraAttribute.getRelation(ExtraAttribute.VALUE)
-						.hasRelation(PREVIOUS_VALUE))
-					{
-						aResult.append(sSubIndent);
-						appendAttributeChange(aResult,
-											  rExtraAttribute.get(ExtraAttribute.KEY)
-											  .getSimpleName(),
-											  rExtraAttribute.getRelation(ExtraAttribute.VALUE));
-					}
-				}
-			}
-		}
-
-		Collection<RelationType<List<Entity>>> rChildAttributes =
-			rDefinition.getChildAttributes();
-
-		if (rChildAttributes != null)
-		{
-			for (RelationType<List<Entity>> rChildAttr : rChildAttributes)
-			{
-				List<Entity> rChildren = get(rChildAttr);
-
-				for (Entity rChild : rChildren)
-				{
-					String sChildIndent =
-						rChild.isPersistent() ? sSubIndent : sIndent + "+ ";
-
-					aResult.append(rChild.createChangeDescription(sChildIndent));
-				}
-
-				List<Entity> rRemovedChildren =
-					getRelation(rChildAttr).get(REMOVED_CHILDREN);
-
-				for (Entity rRemoved : rRemovedChildren)
-				{
-					aResult.append(sIndent);
-					aResult.append("- ");
-					aResult.append(rRemoved);
-					aResult.append('\n');
-				}
-			}
-		}
-
-		if (aResult.length() > 0 || !isPersistent())
-		{
-			aResult.insert(0, String.format("%s%s\n", sIndent, this));
-		}
-
-		return aResult.toString();
+		return createChangeDescription("");
 	}
 
 	/***************************************
@@ -1670,6 +1591,98 @@ public class Entity extends SerializableRelatedObject
 		}
 
 		return nHashCode;
+	}
+
+	/***************************************
+	 * Internal method to create a description string for the modified values of
+	 * this entity and it's hierarchy. Value changes are recorded by the entity
+	 * modification tracking with annotations of type {@link
+	 * StandardTypes#PREVIOUS_VALUE}.
+	 *
+	 * @param  sIndent sSubIndent The indentation of the resulting string
+	 *
+	 * @return The resulting string
+	 */
+	private String createChangeDescription(String sIndent)
+	{
+		EntityDefinition<?> rDefinition = getDefinition();
+		StringBuilder	    aResult     = new StringBuilder();
+		String			    sSubIndent  = sIndent + "  ";
+
+		if (isPersistent())
+		{
+			if (hasFlag(MODIFIED))
+			{
+				for (RelationType<?> rAttribute : rDefinition.getAttributes())
+				{
+					Relation<?> rRelation = getRelation(rAttribute);
+
+					if (rRelation != null &&
+						rRelation.hasRelation(PREVIOUS_VALUE))
+					{
+						aResult.append(sSubIndent);
+						appendAttributeChange(aResult,
+											  rAttribute.getSimpleName(),
+											  rRelation);
+					}
+				}
+			}
+
+			if (hasFlag(EXTRA_ATTRIBUTES_MODIFIED))
+			{
+				for (ExtraAttribute rExtraAttribute :
+					 get(EXTRA_ATTRIBUTE_MAP).values())
+				{
+					if (rExtraAttribute.hasFlag(MODIFIED) &&
+						rExtraAttribute.getRelation(ExtraAttribute.VALUE)
+						.hasRelation(PREVIOUS_VALUE))
+					{
+						aResult.append(sSubIndent);
+						appendAttributeChange(aResult,
+											  rExtraAttribute.get(ExtraAttribute.KEY)
+											  .getSimpleName(),
+											  rExtraAttribute.getRelation(ExtraAttribute.VALUE));
+					}
+				}
+			}
+		}
+
+		Collection<RelationType<List<Entity>>> rChildAttributes =
+			rDefinition.getChildAttributes();
+
+		if (rChildAttributes != null)
+		{
+			for (RelationType<List<Entity>> rChildAttr : rChildAttributes)
+			{
+				List<Entity> rChildren = get(rChildAttr);
+
+				for (Entity rChild : rChildren)
+				{
+					String sChildIndent =
+						rChild.isPersistent() ? sSubIndent : sIndent + "+ ";
+
+					aResult.append(rChild.createChangeDescription(sChildIndent));
+				}
+
+				List<Entity> rRemovedChildren =
+					getRelation(rChildAttr).get(REMOVED_CHILDREN);
+
+				for (Entity rRemoved : rRemovedChildren)
+				{
+					aResult.append(sIndent);
+					aResult.append("- ");
+					aResult.append(rRemoved);
+					aResult.append('\n');
+				}
+			}
+		}
+
+		if (aResult.length() > 0 || !isPersistent())
+		{
+			aResult.insert(0, String.format("%s%s\n", sIndent, this));
+		}
+
+		return aResult.toString();
 	}
 
 	/***************************************
