@@ -23,6 +23,7 @@ import de.esoco.data.element.StringDataElement;
 
 import de.esoco.entity.Entity;
 
+import de.esoco.lib.logging.Log;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.Layout;
@@ -289,6 +290,13 @@ public class LoginFragment extends InteractionFragment
 
 			if (nMaxLoginAttempts > 0 && ++nErrorCount >= nMaxLoginAttempts)
 			{
+				if (nErrorWaitTime > 0)
+				{
+					Log.warnf(e,
+							  "Repeated login failure of user %s",
+							  sLoginName);
+				}
+
 				nErrorWaitTime =
 					nErrorWaitTime == 0 ? nInitialLoginErrorWaitTime
 										: nErrorWaitTime * 2;
