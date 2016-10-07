@@ -1783,12 +1783,24 @@ public class Entity extends SerializableRelatedObject
 			@SuppressWarnings("boxing")
 			Object rId = isPersistent() ? getId() : "\"<NEW>\"";
 
-			aResult.insert(0,
-						   String.format("%s{\n%s\"%s\": %s,\n",
-										 sIndent,
-										 sSubIndent,
-										 getClass().getSimpleName(),
-										 rId));
+			String sDescription = getDescription();
+			String sEntity	    =
+				String.format("%s{\n%s\"%s\": %s,\n",
+							  sIndent,
+							  sSubIndent,
+							  getClass().getSimpleName(),
+							  rId);
+
+			if (sDescription.length() > 0)
+			{
+				sEntity =
+					String.format("%s%s\"_name\": \"%s\",\n",
+								  sEntity,
+								  sSubIndent,
+								  sDescription);
+			}
+
+			aResult.insert(0, sEntity);
 			aResult.append("\n");
 			aResult.append(sIndent);
 			aResult.append("}");

@@ -1824,10 +1824,9 @@ public class EntityManager
 
 			if (bHistoryGroup)
 			{
-				HistoryManager.begin(rChangeOrigin,
-									 rEntity,
-									 "Store " +
-									 EntityFunctions.format(rEntity));
+				String sGroup = "Store " + rEntity;
+
+				HistoryManager.begin(rChangeOrigin, rEntity, sGroup);
 			}
 
 			rStorage.store(rEntity);

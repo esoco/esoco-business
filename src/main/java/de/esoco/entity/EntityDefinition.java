@@ -58,6 +58,7 @@ import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import static de.esoco.entity.EntityRelationTypes.DISPLAY_PROPERTIES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ID;
@@ -77,6 +78,7 @@ import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 import static org.obrel.type.MetaTypes.INITIALIZING;
 import static org.obrel.type.MetaTypes.MODIFIED;
 import static org.obrel.type.MetaTypes.OBJECT_ID_ATTRIBUTE;
+import static org.obrel.type.MetaTypes.OBJECT_NAME_ATTRIBUTE;
 import static org.obrel.type.MetaTypes.OBJECT_TYPE_ATTRIBUTE;
 import static org.obrel.type.MetaTypes.PARENT_ATTRIBUTE;
 import static org.obrel.type.StandardTypes.INFO;
@@ -178,6 +180,7 @@ public class EntityDefinition<E extends Entity>
 	private transient String						 sIdPrefix;
 	private transient RelationType<Integer>			 rIdAttribute;
 	private transient RelationType<Enum<?>>			 rTypeAttribute;
+	private transient RelationType<String>			 rNameAttribute;
 	private transient RelationType<? extends Entity> rMasterAttribute;
 	private transient RelationType<? extends Entity> rParentAttribute;
 	private transient RelationType<? extends Entity> rRootAttribute;
@@ -555,6 +558,19 @@ public class EntityDefinition<E extends Entity>
 	public RelationType<? extends Entity> getMasterAttribute()
 	{
 		return rMasterAttribute;
+	}
+
+	/***************************************
+	 * Returns the relation type of an attribute in this definition that refers
+	 * to the name of an entity. This will either be the attribute with the type
+	 * {@link StandardTypes#NAME} or any other string attribute that has the
+	 * meta relation type {@link MetaTypes#OBJECT_NAME_ATTRIBUTE} set.
+	 *
+	 * @return The name attribute of the entity or NULL for none
+	 */
+	public RelationType<String> getNameAttribute()
+	{
+		return rNameAttribute;
 	}
 
 	/***************************************
@@ -960,6 +976,11 @@ public class EntityDefinition<E extends Entity>
 				else if (rAttribute.hasFlag(OBJECT_TYPE_ATTRIBUTE))
 				{
 					rTypeAttribute = (RelationType<Enum<?>>) rAttribute;
+				}
+				else if (rAttribute == StandardTypes.NAME ||
+						 rAttribute.hasFlag(OBJECT_NAME_ATTRIBUTE))
+				{
+					rNameAttribute = (RelationType<String>) rAttribute;
 				}
 				else if (rAttribute.hasFlag(PARENT_ATTRIBUTE))
 				{
