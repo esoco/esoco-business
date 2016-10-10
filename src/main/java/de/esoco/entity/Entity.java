@@ -436,16 +436,15 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Creates a description string for the modified values of this entity and
+	 * Creates a JSON string containing the modified values of this entity and
 	 * it's hierarchy. Value changes are recorded by the entity modification
 	 * tracking with annotations of type {@link StandardTypes#PREVIOUS_VALUE}.
-	 * <<<<<<< HEAD @return The change description string =======
 	 *
-	 * @return The resulting string >>>>>>> refs/heads/develop
+	 * @return The resulting JSON string
 	 */
 	public String createChangeDescription()
 	{
-		return createChangeDescription("");
+		return createChangeDescription("", true);
 	}
 
 	/***************************************
@@ -1581,7 +1580,8 @@ public class Entity extends SerializableRelatedObject
 
 		for (Entity rChild : rChildren)
 		{
-			String sChildChange = rChild.createChangeDescription(sIndent);
+			String sChildChange =
+				rChild.createChangeDescription(sIndent, false);
 
 			if (!sChildChange.isEmpty())
 			{
@@ -1730,16 +1730,20 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Internal method to create a description string for the modified values of
-	 * this entity and it's hierarchy. Value changes are recorded by the entity
+	 * Internal method to create a JSON string for the modified values of this
+	 * entity and it's hierarchy. Value changes are recorded by the entity
 	 * modification tracking with annotations of type {@link
 	 * StandardTypes#PREVIOUS_VALUE}.
 	 *
-	 * @param  sIndent sSubIndent The indentation of the resulting string
+	 * @param  sIndent            The indentation of the resulting string
+	 * @param  bIncludeEntityName TRUE to include the entity name into the
+	 *                            generated JSON, FALSE to omit it
 	 *
 	 * @return The resulting string
 	 */
-	private String createChangeDescription(String sIndent)
+	private String createChangeDescription(
+		String  sIndent,
+		boolean bIncludeEntityName)
 	{
 		EntityDefinition<?> rDefinition = getDefinition();
 		StringBuilder	    aResult     = new StringBuilder("");
@@ -1785,11 +1789,19 @@ public class Entity extends SerializableRelatedObject
 
 			String sDescription = getDescription();
 			String sEntity	    =
-				String.format("%s{\n%s\"%s\": %s,\n",
+				String.format("%s{\n%s\"_id\": %s,\n",
 							  sIndent,
 							  sSubIndent,
-							  getClass().getSimpleName(),
 							  rId);
+
+			if (bIncludeEntityName)
+			{
+				sEntity =
+					String.format("%s%s\"_type\": \"%s\",\n",
+								  sEntity,
+								  sSubIndent,
+								  rDefinition.getEntityName());
+			}
 
 			if (sDescription.length() > 0)
 			{
