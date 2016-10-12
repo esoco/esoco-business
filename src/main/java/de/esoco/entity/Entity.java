@@ -130,7 +130,7 @@ public class Entity extends SerializableRelatedObject
 	 * The JSON field name suffix for removed children in a change log generated
 	 * by the method {@link #createChangeDescription()}.
 	 */
-	public static final String JSON_CHILD_REMOVED_SUFFIX = "-removed";
+	public static final String JSON_REMOVED_CHILDREN_SUFFIX = "-removed";
 
 	static
 	{
@@ -1664,7 +1664,7 @@ public class Entity extends SerializableRelatedObject
 			aChanges.append(sIndent);
 			aChanges.append("\"");
 			aChanges.append(sChildAttr);
-			aChanges.append(JSON_CHILD_REMOVED_SUFFIX);
+			aChanges.append(JSON_REMOVED_CHILDREN_SUFFIX);
 			aChanges.append("\": [\n");
 
 			for (Entity rRemoved : rRemovedChildren)
