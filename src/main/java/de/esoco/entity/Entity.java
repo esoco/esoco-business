@@ -1632,7 +1632,10 @@ public class Entity extends SerializableRelatedObject
 
 		for (Entity rChild : rChildren)
 		{
-			String sChildChange = rChild.toJson(sIndent, bChangesOnly, false);
+			boolean bChildChangesOnly = bChangesOnly && rChild.isPersistent();
+
+			String sChildChange =
+				rChild.toJson(sIndent, bChildChangesOnly, false);
 
 			if (!sChildChange.isEmpty())
 			{
