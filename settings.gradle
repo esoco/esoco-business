@@ -1,13 +1,12 @@
 rootProject.name = "esoco-business" 
 
-include ':esoco-common'
-project(':esoco-common').projectDir = new File('../esoco-common')
+def baseProjects = [':esoco-common',':objectrelations',':esoco-lib', ':esoco-storage']
 
-include ':objectrelations'
-project(':objectrelations').projectDir = new File('../objectrelations')
+baseProjects.each { projectName ->
+	def projectDir = new File("../${projectName.substring(1)}")
 
-include ':esoco-lib'
-project(':esoco-lib').projectDir = new File('../esoco-lib')
-
-include ':esoco-storage'
-project(':esoco-storage').projectDir = new File('../esoco-storage')
+	if (projectDir.exists()) {
+		include projectName
+		project(projectName).projectDir = projectDir
+	}
+}
