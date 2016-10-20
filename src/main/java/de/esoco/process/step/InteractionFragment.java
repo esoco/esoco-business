@@ -1419,7 +1419,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * Returns a parameter for a derived temporary parameter type created by
-	 * {@link #getTemporaryParameterType(RelationType)}.
+	 * {@link #getTemporaryParameterType(String, RelationType)}.
 	 *
 	 * @param  rOriginalType The original relation type the new parameter is
 	 *                       based on
@@ -1989,8 +1989,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Adds a sub-fragment to be displayed as a modal dialog.
 	 *
-	 * @see #showDialog(String, InteractionFragment, ViewDisplayType,
-	 *      DialogActionListener, DialogAction...)
+	 * @see #showDialog(String, InteractionFragment, boolean,
+	 *      DialogActionListener, Collection)
 	 */
 	protected DialogFragment showDialog(String				 sParamNameTemplate,
 										InteractionFragment  rContentFragment,

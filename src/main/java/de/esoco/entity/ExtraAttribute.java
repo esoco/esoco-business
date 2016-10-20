@@ -114,7 +114,7 @@ public class ExtraAttribute extends Entity
 		 * Overridden to handle the special namespace of extra attributes and to
 		 * make collection and map value immutable.
 		 *
-		 * @see EntityDefinition#checkAttributeValue(Class, Object)
+		 * @see EntityDefinition#checkAttributeValue(RelationType, Object)
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
@@ -233,7 +233,7 @@ public class ExtraAttribute extends Entity
 		 * Overridden to handle the special namespace of extra attributes.
 		 *
 		 * @see EntityDefinition#initRelationTypeAttribute(Entity, RelationType,
-		 *      Object)
+		 *      String)
 		 */
 		@Override
 		protected void initRelationTypeAttribute(

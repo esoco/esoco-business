@@ -512,7 +512,7 @@ public abstract class ProcessStep extends ProcessFragment
 	 * but should in most cases also invoke the superclass method.
 	 *
 	 * <p>The validation will not occur if an interactive input parameter exists
-	 * and the method {@link #continueOnInteractiveInput(RelationType)} returns
+	 * and the method {@link #continueOnInteraction(RelationType...)} returns
 	 * FALSE because then this step will be prepared and executed again to
 	 * continue with the current interaction. Validation only occurs on the
 	 * transition to the next step.</p>

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -118,10 +118,8 @@ public abstract class AbstractEntityStorageTest
 	/***************************************
 	 * Adds contacts to a person entity.
 	 *
-	 * @param  rEntity   The person entity
-	 * @param  aContacts The contacts in the order email, phone, fax
-	 *
-	 * @throws StorageException
+	 * @param rEntity   The person entity
+	 * @param aContacts The contacts in the order email, phone, fax
 	 */
 	protected void addContacts(Entity rEntity, String... aContacts)
 	{
@@ -154,8 +152,6 @@ public abstract class AbstractEntityStorageTest
 	 * @param  rAttributes The attributes of the person (6 elements)
 	 *
 	 * @return The new entity
-	 *
-	 * @throws StorageException If
 	 */
 	@SuppressWarnings("boxing")
 	protected TestPerson createPerson(String[] rAttributes)

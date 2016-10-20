@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ public class HistoryManager
 
 	/***************************************
 	 * Commits a group of history records. The group must previously have been
-	 * started with a call to {@link #begin(Entity, Entity, Object)}.
+	 * started with a call to {@link #begin(Entity, Entity, String)}.
 	 *
 	 * @param  bKeepIfEmpty TRUE to keep empty groups, FALSE to discard them
 	 *
@@ -328,7 +328,7 @@ public class HistoryManager
 
 	/***************************************
 	 * Records a history entry. If a history group has been started before by
-	 * means of {@link #begin(Entity, Entity, Object)} the new entry will be
+	 * means of {@link #begin(Entity, Entity, String)} the new entry will be
 	 * added as a detail record to that group. If no group is active a single
 	 * history record will be created and stored immediately.
 	 *
@@ -349,7 +349,7 @@ public class HistoryManager
 
 	/***************************************
 	 * Records a history entry with a reference value. If a history group has
-	 * been started before by means of {@link #begin(Entity, Entity, Object)}
+	 * been started before by means of {@link #begin(Entity, Entity, String)}
 	 * the new entry will be added as a detail record to that group. If no group
 	 * is active a single history record will be created and stored immediately.
 	 *

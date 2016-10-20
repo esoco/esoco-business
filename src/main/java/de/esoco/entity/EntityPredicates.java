@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,10 +61,10 @@ public class EntityPredicates
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * A {@link StoragePredicates#forType(StorageMapping, Predicate)} variant
-	 * for entity queries.
+	 * A variant of {@link StoragePredicates#forType(Class, Predicate)} for
+	 * entity queries.
 	 *
-	 * @see StoragePredicates#forType(StorageMapping, Predicate)
+	 * @see StoragePredicates#forType(Class, Predicate)
 	 */
 	public static <E extends Entity> QueryPredicate<E> forEntity(
 		Class<E>			 rEntityClass,

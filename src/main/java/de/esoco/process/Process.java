@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
-import org.obrel.core.Relatable;
+import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
@@ -396,7 +396,7 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Overridden to forward the call to the process context.
 	 *
-	 * @see {@link Relatable#deleteRelation(RelationType)}
+	 * @see RelatedObject#deleteRelation(Relation)
 	 */
 	@Override
 	public void deleteRelation(Relation<?> rRelation)
@@ -469,7 +469,7 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Overridden to forward the call to the process context.
 	 *
-	 * @see {@link Relatable#get(RelationType)}
+	 * @see RelatedObject#get(RelationType)
 	 */
 	@Override
 	public <T> T get(RelationType<T> rType)
@@ -576,9 +576,7 @@ public class Process extends SerializableRelatedObject
 	 * Returns an integer ID for the automatic naming of process fragments. This
 	 * method is intended to be used internally by the framework.
 	 *
-	 * @return   The next generated fragment ID
-	 *
-	 * @category internal
+	 * @return The next generated fragment ID
 	 */
 	public int getNextFragmentId()
 	{
@@ -612,7 +610,7 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Overridden to forward the call to the process context.
 	 *
-	 * @see {@link Relatable#getRelation(RelationType)}
+	 * @see RelatedObject#getRelation(RelationType)
 	 */
 	@Override
 	public <T> Relation<T> getRelation(RelationType<T> rType)
@@ -624,7 +622,7 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Overridden to forward the call to the process context.
 	 *
-	 * @see {@link Relatable#getRelations(Predicate)}
+	 * @see RelatedObject#getRelations(Predicate)
 	 */
 	@Override
 	public List<Relation<?>> getRelations(
@@ -821,7 +819,7 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Overridden to forward the call to the process context.
 	 *
-	 * @see {@link Relatable#set(RelationType, Object)}
+	 * @see RelatedObject#set(RelationType, Object)
 	 */
 	@Override
 	public <T> Relation<T> set(RelationType<T> rType, T rTarget)

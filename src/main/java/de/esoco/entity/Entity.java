@@ -252,7 +252,7 @@ public class Entity extends SerializableRelatedObject
 
 	/***************************************
 	 * A convenience method to add variable number of children to an entity.
-	 * Invokes the method {@link #addChildren(RelationType, Collection)}.
+	 * Invokes the method {@link #addChildren(RelationType, List)}.
 	 *
 	 * @param  rChildAttr The attribute that references the child type
 	 * @param  rChildren  The new child objects to add
@@ -527,7 +527,7 @@ public class Entity extends SerializableRelatedObject
 	 * Searches for a child entity in a hierarchy of children that matches a
 	 * certain predicate. If the given children are not hierarchical only the
 	 * flat list of children will be searched. This method is based on the
-	 * {@link EntityManager#findDownwards(List, RelationTypes, Predicate)}
+	 * {@link EntityManager#findDownwards(List, RelationType, Predicate)}
 	 * method.
 	 *
 	 * @param  rChildAttribute The child attribute to search and descend

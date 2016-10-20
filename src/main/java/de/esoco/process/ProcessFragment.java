@@ -1833,8 +1833,9 @@ public abstract class ProcessFragment extends ProcessElement
 	 * second.
 	 *
 	 * @param sInfo The information string or a resource ID or NULL to reset
-	 * @param nRows The number of rows to display (> 1 for a multi-line display)
-	 *              or -1 to calculate the number of rows in the input text
+	 * @param nRows The number of rows to display (&gt; 1 for a multi-line
+	 *              display) or -1 to calculate the number of rows in the input
+	 *              text
 	 */
 	public void setProcessStepInfo(String sInfo, int nRows)
 	{

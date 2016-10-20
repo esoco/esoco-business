@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,10 +36,12 @@ import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
+
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.EditText;
 import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -64,13 +66,13 @@ import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.greaterOrEqual;
 import static de.esoco.lib.expression.Predicates.lessThan;
 import static de.esoco.lib.expression.Predicates.not;
-import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
-import static de.esoco.lib.property.UserInterfaceProperties.HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
-import static de.esoco.lib.property.UserInterfaceProperties.VERTICAL;
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.LayoutProperties.HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_ACTION_EVENT;
 
@@ -88,8 +90,10 @@ import static org.obrel.core.RelationTypes.newType;
  * <p><b>Input parameters:</b></p>
  *
  * <ul>
- *   <li>{@link #ENTITY_HISTORY_TARGETS}: The entity to display the history
+ *   <li>{@link #ENTITY_HISTORY_ROOT_TARGET}: The entity to display the history
  *     of.</li>
+ *   <li>{@link #ENTITY_HISTORY_ADDITIONAL_TARGETS}: (optional) Additional
+ *     entities to display the history of.</li>
  *   <li> {@link #ENTITY_HISTORY_TYPES}: The types of the history records to
  *     display.</li>
  * </ul>

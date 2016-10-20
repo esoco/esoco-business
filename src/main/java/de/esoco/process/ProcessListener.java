@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,9 +49,7 @@ public interface ProcessListener
 	 * wants to prevent the process from committing it's transaction it should
 	 * throw a runtime exception.
 	 *
-	 * @param  rProcess The process
-	 *
-	 * @throws Exception An exception to prevent the process from finishing
+	 * @param rProcess The process
 	 */
 	public void processFinished(Process rProcess);
 

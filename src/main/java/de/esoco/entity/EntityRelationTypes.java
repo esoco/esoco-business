@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,10 +74,10 @@ public class EntityRelationTypes
 	 * are:
 	 *
 	 * <ul>
-	 *   <li>{@value #NEVER}: never perform a hierarchical query.</li>
-	 *   <li>{@value #UNCONSTRAINED}: only perform a hierarchical query if no
+	 *   <li>{@link #NEVER}: never perform a hierarchical query.</li>
+	 *   <li>{@link #UNCONSTRAINED}: only perform a hierarchical query if no
 	 *     additional constraints have been provided.</li>
-	 *   <li>{@value #ALWAYS}: always perform a hierarchical query.</li>
+	 *   <li>{@link #ALWAYS}: always perform a hierarchical query.</li>
 	 * </ul>
 	 */
 	public enum HierarchicalQueryMode { NEVER, UNCONSTRAINED, ALWAYS }
@@ -341,8 +341,7 @@ public class EntityRelationTypes
 	 * constructor of {@link EntityDefinition} must be used to define the child
 	 * entity relation and set the entity definitions on the attributes.
 	 *
-	 * @param  rFlags             The optional type flags
-	 * @param  rChildDefReference The reference of the child entity definition
+	 * @param  rFlags The optional type flags
 	 *
 	 * @return A new relation type instance
 	 *
@@ -358,8 +357,7 @@ public class EntityRelationTypes
 	 * A factory method to create a new relation type for entity attributes that
 	 * reference an entity instance of a specific entity subclass.
 	 *
-	 * @param  rFlags      The optional type flags
-	 * @param  rDefinition The reference of the entity definition
+	 * @param  rFlags The optional type flags
 	 *
 	 * @return A new relation type instance
 	 *
@@ -394,8 +392,7 @@ public class EntityRelationTypes
 	 * definition of the parent attribute cannot be set directly in this method.
 	 * Instead this will be handled by the {@link EntityDefinition} class.
 	 *
-	 * @param  rFlags            The optional type flags
-	 * @param  rParentDefinition The parent entity definition
+	 * @param  rFlags The optional type flags
 	 *
 	 * @return A new relation type instance
 	 *

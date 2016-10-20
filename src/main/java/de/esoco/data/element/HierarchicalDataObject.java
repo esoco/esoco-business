@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,9 +37,6 @@ import java.util.List;
  * client and server. An object contains a list of string values and references
  * to parent and child objects. It also implements {@link HierarchicalDataModel}
  * so that it can be used directly in UI components.
- *
- * <p>The serialization of an object hierarchy is implemented in the separate
- * GWT-specific class {@link HierarchicalDataObject_CustomFieldSerializer}.</p>
  *
  * @author eso
  */

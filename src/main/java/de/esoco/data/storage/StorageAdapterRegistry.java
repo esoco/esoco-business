@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,11 +64,11 @@ public interface StorageAdapterRegistry
 	public int getStorageAdapterCount() throws StorageException;
 
 	/***************************************
-	 * Registers a certain {@link AbstractStorageAdapter} instance in the
-	 * current user's session and associates it with a unique string ID. Either
-	 * a reference to the returned ID or to the adapter must be kept by the
-	 * invoking party because the adapter will be garbage collected if neither
-	 * the ID nor the adapter are referenced any longer by any strong reference.
+	 * Registers a certain {@link StorageAdapter} instance in the current user's
+	 * session and associates it with a unique string ID. Either a reference to
+	 * the returned ID or to the adapter must be kept by the invoking party
+	 * because the adapter will be garbage collected if neither the ID nor the
+	 * adapter are referenced any longer by any strong reference.
 	 *
 	 * @param  rAdapter The adapter to register
 	 *

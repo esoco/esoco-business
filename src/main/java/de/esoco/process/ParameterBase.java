@@ -132,7 +132,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * must either be set later or the containing fragment must implement {@link
 	 * InteractionFragment#handleInteraction(RelationType)}.
 	 *
-	 * @see #actionEvents(InteractionHandler)
+	 * @return This instance for concatenation
 	 */
 	public final P actionEvents()
 	{
@@ -164,7 +164,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the property {@link LayoutProperties#TEXT_ALIGNMENT}.
+	 * Sets the property {@link LayoutProperties#TEXT_ALIGN}.
 	 *
 	 * @param  eAlignment The alignment
 	 *
@@ -192,7 +192,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * must either be set later or the containing fragment must implement {@link
 	 * InteractionFragment#handleInteraction(RelationType)}.
 	 *
-	 * @see #actionEvents(InteractionHandler)
+	 * @return This instance for concatenation
 	 */
 	public final P allEvents()
 	{
@@ -375,7 +375,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * handler must either be set later or the containing fragment must
 	 * implement {@link InteractionFragment#handleInteraction(RelationType)}.
 	 *
-	 * @see #actionEvents(InteractionHandler)
+	 * @return This instance for concatenation
 	 */
 	public final P continuousEvents()
 	{
@@ -567,7 +567,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
-	 * StyleProperties#ICON_SIZE}.
+	 * LayoutProperties#ICON_SIZE}.
 	 *
 	 * @param  rIconIdentifier The icon identifier ({@link #icon(Object)})
 	 * @param  eSize           The relative size of the icon
@@ -581,8 +581,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	/***************************************
 	 * Sets both UI properties {@link ContentProperties#ICON} and {@link
-	 * StyleProperties#ICON_ALIGNMENT}. Not all types of {@link Alignment} may
-	 * be supported in an UI implementation.
+	 * LayoutProperties#ICON_ALIGN}. Not all types of {@link Alignment} may be
+	 * supported in an UI implementation.
 	 *
 	 * @param  rIconIdentifier The icon identifier ({@link #icon(Object)})
 	 * @param  eAlignment      The position alignment of the icon
@@ -595,7 +595,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Sets the property {@link StyleProperties#ICON_SIZE}.
+	 * Sets the property {@link LayoutProperties#ICON_SIZE}.
 	 *
 	 * @param  eSize The relative size of the icon
 	 *

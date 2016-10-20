@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,8 +66,6 @@ import static org.obrel.core.RelationTypes.newRelationType;
  *     creates the step to make sure that the result type of the query and the
  *     target type are compatible or else this step or subsequent process steps
  *     will fail.</li>
- *   <li>{@link #QUERY_SIZE_PARAM} (optional): The parameter to store the the
- *     number of objects that will be returned by the query in</li>
  * </ul>
  *
  * <p>The parameter {@link ProcessRelationTypes#PROGRESS} will be incremented

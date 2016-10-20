@@ -54,10 +54,10 @@ public abstract class DataElement<T> extends StringProperties
 	/** The prefix for item resource IDs */
 	public static final String ITEM_RESOURCE_PREFIX = "$itm";
 
-	/** A generic resource string for a <New> item. */
+	/** A generic resource string for a &lt;New&gt; item. */
 	public static final String ITEM_NEW_RESOURCE = "$itmNew";
 
-	/** A generic resource string for an <All> item. */
+	/** A generic resource string for an &lt;All&gt; item. */
 	public static final String ITEM_ALL_RESOURCE = "$itmAll";
 
 	/** The separator for data element paths */

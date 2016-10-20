@@ -358,7 +358,6 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 	/***************************************
 	 * Test of queries.
 	 *
-	 * @throws ClassNotFoundException
 	 * @throws StorageException
 	 */
 	@Test

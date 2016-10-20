@@ -19,6 +19,7 @@ package de.esoco.process;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.lib.text.TextConvert;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;
@@ -79,10 +80,8 @@ public class ViewFragment extends InteractionFragment
 	 *                           the view fragment parameter names. If NULL a
 	 *                           template will be generated from the class name
 	 *                           of the content fragment
-	 * @param rContentFragment   The fragment that contains the view content or
-	 *                           NULL if the content will be created by the
-	 *                           method {@link #createViewContent(String)}.
-	 * @param eViewDisplayType   How the view should be displayed.
+	 * @param rContentFragment   The fragment that contains the view content
+	 * @param eViewDisplayType   How the view should be displayed
 	 */
 	public ViewFragment(String				sParamNameTemplate,
 						InteractionFragment rContentFragment,
@@ -218,7 +217,7 @@ public class ViewFragment extends InteractionFragment
 	 * Returns the base name for resource IDs as a camel case identifier. The
 	 * default implementation returns the simple name of the content fragment's
 	 * class. If no content fragment has been set the view type returned by
-	 * {@link #getViewType()} will be used.
+	 * {@link #getViewType(boolean)} will be used.
 	 *
 	 * @return The resource ID base name
 	 */

@@ -167,8 +167,8 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 
 	/***************************************
 	 * Shortcut method to add a new {@link StringDataElement} with a certain
-	 * name and string value. See {@link #addElement(DataElement)} for more
-	 * information.
+	 * name and string value. See {@link ListDataElement#addElement(Object)} for
+	 * more information.
 	 *
 	 * @param sName  The name of the data element to add
 	 * @param sValue The value of the new data element

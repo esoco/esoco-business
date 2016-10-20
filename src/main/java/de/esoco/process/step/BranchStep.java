@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -161,8 +161,6 @@ public final class BranchStep extends ProcessStep
 	 * occurs.
 	 *
 	 * @param sNextStep The next step to be invoked if no branching occurs
-	 *
-	 * @see   ProcessStep#setNextStep(ProcessStep)
 	 */
 	@Override
 	protected void setNextStep(String sNextStep)

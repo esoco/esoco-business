@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import de.esoco.entity.TestPerson;
 import de.esoco.lib.manage.TransactionException;
 
 import de.esoco.storage.StorageException;
-
-import java.sql.SQLException;
 
 import java.util.List;
 
@@ -84,7 +82,6 @@ public class HistoryTest extends AbstractEntityStorageTest
 	 *
 	 * @throws StorageException
 	 * @throws TransactionException
-	 * @throws SQLException
 	 */
 	@Test
 	public void testDiscardEmptyHierarchy() throws StorageException,
@@ -106,7 +103,6 @@ public class HistoryTest extends AbstractEntityStorageTest
 	 *
 	 * @throws StorageException
 	 * @throws TransactionException
-	 * @throws SQLException
 	 */
 	@Test
 	public void testHierarchy() throws StorageException, TransactionException
@@ -153,7 +149,6 @@ public class HistoryTest extends AbstractEntityStorageTest
 	 *
 	 * @throws StorageException
 	 * @throws TransactionException
-	 * @throws SQLException
 	 */
 	@Test
 	public void testKeepEmptyHierarchy() throws StorageException,

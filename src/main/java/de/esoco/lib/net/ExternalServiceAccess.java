@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public interface ExternalServiceAccess
 	 * Creates a request to an external service. The access to the external
 	 * service must have been authorized previously by a call to the method
 	 * {@link #authorizeExternalServiceAccess(ExternalServiceDefinition,
-	 * AuthorizationCallback, Object...)}.
+	 * AuthorizationCallback, boolean, Object...)}.
 	 *
 	 * @param  rServiceDefinition The type of service to create the request for
 	 * @param  eAccessType        The service access type

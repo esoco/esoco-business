@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ public abstract class ExternalService extends RelatedObject
 
 	/***************************************
 	 * Processes the response received through the callback URL of a call to
-	 * {@link #authorizeAccess(String, String, Object...)}. IMPORTANT: This
+	 * {@link #authorizeAccess(String, boolean, Object...)}. IMPORTANT: This
 	 * method must be invoked on the same service instance on which the
 	 * authorization has been initiated.
 	 *

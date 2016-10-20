@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1030,14 +1030,14 @@ public class StepListProcessDefinition extends ProcessDefinition
 		 * follow-up step and a configuration map for the step.
 		 *
 		 * <p>If the step class has been defined by a class literal (i.e. as
-		 * <StepName>.class) in the call to this constructor the class may not
-		 * have been loaded yet and any parameter types defined in it haven't
-		 * been created yet too. Therefore this constructor loads the step class
-		 * before parsing the configuration so that any parameter relation types
-		 * referenced there are available. There's still a chance that the
-		 * parsing fails if the configuration references a parameter type that
-		 * is defined in a step referenced only by a step list entry that is
-		 * created later.</p>
+		 * &lt;StepName&gt;.class) in the call to this constructor the class may
+		 * not have been loaded yet and any parameter types defined in it
+		 * haven't been created yet too. Therefore this constructor loads the
+		 * step class before parsing the configuration so that any parameter
+		 * relation types referenced there are available. There's still a chance
+		 * that the parsing fails if the configuration references a parameter
+		 * type that is defined in a step referenced only by a step list entry
+		 * that is created later.</p>
 		 *
 		 * @param sStepName  The name of the step
 		 * @param rStepClass The class to create the step from

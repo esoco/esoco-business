@@ -49,7 +49,7 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 
 	/**
 	 * Enum property: the type of the chart to render (for possible values see
-	 * {@link DataSetChartType})
+	 * {@link ChartType})
 	 */
 	public static final PropertyName<ChartType> CHART_TYPE =
 		PropertyName.newEnumName("CHART_TYPE", ChartType.class);
@@ -94,14 +94,12 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	/***************************************
 	 * Creates a new instance with certain display properties set.
 	 *
-	 * @param  sName            The name of the data element
-	 * @param  aDataSet         The chart data
-	 * @param  eChartType       The chart type
-	 * @param  eLegendPosition  The legend position
-	 * @param  sBackgroundColor The chart background color
-	 * @param  b3D              TRUE for a 3D chart
-	 *
-	 * @return A new data element
+	 * @param sName            The name of the data element
+	 * @param aDataSet         The chart data
+	 * @param eChartType       The chart type
+	 * @param eLegendPosition  The legend position
+	 * @param sBackgroundColor The chart background color
+	 * @param b3D              TRUE for a 3D chart
 	 */
 	public DataSetDataElement(String		 sName,
 							  DataSet<?>	 aDataSet,

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,10 +78,8 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	/***************************************
 	 * Creates a new instance for certain source and target entity definition.
 	 *
-	 * @param  rSourceType The source entity definition
-	 * @param  rTargetType The target entity definition
-	 *
-	 * @throws StorageException
+	 * @param rSourceType The source entity definition
+	 * @param rTargetType The target entity definition
 	 */
 	public EntityMigrator(Class<S> rSourceType, Class<T> rTargetType)
 	{

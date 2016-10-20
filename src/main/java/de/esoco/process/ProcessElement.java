@@ -72,8 +72,8 @@ public abstract class ProcessElement extends SerializableRelatedObject
 
 	/***************************************
 	 * A convenience method that creates a mutable list of process parameters
-	 * without the need to explicitly specify 'RelationType<?>' as would be
-	 * required with the generic methods {@link Arrays#asList(Object...)} or
+	 * without the need to explicitly specify 'RelationType&lt;?&gt;' as would
+	 * be required with the generic methods {@link Arrays#asList(Object...)} or
 	 * {@link CollectionUtil#listOf(Object...)}. For an immutable list the
 	 * method {@link #staticParams(RelationType...)} can be used.
 	 *
@@ -88,8 +88,8 @@ public abstract class ProcessElement extends SerializableRelatedObject
 
 	/***************************************
 	 * A convenience method that creates a immutable list of process parameters
-	 * without the need to explicitly specify 'RelationType<?>' as would be
-	 * required with the generic methods {@link Arrays#asList(Object...)} or
+	 * without the need to explicitly specify 'RelationType&lt;?&gt;' as would
+	 * be required with the generic methods {@link Arrays#asList(Object...)} or
 	 * {@link CollectionUtil#listOf(Object...)}. For a mutable list the method
 	 * {@link #params(RelationType...)} can be used.
 	 *
@@ -338,7 +338,7 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	 *
 	 * @param rParams The parameters to validate
 	 *
-	 * @see   #setParameterNotEmptyValidation(RelationType)
+	 * @see   #setParameterValidation(RelationType, String, Predicate)
 	 */
 	public void setParameterNotEmptyValidations(
 		Collection<? extends RelationType<?>> rParams)

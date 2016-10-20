@@ -1076,8 +1076,8 @@ public class EntityManager
 
 	/***************************************
 	 * Queries a list of entities that are identified by a certain attribute
-	 * value. See the {@link #queryEntities(EntityDefinition, Predicate, int)}
-	 * method for more information.
+	 * value. See the {@link #queryEntities(Class, Predicate, int)} method for
+	 * more information.
 	 *
 	 * @param  rEntityClass The entity type to query
 	 * @param  rAttribute   The attribute to search for
@@ -1343,8 +1343,8 @@ public class EntityManager
 
 	/***************************************
 	 * Queries an entity that is identified by a certain attribute value. See
-	 * the method {@link #queryEntity(EntityDefinition, Predicate, boolean)} for
-	 * more information.
+	 * the method {@link #queryEntity(Class, Predicate, boolean)} for more
+	 * information.
 	 *
 	 * @param  rEntityClass    The entity type to query
 	 * @param  rAttribute      The attribute to search for
@@ -1372,8 +1372,8 @@ public class EntityManager
 
 	/***************************************
 	 * Queries an entity that is identified by certain attribute criteria. Uses
-	 * the method {@link #queryEntity(EntityDefinition, Predicate, boolean)} to
-	 * perform the actual query.
+	 * the method {@link #queryEntity(Class, Predicate, boolean)} to perform the
+	 * actual query.
 	 *
 	 * @param  rEntityClass    The entity type to query
 	 * @param  rCriteraMap     The mapping from attribute relation types to
@@ -1422,7 +1422,7 @@ public class EntityManager
 	 * Queries an entity of a certain type that has an extra attribute with a
 	 * particular value. This is a convenience method that returns the first
 	 * entity that is returned by the method {@link
-	 * #queryEntitiesByExtraAttribute(ExtraAttributeType, Object, int)} or NULL
+	 * #queryEntitiesByExtraAttribute(Class, RelationType, Object, int)} or NULL
 	 * if no matching entity could be found. The boolean parameter indicates
 	 * whether the existence of multiple entities should be considered as an
 	 * inconsistency and therefore result in an exception being thrown. This

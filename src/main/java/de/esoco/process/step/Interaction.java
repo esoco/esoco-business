@@ -294,7 +294,7 @@ public class Interaction extends RollbackStep
 
 	/***************************************
 	 * Overridden to invoke {@link #handleFragmentInteractions(RelationType)} or
-	 * {@link #finishFragments()} before super.
+	 * {@link InteractionFragment#finishFragment()} before super.
 	 *
 	 * @see RollbackStep#internalExecute()
 	 */

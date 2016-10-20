@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ public class SelectionValidator extends TabularDataValidator
 	 * Creates a new instance that uses zero-based continuous integer values for
 	 * the identification of the data objects.
 	 *
-	 * @see #SelectionValidator(List, List, boolean)
+	 * @param rValues  The hierarchical data objects allowed by this instance
+	 * @param rColumns The table columns
 	 */
 	public SelectionValidator(
 		List<HierarchicalDataObject> rValues,

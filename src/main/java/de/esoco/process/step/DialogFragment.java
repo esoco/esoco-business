@@ -161,8 +161,6 @@ public class DialogFragment extends ViewFragment
 	 *                           template will be generated from the class name
 	 *                           of the content fragment
 	 * @param rContentFragment   The fragment that contains the dialog content
-	 *                           or NULL if the content will be created by the
-	 *                           method {@link #createViewContent(String)}
 	 * @param bModal             eViewStyle How the view should be displayed
 	 * @param sQuestion          A string (typically a question) that will be
 	 *                           displayed next to the dialog action buttons.

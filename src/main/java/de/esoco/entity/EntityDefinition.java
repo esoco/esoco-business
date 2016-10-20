@@ -96,19 +96,6 @@ import static org.obrel.type.StandardTypes.PREVIOUS_VALUE;
  * from other informations (like databases or XML files) should invoke the
  * constructor without parameter and one of the init() methods.
  *
- * <p>Parent-child relationships require the expression of cyclic dependencies
- * between the corresponding attributes in the parent and child definitions.
- * This is not possible in the static declarations of these attributes because
- * of the class initialization order (which would cause an error during
- * compilation). To avoid this, a child entity definition must invoke the method
- * {@link #setParentRelation(RelationTypes, EntityDefinition, RelationTypes)}
- * from it's constructor. This method will then initialize the cyclic entity
- * definition references in the parent and child attributes. To make this work
- * the constructor of a child definition must be invoked <b>after</b> the parent
- * definition has been created. It is recommended to use the parent definition
- * as a parameter to the constructor of a child definition to express this
- * dependency.</p>
- *
  * @author eso
  */
 public class EntityDefinition<E extends Entity>
@@ -162,7 +149,7 @@ public class EntityDefinition<E extends Entity>
 	 * display properties for that field. Because attributes can be shared
 	 * between different entity classes this field provides a way to define
 	 * different display attributes for the same field. The datatype of this
-	 * field must be Map<RelationType<?>, MutableProperties>.
+	 * field must be Map&lt;RelationType&lt;?&gt;, MutableProperties&gt;.
 	 */
 	public static final String ATTRIBUTE_DISPLAY_PROPERTIES_FIELD =
 		"ATTRIBUTE_DISPLAY_PROPERTIES";
@@ -883,7 +870,7 @@ public class EntityDefinition<E extends Entity>
 	 * Overridden to store the referenced entity with {@link
 	 * EntityManager#storeEntity(Entity, Entity)}.
 	 *
-	 * @see AbstractStorageMapping#storeReference(Object)
+	 * @see AbstractStorageMapping#storeReference(Relatable, Object)
 	 */
 	@Override
 	public void storeReference(Relatable rSourceObject, E rReferencedEntity)

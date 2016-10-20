@@ -131,7 +131,7 @@ public class ParameterList
 
 	/***************************************
 	 * Marks the parameters that have been added to this parameter's fragment
-	 * with the last call to {@link #add(Parameter...)} for input.
+	 * with the last call to {@link #add(ParameterBase...)} for input.
 	 *
 	 * @return This instance for concatenation
 	 */

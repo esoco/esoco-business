@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import org.obrel.type.MetaTypes;
-
-
 /********************************************************************
  * An interface that must be implemented to interact with a running process.
  *
@@ -31,10 +28,7 @@ public interface ProcessInteractionHandler
 	/***************************************
 	 * This method must be implemented to perform the interaction for the given
 	 * process step. The process parameters for the interaction can be queried
-	 * from the process step. The types of the parameters that must be queried
-	 * are stored in a relation with the type {@link MetaTypes#INPUT_PARAMS}
-	 * while {@link MetaTypes#INTERACTION_PARAMS} contains the parameters that
-	 * should be displayed only.
+	 * from the given process step.
 	 *
 	 * @param  rProcessStep The process step to perform the interaction for
 	 *
