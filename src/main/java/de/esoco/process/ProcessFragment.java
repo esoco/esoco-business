@@ -53,6 +53,7 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
+import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
@@ -81,6 +82,7 @@ import java.util.UUID;
 import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
+import org.obrel.type.MetaTypes;
 
 import static de.esoco.data.DataRelationTypes.STORAGE_ADAPTER_ID;
 import static de.esoco.data.DataRelationTypes.STORAGE_ADAPTER_REGISTRY;
@@ -763,54 +765,43 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Sets an enum parameter's user interface property {@link
-	 * UserInterfaceProperties#DISABLED_ELEMENTS DISABLED_ELEMENTS} for a
-	 * certain set of enum values.
+	 * Disables certain elements of an enum parameter. The elements will still
+	 * be displayed but cannot be modified. This works only with discrete
+	 * display types like check boxes.
 	 *
-	 * @param rEnumParam        The parameter to disabled the elements of
+	 * @param rEnumParam        The parameter to disable the elements of
 	 * @param rDisabledElements The elements to disable (NULL or none to enable
 	 *                          all)
 	 */
+	@SuppressWarnings("unchecked")
 	public <E extends Enum<E>> void disableElements(
 		RelationType<E> rEnumParam,
 		Collection<E>   rDisabledElements)
 	{
-		if (rDisabledElements != null && rDisabledElements.size() > 0)
-		{
-			Collection<E> rAllElements = getAllowedValues(rEnumParam);
+		disableDiscrecteElements(rEnumParam,
+								 (Class<E>) rEnumParam.getTargetType(),
+								 getAllowedValues(rEnumParam),
+								 rDisabledElements);
+	}
 
-			if (rAllElements == null)
-			{
-				@SuppressWarnings("unchecked")
-				E[] rEnumConstants =
-					(E[]) rEnumParam.getTargetType().getEnumConstants();
-
-				rAllElements = Arrays.asList(rEnumConstants);
-			}
-
-			StringBuilder aDisabledElements = new StringBuilder();
-			List<E>		  aIndexedElements  = new ArrayList<E>(rAllElements);
-
-			for (E eElement : rDisabledElements)
-			{
-				int nIndex = aIndexedElements.indexOf(eElement);
-
-				if (nIndex >= 0)
-				{
-					aDisabledElements.append('(');
-					aDisabledElements.append(nIndex);
-					aDisabledElements.append(')');
-				}
-			}
-
-			setUIProperty(DISABLED_ELEMENTS,
-						  aDisabledElements.toString(),
-						  rEnumParam);
-		}
-		else
-		{
-			removeUIProperties(rEnumParam, DISABLED_ELEMENTS);
-		}
+	/***************************************
+	 * Disables certain elements of an enum parameter. The elements will still
+	 * be displayed but cannot be modified. This works only with discrete
+	 * display types like check boxes.
+	 *
+	 * @param rEnumCollectionParam The parameter to disable the elements of
+	 * @param rDisabledElements    The elements to disable (NULL or none to
+	 *                             enable all)
+	 */
+	@SuppressWarnings("unchecked")
+	public <E extends Enum<E>, C extends Collection<E>> void disableMultiSelectionElements(
+		RelationType<C> rEnumCollectionParam,
+		Collection<E>   rDisabledElements)
+	{
+		disableDiscrecteElements(rEnumCollectionParam,
+								 (Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
+								 getAllowedElements(rEnumCollectionParam),
+								 rDisabledElements);
 	}
 
 	/***************************************
@@ -2761,6 +2752,58 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		throw new IllegalStateException(String.format("Parameter %s not set",
 													  rParamType));
+	}
+
+	/***************************************
+	 * Sets the user interface property {@link
+	 * StyleProperties#DISABLED_ELEMENTS} for a certain set of enum values in a
+	 * parameter with a discrete display style.
+	 *
+	 * @param rParam            The parameter to disable the elements of
+	 * @param rEnumType         The enum datatype
+	 * @param rAllElements      All enum values that are displayed (NULL for all
+	 *                          values of the enum type)
+	 * @param rDisabledElements The elements to disable (NULL or none to enable
+	 *                          all)
+	 */
+	<E extends Enum<E>> void disableDiscrecteElements(
+		RelationType<?> rParam,
+		Class<E>		rEnumType,
+		Collection<E>   rAllElements,
+		Collection<E>   rDisabledElements)
+	{
+		if (rDisabledElements != null && rDisabledElements.size() > 0)
+		{
+			if (rAllElements == null)
+			{
+				E[] rEnumConstants = rEnumType.getEnumConstants();
+
+				rAllElements = Arrays.asList(rEnumConstants);
+			}
+
+			StringBuilder aDisabledElements = new StringBuilder();
+			List<E>		  aIndexedElements  = new ArrayList<E>(rAllElements);
+
+			for (E eElement : rDisabledElements)
+			{
+				int nIndex = aIndexedElements.indexOf(eElement);
+
+				if (nIndex >= 0)
+				{
+					aDisabledElements.append('(');
+					aDisabledElements.append(nIndex);
+					aDisabledElements.append(')');
+				}
+			}
+
+			setUIProperty(DISABLED_ELEMENTS,
+						  aDisabledElements.toString(),
+						  rParam);
+		}
+		else
+		{
+			removeUIProperties(rParam, DISABLED_ELEMENTS);
+		}
 	}
 
 	/***************************************
