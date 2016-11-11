@@ -1563,6 +1563,11 @@ public class Entity extends SerializableRelatedObject
 				aJson.append("\": ");
 			}
 
+			if (rNewValue instanceof Entity)
+			{
+				rNewValue = rNewValue.toString();
+			}
+
 			aJson.appendValue(rNewValue);
 
 			if (bUpdated)
