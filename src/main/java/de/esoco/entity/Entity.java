@@ -22,7 +22,7 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.json.JsonUtil;
+import de.esoco.lib.json.JsonBuilder;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
@@ -1529,13 +1529,13 @@ public class Entity extends SerializableRelatedObject
 	/***************************************
 	 * Appends an attribute change description to a string builder.
 	 *
-	 * @param aChanges      The string builder to append to
+	 * @param rChanges      The string builder to append to
 	 * @param sIndent       The indentation
 	 * @param sAttr         The name of the attribute to append
 	 * @param rAttrRelation The attribute relation
 	 * @param bChangesOnly  TRUE to include only changed attributes
 	 */
-	private void appendAttributeChange(StringBuilder aChanges,
+	private void appendAttributeChange(StringBuilder rChanges,
 									   String		 sIndent,
 									   String		 sAttr,
 									   Relation<?>   rAttrRelation,
@@ -1548,38 +1548,41 @@ public class Entity extends SerializableRelatedObject
 
 		if (bUpdated || rNewValue != null)
 		{
-			aChanges.append(sIndent);
-			JsonUtil.appendName(aChanges, sAttr);
+			JsonBuilder aJson = new JsonBuilder();
+
+			aJson.append(sIndent);
+			aJson.appendName(sAttr);
 
 			if (bUpdated)
 			{
-				aChanges.append("{\n");
-				aChanges.append(sIndent);
-				aChanges.append(JSON_INDENT);
-				aChanges.append('"');
-				aChanges.append(JSON_CHANGE_NEW_VALUE);
-				aChanges.append("\": ");
+				aJson.append("{\n");
+				aJson.append(sIndent);
+				aJson.append(JSON_INDENT);
+				aJson.append("\"");
+				aJson.append(JSON_CHANGE_NEW_VALUE);
+				aJson.append("\": ");
 			}
 
-			JsonUtil.appendValue(aChanges, rNewValue);
+			aJson.appendValue(rNewValue);
 
 			if (bUpdated)
 			{
 				Object rPrevValue = rAttrRelation.get(PREVIOUS_VALUE);
 
-				aChanges.append(",\n");
-				aChanges.append(sIndent);
-				aChanges.append(JSON_INDENT);
-				aChanges.append('"');
-				aChanges.append(JSON_CHANGE_OLD_VALUE);
-				aChanges.append("\": ");
-				JsonUtil.appendValue(aChanges, rPrevValue);
-				aChanges.append('\n');
-				aChanges.append(sIndent);
-				aChanges.append('}');
+				aJson.append(",\n");
+				aJson.append(sIndent);
+				aJson.append(JSON_INDENT);
+				aJson.append("\"");
+				aJson.append(JSON_CHANGE_OLD_VALUE);
+				aJson.append("\": ");
+				aJson.appendValue(rPrevValue);
+				aJson.append("\n");
+				aJson.append(sIndent);
+				aJson.append("}");
 			}
 
-			aChanges.append(",\n");
+			aJson.append(",\n");
+			rChanges.append(aJson);
 		}
 	}
 
@@ -1649,8 +1652,9 @@ public class Entity extends SerializableRelatedObject
 			aChildChanges.setLength(aChildChanges.length() - 2);
 
 			aChanges.append(sIndent);
-			JsonUtil.appendName(aChanges, sChildAttr);
-			aChanges.append("[\n");
+			aChanges.append('"');
+			aChanges.append(sChildAttr);
+			aChanges.append("\": [\n");
 			aChanges.append(aChildChanges);
 			aChanges.append("\n");
 			aChanges.append(sIndent);
