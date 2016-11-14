@@ -204,7 +204,7 @@ public class GraylogMessage extends RelatedObject
 			else
 			{
 				rJsonMessage.append('\"');
-				rJsonMessage.append(JsonUtil.escapeJsonValue(rValue.toString()));
+				rJsonMessage.append(JsonUtil.escape(rValue.toString()));
 				rJsonMessage.append('\"');
 			}
 		}
