@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'ObjectRelations' project.
+// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -1469,7 +1469,7 @@ public class Entity extends SerializableRelatedObject
 	/***************************************
 	 * Internal method to return the extra attributes of this entity. If the
 	 * entity attributes haven't been retrieved yet this method will initialize
-	 * the attribute map by performing the necessary storage query.
+	 * the attribute map by invoking {@link #readExtraAttributes()}
 	 *
 	 * @return The extra attributes
 	 *
@@ -1477,53 +1477,12 @@ public class Entity extends SerializableRelatedObject
 	 */
 	Map<String, ExtraAttribute> getExtraAttributeMap() throws StorageException
 	{
-		Map<String, ExtraAttribute> rExtraAttributeMap =
-			get(EXTRA_ATTRIBUTE_MAP);
-
 		if (isPersistent() && !hasRelation(EXTRA_ATTRIBUTES_READ))
 		{
-			assert !hasFlag(EXTRA_ATTRIBUTES_MODIFIED) : "Invalid state: extra attributes have been modified";
-
-			Predicate<Relatable> pExtraAttr =
-				ExtraAttribute.ENTITY.is(equalTo(this))
-									 .and(ExtraAttribute.HAS_NO_OWNER);
-
-			List<ExtraAttribute> rExtraAttributes =
-				EntityManager.queryEntities(ExtraAttribute.class,
-											pExtraAttr,
-											Integer.MAX_VALUE);
-
-			for (ExtraAttribute rAttribute : rExtraAttributes)
-			{
-				Relation<?> rKeyRelation =
-					rAttribute.getRelation(ExtraAttribute.KEY);
-
-				String sKey = null;
-
-				if (rKeyRelation instanceof IntermediateRelation)
-				{
-					sKey =
-						((IntermediateRelation<?, ?>) rKeyRelation)
-						.getIntermediateTarget().toString();
-				}
-
-				// always check for NULL because the intermediate target will be
-				// NULL if the relation has already been resolved
-				if (sKey == null)
-				{
-					sKey = rAttribute.get(ExtraAttribute.KEY).getSimpleName();
-				}
-
-				assert sKey != null : "Undefined extra attribute key for " +
-					   rAttribute;
-
-				rExtraAttributeMap.put(sKey.toString(), rAttribute);
-			}
-
-			set(EXTRA_ATTRIBUTES_READ);
+			readExtraAttributes();
 		}
 
-		return rExtraAttributeMap;
+		return get(EXTRA_ATTRIBUTE_MAP);
 	}
 
 	/***************************************
@@ -1915,6 +1874,59 @@ public class Entity extends SerializableRelatedObject
 		}
 
 		return rExtraAttribute;
+	}
+
+	/***************************************
+	 * Reads the extra attributes of this instance and stores them internally.
+	 * This method is synchronized to prevent concurrent modifications of the
+	 * extra attribute management variables.
+	 *
+	 * @throws StorageException If querying the extra attributes fails
+	 */
+	private synchronized void readExtraAttributes() throws StorageException
+	{
+		assert !hasFlag(EXTRA_ATTRIBUTES_MODIFIED) : "Invalid state: extra attributes have been modified";
+
+		Predicate<Relatable> pExtraAttr =
+			ExtraAttribute.ENTITY.is(equalTo(this))
+								 .and(ExtraAttribute.HAS_NO_OWNER);
+
+		List<ExtraAttribute> rExtraAttributes =
+			EntityManager.queryEntities(ExtraAttribute.class,
+										pExtraAttr,
+										Integer.MAX_VALUE);
+
+		Map<String, ExtraAttribute> rExtraAttributeMap =
+			get(EXTRA_ATTRIBUTE_MAP);
+
+		for (ExtraAttribute rAttribute : rExtraAttributes)
+		{
+			Relation<?> rKeyRelation =
+				rAttribute.getRelation(ExtraAttribute.KEY);
+
+			String sKey = null;
+
+			if (rKeyRelation instanceof IntermediateRelation)
+			{
+				sKey =
+					((IntermediateRelation<?, ?>) rKeyRelation)
+					.getIntermediateTarget().toString();
+			}
+
+			// always check for NULL because the intermediate target will be
+			// NULL if the relation has already been resolved
+			if (sKey == null)
+			{
+				sKey = rAttribute.get(ExtraAttribute.KEY).getSimpleName();
+			}
+
+			assert sKey != null : "Undefined extra attribute key for " +
+				   rAttribute;
+
+			rExtraAttributeMap.put(sKey.toString(), rAttribute);
+		}
+
+		set(EXTRA_ATTRIBUTES_READ);
 	}
 
 	/***************************************
