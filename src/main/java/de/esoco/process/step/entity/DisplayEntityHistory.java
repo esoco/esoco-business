@@ -192,6 +192,7 @@ public class DisplayEntityHistory extends InteractionFragment
 	private boolean bInitialized;
 
 	private Map<String, Entity> aHistoryOrigins = new HashMap<>();
+	private String			    sCurrentOrigin  = "";
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -499,24 +500,31 @@ public class DisplayEntityHistory extends InteractionFragment
 		{
 			String sSelectedOrigin = getParameter(ENTITY_HISTORY_ORIGIN);
 
-			if (ITEM_ENTITY_HISTORY_ORIGIN_ALL.equals(sSelectedOrigin))
+			// prevent costly distinct query in setHistoryOrigins
+			if (!sCurrentOrigin.equals(sSelectedOrigin))
 			{
-				List<Entity> rOrigins = getParameter(ENTITY_HISTORY_ORIGINS);
-
-				if (rOrigins.size() > 0)
+				if (ITEM_ENTITY_HISTORY_ORIGIN_ALL.equals(sSelectedOrigin))
 				{
+					List<Entity> rOrigins =
+						getParameter(ENTITY_HISTORY_ORIGINS);
+
+					if (rOrigins.size() > 0)
+					{
+						pHistory =
+							pHistory.and(HistoryRecord.ORIGIN.is(elementOf(rOrigins)));
+					}
+
+					setHistoryOrigins(pHistory);
+				}
+				else
+				{
+					Entity rOrigin = aHistoryOrigins.get(sSelectedOrigin);
+
 					pHistory =
-						pHistory.and(HistoryRecord.ORIGIN.is(elementOf(rOrigins)));
+						pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rOrigin)));
 				}
 
-				setHistoryOrigins(pHistory);
-			}
-			else
-			{
-				Entity rOrigin = aHistoryOrigins.get(sSelectedOrigin);
-
-				pHistory =
-					pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rOrigin)));
+				sCurrentOrigin = sSelectedOrigin;
 			}
 		}
 
