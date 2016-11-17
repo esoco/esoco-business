@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'ObjectRelations' project.
+// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,12 +31,14 @@ import de.esoco.lib.event.EditListener;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 
+import de.esoco.process.Parameter;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.EditText;
@@ -71,6 +73,7 @@ import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -158,6 +161,9 @@ public class DisplayEntityHistory extends InteractionFragment
 	private static final RelationType<Set<HistoryType>> HISTORY_TYPE_OPTIONS =
 		newType();
 
+	private static final RelationType<Boolean> ENABLE_HISTORY_ORIGIN =
+		newType();
+
 	private static final RelationType<String> ENTITY_HISTORY_ORIGIN = newType();
 
 	private static final RelationType<String> ENTITY_HISTORY_VALUE = newType();
@@ -184,15 +190,13 @@ public class DisplayEntityHistory extends InteractionFragment
 	private List<RelationType<?>> aInputParams = params(ENTITY_HISTORY);
 
 	private Entity	    rHistoryOrigin;
+	private Entity	    rCurrentTarget;
 	private HistoryData aHistoryData;
 
 	private boolean bShowRootTarget;
 	private boolean bShowTarget;
 
-	private boolean bInitialized;
-
 	private Map<String, Entity> aHistoryOrigins = new HashMap<>();
-	private String			    sCurrentOrigin  = "";
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -361,8 +365,6 @@ public class DisplayEntityHistory extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		bInitialized = false;
-
 		addSubFragment(HistoryData.HISTORY_DATA_FRAGMENT, aHistoryData);
 
 		RelationType<List<RelationType<?>>> rFragmentParam =
@@ -377,19 +379,6 @@ public class DisplayEntityHistory extends InteractionFragment
 
 		setUIFlag(HIDE_LABEL, aInteractionParams);
 		setUIProperty(450, HEIGHT, ENTITY_HISTORY);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void prepareInteraction()
-	{
-		if (!bInitialized)
-		{
-			update();
-			bInitialized = true;
-		}
 	}
 
 	/***************************************
@@ -409,20 +398,45 @@ public class DisplayEntityHistory extends InteractionFragment
 	 * of this fragment.
 	 */
 	@Override
+	@SuppressWarnings("boxing")
 	public void update()
 	{
 		Set<HistoryType>     rHistoryTypes = getParameter(ENTITY_HISTORY_TYPES);
 		Predicate<Relatable> pHistory;
 
-		if (rHistoryTypes == null || rHistoryTypes.size() == 0)
+		Entity rTarget = getParameter(ENTITY_HISTORY_TARGET);
+
+		if (rCurrentTarget != rTarget)
 		{
-			rHistoryTypes = EnumSet.of(HistoryType.NOTE);
+			rCurrentTarget = rTarget;
+
+			Parameter<String> rOrigin = param(ENTITY_HISTORY_ORIGIN);
+
+			param(ENABLE_HISTORY_ORIGIN).value(false);
+			rOrigin.setEnabled(false);
+			rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
 		}
 
-		pHistory = HistoryRecord.TYPE.is(elementOf(rHistoryTypes));
-		pHistory = addTargetFilter(pHistory);
-		pHistory = addDateRangeFilter(pHistory);
-		pHistory = addOriginFilter(pHistory);
+		if (rTarget != null ||
+			rHistoryOrigin != null ||
+			!getParameter(ENTITY_HISTORY_ORIGINS).isEmpty())
+		{
+			if (rHistoryTypes == null || rHistoryTypes.size() == 0)
+			{
+				rHistoryTypes = EnumSet.of(HistoryType.NOTE);
+			}
+
+			pHistory = HistoryRecord.TYPE.is(elementOf(rHistoryTypes));
+			pHistory = addTargetFilter(rTarget, pHistory);
+			pHistory = addDateRangeFilter(pHistory);
+			pHistory = addOriginFilter(pHistory);
+		}
+		else
+		{
+			// dummy query that yields no result if no target or origins have
+			// been set
+			pHistory = HistoryRecord.TARGET.is(equalTo("<NOTHING>"));
+		}
 
 		QueryPredicate<HistoryRecord> qHistory =
 			new QueryPredicate<>(HistoryRecord.class, pHistory);
@@ -442,6 +456,15 @@ public class DisplayEntityHistory extends InteractionFragment
 		setUIProperty(-1, CURRENT_SELECTION, ENTITY_HISTORY);
 
 		aHistoryData.update(null, true);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void initComplete()
+	{
+		update();
 	}
 
 	/***************************************
@@ -496,35 +519,28 @@ public class DisplayEntityHistory extends InteractionFragment
 			pHistory =
 				pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rHistoryOrigin)));
 		}
-		else
+		else if (!param(ENTITY_HISTORY_ORIGIN).is(DISABLED))
 		{
 			String sSelectedOrigin = getParameter(ENTITY_HISTORY_ORIGIN);
 
-			// prevent costly distinct query in setHistoryOrigins
-			if (!sCurrentOrigin.equals(sSelectedOrigin))
+			if (ITEM_ENTITY_HISTORY_ORIGIN_ALL.equals(sSelectedOrigin))
 			{
-				if (ITEM_ENTITY_HISTORY_ORIGIN_ALL.equals(sSelectedOrigin))
+				List<Entity> rOrigins = getParameter(ENTITY_HISTORY_ORIGINS);
+
+				if (rOrigins.size() > 0)
 				{
-					List<Entity> rOrigins =
-						getParameter(ENTITY_HISTORY_ORIGINS);
-
-					if (rOrigins.size() > 0)
-					{
-						pHistory =
-							pHistory.and(HistoryRecord.ORIGIN.is(elementOf(rOrigins)));
-					}
-
-					setHistoryOrigins(pHistory);
-				}
-				else
-				{
-					Entity rOrigin = aHistoryOrigins.get(sSelectedOrigin);
-
 					pHistory =
-						pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rOrigin)));
+						pHistory.and(HistoryRecord.ORIGIN.is(elementOf(rOrigins)));
 				}
 
-				sCurrentOrigin = sSelectedOrigin;
+				setHistoryOrigins(pHistory);
+			}
+			else
+			{
+				Entity rOrigin = aHistoryOrigins.get(sSelectedOrigin);
+
+				pHistory =
+					pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rOrigin)));
 			}
 		}
 
@@ -534,14 +550,16 @@ public class DisplayEntityHistory extends InteractionFragment
 	/***************************************
 	 * Adds a history target filter to a predicate if necessary.
 	 *
-	 * @param  pHistory The original filter predicate
+	 * @param  rMainTarget The main target to display the history for
+	 * @param  pHistory    The original filter predicate
 	 *
 	 * @return The predicate, modified if necessary
 	 */
-	private Predicate<Relatable> addTargetFilter(Predicate<Relatable> pHistory)
+	private Predicate<Relatable> addTargetFilter(
+		Entity				 rMainTarget,
+		Predicate<Relatable> pHistory)
 	{
-		Entity		 rMainTarget = getParameter(ENTITY_HISTORY_TARGET);
-		List<Entity> rTargets    = new ArrayList<>();
+		List<Entity> rTargets = new ArrayList<>();
 
 		if (rMainTarget != null)
 		{
@@ -864,11 +882,13 @@ public class DisplayEntityHistory extends InteractionFragment
 		private List<RelationType<?>> aInteractionParams =
 			params(HISTORY_TYPE_OPTIONS,
 				   ENTITY_HISTORY_DATE,
+				   ENABLE_HISTORY_ORIGIN,
 				   ENTITY_HISTORY_ORIGIN);
 
 		private List<RelationType<?>> aInputParams =
 			params(HISTORY_TYPE_OPTIONS,
 				   ENTITY_HISTORY_DATE,
+				   ENABLE_HISTORY_ORIGIN,
 				   ENTITY_HISTORY_ORIGIN);
 
 		private Updatable rChangeListener;
@@ -891,7 +911,8 @@ public class DisplayEntityHistory extends InteractionFragment
 
 			if (!bShowOriginFilter)
 			{
-				removeInteractionParameters(ENTITY_HISTORY_ORIGIN);
+				removeInteractionParameters(ENABLE_HISTORY_ORIGIN,
+											ENTITY_HISTORY_ORIGIN);
 			}
 		}
 
@@ -926,6 +947,20 @@ public class DisplayEntityHistory extends InteractionFragment
 			{
 				setParameter(ENTITY_HISTORY_TYPES,
 							 new LinkedHashSet<>(getParameter(HISTORY_TYPE_OPTIONS)));
+			}
+			else if (rInteractionParam == ENABLE_HISTORY_ORIGIN)
+			{
+				@SuppressWarnings("boxing")
+				boolean bEnableOrigins = param(ENABLE_HISTORY_ORIGIN).value();
+
+				Parameter<String> rOrigin = param(ENTITY_HISTORY_ORIGIN);
+
+				rOrigin.setEnabled(bEnableOrigins);
+
+				if (!bEnableOrigins)
+				{
+					rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
+				}
 			}
 
 			rChangeListener.update();
@@ -971,6 +1006,12 @@ public class DisplayEntityHistory extends InteractionFragment
 						   null,
 						   ListStyle.DISCRETE,
 						   rHistoryTypes);
+
+			param(ENABLE_HISTORY_ORIGIN).label("")
+										.interactive(InteractionEventType.ACTION);
+			param(ENTITY_HISTORY_ORIGIN).sameRow().disable();
+			param(HISTORY_TYPE_OPTIONS).colSpan(2);
+			param(ENTITY_HISTORY_DATE).colSpan(2);
 
 			setUIFlag(HIDE_LABEL, aInteractionParams);
 			setUIProperty(RESOURCE_ID,
