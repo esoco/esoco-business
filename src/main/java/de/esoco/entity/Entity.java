@@ -1533,6 +1533,11 @@ public class Entity extends SerializableRelatedObject
 			{
 				Object rPrevValue = rAttrRelation.get(PREVIOUS_VALUE);
 
+				if (rPrevValue instanceof Relatable)
+				{
+					rPrevValue = rPrevValue.toString();
+				}
+
 				aJson.append(",\n");
 				aJson.append(sIndent);
 				aJson.append(JSON_INDENT);
