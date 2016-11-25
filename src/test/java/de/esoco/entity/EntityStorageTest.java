@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
-import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.predicate.ElementPredicate;
 import de.esoco.lib.manage.TransactionException;
 
 import de.esoco.storage.StorageException;
@@ -396,7 +396,8 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 	@Test
 	public void testSortedQuery() throws StorageException
 	{
-		Predicate<Entity> aSortPredicate = ifAttribute(FORENAME, alwaysTrue());
+		ElementPredicate<Entity, String> aSortPredicate =
+			ifAttribute(FORENAME, alwaysTrue());
 
 		aSortPredicate.set(MetaTypes.SORT_ASCENDING, true);
 
