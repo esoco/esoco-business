@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -117,7 +117,7 @@ public class EntityPredicates
 	 *
 	 * @return A new predicate for the given extra attribute
 	 */
-	public static <E extends Entity, V> ElementPredicate<E, V> ifHasExtraAttribute(
+	public static <E extends Entity, V> Predicate<E> ifHasExtraAttribute(
 		Class<E>						  rEntityType,
 		Predicate<? super ExtraAttribute> pCriteria)
 	{
@@ -128,7 +128,7 @@ public class EntityPredicates
 		int    nIdStart  = sIdPrefix.length() + 1;
 
 		// coerce attribute into a function that can be chained with substring;
-		// will only be used for storage parsing
+		// this and the subsequent functions can only be used for storage parsing
 		Function<Relatable, String> fAttr = coerce(ExtraAttribute.ENTITY);
 
 		Function<Relatable, Integer> fExtraAttributeEntityId =
@@ -141,7 +141,7 @@ public class EntityPredicates
 
 		RelationType<Integer> rIdAttr = rDef.getIdAttribute();
 
-		Predicate<ExtraAttribute> pHasExtraAttr =
+		Predicate<Integer> pHasExtraAttr =
 			refersTo(ExtraAttribute.class, fExtraAttributeEntityId, pCriteria);
 
 		return ifAttribute(rIdAttr, pHasExtraAttr);
