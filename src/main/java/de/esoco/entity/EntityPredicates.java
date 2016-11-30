@@ -79,7 +79,7 @@ public class EntityPredicates
 	 *
 	 * @see Predicates#ifRelation(RelationType, Predicate)
 	 */
-	public static <E extends Entity, V> Predicate<E> ifAttribute(
+	public static <E extends Entity, V> ElementPredicate<E, V> ifAttribute(
 		RelationType<V>		 rType,
 		Predicate<? super V> rPredicate)
 	{
@@ -118,7 +118,7 @@ public class EntityPredicates
 	 * @return A new predicate for the given extra attribute
 	 */
 	public static <E extends Entity, V> Predicate<E> ifHasExtraAttribute(
-		Class<? extends Entity>			  rEntityType,
+		Class<E>						  rEntityType,
 		Predicate<? super ExtraAttribute> pCriteria)
 	{
 		EntityDefinition<? extends Entity> rDef =
@@ -128,7 +128,7 @@ public class EntityPredicates
 		int    nIdStart  = sIdPrefix.length() + 1;
 
 		// coerce attribute into a function that can be chained with substring;
-		// will only be used for storage parsing
+		// this and the subsequent functions can only be used for storage parsing
 		Function<Relatable, String> fAttr = coerce(ExtraAttribute.ENTITY);
 
 		Function<Relatable, Integer> fExtraAttributeEntityId =
@@ -139,9 +139,11 @@ public class EntityPredicates
 						   ifAttribute(ExtraAttribute.ENTITY,
 									   like(sIdPrefix + "%")));
 
-		return ifAttribute(rDef.getIdAttribute(),
-						   refersTo(ExtraAttribute.class,
-									fExtraAttributeEntityId,
-									pCriteria));
+		RelationType<Integer> rIdAttr = rDef.getIdAttribute();
+
+		Predicate<Integer> pHasExtraAttr =
+			refersTo(ExtraAttribute.class, fExtraAttributeEntityId, pCriteria);
+
+		return ifAttribute(rIdAttr, pHasExtraAttr);
 	}
 }
