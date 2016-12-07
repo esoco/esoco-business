@@ -886,12 +886,10 @@ public abstract class ProcessFragment extends ProcessElement
 	 *
 	 * @return The current query predicate or NULL if no query is available for
 	 *         the given parameter
-	 *
-	 * @throws StorageException If accessing the storage adapter fails
 	 */
 	@SuppressWarnings("unchecked")
 	public <E extends Entity> QueryPredicate<E> getCurrentQuery(
-		RelationType<E> rQueryParam) throws StorageException
+		RelationType<E> rQueryParam)
 	{
 		QueryPredicate<E> pQuery = null;
 
@@ -903,14 +901,21 @@ public abstract class ProcessFragment extends ProcessElement
 			StorageAdapterRegistry rRegistry =
 				getParameter(STORAGE_ADAPTER_REGISTRY);
 
-			StorageAdapter rStorageAdapter =
-				rRegistry.getStorageAdapter(rAdapterId.toString());
-
-			if (rStorageAdapter != null)
+			try
 			{
-				pQuery =
-					(QueryPredicate<E>) rStorageAdapter
-					.getCurrentQueryCriteria();
+				StorageAdapter rStorageAdapter =
+					rRegistry.getStorageAdapter(rAdapterId);
+
+				if (rStorageAdapter != null)
+				{
+					pQuery =
+						(QueryPredicate<E>) rStorageAdapter
+						.getCurrentQueryCriteria();
+				}
+			}
+			catch (StorageException e)
+			{
+				throw new IllegalStateException(e);
 			}
 		}
 

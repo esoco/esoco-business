@@ -112,6 +112,17 @@ public class EntityParameter<E extends Entity> extends Parameter<E>
 	}
 
 	/***************************************
+	 * Returns the current storage query for this parameter, including the
+	 * filter criteria that have been set by the user.
+	 *
+	 * @return The current query
+	 */
+	public final QueryPredicate<E> getCurrentQuery()
+	{
+		return fragment().getCurrentQuery(type());
+	}
+
+	/***************************************
 	 * Defines the ordering for queries on the entity type of this parameter.
 	 *
 	 * @param  pOrder The sort order criteria (NULL for none)

@@ -16,6 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.FileType;
+import de.esoco.data.element.DataElement;
+
+import de.esoco.lib.expression.Function;
+
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
@@ -82,6 +87,35 @@ public class EnumParameter<E extends Enum<E>>
 	public EnumParameter<E> enableAll()
 	{
 		fragment().enableAllElements(type());
+
+		return this;
+	}
+
+	/***************************************
+	 * Prepares a download that is associated with an event on this enum
+	 * parameter. This method can be invoked during the handling of the event
+	 * and the download will then be executed as the result of the even.
+	 *
+	 * @param  sFileName          The file name of the download
+	 * @param  eFileType          The file type of the download
+	 * @param  fDownloadGenerator The function that generated the download data
+	 *
+	 * @return This parameter instance
+	 *
+	 * @throws Exception If the download preparation fails
+	 */
+	public EnumParameter<E> prepareDownload(
+		String				  sFileName,
+		FileType			  eFileType,
+		Function<FileType, ?> fDownloadGenerator) throws Exception
+	{
+		String sDownloadUrl =
+			fragment().prepareDownload(sFileName,
+									   eFileType,
+									   fDownloadGenerator);
+
+		set(DataElement.HIDDEN_URL);
+		set(DataElement.INTERACTION_URL, sDownloadUrl);
 
 		return this;
 	}
