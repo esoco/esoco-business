@@ -1284,6 +1284,29 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * A shortcut for {@link #setExtraAttribute(RelationType, Object)} that
+	 * converts storage exception into runtime exceptions. Extra attributes
+	 * should typically be accessible as their entity has obviously already been
+	 * retrieved from the storage so the exception handling is normally
+	 * superfluous. Nonetheless developers need to be aware that accessing an
+	 * extra attribute also can cause a storage access (at least for the first
+	 * XA).
+	 *
+	 * @see #setExtraAttribute(RelationType, Object)
+	 */
+	public <T> void setXA(RelationType<T> rKey, T rValue)
+	{
+		try
+		{
+			setExtraAttribute(rKey, rValue);
+		}
+		catch (StorageException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/***************************************
 	 * Creates a {@link Predicate} from this entity using the current attribute
 	 * values and the {@link Predicates#equalTo(Object)} method to construct it.
 	 *
