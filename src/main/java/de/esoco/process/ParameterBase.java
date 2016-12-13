@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,6 +57,7 @@ import static de.esoco.lib.expression.Predicates.not;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.NULL_VALUE;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
@@ -234,6 +235,21 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public Collection<T> allowedValues()
 	{
 		return rFragment.getAllowedValues(rParamType);
+	}
+
+	/***************************************
+	 * Allows the value NULL for a parameter that has constrained values as set
+	 * with {@link #allow(Collection)}. If a NULL value item string is set it
+	 * will be displayed as an additional selectable value along with the
+	 * allowed values. This sets the {@link ContentProperties#NULL_VALUE}.
+	 *
+	 * @param  sNullValueItem The descriptive string for the NULL value item
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P allowNull(String sNullValueItem)
+	{
+		return set(NULL_VALUE, sNullValueItem);
 	}
 
 	/***************************************
