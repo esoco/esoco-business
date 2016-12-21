@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,12 +23,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import static org.obrel.core.RelationTypes.newMapType;
-import static org.obrel.core.RelationTypes.newRelationType;
+import static org.obrel.core.RelationTypes.newType;
 
 
 /********************************************************************
@@ -40,20 +41,66 @@ public class AbstractProcessTest
 {
 	//~ Static fields/initializers ---------------------------------------------
 
+	/** Postconditions for the automatic testing of processes */
+	public static final RelationType<Map<RelationType<?>, Predicate<?>>> POSTCONDITIONS =
+		newMapType(true);
+
 	/**
 	 * Stores the current test process; can be used to apply postcondition
 	 * predicates to the current process
 	 */
-	protected static final RelationType<Process> TEST_PROCESS =
-		newRelationType("de.esoco.process.test.TEST_PROCESS", Process.class);
+	protected static final RelationType<Process> TEST_PROCESS = newType();
 
-	/** Postconditions for the automatic testing of processes */
-	protected static final RelationType<Map<RelationType<?>, Predicate<?>>> POSTCONDITIONS =
-		newMapType("de.esoco.process.test.POSTCONDITIONS",
-				   RelationType.class,
-				   Predicate.class,
-				   true,
-				   true);
+	static
+	{
+		RelationTypes.init(AbstractProcessTest.class);
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Assets that the predicates stored in the relation {@link #POSTCONDITIONS}
+	 * of the given process (or the current process step if the process has not
+	 * finished yet) yield TRUE.
+	 *
+	 * @param aProcess The process to assert
+	 */
+	@SuppressWarnings("boxing")
+	public static void assertPostconditions(Process aProcess)
+	{
+		Set<Entry<RelationType<?>, Predicate<?>>> rConditions;
+
+		if (aProcess.isFinished())
+		{
+			rConditions = aProcess.get(POSTCONDITIONS).entrySet();
+		}
+		else
+		{
+			rConditions =
+				aProcess.getCurrentStep().get(POSTCONDITIONS).entrySet();
+		}
+
+		for (Map.Entry<RelationType<?>, Predicate<?>> e : rConditions)
+		{
+			RelationType<?> rType = e.getKey();
+
+			@SuppressWarnings("unchecked")
+			Predicate<Object> rPredicate = (Predicate<Object>) e.getValue();
+
+			if (rPredicate != null)
+			{
+				Object rValue = aProcess.getParameter(rType);
+
+				assertTrue("Expected: " + rType + " " + rPredicate +
+						   " but is " + rValue,
+						   rPredicate.evaluate(rValue));
+			}
+			else
+			{
+				assertFalse(rType + " exists", aProcess.hasParameter(rType));
+			}
+		}
+	}
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -81,7 +128,6 @@ public class AbstractProcessTest
 	 *
 	 * @throws ProcessException If executing the process fails
 	 */
-	@SuppressWarnings("boxing")
 	protected Process executeProcess(ProcessDefinition rProcessDefinition)
 		throws ProcessException
 	{
@@ -93,41 +139,9 @@ public class AbstractProcessTest
 
 		do
 		{
-			Set<Entry<RelationType<?>, Predicate<?>>> rConditions;
-
 			aProcess.execute();
 
-			if (aProcess.isFinished())
-			{
-				rConditions = rProcessDefinition.get(POSTCONDITIONS).entrySet();
-			}
-			else
-			{
-				rConditions =
-					aProcess.getCurrentStep().get(POSTCONDITIONS).entrySet();
-			}
-
-			for (Map.Entry<RelationType<?>, Predicate<?>> e : rConditions)
-			{
-				RelationType<?> rType = e.getKey();
-
-				@SuppressWarnings("unchecked")
-				Predicate<Object> rPredicate = (Predicate<Object>) e.getValue();
-
-				if (rPredicate != null)
-				{
-					Object rValue = aProcess.getParameter(rType);
-
-					assertTrue("Expected: " + rType + " " + rPredicate +
-							   " but is " + rValue,
-							   rPredicate.evaluate(rValue));
-				}
-				else
-				{
-					assertFalse(rType + " exists",
-								aProcess.hasParameter(rType));
-				}
-			}
+			assertPostconditions(aProcess);
 		}
 		while (!aProcess.isFinished());
 
