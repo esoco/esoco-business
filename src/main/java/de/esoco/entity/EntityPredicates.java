@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-business' project.
+// This file is a part of the 'esoco-gwt' project.
 // Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 3.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-3.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -91,19 +91,20 @@ public class EntityPredicates
 	 * extra attribute in entities. It creates an instance of the function
 	 * {@link GetRelationValue} to retrieve the relation target from objects.
 	 *
-	 * @param  rKey          The typed key of the extra attribute
-	 * @param  rDefaultValue The default value if the attribute doesn't exist
-	 * @param  rPredicate    The predicate to evaluate the extra attribute with
+	 * @param  rExtraAttribute The relation type of the extra attribute
+	 * @param  rDefaultValue   The default value if the attribute doesn't exist
+	 * @param  rPredicate      The predicate to evaluate the extra attribute
+	 *                         with
 	 *
 	 * @return A new predicate for the given extra attribute
 	 */
 	public static <E extends Entity, V> Predicate<E> ifExtraAttribute(
-		RelationType<V>		 rKey,
+		RelationType<V>		 rExtraAttribute,
 		V					 rDefaultValue,
 		Predicate<? super V> rPredicate)
 	{
 		GetExtraAttribute<E, V> fGetExtraAttribute =
-			getExtraAttribute(rKey, rDefaultValue);
+			getExtraAttribute(rExtraAttribute, rDefaultValue);
 
 		return new ElementPredicate<E, V>(fGetExtraAttribute, rPredicate);
 	}
@@ -117,7 +118,7 @@ public class EntityPredicates
 	 *
 	 * @return A new predicate for the given extra attribute
 	 */
-	public static <E extends Entity, V> Predicate<E> ifHasExtraAttribute(
+	public static <E extends Entity, V> Predicate<E> hasExtraAttribute(
 		Class<E>						  rEntityType,
 		Predicate<? super ExtraAttribute> pCriteria)
 	{

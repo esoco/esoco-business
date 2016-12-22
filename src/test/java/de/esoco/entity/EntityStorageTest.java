@@ -39,7 +39,7 @@ import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityPredicates.ifAttribute;
-import static de.esoco.entity.EntityPredicates.ifHasExtraAttribute;
+import static de.esoco.entity.EntityPredicates.hasExtraAttribute;
 import static de.esoco.entity.ExtraAttributes.newExtraAttribute;
 import static de.esoco.entity.TestContact.CONTACT_VALUE;
 import static de.esoco.entity.TestPerson.AGE;
@@ -265,7 +265,7 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 
 		List<TestPerson> rEntities =
 			EntityManager.queryEntities(TestPerson.class,
-										ifHasExtraAttribute(TestPerson.class,
+										hasExtraAttribute(TestPerson.class,
 															ExtraAttribute.KEY
 															.is(equalTo(XA1))
 															.and(ExtraAttribute
@@ -277,7 +277,7 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 
 		rEntities =
 			EntityManager.queryEntities(TestPerson.class,
-										ifHasExtraAttribute(TestPerson.class,
+										hasExtraAttribute(TestPerson.class,
 															ExtraAttribute.VALUE
 															.is(like("%-Test"))),
 										10);
@@ -285,7 +285,7 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 
 		rEntities =
 			EntityManager.queryEntities(TestPerson.class,
-										ifHasExtraAttribute(TestPerson.class,
+										hasExtraAttribute(TestPerson.class,
 															ExtraAttribute.VALUE
 															.is(equalTo("42"))),
 										10);
