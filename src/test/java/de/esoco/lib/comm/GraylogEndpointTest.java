@@ -17,7 +17,6 @@
 package de.esoco.lib.comm;
 
 import de.esoco.lib.comm.GraylogEndpoint.Protocol;
-import de.esoco.lib.comm.GraylogMessage.Level;
 
 import org.junit.Test;
 
@@ -32,19 +31,6 @@ import static org.junit.Assert.assertEquals;
 public class GraylogEndpointTest
 {
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * connection test.
-	 */
-	@Test
-	public void testConnect()
-	{
-		Endpoint.at("graylog://pve-graylog.lemarit.com:12201?TCP")
-				.then(GraylogEndpoint.sendMessage())
-				.evaluate(new GraylogMessage(Level.ERROR,
-											 "Test",
-											 "GraylogEndpoint Test"));
-	}
 
 	/***************************************
 	 * Tests the functionality of {@link GraylogEndpoint#url(String, int,
