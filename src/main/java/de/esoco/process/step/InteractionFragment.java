@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1350,7 +1350,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * <p>This method is mainly intended to be used with lambda expressions
 	 * introduced with Java 8. In that case it allows concise in-line
-	 * declarations of panel by simply forwarding the initialization to a
+	 * declarations of panels by simply forwarding the initialization to a
 	 * corresponding method in form of a method reference with an {@link
 	 * InteractionFragment} parameter.</p>
 	 *
@@ -1414,7 +1414,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <T> Parameter<T> param(String sName, Class<? super T> rDatatype)
 	{
-		return param(getTemporaryParameterType(sName, rDatatype)).display();
+		RelationType<T> rParam = getTemporaryParameterType(sName, rDatatype);
+
+		return param(rParam).display();
 	}
 
 	/***************************************
