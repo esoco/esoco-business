@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package de.esoco.process;
 import de.esoco.lib.app.CommandLine;
 import de.esoco.lib.app.CommandLineException;
 import de.esoco.lib.app.Service;
-import de.esoco.lib.comm.Server.RequestHandler;
+import de.esoco.lib.comm.Server.RequestHandlerFactory;
 import de.esoco.lib.logging.LogLevel;
 
 
@@ -116,9 +116,8 @@ public class ProcessApp extends Service
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected RequestHandler getControlRequestHandler()
+	protected RequestHandlerFactory getControlRequestHandlerFactory()
 	{
-		// TODO Add method code here
 		return null;
 	}
 
