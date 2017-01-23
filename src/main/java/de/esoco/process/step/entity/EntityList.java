@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListLayoutStyle;
@@ -285,14 +284,7 @@ public class EntityList<E extends Entity,
 		layout(Layout.FLOW);
 		fragmentParam().style(EntityList.class.getSimpleName());
 
-		panel(new Initializer<InteractionFragment>()
-			{
-				@Override
-				public void init(InteractionFragment rFragment) throws Exception
-				{
-					initHeaderPanel(rFragment);
-				}
-			});
+		panel(this::initHeaderPanel);
 		panel(aItemList).inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
 		panel(aNavigation).hide();
 	}
