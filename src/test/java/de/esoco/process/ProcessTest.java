@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -540,7 +540,6 @@ public class ProcessTest extends AbstractProcessTest
 	 *
 	 * @throws ProcessException
 	 */
-	@SuppressWarnings("boxing")
 	@Test
 	public void testTransferStep() throws ProcessException
 	{

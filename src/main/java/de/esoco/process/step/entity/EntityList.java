@@ -479,7 +479,6 @@ public class EntityList<E extends Entity,
 	 *
 	 * @throws StorageException If the query fails
 	 */
-	@SuppressWarnings("boxing")
 	void queryEntities() throws StorageException
 	{
 		Storage rStorage = StorageManager.getStorage(rEntityType);
