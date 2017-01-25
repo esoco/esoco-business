@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.FunctionException;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.function.ExceptionMappingFunction;
 import de.esoco.lib.expression.function.GetElement;
-import de.esoco.lib.expression.predicate.Comparison.EqualTo;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.storage.StorageException;
@@ -443,10 +443,10 @@ public class EntityFunctions
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final Class<E>   rEntityClass;
-		private final EqualTo<T> pEqualToValue;
-		private final boolean    bFailOnMultiple;
-		private Predicate<E>     pCriteria;
+		private final Class<E>		 rEntityClass;
+		private RelationType<T>		 rAttribute;
+		private Predicate<? super E> pAdditionalCriteria;
+		private final boolean		 bFailOnMultiple;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -468,16 +468,10 @@ public class EntityFunctions
 			super("queryEntity(" + rEntityClass.getSimpleName() +
 				  "[" + rAttribute.getSimpleName() + "])");
 
-			this.rEntityClass    = rEntityClass;
-			this.bFailOnMultiple = bFailOnMultiple;
-
-			pEqualToValue = new EqualTo<T>(null, false);
-			pCriteria     = ifAttribute(rAttribute, pEqualToValue);
-
-			if (pAdditionalCriteria != null)
-			{
-				pCriteria = pCriteria.and(pAdditionalCriteria);
-			}
+			this.rEntityClass		 = rEntityClass;
+			this.rAttribute			 = rAttribute;
+			this.pAdditionalCriteria = pAdditionalCriteria;
+			this.bFailOnMultiple     = bFailOnMultiple;
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -488,7 +482,13 @@ public class EntityFunctions
 		@Override
 		public E evaluateWithException(T rValue) throws StorageException
 		{
-			pEqualToValue.setRightValue(rValue);
+			Predicate<E> pCriteria =
+				ifAttribute(rAttribute, Predicates.equalTo(rValue));
+
+			if (pAdditionalCriteria != null)
+			{
+				pCriteria = pCriteria.and(pAdditionalCriteria);
+			}
 
 			return EntityManager.queryEntity(rEntityClass,
 											 pCriteria,
