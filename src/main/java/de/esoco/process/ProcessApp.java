@@ -19,7 +19,6 @@ package de.esoco.process;
 import de.esoco.lib.app.CommandLine;
 import de.esoco.lib.app.CommandLineException;
 import de.esoco.lib.app.Service;
-import de.esoco.lib.comm.Server.RequestHandlerFactory;
 import de.esoco.lib.logging.LogLevel;
 
 
@@ -110,15 +109,6 @@ public class ProcessApp extends Service
 		{
 			throw new CommandLineException("Missing argument %s", ARG_PROCESS);
 		}
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected RequestHandlerFactory getControlRequestHandlerFactory()
-	{
-		return null;
 	}
 
 	/***************************************
