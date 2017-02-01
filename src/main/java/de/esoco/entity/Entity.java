@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -1555,17 +1555,17 @@ public class Entity extends SerializableRelatedObject
 		{
 			JsonBuilder aJson = new JsonBuilder();
 
-			aJson.append(sIndent);
+			aJson.appendText(sIndent);
 			aJson.appendName(sAttr);
 
 			if (bUpdated)
 			{
-				aJson.append("{\n");
-				aJson.append(sIndent);
-				aJson.append(JSON_INDENT);
-				aJson.append("\"");
-				aJson.append(JSON_CHANGE_NEW_VALUE);
-				aJson.append("\": ");
+				aJson.appendText("{\n");
+				aJson.appendText(sIndent);
+				aJson.appendText(JSON_INDENT);
+				aJson.appendText("\"");
+				aJson.appendText(JSON_CHANGE_NEW_VALUE);
+				aJson.appendText("\": ");
 			}
 
 			if (rNewValue instanceof Relatable)
@@ -1573,7 +1573,7 @@ public class Entity extends SerializableRelatedObject
 				rNewValue = rNewValue.toString();
 			}
 
-			aJson.appendValue(rNewValue);
+			aJson.append(rNewValue);
 
 			if (bUpdated)
 			{
@@ -1584,19 +1584,19 @@ public class Entity extends SerializableRelatedObject
 					rPrevValue = rPrevValue.toString();
 				}
 
-				aJson.append(",\n");
-				aJson.append(sIndent);
-				aJson.append(JSON_INDENT);
-				aJson.append("\"");
-				aJson.append(JSON_CHANGE_OLD_VALUE);
-				aJson.append("\": ");
-				aJson.appendValue(rPrevValue);
-				aJson.append("\n");
-				aJson.append(sIndent);
-				aJson.append("}");
+				aJson.appendText(",\n");
+				aJson.appendText(sIndent);
+				aJson.appendText(JSON_INDENT);
+				aJson.appendText("\"");
+				aJson.appendText(JSON_CHANGE_OLD_VALUE);
+				aJson.appendText("\": ");
+				aJson.append(rPrevValue);
+				aJson.appendText("\n");
+				aJson.appendText(sIndent);
+				aJson.appendText("}");
 			}
 
-			aJson.append(",\n");
+			aJson.appendText(",\n");
 			rChanges.append(aJson);
 		}
 	}
