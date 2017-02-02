@@ -53,6 +53,15 @@ public class ProcessApp extends Service
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * @see de.esoco.lib.manage.Stoppable#stop()
+	 */
+	@Override
+	public void stop()
+	{
+		aProcessRunner.stop();
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -109,6 +118,15 @@ public class ProcessApp extends Service
 		{
 			throw new CommandLineException("Missing argument %s", ARG_PROCESS);
 		}
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected String getServiceDescription()
+	{
+		return aProcessRunner.getProcessDefinition().getClass().getSimpleName();
 	}
 
 	/***************************************
