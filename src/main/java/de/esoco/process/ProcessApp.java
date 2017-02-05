@@ -124,7 +124,7 @@ public class ProcessApp extends Service
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected String getServiceDescription()
+	protected String getServiceName()
 	{
 		return aProcessRunner.getProcessDefinition().getClass().getSimpleName();
 	}
