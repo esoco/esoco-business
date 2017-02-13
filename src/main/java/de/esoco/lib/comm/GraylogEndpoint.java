@@ -26,7 +26,7 @@ import java.util.Objects;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.comm.CommunicationRelationTypes.ENCRYPTED_CONNECTION;
+import static de.esoco.lib.comm.CommunicationRelationTypes.ENCRYPTION;
 
 import static org.obrel.core.RelationTypeModifier.PRIVATE;
 import static org.obrel.core.RelationTypes.newType;
@@ -131,7 +131,7 @@ public class GraylogEndpoint extends Endpoint
 		if (eProtocol == Protocol.TCP)
 		{
 			String sSocketAddress =
-				SocketEndpoint.url(sHost, nPort, hasFlag(ENCRYPTED_CONNECTION));
+				SocketEndpoint.url(sHost, nPort, hasFlag(ENCRYPTION));
 
 			rConnection.set(GRAYLOG_SERVER_CONNECTION,
 							Endpoint.at(sSocketAddress).connect(rConnection));
