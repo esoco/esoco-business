@@ -75,8 +75,7 @@ public class EntityFunctions
 		new ExceptionMappingFunction<Entity, Entity>("storeEntity()")
 		{
 			@Override
-			protected Entity evaluateWithException(Entity rEntity)
-				throws Exception
+			public Entity evaluateWithException(Entity rEntity) throws Exception
 			{
 				EntityManager.storeEntity(rEntity, null);
 
