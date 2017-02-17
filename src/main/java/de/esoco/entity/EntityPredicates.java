@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-gwt' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'esoco-business' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
-// Licensed under the Apache License, Version 3.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-3.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -74,42 +74,6 @@ public class EntityPredicates
 	}
 
 	/***************************************
-	 * A {@link Predicates#ifRelation(RelationType, Predicate)} variant that
-	 * provides better readability for entity attributes.
-	 *
-	 * @see Predicates#ifRelation(RelationType, Predicate)
-	 */
-	public static <E extends Entity, V> ElementPredicate<E, V> ifAttribute(
-		RelationType<V>		 rType,
-		Predicate<? super V> rPredicate)
-	{
-		return Predicates.ifRelation(rType, rPredicate);
-	}
-
-	/***************************************
-	 * Creates an {@link ElementPredicate} to evaluate a predicate on a certain
-	 * extra attribute in entities. It creates an instance of the function
-	 * {@link GetRelationValue} to retrieve the relation target from objects.
-	 *
-	 * @param  rExtraAttribute The relation type of the extra attribute
-	 * @param  rDefaultValue   The default value if the attribute doesn't exist
-	 * @param  rPredicate      The predicate to evaluate the extra attribute
-	 *                         with
-	 *
-	 * @return A new predicate for the given extra attribute
-	 */
-	public static <E extends Entity, V> Predicate<E> ifExtraAttribute(
-		RelationType<V>		 rExtraAttribute,
-		V					 rDefaultValue,
-		Predicate<? super V> rPredicate)
-	{
-		GetExtraAttribute<E, V> fGetExtraAttribute =
-			getExtraAttribute(rExtraAttribute, rDefaultValue);
-
-		return new ElementPredicate<E, V>(fGetExtraAttribute, rPredicate);
-	}
-
-	/***************************************
 	 * Creates an entity predicate to query for entities that have an extra
 	 * attribute that fulfill certain criteria.
 	 *
@@ -146,5 +110,46 @@ public class EntityPredicates
 			refersTo(ExtraAttribute.class, fExtraAttributeEntityId, pCriteria);
 
 		return ifAttribute(rIdAttr, pHasExtraAttr);
+	}
+
+	/***************************************
+	 * A {@link Predicates#ifRelation(RelationType, Predicate)} variant that
+	 * provides better readability for entity attributes.
+	 *
+	 * @see Predicates#ifRelation(RelationType, Predicate)
+	 */
+	public static <E extends Entity, V> ElementPredicate<E, V> ifAttribute(
+		RelationType<V>		 rType,
+		Predicate<? super V> rPredicate)
+	{
+		return Predicates.ifRelation(rType, rPredicate);
+	}
+
+	/***************************************
+	 * Creates an {@link ElementPredicate} to evaluate a predicate on a certain
+	 * extra attribute in entities. It creates an instance of the function
+	 * {@link GetRelationValue} to retrieve the relation target from objects.
+	 *
+	 * <p>This predicate cannot be used for entity queries. It is only intended
+	 * for the use in predicate evaluation on entities that have already been
+	 * loaded. For queries the {@link #hasExtraAttribute(Class, Predicate)}
+	 * method should be used instead.</p>
+	 *
+	 * @param  rExtraAttribute The relation type of the extra attribute
+	 * @param  rDefaultValue   The default value if the attribute doesn't exist
+	 * @param  rPredicate      The predicate to evaluate the extra attribute
+	 *                         with
+	 *
+	 * @return A new predicate for the given extra attribute
+	 */
+	public static <E extends Entity, V> Predicate<E> ifExtraAttribute(
+		RelationType<V>		 rExtraAttribute,
+		V					 rDefaultValue,
+		Predicate<? super V> rPredicate)
+	{
+		GetExtraAttribute<E, V> fGetExtraAttribute =
+			getExtraAttribute(rExtraAttribute, rDefaultValue);
+
+		return new ElementPredicate<E, V>(fGetExtraAttribute, rPredicate);
 	}
 }
