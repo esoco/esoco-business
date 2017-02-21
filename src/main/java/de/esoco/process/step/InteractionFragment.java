@@ -364,6 +364,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		this.rFragmentParam = rFragmentParam;
 
+		// reset internal state in the case of re-invocation caused by process
+		// navigation
+		aInputParams.clear();
+		aInteractionParams.clear();
+		nNextParameterId = 0;
+		bInitialized     = false;
+
 		setProcessStep(rProcessStep);
 	}
 
@@ -2295,7 +2302,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		abort();
-		bInitialized = false;
 	}
 
 	/***************************************
