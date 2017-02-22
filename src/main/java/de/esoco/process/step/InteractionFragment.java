@@ -172,6 +172,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	public abstract void init() throws Exception;
 
 	/***************************************
+	 * Internal method to abort the current execution of this fragment. It can
+	 * be used to undo data and parameter initializations or interactive
+	 * modifications that have been performed by this fragment. Subclasses must
+	 * implement {@link #abort()} instead.
+	 *
+	 * @throws Exception On errors
+	 */
+	public final void abortFragment()
+	{
+		for (InteractionFragment rSubFragment : getSubFragments())
+		{
+			rSubFragment.abortFragment();
+		}
+
+		abort();
+	}
+
+	/***************************************
 	 * Overridden to add nonexistent parameters to the list of interaction
 	 * parameters of this instance as returned by the method {@link
 	 * #getInteractionParameters()}. The returned collection must therefore be
@@ -1717,8 +1735,9 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	/***************************************
 	 * This method will be invoked if the current execution of this fragment is
-	 * aborted and can be overridden by subclasses to perform data resets
-	 * similar to the {@link #rollback()} method.
+	 * aborted before it has finished. and can be overridden by subclasses to
+	 * perform data resets similar to the {@link #rollback()} method which will
+	 * be invoked if the execution of a finished fragment is to be reverted.
 	 */
 	protected void abort()
 	{
@@ -2284,24 +2303,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		aValidationErrors.putAll(aFragmentErrors);
 
 		return aValidationErrors;
-	}
-
-	/***************************************
-	 * Internal method to abort the current execution of this fragment. It can
-	 * be used to undo data and parameter initializations or interactive
-	 * modifications that have been performed by this fragment. Subclasses must
-	 * implement {@link #abort()} instead.
-	 *
-	 * @throws Exception On errors
-	 */
-	final void abortFragment() throws Exception
-	{
-		for (InteractionFragment rSubFragment : getSubFragments())
-		{
-			rSubFragment.abortFragment();
-		}
-
-		abort();
 	}
 
 	/***************************************

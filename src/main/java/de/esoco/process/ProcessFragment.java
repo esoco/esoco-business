@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1078,7 +1078,7 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Returns the sub fragment that is associated with a certain fragment
+	 * Returns the sub-fragment that is associated with a certain fragment
 	 * parameter.
 	 *
 	 * @param  rFragmentParam The sub fragment parameter
@@ -1479,6 +1479,7 @@ public abstract class ProcessFragment extends ProcessElement
 			get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
 			removeInteractionParameters(rFragmentParam);
 			deleteParameters(rFragmentParam);
+			rSubFragment.abortFragment();
 		}
 
 		return rSubFragment;

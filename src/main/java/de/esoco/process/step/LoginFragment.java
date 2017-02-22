@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,42 +113,9 @@ public class LoginFragment extends InteractionFragment
 	{
 		layout(Layout.FORM);
 
-		aLoginName =
-			inputText("LoginName").ensureNotEmpty().set(FOCUSED)
-								  .onAction(new ParameterEventHandler<String>()
-				{
-					@Override
-					public void handleParameterUpdate(String sLoginName)
-						throws Exception
-					{
-						handleLoginNameInput(sLoginName);
-					}
-				});
-		aPassword  =
-			inputText("Password").content(ContentType.PASSWORD).ensureNotEmpty()
-								 .onAction(new ParameterEventHandler<String>()
-				{
-					@Override
-					public void handleParameterUpdate(String sPassword)
-						throws Exception
-					{
-						handlePasswordInput(sPassword);
-					}
-				});
-
-		aErrorMessage = label("").style("AuthenticationError").hide();
-
-		buttons(LoginAction.LOGIN).alignHorizontal(Alignment.CENTER)
-								  .continueOnInteraction(false)
-								  .onAction(new ParameterEventHandler<LoginAction>()
-			{
-				@Override
-				public void handleParameterUpdate(LoginAction eAction)
-					throws Exception
-				{
-					performLogin();
-				}
-			});
+		addInputFields();
+		addErrorLabel();
+		addLoginButton();
 	}
 
 	/***************************************
@@ -182,6 +149,61 @@ public class LoginFragment extends InteractionFragment
 				Thread.sleep(1000);
 			}
 		}
+	}
+
+	/***************************************
+	 * Adds the error label to this fragment.
+	 */
+	protected void addErrorLabel()
+	{
+		aErrorMessage = label("").style("AuthenticationError").hide();
+	}
+
+	/***************************************
+	 * Adds the login name and password input fields to this fragment.
+	 */
+	protected void addInputFields()
+	{
+		aLoginName =
+			inputText("LoginName").ensureNotEmpty().set(FOCUSED)
+								  .onAction(new ParameterEventHandler<String>()
+				{
+					@Override
+					public void handleParameterUpdate(String sLoginName)
+						throws Exception
+					{
+						handleLoginNameInput(sLoginName);
+					}
+				});
+		aPassword  =
+			inputText("Password").content(ContentType.PASSWORD).ensureNotEmpty()
+								 .onAction(new ParameterEventHandler<String>()
+				{
+					@Override
+					public void handleParameterUpdate(String sPassword)
+						throws Exception
+					{
+						handlePasswordInput(sPassword);
+					}
+				});
+	}
+
+	/***************************************
+	 * Adds the login button to this fragment.
+	 */
+	protected void addLoginButton()
+	{
+		buttons(LoginAction.LOGIN).alignHorizontal(Alignment.CENTER)
+								  .continueOnInteraction(false)
+								  .onAction(new ParameterEventHandler<LoginAction>()
+			{
+				@Override
+				public void handleParameterUpdate(LoginAction eAction)
+					throws Exception
+				{
+					performLogin();
+				}
+			});
 	}
 
 	/***************************************

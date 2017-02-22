@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -323,28 +323,25 @@ public class EntityAttributesHeader<E extends Entity>
 	@Override
 	protected void initTitlePanel(InteractionFragment p)
 	{
-		if (aColumnParams == null)
+		aColumnParams = new HashMap<>(aColumnProperties.size());
+
+		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
+		p.fragmentParam().alignVertical(Alignment.END);
+
+		for (Entry<RelationType<?>, MutableProperties> rColumn :
+			 aColumnProperties.entrySet())
 		{
-			aColumnParams = new HashMap<>(aColumnProperties.size());
+			RelationType<?>   rAttr		  = rColumn.getKey();
+			HasProperties     rProperties = rColumn.getValue();
+			Parameter<String> aTitleLabel = createColumnTitle(p, rAttr);
 
-			fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
-			p.fragmentParam().alignVertical(Alignment.END);
-
-			for (Entry<RelationType<?>, MutableProperties> rColumn :
-				 aColumnProperties.entrySet())
-			{
-				RelationType<?>   rAttr		  = rColumn.getKey();
-				HasProperties     rProperties = rColumn.getValue();
-				Parameter<String> aTitleLabel = createColumnTitle(p, rAttr);
-
-				aTitleLabel.sameRow();
-				applyColumnProperties(aTitleLabel, rProperties);
-				aColumnParams.put(rAttr, aTitleLabel);
-			}
-
-			toggleSorting((RelationType<?>) getEntityList().getSortColumn()
-						  .getElementDescriptor());
+			aTitleLabel.sameRow();
+			applyColumnProperties(aTitleLabel, rProperties);
+			aColumnParams.put(rAttr, aTitleLabel);
 		}
+
+		toggleSorting((RelationType<?>) getEntityList().getSortColumn()
+					  .getElementDescriptor());
 	}
 
 	/***************************************

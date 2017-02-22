@@ -297,7 +297,14 @@ public class EntityList<E extends Entity,
 	{
 		if (bInitialQuery)
 		{
-			updateQuery();
+			if (pAllCriteria == null)
+			{
+				updateQuery();
+			}
+			else
+			{
+				queryEntities();
+			}
 		}
 	}
 
@@ -671,28 +678,33 @@ public class EntityList<E extends Entity,
 		}
 
 		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected void abort()
+		{
+		}
+
+		/***************************************
 		 * Updates the currently displayed entities.
 		 */
 		void update()
 		{
-			int nMaxItems    = Math.min(aVisibleEntities.size(), nPageSize);
 			int nCurrentSize = aItems.size();
 
-			if (nCurrentSize < nMaxItems)
+			if (nCurrentSize < nPageSize)
 			{
-				for (int i = nCurrentSize; i < nMaxItems; i++)
+				for (int i = nCurrentSize; i < nPageSize; i++)
 				{
 					I aItem = createListItem();
 
 					aItems.add(aItem);
 					aItem.setDefaultStyle(i % 2 == 1 ? "odd" : "even");
-
-					addSubFragment("Entity" + i, aItem).resid("Entity");
 				}
 			}
-			else if (nCurrentSize > nMaxItems)
+			else if (nCurrentSize > nPageSize)
 			{
-				for (int i = aItems.size() - 1; i >= nMaxItems; i--)
+				for (int i = aItems.size() - 1; i >= nPageSize; i--)
 				{
 					I rItem = aItems.remove(i);
 
@@ -705,9 +717,29 @@ public class EntityList<E extends Entity,
 				}
 			}
 
-			for (int i = 0; i < nMaxItems; i++)
+			int nVisibleItems = Math.min(aVisibleEntities.size(), nPageSize);
+
+			for (int i = 0; i < nPageSize; i++)
 			{
-				aItems.get(i).updateEntity(aVisibleEntities.get(i));
+				Collection<InteractionFragment> rSubFragments =
+					getSubFragments();
+
+				I rItem = aItems.get(i);
+
+				if (!rSubFragments.contains(rItem))
+				{
+					addSubFragment("Entity" + i, rItem).resid("Entity");
+				}
+
+				if (i < nVisibleItems)
+				{
+					rItem.updateEntity(aVisibleEntities.get(i));
+					rItem.fragmentParam().show();
+				}
+				else
+				{
+					rItem.fragmentParam().hide();
+				}
 			}
 
 			aNavigation.fragmentParam().setVisible(nEntityCount > nPageSize);
