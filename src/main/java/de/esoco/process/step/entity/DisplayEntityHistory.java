@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'esoco-business' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -130,11 +130,11 @@ public class DisplayEntityHistory extends InteractionFragment
 		newType();
 
 	/**
-	 * Input parameter (optional): additional target entities to display history
-	 * for.
+	 * Optional: a predicate containing the target query criteria. If set the
+	 * history target parameter will be ignored.
 	 */
-	public static final RelationType<List<Entity>> ENTITY_HISTORY_ADDITIONAL_TARGETS =
-		newListType();
+	public static final RelationType<Predicate<Relatable>> ENTITY_HISTORY_TARGET_CRITERIA =
+		newType();
 
 	/** Input parameter: the origin entities to display the history for. */
 	public static final RelationType<List<Entity>> ENTITY_HISTORY_ORIGINS =
@@ -389,7 +389,7 @@ public class DisplayEntityHistory extends InteractionFragment
 		setParameter(ENTITY_HISTORY_ORIGIN, ITEM_ENTITY_HISTORY_ORIGIN_ALL);
 		deleteParameters(ENTITY_HISTORY_TYPES,
 						 ENTITY_HISTORY_TARGET,
-						 ENTITY_HISTORY_ADDITIONAL_TARGETS,
+						 ENTITY_HISTORY_TARGET_CRITERIA,
 						 ENTITY_HISTORY_DATE);
 	}
 
@@ -550,31 +550,29 @@ public class DisplayEntityHistory extends InteractionFragment
 	/***************************************
 	 * Adds a history target filter to a predicate if necessary.
 	 *
-	 * @param  rMainTarget The main target to display the history for
-	 * @param  pHistory    The original filter predicate
+	 * @param  rTarget  The main target to display the history for
+	 * @param  pHistory The original filter predicate
 	 *
 	 * @return The predicate, modified if necessary
 	 */
 	private Predicate<Relatable> addTargetFilter(
-		Entity				 rMainTarget,
+		Entity				 rTarget,
 		Predicate<Relatable> pHistory)
 	{
-		List<Entity> rTargets = new ArrayList<>();
+		Predicate<Relatable> rTargetCriteria =
+			getParameter(ENTITY_HISTORY_TARGET_CRITERIA);
 
-		if (rMainTarget != null)
+		if (rTargetCriteria != null)
 		{
-			rTargets.add(rMainTarget);
+			pHistory = pHistory.and(rTargetCriteria);
 		}
-
-		rTargets.addAll(getParameter(ENTITY_HISTORY_ADDITIONAL_TARGETS));
-
-		if (rTargets.size() > 0)
+		else if (rTarget != null)
 		{
-			Predicate<Object> pTargetEntities = elementOf(rTargets);
+			Predicate<Object> pTarget = equalTo(rTarget);
 
 			pHistory =
-				pHistory.and(HistoryRecord.ROOT_TARGET.is(pTargetEntities)
-							 .or(HistoryRecord.TARGET.is(pTargetEntities)));
+				pHistory.and(HistoryRecord.ROOT_TARGET.is(pTarget)
+							 .or(HistoryRecord.TARGET.is(pTarget)));
 		}
 
 		return pHistory;
@@ -1000,7 +998,11 @@ public class DisplayEntityHistory extends InteractionFragment
 						   StandardDateRange.CURRENT_WEEK,
 						   StandardDateRange.LAST_WEEK,
 						   StandardDateRange.CURRENT_MONTH,
-						   StandardDateRange.LAST_MONTH);
+						   StandardDateRange.LAST_MONTH,
+						   StandardDateRange.CURRENT_QUARTER,
+						   StandardDateRange.LAST_QUARTER,
+						   StandardDateRange.CURRENT_YEAR,
+						   StandardDateRange.LAST_YEAR);
 
 			setInteractive(HISTORY_TYPE_OPTIONS,
 						   null,
