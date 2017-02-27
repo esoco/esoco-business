@@ -675,6 +675,7 @@ public class EntityList<E extends Entity,
 		public void init()
 		{
 			layout(Layout.LIST);
+			updateItemList();
 		}
 
 		/***************************************
@@ -690,6 +691,34 @@ public class EntityList<E extends Entity,
 		 */
 		void update()
 		{
+			updateItemList();
+
+			int nVisibleItems = Math.min(aVisibleEntities.size(), nPageSize);
+
+			for (int i = 0; i < nPageSize; i++)
+			{
+				I rItem = aItems.get(i);
+
+				if (i < nVisibleItems)
+				{
+					rItem.updateEntity(aVisibleEntities.get(i));
+					rItem.fragmentParam().show();
+				}
+				else
+				{
+					rItem.fragmentParam().hide();
+				}
+			}
+
+			aNavigation.fragmentParam().setVisible(nEntityCount > nPageSize);
+		}
+
+		/***************************************
+		 * Updates the list items by creating or removing item according to the
+		 * current page size.
+		 */
+		void updateItemList()
+		{
 			int nCurrentSize = aItems.size();
 
 			if (nCurrentSize < nPageSize)
@@ -700,6 +729,8 @@ public class EntityList<E extends Entity,
 
 					aItems.add(aItem);
 					aItem.setDefaultStyle(i % 2 == 1 ? "odd" : "even");
+					addSubFragment("Entity" + i, aItem).resid("Entity");
+					aItem.fragmentParam().hide();
 				}
 			}
 			else if (nCurrentSize > nPageSize)
@@ -716,33 +747,6 @@ public class EntityList<E extends Entity,
 					removeSubFragment(rItem);
 				}
 			}
-
-			int nVisibleItems = Math.min(aVisibleEntities.size(), nPageSize);
-
-			for (int i = 0; i < nPageSize; i++)
-			{
-				Collection<InteractionFragment> rSubFragments =
-					getSubFragments();
-
-				I rItem = aItems.get(i);
-
-				if (!rSubFragments.contains(rItem))
-				{
-					addSubFragment("Entity" + i, rItem).resid("Entity");
-				}
-
-				if (i < nVisibleItems)
-				{
-					rItem.updateEntity(aVisibleEntities.get(i));
-					rItem.fragmentParam().show();
-				}
-				else
-				{
-					rItem.fragmentParam().hide();
-				}
-			}
-
-			aNavigation.fragmentParam().setVisible(nEntityCount > nPageSize);
 		}
 	}
 
