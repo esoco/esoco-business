@@ -28,6 +28,7 @@ import de.esoco.lib.reflect.ReflectUtil;
 
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterEventHandler;
+import de.esoco.process.ParameterList;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
@@ -50,6 +51,7 @@ import java.util.List;
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 import static de.esoco.lib.property.StyleProperties.MULTI_SELECTION;
 
@@ -110,6 +112,7 @@ public class EntityList<E extends Entity,
 	private I					 rSelectedItem = null;
 
 	private InteractionFragment rHeader;
+	private ParameterList	    aItemListPanel;
 
 	private RelationType<String>[] rFilterAttributes;
 
@@ -285,7 +288,8 @@ public class EntityList<E extends Entity,
 		fragmentParam().style(EntityList.class.getSimpleName());
 
 		panel(this::initHeaderPanel);
-		panel(aItemList).inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
+		aItemListPanel =
+			panel(aItemList).inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
 		panel(aNavigation).hide();
 	}
 
@@ -848,6 +852,8 @@ public class EntityList<E extends Entity,
 					break;
 			}
 
+			setSelection(null);
+			aItemListPanel.set(-1, CURRENT_SELECTION);
 			queryEntities();
 		}
 

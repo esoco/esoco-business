@@ -155,6 +155,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 			else
 			{
 				updateHeader(rEntity);
+				prepareContent(rEntity);
 
 				if (bSelected)
 				{
@@ -176,16 +177,6 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * @param rContentPanel The content panel fragment
 	 */
 	protected abstract void initContentPanel(InteractionFragment rContentPanel);
-
-	/***************************************
-	 * Must be implemented to update the content parameters of this list item
-	 * based on the given entity.
-	 *
-	 * @param  rEntity The new entity to update the parameters from
-	 *
-	 * @throws Exception May throw any kind of exception on errors
-	 */
-	protected abstract void updateContent(E rEntity) throws Exception;
 
 	/***************************************
 	 * Internal method to create the event handling wrapper for the header
@@ -272,6 +263,21 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	}
 
 	/***************************************
+	 * Will be invoked for all items in an entity list if the entity needs to be
+	 * updated. For selected entities the method {@link #updateContent(Entity)}
+	 * will be invoked afterwards. Normally the latter should be used to perform
+	 * time-critical updates from the entity, e.g. performing queries of related
+	 * data.
+	 *
+	 * @param  rEntity The entity to prepare the content from
+	 *
+	 * @throws Exception May throw any kind of exception on errors
+	 */
+	protected void prepareContent(E rEntity) throws Exception
+	{
+	}
+
+	/***************************************
 	 * Overridden to check whether the parent fragment has a simple list layout.
 	 *
 	 * @see InteractionFragment#setParent(InteractionFragment)
@@ -292,6 +298,21 @@ public abstract class AbstractEntityListItem<E extends Entity>
 				(eListLayout == null ||
 				 eListLayout == ListLayoutStyle.SIMPLE);
 		}
+	}
+
+	/***************************************
+	 * Will be invoked to update the content of this item when it is selected.
+	 * If an update of the item content is time-consuming (e.g. because of
+	 * additional storage queries) it should be performed in this method instead
+	 * of in {@link #prepareContent(Entity)} so that it is not invoked for each
+	 * item without the data being displayed.
+	 *
+	 * @param  rEntity The new entity to update the parameters from
+	 *
+	 * @throws Exception May throw any kind of exception on errors
+	 */
+	protected void updateContent(E rEntity) throws Exception
+	{
 	}
 
 	/***************************************
