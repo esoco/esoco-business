@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import de.esoco.lib.manage.TransactionException;
 
 import de.esoco.storage.StorageException;
 
+import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
@@ -44,7 +45,7 @@ import static org.obrel.core.RelationTypes.newType;
  *
  * @author eso
  */
-public class Configuration extends Entity
+public class Configuration extends Entity implements ProvidesConfiguration
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -196,6 +197,17 @@ public class Configuration extends Entity
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns a configuration value from the extra attributes of this instance.
+	 *
+	 * @see ProvidesConfiguration#getConfigValue(RelationType, Object)
+	 */
+	@Override
+	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue)
+	{
+		return getXA(rType, rDefaultValue);
+	}
+
+	/***************************************
 	 * Returns a certain settings value. Instead of directly querying settings
 	 * with the corresponding extra attribute users of this class should invoke
 	 * this method so that it can perform additional hierarchical or default
@@ -216,6 +228,17 @@ public class Configuration extends Entity
 		T				rDefaultValue) throws StorageException
 	{
 		return getExtraAttribute(rSettingExtraAttr, rDefaultValue);
+	}
+
+	/***************************************
+	 * Sets a configuration value as an extra attribute of this instance.
+	 *
+	 * @see ProvidesConfiguration#setConfigValue(RelationType, Object)
+	 */
+	@Override
+	public <T> void setConfigValue(RelationType<T> rType, T rValue)
+	{
+		setXA(rType, rValue);
 	}
 
 	/***************************************
