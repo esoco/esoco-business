@@ -1338,17 +1338,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Adds a new panel fragment with a grid layout.
+	 * Adds a new anonymous panel fragment with a grid layout.
 	 *
 	 * @param  rInitializer The fragment initializer
 	 *
 	 * @return the parameter wrapper for the panel parameter
 	 *
-	 * @see    #panel(Layout, Initializer)
+	 * @see    #panel(String, Initializer)
 	 */
 	public ParameterList panel(Initializer<InteractionFragment> rInitializer)
 	{
-		return panel(Layout.GRID, rInitializer);
+		return panel(null, Layout.GRID, rInitializer);
 	}
 
 	/***************************************
@@ -1368,6 +1368,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Adds a new named panel fragment with a grid layout.
+	 *
+	 * @param  rInitializer The fragment initializer
+	 *
+	 * @return the parameter wrapper for the panel parameter
+	 *
+	 * @see    #panel(String, Layout, Initializer)
+	 */
+	public ParameterList panel(
+		String							 sName,
+		Initializer<InteractionFragment> rInitializer)
+	{
+		return panel(sName, Layout.GRID, rInitializer);
+	}
+
+	/***************************************
 	 * Creates a new anonymous interaction fragment and the associated parameter
 	 * relation type. The initializer argument must perform the initialization
 	 * of the new fragment which it receives as the argument to it's {@link
@@ -1379,6 +1395,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * corresponding method in form of a method reference with an {@link
 	 * InteractionFragment} parameter.</p>
 	 *
+	 * @param  sName        The name of the fragment parameter
 	 * @param  ePanelLayout The layout of the panel fragment
 	 * @param  rInitializer The fragment initializer
 	 *
@@ -1386,10 +1403,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@SuppressWarnings("serial")
 	public ParameterList panel(
+		String								   sName,
 		Layout								   ePanelLayout,
 		final Initializer<InteractionFragment> rInitializer)
 	{
-		return addSubFragment(new InteractionFragment()
+		return addSubFragment(sName,
+			new InteractionFragment()
 			{
 				@Override
 				public void init() throws Exception
