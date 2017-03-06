@@ -199,6 +199,16 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
+	 * Clears this list by removing all entities and updating the display.
+	 */
+	public void clear()
+	{
+		aVisibleEntities.clear();
+		aItemList.update();
+		aNavigation.update();
+	}
+
+	/***************************************
 	 * Returns the current default criteria of this instance.
 	 *
 	 * @return The default criteria
