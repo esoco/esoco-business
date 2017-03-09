@@ -23,12 +23,11 @@ import de.esoco.history.HistoryRecord;
 import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.CollectionFunctions;
 import de.esoco.lib.expression.Conversions;
-import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.MultiLevelCache;
 import de.esoco.lib.manage.TransactionException;
@@ -469,45 +468,29 @@ public class EntityManager
 	 * @param  qEntities      The query predicate for the entities to evaluate
 	 * @param  pStopCondition An optional predicate that defines a stop
 	 *                        condition by evaluating to FALSE or NULL for none
-	 * @param  fEvaluation    A function to evaluate each queried entity
+	 * @param  fAction        A function to evaluate each queried entity
 	 *
 	 * @throws StorageException If the storage access fails
 	 */
 	@SuppressWarnings("boxing")
 	public static <E extends Entity> void evaluateEntities(
-		QueryPredicate<E>	   qEntities,
-		Predicate<? super E>   pStopCondition,
-		Function<? super E, ?> fEvaluation) throws StorageException
+		QueryPredicate<E>    qEntities,
+		Predicate<? super E> pStopCondition,
+		Action<? super E>    fAction) throws StorageException
 	{
-		Class<E> rQueryType = qEntities.getQueryType();
-		Storage  rStorage   = StorageManager.getStorage(rQueryType);
-
-		try (Query<E> rQuery = rStorage.query(qEntities))
+		try (EntityIterator<E> aIterator = new EntityIterator<>(qEntities))
 		{
-			QueryResult<E> rResult = rQuery.execute();
-
-			while (rResult.hasNext())
+			while (aIterator.hasNext())
 			{
-				E rEntity = rResult.next();
+				E rEntity = aIterator.next();
 
-				if (rEntity.isRoot())
-				{
-					rEntity = checkCaching(rEntity);
-				}
-
-				if (pStopCondition == null || pStopCondition.evaluate(rEntity))
-				{
-					fEvaluation.evaluate(rEntity);
-				}
-				else
+				if (pStopCondition != null && !pStopCondition.evaluate(rEntity))
 				{
 					break;
 				}
+
+				fAction.evaluate(rEntity);
 			}
-		}
-		finally
-		{
-			rStorage.release();
 		}
 	}
 
@@ -529,18 +512,11 @@ public class EntityManager
 					  ExtraAttribute.OWNER.is(equalTo(null))
 					  .and(ExtraAttribute.ENTITY.is(elementOf(rEntities))));
 
-		evaluateEntities(qExtraAttributes,
-						 null,
-			new AbstractAction<ExtraAttribute>("AssignExtraAttribute")
-			{
-				@Override
-				public void execute(ExtraAttribute rXA)
-				{
-					rXA.get(ExtraAttribute.ENTITY)
-					   .get(EXTRA_ATTRIBUTE_MAP)
-					   .put(rXA.get(ExtraAttribute.KEY).toString(), rXA);
-				}
-			});
+		forEach(qExtraAttributes,
+				rXA ->
+				rXA.get(ExtraAttribute.ENTITY)
+				.get(EXTRA_ATTRIBUTE_MAP)
+				.put(rXA.get(ExtraAttribute.KEY).toString(), rXA));
 
 		for (Entity rEntity : rEntities)
 		{
@@ -655,6 +631,38 @@ public class EntityManager
 		}
 
 		return rResult;
+	}
+
+	/***************************************
+	 * Invokes an action on all entities of a certain query.
+	 *
+	 * @param  qEntities The query predicate for the entities
+	 * @param  fAction   An action to evaluate each queried entity with
+	 *
+	 * @throws StorageException If the storage access fails
+	 */
+	public static <E extends Entity> void forEach(
+		QueryPredicate<E> qEntities,
+		Action<? super E> fAction) throws StorageException
+	{
+		evaluateEntities(qEntities, null, fAction);
+	}
+
+	/***************************************
+	 * Invokes an action on all entities that match the given criteria.
+	 *
+	 * @param  rEntityType qEntities The query predicate for the entities
+	 * @param  pCriteria   The query criteria
+	 * @param  fAction     An action to evaluate each queried entity with
+	 *
+	 * @throws StorageException If the storage access fails
+	 */
+	public static <E extends Entity> void forEach(
+		Class<E>			 rEntityType,
+		Predicate<? super E> pCriteria,
+		Action<? super E>    fAction) throws StorageException
+	{
+		forEach(new QueryPredicate<>(rEntityType, pCriteria), fAction);
 	}
 
 	/***************************************
@@ -2014,6 +2022,44 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Checks whether an entity is already cached and either replaces it with
+	 * the cached version or places it into the entity cache.
+	 *
+	 * @param  rEntity The entity to check
+	 *
+	 * @return Either an already cached instance of the entity or the now cached
+	 *         entity
+	 */
+	static <E extends Entity> E checkCaching(E rEntity)
+	{
+		aCacheLock.lock();
+
+		try
+		{
+			@SuppressWarnings("unchecked")
+			E rCachedEntity =
+				(E) getCachedEntity(rEntity.getClass(), rEntity.getId());
+
+			if (rCachedEntity != null)
+			{
+				// use cache entity if available to preserve already
+				// loaded entity hierarchies
+				rEntity = rCachedEntity;
+			}
+			else
+			{
+				cacheEntity(rEntity);
+			}
+		}
+		finally
+		{
+			aCacheLock.unlock();
+		}
+
+		return rEntity;
+	}
+
+	/***************************************
 	 * Signals the end of an entity modification that had been started by a call
 	 * to {@link #beginEntityModification(Entity)}.
 	 *
@@ -2145,44 +2191,6 @@ public class EntityManager
 						   rParentAttribute,
 						   rChildAttribute);
 		}
-	}
-
-	/***************************************
-	 * Checks whether an entity is already cached and either replaces it with
-	 * the cached version or places it into the entity cache.
-	 *
-	 * @param  rEntity The entity to check
-	 *
-	 * @return Either an already cached instance of the entity or the now cached
-	 *         entity
-	 */
-	private static <E extends Entity> E checkCaching(E rEntity)
-	{
-		aCacheLock.lock();
-
-		try
-		{
-			@SuppressWarnings("unchecked")
-			E rCachedEntity =
-				(E) getCachedEntity(rEntity.getClass(), rEntity.getId());
-
-			if (rCachedEntity != null)
-			{
-				// use cache entity if available to preserve already
-				// loaded entity hierarchies
-				rEntity = rCachedEntity;
-			}
-			else
-			{
-				cacheEntity(rEntity);
-			}
-		}
-		finally
-		{
-			aCacheLock.unlock();
-		}
-
-		return rEntity;
 	}
 
 	/***************************************

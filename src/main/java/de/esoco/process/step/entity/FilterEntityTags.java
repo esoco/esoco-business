@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
 import de.esoco.entity.ExtraAttribute;
 
-import de.esoco.lib.expression.Function;
+import de.esoco.lib.expression.Action;
+import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
@@ -33,7 +34,6 @@ import de.esoco.process.EnumParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.step.InteractionFragment;
 
-import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
 import java.util.ArrayList;
@@ -50,7 +50,6 @@ import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityFunctions.getEntityId;
 import static de.esoco.entity.EntityFunctions.getExtraAttributeValue;
-import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_TAGS;
 
 import static de.esoco.lib.expression.CollectionFunctions.collectAllInto;
@@ -94,6 +93,8 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 	private TagFilterListener<E> rTagFilterListener;
 	private String				 sLabel;
+	private Layout				 eLayout;
+	private boolean				 bSingleRow;
 
 	private boolean     bUseHeaderLabel = false;
 	private ButtonStyle eButtonStyle    = ButtonStyle.DEFAULT;
@@ -133,10 +134,39 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 							TagFilterListener<E> rTagFilterListener,
 							String				 sLabel)
 	{
+		this(rEntityType,
+			 rTagOwner,
+			 rTagFilterListener,
+			 sLabel,
+			 Layout.TABLE,
+			 true);
+	}
+
+	/***************************************
+	 * Creates a new instance.
+	 *
+	 * @param rEntityType        The type of entity to filter
+	 * @param rTagOwner          The owner of the tags to filter by or NULL to
+	 *                           filter global tags
+	 * @param rTagFilterListener The listener for filter changes
+	 * @param sLabel             An optional label in this fragment (empty
+	 *                           string for none, NULL for the default)
+	 * @param eLayout            The layout for this fragment
+	 * @param bSingleRow         TRUE to display all elements in a single row
+	 */
+	public FilterEntityTags(Class<E>			 rEntityType,
+							Entity				 rTagOwner,
+							TagFilterListener<E> rTagFilterListener,
+							String				 sLabel,
+							Layout				 eLayout,
+							boolean				 bSingleRow)
+	{
 		this.rEntityType	    = rEntityType;
 		this.rTagOwner		    = rTagOwner;
 		this.rTagFilterListener = rTagFilterListener;
 		this.sLabel			    = sLabel;
+		this.eLayout		    = eLayout;
+		this.bSingleRow		    = bSingleRow;
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -156,18 +186,15 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		Class<? extends Entity> rEntityType,
 		Entity					rTagOwner) throws StorageException
 	{
-		Predicate<Relatable> pExtraAttr =
+		Predicate<Relatable> pIsEntityTag =
 			getEntityTagsPredicate(rEntityType, rTagOwner);
 
 		Set<String> aAllTags = new HashSet<>();
 
-		QueryPredicate<ExtraAttribute> qExtraAttributes =
-			forEntity(ExtraAttribute.class, pExtraAttr);
+		Action<ExtraAttribute> fCollect =
+			Functions.asAction(collectAllInto(aAllTags).from(getExtraAttributeValue(ENTITY_TAGS)));
 
-		Function<ExtraAttribute, Set<String>> fCollect =
-			collectAllInto(aAllTags).from(getExtraAttributeValue(ENTITY_TAGS));
-
-		EntityManager.evaluateEntities(qExtraAttributes, null, fCollect);
+		EntityManager.forEach(ExtraAttribute.class, pIsEntityTag, fCollect);
 
 		List<String> aSortedTags = new ArrayList<>(aAllTags);
 
@@ -283,18 +310,16 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 				}
 			}
 
-			Predicate<Relatable> pIsEntityTag =
+			Predicate<Relatable> pIfEntityTag =
 				getEntityTagsPredicate(rEntityType, rTagOwner);
 
-			QueryPredicate<ExtraAttribute> qExtraAttributes =
-				forEntity(ExtraAttribute.class,
-						  pIsEntityTag.and(pHasFilterTags));
+			Action<Relatable> fCollect =
+				Functions.asAction(getEntityId().from(ExtraAttribute.ENTITY)
+								   .then(collectInto(aFilteredIds)));
 
-			Function<Relatable, Set<Integer>> fCollect =
-				getEntityId().from(ExtraAttribute.ENTITY)
-							 .then(collectInto(aFilteredIds));
-
-			EntityManager.evaluateEntities(qExtraAttributes, null, fCollect);
+			EntityManager.forEach(ExtraAttribute.class,
+								  pIfEntityTag.and(pHasFilterTags),
+								  fCollect);
 		}
 
 		return aFilteredIds;
@@ -418,7 +443,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	@Override
 	public void init() throws StorageException
 	{
-		layout(Layout.TABLE);
+		layout(eLayout);
 		fragmentParam().resid("FilterEntityTagsFragment");
 
 		if (aTagInput == null)
@@ -434,9 +459,15 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 				aTagInput.set(StyleProperties.HEADER_LABEL);
 			}
 
-			aFilterJoin   =
-				dropDown(TagFilterJoin.class).sameRow().resid("TagFilterJoin")
+			aFilterJoin =
+				dropDown(TagFilterJoin.class).resid("TagFilterJoin")
 											 .continuousEvents();
+
+			if (bSingleRow)
+			{
+				aFilterJoin.sameRow();
+			}
+
 			aFilterNegate =
 				checkBox("TagFilterNegate").sameRow().actionEvents();
 
