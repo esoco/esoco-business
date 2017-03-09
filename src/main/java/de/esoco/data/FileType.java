@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public enum FileType
 	ANY(MimeType.OCTET_STREAM, ".*"), CSV(MimeType.TEXT_CSV, ".csv"),
 	HTML(MimeType.TEXT_HTML, ".html"), PDF(MimeType.PDF, ".pdf"),
 	TXT(MimeType.TEXT_PLAIN, ".txt"), XLS(MimeType.MS_EXCEL, ".xls"),
-	XLSX(MimeType.MS_XLSX, ".xlsx");
+	XLSX(MimeType.MS_XLSX, ".xlsx"), ZIP(MimeType.ZIP, ".zip");
 
 	//~ Instance fields --------------------------------------------------------
 
