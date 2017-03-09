@@ -104,9 +104,10 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 
 	/***************************************
 	 * Invokes a function on each iterated entity and closes the storage
-	 * afterwards.
+	 * afterwards. Like in the iterator methods a storage exception that occurs
+	 * will be wrapped into a {@link StorageRuntimeException}.
 	 *
-	 * @param fAction The function to invoke
+	 * @param fAction The function to invoke on each entity
 	 */
 	public void forEach(Action<E> fAction)
 	{
