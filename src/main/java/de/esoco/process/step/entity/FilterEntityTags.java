@@ -22,7 +22,6 @@ import de.esoco.entity.EntityRelationTypes;
 import de.esoco.entity.ExtraAttribute;
 
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
@@ -192,7 +191,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		Set<String> aAllTags = new HashSet<>();
 
 		Action<ExtraAttribute> fCollect =
-			Functions.asAction(collectAllInto(aAllTags).from(getExtraAttributeValue(ENTITY_TAGS)));
+			collectAllInto(aAllTags).from(getExtraAttributeValue(ENTITY_TAGS));
 
 		EntityManager.forEach(ExtraAttribute.class, pIsEntityTag, fCollect);
 
@@ -314,8 +313,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 				getEntityTagsPredicate(rEntityType, rTagOwner);
 
 			Action<Relatable> fCollect =
-				Functions.asAction(getEntityId().from(ExtraAttribute.ENTITY)
-								   .then(collectInto(aFilteredIds)));
+				collectInto(aFilteredIds).from(getEntityId().from(ExtraAttribute.ENTITY));
 
 			EntityManager.forEach(ExtraAttribute.class,
 								  pIfEntityTag.and(pHasFilterTags),
