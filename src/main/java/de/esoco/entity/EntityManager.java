@@ -43,6 +43,7 @@ import de.esoco.storage.StorageManager;
 import de.esoco.storage.StorageManager.MappingFactory;
 import de.esoco.storage.StorageMapping;
 import de.esoco.storage.StorageRelationTypes;
+import de.esoco.storage.StorageRuntimeException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -491,6 +492,10 @@ public class EntityManager
 
 				fAction.evaluate(rEntity);
 			}
+		}
+		catch (StorageRuntimeException e)
+		{
+			throw e.getCause();
 		}
 	}
 
