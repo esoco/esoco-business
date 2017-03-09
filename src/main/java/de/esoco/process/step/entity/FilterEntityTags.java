@@ -74,12 +74,12 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	/********************************************************************
 	 * Enumeration of the available actions for editing entity tags.
 	 */
-	private enum TagFilterAction { REMOVE, CLEAR }
+	public enum TagFilterAction { REMOVE, CLEAR }
 
 	/********************************************************************
 	 * Enumeration of the possible joins between tag filters.
 	 */
-	private enum TagFilterJoin { OR, AND }
+	public enum TagFilterJoin { OR, AND }
 
 	//~ Static fields/initializers ---------------------------------------------
 
