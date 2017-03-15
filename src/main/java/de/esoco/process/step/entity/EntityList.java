@@ -294,8 +294,7 @@ public class EntityList<E extends Entity,
 	@Override
 	public void init()
 	{
-		layout(Layout.FLOW);
-		fragmentParam().style(EntityList.class.getSimpleName());
+		layout(Layout.FLOW).style(EntityList.class.getSimpleName());
 
 		panel(this::initHeaderPanel);
 		aItemListPanel =

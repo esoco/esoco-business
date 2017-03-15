@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,11 +81,10 @@ public abstract class DataElement<T> extends StringProperties
 
 	/** The set of data element flags for display-only data elements */
 	public static final EnumSet<Flag> DISPLAY_FLAGS =
-		EnumSet.of(DataElement.Flag.IMMUTABLE);
+		EnumSet.of(Flag.IMMUTABLE);
 
 	/** The set of data element flags for input data elements */
-	public static final EnumSet<Flag> INPUT_FLAGS =
-		EnumSet.noneOf(DataElement.Flag.class);
+	public static final EnumSet<Flag> INPUT_FLAGS = EnumSet.noneOf(Flag.class);
 
 	//~ Instance fields --------------------------------------------------------
 

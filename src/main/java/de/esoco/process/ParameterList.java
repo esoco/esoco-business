@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class ParameterList
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private boolean				  bIsPanel;
+	private boolean				  bIsFragment;
 	private ParameterBase<?, ?>[] rLastAddedParams;
 
 	//~ Constructors -----------------------------------------------------------
@@ -45,18 +45,18 @@ public class ParameterList
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rFragment  The fragment to handle the parameter for
-	 * @param rParamType The parameter relation type to handle
-	 * @param bIsPanel   TRUE if this parameter represents a subordinate panel
-	 *                   of it's fragment
+	 * @param rFragment   The fragment to handle the parameter for
+	 * @param rParamType  The parameter relation type to handle
+	 * @param bIsFragment TRUE if this parameter represents a distinct fragment
+	 *                    and FALSE if it is a subordinate panel of a fragment
 	 */
 	public ParameterList(InteractionFragment				 rFragment,
 						 RelationType<List<RelationType<?>>> rParamType,
-						 boolean							 bIsPanel)
+						 boolean							 bIsFragment)
 	{
 		super(rFragment, rParamType);
 
-		this.bIsPanel = bIsPanel;
+		this.bIsFragment = bIsFragment;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -78,8 +78,10 @@ public class ParameterList
 
 			value().add(rParamType);
 
-			if (bIsPanel)
+			if (!bIsFragment)
 			{
+				// if the params are not placed in their own fragment the need
+				// to be added to the panel parameters of the enclosing fragment
 				fragment().addPanelParameters(ProcessElement.params(rParamType));
 			}
 		}
@@ -102,16 +104,24 @@ public class ParameterList
 	}
 
 	/***************************************
-	 * Returns the fragment of the content that this parameter list represents
-	 * (as {@link #fragment()} returns the parent fragment this parameter
-	 * belongs to). If this parameter doesn't represent a fragment NULL will be
-	 * returned.
+	 * Marks the wrapped relation type to be displayed as readonly in the
+	 * fragment this parameter belongs to.
 	 *
-	 * @return The sub-fragment this parameter list represents
+	 * @return This instance for concatenation
 	 */
-	public InteractionFragment contentFragment()
+	@Override
+	public ParameterList display()
 	{
-		return fragment().getSubFragment(type());
+		if (bIsFragment)
+		{
+			fragment().getParent().addDisplayParameters(type());
+		}
+		else
+		{
+			super.display();
+		}
+
+		return this;
 	}
 
 	/***************************************
@@ -124,7 +134,7 @@ public class ParameterList
 	 */
 	public ParameterList enableEdit(boolean bEnable)
 	{
-		contentFragment().enableEdit(bEnable);
+		fragment().enableEdit(bEnable);
 
 		return this;
 	}
@@ -143,6 +153,27 @@ public class ParameterList
 			{
 				rParam.input();
 			}
+		}
+
+		return this;
+	}
+
+	/***************************************
+	 * Marks the wrapped relation type to be displayed as editable in the
+	 * fragment this parameter belongs to.
+	 *
+	 * @return This instance for concatenation
+	 */
+	@Override
+	public ParameterList input()
+	{
+		if (bIsFragment)
+		{
+			fragment().getParent().addInputParameters(type());
+		}
+		else
+		{
+			super.display();
 		}
 
 		return this;

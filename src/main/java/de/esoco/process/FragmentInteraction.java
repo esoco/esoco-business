@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package de.esoco.process;
 
 import de.esoco.lib.property.Layout;
-import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
@@ -184,8 +183,7 @@ public class FragmentInteraction extends Interaction
 		@Override
 		public void init() throws Exception
 		{
-			fragmentParam().set(UserInterfaceProperties.LAYOUT, Layout.TABS)
-						   .set(HTML_HEIGHT, "100%");
+			layout(Layout.TABS).set(HTML_HEIGHT, "100%");
 
 			addDisplayParameters(rFragmentParams);
 

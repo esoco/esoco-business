@@ -138,9 +138,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	private int     nNextParameterId = 0;
 	private boolean bInitialized     = false;
 
-	private Interaction						    rProcessStep;
-	private InteractionFragment				    rParent;
-	private RelationType<List<RelationType<?>>> rFragmentParam;
+	private Interaction		    rProcessStep;
+	private InteractionFragment rParent;
+	private ParameterList	    rFragmentParam;
 
 	private List<RelationType<?>> aFragmentContinuationParams = null;
 
@@ -380,7 +380,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		Interaction							rProcessStep,
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
-		this.rFragmentParam = rFragmentParam;
+		this.rFragmentParam = new ParameterList(this, rFragmentParam, true);
 
 		// reset internal state in the case of re-invocation caused by process
 		// navigation
@@ -723,16 +723,14 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a new parameter wrapper for the relation type this fragment is
-	 * stored in.
+	 * Returns a parameter wrapper for the relation type this fragment is stored
+	 * in.
 	 *
 	 * @return the parameter wrapper for the fragment parameter
 	 */
 	public ParameterList fragmentParam()
 	{
-		return new ParameterList(rParent != null ? rParent : this,
-								 getFragmentParameter(),
-								 false);
+		return rFragmentParam;
 	}
 
 	/***************************************
@@ -753,7 +751,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public final RelationType<List<RelationType<?>>> getFragmentParameter()
 	{
-		return rFragmentParam;
+		return rFragmentParam.type();
 	}
 
 	/***************************************
@@ -1278,6 +1276,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Overridden to mark also the fragment parameter as modified.
+	 *
+	 * @see ProcessFragment#markParameterAsModified(RelationType)
+	 */
+	@Override
+	public <T> void markParameterAsModified(RelationType<T> rParam)
+	{
+		super.markParameterAsModified(rParam);
+
+		if (rParent != null)
+		{
+			rParent.markParameterAsModified(getFragmentParameter());
+		}
+	}
+
+	/***************************************
 	 * Marks a hierarchy of parameters as modified.
 	 *
 	 * @param rParams The list of root parameters
@@ -1352,8 +1366,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Creates a new temporary relation type for a list of relation types and
-	 * returns a parameter wrapper for it.
+	 * Creates a new temporary relation type for a list of relation types that
+	 * will be rendered in a panel without a separate fragment.
 	 *
 	 * @param  sName The name of the parameter list
 	 *
@@ -1364,7 +1378,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rListType =
 			getTemporaryListType(sName, RelationType.class);
 
-		return new ParameterList(this, rListType, true).input();
+		return new ParameterList(this, rListType, false).input();
 	}
 
 	/***************************************
@@ -2507,17 +2521,6 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		rollback();
-	}
-
-	/***************************************
-	 * Sets the parameter this fragment is displayed in.
-	 *
-	 * @param rFragmentParam The fragment parameter
-	 */
-	final void setFragmentParam(
-		RelationType<List<RelationType<?>>> rFragmentParam)
-	{
-		this.rFragmentParam = rFragmentParam;
 	}
 
 	/***************************************

@@ -440,7 +440,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P display()
+	public P display()
 	{
 		rFragment.addDisplayParameters(rParamType);
 
@@ -469,9 +469,9 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	@SuppressWarnings("unchecked")
 	public P ensure(Predicate<? super T> pValueConstraint, String sErrorMessage)
 	{
-		fragment().setParameterValidation(type(),
-										  sErrorMessage,
-										  not(pValueConstraint));
+		rFragment.setParameterValidation(type(),
+										 sErrorMessage,
+										 not(pValueConstraint));
 
 		return (P) this;
 	}
@@ -484,7 +484,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	@SuppressWarnings("unchecked")
 	public P ensureNotEmpty()
 	{
-		fragment().setParameterNotEmptyValidations(type());
+		rFragment.setParameterNotEmptyValidations(type());
 
 		return (P) this;
 	}
@@ -495,7 +495,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return The fragment
 	 */
-	public final InteractionFragment fragment()
+	public InteractionFragment fragment()
 	{
 		return rFragment;
 	}
@@ -657,7 +657,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P input()
+	public P input()
 	{
 		rFragment.addInputParameters(rParamType);
 

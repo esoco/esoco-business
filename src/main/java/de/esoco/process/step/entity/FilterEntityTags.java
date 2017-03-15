@@ -441,8 +441,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	@Override
 	public void init() throws StorageException
 	{
-		layout(eLayout);
-		fragmentParam().resid("FilterEntityTagsFragment");
+		layout(eLayout).resid("FilterEntityTagsFragment");
 
 		if (aTagInput == null)
 		{
