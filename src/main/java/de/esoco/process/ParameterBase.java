@@ -20,7 +20,6 @@ import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentProperties;
@@ -819,14 +818,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		// cleanup: remove parameter change listener if step is left
 		rFragment.getProcessStep()
 				 .addFinishAction(rParamType.getName(),
-			new AbstractAction<ProcessStep>("")
-			{
-				@Override
-				public void execute(ProcessStep rStep)
-				{
-					removeChangeListener(rEventHandler);
-				}
-			});
+								  f -> removeChangeListener(rEventHandler));
 
 		return (P) this;
 	}

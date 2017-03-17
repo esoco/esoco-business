@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import de.esoco.entity.Entity;
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 
-import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -93,8 +91,7 @@ public abstract class ProcessStep extends ProcessFragment
 	/** Will be restored by the parent process on deserialization */
 	private transient Process rProcess;
 
-	private Set<RelationType<?>>			 aModifiedParams = new HashSet<>();
-	private Map<String, Action<ProcessStep>> aFinishActions  = new HashMap<>();
+	private Set<RelationType<?>> aModifiedParams = new HashSet<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -106,27 +103,6 @@ public abstract class ProcessStep extends ProcessFragment
 	}
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Registers an action that will be executed just before this process step
-	 * is finished, i.e. the process continues to the next step or terminates.
-	 * This can be used to perform cleanups of resources that have been
-	 * allocated during the step initialization. It is intended mainly for
-	 * framework methods to perform automatic resource cleanup. Subclasses of
-	 * process steps and fragments should perform their cleanups directly in
-	 * their implemented methods. Actions can be removed by their key through
-	 * the method {@link #removeFinishAction(String)}.
-	 *
-	 * <p>A finish action will receive the associated process step instance as
-	 * it's argument to allow it to modify process parameters if necessary.</p>
-	 *
-	 * @param sKey    A key that identifies the action for removal
-	 * @param rAction The finish action to register
-	 */
-	public void addFinishAction(String sKey, Action<ProcessStep> rAction)
-	{
-		aFinishActions.put(sKey, rAction);
-	}
 
 	/***************************************
 	 * Returns the step's name.
@@ -158,17 +134,6 @@ public abstract class ProcessStep extends ProcessFragment
 	public boolean isParameterModified(RelationType<?> rParam)
 	{
 		return aModifiedParams.contains(rParam);
-	}
-
-	/***************************************
-	 * Removes a step cleanup action that has previously been registered through
-	 * the method {@link #addFinishAction(String, Action)}.
-	 *
-	 * @param sKey The key that identifies the action to remove
-	 */
-	public void removeFinishAction(String sKey)
-	{
-		aFinishActions.remove(sKey);
 	}
 
 	/***************************************
@@ -582,20 +547,6 @@ public abstract class ProcessStep extends ProcessFragment
 	}
 
 	/***************************************
-	 * Executes all actions that have previously been registered through the
-	 * method {@link #addFinishAction(String, Action)}.
-	 */
-	void executeFinishActions()
-	{
-		for (Action<ProcessStep> rAction : aFinishActions.values())
-		{
-			rAction.execute(this);
-		}
-
-		aFinishActions.clear();
-	}
-
-	/***************************************
 	 * Returns the interaction process step for this step. This default
 	 * implementation always returns THIS but subclasses can return different
 	 * step, e.g. when they execute sub-processes.
@@ -680,6 +631,7 @@ public abstract class ProcessStep extends ProcessFragment
 
 		if (!isContinuedInteraction())
 		{
+			removeAllSubFragments();
 			executeFinishActions();
 		}
 		else if (isContinuationParam(rInteractionParam))
@@ -714,7 +666,8 @@ public abstract class ProcessStep extends ProcessFragment
 		}
 		else
 		{
-			aFinishActions.clear();
+			// execute any remnant finish actions and clear action list
+			executeFinishActions();
 			prepareExecution();
 		}
 

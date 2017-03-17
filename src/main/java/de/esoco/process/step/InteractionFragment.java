@@ -185,6 +185,7 @@ public abstract class InteractionFragment extends ProcessFragment
 			rSubFragment.abortFragment();
 		}
 
+		executeFinishActions();
 		abort();
 	}
 

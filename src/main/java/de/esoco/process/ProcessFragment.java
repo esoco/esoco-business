@@ -37,9 +37,9 @@ import de.esoco.entity.EntityManager;
 import de.esoco.history.HistoryRecord;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.CalendarFunctions;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.model.DataSet;
@@ -160,6 +160,9 @@ public abstract class ProcessFragment extends ProcessElement
 	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
 		new LinkedHashMap<>();
 
+	private Map<String, Action<ProcessFragment>> aFinishActions =
+		new LinkedHashMap<>();
+
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -218,6 +221,35 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @return The process of this fragment
 	 */
 	public abstract Process getProcess();
+
+	/***************************************
+	 * Registers an action that will be executed when this process fragment is
+	 * finished, i.e. the fragment is removed, the process continues to the next
+	 * step, or terminates. If a different finish action is already registered
+	 * it will be executed on this step. This can be used to perform cleanups of
+	 * resources that have been allocated during the step initialization. It is
+	 * intended mainly for framework methods to perform automatic resource
+	 * cleanup.
+	 *
+	 * <p>Subclasses of process steps and fragments should perform their
+	 * cleanups directly in their implemented methods. Actions can be removed by
+	 * their key through the method {@link #removeFinishAction(String)}.A finish
+	 * action will receive the associated process fragment instance as it's
+	 * argument to allow it to modify process parameters if necessary.</p>
+	 *
+	 * @param sKey    A key that identifies the action for removal
+	 * @param fAction The finish action to register
+	 */
+	public void addFinishAction(String sKey, Action<ProcessFragment> fAction)
+	{
+		Action<ProcessFragment> fPreviousAction =
+			aFinishActions.put(sKey, fAction);
+
+		if (fPreviousAction != null && fPreviousAction != fAction)
+		{
+			fPreviousAction.execute(this);
+		}
+	}
 
 	/***************************************
 	 * Adds an invisible fill parameter to a layout.
@@ -1357,14 +1389,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		getProcessStep().addFinishAction(sDownloadUrl,
-			new AbstractAction<ProcessStep>("removeDownload")
-			{
-				@Override
-				public void execute(ProcessStep rValue)
-				{
-					rSessionManager.removeDownload(sDownloadUrl);
-				}
-			});
+										 f -> rSessionManager.removeDownload(sDownloadUrl));
 
 		return sDownloadUrl;
 	}
@@ -1411,6 +1436,19 @@ public abstract class ProcessFragment extends ProcessElement
 				getParameterRelation(rParam).deleteRelation(DISPLAY_PROPERTIES);
 			}
 		}
+	}
+
+	/***************************************
+	 * Removes a cleanup action that has previously been registered through the
+	 * method {@link #addFinishAction(String, Action)}.
+	 *
+	 * @param  sKey The key that identifies the action to remove
+	 *
+	 * @return The registered action or NULL for none
+	 */
+	public Action<ProcessFragment> removeFinishAction(String sKey)
+	{
+		return aFinishActions.remove(sKey);
 	}
 
 	/***************************************
@@ -2158,6 +2196,20 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return rParam;
+	}
+
+	/***************************************
+	 * Executes all actions that have previously been registered through the
+	 * method {@link #addFinishAction(String, Action)}.
+	 */
+	protected void executeFinishActions()
+	{
+		for (Action<ProcessFragment> rAction : aFinishActions.values())
+		{
+			rAction.execute(this);
+		}
+
+		aFinishActions.clear();
 	}
 
 	/***************************************
