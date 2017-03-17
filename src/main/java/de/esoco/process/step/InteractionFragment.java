@@ -30,7 +30,6 @@ import de.esoco.entity.ExtraAttributes;
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.manage.Initializable;
 import de.esoco.lib.model.DataSet;
@@ -1885,6 +1884,43 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Prepares the upload of a file with . This requires two parameters. One
+	 * string parameter that will be configured to invoke a file chooser and
+	 * then holds the name of the selected file. This parameter must be
+	 * configured as an input parameter. And a target parameter that will
+	 * receive the result of a successful file upload.
+	 *
+	 * @param  rFileSelectParam The parameter for the file selection
+	 * @param  rUploadHandler   The upload handler
+	 *
+	 * @throws Exception If preparing the upload fails
+	 */
+	protected void prepareUpload(
+		RelationType<String> rFileSelectParam,
+		UploadHandler		 rUploadHandler) throws Exception
+	{
+		final SessionManager rSessionManager =
+			getParameter(DataRelationTypes.SESSION_MANAGER);
+
+		String sOldUrl = getUIProperty(URL, rFileSelectParam);
+
+		if (sOldUrl != null)
+		{
+			rSessionManager.removeUpload(sOldUrl);
+			getProcessStep().removeFinishAction(sOldUrl);
+		}
+
+		final String sUploadUrl = rSessionManager.prepareUpload(rUploadHandler);
+
+		setUIProperty(CONTENT_TYPE, ContentType.FILE_UPLOAD, rFileSelectParam);
+		setUIProperty(URL, sUploadUrl, rFileSelectParam);
+		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
+
+		getProcessStep().addFinishAction(sUploadUrl,
+										 f -> rSessionManager.removeUpload(sUploadUrl));
+	}
+
+	/***************************************
 	 * Prepares the upload of a file into a process parameter. This requires two
 	 * parameters. One string parameter that will be configured to invoke a file
 	 * chooser and then holds the name of the selected file. This parameter must
@@ -1898,43 +1934,20 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @param  nMaxSize            The maximum upload size
 	 *
 	 * @throws Exception If preparing the upload fails
+	 *
+	 * @see    #prepareUpload(RelationType, UploadHandler)
 	 */
 	protected void prepareUpload(RelationType<String> rFileSelectParam,
 								 RelationType<byte[]> rTargetParam,
 								 Pattern			  rContentTypePattern,
 								 int				  nMaxSize) throws Exception
 	{
-		final SessionManager rSessionManager =
-			getParameter(DataRelationTypes.SESSION_MANAGER);
-
 		ProcessParamUploadHandler aUploadHandler =
 			new ProcessParamUploadHandler(rTargetParam,
 										  rContentTypePattern,
 										  nMaxSize);
 
-		String sOldUrl = getUIProperty(URL, rFileSelectParam);
-
-		if (sOldUrl != null)
-		{
-			rSessionManager.removeUpload(sOldUrl);
-			getProcessStep().removeFinishAction(sOldUrl);
-		}
-
-		final String sUploadUrl = rSessionManager.prepareUpload(aUploadHandler);
-
-		setUIProperty(CONTENT_TYPE, ContentType.FILE_UPLOAD, rFileSelectParam);
-		setUIProperty(URL, sUploadUrl, rFileSelectParam);
-		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
-
-		getProcessStep().addFinishAction(sUploadUrl,
-			new AbstractAction<ProcessStep>("removeUpload")
-			{
-				@Override
-				public void execute(ProcessStep rValue)
-				{
-					rSessionManager.removeUpload(sUploadUrl);
-				}
-			});
+		prepareUpload(rFileSelectParam, aUploadHandler);
 	}
 
 	/***************************************
