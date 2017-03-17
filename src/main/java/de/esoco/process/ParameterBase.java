@@ -103,6 +103,10 @@ import static de.esoco.lib.property.StyleProperties.VERTICAL;
 public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	extends RelatedObject
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static int nNextFinishActionId = 0;
+
 	//~ Instance fields --------------------------------------------------------
 
 	private final InteractionFragment rFragment;
@@ -815,9 +819,12 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 		rRelation.addUpdateListener(rEventHandler);
 
-		// cleanup: remove parameter change listener if step is left
+		// cleanup action: remove parameter change listener if step is left
+		String sFinishActionId =
+			"RemoveChangeListener_" + nNextFinishActionId++;
+
 		rFragment.getProcessStep()
-				 .addFinishAction(rParamType.getName(),
+				 .addFinishAction(sFinishActionId,
 								  f -> removeChangeListener(rEventHandler));
 
 		return (P) this;
@@ -881,31 +888,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P remove(PropertyName<?> rProperty)
 	{
 		rFragment.removeUIProperties(rParamType);
-
-		return (P) this;
-	}
-
-	/***************************************
-	 * Removes an parameter update listener that had been set with {@link
-	 * #onChange(EventHandler)}.
-	 *
-	 * @param  rEventHandler The event listener to remove
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #onChange(EventHandler)
-	 */
-	@SuppressWarnings("unchecked")
-	public final P removeChangeListener(
-		EventHandler<RelationEvent<T>> rEventHandler)
-	{
-		Relation<T> rRelation = rFragment.getParameterRelation(rParamType);
-
-		if (rRelation != null)
-		{
-			rRelation.get(StandardTypes.RELATION_UPDATE_LISTENERS)
-					 .remove(rEventHandler);
-		}
 
 		return (P) this;
 	}
@@ -1277,6 +1259,31 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P width(int nWidth)
 	{
 		return set(nWidth, WIDTH);
+	}
+
+	/***************************************
+	 * Removes an parameter update listener that had been set with {@link
+	 * #onChange(EventHandler)}.
+	 *
+	 * @param  rEventHandler The event listener to remove
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #onChange(EventHandler)
+	 */
+	@SuppressWarnings("unchecked")
+	private final P removeChangeListener(
+		EventHandler<RelationEvent<T>> rEventHandler)
+	{
+		Relation<T> rRelation = rFragment.getParameterRelation(rParamType);
+
+		if (rRelation != null)
+		{
+			rRelation.get(StandardTypes.RELATION_UPDATE_LISTENERS)
+					 .remove(rEventHandler);
+		}
+
+		return (P) this;
 	}
 
 	/***************************************

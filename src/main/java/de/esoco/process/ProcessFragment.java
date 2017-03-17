@@ -242,13 +242,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public void addFinishAction(String sKey, Action<ProcessFragment> fAction)
 	{
-		Action<ProcessFragment> fPreviousAction =
-			aFinishActions.put(sKey, fAction);
-
-		if (fPreviousAction != null && fPreviousAction != fAction)
-		{
-			fPreviousAction.execute(this);
-		}
+		aFinishActions.put(sKey, fAction);
 	}
 
 	/***************************************
