@@ -1917,8 +1917,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		setUIProperty(URL, sUploadUrl, rFileSelectParam);
 		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
 
-		getProcessStep().addFinishAction(sUploadUrl,
-										 f -> rSessionManager.removeUpload(sUploadUrl));
+		addFinishAction(sUploadUrl,
+						f -> rSessionManager.removeUpload(sUploadUrl));
 	}
 
 	/***************************************

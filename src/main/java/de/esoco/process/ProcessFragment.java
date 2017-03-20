@@ -1382,8 +1382,8 @@ public abstract class ProcessFragment extends ProcessElement
 			setParameter(rUrlParam, sDownloadUrl);
 		}
 
-		getProcessStep().addFinishAction(sDownloadUrl,
-										 f -> rSessionManager.removeDownload(sDownloadUrl));
+		addFinishAction(sDownloadUrl,
+						f -> rSessionManager.removeDownload(sDownloadUrl));
 
 		return sDownloadUrl;
 	}

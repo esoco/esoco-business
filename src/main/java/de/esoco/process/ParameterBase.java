@@ -823,8 +823,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		String sFinishActionId =
 			"RemoveChangeListener_" + nNextFinishActionId++;
 
-		rFragment.getProcessStep()
-				 .addFinishAction(sFinishActionId,
+		rFragment.addFinishAction(sFinishActionId,
 								  f -> removeChangeListener(rEventHandler));
 
 		return (P) this;
