@@ -514,6 +514,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Returns the value of a certain property for the wrapped parameter.
+	 *
+	 * @see ProcessFragment#getUIProperty(PropertyName, RelationType)
+	 */
+	public final boolean has(PropertyName<?> rProperty)
+	{
+		return rFragment.getUIProperties(rParamType).hasProperty(rProperty);
+	}
+
+	/***************************************
 	 * Sets the pixel width of an element in the UI property {@link
 	 * LayoutProperties#WIDTH}.
 	 *

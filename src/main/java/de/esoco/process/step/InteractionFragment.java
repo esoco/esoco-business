@@ -94,6 +94,7 @@ import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.URL;
+import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
@@ -1421,15 +1422,25 @@ public abstract class InteractionFragment extends ProcessFragment
 		Layout								   ePanelLayout,
 		final Initializer<InteractionFragment> rInitializer)
 	{
-		return addSubFragment(sName,
-			new InteractionFragment()
-			{
-				@Override
-				public void init() throws Exception
+		ParameterList aPanel =
+			addSubFragment(sName,
+				new InteractionFragment()
 				{
-					rInitializer.init(this);
-				}
-			}).layout(ePanelLayout);
+					@Override
+					public void init() throws Exception
+					{
+						rInitializer.init(this);
+					}
+				});
+
+		// only set if the panel hasn't set it's own layout (possible if it has
+		// been added to an existing fragment and then initialized immediately)
+		if (!aPanel.has(LAYOUT))
+		{
+			aPanel.layout(ePanelLayout);
+		}
+
+		return aPanel;
 	}
 
 	/***************************************

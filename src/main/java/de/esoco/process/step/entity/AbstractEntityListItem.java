@@ -231,25 +231,10 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	{
 		if (!bSimpleLayout)
 		{
-			panel(new Initializer<InteractionFragment>()
-				{
-					@Override
-					public void init(InteractionFragment rFragment)
-						throws Exception
-					{
-						createHeaderPanel(rFragment);
-					}
-				});
+			panel(p -> createHeaderPanel(p));
 		}
 
-		panel(new Initializer<InteractionFragment>()
-			{
-				@Override
-				public void init(InteractionFragment rFragment) throws Exception
-				{
-					initContentPanel(rFragment);
-				}
-			});
+		panel(p -> initContentPanel(p));
 	}
 
 	/***************************************
