@@ -103,7 +103,7 @@ public class EntityList<E extends Entity,
 	private int     nEntityCount     = 0;
 	private int     nFirstEntity     = 0;
 	private int     nPageSize		 = 10;
-	private boolean bInitialQuery    = true;
+	private boolean bInitialQuery    = false;
 
 	private Collection<String> aAllowedListSizes = DEFAULT_ALLOWED_LIST_SIZES;
 
@@ -122,25 +122,23 @@ public class EntityList<E extends Entity,
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance that doesn't perform an initial query. The user
-	 * must invoke {@link #setDefaultCriteria(Predicate)} or {@link #update()}
-	 * to perform the first query.
+	 * Creates a new instance without criteria that doesn't perform an initial
+	 * query. The user must invoke either {@link #setDefaultCriteria(Predicate)}
+	 * or {@link #update()} to perform the first query.
 	 *
 	 * @param rEntityType The entity type to be displayed in this list
 	 * @param rItemType   The type of the list items
 	 */
 	public EntityList(Class<E> rEntityType, Class<I> rItemType)
 	{
-		this(rEntityType, rItemType, null, null);
-
-		bInitialQuery = false;
+		this(rEntityType, rItemType, null, null, false);
 	}
 
 	/***************************************
 	 * Creates a new instance that displays entities that fulfill the given
-	 * criteria (if not NULL). The first query will be performed immediately
-	 * after the fragment initialization has completed. If this is not desired
-	 * the constructor {@link #EntityList(Class, Class)} should be used instead.
+	 * criteria (if not NULL). Depending on the boolean parameter the first
+	 * query will be performed immediately after the fragment initialization has
+	 * completed or, if FALSE on the first call to {@link #update()}.
 	 *
 	 * @param rEntityType      The entity type to be displayed in this list
 	 * @param rItemType        The type of the list items
@@ -148,16 +146,20 @@ public class EntityList<E extends Entity,
 	 *                         all entities
 	 * @param pSortColumn      The sort predicate for the initial sort column or
 	 *                         NULL for none
+	 * @param bInitialQuery    TRUE if a initial query should be performed
+	 *                         automatically
 	 */
 	public EntityList(Class<E>				   rEntityType,
 					  Class<I>				   rItemType,
 					  Predicate<? super E>	   pDefaultCriteria,
-					  SortPredicate<? super E> pSortColumn)
+					  SortPredicate<? super E> pSortColumn,
+					  boolean				   bInitialQuery)
 	{
 		this.rItemType		  = rItemType;
 		this.rEntityType	  = rEntityType;
 		this.pDefaultCriteria = pDefaultCriteria;
 		this.pSortColumn	  = pSortColumn;
+		this.bInitialQuery    = bInitialQuery;
 
 		aNavigation = new EntityListNavigation();
 		aItemList   = new EntityListItemList();

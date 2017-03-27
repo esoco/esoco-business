@@ -981,14 +981,10 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @see ProcessFragment#setUIFlag(PropertyName, RelationType...)
 	 */
-	@SafeVarargs
 	@SuppressWarnings("unchecked")
-	public final P set(PropertyName<Boolean>... rFlagProperties)
+	public final P set(PropertyName<Boolean> rFlagProperty)
 	{
-		for (PropertyName<Boolean> rFlag : rFlagProperties)
-		{
-			rFragment.setUIFlag(rFlag, rParamType);
-		}
+		rFragment.setUIFlag(rFlagProperty, rParamType);
 
 		return (P) this;
 	}

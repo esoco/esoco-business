@@ -32,6 +32,7 @@ import de.esoco.process.Parameter;
 import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.ProcessRelationTypes;
 
+import static de.esoco.lib.property.StateProperties.DISABLE_ON_INTERACTION;
 import static de.esoco.lib.property.StateProperties.FOCUSED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
@@ -194,16 +195,9 @@ public class LoginFragment extends InteractionFragment
 	protected void addLoginButton()
 	{
 		buttons(LoginAction.LOGIN).alignHorizontal(Alignment.CENTER)
+								  .set(DISABLE_ON_INTERACTION)
 								  .continueOnInteraction(false)
-								  .onAction(new ParameterEventHandler<LoginAction>()
-			{
-				@Override
-				public void handleParameterUpdate(LoginAction eAction)
-					throws Exception
-				{
-					performLogin();
-				}
-			});
+								  .onAction(eAction -> performLogin());
 	}
 
 	/***************************************
