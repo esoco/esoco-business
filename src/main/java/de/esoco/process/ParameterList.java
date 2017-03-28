@@ -134,7 +134,14 @@ public class ParameterList
 	 */
 	public ParameterList enableEdit(boolean bEnable)
 	{
-		fragment().enableEdit(bEnable);
+		InteractionFragment rFragment = fragment();
+
+		if (!bIsFragment)
+		{
+			rFragment = fragment().getSubFragment(type());
+		}
+
+		rFragment.enableEdit(bEnable);
 
 		return this;
 	}
