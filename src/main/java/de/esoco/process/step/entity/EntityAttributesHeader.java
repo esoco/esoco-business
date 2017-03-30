@@ -340,8 +340,12 @@ public class EntityAttributesHeader<E extends Entity>
 			aColumnParams.put(rAttr, aTitleLabel);
 		}
 
-		toggleSorting((RelationType<?>) getEntityList().getSortColumn()
-					  .getElementDescriptor());
+		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
+
+		if (pSortColumn != null)
+		{
+			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
+		}
 	}
 
 	/***************************************
