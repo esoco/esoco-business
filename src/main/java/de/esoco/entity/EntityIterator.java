@@ -17,8 +17,10 @@
 package de.esoco.entity;
 
 import de.esoco.lib.expression.Action;
+import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.Closeable;
 
+import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.QueryResult;
 import de.esoco.storage.Storage;
@@ -50,6 +52,7 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 	private boolean			  bUseNewStorage;
 
 	private Storage		   rStorage     = null;
+	private Query<E>	   rQuery;
 	private QueryResult<E> rQueryResult;
 
 	//~ Constructors -----------------------------------------------------------
@@ -93,11 +96,15 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 		{
 			try
 			{
-				rQueryResult.close();
+				if (rQuery != null)
+				{
+					rQuery.close();
+				}
 			}
 			finally
 			{
 				rStorage.release();
+				rStorage = null;
 			}
 		}
 	}
@@ -132,22 +139,16 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 	{
 		try
 		{
-			if (rStorage == null)
-			{
-				Class<E> rQueryType = qEntities.getQueryType();
-
-				rStorage =
-					bUseNewStorage ? StorageManager.newStorage(rQueryType)
-								   : StorageManager.getStorage(rQueryType);
-
-				rQueryResult = rStorage.query(qEntities).execute();
-			}
+			checkPrepareQuery();
 
 			return rQueryResult.hasNext();
 		}
 		catch (StorageException e)
 		{
-			throw new StorageRuntimeException(e);
+			handleError(e);
+
+			// not reached, handleError always throws exception
+			return false;
 		}
 	}
 
@@ -170,7 +171,78 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 		}
 		catch (StorageException e)
 		{
-			throw new StorageRuntimeException(e);
+			handleError(e);
+
+			// not reached, handleError always throws exception
+			return null;
 		}
+	}
+
+	/***************************************
+	 * Returns the size of the query result this iterator represents.
+	 *
+	 * @return The query size
+	 *
+	 * @see    Query#size()
+	 */
+	public int size()
+	{
+		try
+		{
+			checkPrepareQuery();
+
+			return rQuery.size();
+		}
+		catch (StorageException e)
+		{
+			handleError(e);
+
+			// not reached, handleError always throws exception
+			return 0;
+		}
+	}
+
+	/***************************************
+	 * Prepares the query of this iterator if not yet done.
+	 *
+	 * @throws StorageException If the storage access fails
+	 */
+	protected void checkPrepareQuery() throws StorageException
+	{
+		if (rStorage == null)
+		{
+			Class<E> rQueryType = qEntities.getQueryType();
+
+			rStorage =
+				bUseNewStorage ? StorageManager.newStorage(rQueryType)
+							   : StorageManager.getStorage(rQueryType);
+
+			rQuery		 = rStorage.query(qEntities);
+			rQueryResult = rQuery.execute();
+		}
+	}
+
+	/***************************************
+	 * Performs the error handling if an exception occurred in another iterator
+	 * method.
+	 *
+	 * @param  eStorage e The exception
+	 *
+	 * @throws StorageRuntimeException The converted exception
+	 */
+	protected void handleError(StorageException eStorage)
+		throws StorageRuntimeException
+	{
+		try
+		{
+			close();
+		}
+		catch (Exception e)
+		{
+			Log.error(e.getMessage());
+			// continue with original exception
+		}
+
+		throw new StorageRuntimeException(eStorage);
 	}
 }

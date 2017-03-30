@@ -17,6 +17,7 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
+import de.esoco.entity.EntityIterator;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
@@ -33,10 +34,7 @@ import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
 
-import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
-import de.esoco.storage.QueryResult;
-import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
 import de.esoco.storage.StoragePredicates.SortPredicate;
@@ -503,23 +501,19 @@ public class EntityList<E extends Entity,
 	 */
 	void queryEntities() throws StorageException
 	{
-		Storage rStorage = StorageManager.getStorage(rEntityType);
-
 		Predicate<E> pCriteria = Predicates.and(pAllCriteria, pSortColumn);
 
 		QueryPredicate<E> qEntities =
 			new QueryPredicate<>(rEntityType, pCriteria);
 
-		try (Query<E> aQuery = rStorage.query(qEntities))
+		qEntities.set(StorageRelationTypes.QUERY_OFFSET, nFirstEntity);
+		qEntities.set(StorageRelationTypes.QUERY_LIMIT, nPageSize);
+
+		try (EntityIterator<E> aEntities = new EntityIterator<>(qEntities))
 		{
 			int nCount = nPageSize;
 
-			aQuery.set(StorageRelationTypes.QUERY_OFFSET, nFirstEntity);
-			aQuery.set(StorageRelationTypes.QUERY_LIMIT, nPageSize);
-
-			QueryResult<E> aEntities = aQuery.execute();
-
-			nEntityCount = aQuery.size();
+			nEntityCount = aEntities.size();
 
 			if (nFirstEntity + nPageSize > nEntityCount)
 			{
@@ -532,10 +526,6 @@ public class EntityList<E extends Entity,
 			{
 				aVisibleEntities.add(aEntities.next());
 			}
-		}
-		finally
-		{
-			rStorage.release();
 		}
 
 		aItemList.update();
