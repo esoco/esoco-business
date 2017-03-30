@@ -112,7 +112,7 @@ public class LoginFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		layout(Layout.FORM);
+		layout(Layout.FORM).set(DISABLE_ON_INTERACTION);
 
 		addInputFields();
 		addErrorLabel();
@@ -139,8 +139,8 @@ public class LoginFragment extends InteractionFragment
 				if (hasFlag(AUTO_UPDATE))
 				{
 					aErrorMessage.hide();
-					fragmentParam().enableEdit(true);
 					set(AUTO_UPDATE, false);
+					fragmentParam().enableEdit(true);
 				}
 			}
 			else
@@ -149,6 +149,10 @@ public class LoginFragment extends InteractionFragment
 														   nWaitSeconds));
 				Thread.sleep(1000);
 			}
+		}
+		else
+		{
+			fragmentParam().enableEdit(true);
 		}
 	}
 
@@ -195,7 +199,6 @@ public class LoginFragment extends InteractionFragment
 	protected void addLoginButton()
 	{
 		buttons(LoginAction.LOGIN).alignHorizontal(Alignment.CENTER)
-								  .set(DISABLE_ON_INTERACTION)
 								  .continueOnInteraction(false)
 								  .onAction(eAction -> performLogin());
 	}
