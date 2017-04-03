@@ -74,7 +74,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	/********************************************************************
 	 * Enumeration of the available actions for editing entity tags.
 	 */
-	public enum TagFilterAction { REMOVE, CLEAR }
+	public enum TagFilterAction { REMOVE, CLEAR, HELP }
 
 	/********************************************************************
 	 * Enumeration of the possible joins between tag filters.
@@ -91,6 +91,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	private Entity   rTagOwner;
 
 	private TagFilterListener<E> rTagFilterListener;
+	private Runnable			 rHelpAction;
 	private String				 sLabel;
 	private Layout				 eLayout;
 	private boolean				 bSingleRow;
@@ -112,10 +113,21 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @param rEntityType The type of entity to filter
 	 * @param rTagOwner   The owner of the tags to filter by or NULL to filter
 	 *                    global tags
+	 * @param rHelpAction A runnable object to be invoked if the user clicks on
+	 *                    the help button; if NULL no help button will be
+	 *                    displayed
 	 */
-	public FilterEntityTags(Class<E> rEntityType, Entity rTagOwner)
+	public FilterEntityTags(Class<E> rEntityType,
+							Entity   rTagOwner,
+							Runnable rHelpAction)
 	{
-		this(rEntityType, rTagOwner, null, null);
+		this(rEntityType,
+			 rTagOwner,
+			 null,
+			 rHelpAction,
+			 null,
+			 Layout.TABLE,
+			 true);
 	}
 
 	/***************************************
@@ -136,6 +148,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		this(rEntityType,
 			 rTagOwner,
 			 rTagFilterListener,
+			 null,
 			 sLabel,
 			 Layout.TABLE,
 			 true);
@@ -148,6 +161,9 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @param rTagOwner          The owner of the tags to filter by or NULL to
 	 *                           filter global tags
 	 * @param rTagFilterListener The listener for filter changes
+	 * @param rHelpAction        A runnable object to be invoked if the user
+	 *                           clicks on the help button; if NULL no help
+	 *                           button will be displayed
 	 * @param sLabel             An optional label in this fragment (empty
 	 *                           string for none, NULL for the default)
 	 * @param eLayout            The layout for this fragment
@@ -156,6 +172,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public FilterEntityTags(Class<E>			 rEntityType,
 							Entity				 rTagOwner,
 							TagFilterListener<E> rTagFilterListener,
+							Runnable			 rHelpAction,
 							String				 sLabel,
 							Layout				 eLayout,
 							boolean				 bSingleRow)
@@ -163,6 +180,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		this.rEntityType	    = rEntityType;
 		this.rTagOwner		    = rTagOwner;
 		this.rTagFilterListener = rTagFilterListener;
+		this.rHelpAction	    = rHelpAction;
 		this.sLabel			    = sLabel;
 		this.eLayout		    = eLayout;
 		this.bSingleRow		    = bSingleRow;
@@ -407,6 +425,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		{
 			switch (aFilterAction.value())
 			{
+				case HELP:
+					rHelpAction.run();
+					break;
+
 				case CLEAR:
 					rFilterTags.clear();
 					break;
@@ -472,8 +494,15 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 				imageButtons(TagFilterAction.class).buttonStyle(eButtonStyle)
 												   .layout(Layout.TABLE)
 												   .sameRow()
-												   .columns(2)
+												   .columns(3)
 												   .resid("TagFilterAction");
+
+			if (rHelpAction == null)
+			{
+				aFilterAction.columns(2)
+							 .allow(TagFilterAction.REMOVE,
+									TagFilterAction.CLEAR);
+			}
 		}
 
 		if (sLabel != null)
@@ -562,6 +591,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 *
 	 * @author eso
 	 */
+	@FunctionalInterface
 	public static interface TagFilterListener<E extends Entity>
 	{
 		//~ Methods ------------------------------------------------------------
