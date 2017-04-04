@@ -299,7 +299,7 @@ public class EntityList<E extends Entity,
 		panel(this::initHeaderPanel);
 		aItemListPanel =
 			panel(aItemList).inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
-		panel(aNavigation).hide();
+		panel(aNavigation);
 	}
 
 	/***************************************
@@ -714,8 +714,6 @@ public class EntityList<E extends Entity,
 					rItem.fragmentParam().hide();
 				}
 			}
-
-			aNavigation.fragmentParam().setVisible(nEntityCount > nPageSize);
 		}
 
 		/***************************************
@@ -768,7 +766,10 @@ public class EntityList<E extends Entity,
 
 		//~ Instance fields ----------------------------------------------------
 
-		private Parameter<String> aNavPosition;
+		private Parameter<String>		    aNavPosition;
+		private Parameter<String>		    aListSizeDropDown;
+		private Parameter<PagingNavigation> aLeftPagingButtons;
+		private Parameter<PagingNavigation> aRightPagingButtons;
 
 		//~ Methods ------------------------------------------------------------
 
@@ -784,28 +785,31 @@ public class EntityList<E extends Entity,
 			{
 				String sPageSize = Integer.toString(nPageSize);
 
-				dropDown("EntityListPageSize", aAllowedListSizes).value(sPageSize)
-																 .input()
-																 .onUpdate(new ParameterEventHandler<String>()
-					{
-						@Override
-						public void handleParameterUpdate(String sPageSize)
-							throws Exception
+				aListSizeDropDown =
+					dropDown("EntityListPageSize", aAllowedListSizes).value(sPageSize)
+																	 .input()
+																	 .onUpdate(new ParameterEventHandler<String>()
 						{
-							changePageSize(sPageSize);
-						}
-					});
+							@Override
+							public void handleParameterUpdate(String sPageSize)
+								throws Exception
+							{
+								changePageSize(sPageSize);
+							}
+						});
 			}
 
-			pagingButtons("LeftPaging",
-						  PagingNavigation.FIRST_PAGE,
-						  PagingNavigation.PREVIOUS_PAGE).sameRow();
+			aLeftPagingButtons =
+				pagingButtons("LeftPaging",
+							  PagingNavigation.FIRST_PAGE,
+							  PagingNavigation.PREVIOUS_PAGE).sameRow();
 
 			aNavPosition = label("").resid("EntityListPosition").sameRow();
 
-			pagingButtons("RightPaging",
-						  PagingNavigation.NEXT_PAGE,
-						  PagingNavigation.LAST_PAGE).sameRow();
+			aRightPagingButtons =
+				pagingButtons("RightPaging",
+							  PagingNavigation.NEXT_PAGE,
+							  PagingNavigation.LAST_PAGE).sameRow();
 
 			update();
 		}
@@ -864,11 +868,31 @@ public class EntityList<E extends Entity,
 		@SuppressWarnings("boxing")
 		void update()
 		{
-			String sPosition =
-				String.format("$$%d - %d {$lblPositionOfCount} %d",
-							  nFirstEntity + 1,
-							  nFirstEntity + aItemList.aItems.size(),
-							  nEntityCount);
+			boolean bShowControls = nEntityCount > nPageSize;
+			String  sPosition;
+
+			if (nEntityCount > 0)
+			{
+				int nLast =
+					Math.min(nFirstEntity + aItemList.aItems.size(),
+							 nEntityCount);
+
+				sPosition =
+					String.format("$$%d - %d {$lblPositionOfCount} %d",
+								  nFirstEntity + 1,
+								  nLast,
+								  nEntityCount);
+			}
+			else
+			{
+				sPosition =
+					"$lbl" + EntityList.this.getClass().getSimpleName() +
+					"Empty";
+			}
+
+			aListSizeDropDown.setVisible(bShowControls);
+			aLeftPagingButtons.setVisible(bShowControls);
+			aRightPagingButtons.setVisible(bShowControls);
 
 			aNavPosition.value(sPosition);
 		}
