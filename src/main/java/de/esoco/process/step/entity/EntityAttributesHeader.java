@@ -20,7 +20,6 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutProperties;
@@ -325,8 +324,8 @@ public class EntityAttributesHeader<E extends Entity>
 	{
 		aColumnParams = new HashMap<>(aColumnProperties.size());
 
+		// set the style name of the parent fragment (the actual header)
 		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
-		p.fragmentParam().alignVertical(Alignment.END);
 
 		for (Entry<RelationType<?>, MutableProperties> rColumn :
 			 aColumnProperties.entrySet())

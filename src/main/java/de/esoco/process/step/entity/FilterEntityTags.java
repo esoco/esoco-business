@@ -24,6 +24,7 @@ import de.esoco.entity.ExtraAttribute;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
+import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.StyleProperties;
@@ -31,6 +32,7 @@ import de.esoco.lib.property.StyleProperties;
 import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.EnumParameter;
 import de.esoco.process.Parameter;
+import de.esoco.process.ParameterList;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;
@@ -105,6 +107,8 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 	private EnumParameter<TagFilterAction> aFilterAction;
 
+	private ParameterList aOptionsPanel;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -113,21 +117,17 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @param rEntityType The type of entity to filter
 	 * @param rTagOwner   The owner of the tags to filter by or NULL to filter
 	 *                    global tags
+	 * @param eLayout     The layout for this fragment
 	 * @param rHelpAction A runnable object to be invoked if the user clicks on
 	 *                    the help button; if NULL no help button will be
 	 *                    displayed
 	 */
 	public FilterEntityTags(Class<E> rEntityType,
 							Entity   rTagOwner,
+							Layout   eLayout,
 							Runnable rHelpAction)
 	{
-		this(rEntityType,
-			 rTagOwner,
-			 null,
-			 rHelpAction,
-			 null,
-			 Layout.TABLE,
-			 true);
+		this(rEntityType, rTagOwner, null, rHelpAction, null, eLayout, true);
 	}
 
 	/***************************************
@@ -416,51 +416,6 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
-		throws Exception
-	{
-		Set<String> rFilterTags = aTagInput.value();
-
-		if (rInteractionParam == aFilterAction.type())
-		{
-			switch (aFilterAction.value())
-			{
-				case HELP:
-					rHelpAction.run();
-					break;
-
-				case CLEAR:
-					rFilterTags.clear();
-					break;
-
-				case REMOVE:
-
-					// remove the last element in the tag set
-					Iterator<String> rIterator = rFilterTags.iterator();
-
-					if (rIterator.hasNext())
-					{
-						while (rIterator.hasNext())
-						{
-							rIterator.next();
-						}
-
-						rIterator.remove();
-					}
-
-					break;
-			}
-
-			aTagInput.modified();
-		}
-
-		rTagFilterListener.filterTagsChanged(this);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void init() throws StorageException
 	{
 		layout(eLayout).resid("FilterEntityTagsFragment");
@@ -471,37 +426,54 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 			aTagInput =
 				inputTags(rAllTags).resid("FilterEntityTags")
-								   .continuousEvents();
+								   .onUpdate(a ->
+											 rTagFilterListener
+											 .filterTagsChanged(this));
 
 			if (bUseHeaderLabel)
 			{
 				aTagInput.set(StyleProperties.HEADER_LABEL);
 			}
 
-			aFilterJoin =
-				dropDown(TagFilterJoin.class).resid("TagFilterJoin")
-											 .continuousEvents();
+			aOptionsPanel =
+				panel(p ->
+  					{
+  						p.layout(Layout.TABLE);
+  						aFilterJoin =
+  							p.dropDown(TagFilterJoin.class)
+  							.resid("TagFilterJoin")
+  							.hideLabel()
+  							.onUpdate(a ->
+  									  rTagFilterListener.filterTagsChanged(this));
+
+  						aFilterNegate =
+  							p.checkBox("TagFilterNegate").sameRow()
+  							.onAction(a ->
+  									  rTagFilterListener.filterTagsChanged(this));
+
+  						aFilterAction =
+  							p.imageButtons(TagFilterAction.class)
+  							.buttonStyle(eButtonStyle)
+  							.layout(Layout.TABLE)
+  							.sameRow()
+  							.columns(3)
+  							.resid("TagFilterAction")
+  							.onAction(this::handleFilterAction);
+
+  						if (rHelpAction == null)
+  						{
+  							aFilterAction.columns(2)
+  							.allow(TagFilterAction.REMOVE,
+  								   TagFilterAction.CLEAR);
+  						}
+					  });
+
+			aOptionsPanel.alignHorizontal(Alignment.BEGIN)
+						 .style("TagFilterOptions");
 
 			if (bSingleRow)
 			{
-				aFilterJoin.sameRow();
-			}
-
-			aFilterNegate =
-				checkBox("TagFilterNegate").sameRow().actionEvents();
-
-			aFilterAction =
-				imageButtons(TagFilterAction.class).buttonStyle(eButtonStyle)
-												   .layout(Layout.TABLE)
-												   .sameRow()
-												   .columns(3)
-												   .resid("TagFilterAction");
-
-			if (rHelpAction == null)
-			{
-				aFilterAction.columns(2)
-							 .allow(TagFilterAction.REMOVE,
-									TagFilterAction.CLEAR);
+				aOptionsPanel.sameRow(5);
 			}
 		}
 
@@ -582,6 +554,46 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public void updateAllowedTags() throws StorageException
 	{
 		aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	private void handleFilterAction(TagFilterAction eAction)
+	{
+		Set<String> rFilterTags = aTagInput.value();
+
+		switch (eAction)
+		{
+			case HELP:
+				rHelpAction.run();
+				break;
+
+			case CLEAR:
+				rFilterTags.clear();
+				break;
+
+			case REMOVE:
+
+				// remove the last element in the tag set
+				Iterator<String> rIterator = rFilterTags.iterator();
+
+				if (rIterator.hasNext())
+				{
+					while (rIterator.hasNext())
+					{
+						rIterator.next();
+					}
+
+					rIterator.remove();
+				}
+
+				break;
+		}
+
+		aTagInput.modified();
+
+		rTagFilterListener.filterTagsChanged(this);
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------
