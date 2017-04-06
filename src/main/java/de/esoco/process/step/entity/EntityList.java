@@ -366,11 +366,11 @@ public class EntityList<E extends Entity,
 	 * all attributes set with {@link
 	 * #setGlobalFilterAttributes(RelationType...)}.
 	 *
-	 * @param sFilter The filter string or NULL for no filter
+	 * @param sFilter The filter string or NULL or empty for no filter
 	 */
 	public void setGlobalFilter(String sFilter)
 	{
-		sGlobalFilter = sFilter;
+		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
 		updateQuery();
 	}
 
@@ -869,9 +869,9 @@ public class EntityList<E extends Entity,
 		void update()
 		{
 			boolean bShowControls = nEntityCount > nPageSize;
-			String  sPosition;
+			String  sPosition     = "";
 
-			if (nEntityCount > 0)
+			if (nEntityCount > 5)
 			{
 				int nLast =
 					Math.min(nFirstEntity + aItemList.aItems.size(),
@@ -883,16 +883,24 @@ public class EntityList<E extends Entity,
 								  nLast,
 								  nEntityCount);
 			}
-			else
+			else if (nEntityCount == 0)
 			{
-				sPosition =
-					"$lbl" + EntityList.this.getClass().getSimpleName() +
-					"Empty";
+				sPosition = "$lbl" + EntityList.this.getClass().getSimpleName();
+
+				if (pExtraCriteria != null || sGlobalFilter != null)
+				{
+					sPosition += "NoMatch";
+				}
+				else
+				{
+					sPosition += "Empty";
+				}
 			}
 
 			aListSizeDropDown.setVisible(bShowControls);
 			aLeftPagingButtons.setVisible(bShowControls);
 			aRightPagingButtons.setVisible(bShowControls);
+			aNavPosition.setVisible(nEntityCount == 0 || nEntityCount > 5);
 
 			aNavPosition.value(sPosition);
 		}
