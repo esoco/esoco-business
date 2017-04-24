@@ -592,7 +592,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see ProcessStep#deleteRelation(Relation)
 	 */
 	@Override
-	public <T> void deleteRelation(Relation<T> rRelation)
+	public void deleteRelation(Relation<?> rRelation)
 	{
 		rProcessStep.deleteRelation(rRelation);
 	}

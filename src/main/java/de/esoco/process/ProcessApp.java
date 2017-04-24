@@ -38,6 +38,16 @@ public class ProcessApp extends Service
 
 	private ProcessRunner aProcessRunner;
 
+	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance.
+	 */
+	public ProcessApp()
+	{
+		super(false);
+	}
+
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************

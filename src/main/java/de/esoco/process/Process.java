@@ -399,7 +399,7 @@ public class Process extends SerializableRelatedObject
 	 * @see RelatedObject#deleteRelation(Relation)
 	 */
 	@Override
-	public <T> void deleteRelation(Relation<T> rRelation)
+	public void deleteRelation(Relation<?> rRelation)
 	{
 		if (rContext != null)
 		{
