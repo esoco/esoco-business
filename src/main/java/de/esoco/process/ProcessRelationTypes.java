@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -115,6 +115,9 @@ public class ProcessRelationTypes
 
 	/** The locale of a process instance. */
 	public static final RelationType<Locale> PROCESS_LOCALE = newType();
+
+	/** The information about the client (web browser) of the process user. */
+	public static final RelationType<String> CLIENT_INFO = newType();
 
 	/** The width of the client (web browser) of the process user. */
 	public static final RelationType<Integer> CLIENT_WIDTH = newType();

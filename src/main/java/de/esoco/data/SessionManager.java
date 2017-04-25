@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,8 @@ public interface SessionManager
 	 * may also carry application-specific properties that are needed by the
 	 * respective implementation.
 	 *
-	 * @param  rLoginData A data element containing the login credentials
+	 * @param  rLoginData  A data element containing the login credentials
+	 * @param  sClientInfo Information about the connecting client
 	 *
 	 * @return A data element list containing the user data if the
 	 *         authentication was successful
@@ -91,8 +92,9 @@ public interface SessionManager
 	 * @throws Exception May throw any kind of exception if the authentication
 	 *                   fails
 	 */
-	public DataElementList loginUser(StringDataElement rLoginData)
-		throws Exception;
+	public DataElementList loginUser(
+		StringDataElement rLoginData,
+		String			  sClientInfo) throws Exception;
 
 	/***************************************
 	 * Terminates the current session to logout the associated user.

@@ -36,6 +36,7 @@ import static de.esoco.lib.property.StateProperties.DISABLE_ON_INTERACTION;
 import static de.esoco.lib.property.StateProperties.FOCUSED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
+import static de.esoco.process.ProcessRelationTypes.CLIENT_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 
 import static org.obrel.type.MetaTypes.AUTHENTICATED;
@@ -284,7 +285,7 @@ public class LoginFragment extends InteractionFragment
 			SessionManager rSessionManager =
 				getParameter(DataRelationTypes.SESSION_MANAGER);
 
-			rSessionManager.loginUser(aLoginData);
+			rSessionManager.loginUser(aLoginData, getParameter(CLIENT_INFO));
 
 			nErrorCount    = 0;
 			nErrorWaitTime = 0;
