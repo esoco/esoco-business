@@ -17,6 +17,8 @@
 package de.esoco.entity;
 
 import de.esoco.lib.app.Service;
+import de.esoco.lib.comm.http.HttpStatusCode;
+import de.esoco.lib.comm.http.HttpStatusException;
 import de.esoco.lib.security.AuthenticationService;
 
 import java.net.InetAddress;
@@ -156,7 +158,12 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 		try
 		{
-			if (!aEntityLocks.containsKey(sGlobalId))
+			if (aEntityLocks.containsKey(sGlobalId))
+			{
+				throw new HttpStatusException(HttpStatusCode.OK,
+											  "Already locked");
+			}
+			else
 			{
 				aEntityLocks.put(sGlobalId, null);
 			}
