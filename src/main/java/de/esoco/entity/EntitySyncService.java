@@ -17,11 +17,10 @@
 package de.esoco.entity;
 
 import de.esoco.lib.app.Service;
+import de.esoco.lib.comm.http.HttpRequestHandler;
 import de.esoco.lib.comm.http.HttpStatusCode;
 import de.esoco.lib.comm.http.HttpStatusException;
 import de.esoco.lib.security.AuthenticationService;
-
-import java.net.InetAddress;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +33,7 @@ import org.obrel.space.ObjectSpace;
 import org.obrel.space.RelationSpace;
 
 import static org.obrel.core.RelationTypes.newType;
+import static org.obrel.type.StandardTypes.IP_ADDRESS;
 
 
 /********************************************************************
@@ -54,7 +54,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Map<String, InetAddress> aEntityLocks = new HashMap<>();
+	private Map<String, String> aEntityLocks = new HashMap<>();
 
 	private Lock aLock = new ReentrantLock();
 
@@ -114,8 +114,8 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 		rApi.set(SYNC, aSyncSpace);
 
-		aSyncSpace.init(REQUEST_LOCK).onChange(this::requestEntityLock);
-		aSyncSpace.init(RELEASE_LOCK).onChange(this::releaseEntityLock);
+		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestEntityLock);
+		aSyncSpace.init(RELEASE_LOCK).onUpdate(this::releaseEntityLock);
 
 		return rControlSpace;
 	}
@@ -129,6 +129,17 @@ public class EntitySyncService extends Service implements AuthenticationService
 	}
 
 	/***************************************
+	 * Returns the IP address of the client that performs the current request.
+	 *
+	 * @return The IP address string
+	 */
+	private String getClientAddress()
+	{
+		return HttpRequestHandler.getThreadLocalRequest().get(IP_ADDRESS)
+								 .getHostAddress();
+	}
+
+	/***************************************
 	 * Releases an entity lock for an entity with a certain global ID.
 	 *
 	 * @param sGlobalId The global ID of the entity to release
@@ -139,7 +150,25 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 		try
 		{
-			aEntityLocks.remove(sGlobalId);
+			String sCurrentLock = aEntityLocks.get(sGlobalId);
+
+			if (sCurrentLock != null)
+			{
+				if (sCurrentLock.equals(getClientAddress()))
+				{
+					aEntityLocks.remove(sGlobalId);
+				}
+				else
+				{
+					throw new HttpStatusException(HttpStatusCode.FORBIDDEN,
+												  "Locked by other client");
+				}
+			}
+			else
+			{
+				throw new HttpStatusException(HttpStatusCode.NOT_FOUND,
+											  "Not locked");
+			}
 		}
 		finally
 		{
@@ -158,14 +187,25 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 		try
 		{
-			if (aEntityLocks.containsKey(sGlobalId))
+			String sCurrentLock   = aEntityLocks.get(sGlobalId);
+			String sClientAddress = getClientAddress();
+
+			if (sCurrentLock == null)
 			{
-				throw new HttpStatusException(HttpStatusCode.OK,
-											  "Already locked");
+				aEntityLocks.put(sGlobalId, sClientAddress);
 			}
 			else
 			{
-				aEntityLocks.put(sGlobalId, null);
+				if (sCurrentLock.equals(sClientAddress))
+				{
+					throw new HttpStatusException(HttpStatusCode.ALREADY_REPORTED,
+												  "Lock already acquired");
+				}
+				else
+				{
+					throw new HttpStatusException(HttpStatusCode.LOCKED,
+												  "Locked by other client");
+				}
 			}
 		}
 		finally
