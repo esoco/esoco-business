@@ -16,11 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
-import de.esoco.lib.comm.Connection;
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
 
-import static de.esoco.lib.comm.CommunicationRelationTypes.HTTP_STATUS_CODE;
 import static de.esoco.lib.expression.Functions.identity;
 
 
@@ -32,6 +30,30 @@ import static de.esoco.lib.expression.Functions.identity;
  */
 public class EntitySyncEndpoint extends HttpEndpoint
 {
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns a request method that will lock an entity with a certain global
+	 * ID.
+	 *
+	 * @return The request method
+	 */
+	public static EntitySyncRequest lockEntity()
+	{
+		return new EntitySyncRequest("request_lock");
+	}
+
+	/***************************************
+	 * Returns a request method that will release a lock on an entity with a
+	 * certain global ID.
+	 *
+	 * @return The request method
+	 */
+	public static EntitySyncRequest releaseEntityLock()
+	{
+		return new EntitySyncRequest("release_lock");
+	}
+
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
@@ -46,29 +68,16 @@ public class EntitySyncEndpoint extends HttpEndpoint
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param sMethodName The name of the request method
+		 * @param sRequestUrl sMethodName The name of the request method
 		 */
-		public EntitySyncRequest(String sMethodName)
+		public EntitySyncRequest(String sRequestUrl)
 		{
-			super(sMethodName,
+			super(sRequestUrl,
 				  null,
 				  HttpRequestMethod.POST,
-				  "/api/sync/",
+				  "/api/sync/" + sRequestUrl,
 				  identity(),
 				  identity());
-		}
-
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * @see HttpRequest#processResponse(Connection, String)
-		 */
-		@Override
-		protected String processResponse(
-			Connection rConnection,
-			String	   sRawResponse)
-		{
-			return rConnection.get(HTTP_STATUS_CODE).toString();
 		}
 	}
 }
