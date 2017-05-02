@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 import org.obrel.space.ObjectSpace;
 import org.obrel.space.RelationSpace;
 
@@ -51,6 +52,11 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 	private static final RelationType<String> REQUEST_LOCK = newType();
 	private static final RelationType<String> RELEASE_LOCK = newType();
+
+	static
+	{
+		RelationTypes.init(EntitySyncService.class);
+	}
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -108,16 +114,16 @@ public class EntitySyncService extends Service implements AuthenticationService
 	@Override
 	protected ObjectSpace<Object> buildRestServerSpace()
 	{
-		ObjectSpace<Object> rControlSpace = super.buildRestServerSpace();
-		ObjectSpace<String> rApi		  = rControlSpace.get(API);
-		ObjectSpace<Object> aSyncSpace    = new RelationSpace<>(true);
+		ObjectSpace<Object> rRootSpace = super.buildRestServerSpace();
+		ObjectSpace<String> rApiSpace  = rRootSpace.get(API);
+		ObjectSpace<Object> aSyncSpace = new RelationSpace<>(true);
 
-		rApi.set(SYNC, aSyncSpace);
+		rApiSpace.set(SYNC, aSyncSpace);
 
 		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestEntityLock);
 		aSyncSpace.init(RELEASE_LOCK).onUpdate(this::releaseEntityLock);
 
-		return rControlSpace;
+		return rRootSpace;
 	}
 
 	/***************************************
@@ -160,14 +166,13 @@ public class EntitySyncService extends Service implements AuthenticationService
 				}
 				else
 				{
-					throw new HttpStatusException(HttpStatusCode.FORBIDDEN,
-												  "Locked by other client");
+					requestFailed(HttpStatusCode.FORBIDDEN,
+								  "Locked by other client");
 				}
 			}
 			else
 			{
-				throw new HttpStatusException(HttpStatusCode.NOT_FOUND,
-											  "Not locked");
+				requestFailed(HttpStatusCode.NOT_FOUND, "Not locked");
 			}
 		}
 		finally
@@ -198,13 +203,13 @@ public class EntitySyncService extends Service implements AuthenticationService
 			{
 				if (sCurrentLock.equals(sClientAddress))
 				{
-					throw new HttpStatusException(HttpStatusCode.ALREADY_REPORTED,
-												  "Lock already acquired");
+					requestFailed(HttpStatusCode.ALREADY_REPORTED,
+								  "Lock already acquired");
 				}
 				else
 				{
-					throw new HttpStatusException(HttpStatusCode.LOCKED,
-												  "Locked by other client");
+					requestFailed(HttpStatusCode.LOCKED,
+								  "Locked by other client");
 				}
 			}
 		}
@@ -212,5 +217,19 @@ public class EntitySyncService extends Service implements AuthenticationService
 		{
 			aLock.unlock();
 		}
+	}
+
+	/***************************************
+	 * Signals a failed request by throwing an {@link HttpStatusException}.
+	 *
+	 * @param  eStatus  The status code for the failure
+	 * @param  sMessage The failure message
+	 *
+	 * @throws HttpStatusException Always throws this exception with the given
+	 *                             parameters
+	 */
+	private void requestFailed(HttpStatusCode eStatus, String sMessage)
+	{
+		throw new HttpStatusException(eStatus, sMessage);
 	}
 }
