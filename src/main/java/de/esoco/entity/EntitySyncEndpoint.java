@@ -24,7 +24,9 @@ import static de.esoco.lib.expression.Functions.identity;
 
 /********************************************************************
  * The HTTP endpoint for interaction with the {@link EntitySyncService} REST
- * service.
+ * service. The endpoint itself uses the standard HTTP endpoint implementation.
+ * This class only serves as a holder for the REST methods that are specific for
+ * the sync service.
  *
  * @author eso
  */

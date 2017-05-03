@@ -193,7 +193,9 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 			if (sCurrentLock != null)
 			{
-				if (sCurrentLock.equals(getClientAddress()))
+				String sClientAddress = getClientAddress();
+
+				if (sCurrentLock.equals(sClientAddress))
 				{
 					aEntityLocks.remove(sGlobalId);
 
@@ -204,13 +206,12 @@ public class EntitySyncService extends Service implements AuthenticationService
 				}
 				else
 				{
-					requestFailed(HttpStatusCode.FORBIDDEN,
-								  "Locked by other client");
+					respond(HttpStatusCode.CONFLICT, sClientAddress);
 				}
 			}
 			else
 			{
-				requestFailed(HttpStatusCode.NOT_FOUND, "Not locked");
+				respond(HttpStatusCode.NOT_FOUND, "");
 			}
 		}
 		finally
@@ -246,13 +247,11 @@ public class EntitySyncService extends Service implements AuthenticationService
 			{
 				if (sCurrentLock.equals(sClientAddress))
 				{
-					requestFailed(HttpStatusCode.ALREADY_REPORTED,
-								  "Already locked");
+					respond(HttpStatusCode.ALREADY_REPORTED, "");
 				}
 				else
 				{
-					requestFailed(HttpStatusCode.LOCKED,
-								  "Locked by " + sClientAddress);
+					respond(HttpStatusCode.LOCKED, sClientAddress);
 				}
 			}
 		}
@@ -271,7 +270,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 	 * @throws HttpStatusException Always throws this exception with the given
 	 *                             parameters
 	 */
-	private void requestFailed(HttpStatusCode eStatus, String sMessage)
+	private void respond(HttpStatusCode eStatus, String sMessage)
 	{
 		throw new HttpStatusException(eStatus, sMessage);
 	}

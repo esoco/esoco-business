@@ -111,6 +111,9 @@ public class EntityManager
 	private static final String MSG_CONCURRENT_MODIFICATION =
 		"Modification of %s by %s instead of %s";
 
+	private static final String MSG_ENTITY_LOCKED =
+		"Entity %s already locked by %s";
+
 	private static final Map<String, Class<? extends Entity>> aIdPrefixRegistry =
 		new HashMap<String, Class<? extends Entity>>();
 
@@ -156,9 +159,12 @@ public class EntityManager
 
 	private static Lock aCacheLock = new ReentrantLock();
 
-	private static final ThreadLocal<String>    aEntityModificationContextId =
+	private static EntitySyncEndpoint rEntitySyncEndpoint;
+
+	private static final ThreadLocal<String> aEntityModificationContextId =
 		new ThreadLocal<>();
-	private static final ThreadLocal<Relatable> aEntityModificationContext   =
+
+	private static final ThreadLocal<Relatable> aEntityModificationContext =
 		new ThreadLocal<>();
 
 	private static Set<Class<? extends Entity>> aDeleteEnabledEntities =
@@ -1733,6 +1739,17 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Sets the endpoint of an entity sync service to be used for entity lock
+	 * synchronization.
+	 *
+	 * @param rSyncEndpoint The entity sync service endpoint
+	 */
+	public static void setEntitySyncService(EntitySyncEndpoint rSyncEndpoint)
+	{
+		rEntitySyncEndpoint = rSyncEndpoint;
+	}
+
+	/***************************************
 	 * Sets the session manager to be used for user identification and
 	 * context-based caching.
 	 *
@@ -1942,38 +1959,56 @@ public class EntityManager
 	{
 		if (rEntity.isPersistent())
 		{
-			String sContextId = getEntityModificationContextId();
+			String sEntityId = rEntity.getGlobalId();
 
-			if (sContextId != null)
+			if (rEntitySyncEndpoint != null)
 			{
-				checkModificationLockRules(rEntity, sContextId);
+				String sMessage =
+					EntitySyncEndpoint.lockEntity().from(rEntitySyncEndpoint)
+									  .evaluate(sEntityId);
 
-				String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-
-				if (sHandle == null)
-				{
-					rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
-
-					Relatable rContext  = aEntityModificationContext.get();
-					String    sEntityId = rEntity.getGlobalId();
-
-					if (rContext != null)
-					{
-						Map<String, Entity> rEntities =
-							rContext.get(CONTEXT_MODIFIED_ENTITIES);
-
-						rEntities.put(sEntityId, rEntity);
-					}
-
-					aModifiedEntities.put(sEntityId, rEntity);
-				}
-				else if (!sHandle.equals(sContextId))
+				if (!"".equals(sMessage))
 				{
 					throwConcurrentEntityModification(rEntity,
-													  MSG_CONCURRENT_MODIFICATION,
+													  MSG_ENTITY_LOCKED,
 													  rEntity,
-													  sContextId,
-													  sHandle);
+													  sMessage);
+				}
+			}
+			else
+			{
+				String sContextId = getEntityModificationContextId();
+
+				if (sContextId != null)
+				{
+					checkModificationLockRules(rEntity, sContextId);
+
+					String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+
+					if (sHandle == null)
+					{
+						rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
+
+						Relatable rContext = aEntityModificationContext.get();
+
+						if (rContext != null)
+						{
+							Map<String, Entity> rEntities =
+								rContext.get(CONTEXT_MODIFIED_ENTITIES);
+
+							rEntities.put(sEntityId, rEntity);
+						}
+
+						aModifiedEntities.put(sEntityId, rEntity);
+					}
+					else if (!sHandle.equals(sContextId))
+					{
+						throwConcurrentEntityModification(rEntity,
+														  MSG_CONCURRENT_MODIFICATION,
+														  rEntity,
+														  sContextId,
+														  sHandle);
+					}
 				}
 			}
 		}
@@ -2072,15 +2107,29 @@ public class EntityManager
 	 */
 	static synchronized void endEntityModification(Entity rEntity)
 	{
-		if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
+		String sEntityId = rEntity.getGlobalId();
+
+		if (rEntitySyncEndpoint != null)
+		{
+			String sMessage =
+				EntitySyncEndpoint.releaseEntityLock().from(rEntitySyncEndpoint)
+								  .evaluate(sEntityId);
+
+			if (!"".equals(sMessage))
+			{
+				Log.warnf("Releasing entity lock for %s failed: %s",
+						  sEntityId,
+						  sMessage);
+			}
+		}
+		else if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
 		{
 			String sContextId = getEntityModificationContextId();
 
 			if (sContextId != null)
 			{
-				Relatable rContext  = aEntityModificationContext.get();
-				String    sHandle   = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-				String    sEntityId = rEntity.getGlobalId();
+				Relatable rContext = aEntityModificationContext.get();
+				String    sHandle  = rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
 				if (!sHandle.equals(sContextId))
 				{
