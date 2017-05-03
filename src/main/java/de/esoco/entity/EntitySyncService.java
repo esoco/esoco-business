@@ -37,6 +37,7 @@ import org.obrel.space.RelationSpace;
 
 import static org.obrel.core.RelationTypes.newType;
 import static org.obrel.type.StandardTypes.IP_ADDRESS;
+import static org.obrel.type.StandardTypes.NAME;
 
 
 /********************************************************************
@@ -126,6 +127,8 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 		rApiSpace.get(STATUS).set(CURRENT_LOCKS, aEntityLocks);
 		rApiSpace.set(SYNC, aSyncSpace);
+
+		aSyncSpace.set(NAME, getServiceName() + " Sync API");
 
 		aSyncSpace.init(CHECK_LOCK).onUpdate(this::checkEntityLock);
 		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestEntityLock);
