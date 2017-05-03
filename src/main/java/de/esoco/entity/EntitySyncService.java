@@ -20,9 +20,11 @@ import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.http.HttpRequestHandler;
 import de.esoco.lib.comm.http.HttpStatusCode;
 import de.esoco.lib.comm.http.HttpStatusException;
+import de.esoco.lib.logging.Log;
+import de.esoco.lib.logging.LogLevel;
 import de.esoco.lib.security.AuthenticationService;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -50,8 +52,12 @@ public class EntitySyncService extends Service implements AuthenticationService
 	/** The part of the API providing access to server control. */
 	public static final RelationType<ObjectSpace<Object>> SYNC = newType();
 
+	private static final RelationType<String> CHECK_LOCK   = newType();
 	private static final RelationType<String> REQUEST_LOCK = newType();
 	private static final RelationType<String> RELEASE_LOCK = newType();
+
+	private static final RelationType<Map<String, String>> CURRENT_LOCKS =
+		newType();
 
 	static
 	{
@@ -60,7 +66,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Map<String, String> aEntityLocks = new HashMap<>();
+	private Map<String, String> aEntityLocks = new LinkedHashMap<>();
 
 	private Lock aLock = new ReentrantLock();
 
@@ -118,8 +124,10 @@ public class EntitySyncService extends Service implements AuthenticationService
 		ObjectSpace<String> rApiSpace  = rRootSpace.get(API);
 		ObjectSpace<Object> aSyncSpace = new RelationSpace<>(true);
 
+		rApiSpace.get(STATUS).set(CURRENT_LOCKS, aEntityLocks);
 		rApiSpace.set(SYNC, aSyncSpace);
 
+		aSyncSpace.init(CHECK_LOCK).onUpdate(this::checkEntityLock);
 		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestEntityLock);
 		aSyncSpace.init(RELEASE_LOCK).onUpdate(this::releaseEntityLock);
 
@@ -132,6 +140,28 @@ public class EntitySyncService extends Service implements AuthenticationService
 	@Override
 	protected void runService() throws Exception
 	{
+	}
+
+	/***************************************
+	 * Tries to acquire an entity lock for an entity with a certain global ID.
+	 *
+	 * @param sGlobalId The global ID of the entity to lock
+	 */
+	private void checkEntityLock(String sGlobalId)
+	{
+		aLock.lock();
+
+		try
+		{
+			boolean bHasLock = aEntityLocks.containsKey(sGlobalId);
+
+			throw new HttpStatusException(HttpStatusCode.OK,
+										  Boolean.toString(bHasLock));
+		}
+		finally
+		{
+			aLock.unlock();
+		}
 	}
 
 	/***************************************
@@ -163,6 +193,11 @@ public class EntitySyncService extends Service implements AuthenticationService
 				if (sCurrentLock.equals(getClientAddress()))
 				{
 					aEntityLocks.remove(sGlobalId);
+
+					if (Log.isLevelEnabled(LogLevel.DEBUG))
+					{
+						Log.debug("Current locks: " + aEntityLocks);
+					}
 				}
 				else
 				{
@@ -198,18 +233,23 @@ public class EntitySyncService extends Service implements AuthenticationService
 			if (sCurrentLock == null)
 			{
 				aEntityLocks.put(sGlobalId, sClientAddress);
+
+				if (Log.isLevelEnabled(LogLevel.DEBUG))
+				{
+					Log.debug("Current locks: " + aEntityLocks);
+				}
 			}
 			else
 			{
 				if (sCurrentLock.equals(sClientAddress))
 				{
 					requestFailed(HttpStatusCode.ALREADY_REPORTED,
-								  "Lock already acquired");
+								  "Already locked");
 				}
 				else
 				{
 					requestFailed(HttpStatusCode.LOCKED,
-								  "Locked by other client");
+								  "Locked by " + sClientAddress);
 				}
 			}
 		}

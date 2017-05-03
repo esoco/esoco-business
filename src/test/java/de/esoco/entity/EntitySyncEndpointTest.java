@@ -46,7 +46,18 @@ public class EntitySyncEndpointTest
 		EndpointChain<String, String> fRelease =
 			releaseEntityLock().from(rEntitySyncService);
 
-		System.out.printf("LOCK   : '%s'\n", fLock.evaluate("\"E-1234\""));
-		System.out.printf("RELEASE: '%s'\n", fRelease.evaluate("\"E-1234\""));
+		for (int i = 0; i < 10; i++)
+		{
+			System.out.printf("LOCK   : '%s'\n",
+							  fLock.evaluate("\"E-100" + i + "\""));
+		}
+
+		for (int i = 9; i >= 8; i--)
+		{
+			System.out.printf("RELEASE: '%s'\n",
+							  fRelease.evaluate("\"E-100" + i + "\""));
+		}
+
+		System.out.printf("LOCK   : '%s'\n", fLock.evaluate("\"E-1001\""));
 	}
 }
