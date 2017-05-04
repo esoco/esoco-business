@@ -53,6 +53,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -251,7 +252,10 @@ public class EntityManager
 		String    sContextId,
 		Relatable rContext)
 	{
-		Map<String, Entity> rEntities = rContext.get(CONTEXT_MODIFIED_ENTITIES);
+		// copy map to prevent concurrent modification from resetEntity which
+		// in tun invokes endEntityModification
+		Map<String, Entity> rEntities =
+			new LinkedHashMap<>(rContext.get(CONTEXT_MODIFIED_ENTITIES));
 
 		for (Entity rEntity : rEntities.values())
 		{
@@ -279,7 +283,7 @@ public class EntityManager
 			aModifiedEntities.remove(rEntity.getGlobalId());
 		}
 
-		rEntities.clear();
+		rContext.get(CONTEXT_MODIFIED_ENTITIES).clear();
 	}
 
 	/***************************************
