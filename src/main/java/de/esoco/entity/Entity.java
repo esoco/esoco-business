@@ -1115,6 +1115,42 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Resets the persistent state and removes all modifications markers on this
+	 * entity by invoking {@link EntityManager#resetEntity(Entity)} on this
+	 * instance. This will also restore the persistent state of this entity
+	 * including it's children. Invoking code should therefore not longer hold
+	 * references to children of this entity but instead read them from the
+	 * parent after the reset if necessary.
+	 *
+	 * <p>This method will only reset</p>
+	 *
+	 * @throws StorageException If restoring the persistent state fails
+	 */
+	public void reset() throws StorageException
+	{
+		if (isModified())
+		{
+			EntityManager.resetEntity(this);
+		}
+	}
+
+	/***************************************
+	 * Resets all modifications of this entity and it's hierarchy by invoking
+	 * {@link #reset()} on this instance and clearing modification markers on
+	 * children held by the {@link EntityManager}. This will also restore the
+	 * persistent state of this entity including it's children. Invoking code
+	 * should therefore not longer hold references to children of this entity
+	 * but instead read them from the parent after the reset if necessary.
+	 *
+	 * @throws StorageException If restoring the persistent state fails
+	 */
+	public void resetHierachy() throws StorageException
+	{
+		resetHierarchyModifications();
+		reset();
+	}
+
+	/***************************************
 	 * Stores an extra attribute of this entity. If an attribute with the given
 	 * key already exists it will be updated, otherwise a new attribute will be
 	 * created.
@@ -1978,6 +2014,31 @@ public class Entity extends SerializableRelatedObject
 		}
 
 		set(EXTRA_ATTRIBUTES_READ);
+	}
+
+	/***************************************
+	 * Internal method to resets all modifications of this entity's hierarchy.
+	 * Used by {@link #resetHierachy()}.
+	 *
+	 * @throws StorageException If restoring the persistent state fails
+	 *
+	 * @see    #resetHierachy()
+	 */
+	private void resetHierarchyModifications()
+	{
+		for (RelationType<List<Entity>> rChildAttr :
+			 getDefinition().getChildAttributes())
+		{
+			for (Entity rChild : get(rChildAttr))
+			{
+				rChild.resetHierarchyModifications();
+
+				if (rChild.isModified())
+				{
+					EntityManager.endEntityModification(rChild);
+				}
+			}
+		}
 	}
 
 	/***************************************
