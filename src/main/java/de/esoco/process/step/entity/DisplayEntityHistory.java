@@ -93,10 +93,10 @@ import static org.obrel.core.RelationTypes.newType;
  * <p><b>Input parameters:</b></p>
  *
  * <ul>
- *   <li>{@link #ENTITY_HISTORY_ROOT_TARGET}: The entity to display the history
- *     of.</li>
- *   <li>{@link #ENTITY_HISTORY_ADDITIONAL_TARGETS}: (optional) Additional
- *     entities to display the history of.</li>
+ *   <li>{@link #ENTITY_HISTORY_TARGET}: The entity to display and create the
+ *     history for.</li>
+ *   <li>{@link #ENTITY_HISTORY_ROOT_TARGET}: An optional root entity to create
+ *     history for.</li>
  *   <li> {@link #ENTITY_HISTORY_TYPES}: The types of the history records to
  *     display.</li>
  * </ul>

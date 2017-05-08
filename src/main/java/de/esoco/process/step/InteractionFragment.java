@@ -176,8 +176,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * be used to undo data and parameter initializations or interactive
 	 * modifications that have been performed by this fragment. Subclasses must
 	 * implement {@link #abort()} instead.
-	 *
-	 * @throws Exception On errors
 	 */
 	public final void abortFragment()
 	{
@@ -491,8 +489,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Can be overridden by subclasses to perform resource cleanups when the
 	 * process ends. The default implementation does nothing.
-	 *
-	 * @see ProcessStep#cleanup()
 	 */
 	public void cleanup()
 	{
@@ -1185,7 +1181,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @param  eLayout The layout
 	 *
-	 * @return
+	 * @return The parameter list of this fragment for concatenation
 	 */
 	public ParameterList layout(Layout eLayout)
 	{
@@ -1751,7 +1747,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * freely by overriding methods to add their own error messages if
 	 * necessary.
 	 *
-	 * @see ProcessStep#validateParameters(boolean)
+	 * @param  bOnInteraction TRUE if the validation occurs during an ongoing
+	 *                        interaction, FALSE after the final interaction
+	 *                        before the fragment is finished
+	 *
+	 * @return A mapping from invalid parameters to validation error message
+	 *         (empty for none)
 	 */
 	public Map<RelationType<?>, String> validateParameters(
 		boolean bOnInteraction)
@@ -1810,7 +1811,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return TRUE if the step implementation support a rollback
 	 *
 	 * @see    #rollback()
-	 * @see    ProcessStep#canRollback()
 	 */
 
 	protected boolean canRollback()
@@ -1968,7 +1968,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * fragments are assumed to be capable of being rolled back. The default
 	 * implementation does nothing.
 	 *
-	 * @see ProcessStep#rollback()
+	 * @throws Exception If the rollback fails
 	 */
 	protected void rollback() throws Exception
 	{
@@ -2042,7 +2042,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @param  rRunOnComfirmation The code to be executed if the user accepts
 	 *                            the message
 	 *
-	 * @return
+	 * @return The message box fragment
 	 */
 	protected MessageBoxFragment showConfirmationMessage(
 		String		   sMessage,
@@ -2333,7 +2333,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * state changes of the process. Subclasses must implement {@link
 	 * #validateParameters(boolean)} instead.
 	 *
-	 * @see ProcessStep#validateParameters(boolean)
+	 * @param  bOnInteraction TRUE if the validation occurs during an ongoing
+	 *                        interaction, FALSE after the final interaction
+	 *                        before the fragment is finished
+	 *
+	 * @return A mapping from invalid parameters to validation error message
+	 *         (empty for none)
 	 */
 	protected Map<RelationType<?>, String> validateFragmentParameters(
 		boolean bOnInteraction)
@@ -2391,7 +2396,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return TRUE if the step implementation support a rollback
 	 *
 	 * @see    #rollback()
-	 * @see    ProcessStep#canRollback()
 	 */
 
 	final boolean canFragmentRollback()
@@ -2586,7 +2590,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * An implementation of the {@link UploadHandler} interface that writes
 	 * uploaded data into a process parameter. This class is used internally by
 	 * {@link InteractionFragment#prepareUpload(RelationType, RelationType,
-	 * int)}.
+	 * Pattern, int)}.
 	 *
 	 * @author eso
 	 */

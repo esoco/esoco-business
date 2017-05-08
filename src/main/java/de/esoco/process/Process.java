@@ -894,10 +894,9 @@ public class Process extends SerializableRelatedObject
 	 * instance. Only one step with a certain name is allowed in a process
 	 * instance.
 	 *
-	 * <p>If no starting step has been set the argument will be set as the
-	 * process step through the method {@link #setStart(ProcessStep)}. This
-	 * means that the first step added to a process will become it's starting
-	 * step unless the start is changed later.</p>
+	 * <p>If no starting step has been set the argument will be set as the first
+	 * process step. This means that the first step added to a process will
+	 * become it's starting step unless the start is changed later.</p>
 	 *
 	 * @param  rStep The process step to add
 	 *

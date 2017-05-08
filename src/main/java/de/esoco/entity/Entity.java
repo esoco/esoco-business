@@ -1521,7 +1521,7 @@ public class Entity extends SerializableRelatedObject
 	 * the result of {@link EntityFunctions#toString()} but subclasses may
 	 * override this method to change or modify the result.
 	 *
-	 * @return
+	 * @return The entity description
 	 */
 	protected String getDescription()
 	{
@@ -1551,7 +1551,7 @@ public class Entity extends SerializableRelatedObject
 	/***************************************
 	 * Internal method to return the extra attributes of this entity. If the
 	 * entity attributes haven't been retrieved yet this method will initialize
-	 * the attribute map by invoking {@link #readExtraAttributes()}
+	 * the attribute map by invoking the private method readExtraAttributes().
 	 *
 	 * @return The extra attributes
 	 *

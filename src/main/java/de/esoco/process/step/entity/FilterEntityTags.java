@@ -557,7 +557,9 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Handles a tag filter action.
+	 *
+	 * @param eAction The action to handle
 	 */
 	private void handleFilterAction(TagFilterAction eAction)
 	{

@@ -1683,7 +1683,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rAllowedValues The allowed values (NULL or empty for all values of
 	 *                       the enum)
 	 *
-	 * @see   #setInteractive(RelationType, Collection, ListStyle, Collection)
+	 * @see   #setInteractive(RelationType, Object, ListStyle, Collection)
 	 */
 	public <E extends Enum<E>> void setImmediateAction(
 		RelationType<E> rParam,

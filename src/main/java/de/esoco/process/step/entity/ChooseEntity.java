@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.text.TextConvert;
 
-import de.esoco.process.ProcessStep;
-import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
+import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 
 import java.util.List;
@@ -37,12 +37,12 @@ import org.obrel.core.RelationTypes;
 
 import static de.esoco.entity.EntityPredicates.forEntity;
 
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMNS;
-import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
-import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDDEN;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.HIDDEN;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
@@ -210,8 +210,6 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 
 	/***************************************
 	 * Set the query predicate.
-	 *
-	 * @see ProcessStep#prepareParameters()
 	 */
 	@Override
 	public void init()

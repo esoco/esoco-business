@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,9 +68,7 @@ public class XmlEntityDefinition extends EntityDefinition<Entity>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param  sXmlFile sEntityName rReference sName The name of the definition
-	 *
-	 * @throws Exception
+	 * @param sXmlFile sEntityName rReference sName The name of the definition
 	 */
 	XmlEntityDefinition(String sXmlFile)
 	{
@@ -125,7 +123,7 @@ public class XmlEntityDefinition extends EntityDefinition<Entity>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * @see DefaultHandler#endElement()
+		 * @see DefaultHandler#endElement(String, String, String)
 		 */
 		@Override
 		@SuppressWarnings("boxing")
@@ -198,7 +196,7 @@ public class XmlEntityDefinition extends EntityDefinition<Entity>
 		}
 
 		/***************************************
-		 * @see DefaultHandler#startElement()
+		 * @see DefaultHandler#startElement(String, String, String, Attributes)
 		 */
 		@Override
 		public void startElement(String		namespaceURI,

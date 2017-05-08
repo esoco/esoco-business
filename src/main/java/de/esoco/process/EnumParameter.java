@@ -39,7 +39,7 @@ public class EnumParameter<E extends Enum<E>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
 	public EnumParameter(
 		InteractionFragment rFragment,
