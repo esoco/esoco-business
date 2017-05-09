@@ -418,63 +418,30 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	@Override
 	public void init() throws StorageException
 	{
+		clearInteractionParameters();
+
 		layout(eLayout).resid("FilterEntityTagsFragment");
 
-		if (aTagInput == null)
+		Set<String> rAllTags = getAllEntityTags(rEntityType, rTagOwner);
+
+		aTagInput =
+			inputTags(rAllTags).resid("FilterEntityTags")
+							   .onUpdate(a ->
+										 rTagFilterListener.filterTagsChanged(this));
+
+		if (bUseHeaderLabel)
 		{
-			Set<String> rAllTags = getAllEntityTags(rEntityType, rTagOwner);
+			aTagInput.set(StyleProperties.HEADER_LABEL);
+		}
 
-			aTagInput =
-				inputTags(rAllTags).resid("FilterEntityTags")
-								   .onUpdate(a ->
-											 rTagFilterListener
-											 .filterTagsChanged(this));
+		aOptionsPanel = panel(this::initOptionsPanel);
 
-			if (bUseHeaderLabel)
-			{
-				aTagInput.set(StyleProperties.HEADER_LABEL);
-			}
+		aOptionsPanel.alignHorizontal(Alignment.BEGIN)
+					 .style("TagFilterOptions");
 
-			aOptionsPanel =
-				panel(p ->
-  					{
-  						p.layout(Layout.TABLE);
-  						aFilterJoin =
-  							p.dropDown(TagFilterJoin.class)
-  							.resid("TagFilterJoin")
-  							.hideLabel()
-  							.onUpdate(a ->
-  									  rTagFilterListener.filterTagsChanged(this));
-
-  						aFilterNegate =
-  							p.checkBox("TagFilterNegate").sameRow()
-  							.onAction(a ->
-  									  rTagFilterListener.filterTagsChanged(this));
-
-  						aFilterAction =
-  							p.imageButtons(TagFilterAction.class)
-  							.buttonStyle(eButtonStyle)
-  							.layout(Layout.TABLE)
-  							.sameRow()
-  							.columns(3)
-  							.resid("TagFilterAction")
-  							.onAction(this::handleFilterAction);
-
-  						if (rHelpAction == null)
-  						{
-  							aFilterAction.columns(2)
-  							.allow(TagFilterAction.REMOVE,
-  								   TagFilterAction.CLEAR);
-  						}
-					  });
-
-			aOptionsPanel.alignHorizontal(Alignment.BEGIN)
-						 .style("TagFilterOptions");
-
-			if (bSingleRow)
-			{
-				aOptionsPanel.sameRow(5);
-			}
+		if (bSingleRow)
+		{
+			aOptionsPanel.sameRow(5);
 		}
 
 		if (sLabel != null)
@@ -557,6 +524,15 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void rollback()
+	{
+		aTagInput = null;
+	}
+
+	/***************************************
 	 * Handles a tag filter action.
 	 *
 	 * @param eAction The action to handle
@@ -596,6 +572,38 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		aTagInput.modified();
 
 		rTagFilterListener.filterTagsChanged(this);
+	}
+
+	/***************************************
+	 * Initializes the panel fragment containing the tag filter options.
+	 *
+	 * @param rPanel The panel fragment
+	 */
+	private void initOptionsPanel(InteractionFragment rPanel)
+	{
+		rPanel.layout(Layout.TABLE);
+		aFilterJoin =
+			rPanel.dropDown(TagFilterJoin.class).resid("TagFilterJoin")
+				  .hideLabel()
+				  .onUpdate(a -> rTagFilterListener.filterTagsChanged(this));
+
+		aFilterNegate =
+			rPanel.checkBox("TagFilterNegate").sameRow()
+				  .onAction(a -> rTagFilterListener.filterTagsChanged(this));
+
+		aFilterAction =
+			rPanel.imageButtons(TagFilterAction.class).buttonStyle(eButtonStyle)
+				  .layout(Layout.TABLE)
+				  .sameRow()
+				  .columns(3)
+				  .resid("TagFilterAction")
+				  .onAction(this::handleFilterAction);
+
+		if (rHelpAction == null)
+		{
+			aFilterAction.columns(2)
+						 .allow(TagFilterAction.REMOVE, TagFilterAction.CLEAR);
+		}
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

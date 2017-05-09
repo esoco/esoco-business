@@ -200,26 +200,21 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
+		clearInteractionParameters();
+
 		layout(Layout.TABLE).resid("EditEntityTagsFragment");
 
 		Set<String> aAllowedTags = getAllowedTags();
 
-		if (aTagInput == null)
-		{
-			aTagInput =
-				inputTags(aAllowedTags).resid("SelectedEntityTags")
-									   .tooltip("$ttSelectedEntityTags")
-									   .value(aInputTags)
-									   .onUpdate(this);
+		aTagInput =
+			inputTags(aAllowedTags).resid("SelectedEntityTags")
+								   .tooltip("$ttSelectedEntityTags")
+								   .value(aInputTags)
+								   .onUpdate(this);
 
-			if (bUseHeaderLabel)
-			{
-				aTagInput.set(StyleProperties.HEADER_LABEL);
-			}
-		}
-		else
+		if (bUseHeaderLabel)
 		{
-			aTagInput.allowElements(aAllowedTags);
+			aTagInput.set(StyleProperties.HEADER_LABEL);
 		}
 
 		if (sLabel != null)
