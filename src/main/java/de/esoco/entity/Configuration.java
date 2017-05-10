@@ -64,6 +64,11 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	public static final RelationType<Entity> OWNER = newType();
 
 	/**
+	 * A reference to another configuration entity containing default values.
+	 */
+	public static final RelationType<Configuration> DEFAULTS = newType();
+
+	/**
 	 * A predicate that matches a configurations that contains entity-related
 	 * settings.
 	 */
@@ -124,7 +129,6 @@ public class Configuration extends Entity implements ProvidesConfiguration
 		Configuration aConfig =
 			EntityManager.queryEntity(Configuration.class,
 									  IS_SETTINGS_CONFIG.and(OWNER.is(equalTo(rOwner))),
-
 									  true);
 
 		if (aConfig == null && bCreate)
@@ -198,13 +202,28 @@ public class Configuration extends Entity implements ProvidesConfiguration
 
 	/***************************************
 	 * Returns a configuration value from the extra attributes of this instance.
+	 * If no value exists but the attribute {@link #DEFAULTS} references another
+	 * configuration entity this method will try to read the value recursively
+	 * from the defaults configuration(s).
 	 *
 	 * @see ProvidesConfiguration#getConfigValue(RelationType, Object)
 	 */
 	@Override
 	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue)
 	{
-		return getXA(rType, rDefaultValue);
+		T rValue = getXA(rType, rDefaultValue);
+
+		if (rValue == null && !hasRelation(rType))
+		{
+			Configuration rDefaults = get(DEFAULTS);
+
+			if (rDefaults != null)
+			{
+				rValue = rDefaults.getConfigValue(rType, rDefaultValue);
+			}
+		}
+
+		return rValue;
 	}
 
 	/***************************************
@@ -218,16 +237,14 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	 *
 	 * @return The settings value or the default value if none exists
 	 *
-	 * @throws StorageException If reading the extra attribute fails
-	 *
 	 * @see    #getSettings(Entity, boolean)
 	 * @see    #setSettingsValue(RelationType, Object)
 	 */
 	public <T> T getSettingsValue(
 		RelationType<T> rSettingExtraAttr,
-		T				rDefaultValue) throws StorageException
+		T				rDefaultValue)
 	{
-		return getExtraAttribute(rSettingExtraAttr, rDefaultValue);
+		return getConfigValue(rSettingExtraAttr, rDefaultValue);
 	}
 
 	/***************************************
@@ -246,18 +263,16 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	 * the corresponding extra attribute users of this class should invoke this
 	 * method so that it can perform additional hierarchical or default lookups.
 	 *
-	 * @param  rSettingExtraAttr The settings extra attribute
-	 * @param  rValue            The new settings value
+	 * @param rSettingExtraAttr The settings extra attribute
+	 * @param rValue            The new settings value
 	 *
-	 * @throws StorageException If accessing the settings extra attribute fails
-	 *
-	 * @see    #getSettings(Entity, boolean)
-	 * @see    #getSettingsValue(RelationType, Object)
+	 * @see   #getSettings(Entity, boolean)
+	 * @see   #getSettingsValue(RelationType, Object)
 	 */
 	public <T> void setSettingsValue(
 		RelationType<T> rSettingExtraAttr,
-		T				rValue) throws StorageException
+		T				rValue)
 	{
-		setExtraAttribute(rSettingExtraAttr, rValue);
+		setConfigValue(rSettingExtraAttr, rValue);
 	}
 }
