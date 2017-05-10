@@ -41,15 +41,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
-import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 import org.obrel.core.SerializableRelatedObject;
 import org.obrel.type.ListenerType.NotificationHandler;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
 
 import static de.esoco.history.HistoryManager.HISTORIZED;
 
@@ -305,11 +302,8 @@ public class Process extends SerializableRelatedObject
 	 * this undoing all persistent changes made so far. Finally, an active
 	 * history group will be canceled and an open transaction will be rolled
 	 * back.
-	 *
-	 * @throws ProcessException If an error occurs during canceling or if this
-	 *                          process has finished execution already
 	 */
-	public void cancel() throws ProcessException
+	public void cancel()
 	{
 		try
 		{
@@ -746,13 +740,9 @@ public class Process extends SerializableRelatedObject
 	 * so that the argument step will be executed next if the {@link #execute()}
 	 * method is invoked again.</p>
 	 *
-	 * @param  rStep The step to roll the process back to
-	 *
-	 * @throws ProcessException If this process has already finished execution
-	 *                          or if the given process step is invalid or if
-	 *                          any affected step doesn't support a rollback
+	 * @param rStep The step to roll the process back to
 	 */
-	public void rollbackTo(ProcessStep rStep) throws ProcessException
+	public void rollbackTo(ProcessStep rStep)
 	{
 		checkValidRollbackStep(rStep);
 
@@ -922,16 +912,12 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Starts a transaction and optionally also a history group.
 	 *
-	 * @param  bWithHistory TRUE to also start a history group inside the
-	 *                      transaction
-	 * @param  rTarget      The target entity for the history or NULL for none
-	 * @param  sValue       The history value or NULL
-	 *
-	 * @throws ProcessException If the boolean flag is TRUE but the history
-	 *                          target is NULL
+	 * @param bWithHistory TRUE to also start a history group inside the
+	 *                     transaction
+	 * @param rTarget      The target entity for the history or NULL for none
+	 * @param sValue       The history value or NULL
 	 */
 	void beginTransaction(boolean bWithHistory, Entity rTarget, String sValue)
-		throws ProcessException
 	{
 		TransactionManager.begin();
 		nTransactionLevel++;
@@ -1348,10 +1334,8 @@ public class Process extends SerializableRelatedObject
 
 	/***************************************
 	 * Performs the initialization of this process before execution.
-	 *
-	 * @throws ProcessException
 	 */
-	private void init() throws ProcessException
+	private void init()
 	{
 		boolean bHistory = hasFlag(HISTORIZED);
 

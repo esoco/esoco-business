@@ -18,7 +18,6 @@ package de.esoco.process;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 
 import de.esoco.lib.expression.Function;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;

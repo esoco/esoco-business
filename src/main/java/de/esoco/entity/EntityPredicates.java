@@ -21,7 +21,6 @@ import de.esoco.entity.EntityFunctions.GetExtraAttribute;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.expression.function.GetElement.GetRelationValue;
 import de.esoco.lib.expression.predicate.ElementPredicate;
 
 import de.esoco.storage.QueryPredicate;
