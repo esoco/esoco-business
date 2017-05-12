@@ -366,6 +366,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Applies all coupled parameters by setting their value onto their coupled
+	 * targets.
+	 *
+	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 */
+	public void applyAllCoupledParameters()
+	{
+		RelationCoupling.setAll(getProcess(), getInteractionParameters());
+	}
+
+	/***************************************
 	 * Internal method that will be invoked to attach this fragment to the given
 	 * process step and fragment parameter. Multiple invocations are possible.
 	 *
@@ -736,17 +747,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <T> T get(RelationType<T> rType)
 	{
 		return rProcessStep.get(rType);
-	}
-
-	/***************************************
-	 * Retrieves the values of all coupled parameters from their respective
-	 * sources.
-	 *
-	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
-	 */
-	public void getAllCoupledParameters()
-	{
-		RelationCoupling.getAll(getProcess(), getInteractionParameters());
 	}
 
 	/***************************************
@@ -1599,16 +1599,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Sets all coupled parameters onto their respective targets.
-	 *
-	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
-	 */
-	public void setAllCoupledParameters()
-	{
-		RelationCoupling.setAll(getProcess(), getInteractionParameters());
-	}
-
-	/***************************************
 	 * Overridden to remember the continuation parameters of this fragment.
 	 *
 	 * @see ProcessFragment#setContinueOnInteraction(boolean, RelationType...)
@@ -1747,6 +1737,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	public Parameter<String> title(String sTitleText)
 	{
 		return label(sTitleText, LabelStyle.TITLE);
+	}
+
+	/***************************************
+	 * Updates all coupled parameters by retrieving their values from the
+	 * coupled sources.
+	 *
+	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 */
+	public void updateAllCoupledParameters()
+	{
+		RelationCoupling.getAll(getProcess(), getInteractionParameters());
 	}
 
 	/***************************************
