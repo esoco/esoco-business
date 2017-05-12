@@ -81,6 +81,7 @@ import java.util.regex.Pattern;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+import org.obrel.filter.RelationCoupling;
 import org.obrel.type.MetaTypes;
 
 import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
@@ -735,6 +736,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <T> T get(RelationType<T> rType)
 	{
 		return rProcessStep.get(rType);
+	}
+
+	/***************************************
+	 * Retrieves the values of all coupled parameters from their respective
+	 * sources.
+	 *
+	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 */
+	public void getAllCoupledParameters()
+	{
+		RelationCoupling.getAll(getProcess(), getInteractionParameters());
 	}
 
 	/***************************************
@@ -1584,6 +1596,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <T> Relation<T> set(RelationType<T> rType, T rTarget)
 	{
 		return rProcessStep.set(rType, rTarget);
+	}
+
+	/***************************************
+	 * Sets all coupled parameters onto their respective targets.
+	 *
+	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 */
+	public void setAllCoupledParameters()
+	{
+		RelationCoupling.setAll(getProcess(), getInteractionParameters());
 	}
 
 	/***************************************

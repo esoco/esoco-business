@@ -18,6 +18,7 @@ package de.esoco.process;
 
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.function.RelationAccessor;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentType;
@@ -40,11 +41,15 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
+import org.obrel.filter.RelationCoupling;
 import org.obrel.type.StandardTypes;
 
 import static de.esoco.lib.expression.Predicates.not;
@@ -394,6 +399,47 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P continuousEvents()
 	{
 		return interactive(InteractiveInputMode.CONTINUOUS);
+	}
+
+	/***************************************
+	 * Couples the relation of this parameter with a certain target and/or
+	 * source.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    RelationCoupling#couple(org.obrel.core.Relatable, RelationType,
+	 *         Consumer, Supplier)
+	 */
+	@SuppressWarnings("unchecked")
+	public P couple(Consumer<T> fUpdateTarget, Supplier<T> fQuerySource)
+	{
+		RelationCoupling<T> aCoupling =
+			RelationCoupling.couple(rFragment.getProcess(),
+									rParamType,
+									fUpdateTarget,
+									fQuerySource);
+
+		rFragment.addFinishAction("RemoveCoupling_" + nNextFinishActionId++,
+								  f -> aCoupling.remove());
+
+		return (P) this;
+	}
+
+	/***************************************
+	 * Couples the relation of this parameter with another relation in a
+	 * relatable object.
+	 *
+	 * @param  rCoupledRelatable The coupled relatable
+	 * @param  rCoupledType      The relation type to couple this parameter with
+	 *
+	 * @return This instance for concatenation
+	 */
+	public P couple(Relatable rCoupledRelatable, RelationType<T> rCoupledType)
+	{
+		RelationAccessor<T> aAccessor =
+			new RelationAccessor<>(rCoupledRelatable, rCoupledType);
+
+		return couple(aAccessor, aAccessor);
 	}
 
 	/***************************************
@@ -825,10 +871,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		rRelation.addUpdateListener(rEventHandler);
 
 		// cleanup action: remove parameter change listener if step is left
-		String sFinishActionId =
-			"RemoveChangeListener_" + nNextFinishActionId++;
-
-		rFragment.addFinishAction(sFinishActionId,
+		rFragment.addFinishAction("RemoveChangeListener_" +
+								  nNextFinishActionId++,
 								  f -> removeChangeListener(rEventHandler));
 
 		return (P) this;
