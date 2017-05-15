@@ -17,20 +17,16 @@
 package de.esoco.process;
 
 import de.esoco.data.element.DataElement;
+import de.esoco.data.process.ProcessState;
 
 import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
-
-import de.esoco.history.HistoryManager;
 
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.net.ExternalServiceAccess;
 import de.esoco.lib.property.InteractionEventType;
-import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
-
-import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +41,6 @@ import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
-import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityRelationTypes.newEntityAttribute;
 
@@ -90,6 +85,24 @@ public class ProcessRelationTypes
 
 	/** An information string describing the process or it's current state. */
 	public static final RelationType<String> PROCESS_INFO = newType();
+
+	/**
+	 * A reference to a {@link ProcessExecutor} instance that can be used to run
+	 * additional processes.
+	 */
+	public static final RelationType<ProcessExecutor> PROCESS_EXECUTOR =
+		newType();
+
+	/**
+	 * A list of process states that will be evaluated to spawn new processes
+	 * separate from the current process context. The process states are
+	 * typically created by a {@link ProcessExecutor} instance that can be
+	 * queried from the process parameter {@link #PROCESS_EXECUTOR}. This list
+	 * will be cleared by an interaction (which will first spawn the new
+	 * processes).
+	 */
+	public static final RelationType<List<ProcessState>> SPAWN_PROCESSES =
+		newListType();
 
 	/** A reference to a process definition. */
 	public static final RelationType<ProcessDefinition> PROCESS_DEFINITION =

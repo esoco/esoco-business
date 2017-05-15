@@ -21,11 +21,12 @@ import de.esoco.data.DownloadData;
 import de.esoco.data.FileType;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.DataElement;
-import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataSetDataElement;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
 import de.esoco.data.element.SelectionDataElement;
+import de.esoco.data.process.ProcessDescription;
+import de.esoco.data.process.ProcessState;
 import de.esoco.data.storage.StorageAdapter;
 import de.esoco.data.storage.StorageAdapterId;
 import de.esoco.data.storage.StorageAdapterRegistry;
@@ -53,8 +54,6 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
-import de.esoco.lib.property.StyleProperties;
-import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
@@ -120,12 +119,14 @@ import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
+import static de.esoco.process.ProcessRelationTypes.PROCESS_EXECUTOR;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_INDICATOR;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_INDICATOR_TEMPLATE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_MAXIMUM;
+import static de.esoco.process.ProcessRelationTypes.SPAWN_PROCESSES;
 import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
 
 import static org.obrel.core.RelationTypes.newListType;
@@ -2122,6 +2123,32 @@ public abstract class ProcessFragment extends ProcessElement
 		else
 		{
 			setUIFlag(HIDDEN, rParams);
+		}
+	}
+
+	/***************************************
+	 * Spawns a new process that will run independently from the current process
+	 * context. If the process is interactive a process state will be created
+	 * and registered in {@link ProcessRelationTypes#SPAWN_PROCESSES} so that
+	 * it's interaction can be displayed on the client side.
+	 *
+	 * @param  rDescription The process description
+	 * @param  rInitParams  The optional initialization parameters or NULL for
+	 *                      none
+	 *
+	 * @throws Exception If the process execution fails
+	 */
+	public void spawnProcess(
+		ProcessDescription rDescription,
+		Relatable		   rInitParams) throws Exception
+	{
+		ProcessState rProcessState =
+			getParameter(PROCESS_EXECUTOR).executeProcess(rDescription,
+														  rInitParams);
+
+		if (rProcessState != null)
+		{
+			getParameter(SPAWN_PROCESSES).add(rProcessState);
 		}
 	}
 
