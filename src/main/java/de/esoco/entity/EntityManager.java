@@ -1544,14 +1544,24 @@ public class EntityManager
 	 * Removes an entity modification context that has been set previously with
 	 * {@link #setEntityModificationContext(String, Relatable)}.
 	 *
-	 * @param sContextId The ID of the entity modification context
+	 * @param sContextId      The ID of the entity modification context
+	 * @param bIgnoreExisting TRUE to ignore any different existing context
 	 */
-	public static void removeEntityModificationContext(String sContextId)
+	public static void removeEntityModificationContext(
+		String  sContextId,
+		boolean bIgnoreExisting)
 	{
-		assert aEntityModificationContextId.get().equals(sContextId);
-
-		aEntityModificationContext.remove();
-		aEntityModificationContextId.remove();
+		if (sContextId.equals(aEntityModificationContextId.get()))
+		{
+			aEntityModificationContext.remove();
+			aEntityModificationContextId.remove();
+		}
+		else if (!bIgnoreExisting)
+		{
+			assert false : String.format("Modification context mismatch: %s != %s",
+										 sContextId,
+										 aEntityModificationContextId);
+		}
 	}
 
 	/***************************************
@@ -1678,28 +1688,37 @@ public class EntityManager
 	}
 
 	/***************************************
-	 * Sets the current entity modification context. This context will then be
-	 * used to prevent concurrent modifications of entities. It must be an
-	 * instance of {@link Relatable} so that relations for the modification
-	 * tracking can be added to it. After the entity modifications have been
-	 * performed the method {@link #removeEntityModificationContext(String)}
-	 * must be invoked.
+	 * Sets the entity modification context for the current thread. This context
+	 * will then be used to prevent concurrent modifications of entities. It
+	 * must be an instance of {@link Relatable} so that relations for the
+	 * modification tracking can be added to it. After the entity modifications
+	 * have been performed the method {@link
+	 * #removeEntityModificationContext(String)} must be invoked.
 	 *
 	 * <p>This method is intended to be used internally by the framework only.
 	 * </p>
 	 *
-	 * @param sContextId A unique ID of the entity modification context
-	 * @param rContext   A relatable object that serves as the context
+	 * @param sContextId    A unique ID of the entity modification context
+	 * @param rContext      A relatable object that serves as the context
+	 * @param bKeepExisting TRUE to keep an existing modification context or
+	 *                      FALSE to throw a {@link
+	 *                      ConcurrentModificationException} if a context has
+	 *                      already been set for the current thread.
 	 */
-	public static void setEntityModificationContext(
-		String    sContextId,
-		Relatable rContext)
+	public static void setEntityModificationContext(String    sContextId,
+													Relatable rContext,
+													boolean   bKeepExisting)
 	{
 		assert sContextId != null && rContext != null;
 
 		String sExistingContext = aEntityModificationContextId.get();
 
-		if (sExistingContext != null)
+		if (sExistingContext == null)
+		{
+			aEntityModificationContextId.set(sContextId);
+			aEntityModificationContext.set(rContext);
+		}
+		else if (!bKeepExisting)
 		{
 			String sMessage =
 				String.format("Modification context already set to %s " +
@@ -1709,9 +1728,6 @@ public class EntityManager
 
 			throw new ConcurrentModificationException(sMessage);
 		}
-
-		aEntityModificationContextId.set(sContextId);
-		aEntityModificationContext.set(rContext);
 	}
 
 	/***************************************

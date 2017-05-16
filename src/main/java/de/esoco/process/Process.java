@@ -41,12 +41,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 import org.obrel.core.SerializableRelatedObject;
 import org.obrel.type.ListenerType.NotificationHandler;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import static de.esoco.history.HistoryManager.HISTORIZED;
 
@@ -428,9 +431,15 @@ public class Process extends SerializableRelatedObject
 
 		if (rContext == null)
 		{
-			// set (only) the root process as the entity modification context
+			// set (only) the root process as the entity modification context.
+			// If process is spawned from another the first execution will be in
+			// the same thread. Therefore bKeepExisting is set to TRUE to not
+			// override the context of the starting process. On the next
+			// interaction (on a separate thread) the context will be set to
+			// the new process
 			EntityManager.setEntityModificationContext(sUniqueProcessName,
-													   this);
+													   this,
+													   true);
 		}
 
 		try
@@ -455,7 +464,9 @@ public class Process extends SerializableRelatedObject
 		{
 			if (rContext == null)
 			{
-				EntityManager.removeEntityModificationContext(sUniqueProcessName);
+				// remove but ignore error of newly spawned process
+				EntityManager.removeEntityModificationContext(sUniqueProcessName,
+															  true);
 			}
 		}
 	}
