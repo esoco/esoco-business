@@ -1743,11 +1743,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Updates all coupled parameters by retrieving their values from the
 	 * coupled sources.
 	 *
-	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 * @param bMarkParamsAsModified If TRUE all interaction parameters of this
+	 *                              fragment will be marked as modified
+	 *
+	 * @see   de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
 	 */
-	public void updateAllCoupledParameters()
+	public void updateAllCoupledParameters(boolean bMarkParamsAsModified)
 	{
-		RelationCoupling.getAll(getProcess(), getInteractionParameters());
+		List<RelationType<?>> rInteractionParams = getInteractionParameters();
+
+		RelationCoupling.getAll(getProcess(), rInteractionParams);
+
+		if (bMarkParamsAsModified)
+		{
+			for (RelationType<?> rParam : rInteractionParams)
+			{
+				markParameterAsModified(rParam);
+			}
+		}
 	}
 
 	/***************************************
