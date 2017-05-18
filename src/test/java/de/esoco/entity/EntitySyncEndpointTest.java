@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
+import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointChain;
 
@@ -39,12 +40,12 @@ public class EntitySyncEndpointTest
 	 */
 	public static void main(String[] rArgs)
 	{
-		Endpoint rEntitySyncService = Endpoint.at("http://localhost:8377");
+		Endpoint aSync = Endpoint.at("http://localhost:8377");
 
-		EndpointChain<String, String> fLock    =
-			lockEntity().from(rEntitySyncService);
+		EndpointChain<String, String> fLock = lockEntity().from(aSync);
+
 		EndpointChain<String, String> fRelease =
-			releaseEntityLock().from(rEntitySyncService);
+			releaseEntityLock().from(aSync);
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -59,5 +60,11 @@ public class EntitySyncEndpointTest
 		}
 
 		System.out.printf("LOCK   : '%s'\n", fLock.evaluate("\"E-1001\""));
+
+		String sRunning = Service.CHECK_RUNNING.from(aSync).result();
+
+		System.out.printf("RUNNING: %s\n", sRunning);
+
+		Service.REQUEST_STOP.from(aSync).result();
 	}
 }

@@ -19,6 +19,7 @@ package de.esoco.entity;
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
 
+import static de.esoco.lib.comm.CommunicationRelationTypes.ENDPOINT_ADDRESS;
 import static de.esoco.lib.expression.Functions.identity;
 
 
@@ -32,6 +33,18 @@ import static de.esoco.lib.expression.Functions.identity;
  */
 public class EntitySyncEndpoint extends HttpEndpoint
 {
+	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance for a certain endpoint URL.
+	 *
+	 * @param sEndpointUrl The endpoint URL
+	 */
+	public EntitySyncEndpoint(String sEndpointUrl)
+	{
+		set(ENDPOINT_ADDRESS, sEndpointUrl);
+	}
+
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -72,7 +85,7 @@ public class EntitySyncEndpoint extends HttpEndpoint
 		 *
 		 * @param sRequestUrl sMethodName The name of the request method
 		 */
-		public EntitySyncRequest(String sRequestUrl)
+		EntitySyncRequest(String sRequestUrl)
 		{
 			super(sRequestUrl,
 				  null,
