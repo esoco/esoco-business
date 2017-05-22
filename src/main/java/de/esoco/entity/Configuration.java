@@ -22,6 +22,7 @@ import de.esoco.lib.manage.TransactionException;
 import de.esoco.storage.StorageException;
 
 import org.obrel.core.ProvidesConfiguration;
+import org.obrel.core.ProvidesSettings;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
@@ -45,7 +46,8 @@ import static org.obrel.core.RelationTypes.newType;
  *
  * @author eso
  */
-public class Configuration extends Entity implements ProvidesConfiguration
+public class Configuration extends Entity implements ProvidesConfiguration,
+													 ProvidesSettings
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -213,7 +215,8 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	{
 		T rValue = getXA(rType, rDefaultValue);
 
-		if (rValue == null && !hasRelation(rType))
+		// use default if available and value hasn't been explicitly set to NULL
+		if (rValue == null && !hasXA(rType))
 		{
 			Configuration rDefaults = get(DEFAULTS);
 
@@ -230,7 +233,9 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	 * Returns a certain settings value. Instead of directly querying settings
 	 * with the corresponding extra attribute users of this class should invoke
 	 * this method so that it can perform additional hierarchical or default
-	 * lookups.
+	 * lookups. Like {@link #getConfigValue(RelationType, Object)} this method
+	 * recursively looks up non-existing settings from any parent configuration
+	 * set in the attribute {@link #DEFAULTS}.
 	 *
 	 * @param  rSettingExtraAttr The settings extra attribute
 	 * @param  rDefaultValue     The default value to return if no setting exist
@@ -240,6 +245,7 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	 * @see    #getSettings(Entity, boolean)
 	 * @see    #setSettingsValue(RelationType, Object)
 	 */
+	@Override
 	public <T> T getSettingsValue(
 		RelationType<T> rSettingExtraAttr,
 		T				rDefaultValue)
@@ -269,6 +275,7 @@ public class Configuration extends Entity implements ProvidesConfiguration
 	 * @see   #getSettings(Entity, boolean)
 	 * @see   #getSettingsValue(RelationType, Object)
 	 */
+	@Override
 	public <T> void setSettingsValue(
 		RelationType<T> rSettingExtraAttr,
 		T				rValue)

@@ -19,7 +19,6 @@ package de.esoco.process;
 import de.esoco.data.element.DataElement;
 import de.esoco.data.process.ProcessState;
 
-import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Action;
@@ -38,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obrel.core.Annotations.RelationTypeNamespace;
+import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
@@ -482,7 +482,8 @@ public class ProcessRelationTypes
 	 * A process parameter that contains the configuration of the application in
 	 * which the process is running.
 	 */
-	public static final RelationType<Configuration> CONFIGURATION = newType();
+	public static final RelationType<ProvidesConfiguration> CONFIGURATION =
+		newType();
 
 	/**
 	 * A list of process definition classes for background process that shall be

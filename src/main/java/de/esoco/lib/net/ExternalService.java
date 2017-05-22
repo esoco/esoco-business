@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,14 +18,11 @@ package de.esoco.lib.net;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.storage.StorageException;
-
 import java.math.BigInteger;
-
-import java.net.URL;
 
 import java.security.SecureRandom;
 
+import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 
@@ -49,8 +46,8 @@ public abstract class ExternalService extends RelatedObject
 	private final String sServiceId =
 		new BigInteger(130, new SecureRandom()).toString(32);
 
-	private Entity rUser;
-	private Entity rConfig;
+	private Entity				  rUser;
+	private ProvidesConfiguration rConfig;
 
 	//~ Static methods ---------------------------------------------------------
 
@@ -71,7 +68,7 @@ public abstract class ExternalService extends RelatedObject
 	public static ExternalService create(
 		ExternalServiceDefinition rServiceDefinition,
 		Entity					  rUser,
-		Entity					  rConfig) throws Exception
+		ProvidesConfiguration	  rConfig) throws Exception
 	{
 		ExternalService aService =
 			rServiceDefinition.getServiceClass().newInstance();
@@ -169,11 +166,11 @@ public abstract class ExternalService extends RelatedObject
 	public abstract void revokeAccess() throws Exception;
 
 	/***************************************
-	 * Returns the configuration entity for this service.
+	 * Returns the configuration for this service.
 	 *
-	 * @return The configuration entity
+	 * @return The configuration
 	 */
-	public final Entity getConfig()
+	public final ProvidesConfiguration getConfig()
 	{
 		return rConfig;
 	}
@@ -202,7 +199,7 @@ public abstract class ExternalService extends RelatedObject
 	 * Queries a value from the configuration returned by {@link #getConfig()}
 	 * and throws an exception if the value doesn't exist.
 	 *
-	 * @param  rConfigKey The extra attribute to query from the configuration
+	 * @param  rConfigKey The relation type to query from the configuration
 	 *
 	 * @return The configuration value
 	 *
@@ -211,25 +208,15 @@ public abstract class ExternalService extends RelatedObject
 	 */
 	protected String getRequiredConfigValue(RelationType<String> rConfigKey)
 	{
-		Entity rConfig = getConfig();
+		String sConfigValue = getConfig().getConfigValue(rConfigKey, null);
 
-		try
+		if (sConfigValue == null)
 		{
-			if (rConfig.hasExtraAttribute(rConfigKey))
-			{
-				return rConfig.getExtraAttribute(rConfigKey, null);
-			}
-			else
-			{
-				throw new IllegalStateException("Service config undefined: " +
-												rConfigKey.getSimpleName());
-			}
-		}
-		catch (StorageException e)
-		{
-			throw new IllegalStateException("Service config not accessible: " +
+			throw new IllegalStateException("Service configuration value undefined: " +
 											rConfigKey.getSimpleName());
 		}
+
+		return sConfigValue;
 	}
 
 	/***************************************
@@ -238,7 +225,7 @@ public abstract class ExternalService extends RelatedObject
 	 * @param rUser   The user entity the service access shall be performed for
 	 * @param rConfig The configuration entity to read configuration values from
 	 */
-	private void init(Entity rUser, Entity rConfig)
+	private void init(Entity rUser, ProvidesConfiguration rConfig)
 	{
 		this.rUser   = rUser;
 		this.rConfig = rConfig;

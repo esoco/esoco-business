@@ -955,6 +955,29 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * A shortcut for {@link #hasExtraAttribute(RelationType)} that converts
+	 * storage exception into runtime exceptions. Extra attributes should
+	 * typically be accessible as their entity has obviously already been
+	 * retrieved from the storage so the exception handling is normally
+	 * superfluous. Nonetheless developers need to be aware that accessing an
+	 * extra attribute also can cause a storage access (at least for the first
+	 * XA).
+	 *
+	 * @see #hasExtraAttribute(RelationType)
+	 */
+	public boolean hasXA(RelationType<?> rKey)
+	{
+		try
+		{
+			return hasExtraAttribute(rKey);
+		}
+		catch (StorageException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/***************************************
 	 * Checks whether this entity is currently cached.
 	 *
 	 * @return TRUE if this instance is cached

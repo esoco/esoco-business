@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
 
@@ -26,15 +25,15 @@ import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.InteractiveInputMode;
+
 import de.esoco.process.ProcessException;
-import de.esoco.process.ProcessRelationTypes;
-import de.esoco.process.ProcessStep;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
@@ -43,10 +42,10 @@ import org.obrel.type.StandardTypes;
 import static de.esoco.history.HistoryManager.DEFAULT_HISTORY_NOTE_TEMPLATES;
 import static de.esoco.history.HistoryManager.HISTORY_NOTE_TEMPLATES;
 
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.INTERACTIVE_INPUT_MODE;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
+import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
 
 import static de.esoco.process.ProcessRelationTypes.CONFIGURATION;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
@@ -219,12 +218,12 @@ public class AddHistoryNote extends Interaction
 					  InteractiveInputMode.CONTINUOUS,
 					  HISTORY_NOTE_TEMPLATE);
 
-		Configuration rConfiguration = getParameter(CONFIGURATION);
+		ProvidesConfiguration rConfiguration = getParameter(CONFIGURATION);
 
 		if (rConfiguration != null)
 		{
 			Map<String, String> rHistoryTemplateMap =
-				rConfiguration.getExtraAttribute(HISTORY_NOTE_TEMPLATES, null);
+				rConfiguration.getConfigValue(HISTORY_NOTE_TEMPLATES, null);
 
 			if (rHistoryTemplateMap != null)
 			{
