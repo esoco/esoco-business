@@ -32,7 +32,6 @@ import de.esoco.process.step.InteractionFragment;
 import de.esoco.storage.StorageException;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -276,7 +275,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 			if (rCurrentEntityTags == null ||
 				!rCurrentEntityTags.equals(rSelectedTags))
 			{
-				HashSet<String> rNewTags = new LinkedHashSet<>(rSelectedTags);
+				Set<String> rNewTags = new LinkedHashSet<>(rSelectedTags);
 
 				if (rTagOwner != null)
 				{
