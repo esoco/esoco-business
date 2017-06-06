@@ -249,6 +249,16 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
+	 * Returns the list of items for this entity list.
+	 *
+	 * @return The item list
+	 */
+	public final List<I> getItems()
+	{
+		return aItemList.aItems;
+	}
+
+	/***************************************
 	 * Returns the current number of entities that are displayed in a list page.
 	 *
 	 * @return The current page size

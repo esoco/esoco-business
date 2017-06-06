@@ -58,9 +58,10 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	private Entity			    rTagOwner;
 	private FilterEntityTags<?> rFilterEntityTags;
 	private String			    sLabel;
-	private boolean			    bUseHeaderLabel;
+	private boolean			    bAutoStore;
 
-	private boolean bAutoStore;
+	private TagEditListener rEditListener;
+	private boolean		    bUseHeaderLabel;
 
 	private E		    rEntity;
 	private Set<String> rCurrentEntityTags;
@@ -94,6 +95,8 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 		this.sLabel			   = sLabel;
 		this.rFilterEntityTags = rFilterEntityTags;
 		this.bAutoStore		   = bAutoStore;
+
+		rEditListener = rFilterEntityTags;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -230,6 +233,31 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
+	 * Sets the tags that can be selected during editing.
+	 *
+	 * @param rTags The selectable tags
+	 */
+	public void setAllowedTags(Set<String> rTags)
+	{
+		aTagInput.allowElements(rTags);
+	}
+
+	/***************************************
+	 * Sets a listener for tag edit events. By default the edit listener will be
+	 * set to the current {@link FilterEntityTags} reference if such has been
+	 * set. But applications can set their own implementation if they need to
+	 * filter or propagate the even, e.g. when managing multiple tag editor
+	 * instances.
+	 *
+	 * @param rEditListener The edit listener or NULL for none
+	 */
+	public void setEditListener(TagEditListener rEditListener)
+	{
+		this.rEditListener =
+			rEditListener != null ? rEditListener : rFilterEntityTags;
+	}
+
+	/***************************************
 	 * Sets the entity type of which this tag editor displays the tags.
 	 *
 	 * @param  rEntityType The new entity type
@@ -297,12 +325,35 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 					EntityManager.storeEntity(rEntity, getProcessUser());
 				}
 
-				if (rFilterEntityTags != null)
+				if (rEditListener != null)
 				{
-					rFilterEntityTags.updateAllowedTags();
-					aTagInput.allowElements(rFilterEntityTags.getAllowedTags());
+					setAllowedTags(rEditListener.tagsEdited(rNewTags));
 				}
 			}
 		}
+	}
+
+	//~ Inner Interfaces -------------------------------------------------------
+
+	/********************************************************************
+	 * An interface for listeners to changes of the tags in an {@link
+	 * EditEntityTags} fragment.
+	 *
+	 * @author eso
+	 */
+	@FunctionalInterface
+	public static interface TagEditListener
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Will be invoked after the tags have been edited.
+		 *
+		 * @param  aEditedTags The current tags of the editor the listener is
+		 *                     registered on
+		 *
+		 * @return The set of allowed tags after the editing
+		 */
+		public Set<String> tagsEdited(Set<String> aEditedTags);
 	}
 }

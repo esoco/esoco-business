@@ -33,7 +33,9 @@ import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.EnumParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
+import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.step.entity.EditEntityTags.TagEditListener;
 
 import de.esoco.storage.StorageException;
 
@@ -70,6 +72,7 @@ import static de.esoco.storage.StoragePredicates.like;
  * @author eso
  */
 public class FilterEntityTags<E extends Entity> extends InteractionFragment
+	implements TagEditListener
 {
 	//~ Enums ------------------------------------------------------------------
 
@@ -513,14 +516,30 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<String> tagsEdited(Set<String> aCurrentTags)
+	{
+		updateAllowedTags();
+
+		return getAllowedTags();
+	}
+
+	/***************************************
 	 * Updates the set of tags that can be selected for the entity type and tag
 	 * owner.
-	 *
-	 * @throws StorageException
 	 */
-	public void updateAllowedTags() throws StorageException
+	public void updateAllowedTags()
 	{
-		aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
+		try
+		{
+			aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
+		}
+		catch (StorageException e)
+		{
+			throw new RuntimeProcessException(this, e);
+		}
 	}
 
 	/***************************************
