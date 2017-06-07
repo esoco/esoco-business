@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.process.ProcessState.ProcessExecutionMode;
+
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 
@@ -41,15 +43,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
-import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 import org.obrel.core.SerializableRelatedObject;
 import org.obrel.type.ListenerType.NotificationHandler;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
 
 import static de.esoco.history.HistoryManager.HISTORIZED;
 
@@ -468,6 +467,36 @@ public class Process extends SerializableRelatedObject
 				EntityManager.removeEntityModificationContext(sUniqueProcessName,
 															  true);
 			}
+		}
+	}
+
+	/***************************************
+	 * Executes this process according to a certain process execution mode.
+	 *
+	 * @param  eMode The execution mode
+	 *
+	 * @throws ProcessException If the process execution fails
+	 */
+	public void execute(ProcessExecutionMode eMode) throws ProcessException
+	{
+		switch (eMode)
+		{
+			case RELOAD:
+			case EXECUTE:
+				execute();
+
+				break;
+
+			case ROLLBACK:
+				rollbackToPreviousInteraction();
+				execute();
+
+				break;
+
+			case CANCEL:
+				cancel();
+
+				break;
 		}
 	}
 
