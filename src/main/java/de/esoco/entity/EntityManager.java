@@ -19,7 +19,6 @@ package de.esoco.entity;
 import de.esoco.data.SessionManager;
 
 import de.esoco.history.HistoryManager;
-import de.esoco.history.HistoryRecord;
 import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
@@ -42,7 +41,6 @@ import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
 import de.esoco.storage.StorageManager.MappingFactory;
 import de.esoco.storage.StorageMapping;
-import de.esoco.storage.StorageRelationTypes;
 import de.esoco.storage.StorageRuntimeException;
 
 import java.util.ArrayList;
@@ -81,6 +79,7 @@ import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTE_MAP;
 import static de.esoco.entity.EntityRelationTypes.LAST_CHANGE;
 import static de.esoco.entity.EntityRelationTypes.MASTER_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.PARENT_ENTITY_ID;
+import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
 
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
@@ -1858,13 +1857,18 @@ public class EntityManager
 
 			TransactionManager.addTransactionElement(rStorage);
 
-			if (bAutomaticChangeLogging &&
-				!(rEntity instanceof ExtraAttribute) &&
-				(!(rEntity instanceof HistoryRecord) ||
-				 rEntity.get(HistoryRecord.TYPE) == HistoryType.NOTE))
+			if (bAutomaticChangeLogging)
 			{
-				sChange     = rEntity.createChangeDescription();
-				bHasChanges = (sChange != null && sChange.length() > 0);
+				if (rEntity.hasChangeLogging())
+				{
+					sChange     = rEntity.createChangeDescription();
+					bHasChanges = (sChange != null && sChange.length() > 0);
+				}
+				else
+				{
+					// delete flag after skipping of change log
+					rEntity.deleteRelation(SKIP_NEXT_CHANGE_LOGGING);
+				}
 			}
 
 			rEntity.set(ENTITY_STORE_ORIGIN, rChangeOrigin);

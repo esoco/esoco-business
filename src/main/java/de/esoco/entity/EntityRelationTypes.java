@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@ import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
 
 import static de.esoco.entity.ExtraAttributes.newExtraAttribute;
 import static de.esoco.entity.ExtraAttributes.newOrderedSetExtraAttribute;
@@ -125,6 +123,16 @@ public class EntityRelationTypes
 	/** A predicate that defines the sort order of entities */
 	public static final RelationType<Predicate<? super Entity>> ENTITY_SORT_PREDICATE =
 		newType();
+
+	/**
+	 * A flag that will skip the automatic change logging of an entity the next
+	 * time it is stored with {@link EntityManager#storeEntity(Entity, Entity,
+	 * boolean)}. The flag will automatically be removed after the entity has
+	 * been stored so that it must always be set before an entity is stored to
+	 * skip the creation of history.
+	 */
+	public static final RelationType<Boolean> SKIP_NEXT_CHANGE_LOGGING =
+		newFlagType();
 
 	/**
 	 * A flag to display entity references as IDs instead of describing strings.

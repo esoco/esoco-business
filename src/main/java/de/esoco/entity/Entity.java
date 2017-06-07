@@ -53,6 +53,7 @@ import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTES_MODIFIED;
 import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTES_READ;
 import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTE_MAP;
 import static de.esoco.entity.EntityRelationTypes.REMOVED_CHILDREN;
+import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.notNull;
@@ -897,6 +898,20 @@ public class Entity extends SerializableRelatedObject
 		{
 			throw new IllegalStateException(e);
 		}
+	}
+
+	/***************************************
+	 * Checks whether changes to this entity should be logged the history is
+	 * enabled. The default implementation returns TRUE unless the relation
+	 * {@link EntityRelationTypes#SKIP_NEXT_CHANGE_LOGGING} is set on this
+	 * instance. This flag will be removed when this entity is stored with
+	 * {@link EntityManager#storeEntity(Entity, Entity, boolean)}.
+	 *
+	 * @return TRUE if history change logging is enabled for this entity
+	 */
+	public boolean hasChangeLogging()
+	{
+		return !hasFlag(SKIP_NEXT_CHANGE_LOGGING);
 	}
 
 	/***************************************

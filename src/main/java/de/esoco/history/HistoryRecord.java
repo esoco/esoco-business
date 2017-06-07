@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package de.esoco.history;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityRelationTypes;
+
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
 
@@ -35,9 +36,9 @@ import static de.esoco.entity.EntityRelationTypes.newChildAttribute;
 import static de.esoco.entity.EntityRelationTypes.newParentAttribute;
 import static de.esoco.entity.EntityRelationTypes.newRootAttribute;
 
-import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
-import static de.esoco.lib.property.UserInterfaceProperties.HAS_IMAGES;
-import static de.esoco.lib.property.UserInterfaceProperties.MAX_CHARS;
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.MAX_CHARS;
 
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newType;
@@ -149,6 +150,19 @@ public class HistoryRecord extends Entity
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Overridden to only return TRUE if the type of this record is {@link
+	 * HistoryType#NOTE NOTE}. All other types of history will be ignored for
+	 * the change logging.
+	 *
+	 * @see Entity#isChangeLoggingEnabled()
+	 */
+	@Override
+	public boolean hasChangeLogging()
+	{
+		return get(TYPE) == HistoryType.NOTE;
+	}
 
 	/***************************************
 	 * Starts a new detail history record.
