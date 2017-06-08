@@ -41,6 +41,7 @@ import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
 import de.esoco.storage.StorageManager.MappingFactory;
 import de.esoco.storage.StorageMapping;
+import de.esoco.storage.StorageRelationTypes;
 import de.esoco.storage.StorageRuntimeException;
 
 import java.util.ArrayList;
@@ -176,6 +177,9 @@ public class EntityManager
 		new HashMap<>();
 
 	private static Map<Class<? extends Entity>, EntityCache<? extends Entity>> aEntityCacheMap =
+		new HashMap<>();
+
+	private static Map<Class<? extends Entity>, EntityDefinition<?>> aEntityDefinitions =
 		new HashMap<>();
 
 	static
@@ -818,10 +822,20 @@ public class EntityManager
 	 * @return The entity definition for the given type or NULL if none exists
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Entity> EntityDefinition<T> getEntityDefinition(
-		Class<T> rEntityClass)
+	public static <E extends Entity> EntityDefinition<E> getEntityDefinition(
+		Class<E> rEntityClass)
 	{
-		return (EntityDefinition<T>) StorageManager.getMapping(rEntityClass);
+		EntityDefinition<E> rDefinition =
+			(EntityDefinition<E>) aEntityDefinitions.get(rEntityClass);
+
+		if (rDefinition == null)
+		{
+			rDefinition =
+				(EntityDefinition<E>) StorageManager.getMapping(rEntityClass);
+			aEntityDefinitions.put(rEntityClass, rDefinition);
+		}
+
+		return rDefinition;
 	}
 
 	/***************************************
@@ -2184,6 +2198,20 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Registers a certain entity definition to be used for a certain sub-type
+	 * of the corresponding entity.
+	 *
+	 * @param rSubType    The entity sub-class
+	 * @param rDefinition The entity definition to register for the given type
+	 */
+	static <E extends Entity> void registerEntitySubType(
+		Class<? extends E>  rSubType,
+		EntityDefinition<E> rDefinition)
+	{
+		aEntityDefinitions.put(rSubType, rDefinition);
+	}
+
+	/***************************************
 	 * Internal method to register an entity type with the manager.
 	 *
 	 * @param  rEntityClass The class to register
@@ -2194,12 +2222,25 @@ public class EntityManager
 	 *                                  has been registered already
 	 */
 	static <E extends Entity> void registerEntityType(
-		Class<E>			rEntityClass,
+		Class<? extends E>  rEntityClass,
 		EntityDefinition<E> rDefinition)
 	{
+		if (aIdPrefixRegistry.containsValue(rEntityClass))
+		{
+			throw new IllegalArgumentException("Duplicate entity registration: " +
+											   rEntityClass);
+		}
+
 		String sIdPrefix = rDefinition.getIdPrefix();
 
-		if (aIdPrefixRegistry.containsKey(sIdPrefix))
+		Class<? extends Entity> rExistingClass =
+			aIdPrefixRegistry.get(sIdPrefix);
+
+		if (rExistingClass == null)
+		{
+			aIdPrefixRegistry.put(sIdPrefix, rEntityClass);
+		}
+		else if (!rExistingClass.isAssignableFrom(rEntityClass))
 		{
 			throw new IllegalArgumentException(String.format("Duplicate entity ID prefix %s; " +
 															 "already defined in %s",
@@ -2207,14 +2248,6 @@ public class EntityManager
 															 aIdPrefixRegistry
 															 .get(sIdPrefix)));
 		}
-
-		if (aIdPrefixRegistry.containsValue(rEntityClass))
-		{
-			throw new IllegalArgumentException("Duplicate entity registration: " +
-											   rEntityClass);
-		}
-
-		aIdPrefixRegistry.put(sIdPrefix, rEntityClass);
 	}
 
 	/***************************************
@@ -2568,27 +2601,33 @@ public class EntityManager
 		 * @see MappingFactory#createMapping(Class)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public StorageMapping<Entity, ?, ?> createMapping(Class<Entity> rType)
 		{
-			EntityDefinition<Entity> aResult;
+			EntityDefinition<? extends Entity> aResult =
+				aEntityDefinitions.get(rType);
 
-			try
+			if (aResult == null)
 			{
-				String sDefinitionClass = rType.getName() +
-										  "$Definition";
+				try
+				{
+					String sDefinitionClass = rType.getName() +
+											  "$Definition";
 
-				@SuppressWarnings("unchecked")
-				Class<EntityDefinition<Entity>> rTypeDefinitionClass =
-					(Class<EntityDefinition<Entity>>) Class.forName(sDefinitionClass);
+					Class<EntityDefinition<Entity>> rTypeDefinitionClass =
+						(Class<EntityDefinition<Entity>>) Class.forName(sDefinitionClass);
 
-				aResult = ReflectUtil.newInstance(rTypeDefinitionClass);
+					aResult = ReflectUtil.newInstance(rTypeDefinitionClass);
+				}
+				catch (ClassNotFoundException e)
+				{
+					aResult = new EntityDefinition<Entity>(rType, null);
+				}
+
+				aEntityDefinitions.put(rType, aResult);
 			}
-			catch (ClassNotFoundException e)
-			{
-				aResult = new EntityDefinition<Entity>(rType, null);
-			}
 
-			return aResult;
+			return (StorageMapping<Entity, ?, ?>) aResult;
 		}
 	}
 }

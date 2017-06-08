@@ -26,6 +26,7 @@ import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.reflect.ReflectUtil;
+import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
 import de.esoco.storage.QueryList;
@@ -57,6 +58,7 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
 import static de.esoco.entity.EntityRelationTypes.DISPLAY_PROPERTIES;
@@ -174,6 +176,9 @@ public class EntityDefinition<E extends Entity>
 
 	private transient List<RelationType<?>>								   aAttributes;
 	private transient Map<EntityDefinition<?>, RelationType<List<Entity>>> aChildAttributes;
+
+	private transient Map<String, Class<? extends E>> aTypeSubClasses =
+		new HashMap<>();
 
 	private final transient Map<DisplayMode, List<RelationType<?>>> aDisplayAttributes =
 		new HashMap<DisplayMode, List<RelationType<?>>>();
@@ -911,6 +916,61 @@ public class EntityDefinition<E extends Entity>
 	}
 
 	/***************************************
+	 * Creates a new instance of the entity class of this instance.
+	 *
+	 * @param  rAttributeValues The attribute values of the new instance
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected E createEntityInstance(List<?> rAttributeValues)
+	{
+		Class<? extends E> rClass = rEntityClass;
+
+		if (rTypeAttribute != null)
+		{
+			Object rType =
+				rAttributeValues.get(getAttributeIndex(rTypeAttribute));
+
+			if (rType != null)
+			{
+				Class<? extends E> rSubClass = aTypeSubClasses.get(rType);
+
+				if (rSubClass != null)
+				{
+					rClass = rSubClass;
+				}
+				else
+				{
+					String sEntityTypeClass =
+						rEntityClass.getPackage().getName() + "." +
+						TextConvert.capitalizedIdentifier(rType.toString());
+
+					try
+					{
+						Class<? extends E> rTypeClass =
+							(Class<? extends E>) Class.forName(sEntityTypeClass);
+
+						if (rClass.isAssignableFrom(rTypeClass))
+						{
+							rClass = rTypeClass;
+							EntityManager.registerEntitySubType(rClass, this);
+						}
+					}
+					catch (ClassNotFoundException e)
+					{
+						// ignore if no sub-type exists and continue with base class
+					}
+
+					aTypeSubClasses.put(rType.toString(), rClass);
+				}
+			}
+		}
+
+		return ReflectUtil.newInstance(rClass);
+	}
+
+	/***************************************
 	 * A method for subclasses to query the index of a particular attribute.
 	 *
 	 * @param  rAttr The attribute relation type
@@ -1320,7 +1380,7 @@ public class EntityDefinition<E extends Entity>
 	@SuppressWarnings("unchecked")
 	private E createNewEntity(List<?> rAttributeValues) throws StorageException
 	{
-		E   aEntity     = ReflectUtil.newInstance(rEntityClass);
+		E   aEntity     = createEntityInstance(rAttributeValues);
 		int nValueIndex = 0;
 
 		aEntity.set(INITIALIZING);
