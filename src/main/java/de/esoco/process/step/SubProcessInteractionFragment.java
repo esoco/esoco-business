@@ -17,7 +17,9 @@
 package de.esoco.process.step;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
-import de.esoco.process.HasProcess;
+
+import de.esoco.lib.property.Layout;
+
 import de.esoco.process.Process;
 import de.esoco.process.ProcessDefinition;
 import de.esoco.process.ProcessException;
@@ -41,7 +43,7 @@ import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
  * @author eso
  */
 public class SubProcessInteractionFragment extends InteractionFragment
-	implements HasProcess, ProcessExecutionHandler
+	implements ProcessExecutionHandler
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -120,8 +122,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	 *
 	 * @return The fragment process (NULL if not yet initialized)
 	 */
-	@Override
-	public final Process getProcess()
+	public final Process getFragmentProcess()
 	{
 		return rProcess;
 	}
@@ -132,11 +133,20 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	@Override
 	public void init() throws ProcessException
 	{
+		layout(Layout.FILL);
+
 		if (rProcessClass != null)
 		{
 			rProcess = ProcessManager.getProcess(rProcessClass);
 
 			executeProcess(ProcessExecutionMode.EXECUTE);
+		}
+		else
+		{
+			getInteractionParameters().clear();
+			getInputParameters().clear();
+
+			label("No Process");
 		}
 	}
 
