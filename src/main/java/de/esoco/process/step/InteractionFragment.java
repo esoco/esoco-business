@@ -1688,6 +1688,132 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Displays a confirmation message that can either be accepted or rejected.
+	 *
+	 * @param  sMessage           The message to display
+	 * @param  bYesNoQuestion     TRUE for YES and NO dialog buttons, FALSE for
+	 *                            OK and CANCEL
+	 * @param  rRunOnComfirmation The code to be executed if the user accepts
+	 *                            the message
+	 *
+	 * @return The message box fragment
+	 */
+	public MessageBoxFragment showConfirmationMessage(
+		String		   sMessage,
+		boolean		   bYesNoQuestion,
+		final Runnable rRunOnComfirmation)
+	{
+		if (rRunOnComfirmation == null)
+		{
+			throw new IllegalArgumentException("Runnable parameter must not be NULL");
+		}
+
+		return showMessageBox(sMessage,
+							  MESSAGE_BOX_QUESTION_ICON,
+			new DialogActionListener()
+			{
+				@Override
+				public void onDialogAction(DialogAction eAction)
+				{
+					if (eAction == DialogAction.OK ||
+						eAction == DialogAction.YES)
+					{
+						rRunOnComfirmation.run();
+					}
+				}
+			},
+							  bYesNoQuestion ? DialogAction.YES_NO
+											 : DialogAction.OK_CANCEL);
+	}
+
+	/***************************************
+	 * Adds a sub-fragment to be displayed as a modal dialog.
+	 *
+	 * @see #showDialog(String, InteractionFragment, boolean,
+	 *      DialogActionListener, Collection)
+	 */
+	public DialogFragment showDialog(String				  sParamNameTemplate,
+									 InteractionFragment  rContentFragment,
+									 DialogActionListener rDialogListener,
+									 DialogAction... 	  rDialogActions)
+		throws Exception
+	{
+		return showDialog(sParamNameTemplate,
+						  rContentFragment,
+						  true,
+						  rDialogListener,
+						  Arrays.asList(rDialogActions));
+	}
+
+	/***************************************
+	 * Adds a sub-fragment to be displayed as a modal dialog.
+	 *
+	 * @see #showDialog(String, InteractionFragment, boolean, String,
+	 *      DialogActionListener, Collection)
+	 */
+	public DialogFragment showDialog(
+		String					 sParamNameTemplate,
+		InteractionFragment		 rContentFragment,
+		boolean					 bModal,
+		DialogActionListener	 rDialogListener,
+		Collection<DialogAction> rDialogActions) throws Exception
+	{
+		return showDialog(sParamNameTemplate,
+						  rContentFragment,
+						  bModal,
+						  null,
+						  rDialogListener,
+						  rDialogActions);
+	}
+
+	/***************************************
+	 * Adds a sub-fragment to be displayed as a dialog. The parameter for the
+	 * dialog fragment will be added automatically to the input parameters of
+	 * this instance. Therefore the parameter lists of this instance MUST be
+	 * mutable!
+	 *
+	 * <p>If the creating code needs to programmatically close the dialog view
+	 * instead of by a button click of the user it can do so by invoking the
+	 * {@link ViewFragment#hide()} method on the returned view fragment instance
+	 * on a corresponding interaction.</p>
+	 *
+	 * @param  sParamNameTemplate The name template to be used for generated
+	 *                            dialog parameter names or NULL to derive it
+	 *                            from the content fragment
+	 * @param  rContentFragment   The fragment to be displayed as the dialog
+	 *                            content
+	 * @param  bModal             TRUE for a modal view
+	 * @param  sQuestion          A string (typically a question) that will be
+	 *                            displayed next to the dialog action buttons.
+	 * @param  rDialogListener    The dialog action listener or NULL for none
+	 * @param  rDialogActions     The actions to be displayed as the dialog
+	 *                            buttons
+	 *
+	 * @return The new dialog fragment instance
+	 *
+	 * @throws Exception If displaying the dialog fails
+	 */
+	public DialogFragment showDialog(
+		String					 sParamNameTemplate,
+		InteractionFragment		 rContentFragment,
+		boolean					 bModal,
+		String					 sQuestion,
+		DialogActionListener	 rDialogListener,
+		Collection<DialogAction> rDialogActions) throws Exception
+	{
+		DialogFragment aDialog =
+			new DialogFragment(sParamNameTemplate,
+							   rContentFragment,
+							   bModal,
+							   sQuestion,
+							   rDialogActions);
+
+		showDialogImpl(aDialog, rDialogListener);
+
+		return aDialog;
+	}
+
+	/***************************************
 	 * Displays a message with an error icon and a single OK button.
 	 *
 	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
@@ -1711,6 +1837,139 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		return showMessageBox(sMessage,
 							  MESSAGE_BOX_INFO_ICON,
+							  null,
+							  DialogAction.OK);
+	}
+
+	/***************************************
+	 * Displays a process message in a message box dialog. The parameter for the
+	 * dialog fragment will be added automatically to the input parameters of
+	 * this instance. Therefore the parameter lists of this instance MUST be
+	 * mutable!
+	 *
+	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
+	 *      RelationType...)
+	 */
+	public MessageBoxFragment showMessageBox(
+		String				 sMessage,
+		String				 sIcon,
+		DialogActionListener rDialogListener,
+		DialogAction... 	 rDialogActions)
+	{
+		return showMessageBox(sMessage,
+							  sIcon,
+							  rDialogListener,
+							  Arrays.asList(rDialogActions));
+	}
+
+	/***************************************
+	 * Displays a process message in a message box dialog. The parameter for the
+	 * dialog fragment will be added automatically to the input parameters of
+	 * this instance. Therefore the parameter lists of this instance MUST be
+	 * mutable!
+	 *
+	 * <p>If one or more extras parameters are given they will be displayed
+	 * between the message and the dialog buttons. Any necessary initialization
+	 * of these parameters including UI properties must be done by the invoking
+	 * code before invoking the message box.</p>
+	 *
+	 * @param  sMessage        The message to be displayed in the message box
+	 * @param  sIcon           The resource name for an icon or NULL for the
+	 *                         standard icon.
+	 * @param  rDialogListener The dialog action listener or NULL for none
+	 * @param  rDialogActions  The actions to be displayed as the message box
+	 *                         buttons
+	 * @param  rExtraParams    Optional extra parameters to be displayed in the
+	 *                         message box
+	 *
+	 * @return The view fragment that has been created for the message box
+	 */
+	public MessageBoxFragment showMessageBox(
+		String					 sMessage,
+		String					 sIcon,
+		DialogActionListener	 rDialogListener,
+		Collection<DialogAction> rDialogActions,
+		RelationType<?>... 		 rExtraParams)
+	{
+		MessageBoxFragment aMessageBox =
+			new MessageBoxFragment(sMessage,
+								   sIcon,
+								   rDialogActions,
+								   rExtraParams);
+
+		try
+		{
+			showDialogImpl(aMessageBox, rDialogListener);
+		}
+		catch (Exception e)
+		{
+			// message boxes should not fail
+			throw new IllegalStateException(e);
+		}
+
+		return aMessageBox;
+	}
+
+	/***************************************
+	 * Displays a modal dialog with a name prefix that is derived from the name
+	 * of the content fragment.
+	 *
+	 * @see #showDialog(String, InteractionFragment, boolean,
+	 *      DialogActionListener, Collection)
+	 */
+	public DialogFragment showModalDialog(
+		InteractionFragment		 rContentFragment,
+		Collection<DialogAction> rDialogActions) throws Exception
+	{
+		return showDialog(null, rContentFragment, true, null, rDialogActions);
+	}
+
+	/***************************************
+	 * Adds a sub-fragment to be displayed as a view. The parameter for the view
+	 * fragment will be added automatically to the input parameters of this
+	 * instance. Therefore the parameter lists of this instance MUST be mutable!
+	 *
+	 * <p>Because a view has no explicit buttons like dialogs it must be closed
+	 * by the creating code by invoking the {@link ViewFragment#hide()} method
+	 * on the returned view fragment instance on a corresponding interaction.
+	 * </p>
+	 *
+	 * @param  sParamNameTemplate The name template to be used for generated
+	 *                            view parameter names
+	 * @param  rContentFragment   The fragment to be displayed as the view
+	 *                            content
+	 * @param  bModal             TRUE for a modal view
+	 *
+	 * @return The new view fragment to provide access to it's method {@link
+	 *         ViewFragment#hide()}
+	 *
+	 * @throws Exception If displaying the dialog fails
+	 */
+	public ViewFragment showView(String				 sParamNameTemplate,
+								 InteractionFragment rContentFragment,
+								 boolean			 bModal) throws Exception
+	{
+		ViewFragment aViewFragment =
+			new ViewFragment(sParamNameTemplate,
+							 rContentFragment,
+							 bModal ? ViewDisplayType.MODAL_VIEW
+									: ViewDisplayType.VIEW);
+
+		aViewFragment.show(this);
+
+		return aViewFragment;
+	}
+
+	/***************************************
+	 * Displays a message with an warning icon and a single OK button.
+	 *
+	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
+	 *      RelationType...)
+	 */
+	public MessageBoxFragment showWarningMessage(String sMessage)
+	{
+		return showMessageBox(sMessage,
+							  MESSAGE_BOX_WARNING_ICON,
 							  null,
 							  DialogAction.OK);
 	}
@@ -2063,265 +2322,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	protected void setParent(InteractionFragment rParent)
 	{
 		this.rParent = rParent;
-	}
-
-	/***************************************
-	 * Displays a confirmation message that can either be accepted or rejected.
-	 *
-	 * @param  sMessage           The message to display
-	 * @param  bYesNoQuestion     TRUE for YES and NO dialog buttons, FALSE for
-	 *                            OK and CANCEL
-	 * @param  rRunOnComfirmation The code to be executed if the user accepts
-	 *                            the message
-	 *
-	 * @return The message box fragment
-	 */
-	protected MessageBoxFragment showConfirmationMessage(
-		String		   sMessage,
-		boolean		   bYesNoQuestion,
-		final Runnable rRunOnComfirmation)
-	{
-		if (rRunOnComfirmation == null)
-		{
-			throw new IllegalArgumentException("Runnable parameter must not be NULL");
-		}
-
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_QUESTION_ICON,
-			new DialogActionListener()
-			{
-				@Override
-				public void onDialogAction(DialogAction eAction)
-				{
-					if (eAction == DialogAction.OK ||
-						eAction == DialogAction.YES)
-					{
-						rRunOnComfirmation.run();
-					}
-				}
-			},
-							  bYesNoQuestion ? DialogAction.YES_NO
-											 : DialogAction.OK_CANCEL);
-	}
-
-	/***************************************
-	 * Adds a sub-fragment to be displayed as a modal dialog.
-	 *
-	 * @see #showDialog(String, InteractionFragment, boolean,
-	 *      DialogActionListener, Collection)
-	 */
-	protected DialogFragment showDialog(String				 sParamNameTemplate,
-										InteractionFragment  rContentFragment,
-										DialogActionListener rDialogListener,
-										DialogAction... 	 rDialogActions)
-		throws Exception
-	{
-		return showDialog(sParamNameTemplate,
-						  rContentFragment,
-						  true,
-						  rDialogListener,
-						  Arrays.asList(rDialogActions));
-	}
-
-	/***************************************
-	 * Adds a sub-fragment to be displayed as a modal dialog.
-	 *
-	 * @see #showDialog(String, InteractionFragment, boolean, String,
-	 *      DialogActionListener, Collection)
-	 */
-	protected DialogFragment showDialog(
-		String					 sParamNameTemplate,
-		InteractionFragment		 rContentFragment,
-		boolean					 bModal,
-		DialogActionListener	 rDialogListener,
-		Collection<DialogAction> rDialogActions) throws Exception
-	{
-		return showDialog(sParamNameTemplate,
-						  rContentFragment,
-						  bModal,
-						  null,
-						  rDialogListener,
-						  rDialogActions);
-	}
-
-	/***************************************
-	 * Adds a sub-fragment to be displayed as a dialog. The parameter for the
-	 * dialog fragment will be added automatically to the input parameters of
-	 * this instance. Therefore the parameter lists of this instance MUST be
-	 * mutable!
-	 *
-	 * <p>If the creating code needs to programmatically close the dialog view
-	 * instead of by a button click of the user it can do so by invoking the
-	 * {@link ViewFragment#hide()} method on the returned view fragment instance
-	 * on a corresponding interaction.</p>
-	 *
-	 * @param  sParamNameTemplate The name template to be used for generated
-	 *                            dialog parameter names or NULL to derive it
-	 *                            from the content fragment
-	 * @param  rContentFragment   The fragment to be displayed as the dialog
-	 *                            content
-	 * @param  bModal             TRUE for a modal view
-	 * @param  sQuestion          A string (typically a question) that will be
-	 *                            displayed next to the dialog action buttons.
-	 * @param  rDialogListener    The dialog action listener or NULL for none
-	 * @param  rDialogActions     The actions to be displayed as the dialog
-	 *                            buttons
-	 *
-	 * @return The new dialog fragment instance
-	 *
-	 * @throws Exception If displaying the dialog fails
-	 */
-	protected DialogFragment showDialog(
-		String					 sParamNameTemplate,
-		InteractionFragment		 rContentFragment,
-		boolean					 bModal,
-		String					 sQuestion,
-		DialogActionListener	 rDialogListener,
-		Collection<DialogAction> rDialogActions) throws Exception
-	{
-		DialogFragment aDialog =
-			new DialogFragment(sParamNameTemplate,
-							   rContentFragment,
-							   bModal,
-							   sQuestion,
-							   rDialogActions);
-
-		showDialogImpl(aDialog, rDialogListener);
-
-		return aDialog;
-	}
-
-	/***************************************
-	 * Displays a process message in a message box dialog. The parameter for the
-	 * dialog fragment will be added automatically to the input parameters of
-	 * this instance. Therefore the parameter lists of this instance MUST be
-	 * mutable!
-	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
-	 */
-	protected MessageBoxFragment showMessageBox(
-		String				 sMessage,
-		String				 sIcon,
-		DialogActionListener rDialogListener,
-		DialogAction... 	 rDialogActions)
-	{
-		return showMessageBox(sMessage,
-							  sIcon,
-							  rDialogListener,
-							  Arrays.asList(rDialogActions));
-	}
-
-	/***************************************
-	 * Displays a process message in a message box dialog. The parameter for the
-	 * dialog fragment will be added automatically to the input parameters of
-	 * this instance. Therefore the parameter lists of this instance MUST be
-	 * mutable!
-	 *
-	 * <p>If one or more extras parameters are given they will be displayed
-	 * between the message and the dialog buttons. Any necessary initialization
-	 * of these parameters including UI properties must be done by the invoking
-	 * code before invoking the message box.</p>
-	 *
-	 * @param  sMessage        The message to be displayed in the message box
-	 * @param  sIcon           The resource name for an icon or NULL for the
-	 *                         standard icon.
-	 * @param  rDialogListener The dialog action listener or NULL for none
-	 * @param  rDialogActions  The actions to be displayed as the message box
-	 *                         buttons
-	 * @param  rExtraParams    Optional extra parameters to be displayed in the
-	 *                         message box
-	 *
-	 * @return The view fragment that has been created for the message box
-	 */
-	protected MessageBoxFragment showMessageBox(
-		String					 sMessage,
-		String					 sIcon,
-		DialogActionListener	 rDialogListener,
-		Collection<DialogAction> rDialogActions,
-		RelationType<?>... 		 rExtraParams)
-	{
-		MessageBoxFragment aMessageBox =
-			new MessageBoxFragment(sMessage,
-								   sIcon,
-								   rDialogActions,
-								   rExtraParams);
-
-		try
-		{
-			showDialogImpl(aMessageBox, rDialogListener);
-		}
-		catch (Exception e)
-		{
-			// message boxes should not fail
-			throw new IllegalStateException(e);
-		}
-
-		return aMessageBox;
-	}
-
-	/***************************************
-	 * Displays a modal dialog with a name prefix that is derived from the name
-	 * of the content fragment.
-	 *
-	 * @see #showDialog(String, InteractionFragment, boolean,
-	 *      DialogActionListener, Collection)
-	 */
-	protected DialogFragment showModalDialog(
-		InteractionFragment		 rContentFragment,
-		Collection<DialogAction> rDialogActions) throws Exception
-	{
-		return showDialog(null, rContentFragment, true, null, rDialogActions);
-	}
-
-	/***************************************
-	 * Adds a sub-fragment to be displayed as a view. The parameter for the view
-	 * fragment will be added automatically to the input parameters of this
-	 * instance. Therefore the parameter lists of this instance MUST be mutable!
-	 *
-	 * <p>Because a view has no explicit buttons like dialogs it must be closed
-	 * by the creating code by invoking the {@link ViewFragment#hide()} method
-	 * on the returned view fragment instance on a corresponding interaction.
-	 * </p>
-	 *
-	 * @param  sParamNameTemplate The name template to be used for generated
-	 *                            view parameter names
-	 * @param  rContentFragment   The fragment to be displayed as the view
-	 *                            content
-	 * @param  bModal             TRUE for a modal view
-	 *
-	 * @return The new view fragment to provide access to it's method {@link
-	 *         ViewFragment#hide()}
-	 *
-	 * @throws Exception If displaying the dialog fails
-	 */
-	protected ViewFragment showView(String				sParamNameTemplate,
-									InteractionFragment rContentFragment,
-									boolean				bModal) throws Exception
-	{
-		ViewFragment aViewFragment =
-			new ViewFragment(sParamNameTemplate,
-							 rContentFragment,
-							 bModal ? ViewDisplayType.MODAL_VIEW
-									: ViewDisplayType.VIEW);
-
-		aViewFragment.show(this);
-
-		return aViewFragment;
-	}
-
-	/***************************************
-	 * Displays a message with an warning icon and a single OK button.
-	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
-	 */
-	protected MessageBoxFragment showWarningMessage(String sMessage)
-	{
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_WARNING_ICON,
-							  null,
-							  DialogAction.OK);
 	}
 
 	/***************************************
