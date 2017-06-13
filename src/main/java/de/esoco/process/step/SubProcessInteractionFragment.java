@@ -34,6 +34,7 @@ import org.obrel.core.RelationType;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
+import static de.esoco.process.ProcessRelationTypes.PROCESS;
 
 
 /********************************************************************
@@ -52,7 +53,8 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	//~ Instance fields --------------------------------------------------------
 
 	private Class<? extends ProcessDefinition> rProcessClass;
-	private Process							   rProcess;
+
+	private Process rProcess;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -79,7 +81,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 		if (rProcess != null)
 		{
 			rProcess.cancel();
-			rProcess = null;
+			setProcess(null);
 		}
 	}
 
@@ -105,7 +107,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 
 		if (rProcess.isFinished())
 		{
-			rProcess = null;
+			setProcess(null);
 		}
 		else
 		{
@@ -137,7 +139,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 
 		if (rProcessClass != null)
 		{
-			rProcess = ProcessManager.getProcess(rProcessClass);
+			setProcess(ProcessManager.getProcess(rProcessClass));
 
 			executeProcess(ProcessExecutionMode.EXECUTE);
 		}
@@ -187,5 +189,16 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	protected void rollback() throws Exception
 	{
 		cleanup();
+	}
+
+	/***************************************
+	 * Sets a new process for this instance.
+	 *
+	 * @param rNewProcess The new process or NULL for none
+	 */
+	protected void setProcess(Process rNewProcess)
+	{
+		rProcess = rNewProcess;
+		fragmentParam().annotate(PROCESS, rProcess);
 	}
 }
