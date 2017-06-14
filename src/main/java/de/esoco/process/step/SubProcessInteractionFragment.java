@@ -24,6 +24,7 @@ import de.esoco.process.Process;
 import de.esoco.process.ProcessDefinition;
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessManager;
+import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.ProcessControlFragment.ProcessExecutionHandler;
 
@@ -67,7 +68,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	public SubProcessInteractionFragment(
 		Class<? extends ProcessDefinition> rSubProcessClass)
 	{
-		setProcessDefinition(rSubProcessClass);
+		displayProcess(rSubProcessClass);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -86,6 +87,36 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	}
 
 	/***************************************
+	 * Sets the process definition of this fragment. If a process is already
+	 * running it will be cancelled first. If the fragment has already been
+	 * initialized a new process based on the new definition will be executed
+	 * and the UI will be initialized accordingly.
+	 *
+	 * @param  rSubProcessClass The process definition class
+	 *
+	 * @throws ProcessException If executing the new process fails
+	 */
+	public void displayProcess(
+		Class<? extends ProcessDefinition> rSubProcessClass)
+	{
+		this.rProcessClass = rSubProcessClass;
+
+		cleanup();
+
+		if (isInitialized())
+		{
+			try
+			{
+				init();
+			}
+			catch (ProcessException e)
+			{
+				throw new RuntimeProcessException(this, e);
+			}
+		}
+	}
+
+	/***************************************
 	 * Executes the process of this fragment with a particular execution mode.
 	 *
 	 * @param  eMode The process execution mode
@@ -96,25 +127,30 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	public void executeProcess(ProcessExecutionMode eMode)
 		throws ProcessException
 	{
-		List<RelationType<?>> rInteractionParams = getInteractionParameters();
-
-		Collection<RelationType<?>> rInputParams = getInputParameters();
-
-		rInteractionParams.clear();
-		rInputParams.clear();
-
-		rProcess.execute(eMode);
-
-		if (rProcess.isFinished())
+		if (rProcess != null)
 		{
-			setProcess(null);
-		}
-		else
-		{
-			rInteractionParams.addAll(rProcess.getInteractionStep()
-									  .get(INTERACTION_PARAMS));
-			rInputParams.addAll(rProcess.getInteractionStep()
-								.get(INPUT_PARAMS));
+			List<RelationType<?>> rInteractionParams =
+				getInteractionParameters();
+
+			Collection<RelationType<?>> rInputParams = getInputParameters();
+
+			rProcess.execute(eMode);
+
+			rInteractionParams.clear();
+			rInputParams.clear();
+			fragmentParam().modified();
+
+			if (rProcess.isFinished())
+			{
+				setProcess(null);
+			}
+			else
+			{
+				ProcessStep rInteractionStep = rProcess.getInteractionStep();
+
+				rInteractionParams.addAll(rInteractionStep.get(INTERACTION_PARAMS));
+				rInputParams.addAll(rInteractionStep.get(INPUT_PARAMS));
+			}
 		}
 	}
 
@@ -149,36 +185,6 @@ public class SubProcessInteractionFragment extends InteractionFragment
 			getInputParameters().clear();
 
 			label("No Process");
-		}
-	}
-
-	/***************************************
-	 * Sets the process definition of this fragment. If a process is already
-	 * running it will be cancelled first. If the fragment has already been
-	 * initialized a new process based on the new definition will be executed
-	 * and the UI will be initialized accordingly.
-	 *
-	 * @param  rSubProcessClass The process definition class
-	 *
-	 * @throws ProcessException If executing the new process fails
-	 */
-	public void setProcessDefinition(
-		Class<? extends ProcessDefinition> rSubProcessClass)
-	{
-		this.rProcessClass = rSubProcessClass;
-
-		cleanup();
-
-		if (isInitialized())
-		{
-			try
-			{
-				init();
-			}
-			catch (ProcessException e)
-			{
-				throw new RuntimeProcessException(this, e);
-			}
 		}
 	}
 
