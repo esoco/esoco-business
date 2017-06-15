@@ -50,7 +50,7 @@ public interface ProcessScheduler
 	 *
 	 * @return TRUE if the process scheduler is enabled and FALSE otherwise.
 	 */
-	public boolean isEnabled();
+	public boolean isProcessSchedulingEnabled();
 
 	/***************************************
 	 * Notify about a change or edit of a schedule process.
