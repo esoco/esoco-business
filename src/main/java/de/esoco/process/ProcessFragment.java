@@ -805,10 +805,60 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<E> rEnumParam,
 		Collection<E>   rDisabledElements)
 	{
-		disableDiscrecteElements(rEnumParam,
-								 (Class<E>) rEnumParam.getTargetType(),
-								 getAllowedValues(rEnumParam),
-								 rDisabledElements);
+		disableElements(rEnumParam,
+						(Class<E>) rEnumParam.getTargetType(),
+						getAllowedValues(rEnumParam),
+						rDisabledElements);
+	}
+
+	/***************************************
+	 * Sets the property {@link StyleProperties#DISABLED_ELEMENTS} for a certain
+	 * set of values. If the datatype is an enum class and the all elements
+	 * argument is NULL the enum values will be read from the datatype class
+	 * with {@link Class#getEnumConstants()}.
+	 *
+	 * @param rParam            The parameter to disable the elements of
+	 * @param rDatatype         The parameter datatype
+	 * @param rAllElements      All values that are displayed (NULL for all
+	 *                          values of an enum data type)
+	 * @param rDisabledElements The elements to disable (NULL or none to enable
+	 *                          all)
+	 */
+	public <T> void disableElements(RelationType<?> rParam,
+									Class<T>		rDatatype,
+									Collection<T>   rAllElements,
+									Collection<T>   rDisabledElements)
+	{
+		if (rDisabledElements != null && rDisabledElements.size() > 0)
+		{
+			if (rAllElements == null && rDatatype.isEnum())
+			{
+				rAllElements = Arrays.asList(rDatatype.getEnumConstants());
+			}
+
+			StringBuilder aDisabledElements = new StringBuilder();
+			List<T>		  aIndexedElements  = new ArrayList<T>(rAllElements);
+
+			for (T eElement : rDisabledElements)
+			{
+				int nIndex = aIndexedElements.indexOf(eElement);
+
+				if (nIndex >= 0)
+				{
+					aDisabledElements.append('(');
+					aDisabledElements.append(nIndex);
+					aDisabledElements.append(')');
+				}
+			}
+
+			setUIProperty(DISABLED_ELEMENTS,
+						  aDisabledElements.toString(),
+						  rParam);
+		}
+		else
+		{
+			removeUIProperties(rParam, DISABLED_ELEMENTS);
+		}
 	}
 
 	/***************************************
@@ -825,10 +875,10 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<C> rEnumCollectionParam,
 		Collection<E>   rDisabledElements)
 	{
-		disableDiscrecteElements(rEnumCollectionParam,
-								 (Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
-								 getAllowedElements(rEnumCollectionParam),
-								 rDisabledElements);
+		disableElements(rEnumCollectionParam,
+						(Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
+						getAllowedElements(rEnumCollectionParam),
+						rDisabledElements);
 	}
 
 	/***************************************
@@ -2831,58 +2881,6 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		throw new IllegalStateException(String.format("Parameter %s not set",
 													  rParamType));
-	}
-
-	/***************************************
-	 * Sets the user interface property {@link
-	 * StyleProperties#DISABLED_ELEMENTS} for a certain set of enum values in a
-	 * parameter with a discrete display style.
-	 *
-	 * @param rParam            The parameter to disable the elements of
-	 * @param rEnumType         The enum datatype
-	 * @param rAllElements      All enum values that are displayed (NULL for all
-	 *                          values of the enum type)
-	 * @param rDisabledElements The elements to disable (NULL or none to enable
-	 *                          all)
-	 */
-	<E extends Enum<E>> void disableDiscrecteElements(
-		RelationType<?> rParam,
-		Class<E>		rEnumType,
-		Collection<E>   rAllElements,
-		Collection<E>   rDisabledElements)
-	{
-		if (rDisabledElements != null && rDisabledElements.size() > 0)
-		{
-			if (rAllElements == null)
-			{
-				E[] rEnumConstants = rEnumType.getEnumConstants();
-
-				rAllElements = Arrays.asList(rEnumConstants);
-			}
-
-			StringBuilder aDisabledElements = new StringBuilder();
-			List<E>		  aIndexedElements  = new ArrayList<E>(rAllElements);
-
-			for (E eElement : rDisabledElements)
-			{
-				int nIndex = aIndexedElements.indexOf(eElement);
-
-				if (nIndex >= 0)
-				{
-					aDisabledElements.append('(');
-					aDisabledElements.append(nIndex);
-					aDisabledElements.append(')');
-				}
-			}
-
-			setUIProperty(DISABLED_ELEMENTS,
-						  aDisabledElements.toString(),
-						  rParam);
-		}
-		else
-		{
-			removeUIProperties(rParam, DISABLED_ELEMENTS);
-		}
 	}
 
 	/***************************************
