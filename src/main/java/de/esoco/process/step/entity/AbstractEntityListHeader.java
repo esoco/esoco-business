@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.step.InteractionFragment;
@@ -62,22 +61,8 @@ public abstract class AbstractEntityListHeader<E extends Entity>
 	{
 		layout(Layout.LIST_ITEM);
 
-		panel(new Initializer<InteractionFragment>()
-			{
-				@Override
-				public void init(InteractionFragment rFragment) throws Exception
-				{
-					initTitlePanel(rFragment);
-				}
-			});
-		panel(new Initializer<InteractionFragment>()
-			{
-				@Override
-				public void init(InteractionFragment rFragment) throws Exception
-				{
-					initDataPanel(rFragment);
-				}
-			});
+		panel(p -> initTitlePanel(p));
+		panel(p -> initDataPanel(p));
 	}
 
 	/***************************************

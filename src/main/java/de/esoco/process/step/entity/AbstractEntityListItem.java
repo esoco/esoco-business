@@ -18,13 +18,10 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.lib.expression.function.Initializer;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.ListLayoutStyle;
 
 import de.esoco.process.RuntimeProcessException;
-import de.esoco.process.step.Interaction.InteractionHandler;
-import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
 
@@ -186,25 +183,8 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	protected void createHeaderPanel(InteractionFragment p)
 	{
-		p.layout(Layout.HEADER).actionEvents()
-		 .onEvent(new InteractionHandler()
-			{
-				@Override
-				public void handleInteraction(InteractionEvent rEvent)
-					throws Exception
-				{
-					handleItemSelection(rEvent);
-				}
-			});
-
-		p.panel(new Initializer<InteractionFragment>()
-			{
-				@Override
-				public void init(InteractionFragment rFragment) throws Exception
-				{
-					initHeaderPanel(rFragment);
-				}
-			});
+		p.layout(Layout.HEADER).onAction(v -> handleItemSelection());
+		p.panel(p2 -> initHeaderPanel(p2));
 	}
 
 	/***************************************
@@ -316,10 +296,8 @@ public abstract class AbstractEntityListItem<E extends Entity>
 
 	/***************************************
 	 * Handles the selection event for an item.
-	 *
-	 * @param rEvent The selection event
 	 */
-	void handleItemSelection(InteractionEvent rEvent)
+	void handleItemSelection()
 	{
 		rEntityList.setSelection(this);
 	}
