@@ -14,25 +14,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui;
+package de.esoco.process.ui.component;
+
+import de.esoco.lib.property.LabelStyle;
+import de.esoco.process.ui.Component;
+import de.esoco.process.ui.Container;
+
+import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
+
 
 /********************************************************************
- * A text input field.
+ * A UI label.
  *
  * @author eso
  */
-public abstract class TextInput<T extends TextInput<T>>
-	extends InputField<String, T>
+public class Label extends Component<String, Label>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer rFragment The parent fragment
+	 * @param rContainer rFragment The fragment
+	 * @param sText      The label text
 	 */
-	public TextInput(Container<?> rContainer)
+	public Label(Container<?> rContainer, String sText)
 	{
 		super(rContainer, rContainer.fragment().textParam(null).type());
+
+		value(sText);
+		hideLabel();
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the style of this label.
+	 *
+	 * @param eStyle The label style
+	 */
+	public void labelStyle(LabelStyle eStyle)
+	{
+		set(LABEL_STYLE, eStyle);
 	}
 }

@@ -14,30 +14,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui;
+package de.esoco.process.ui.component;
 
-import org.obrel.core.RelationType;
+import de.esoco.process.ui.Container;
+import de.esoco.process.ui.TextInput;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * A multi-line text input field.
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public class TextArea extends TextInput<TextArea>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @param rContainer rFragment The parent fragment
 	 */
-	public Control(Container<?> rContainer, RelationType<T> rParamType)
+	public TextArea(Container<?> rContainer)
 	{
-		super(rContainer, rParamType);
+		super(rContainer);
 
-		input();
+		rows(-1);
 	}
 }

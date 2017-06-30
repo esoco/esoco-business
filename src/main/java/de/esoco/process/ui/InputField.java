@@ -14,27 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui.component;
+package de.esoco.process.ui;
 
-import de.esoco.process.step.ui.Container;
+import org.obrel.core.RelationType;
 
 
 /********************************************************************
- * A panel that contains and layouts other components.
+ * The base class for input fields.
  *
  * @author eso
  */
-public class Panel extends Container<Panel>
+public abstract class InputField<T, I extends InputField<T, I>>
+	extends Control<T, I>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
+	 * @param rContainer rFragment The fragment
+	 * @param rParamType The relation type
 	 */
-	public Panel(Container<?> rContainer)
+	public InputField(Container<?> rContainer, RelationType<T> rParamType)
 	{
-		super(rContainer);
+		super(rContainer, rParamType);
 	}
 }

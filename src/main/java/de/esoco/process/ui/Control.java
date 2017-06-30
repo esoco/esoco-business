@@ -14,18 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui.component;
+package de.esoco.process.ui;
 
-import de.esoco.process.step.ui.Container;
-import de.esoco.process.step.ui.TextInput;
+import org.obrel.core.RelationType;
 
 
 /********************************************************************
- * A single-line text input field.
+ * The base class for interactive components.
  *
  * @author eso
  */
-public class TextField extends TextInput<TextField>
+public class Control<T, C extends Control<T, C>> extends Component<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -33,9 +32,12 @@ public class TextField extends TextInput<TextField>
 	 * Creates a new instance.
 	 *
 	 * @param rContainer The parent container
+	 * @param rParamType The associated parameter relation type
 	 */
-	public TextField(Container<?> rContainer)
+	public Control(Container<?> rContainer, RelationType<T> rParamType)
 	{
-		super(rContainer);
+		super(rContainer, rParamType);
+
+		input();
 	}
 }

@@ -14,31 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui;
-
-import de.esoco.process.ParameterBase;
-
-import org.obrel.core.RelationType;
-
+package de.esoco.process.ui;
 
 /********************************************************************
- * The base class for all process UI components.
+ * A text input field.
  *
  * @author eso
  */
-public abstract class Component<T, C extends Component<T, C>>
-	extends ParameterBase<T, C>
+public abstract class TextInput<T extends TextInput<T>>
+	extends InputField<String, T>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
-	 * @param rParamType the process parameter relation type
+	 * @param rContainer rFragment The parent fragment
 	 */
-	public Component(Container<?> rContainer, RelationType<T> rParamType)
+	public TextInput(Container<?> rContainer)
 	{
-		super(rContainer.fragment(), rParamType);
+		super(rContainer, rContainer.fragment().textParam(null).type());
 	}
 }

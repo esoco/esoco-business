@@ -14,48 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui.component;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.LabelStyle;
-
-import de.esoco.process.step.ui.Component;
-import de.esoco.process.step.ui.Container;
-
-import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
+import de.esoco.process.ui.Container;
 
 
 /********************************************************************
- * A UI label.
+ * A panel that contains and layouts other components.
  *
  * @author eso
  */
-public class Label extends Component<String, Label>
+public class Panel extends Container<Panel>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer rFragment The fragment
-	 * @param sText      The label text
+	 * @param rContainer The parent container
 	 */
-	public Label(Container<?> rContainer, String sText)
+	public Panel(Container<?> rContainer)
 	{
-		super(rContainer, rContainer.fragment().textParam(null).type());
-
-		value(sText);
-		hideLabel();
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Sets the style of this label.
-	 *
-	 * @param eStyle The label style
-	 */
-	public void labelStyle(LabelStyle eStyle)
-	{
-		set(LABEL_STYLE, eStyle);
+		super(rContainer);
 	}
 }

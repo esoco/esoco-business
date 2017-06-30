@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.step.ui;
+package de.esoco.process.ui;
 
-import de.esoco.process.step.ui.component.Label;
-import de.esoco.process.step.ui.component.TextArea;
-import de.esoco.process.step.ui.component.TextField;
+import de.esoco.process.ui.component.Label;
+import de.esoco.process.ui.component.TextArea;
+import de.esoco.process.ui.component.TextField;
 
 import java.util.List;
 
