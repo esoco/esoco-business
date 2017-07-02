@@ -17,6 +17,7 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.LabelStyle;
+
 import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
 
@@ -35,12 +36,12 @@ public class Label extends Component<String, Label>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer rFragment The fragment
-	 * @param sText      The label text
+	 * @param rParent rContainer rFragment The fragment
+	 * @param sText   The label text
 	 */
-	public Label(Container<?> rContainer, String sText)
+	public Label(Container<?> rParent, String sText)
 	{
-		super(rContainer, rContainer.fragment().textParam(null).type());
+		super(rParent, rParent.fragment().getTempParamType(String.class));
 
 		value(sText);
 		hideLabel();

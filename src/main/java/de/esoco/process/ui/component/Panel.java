@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.Layout;
+
 import de.esoco.process.ui.Container;
 
 
@@ -31,10 +33,13 @@ public class Panel extends Container<Panel>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
+	 * @param rParent The parent container
+	 * @param eLayout The layout of this panel
 	 */
-	public Panel(Container<?> rContainer)
+	public Panel(Container<?> rParent, Layout eLayout)
 	{
-		super(rContainer);
+		super(rParent);
+
+		layout(eLayout);
 	}
 }

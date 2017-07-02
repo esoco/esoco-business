@@ -1169,6 +1169,84 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Returns a temporary parameter relation type with a certain name. If the
+	 * parameter doesn't exist yet it will be created. The name string will be
+	 * converted to standard relation type notation, i.e. upper case text with
+	 * separating underscores.
+	 *
+	 * <p>This method is intended to generate parameter types dynamically at
+	 * runtime when it is not possible to create the parameters as static
+	 * constants. The parameters will only be valid for the current process
+	 * execution and will be removed when the process ends.</p>
+	 *
+	 * @param  sName     The name of the parameter type or NULL for a default
+	 *                   name
+	 * @param  rDatatype The datatype class of the type
+	 *
+	 * @return The temporary relation type instance
+	 */
+	public <T> RelationType<T> getTemporaryParameterType(
+		String			 sName,
+		Class<? super T> rDatatype)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newRelationType(sName, rDatatype);
+		}
+		else
+		{
+			assert rParam.getTargetType() == rDatatype;
+		}
+
+		getProcess().registerTemporaryParameterType(rParam);
+
+		return rParam;
+	}
+
+	/***************************************
+	 * Returns a temporary parameter type for another relation type. The derived
+	 * type will also contain the original relation type in the meta-relation
+	 * {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
+	 *
+	 * @param  sName         The name of the new relation type or NULL to use
+	 *                       the simple name of the original type
+	 * @param  rOriginalType The original parameter relation type
+	 *
+	 * @return The temporary parameter relation type
+	 */
+	public <T> RelationType<T> getTemporaryParameterType(
+		String			sName,
+		RelationType<T> rOriginalType)
+	{
+		if (sName == null)
+		{
+			sName = rOriginalType.getSimpleName();
+		}
+
+		RelationType<T> aDerivedType =
+			getTemporaryParameterType(sName, rOriginalType.getTargetType());
+
+		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
+
+		return aDerivedType;
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type with a generated name.
+	 *
+	 * @see #getTemporaryParameterType(String, Class)
+	 */
+	public <T> RelationType<T> getTempParamType(Class<? super T> rDatatype)
+	{
+		return getTemporaryParameterType(null, rDatatype);
+	}
+
+	/***************************************
 	 * Returns the UI properties for a certain parameter.
 	 *
 	 * @param  rParam The parameter relation type
@@ -2513,73 +2591,6 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return sFragmentParamPackage;
-	}
-
-	/***************************************
-	 * Returns a temporary parameter type for another relation type. The derived
-	 * type will also contain the original relation type in the meta-relation
-	 * {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
-	 *
-	 * @param  sName         The name of the new relation type or NULL to use
-	 *                       the simple name of the original type
-	 * @param  rOriginalType The original parameter relation type
-	 *
-	 * @return The temporary parameter relation type
-	 */
-	protected <T> RelationType<T> getTemporaryParameterType(
-		String			sName,
-		RelationType<T> rOriginalType)
-	{
-		if (sName == null)
-		{
-			sName = rOriginalType.getSimpleName();
-		}
-
-		RelationType<T> aDerivedType =
-			getTemporaryParameterType(sName, rOriginalType.getTargetType());
-
-		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
-
-		return aDerivedType;
-	}
-
-	/***************************************
-	 * Returns a temporary parameter relation type with a certain name. If the
-	 * parameter doesn't exist yet it will be created. The name string will be
-	 * converted to standard relation type notation, i.e. upper case text with
-	 * separating underscores.
-	 *
-	 * <p>This method is intended to generate parameter types dynamically at
-	 * runtime when it is not possible to create the parameters as static
-	 * constants. The parameters will only be valid for the current process
-	 * execution and will be removed when the process ends.</p>
-	 *
-	 * @param  sName     The name of the parameter type
-	 * @param  rDatatype The datatype class of the type
-	 *
-	 * @return The temporary relation type instance
-	 */
-	protected <T> RelationType<T> getTemporaryParameterType(
-		String			 sName,
-		Class<? super T> rDatatype)
-	{
-		sName = getTemporaryParameterName(sName);
-
-		@SuppressWarnings("unchecked")
-		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);
-
-		if (rParam == null)
-		{
-			rParam = newRelationType(sName, rDatatype);
-		}
-		else
-		{
-			assert rParam.getTargetType() == rDatatype;
-		}
-
-		getProcess().registerTemporaryParameterType(rParam);
-
-		return rParam;
 	}
 
 	/***************************************

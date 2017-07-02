@@ -14,66 +14,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
 
-import de.esoco.process.ui.component.Label;
-import de.esoco.process.ui.component.TextArea;
-import de.esoco.process.ui.component.TextField;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.SingleSelection;
 
-import java.util.List;
+import de.esoco.process.ui.Component;
+import de.esoco.process.ui.Container;
 
-import org.obrel.core.RelationType;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 
 /********************************************************************
- * The base class for UI containers.
+ * A panel that arranges components in selectable tab pages.
  *
  * @author eso
  */
-public abstract class Container<C extends Container<C>>
-	extends Component<List<RelationType<?>>, C>
+public class TabPanel extends Panel implements SingleSelection
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * @see Component#Component(Container, RelationType)
+	 * Creates a new instance.
+	 *
+	 * @param rParent The parent container
 	 */
-	public Container(Container<?> rParent)
+	public TabPanel(Container<?> rParent)
 	{
-		super(rParent, rParent.fragment().getTempParamType(List.class));
+		super(rParent, Layout.TABS);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a label.
+	 * TODO: DOCUMENT ME!
 	 *
-	 * @param  sText The label text
-	 *
-	 * @return The new component
+	 * @param rComponent TODO: DOCUMENT ME!
 	 */
-	public Label addLabel(String sText)
+	public void addTab(Component<?, ?> rComponent)
 	{
-		return new Label(this, sText);
+		value().add(rComponent.type());
 	}
 
 	/***************************************
-	 * Adds a single-line text input field.
-	 *
-	 * @return The new component
+	 * {@inheritDoc}
 	 */
-	public TextArea addTextArea()
+	@Override
+	public int getSelectionIndex()
 	{
-		return new TextArea(this);
+		return get(CURRENT_SELECTION).intValue();
 	}
 
 	/***************************************
-	 * Adds a single-line text input field.
-	 *
-	 * @return The new component
+	 * {@inheritDoc}
 	 */
-	public TextField addTextField()
+	@Override
+	public void setSelection(int nIndex)
 	{
-		return new TextField(this);
+		set(CURRENT_SELECTION, nIndex);
 	}
 }

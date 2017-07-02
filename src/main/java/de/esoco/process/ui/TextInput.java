@@ -29,10 +29,10 @@ public abstract class TextInput<T extends TextInput<T>>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer rFragment The parent fragment
+	 * @param rParent rContainer rFragment The parent fragment
 	 */
-	public TextInput(Container<?> rContainer)
+	public TextInput(Container<?> rParent)
 	{
-		super(rContainer, rContainer.fragment().textParam(null).type());
+		super(rParent, rParent.fragment().getTempParamType(String.class));
 	}
 }
