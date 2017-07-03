@@ -14,30 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.container;
 
-import org.obrel.core.RelationType;
+import de.esoco.process.ui.View;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * A view that for dialogs that render components in separate areas of an
+ * application UI.
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public class Dialog extends View<Dialog>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @param rParent The parent view
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public Dialog(View<?> rParent)
 	{
-		super(rParent, rParamType);
-
-		input();
+		super(rParent);
 	}
 }

@@ -16,61 +16,31 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.Layout;
-import de.esoco.lib.property.SingleSelection;
+import de.esoco.lib.property.ListStyle;
 
-import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
-
-import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import de.esoco.process.ui.ListComponent;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A list of selectable values. The datatype of of the list values can be
+ * defined on creation. Typically only string and enum values are supported.
  *
  * @author eso
  */
-public class TabPanel extends Panel implements SingleSelection
+public class List<T> extends ListComponent<T, List<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as the list values.
 	 *
-	 * @param rParent The parent container
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the list values
 	 */
-	public TabPanel(Container<?> rParent)
+	public List(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, Layout.TABS);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * TODO: DOCUMENT ME!
-	 *
-	 * @param rComponent TODO: DOCUMENT ME!
-	 */
-	public void addTab(Component<?, ?> rComponent)
-	{
-		value().add(rComponent.type());
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getSelectionIndex()
-	{
-		return get(CURRENT_SELECTION).intValue();
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setSelection(int nIndex)
-	{
-		set(CURRENT_SELECTION, nIndex);
+		super(rParent, rDatatype, ListStyle.LIST);
 	}
 }

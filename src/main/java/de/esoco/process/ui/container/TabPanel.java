@@ -14,30 +14,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.container;
 
-import org.obrel.core.RelationType;
+import de.esoco.lib.property.Layout;
+
+import de.esoco.process.ui.Component;
+import de.esoco.process.ui.Container;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * A panel that arranges components in selectable tab pages.
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public class TabPanel extends SwitchPanel
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @param rParent The parent container
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public TabPanel(Container<?> rParent)
 	{
-		super(rParent, rParamType);
+		super(rParent, Layout.TABS);
+	}
 
-		input();
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a new tab page.
+	 *
+	 * @param rComponent The component to be displayed on the tab page
+	 */
+	public void addTab(Component<?, ?> rComponent)
+	{
+		value().add(rComponent.type());
 	}
 }

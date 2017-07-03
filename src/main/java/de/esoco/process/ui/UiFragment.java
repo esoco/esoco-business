@@ -16,28 +16,51 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import org.obrel.core.RelationType;
+import de.esoco.lib.property.Layout;
+
+import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.container.RootView;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * An interactive process fragment that renders UI components (subclasses of
+ * {@link Component}).
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public abstract class UiFragment extends InteractionFragment
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static final long serialVersionUID = 1L;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
-	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public UiFragment()
 	{
-		super(rParent, rParamType);
-
-		input();
 	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void init() throws Exception
+	{
+		layout(Layout.INLINE);
+
+		buildUserInterface(new RootView(this));
+	}
+
+	/***************************************
+	 * Must be implemented by subclasses to build the application UI in the
+	 * given root view.
+	 *
+	 * @param rRootView The root view
+	 */
+	protected abstract void buildUserInterface(RootView rRootView);
 }

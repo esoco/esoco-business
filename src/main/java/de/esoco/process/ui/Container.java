@@ -16,11 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.Layout;
+
+import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.component.Label;
+import de.esoco.process.ui.component.List;
 import de.esoco.process.ui.component.TextArea;
 import de.esoco.process.ui.component.TextField;
-
-import java.util.List;
+import de.esoco.process.ui.container.Panel;
 
 import org.obrel.core.RelationType;
 
@@ -31,22 +34,50 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public abstract class Container<C extends Container<C>>
-	extends Component<List<RelationType<?>>, C>
+	extends Component<java.util.List<RelationType<?>>, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * @see Component#Component(Container, RelationType)
+	 * Creates a new instance.
+	 *
+	 * @param rParent The parent container or NULL for a root container
 	 */
 	public Container(Container<?> rParent)
 	{
-		super(rParent, rParent.fragment().getTempParamType(List.class));
+		super(rParent, null);
+
+		if (rParent != null)
+		{
+			InteractionFragment rParentFragment = rParent.fragment();
+
+			@SuppressWarnings("serial")
+			InteractionFragment aContainerFragment =
+				new InteractionFragment()
+				{
+					@Override
+					public void init() throws Exception
+					{
+						build();
+					}
+				};
+
+			RelationType<java.util.List<RelationType<?>>> rContainerParamType =
+				rParentFragment.getTemporaryListType(null, RelationType.class);
+
+			rParentFragment.addSubFragment(rContainerParamType,
+										   aContainerFragment);
+
+			setFragment(aContainerFragment);
+			setParameterType(rContainerParamType);
+			rParentFragment.addInputParameters(rContainerParamType);
+		}
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a label.
+	 * Adds a non-interactive label.
 	 *
 	 * @param  sText The label text
 	 *
@@ -58,7 +89,32 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	/***************************************
-	 * Adds a single-line text input field.
+	 * Adds a list of selectable elements. If the datatype is an enum all enum
+	 * values will be pre-set as the list values.
+	 *
+	 * @param  rDatatype The datatype of the list elements
+	 *
+	 * @return The new component
+	 */
+	public <T> List<T> addList(Class<T> rDatatype)
+	{
+		return new List<>(this, rDatatype);
+	}
+
+	/***************************************
+	 * Adds a panel with a certain layout.
+	 *
+	 * @param  eLayout The panel layout
+	 *
+	 * @return The new panel
+	 */
+	public Panel addPanel(Layout eLayout)
+	{
+		return new Panel(this, eLayout);
+	}
+
+	/***************************************
+	 * Adds a multi-line text input field.
 	 *
 	 * @return The new component
 	 */
@@ -75,5 +131,18 @@ public abstract class Container<C extends Container<C>>
 	public TextField addTextField()
 	{
 		return new TextField(this);
+	}
+
+	/***************************************
+	 * Can be overridden by subclasses to build the contents of this container.
+	 * Alternatively the contents can also be built by adding components to it
+	 * after creation. This may also be used in combination. In that case this
+	 * {@link #build()} method has already been invoked because that happens
+	 * upon initialization.
+	 *
+	 * <p>The default implementation of this method does nothing.</p>
+	 */
+	protected void build()
+	{
 	}
 }

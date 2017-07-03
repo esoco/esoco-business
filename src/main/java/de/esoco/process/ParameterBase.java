@@ -16,24 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.data.element.DataElementList;
-
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.RelationAccessor;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
-import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.Layout;
-import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.property.RelativeSize;
-import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -114,14 +109,25 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private final InteractionFragment rFragment;
-	private final RelationType<T>     rParamType;
+	private InteractionFragment rFragment;
+
+	private RelationType<T> rParamType;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance for a certain fragment and parameter relation
 	 * type.
+	 *
+	 * <p>If a subclass cannot provide the fragment or the relation type at
+	 * creation time it may use NULL when invoking the super constructor. These
+	 * values must then be set as soon as possible by invoking the respective
+	 * setter method(s) (see {@link #setFragment(InteractionFragment)} and
+	 * {@link #setParameterType(RelationType)}). This must happen before any
+	 * other method on this instance is called or else a null pointer exception
+	 * will occur. Typically this should only be used in the constructor of a
+	 * subclass, e.g. to include some kind of self-reference (which is not
+	 * possible while invoking the super constructor).</p>
 	 *
 	 * @param rFragment  The fragment to handle the parameter for
 	 * @param rParamType The parameter relation type to handle
@@ -1328,6 +1334,32 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P width(int nWidth)
 	{
 		return set(nWidth, WIDTH);
+	}
+
+	/***************************************
+	 * Allows subclasses to set the fragment of this parameter. This should only
+	 * be used if subclasses are not able to provide the fragment at
+	 * construction time. In that case this method must be invoked before any
+	 * other method is invoked or else an exception will be thrown.
+	 *
+	 * @param rFragment The new fragment
+	 */
+	protected final void setFragment(InteractionFragment rFragment)
+	{
+		this.rFragment = rFragment;
+	}
+
+	/***************************************
+	 * Allows subclasses to set the parameter relation type. This should only be
+	 * used if subclasses are not able to provide the parameter type at
+	 * construction time. In that case this method must be invoked before any
+	 * other method is invoked or else an exception will be thrown.
+	 *
+	 * @param rParamType The new parameter relation type
+	 */
+	protected final void setParameterType(RelationType<T> rParamType)
+	{
+		this.rParamType = rParamType;
 	}
 
 	/***************************************

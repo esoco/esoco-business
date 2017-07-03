@@ -14,30 +14,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.container;
 
-import org.obrel.core.RelationType;
+import de.esoco.process.ui.UiFragment;
+import de.esoco.process.ui.View;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * The root view of an application UI. All other components or the UI must be
+ * (direct or indirect) children of a root view.
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public class RootView extends View<RootView>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @param rFragment The UI fragment this view shall be rendered in
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public RootView(UiFragment rFragment)
 	{
-		super(rParent, rParamType);
+		super(null);
 
-		input();
+		setFragment(rFragment);
+		setParameterType(rFragment.getFragmentParameter());
 	}
 }

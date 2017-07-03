@@ -14,30 +14,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.container;
 
-import org.obrel.core.RelationType;
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.SingleSelection;
+
+import de.esoco.process.ui.Container;
+
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * A panel that arranges components in selectable tab pages.
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public class SwitchPanel extends Panel implements SingleSelection
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @param rParent The parent container
+	 * @param eLayout The panel layout
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public SwitchPanel(Container<?> rParent, Layout eLayout)
 	{
-		super(rParent, rParamType);
+		super(rParent, eLayout);
+	}
 
-		input();
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	public int getSelectionIndex()
+	{
+		return get(CURRENT_SELECTION);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	public void setSelection(int nIndex)
+	{
+		set(CURRENT_SELECTION, nIndex);
 	}
 }

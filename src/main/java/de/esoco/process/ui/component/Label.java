@@ -17,6 +17,7 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.LabelStyle;
+import de.esoco.lib.property.TextAttribute;
 
 import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
@@ -29,7 +30,7 @@ import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
  *
  * @author eso
  */
-public class Label extends Component<String, Label>
+public class Label extends Component<String, Label> implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -41,13 +42,23 @@ public class Label extends Component<String, Label>
 	 */
 	public Label(Container<?> rParent, String sText)
 	{
-		super(rParent, rParent.fragment().getTempParamType(String.class));
+		super(rParent,
+			  rParent.fragment().getTemporaryParameterType(String.class));
 
 		value(sText);
 		hideLabel();
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getText()
+	{
+		return value();
+	}
 
 	/***************************************
 	 * Sets the style of this label.
@@ -57,5 +68,14 @@ public class Label extends Component<String, Label>
 	public void labelStyle(LabelStyle eStyle)
 	{
 		set(LABEL_STYLE, eStyle);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setText(String sText)
+	{
+		value(sText);
 	}
 }

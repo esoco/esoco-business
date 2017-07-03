@@ -16,28 +16,22 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import org.obrel.core.RelationType;
-
-
 /********************************************************************
- * The base class for interactive components.
+ * The base class for top-level UI rendering contexts.
  *
  * @author eso
  */
-public class Control<T, C extends Control<T, C>> extends Component<T, C>
+public abstract class View<V extends View<V>> extends Container<V>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @param rParent The parent view
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public View(View<?> rParent)
 	{
-		super(rParent, rParamType);
-
-		input();
+		super(rParent);
 	}
 }

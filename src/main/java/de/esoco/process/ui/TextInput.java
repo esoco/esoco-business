@@ -16,13 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.TextAttribute;
+
+
 /********************************************************************
  * A text input field.
  *
  * @author eso
  */
 public abstract class TextInput<T extends TextInput<T>>
-	extends InputField<String, T>
+	extends InputField<String, T> implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -33,6 +36,27 @@ public abstract class TextInput<T extends TextInput<T>>
 	 */
 	public TextInput(Container<?> rParent)
 	{
-		super(rParent, rParent.fragment().getTempParamType(String.class));
+		super(rParent,
+			  rParent.fragment().getTemporaryParameterType(String.class));
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getText()
+	{
+		return value();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setText(String sText)
+	{
+		value(sText);
 	}
 }

@@ -16,52 +16,67 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.process.ParameterBase;
+import de.esoco.lib.property.ListStyle;
 
-import org.obrel.core.RelationType;
+import java.util.Collection;
+
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 
 /********************************************************************
- * The base class for all process UI components.
+ * Base class for interactive components that display a list of selectable
+ * values.
  *
  * @author eso
  */
-public abstract class Component<T, C extends Component<T, C>>
-	extends ParameterBase<T, C>
+public abstract class ListComponent<T, C extends ListComponent<T, C>>
+	extends Control<T, C>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private final Container<?> rParent;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as the list values.
 	 *
 	 * @param rParent    The parent container
-	 * @param rParamType The process parameter relation type
+	 * @param rDatatype  The datatype of the list values
+	 * @param eListStyle The list style
 	 */
-	public Component(Container<?> rParent, RelationType<T> rParamType)
+	@SuppressWarnings("unchecked")
+	public ListComponent(Container<?>	  rParent,
+						 Class<? super T> rDatatype,
+						 ListStyle		  eListStyle)
 	{
-		super(rParent != null ? rParent.fragment() : null, rParamType);
+		super(rParent, rParent.fragment().getTemporaryParameterType(rDatatype));
 
-		this.rParent = rParent;
+		set(LIST_STYLE, eListStyle);
 
-		if (rParent != null && rParamType != null)
+		if (rDatatype.isEnum())
 		{
-			display();
+			setListValues((T[]) rDatatype.getEnumConstants());
 		}
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the parent container.
+	 * Sets the values to be displayed in the list.
 	 *
-	 * @return The parent
+	 * @param rValues The list values
 	 */
-	public final Container<?> getParent()
+	@SuppressWarnings("unchecked")
+	public void setListValues(T... rValues)
 	{
-		return rParent;
+		allow(rValues);
+	}
+
+	/***************************************
+	 * Sets a collection of values to be displayed in the list.
+	 *
+	 * @param rValues The list values
+	 */
+	public void setListValues(Collection<T> rValues)
+	{
+		allow(rValues);
 	}
 }
