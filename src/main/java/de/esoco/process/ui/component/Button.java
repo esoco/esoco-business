@@ -14,29 +14,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
+
+import de.esoco.process.ui.ButtonComponent;
+import de.esoco.process.ui.Container;
+
 
 /********************************************************************
- * The base class for input fields.
+ * A button that can be pressed to cause action events. The datatype defines how
+ * the button is defined. Typically only string and enum values are supported.
  *
  * @author eso
  */
-public abstract class InputField<T, I extends InputField<T, I>>
-	extends Control<T, I>
+public class Button<T> extends ButtonComponent<T, Button<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as the list values.
 	 *
 	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
-	 * @param rValue    The initial value
+	 * @param rDatatype The datatype of the list values
 	 */
-	public InputField(Container<?> rParent, Class<T> rDatatype, T rValue)
+	public Button(Container<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype);
-
-		value(rValue);
 	}
 }

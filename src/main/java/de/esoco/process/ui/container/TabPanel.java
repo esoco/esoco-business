@@ -20,6 +20,7 @@ import de.esoco.lib.property.Layout;
 
 import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
+import de.esoco.process.ui.SwitchPanel;
 
 
 /********************************************************************

@@ -32,11 +32,11 @@ public class TextArea extends TextInput<TextArea>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer rFragment The parent fragment
+	 * @see TextInput#TextInput(Container, String)
 	 */
-	public TextArea(Container<?> rContainer)
+	public TextArea(Container<?> rContainer, String sText)
 	{
-		super(rContainer);
+		super(rContainer, sText);
 
 		rows(-1);
 	}

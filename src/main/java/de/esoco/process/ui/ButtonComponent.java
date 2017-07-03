@@ -17,12 +17,12 @@
 package de.esoco.process.ui;
 
 /********************************************************************
- * The base class for input fields.
+ * The base class for button components.
  *
  * @author eso
  */
-public abstract class InputField<T, I extends InputField<T, I>>
-	extends Control<T, I>
+public abstract class ButtonComponent<T, B extends ButtonComponent<T, B>>
+	extends Control<T, B>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -30,13 +30,10 @@ public abstract class InputField<T, I extends InputField<T, I>>
 	 * Creates a new instance.
 	 *
 	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
-	 * @param rValue    The initial value
+	 * @param rDatatype The datatype of the component value
 	 */
-	public InputField(Container<?> rParent, Class<T> rDatatype, T rValue)
+	public ButtonComponent(Container<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype);
-
-		value(rValue);
 	}
 }

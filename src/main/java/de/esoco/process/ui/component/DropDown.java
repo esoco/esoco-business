@@ -14,29 +14,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
+
+import de.esoco.lib.property.ListStyle;
+
+import de.esoco.process.ui.Container;
+import de.esoco.process.ui.ListComponent;
+
 
 /********************************************************************
- * The base class for input fields.
+ * A single-line field with a drop-down list of selectable values. The datatype
+ * of of the list values can be defined on creation. Typically only string and
+ * enum values are supported.
  *
  * @author eso
  */
-public abstract class InputField<T, I extends InputField<T, I>>
-	extends Control<T, I>
+public class DropDown<T> extends ListComponent<T, DropDown<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as the list values.
 	 *
 	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
-	 * @param rValue    The initial value
+	 * @param rDatatype The datatype of the list values
 	 */
-	public InputField(Container<?> rParent, Class<T> rDatatype, T rValue)
+	public DropDown(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, rDatatype);
-
-		value(rValue);
+		super(rParent, rDatatype, ListStyle.DROP_DOWN);
 	}
 }

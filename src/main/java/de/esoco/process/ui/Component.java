@@ -18,8 +18,6 @@ package de.esoco.process.ui;
 
 import de.esoco.process.ParameterBase;
 
-import org.obrel.core.RelationType;
-
 
 /********************************************************************
  * The base class for all process UI components.
@@ -38,16 +36,18 @@ public abstract class Component<T, C extends Component<T, C>>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The process parameter relation type
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the component value
 	 */
-	public Component(Container<?> rParent, RelationType<T> rParamType)
+	public Component(Container<?> rParent, Class<? super T> rDatatype)
 	{
-		super(rParent != null ? rParent.fragment() : null, rParamType);
+		super(rParent != null ? rParent.fragment() : null,
+			  rDatatype != null
+			  ? rParent.fragment().getTemporaryParameterType(rDatatype) : null);
 
 		this.rParent = rParent;
 
-		if (rParent != null && rParamType != null)
+		if (rParent != null && rDatatype != null)
 		{
 			display();
 		}

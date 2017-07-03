@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import org.obrel.core.RelationType;
-
-
 /********************************************************************
  * The base class for interactive components.
  *
@@ -31,12 +28,11 @@ public class Control<T, C extends Control<T, C>> extends Component<T, C>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The associated parameter relation type
+	 * @see Component#Component(Container, Class)
 	 */
-	public Control(Container<?> rParent, RelationType<T> rParamType)
+	public Control(Container<?> rParent, Class<? super T> rDatatype)
 	{
-		super(rParent, rParamType);
+		super(rParent, rDatatype);
 
 		input();
 	}

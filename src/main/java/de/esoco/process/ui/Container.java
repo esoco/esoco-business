@@ -19,6 +19,8 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.component.ComboBox;
+import de.esoco.process.ui.component.DropDown;
 import de.esoco.process.ui.component.Label;
 import de.esoco.process.ui.component.List;
 import de.esoco.process.ui.component.TextArea;
@@ -77,6 +79,32 @@ public abstract class Container<C extends Container<C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Adds a single-line text input field with a drop-down list of value
+	 * suggestions.
+	 *
+	 * @param  sText The text to edit
+	 *
+	 * @return The new component
+	 */
+	public ComboBox addComboBox(String sText)
+	{
+		return new ComboBox(this, sText);
+	}
+
+	/***************************************
+	 * Adds a single-line field with a list of selectable elements. If the
+	 * datatype is an enum all enum values will be pre-set as the list values.
+	 *
+	 * @param  rDatatype The datatype of the list elements
+	 *
+	 * @return The new component
+	 */
+	public <T> DropDown<T> addDropDown(Class<T> rDatatype)
+	{
+		return new DropDown<>(this, rDatatype);
+	}
+
+	/***************************************
 	 * Adds a non-interactive label.
 	 *
 	 * @param  sText The label text
@@ -116,21 +144,25 @@ public abstract class Container<C extends Container<C>>
 	/***************************************
 	 * Adds a multi-line text input field.
 	 *
+	 * @param  sText The text to edit
+	 *
 	 * @return The new component
 	 */
-	public TextArea addTextArea()
+	public TextArea addTextArea(String sText)
 	{
-		return new TextArea(this);
+		return new TextArea(this, sText);
 	}
 
 	/***************************************
 	 * Adds a single-line text input field.
 	 *
+	 * @param  sText The text to edit
+	 *
 	 * @return The new component
 	 */
-	public TextField addTextField()
+	public TextField addTextField(String sText)
 	{
-		return new TextField(this);
+		return new TextField(this, sText);
 	}
 
 	/***************************************

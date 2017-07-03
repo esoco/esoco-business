@@ -42,10 +42,9 @@ public class Label extends Component<String, Label> implements TextAttribute
 	 */
 	public Label(Container<?> rParent, String sText)
 	{
-		super(rParent,
-			  rParent.fragment().getTemporaryParameterType(String.class));
+		super(rParent, String.class);
 
-		value(sText);
+		setText(sText);
 		hideLabel();
 	}
 

@@ -32,10 +32,10 @@ public class TextField extends TextInput<TextField>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
+	 * @see TextInput#TextInput(Container, String)
 	 */
-	public TextField(Container<?> rContainer)
+	public TextField(Container<?> rContainer, String sText)
 	{
-		super(rContainer);
+		super(rContainer, sText);
 	}
 }

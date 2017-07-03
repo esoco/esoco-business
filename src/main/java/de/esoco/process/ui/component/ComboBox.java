@@ -14,23 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ListStyle;
+import de.esoco.lib.property.TextAttribute;
 
-import java.util.Collection;
-
-import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
+import de.esoco.process.ui.Container;
+import de.esoco.process.ui.ListComponent;
 
 
 /********************************************************************
- * Base class for interactive components that display a list of selectable
- * values.
+ * A combination of a single-line text field with a drop-down list of selectable
+ * values. The datatype of of the list values can be defined on creation.
+ * Typically only string and enum values are supported.
  *
  * @author eso
  */
-public abstract class ListComponent<T, C extends ListComponent<T, C>>
-	extends Control<T, C>
+public class ComboBox extends ListComponent<String, ComboBox>
+	implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -38,45 +39,33 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as the list values.
 	 *
-	 * @param rParent    The parent container
-	 * @param rDatatype  The datatype of the list values
-	 * @param eListStyle The list style
+	 * @param rParent The parent container
+	 * @param sText   The initial text
 	 */
-	@SuppressWarnings("unchecked")
-	public ListComponent(Container<?>	  rParent,
-						 Class<? super T> rDatatype,
-						 ListStyle		  eListStyle)
+	public ComboBox(Container<?> rParent, String sText)
 	{
-		super(rParent, rDatatype);
+		super(rParent, String.class, ListStyle.EDITABLE);
 
-		set(LIST_STYLE, eListStyle);
-
-		if (rDatatype.isEnum())
-		{
-			setListValues((T[]) rDatatype.getEnumConstants());
-		}
+		setText(sText);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the values to be displayed in the list.
-	 *
-	 * @param rValues The list values
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues)
+	@Override
+	public String getText()
 	{
-		allow(rValues);
+		return value();
 	}
 
 	/***************************************
-	 * Sets a collection of values to be displayed in the list.
-	 *
-	 * @param rValues The list values
+	 * {@inheritDoc}
 	 */
-	public void setListValues(Collection<T> rValues)
+	@Override
+	public void setText(String sText)
 	{
-		allow(rValues);
+		value(sText);
 	}
 }

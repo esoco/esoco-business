@@ -33,11 +33,11 @@ public abstract class TextInput<T extends TextInput<T>>
 	 * Creates a new instance.
 	 *
 	 * @param rParent rContainer rFragment The parent fragment
+	 * @param sText   The initial text
 	 */
-	public TextInput(Container<?> rParent)
+	public TextInput(Container<?> rParent, String sText)
 	{
-		super(rParent,
-			  rParent.fragment().getTemporaryParameterType(String.class));
+		super(rParent, String.class, sText);
 	}
 
 	//~ Methods ----------------------------------------------------------------

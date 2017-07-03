@@ -14,55 +14,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.Layout;
-import de.esoco.lib.property.SingleSelection;
-
+import de.esoco.process.ui.ButtonComponent;
 import de.esoco.process.ui.Container;
-
-import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A button that can be pressed to cause action events. The datatype defines how
+ * the button is defined. Typically only string and enum values are supported.
  *
  * @author eso
  */
-public class SwitchPanel extends Panel implements SingleSelection
+public class CheckBox extends ButtonComponent<Boolean, CheckBox>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as the list values.
 	 *
 	 * @param rParent The parent container
-	 * @param eLayout The panel layout
 	 */
-	public SwitchPanel(Container<?> rParent, Layout eLayout)
+	public CheckBox(Container<?> rParent)
 	{
-		super(rParent, eLayout);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("boxing")
-	public int getSelectionIndex()
-	{
-		return get(CURRENT_SELECTION);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("boxing")
-	public void setSelection(int nIndex)
-	{
-		set(CURRENT_SELECTION, nIndex);
+		super(rParent, Boolean.class);
 	}
 }

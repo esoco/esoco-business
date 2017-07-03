@@ -16,27 +16,52 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.SingleSelection;
+import de.esoco.process.ui.container.Panel;
+
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+
+
 /********************************************************************
- * The base class for input fields.
+ * A panel that arranges components in selectable tab pages.
  *
  * @author eso
  */
-public abstract class InputField<T, I extends InputField<T, I>>
-	extends Control<T, I>
+public class SwitchPanel extends Panel implements SingleSelection
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
-	 * @param rValue    The initial value
+	 * @param rParent The parent container
+	 * @param eLayout The panel layout
 	 */
-	public InputField(Container<?> rParent, Class<T> rDatatype, T rValue)
+	public SwitchPanel(Container<?> rParent, Layout eLayout)
 	{
-		super(rParent, rDatatype);
+		super(rParent, eLayout);
+	}
 
-		value(rValue);
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	public int getSelectionIndex()
+	{
+		return get(CURRENT_SELECTION);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	public void setSelection(int nIndex)
+	{
+		set(CURRENT_SELECTION, nIndex);
 	}
 }
