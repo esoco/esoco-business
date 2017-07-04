@@ -24,11 +24,12 @@ import de.esoco.process.ui.SwitchPanel;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A panel that arranges components in a stack of elements that can be selected
+ * to display them.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+public class StackPanel extends SwitchPanel<StackPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -37,19 +38,19 @@ public class TabPanel extends SwitchPanel<TabPanel>
 	 *
 	 * @param rParent The parent container
 	 */
-	public TabPanel(Container<?> rParent)
+	public StackPanel(Container<?> rParent)
 	{
-		super(rParent, Layout.TABS);
+		super(rParent, Layout.STACK);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a new tab page.
+	 * Adds a new stack element.
 	 *
-	 * @param rComponent The component to be displayed on the tab page
+	 * @param rComponent The component to be displayed on the stack element
 	 */
-	public void addTab(Component<?, ?> rComponent)
+	public void addStack(Component<?, ?> rComponent)
 	{
 		value().add(rComponent.type());
 	}

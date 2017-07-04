@@ -873,7 +873,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P onAction(ParameterEventHandler<T> rEventHandler)
+	public final P onAction(ValueEventHandler<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										rEventHandler);
@@ -939,7 +939,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P onFocusLost(ParameterEventHandler<T> rEventHandler)
+	public final P onFocusLost(ValueEventHandler<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
 										rEventHandler);
@@ -952,7 +952,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P onUpdate(ParameterEventHandler<T> rEventHandler)
+	public final P onUpdate(ValueEventHandler<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										rEventHandler);
@@ -1400,7 +1400,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	@SuppressWarnings("unchecked")
 	private P setParameterEventHandler(
 		InteractionEventType		   eEventType,
-		final ParameterEventHandler<T> rEventHandler)
+		final ValueEventHandler<T> rEventHandler)
 	{
 		InteractionHandler rInteractionHandler =
 			rFragment.getParameterInteractionHandler(rParamType);
@@ -1435,7 +1435,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Map<InteractionEventType, ParameterEventHandler<T>> aEventTypeHandlers =
+		private Map<InteractionEventType, ValueEventHandler<T>> aEventTypeHandlers =
 			new HashMap<>();
 
 		//~ Methods ------------------------------------------------------------
@@ -1446,12 +1446,12 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		@Override
 		public void handleInteraction(InteractionEvent rEvent) throws Exception
 		{
-			ParameterEventHandler<T> rEventHandler =
+			ValueEventHandler<T> rEventHandler =
 				aEventTypeHandlers.get(rEvent.getType());
 
 			if (rEventHandler != null)
 			{
-				rEventHandler.handleParameterUpdate(value());
+				rEventHandler.handleValueUpdate(value());
 			}
 		}
 
@@ -1473,7 +1473,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		 */
 		void setEventTypeHandler(
 			InteractionEventType	 eEventType,
-			ParameterEventHandler<T> rHandler)
+			ValueEventHandler<T> rHandler)
 		{
 			aEventTypeHandlers.put(eEventType, rHandler);
 		}

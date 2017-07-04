@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,23 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.ui.event;
+
+import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.Component;
+
 
 /********************************************************************
- * An event handler interface for parameter value updates.
+ * Indicates that a component can produce update events upon value changes.
  *
  * @author eso
  */
-public interface ParameterEventHandler<T>
+public interface HasUpdateEvents<T, C extends Component<?, ?>>
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Will be invoked if an event occurred for the parameter.
+	 * Registers an event handler that will be invoked on update events with the
+	 * new component value.
 	 *
-	 * @param  rParamValue The current parameter value
+	 * @param  rEventHandler The event handler to be invoked
 	 *
-	 * @throws Exception May throw an exception on errors
+	 * @return The component the handler has been registered on
 	 */
-	public void handleParameterUpdate(T rParamValue) throws Exception;
+	public C onUpdate(ValueEventHandler<T> rEventHandler);
 }

@@ -14,43 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
-
-import de.esoco.lib.property.Layout;
-
-import de.esoco.process.ui.Component;
-import de.esoco.process.ui.Container;
-import de.esoco.process.ui.SwitchPanel;
-
+package de.esoco.process;
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * An event handler interface for value updates.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+@FunctionalInterface
+public interface ValueEventHandler<T>
 {
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 *
-	 * @param rParent The parent container
-	 */
-	public TabPanel(Container<?> rParent)
-	{
-		super(rParent, Layout.TABS);
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a new tab page.
+	 * Will be invoked if a value update has been performed.
 	 *
-	 * @param rComponent The component to be displayed on the tab page
+	 * @param  rNewValue The updated value
+	 *
+	 * @throws Exception May throw an exception on errors
 	 */
-	public void addTab(Component<?, ?> rComponent)
-	{
-		value().add(rComponent.type());
-	}
+	public void handleValueUpdate(T rNewValue) throws Exception;
 }

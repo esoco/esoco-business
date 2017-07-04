@@ -16,13 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.process.ui.event.HasActionEvents;
+
+
 /********************************************************************
  * The base class for button components.
  *
  * @author eso
  */
 public abstract class ButtonComponent<T, B extends ButtonComponent<T, B>>
-	extends Control<T, B>
+	extends Control<T, B> implements HasActionEvents<T, B>
 {
 	//~ Constructors -----------------------------------------------------------
 

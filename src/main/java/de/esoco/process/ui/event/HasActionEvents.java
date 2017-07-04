@@ -14,43 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui.event;
 
-import de.esoco.lib.property.Layout;
-
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.Component;
-import de.esoco.process.ui.Container;
-import de.esoco.process.ui.SwitchPanel;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * Indicates that a component can produce action events upon some respective
+ * interaction.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+public interface HasActionEvents<T, C extends Component<?, ?>>
 {
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 *
-	 * @param rParent The parent container
-	 */
-	public TabPanel(Container<?> rParent)
-	{
-		super(rParent, Layout.TABS);
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a new tab page.
+	 * Registers an event handler that will be invoked on action events with the
+	 * new component value.
 	 *
-	 * @param rComponent The component to be displayed on the tab page
+	 * @param  rEventHandler The event handler to be invoked
+	 *
+	 * @return The component the handler has been registered on
 	 */
-	public void addTab(Component<?, ?> rComponent)
-	{
-		value().add(rComponent.type());
-	}
+	public C onAction(ValueEventHandler<T> rEventHandler);
 }

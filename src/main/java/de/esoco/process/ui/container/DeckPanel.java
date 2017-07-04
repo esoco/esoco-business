@@ -24,11 +24,13 @@ import de.esoco.process.ui.SwitchPanel;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * Contains multiple components arranged as a deck of pages of which only one is
+ * visible at a time. The visible component can be selected or queried through
+ * the selection methods of {@link SwitchPanel}.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+public class DeckPanel extends SwitchPanel<DeckPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -37,7 +39,7 @@ public class TabPanel extends SwitchPanel<TabPanel>
 	 *
 	 * @param rParent The parent container
 	 */
-	public TabPanel(Container<?> rParent)
+	public DeckPanel(Container<?> rParent)
 	{
 		super(rParent, Layout.TABS);
 	}
@@ -45,11 +47,11 @@ public class TabPanel extends SwitchPanel<TabPanel>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a new tab page.
+	 * Adds a new page.
 	 *
 	 * @param rComponent The component to be displayed on the tab page
 	 */
-	public void addTab(Component<?, ?> rComponent)
+	public void addPage(Component<?, ?> rComponent)
 	{
 		value().add(rComponent.type());
 	}

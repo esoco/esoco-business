@@ -14,21 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui;
 
 import de.esoco.lib.property.Layout;
 
-import de.esoco.process.ui.Component;
-import de.esoco.process.ui.Container;
-import de.esoco.process.ui.SwitchPanel;
-
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A container that has a layout for the arrangement of the child components.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+public class LayoutContainer<C extends LayoutContainer<C>> extends Container<C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -36,21 +32,12 @@ public class TabPanel extends SwitchPanel<TabPanel>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
+	 * @param eLayout The container layout
 	 */
-	public TabPanel(Container<?> rParent)
+	public LayoutContainer(Container<?> rParent, Layout eLayout)
 	{
-		super(rParent, Layout.TABS);
-	}
+		super(rParent);
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Adds a new tab page.
-	 *
-	 * @param rComponent The component to be displayed on the tab page
-	 */
-	public void addTab(Component<?, ?> rComponent)
-	{
-		value().add(rComponent.type());
+		layout(eLayout);
 	}
 }

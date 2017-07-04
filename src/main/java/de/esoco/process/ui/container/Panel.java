@@ -19,14 +19,16 @@ package de.esoco.process.ui.container;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.ui.Container;
+import de.esoco.process.ui.LayoutContainer;
 
 
 /********************************************************************
- * A panel that contains and layouts other components.
+ * A simple panel container that arranges it's child containers according to a
+ * layout.
  *
  * @author eso
  */
-public class Panel extends Container<Panel>
+public class Panel extends LayoutContainer<Panel>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -38,8 +40,6 @@ public class Panel extends Container<Panel>
 	 */
 	public Panel(Container<?> rParent, Layout eLayout)
 	{
-		super(rParent);
-
-		layout(eLayout);
+		super(rParent, eLayout);
 	}
 }

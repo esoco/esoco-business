@@ -18,17 +18,25 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.SingleSelection;
-import de.esoco.process.ui.container.Panel;
+
+import de.esoco.process.ui.event.HasUpdateEvents;
+
+import java.util.List;
+
+import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A panel that contains multiple children of which only one is visible at a
+ * time. The visible component can then be selected through the methods of the
+ * implemented {@link SingleSelection} interface.
  *
  * @author eso
  */
-public class SwitchPanel extends Panel implements SingleSelection
+public class SwitchPanel<P extends SwitchPanel<P>> extends LayoutContainer<P>
+	implements SingleSelection, HasUpdateEvents<List<RelationType<?>>, P>
 {
 	//~ Constructors -----------------------------------------------------------
 

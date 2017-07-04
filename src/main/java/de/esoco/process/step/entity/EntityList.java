@@ -28,9 +28,9 @@ import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.reflect.ReflectUtil;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.ParameterList;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
 
@@ -798,10 +798,10 @@ public class EntityList<E extends Entity,
 				aListSizeDropDown =
 					dropDown("EntityListPageSize", aAllowedListSizes).value(sPageSize)
 																	 .input()
-																	 .onUpdate(new ParameterEventHandler<String>()
+																	 .onUpdate(new ValueEventHandler<String>()
 						{
 							@Override
-							public void handleParameterUpdate(String sPageSize)
+							public void handleValueUpdate(String sPageSize)
 								throws Exception
 							{
 								changePageSize(sPageSize);
@@ -937,11 +937,11 @@ public class EntityList<E extends Entity,
 							  .images()
 							  .set(ICON_SIZE, RelativeScale.SMALL)
 							  .layout(Layout.TABLE)
-							  .onAction(new ParameterEventHandler<PagingNavigation>()
+							  .onAction(new ValueEventHandler<PagingNavigation>()
 				{
 					@Override
-					public void handleParameterUpdate(
-						PagingNavigation eNavigation) throws Exception
+					public void handleValueUpdate(PagingNavigation eNavigation)
+						throws Exception
 					{
 						navigate(eNavigation);
 					}

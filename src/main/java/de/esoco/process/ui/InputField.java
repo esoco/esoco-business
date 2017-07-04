@@ -16,13 +16,18 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.process.ui.event.HasActionEvents;
+import de.esoco.process.ui.event.HasUpdateEvents;
+
+
 /********************************************************************
  * The base class for input fields.
  *
  * @author eso
  */
 public abstract class InputField<T, I extends InputField<T, I>>
-	extends Control<T, I>
+	extends Control<T, I> implements HasUpdateEvents<T, I>,
+									 HasActionEvents<T, I>
 {
 	//~ Constructors -----------------------------------------------------------
 
