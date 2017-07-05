@@ -17,13 +17,16 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.LayoutContainer;
 
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
+
 
 /********************************************************************
- * A panel that layouts components on the four edges around it's center area.
+ * A panel that layouts components on the edges of it's center area.
  *
  * @author eso
  */
@@ -34,10 +37,16 @@ public class DockPanel extends LayoutContainer<DockPanel>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param rParent      The parent container
+	 * @param eOrientation bVertical TRUE for vertical orientation
 	 */
-	public DockPanel(Container<?> rParent)
+	public DockPanel(Container<?> rParent, Orientation eOrientation)
 	{
 		super(rParent, Layout.DOCK);
+
+		if (eOrientation == Orientation.VERTICAL)
+		{
+			set(VERTICAL);
+		}
 	}
 }
