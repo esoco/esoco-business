@@ -18,7 +18,6 @@ package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.Layout;
 
-import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.SwitchPanel;
 
@@ -47,12 +46,14 @@ public class DeckPanel extends SwitchPanel<DeckPanel>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a new page.
+	 * Adds a new panel as a deck page. This is a variant of the base class
+	 * method {@link #addPage(String, Layout)} because the page title is ignored
+	 * in deck panels.
 	 *
-	 * @param rComponent The component to be displayed on the tab page
+	 * @see #addPage(String, Layout)
 	 */
-	public void addPage(Component<?, ?> rComponent)
+	public Panel addPage(Layout eLayout)
 	{
-		value().add(rComponent.type());
+		return addPage("", eLayout);
 	}
 }

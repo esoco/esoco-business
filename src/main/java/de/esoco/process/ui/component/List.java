@@ -21,10 +21,12 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.ListComponent;
 
+import java.util.Collection;
+
 
 /********************************************************************
  * A list of selectable values. The datatype of of the list values can be
- * defined on creation. Typically only string and enum values are supported.
+ * defined on creation. Typically string and enum values are supported.
  *
  * @author eso
  */
@@ -41,8 +43,36 @@ public class List<T> extends ListComponent<T, List<T>>
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the list values
 	 */
-	public List(Container<?> rParent, Class<? super T> rDatatype)
+	public List(Container<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype, ListStyle.LIST);
+
+		if (rDatatype.isEnum())
+		{
+			setListValues(rDatatype.getEnumConstants());
+		}
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the values to be displayed in this list.
+	 *
+	 * @param rValues The list values
+	 */
+	@SuppressWarnings("unchecked")
+	public void setListValues(T... rValues)
+	{
+		allow(rValues);
+	}
+
+	/***************************************
+	 * Sets a collection of values to be displayed in this list.
+	 *
+	 * @param rValues The list values
+	 */
+	public void setListValues(Collection<T> rValues)
+	{
+		allow(rValues);
 	}
 }

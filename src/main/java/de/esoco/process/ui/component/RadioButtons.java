@@ -16,29 +16,31 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.ListStyle;
+
 import de.esoco.process.ui.ButtonGroup;
 import de.esoco.process.ui.Container;
 
 
 /********************************************************************
- * A button that can be pressed to cause action events. The datatype defines how
- * the button is defined. Typically only string and enum values are supported.
+ * A group of buttons with mutual exclusive selection. The datatype defines the
+ * type of the button labels. Typically string and enum values are supported.
  *
  * @author eso
  */
-public class PushButtonGroup<T> extends ButtonGroup<T, PushButtonGroup<T>>
+public class RadioButtons<T> extends ButtonGroup<T, RadioButtons<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * be pre-set as buttons.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the list values
 	 */
-	public PushButtonGroup(Container<?> rParent, Class<T> rDatatype)
+	public RadioButtons(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, rDatatype);
+		super(rParent, rDatatype, ListStyle.DISCRETE);
 	}
 }

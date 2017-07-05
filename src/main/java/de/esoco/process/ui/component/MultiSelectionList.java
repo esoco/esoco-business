@@ -16,25 +16,70 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.ListStyle;
+
+import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.Container;
+import de.esoco.process.ui.ListComponent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 
 /********************************************************************
- * A {@link List} subclass that allows the selection of multiple values.
+ * A list component that allows the selection of multiple values. The datatype
+ * of of the list values can be defined on creation. Typically string and enum
+ * values are supported.
  *
  * @author eso
  */
-public class MultiSelectionList<T> extends List<java.util.List<T>>
+public class MultiSelectionList<T>
+	extends ListComponent<java.util.List<T>, MultiSelectionList<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the list elements
 	 */
-	public MultiSelectionList(Container<?> rParent)
+	public MultiSelectionList(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, java.util.List.class);
+		super(rParent, java.util.List.class, ListStyle.LIST);
+
+		value(new ArrayList<>());
+
+		if (rDatatype.isEnum())
+		{
+			setListValues(rDatatype.getEnumConstants());
+		}
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the values to be displayed in this list.
+	 *
+	 * @param rValues The list values
+	 */
+	@SuppressWarnings("unchecked")
+	public void setListValues(T... rValues)
+	{
+		setListValues(Arrays.asList(rValues));
+	}
+
+	/***************************************
+	 * Sets a collection of values to be displayed in this list.
+	 *
+	 * @param rValues The list values
+	 */
+	public void setListValues(Collection<T> rValues)
+	{
+		fragment().annotateParameter(type(),
+									 null,
+									 ProcessRelationTypes.ALLOWED_VALUES,
+									 rValues);
 	}
 }

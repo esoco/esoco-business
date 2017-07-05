@@ -19,15 +19,15 @@ package de.esoco.process.ui.container;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.SwitchPanel;
+import de.esoco.process.ui.LayoutContainer;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A panel that layouts components on the four edges around it's center area.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+public class DockPanel extends LayoutContainer<DockPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -36,8 +36,8 @@ public class TabPanel extends SwitchPanel<TabPanel>
 	 *
 	 * @param rParent The parent container
 	 */
-	public TabPanel(Container<?> rParent)
+	public DockPanel(Container<?> rParent)
 	{
-		super(rParent, Layout.TABS);
+		super(rParent, Layout.DOCK);
 	}
 }

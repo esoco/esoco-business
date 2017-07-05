@@ -19,13 +19,23 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.component.CheckBoxes;
 import de.esoco.process.ui.component.ComboBox;
 import de.esoco.process.ui.component.DropDown;
 import de.esoco.process.ui.component.Label;
 import de.esoco.process.ui.component.List;
+import de.esoco.process.ui.component.MultiSelectionList;
+import de.esoco.process.ui.component.PushButtons;
+import de.esoco.process.ui.component.RadioButtons;
 import de.esoco.process.ui.component.TextArea;
 import de.esoco.process.ui.component.TextField;
+import de.esoco.process.ui.component.ToggleButtons;
+import de.esoco.process.ui.container.DeckPanel;
 import de.esoco.process.ui.container.Panel;
+import de.esoco.process.ui.container.StackPanel;
+import de.esoco.process.ui.container.TabPanel;
+
+import java.util.ArrayList;
 
 import org.obrel.core.RelationType;
 
@@ -38,6 +48,10 @@ import org.obrel.core.RelationType;
 public abstract class Container<C extends Container<C>>
 	extends Component<java.util.List<RelationType<?>>, C>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private java.util.List<Component<?, ?>> rComponents = new ArrayList<>();
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -79,6 +93,35 @@ public abstract class Container<C extends Container<C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Adds a group of check boxes with string labels.
+	 *
+	 * @param  rLabels rButtonLabels The initial check box labels (may be empty)
+	 *
+	 * @return The new component
+	 */
+	public CheckBoxes<String> addCheckBoxes(String... rLabels)
+	{
+		CheckBoxes<String> aCheckBoxes = new CheckBoxes<>(this, String.class);
+
+		aCheckBoxes.addButtons(rLabels);
+
+		return aCheckBoxes;
+	}
+
+	/***************************************
+	 * Adds a group of check boxes with labels derived from an enum. All enum
+	 * values of the given type will be pre-set as check boxes.
+	 *
+	 * @param  rEnumType The enum class for the check box labels
+	 *
+	 * @return The new component
+	 */
+	public <E extends Enum<E>> CheckBoxes<E> addCheckBoxes(Class<E> rEnumType)
+	{
+		return new CheckBoxes<>(this, rEnumType);
+	}
+
+	/***************************************
 	 * Adds a single-line text input field with a drop-down list of value
 	 * suggestions.
 	 *
@@ -89,6 +132,16 @@ public abstract class Container<C extends Container<C>>
 	public ComboBox addComboBox(String sText)
 	{
 		return new ComboBox(this, sText);
+	}
+
+	/***************************************
+	 * Adds a deck panel.
+	 *
+	 * @return The new panel
+	 */
+	public DeckPanel addDeckPanel()
+	{
+		return new DeckPanel(this);
 	}
 
 	/***************************************
@@ -117,16 +170,50 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	/***************************************
-	 * Adds a list of selectable elements. If the datatype is an enum all enum
-	 * values will be pre-set as the list values.
-	 *
-	 * @param  rDatatype The datatype of the list elements
+	 * Adds a list of selectable string.
 	 *
 	 * @return The new component
 	 */
-	public <T> List<T> addList(Class<T> rDatatype)
+	public List<String> addList()
 	{
-		return new List<>(this, rDatatype);
+		return new List<>(this, String.class);
+	}
+
+	/***************************************
+	 * Adds a list of selectable enum values. All enum values of the given type
+	 * will be pre-set as the list values.
+	 *
+	 * @param  rEnumType rEnumClass The enum class of the list values
+	 *
+	 * @return The new component
+	 */
+	public <E extends Enum<E>> List<E> addList(Class<E> rEnumType)
+	{
+		return new List<>(this, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a list of strings that allows to select multiple values.
+	 *
+	 * @return The new component
+	 */
+	public MultiSelectionList<String> addMultiSelectionList()
+	{
+		return new MultiSelectionList<>(this, String.class);
+	}
+
+	/***************************************
+	 * Adds a list of enums that allows to select multiple values. All enum
+	 * values of the given type will be pre-set as the list values.
+	 *
+	 * @param  rEnumType rEnumClass The enum for the list values
+	 *
+	 * @return The new component
+	 */
+	public <E extends Enum<E>> MultiSelectionList<E> addMultiSelectionList(
+		Class<E> rEnumType)
+	{
+		return new MultiSelectionList<>(this, rEnumType);
 	}
 
 	/***************************************
@@ -139,6 +226,87 @@ public abstract class Container<C extends Container<C>>
 	public Panel addPanel(Layout eLayout)
 	{
 		return new Panel(this, eLayout);
+	}
+
+	/***************************************
+	 * Adds a group of push buttons with string labels.
+	 *
+	 * @param  rButtonLabels The initial button labels (may be empty)
+	 *
+	 * @return The new component
+	 */
+	public PushButtons<String> addPushButtons(String... rButtonLabels)
+	{
+		PushButtons<String> aPushButtons =
+			new PushButtons<>(this, String.class);
+
+		aPushButtons.addButtons(rButtonLabels);
+
+		return aPushButtons;
+	}
+
+	/***************************************
+	 * Adds a group of push buttons with labels derived from an enum. All enum
+	 * values of the given type will be pre-set as buttons.
+	 *
+	 * @param  rEnumType The enum class for the button labels
+	 *
+	 * @return The new component
+	 */
+	public <E extends Enum<E>> PushButtons<E> addPushButtons(Class<E> rEnumType)
+	{
+		return new PushButtons<>(this, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a group of radio buttons with string labels.
+	 *
+	 * @param  rButtonLabels The initial button labels (may be empty)
+	 *
+	 * @return The new component
+	 */
+	public RadioButtons<String> addRadioButtons(String... rButtonLabels)
+	{
+		RadioButtons<String> aRadioButtons =
+			new RadioButtons<>(this, String.class);
+
+		aRadioButtons.addButtons(rButtonLabels);
+
+		return aRadioButtons;
+	}
+
+	/***************************************
+	 * Adds a group of radio buttons with labels derived from an enum. All enum
+	 * values of the given type will be pre-set as buttons.
+	 *
+	 * @param  rEnumType The enum class for the button labels
+	 *
+	 * @return The new component
+	 */
+	public <E extends Enum<E>> RadioButtons<E> addRadioButtons(
+		Class<E> rEnumType)
+	{
+		return new RadioButtons<>(this, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a stack panel.
+	 *
+	 * @return The new panel
+	 */
+	public StackPanel addStackPanel()
+	{
+		return new StackPanel(this);
+	}
+
+	/***************************************
+	 * Adds a tab panel.
+	 *
+	 * @return The new panel
+	 */
+	public TabPanel addTabPanel()
+	{
+		return new TabPanel(this);
 	}
 
 	/***************************************
@@ -166,6 +334,48 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	/***************************************
+	 * Adds a group of radio buttons with labels derived from an enum. All enum
+	 * values of the given type will be pre-set as buttons.
+	 *
+	 * @param  rEnumType The enum class for the button labels
+	 *
+	 * @return The new component
+	 */
+	public <E extends Enum<E>> ToggleButtons<E> addToggleButtons(
+		Class<E> rEnumType)
+	{
+		return new ToggleButtons<>(this, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a group of radio buttons with string labels.
+	 *
+	 * @param  rButtonLabels The initial button labels (may be empty)
+	 *
+	 * @return The new component
+	 */
+	public ToggleButtons<String> addToggleButtons(String... rButtonLabels)
+	{
+		ToggleButtons<String> aToggleButtons =
+			new ToggleButtons<>(this, String.class);
+
+		aToggleButtons.addButtons(rButtonLabels);
+
+		return aToggleButtons;
+	}
+
+	/***************************************
+	 * Returns the components of this container in the order in which they have
+	 * been added.
+	 *
+	 * @return The collection of components
+	 */
+	public java.util.List<Component<?, ?>> getComponents()
+	{
+		return new ArrayList<>(rComponents);
+	}
+
+	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
 	 * after creation. This may also be used in combination. In that case this
@@ -176,5 +386,15 @@ public abstract class Container<C extends Container<C>>
 	 */
 	protected void build()
 	{
+	}
+
+	/***************************************
+	 * Internal method to add a component to this container.
+	 *
+	 * @param rComponent The component to add
+	 */
+	void addComponent(Component<?, ?> rComponent)
+	{
+		rComponents.add(rComponent);
 	}
 }

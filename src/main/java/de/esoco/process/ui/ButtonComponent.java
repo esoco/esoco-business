@@ -35,7 +35,7 @@ public abstract class ButtonComponent<T, B extends ButtonComponent<T, B>>
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the component value
 	 */
-	public ButtonComponent(Container<?> rParent, Class<T> rDatatype)
+	public ButtonComponent(Container<?> rParent, Class<? super T> rDatatype)
 	{
 		super(rParent, rDatatype);
 	}

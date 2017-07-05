@@ -14,30 +14,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.SwitchPanel;
+import de.esoco.process.ui.MultiSelectionButtonGroup;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * A group of buttons that have a selection state that can be toggled
+ * independent from each other (similar to check boxes). The datatype defines
+ * the type of the button labels. Typically string and enum values are
+ * supported.
  *
  * @author eso
  */
-public class TabPanel extends SwitchPanel<TabPanel>
+public class ToggleButtons<T>
+	extends MultiSelectionButtonGroup<T, ToggleButtons<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as buttons.
 	 *
-	 * @param rParent The parent container
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the button labels
 	 */
-	public TabPanel(Container<?> rParent)
+	public ToggleButtons(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, Layout.TABS);
+		super(rParent, rDatatype, ListStyle.IMMEDIATE);
 	}
 }

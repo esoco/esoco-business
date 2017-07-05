@@ -40,4 +40,16 @@ public class TextArea extends TextInput<TextArea>
 
 		rows(-1);
 	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the number of rows that should be displayed.
+	 *
+	 * @param nRows The visible rows
+	 */
+	public void setVisibleRows(int nRows)
+	{
+		rows(nRows);
+	}
 }

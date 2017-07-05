@@ -18,7 +18,6 @@ package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.Layout;
 
-import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.SwitchPanel;
 
@@ -41,17 +40,5 @@ public class StackPanel extends SwitchPanel<StackPanel>
 	public StackPanel(Container<?> rParent)
 	{
 		super(rParent, Layout.STACK);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Adds a new stack element.
-	 *
-	 * @param rComponent The component to be displayed on the stack element
-	 */
-	public void addStack(Component<?, ?> rComponent)
-	{
-		value().add(rComponent.type());
 	}
 }

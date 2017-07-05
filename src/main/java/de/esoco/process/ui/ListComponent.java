@@ -20,8 +20,6 @@ import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ui.event.HasUpdateEvents;
 
-import java.util.Collection;
-
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 
@@ -52,11 +50,6 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 		super(rParent, rDatatype);
 
 		set(LIST_STYLE, eListStyle);
-
-		if (rDatatype.isEnum())
-		{
-			setListValues((T[]) rDatatype.getEnumConstants());
-		}
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -69,27 +62,6 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 	public T getSelection()
 	{
 		return value();
-	}
-
-	/***************************************
-	 * Sets the values to be displayed in the list.
-	 *
-	 * @param rValues The list values
-	 */
-	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues)
-	{
-		allow(rValues);
-	}
-
-	/***************************************
-	 * Sets a collection of values to be displayed in the list.
-	 *
-	 * @param rValues The list values
-	 */
-	public void setListValues(Collection<T> rValues)
-	{
-		allow(rValues);
 	}
 
 	/***************************************

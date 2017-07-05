@@ -19,45 +19,56 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.ListStyle;
 
+import de.esoco.process.ProcessRelationTypes;
+import de.esoco.process.step.InteractionFragment;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 
 /********************************************************************
- * A base class for groups of buttons.
+ * A base class for groups of buttons that allow to select multiple buttons.
  *
  * @author eso
  */
-public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
-	extends ButtonComponent<T, B> implements HasSelection<T>
+public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButtonGroup<T, B>>
+	extends ButtonComponent<List<T>, B> implements HasSelection<List<T>>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private Class<T> rDatatype;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
 	 * @param rParent    The parent container
-	 * @param rDatatype  The datatype of the component value
+	 * @param rDatatype  The datatype of the button labels
 	 * @param eListStyle The style for the rendering of the buttons
 	 */
 	@SuppressWarnings("unchecked")
-	public ButtonGroup(Container<?>		rParent,
-					   Class<? super T> rDatatype,
-					   ListStyle		eListStyle)
+	public MultiSelectionButtonGroup(Container<?> rParent,
+									 Class<T>	  rDatatype,
+									 ListStyle    eListStyle)
 	{
-		super(rParent, rDatatype);
+		super(rParent, List.class);
 
+		this.rDatatype = rDatatype;
+
+		value(new ArrayList<>());
 		set(LIST_STYLE, eListStyle);
 
 		if (rDatatype.isEnum())
 		{
-			addButtons((T[]) rDatatype.getEnumConstants());
+			addButtons(rDatatype.getEnumConstants());
 		}
 	}
 
@@ -81,18 +92,10 @@ public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
 	 */
 	public void addButtons(Collection<T> rButtonLabels)
 	{
-		Collection<T> rAllowedValues = allowedValues();
-
-		if (rAllowedValues != null)
-		{
-			rAllowedValues.addAll(rButtonLabels);
-			checkSetColumns(rAllowedValues);
-		}
-		else
-		{
-			allow(rButtonLabels);
-			checkSetColumns(rButtonLabels);
-		}
+		fragment().annotateParameter(type(),
+									 null,
+									 ProcessRelationTypes.ALLOWED_VALUES,
+									 rButtonLabels);
 	}
 
 	/***************************************
@@ -104,12 +107,13 @@ public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
 	@SuppressWarnings("unchecked")
 	public void disableButtons(Collection<T> rDisabledButtons)
 	{
-		RelationType<T> rParamType = type();
+		InteractionFragment   rFragment  = fragment();
+		RelationType<List<T>> rParamType = type();
 
-		fragment().disableElements(rParamType,
-								   (Class<T>) rParamType.getTargetType(),
-								   allowedValues(),
-								   rDisabledButtons);
+		rFragment.disableElements(rParamType,
+								  rDatatype,
+								  rFragment.getAllowedElements(rParamType),
+								  rDisabledButtons);
 	}
 
 	/***************************************
@@ -138,7 +142,7 @@ public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
 	 * @return The current selection
 	 */
 	@Override
-	public T getSelection()
+	public List<T> getSelection()
 	{
 		return value();
 	}
@@ -148,12 +152,14 @@ public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
 	 * This can also be used to remove the current buttons by setting an empty
 	 * collection.
 	 *
-	 * @param rNewButtons The new collection of button labels
+	 * @param rNewLabels The new collection of button labels
 	 */
-	public void setButtons(Collection<T> rNewButtons)
+	public void setButtons(Collection<T> rNewLabels)
 	{
-		allow(rNewButtons);
-		checkSetColumns(rNewButtons);
+		fragment().annotateParameter(type(),
+									 null,
+									 ProcessRelationTypes.ALLOWED_VALUES,
+									 rNewLabels);
 	}
 
 	/***************************************
@@ -164,21 +170,8 @@ public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
 	 * @param rNewSelection The new selection
 	 */
 	@Override
-	public void setSelection(T rNewSelection)
+	public void setSelection(List<T> rNewSelection)
 	{
 		value(rNewSelection);
-	}
-
-	/***************************************
-	 * Checks whether the columns should be set to the number of buttons.
-	 *
-	 * @param rNewButtons
-	 */
-	private void checkSetColumns(Collection<T> rNewButtons)
-	{
-		if (!has(COLUMNS))
-		{
-			columns(rNewButtons.size());
-		}
 	}
 }

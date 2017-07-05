@@ -47,9 +47,14 @@ public abstract class Component<T, C extends Component<T, C>>
 
 		this.rParent = rParent;
 
-		if (rParent != null && rDatatype != null)
+		if (rParent != null)
 		{
-			display();
+			rParent.addComponent(this);
+
+			if (rDatatype != null)
+			{
+				display();
+			}
 		}
 	}
 

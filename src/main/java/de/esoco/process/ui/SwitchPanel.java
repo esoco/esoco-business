@@ -19,6 +19,7 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.SingleSelection;
 
+import de.esoco.process.ui.container.Panel;
 import de.esoco.process.ui.event.HasUpdateEvents;
 
 import java.util.List;
@@ -52,6 +53,19 @@ public class SwitchPanel<P extends SwitchPanel<P>> extends LayoutContainer<P>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a panel as a new page of this switch panel.
+	 *
+	 * @param  sTitle  The page title
+	 * @param  eLayout The panel layout
+	 *
+	 * @return The new panel
+	 */
+	public Panel addPage(String sTitle, Layout eLayout)
+	{
+		return addPanel(eLayout).label(sTitle);
+	}
 
 	/***************************************
 	 * {@inheritDoc}
