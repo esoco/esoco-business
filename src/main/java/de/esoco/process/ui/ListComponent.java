@@ -18,6 +18,8 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.ListStyle;
 
+import de.esoco.process.ui.event.HasUpdateEvents;
+
 import java.util.Collection;
 
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
@@ -30,7 +32,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  * @author eso
  */
 public abstract class ListComponent<T, C extends ListComponent<T, C>>
-	extends Control<T, C>
+	extends Control<T, C> implements HasUpdateEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -60,6 +62,16 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns the currently selected list value.
+	 *
+	 * @return The selected value (NULL for none)
+	 */
+	public T getSelection()
+	{
+		return value();
+	}
+
+	/***************************************
 	 * Sets the values to be displayed in the list.
 	 *
 	 * @param rValues The list values
@@ -78,5 +90,15 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 	public void setListValues(Collection<T> rValues)
 	{
 		allow(rValues);
+	}
+
+	/***************************************
+	 * Sets the selected value.
+	 *
+	 * @param rValue The new selection or NULL for none
+	 */
+	public void setSelection(T rValue)
+	{
+		value(rValue);
 	}
 }

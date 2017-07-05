@@ -14,54 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
-
-import de.esoco.lib.property.Selectable;
-
-import de.esoco.process.ui.ButtonComponent;
-import de.esoco.process.ui.Container;
-
+package de.esoco.process.ui;
 
 /********************************************************************
- * A check box button that has a selectable state.
+ * A base class for groups of buttons.
  *
  * @author eso
  */
-public class CheckBox extends ButtonComponent<Boolean, CheckBox>
-	implements Selectable
+public abstract class ButtonGroup<T, B extends ButtonGroup<T, B>>
+	extends ButtonComponent<T, B>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the component value
 	 */
-	public CheckBox(Container<?> rParent)
+	public ButtonGroup(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, Boolean.class);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("boxing")
-	public boolean isSelected()
-	{
-		return value();
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("boxing")
-	public void setSelected(boolean bSelected)
-	{
-		value(bSelected);
+		super(rParent, rDatatype);
 	}
 }

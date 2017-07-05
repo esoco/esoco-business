@@ -16,56 +16,56 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.TextAttribute;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.ListComponent;
+import de.esoco.process.ui.TextInput;
+
+import java.util.Collection;
 
 
 /********************************************************************
  * A combination of a single-line text field with a drop-down list of selectable
- * values. The datatype of of the list values can be defined on creation.
- * Typically only string and enum values are supported.
+ * value suggestions.
  *
  * @author eso
  */
-public class ComboBox extends ListComponent<String, ComboBox>
-	implements TextAttribute
+public class ComboBox extends TextInput<ComboBox> implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sText   The initial text
 	 */
 	public ComboBox(Container<?> rParent, String sText)
 	{
-		super(rParent, String.class, ListStyle.EDITABLE);
-
-		setText(sText);
+		super(rParent, sText);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Sets the values to be displayed as suggestions for the input field.
+	 *
+	 * @param rValues The suggested values
 	 */
-	@Override
-	public String getText()
+	@SuppressWarnings("unchecked")
+	public void setSuggestions(String... rValues)
 	{
-		return value();
+		allow(rValues);
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Sets a collection of values to be displayed as suggestions for the input
+	 * field.
+	 *
+	 * @param rValues The suggested values
 	 */
-	@Override
-	public void setText(String sText)
+	public void setSuggestions(Collection<String> rValues)
 	{
-		value(sText);
+		allow(rValues);
 	}
 }

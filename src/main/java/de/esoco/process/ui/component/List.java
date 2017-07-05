@@ -34,12 +34,14 @@ public class List<T> extends ListComponent<T, List<T>>
 
 	/***************************************
 	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * be pre-set as the list values. This can be changed after construction
+	 * through the {@link #setListValues(java.util.Collection) setListValues}
+	 * methods.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the list values
 	 */
-	public List(Container<?> rParent, Class<T> rDatatype)
+	public List(Container<?> rParent, Class<? super T> rDatatype)
 	{
 		super(rParent, rDatatype, ListStyle.LIST);
 	}

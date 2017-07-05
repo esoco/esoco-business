@@ -16,52 +16,25 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.Selectable;
-
-import de.esoco.process.ui.ButtonComponent;
 import de.esoco.process.ui.Container;
 
 
 /********************************************************************
- * A check box button that has a selectable state.
+ * A {@link List} subclass that allows the selection of multiple values.
  *
  * @author eso
  */
-public class CheckBox extends ButtonComponent<Boolean, CheckBox>
-	implements Selectable
+public class MultiSelectionList<T> extends List<java.util.List<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 */
-	public CheckBox(Container<?> rParent)
+	public MultiSelectionList(Container<?> rParent)
 	{
-		super(rParent, Boolean.class);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("boxing")
-	public boolean isSelected()
-	{
-		return value();
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("boxing")
-	public void setSelected(boolean bSelected)
-	{
-		value(bSelected);
+		super(rParent, java.util.List.class);
 	}
 }

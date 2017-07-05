@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.process.ui.ButtonComponent;
+import de.esoco.process.ui.ButtonGroup;
 import de.esoco.process.ui.Container;
 
 
@@ -26,7 +26,7 @@ import de.esoco.process.ui.Container;
  *
  * @author eso
  */
-public class Button<T> extends ButtonComponent<T, Button<T>>
+public class PushButtonGroup<T> extends ButtonGroup<T, PushButtonGroup<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -37,7 +37,7 @@ public class Button<T> extends ButtonComponent<T, Button<T>>
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the list values
 	 */
-	public Button(Container<?> rParent, Class<T> rDatatype)
+	public PushButtonGroup(Container<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype);
 	}
