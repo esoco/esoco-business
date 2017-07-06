@@ -449,6 +449,20 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	/***************************************
+	 * Will be invoked if a new component has been added to this container. Can
+	 * be overridden by subclasses to handle component additions. The complete
+	 * list of child components (including the new one at the end) can be
+	 * queried with {@link #getComponents()}.
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 *
+	 * @param rComponent The component that has been added
+	 */
+	protected void componentAdded(Component<?, ?> rComponent)
+	{
+	}
+
+	/***************************************
 	 * Internal method to add a component to this container.
 	 *
 	 * @param rComponent The component to add
@@ -456,5 +470,6 @@ public abstract class Container<C extends Container<C>>
 	void addComponent(Component<?, ?> rComponent)
 	{
 		rComponents.add(rComponent);
+		componentAdded(rComponent);
 	}
 }

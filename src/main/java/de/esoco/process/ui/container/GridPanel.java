@@ -17,37 +17,53 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.Layout;
-import de.esoco.lib.property.Orientation;
 
+import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.LayoutContainer;
 
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
+import java.util.List;
 
 
 /********************************************************************
- * A panel that layouts components so that they can be resized with a split
- * control between them.
+ * A panel that layouts in a vertically aligned grid. Components are added to
+ * the same grid row until {@link #newRow()} is called.
  *
  * @author eso
  */
-public class SplitPanel extends LayoutContainer<SplitPanel>
+public class GridPanel extends LayoutContainer<GridPanel>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private int nRowStart = 0;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent      The parent container
-	 * @param eOrientation bVertical TRUE for vertical orientation
+	 * @param rParent The parent container
 	 */
-	public SplitPanel(Container<?> rParent, Orientation eOrientation)
+	public GridPanel(Container<?> rParent)
 	{
-		super(rParent, Layout.SPLIT);
+		super(rParent, Layout.GRID);
+	}
 
-		if (eOrientation == Orientation.VERTICAL)
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Starts a new row.
+	 */
+	public void newRow()
+	{
+		List<Component<?, ?>> rComponents = getComponents();
+		int					  nCount	  = rComponents.size();
+
+		for (int i = nRowStart + 1; i < nCount; i++)
 		{
-			set(VERTICAL);
+			rComponents.get(i).sameRow();
 		}
+
+		nRowStart = nCount;
 	}
 }
