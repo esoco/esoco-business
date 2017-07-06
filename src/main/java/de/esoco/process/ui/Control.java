@@ -55,12 +55,13 @@ public class Control<T, C extends Control<T, C>> extends Component<T, C>
 	 * @param rElementDatatype The element datatype of the list parameter type
 	 */
 	@SuppressWarnings("unchecked")
-	protected void initListParameterType(Class<?> rElementDatatype)
+	protected <D> void initListParameterType(Class<D> rElementDatatype)
 	{
-		RelationType<?> rListType =
+		@SuppressWarnings("rawtypes")
+		RelationType rListType =
 			fragment().getTemporaryListType(null, rElementDatatype);
 
-		setParameterType((RelationType<T>) rListType);
+		setParameterType(rListType);
 		input();
 	}
 }
