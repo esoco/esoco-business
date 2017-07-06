@@ -14,60 +14,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.Orientation;
 
-import de.esoco.process.step.InteractionFragment;
-import de.esoco.process.ui.container.RootView;
+import de.esoco.process.ui.Container;
+import de.esoco.process.ui.LayoutContainer;
+
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
- * An interactive process fragment that renders UI components (subclasses of
- * {@link Component}).
+ * A panel that layouts components on the edges of it's center area.
  *
  * @author eso
  */
-public abstract class UiFragment extends InteractionFragment
+public class SplitPanel extends LayoutContainer<SplitPanel>
 {
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
-	 */
-	public UiFragment()
-	{
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void init() throws Exception
-	{
-		layout(Layout.INLINE);
-	}
-
-	/***************************************
-	 * Must be implemented by subclasses to build the application UI in the
-	 * given root view.
 	 *
-	 * @param rRootView The root view
+	 * @param rParent      The parent container
+	 * @param eOrientation bVertical TRUE for vertical orientation
 	 */
-	protected abstract void buildUserInterface(RootView rRootView);
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void initComplete() throws Exception
+	public SplitPanel(Container<?> rParent, Orientation eOrientation)
 	{
-		buildUserInterface(new RootView(this));
+		super(rParent, Layout.SPLIT);
+
+		if (eOrientation == Orientation.VERTICAL)
+		{
+			set(VERTICAL);
+		}
 	}
 }

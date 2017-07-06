@@ -19,6 +19,7 @@ package de.esoco.process.ui;
 import de.esoco.entity.Entity;
 
 import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.component.CheckBox;
@@ -35,7 +36,9 @@ import de.esoco.process.ui.component.TextArea;
 import de.esoco.process.ui.component.TextField;
 import de.esoco.process.ui.component.ToggleButtons;
 import de.esoco.process.ui.container.DeckPanel;
+import de.esoco.process.ui.container.DockPanel;
 import de.esoco.process.ui.container.Panel;
+import de.esoco.process.ui.container.SplitPanel;
 import de.esoco.process.ui.container.StackPanel;
 import de.esoco.process.ui.container.TabPanel;
 
@@ -163,6 +166,18 @@ public abstract class Container<C extends Container<C>>
 	public DeckPanel addDeckPanel()
 	{
 		return new DeckPanel(this);
+	}
+
+	/***************************************
+	 * Adds a dock panel.
+	 *
+	 * @param  eOrientation The panel orientation
+	 *
+	 * @return The new panel
+	 */
+	public DockPanel addDockPanel(Orientation eOrientation)
+	{
+		return new DockPanel(this, eOrientation);
 	}
 
 	/***************************************
@@ -320,6 +335,18 @@ public abstract class Container<C extends Container<C>>
 		Class<E> rEnumType)
 	{
 		return new RadioButtons<>(this, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a split panel.
+	 *
+	 * @param  eOrientation The panel orientation
+	 *
+	 * @return The new panel
+	 */
+	public SplitPanel addSplitPanel(Orientation eOrientation)
+	{
+		return new SplitPanel(this, eOrientation);
 	}
 
 	/***************************************

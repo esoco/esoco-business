@@ -57,6 +57,8 @@ public class QueryTable<E extends Entity> extends TableControl<E, QueryTable<E>>
 	public QueryTable(Container<?> rContainer, Class<E> rEntityType)
 	{
 		super(rContainer, rEntityType);
+
+		setQuery(null);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -77,8 +79,8 @@ public class QueryTable<E extends Entity> extends TableControl<E, QueryTable<E>>
 	 *
 	 * @see #setColumns(Collection)
 	 */
-	@SuppressWarnings("unchecked")
-	public void setColumns(Function<? super E, ?>... rAttributes)
+	@SafeVarargs
+	public final void setColumns(Function<? super E, ?>... rAttributes)
 	{
 		setColumns(Arrays.asList(rAttributes));
 	}
