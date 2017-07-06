@@ -24,8 +24,8 @@ import de.esoco.process.ui.event.HasActionEvents;
  *
  * @author eso
  */
-public abstract class ButtonComponent<T, B extends ButtonComponent<T, B>>
-	extends Control<T, B> implements HasActionEvents<T, B>
+public abstract class ButtonComponent<T, C extends ButtonComponent<T, C>>
+	extends Control<T, C> implements HasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 

@@ -58,9 +58,11 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 									 Class<T>	  rDatatype,
 									 ListStyle    eListStyle)
 	{
-		super(rParent, List.class);
+		super(rParent, null);
 
 		this.rDatatype = rDatatype;
+
+		initListParameterType(rDatatype);
 
 		value(new ArrayList<>());
 		set(LIST_STYLE, eListStyle);

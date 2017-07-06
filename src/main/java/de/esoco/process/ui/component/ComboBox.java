@@ -19,7 +19,7 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.TextAttribute;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.TextInput;
+import de.esoco.process.ui.TextInputField;
 
 import java.util.Collection;
 
@@ -30,7 +30,7 @@ import java.util.Collection;
  *
  * @author eso
  */
-public class ComboBox extends TextInput<ComboBox> implements TextAttribute
+public class ComboBox extends TextInputField<ComboBox> implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 

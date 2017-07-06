@@ -19,6 +19,7 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.component.CheckBox;
 import de.esoco.process.ui.component.CheckBoxes;
 import de.esoco.process.ui.component.ComboBox;
 import de.esoco.process.ui.component.DropDown;
@@ -91,6 +92,18 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a group of check boxes with string labels.
+	 *
+	 * @param  sLabel The check box label
+	 *
+	 * @return The new component
+	 */
+	public CheckBox addCheckBox(String sLabel)
+	{
+		return new CheckBox(this, sLabel);
+	}
 
 	/***************************************
 	 * Adds a group of check boxes with string labels.

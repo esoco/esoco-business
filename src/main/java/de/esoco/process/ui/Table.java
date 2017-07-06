@@ -14,28 +14,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
+package de.esoco.process.ui;
 
-import de.esoco.process.ui.Container;
-import de.esoco.process.ui.TextInputField;
+import de.esoco.process.ui.event.HasActionEvents;
+import de.esoco.process.ui.event.HasUpdateEvents;
 
 
 /********************************************************************
- * A single-line text input field.
+ * The base class for input fields.
  *
  * @author eso
  */
-public class TextField extends TextInputField<TextField>
+public abstract class Table<T, C extends Table<T, C>> extends Control<T, C>
+	implements HasUpdateEvents<T, C>, HasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see TextInputField#TextInput(Container, String)
+	 * @param rParent   The parent container
+	 * @param rDatatype The value datatype
 	 */
-	public TextField(Container<?> rContainer, String sText)
+	public Table(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rContainer, sText);
+		super(rParent, rDatatype);
 	}
 }

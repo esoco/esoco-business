@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import org.obrel.core.RelationType;
+
+
 /********************************************************************
  * The base class for interactive components.
  *
@@ -34,6 +37,30 @@ public class Control<T, C extends Control<T, C>> extends Component<T, C>
 	{
 		super(rParent, rDatatype);
 
+		if (rDatatype != null)
+		{
+			input();
+		}
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Initializes this control with a list parameter type. This is intended for
+	 * subclasses that have a list parameter type which must be initialized with
+	 * an additional element datatype. In that case the subclass should use NULL
+	 * for the datatype parameter to the superclass constructor and instead
+	 * invoke this method afterwards.
+	 *
+	 * @param rElementDatatype The element datatype of the list parameter type
+	 */
+	@SuppressWarnings("unchecked")
+	protected void initListParameterType(Class<?> rElementDatatype)
+	{
+		RelationType<?> rListType =
+			fragment().getTemporaryListType(null, rElementDatatype);
+
+		setParameterType((RelationType<T>) rListType);
 		input();
 	}
 }

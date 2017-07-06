@@ -25,9 +25,9 @@ import de.esoco.process.ui.event.HasUpdateEvents;
  *
  * @author eso
  */
-public abstract class InputField<T, I extends InputField<T, I>>
-	extends Control<T, I> implements HasUpdateEvents<T, I>,
-									 HasActionEvents<T, I>
+public abstract class InputField<T, C extends InputField<T, C>>
+	extends Control<T, C> implements HasUpdateEvents<T, C>,
+									 HasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 

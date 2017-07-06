@@ -16,63 +16,47 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.ListStyle;
-
-import de.esoco.process.ui.event.HasUpdateEvents;
-
-import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
+import de.esoco.lib.property.TextAttribute;
 
 
 /********************************************************************
- * Base class for interactive components that display a list of selectable
- * values.
+ * A text input field.
  *
  * @author eso
  */
-public abstract class ListComponent<T, C extends ListComponent<T, C>>
-	extends Control<T, C> implements HasUpdateEvents<T, C>
+public abstract class TextInputField<T extends TextInputField<T>>
+	extends InputField<String, T> implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rDatatype  The datatype of the list values
-	 * @param eListStyle The list style
+	 * @param rParent rContainer rFragment The parent fragment
+	 * @param sText   The initial text
 	 */
-	public ListComponent(Container<?>	  rParent,
-						 Class<? super T> rDatatype,
-						 ListStyle		  eListStyle)
+	public TextInputField(Container<?> rParent, String sText)
 	{
-		super(rParent, rDatatype);
-
-		if (eListStyle != null)
-		{
-			set(LIST_STYLE, eListStyle);
-		}
+		super(rParent, String.class, sText);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the currently selected list value.
-	 *
-	 * @return The selected value (NULL for none)
+	 * {@inheritDoc}
 	 */
-	public T getSelection()
+	@Override
+	public String getText()
 	{
 		return value();
 	}
 
 	/***************************************
-	 * Sets the selected value.
-	 *
-	 * @param rValue The new selection or NULL for none
+	 * {@inheritDoc}
 	 */
-	public void setSelection(T rValue)
+	@Override
+	public void setText(String sText)
 	{
-		value(rValue);
+		value(sText);
 	}
 }

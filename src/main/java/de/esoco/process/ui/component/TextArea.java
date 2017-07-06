@@ -17,7 +17,7 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.TextInput;
+import de.esoco.process.ui.TextInputField;
 
 
 /********************************************************************
@@ -25,14 +25,14 @@ import de.esoco.process.ui.TextInput;
  *
  * @author eso
  */
-public class TextArea extends TextInput<TextArea>
+public class TextArea extends TextInputField<TextArea>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see TextInput#TextInput(Container, String)
+	 * @see TextInputField#TextInput(Container, String)
 	 */
 	public TextArea(Container<?> rContainer, String sText)
 	{

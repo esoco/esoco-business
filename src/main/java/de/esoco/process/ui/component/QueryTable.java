@@ -14,49 +14,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.TextAttribute;
+import de.esoco.entity.Entity;
+
+import de.esoco.process.ui.Container;
+import de.esoco.process.ui.Table;
+import de.esoco.process.ui.TextInputField;
 
 
 /********************************************************************
- * A text input field.
+ * A single-line text input field.
  *
  * @author eso
  */
-public abstract class TextInput<T extends TextInput<T>>
-	extends InputField<String, T> implements TextAttribute
+public class QueryTable extends Table<Entity, QueryTable>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent rContainer rFragment The parent fragment
-	 * @param sText   The initial text
+	 * @see TextInputField#TextInput(Container, String)
 	 */
-	public TextInput(Container<?> rParent, String sText)
+	public QueryTable(Container<?> rContainer)
 	{
-		super(rParent, String.class, sText);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getText()
-	{
-		return value();
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setText(String sText)
-	{
-		value(sText);
+		super(rContainer, Entity.class);
 	}
 }

@@ -33,14 +33,16 @@ public class CheckBox extends ButtonComponent<Boolean, CheckBox>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as the list values.
+	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
+	 * @param sLabel  The check box label
 	 */
-	public CheckBox(Container<?> rParent)
+	public CheckBox(Container<?> rParent, String sLabel)
 	{
 		super(rParent, Boolean.class);
+
+		label(sLabel);
 	}
 
 	//~ Methods ----------------------------------------------------------------

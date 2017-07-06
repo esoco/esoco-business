@@ -21,6 +21,7 @@ import de.esoco.data.DownloadData;
 import de.esoco.data.FileType;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.DataElement;
+import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataSetDataElement;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
@@ -54,6 +55,8 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
+import de.esoco.lib.property.StyleProperties;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
+
 
 /********************************************************************
  * A list component that allows the selection of multiple values. The datatype
@@ -47,7 +49,10 @@ public class MultiSelectionList<T>
 	 */
 	public MultiSelectionList(Container<?> rParent, Class<T> rDatatype)
 	{
-		super(rParent, java.util.List.class, ListStyle.LIST);
+		super(rParent, null, null);
+
+		initListParameterType(rDatatype);
+		set(LIST_STYLE, ListStyle.LIST);
 
 		value(new ArrayList<>());
 
