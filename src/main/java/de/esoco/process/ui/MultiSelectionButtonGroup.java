@@ -54,7 +54,6 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 	 * @param rDatatype  The datatype of the button labels
 	 * @param eListStyle The style for the rendering of the buttons
 	 */
-	@SuppressWarnings("unchecked")
 	public MultiSelectionButtonGroup(Container<?> rParent,
 									 Class<T>	  rDatatype,
 									 ListStyle    eListStyle)
@@ -104,7 +103,6 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 	 * @param rDisabledButtons rDisabledElements A collection of the elements to
 	 *                         disable
 	 */
-	@SuppressWarnings("unchecked")
 	public void disableButtons(Collection<T> rDisabledButtons)
 	{
 		InteractionFragment   rFragment  = fragment();

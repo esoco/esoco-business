@@ -42,7 +42,6 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 	 * @param rDatatype  The datatype of the list values
 	 * @param eListStyle The list style
 	 */
-	@SuppressWarnings("unchecked")
 	public ListComponent(Container<?>	  rParent,
 						 Class<? super T> rDatatype,
 						 ListStyle		  eListStyle)
