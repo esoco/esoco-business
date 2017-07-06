@@ -22,7 +22,6 @@ import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.ListComponent;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -53,8 +52,6 @@ public class MultiSelectionList<T>
 
 		initListParameterType(rDatatype);
 		set(LIST_STYLE, ListStyle.LIST);
-
-		value(new ArrayList<>());
 
 		if (rDatatype.isEnum())
 		{

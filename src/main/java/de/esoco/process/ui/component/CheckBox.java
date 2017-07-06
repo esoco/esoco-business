@@ -43,6 +43,7 @@ public class CheckBox extends ButtonComponent<Boolean, CheckBox>
 		super(rParent, Boolean.class);
 
 		label(sLabel);
+		hideLabel();
 	}
 
 	//~ Methods ----------------------------------------------------------------

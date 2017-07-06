@@ -22,7 +22,6 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.step.InteractionFragment;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -64,7 +63,6 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 
 		initListParameterType(rDatatype);
 
-		value(new ArrayList<>());
 		set(LIST_STYLE, eListStyle);
 
 		if (rDatatype.isEnum())
@@ -93,10 +91,24 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 	 */
 	public void addButtons(Collection<T> rButtonLabels)
 	{
-		fragment().annotateParameter(type(),
-									 null,
-									 ProcessRelationTypes.ALLOWED_VALUES,
-									 rButtonLabels);
+		InteractionFragment   rFragment  = fragment();
+		RelationType<List<T>> rParamType = type();
+
+		Collection<T> rAllowedValues = rFragment.getAllowedElements(rParamType);
+
+		if (rAllowedValues != null)
+		{
+			rAllowedValues.addAll(rButtonLabels);
+			checkSetColumns(rAllowedValues);
+		}
+		else
+		{
+			rFragment.annotateParameter(rParamType,
+										null,
+										ProcessRelationTypes.ALLOWED_VALUES,
+										rButtonLabels);
+			checkSetColumns(rButtonLabels);
+		}
 	}
 
 	/***************************************
@@ -160,6 +172,7 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 									 null,
 									 ProcessRelationTypes.ALLOWED_VALUES,
 									 rNewLabels);
+		checkSetColumns(rNewLabels);
 	}
 
 	/***************************************

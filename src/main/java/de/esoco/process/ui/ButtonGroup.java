@@ -24,7 +24,6 @@ import java.util.Collection;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -167,18 +166,5 @@ public abstract class ButtonGroup<T, C extends ButtonGroup<T, C>>
 	public void setSelection(T rNewSelection)
 	{
 		value(rNewSelection);
-	}
-
-	/***************************************
-	 * Checks whether the columns should be set to the number of buttons.
-	 *
-	 * @param rNewButtons
-	 */
-	private void checkSetColumns(Collection<T> rNewButtons)
-	{
-		if (!has(COLUMNS))
-		{
-			columns(rNewButtons.size());
-		}
 	}
 }

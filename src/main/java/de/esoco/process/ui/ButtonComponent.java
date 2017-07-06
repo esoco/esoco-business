@@ -18,6 +18,10 @@ package de.esoco.process.ui;
 
 import de.esoco.process.ui.event.HasActionEvents;
 
+import java.util.Collection;
+
+import static de.esoco.lib.property.LayoutProperties.COLUMNS;
+
 
 /********************************************************************
  * The base class for button components.
@@ -38,5 +42,20 @@ public abstract class ButtonComponent<T, C extends ButtonComponent<T, C>>
 	public ButtonComponent(Container<?> rParent, Class<? super T> rDatatype)
 	{
 		super(rParent, rDatatype);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Checks whether the columns should be set to the number of buttons.
+	 *
+	 * @param rNewButtons
+	 */
+	void checkSetColumns(Collection<?> rNewButtons)
+	{
+		if (!has(COLUMNS))
+		{
+			columns(rNewButtons.size());
+		}
 	}
 }
