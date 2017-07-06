@@ -29,7 +29,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  *
  * @author eso
  */
-public abstract class ListComponent<T, C extends ListComponent<T, C>>
+public abstract class ListControl<T, C extends ListControl<T, C>>
 	extends Control<T, C> implements HasUpdateEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
@@ -42,7 +42,7 @@ public abstract class ListComponent<T, C extends ListComponent<T, C>>
 	 * @param rDatatype  The datatype of the list values
 	 * @param eListStyle The list style
 	 */
-	public ListComponent(Container<?>	  rParent,
+	public ListControl(Container<?>	  rParent,
 						 Class<? super T> rDatatype,
 						 ListStyle		  eListStyle)
 	{

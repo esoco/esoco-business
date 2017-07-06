@@ -34,7 +34,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  * @author eso
  */
 public abstract class ButtonGroup<T, C extends ButtonGroup<T, C>>
-	extends ButtonComponent<T, C> implements HasSelection<T>
+	extends ButtonControl<T, C> implements HasSelection<T>
 {
 	//~ Constructors -----------------------------------------------------------
 

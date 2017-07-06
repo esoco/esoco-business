@@ -28,7 +28,7 @@ import static de.esoco.lib.property.LayoutProperties.COLUMNS;
  *
  * @author eso
  */
-public abstract class ButtonComponent<T, C extends ButtonComponent<T, C>>
+public abstract class ButtonControl<T, C extends ButtonControl<T, C>>
 	extends Control<T, C> implements HasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
@@ -39,7 +39,7 @@ public abstract class ButtonComponent<T, C extends ButtonComponent<T, C>>
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the component value
 	 */
-	public ButtonComponent(Container<?> rParent, Class<? super T> rDatatype)
+	public ButtonControl(Container<?> rParent, Class<? super T> rDatatype)
 	{
 		super(rParent, rDatatype);
 	}

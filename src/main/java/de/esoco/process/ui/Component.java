@@ -54,6 +54,11 @@ public abstract class Component<T, C extends Component<T, C>>
 			if (rDatatype != null)
 			{
 				display();
+
+				if (rDatatype.isEnum())
+				{
+					resid(rDatatype.getSimpleName());
+				}
 			}
 		}
 	}

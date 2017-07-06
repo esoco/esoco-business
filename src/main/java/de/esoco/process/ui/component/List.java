@@ -19,7 +19,7 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.ListComponent;
+import de.esoco.process.ui.ListControl;
 
 import java.util.Collection;
 
@@ -30,7 +30,7 @@ import java.util.Collection;
  *
  * @author eso
  */
-public class List<T> extends ListComponent<T, List<T>>
+public class List<T> extends ListControl<T, List<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 

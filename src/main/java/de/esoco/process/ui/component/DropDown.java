@@ -19,7 +19,7 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.ListComponent;
+import de.esoco.process.ui.ListControl;
 
 
 /********************************************************************
@@ -29,7 +29,7 @@ import de.esoco.process.ui.ListComponent;
  *
  * @author eso
  */
-public class DropDown<T> extends ListComponent<T, DropDown<T>>
+public class DropDown<T> extends ListControl<T, DropDown<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 

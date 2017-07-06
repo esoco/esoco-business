@@ -20,7 +20,7 @@ import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.ListComponent;
+import de.esoco.process.ui.ListControl;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,7 +36,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  * @author eso
  */
 public class MultiSelectionList<T>
-	extends ListComponent<java.util.List<T>, MultiSelectionList<T>>
+	extends ListControl<java.util.List<T>, MultiSelectionList<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -55,7 +55,7 @@ public class MultiSelectionList<T>
 
 		if (rDatatype.isEnum())
 		{
-			setListValues(rDatatype.getEnumConstants());
+			resid(rDatatype.getSimpleName());
 		}
 	}
 

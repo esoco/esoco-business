@@ -45,7 +45,7 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
  *
  * @author eso
  */
-public class QueryTable<E extends Entity> extends TableControl<E, QueryTable<E>>
+public class DataTable<E extends Entity> extends TableControl<E, DataTable<E>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -54,7 +54,7 @@ public class QueryTable<E extends Entity> extends TableControl<E, QueryTable<E>>
 	 *
 	 * @see TextInputField#TextInput(Container, String)
 	 */
-	public QueryTable(Container<?> rContainer, Class<E> rEntityType)
+	public DataTable(Container<?> rContainer, Class<E> rEntityType)
 	{
 		super(rContainer, rEntityType);
 	}

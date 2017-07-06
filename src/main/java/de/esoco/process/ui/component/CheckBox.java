@@ -18,7 +18,7 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.Selectable;
 
-import de.esoco.process.ui.ButtonComponent;
+import de.esoco.process.ui.ButtonControl;
 import de.esoco.process.ui.Container;
 
 
@@ -27,7 +27,7 @@ import de.esoco.process.ui.Container;
  *
  * @author eso
  */
-public class CheckBox extends ButtonComponent<Boolean, CheckBox>
+public class CheckBox extends ButtonControl<Boolean, CheckBox>
 	implements Selectable
 {
 	//~ Constructors -----------------------------------------------------------

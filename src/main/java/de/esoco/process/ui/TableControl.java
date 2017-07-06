@@ -25,7 +25,7 @@ import de.esoco.process.ui.event.HasUpdateEvents;
  *
  * @author eso
  */
-public abstract class Table<T, C extends Table<T, C>> extends Control<T, C>
+public abstract class TableControl<T, C extends TableControl<T, C>> extends Control<T, C>
 	implements HasUpdateEvents<T, C>, HasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
@@ -36,7 +36,7 @@ public abstract class Table<T, C extends Table<T, C>> extends Control<T, C>
 	 * @param rParent   The parent container
 	 * @param rDatatype The value datatype
 	 */
-	public Table(Container<?> rParent, Class<T> rDatatype)
+	public TableControl(Container<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype);
 	}

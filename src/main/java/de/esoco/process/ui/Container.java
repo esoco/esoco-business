@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.entity.Entity;
+
 import de.esoco.lib.property.Layout;
 
 import de.esoco.process.step.InteractionFragment;
@@ -27,6 +29,7 @@ import de.esoco.process.ui.component.Label;
 import de.esoco.process.ui.component.List;
 import de.esoco.process.ui.component.MultiSelectionList;
 import de.esoco.process.ui.component.PushButtons;
+import de.esoco.process.ui.component.QueryTable;
 import de.esoco.process.ui.component.RadioButtons;
 import de.esoco.process.ui.component.TextArea;
 import de.esoco.process.ui.component.TextField;
@@ -77,17 +80,22 @@ public abstract class Container<C extends Container<C>>
 					{
 						build();
 					}
+
+					@Override
+					protected void initComplete() throws Exception
+					{
+					}
 				};
 
 			RelationType<java.util.List<RelationType<?>>> rContainerParamType =
 				rParentFragment.getTemporaryListType(null, RelationType.class);
 
-			rParentFragment.addSubFragment(rContainerParamType,
-										   aContainerFragment);
-
 			setFragment(aContainerFragment);
 			setParameterType(rContainerParamType);
 			rParentFragment.addInputParameters(rContainerParamType);
+
+			rParentFragment.addSubFragment(rContainerParamType,
+										   aContainerFragment);
 		}
 	}
 
@@ -269,6 +277,18 @@ public abstract class Container<C extends Container<C>>
 	public <E extends Enum<E>> PushButtons<E> addPushButtons(Class<E> rEnumType)
 	{
 		return new PushButtons<>(this, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a table that performs an entity query.
+	 *
+	 * @param  rEntityType The entity type to display
+	 *
+	 * @return The new component
+	 */
+	public <E extends Entity> QueryTable<E> addQueryTable(Class<E> rEntityType)
+	{
+		return new QueryTable<>(this, rEntityType);
 	}
 
 	/***************************************

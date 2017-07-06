@@ -38,7 +38,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  * @author eso
  */
 public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButtonGroup<T, B>>
-	extends ButtonComponent<List<T>, B> implements HasSelection<List<T>>
+	extends ButtonControl<List<T>, B> implements HasSelection<List<T>>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -62,12 +62,12 @@ public abstract class MultiSelectionButtonGroup<T, B extends MultiSelectionButto
 		this.rDatatype = rDatatype;
 
 		initListParameterType(rDatatype);
-
 		set(LIST_STYLE, eListStyle);
 
 		if (rDatatype.isEnum())
 		{
 			addButtons(rDatatype.getEnumConstants());
+			resid(rDatatype.getSimpleName());
 		}
 	}
 

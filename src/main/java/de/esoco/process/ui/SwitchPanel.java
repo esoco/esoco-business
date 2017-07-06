@@ -64,7 +64,36 @@ public class SwitchPanel<P extends SwitchPanel<P>> extends LayoutContainer<P>
 	 */
 	public Panel addPage(String sTitle, Layout eLayout)
 	{
-		return addPanel(eLayout).label(sTitle);
+		return addPage(sTitle, addPanel(eLayout));
+	}
+
+	/***************************************
+	 * Adds a certain component as a new page of this switch panel. The
+	 * component must be a child of this container or else an exception will be
+	 * thrown.
+	 *
+	 * @param  sTitle         The page title
+	 * @param  rPageComponent The component to display on the page
+	 *
+	 * @return The page component to allow further invocations
+	 *
+	 * @throws IllegalArgumentException If the given component has a different
+	 *                                  parent than this container
+	 */
+	public <C extends Component<?, C>> C addPage(
+		String sTitle,
+		C	   rPageComponent)
+	{
+		if (rPageComponent.getParent() != this)
+		{
+			throw new IllegalArgumentException("Component " + rPageComponent +
+											   " has other parent: " +
+											   rPageComponent.getParent());
+		}
+
+		rPageComponent.label(sTitle);
+
+		return rPageComponent;
 	}
 
 	/***************************************

@@ -52,8 +52,6 @@ public abstract class UiFragment extends InteractionFragment
 	public void init() throws Exception
 	{
 		layout(Layout.INLINE);
-
-		buildUserInterface(new RootView(this));
 	}
 
 	/***************************************
@@ -63,4 +61,13 @@ public abstract class UiFragment extends InteractionFragment
 	 * @param rRootView The root view
 	 */
 	protected abstract void buildUserInterface(RootView rRootView);
+
+	/***************************************
+	 * @see de.esoco.process.step.InteractionFragment#initComplete()
+	 */
+	@Override
+	protected void initComplete() throws Exception
+	{
+		buildUserInterface(new RootView(this));
+	}
 }
