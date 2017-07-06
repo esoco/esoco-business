@@ -64,7 +64,7 @@ public class Label extends Component<String, Label> implements TextAttribute
 	 *
 	 * @param eStyle The label style
 	 */
-	public void labelStyle(LabelStyle eStyle)
+	public void setLabelStyle(LabelStyle eStyle)
 	{
 		set(LABEL_STYLE, eStyle);
 	}

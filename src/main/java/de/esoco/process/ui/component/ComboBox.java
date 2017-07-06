@@ -52,7 +52,6 @@ public class ComboBox extends TextInputField<ComboBox> implements TextAttribute
 	 *
 	 * @param rValues The suggested values
 	 */
-	@SuppressWarnings("unchecked")
 	public void setSuggestions(String... rValues)
 	{
 		allow(rValues);
