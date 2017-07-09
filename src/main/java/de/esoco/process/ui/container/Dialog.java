@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
+import de.esoco.process.ui.Layout;
 import de.esoco.process.ui.View;
 
 
@@ -33,9 +34,10 @@ public class Dialog extends View<Dialog>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent view
+	 * @param rLayout The dialog layout
 	 */
-	public Dialog(View<?> rParent)
+	public Dialog(View<?> rParent, Layout rLayout)
 	{
-		super(rParent);
+		super(rParent, rLayout);
 	}
 }

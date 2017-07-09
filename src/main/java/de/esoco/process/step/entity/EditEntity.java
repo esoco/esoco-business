@@ -33,7 +33,7 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.InteractiveInputMode;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
@@ -649,7 +649,7 @@ public class EditEntity extends InteractionFragment
 
 		if (bDisplayAsTabPanel)
 		{
-			setLayout(Layout.TABS, aParam);
+			setLayout(LayoutType.TABS, aParam);
 		}
 
 		setUIFlag(HIERARCHICAL, aParam);

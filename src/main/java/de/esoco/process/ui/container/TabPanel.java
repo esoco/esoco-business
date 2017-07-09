@@ -17,8 +17,8 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.process.ui.Container;
+import de.esoco.process.ui.Layout;
 import de.esoco.process.ui.SwitchPanel;
-import de.esoco.process.ui.layout.Layout;
 
 
 /********************************************************************
@@ -37,6 +37,6 @@ public class TabPanel extends SwitchPanel<TabPanel>
 	 */
 	public TabPanel(Container<?> rParent)
 	{
-		super(rParent, new Layout(de.esoco.lib.property.Layout.TABS));
+		super(rParent, new Layout(de.esoco.lib.property.LayoutType.TABS));
 	}
 }

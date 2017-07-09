@@ -16,7 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.process.ui.UiFragment;
+import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.Layout;
 import de.esoco.process.ui.View;
 
 
@@ -33,11 +34,12 @@ public class RootView extends View<RootView>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rFragment The UI fragment this view shall be rendered in
+	 * @param rFragment The fragment this view shall be rendered in
+	 * @param rLayout   The view layout
 	 */
-	public RootView(UiFragment rFragment)
+	public RootView(InteractionFragment rFragment, Layout rLayout)
 	{
-		super(null);
+		super(null, rLayout);
 
 		setFragment(rFragment);
 		setParameterType(rFragment.getFragmentParameter());

@@ -20,7 +20,6 @@ import de.esoco.lib.property.SingleSelection;
 
 import de.esoco.process.ui.container.Panel;
 import de.esoco.process.ui.event.HasUpdateEvents;
-import de.esoco.process.ui.layout.Layout;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
  *
  * @author eso
  */
-public class SwitchPanel<P extends SwitchPanel<P>> extends LayoutContainer<P>
+public class SwitchPanel<P extends SwitchPanel<P>> extends Container<P>
 	implements SingleSelection, HasUpdateEvents<List<RelationType<?>>, P>
 {
 	//~ Constructors -----------------------------------------------------------

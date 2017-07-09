@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.InteractionFragment;
@@ -68,7 +68,7 @@ public class ParameterList
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(Layout eMode)
+	public ParameterList as(LayoutType eMode)
 	{
 		set(UserInterfaceProperties.LAYOUT, eMode);
 

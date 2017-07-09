@@ -40,7 +40,6 @@ import de.esoco.process.ui.container.Panel;
 import de.esoco.process.ui.container.SplitPanel;
 import de.esoco.process.ui.container.StackPanel;
 import de.esoco.process.ui.container.TabPanel;
-import de.esoco.process.ui.layout.Layout;
 
 import java.util.ArrayList;
 
@@ -59,16 +58,21 @@ public abstract class Container<C extends Container<C>>
 
 	private java.util.List<Component<?, ?>> rComponents = new ArrayList<>();
 
+	private Layout rLayout;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container or NULL for a root container
+	 * @param rLayout The layout of the container
 	 */
-	public Container(Container<?> rParent)
+	public Container(Container<?> rParent, Layout rLayout)
 	{
 		super(rParent, null);
+
+		this.rLayout = rLayout;
 
 		if (rParent != null)
 		{
@@ -436,6 +440,16 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	/***************************************
+	 * Returns the layout of this container.
+	 *
+	 * @return The layout
+	 */
+	public final Layout getLayout()
+	{
+		return rLayout;
+	}
+
+	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
 	 * after creation. This may also be used in combination. In that case this
@@ -470,6 +484,8 @@ public abstract class Container<C extends Container<C>>
 	void addComponent(Component<?, ?> rComponent)
 	{
 		rComponents.add(rComponent);
+		rLayout.layoutComponent(rComponent);
+
 		componentAdded(rComponent);
 	}
 }

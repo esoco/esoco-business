@@ -14,10 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.layout;
+package de.esoco.process.ui;
 
-import de.esoco.process.ui.Component;
-import de.esoco.process.ui.Container;
+import de.esoco.lib.property.LayoutType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /********************************************************************
@@ -25,7 +27,8 @@ import de.esoco.process.ui.Container;
  * layout consists of rows and columns which in turn contain layout cells for
  * each component in the container at the respective layout position. If
  * properties are set on either the layout, a row, or a column, they define the
- * default values for cells at the corresponding location.
+ * default values to be used for the creation of cells in the corresponding
+ * element.
  *
  * @author eso
  */
@@ -33,24 +36,78 @@ public class Layout extends LayoutElement<Layout>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private de.esoco.lib.property.Layout eLayoutType;
+	private final LayoutType eLayoutType;
+
+	private int nCurrentColumn = 0;
+
+	private List<Column> aColumns = new ArrayList<>();
+	private List<Row>    aRows    = new ArrayList<>();
 
 	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance with a single column.
+	 *
+	 * @param eLayoutType The layout type
+	 */
+	public Layout(LayoutType eLayoutType)
+	{
+		this(eLayoutType, 1);
+	}
 
 	/***************************************
 	 * Creates a new instance.
 	 *
 	 * @param eLayoutType The layout type
+	 * @param nColumns    The number of columns in this layout
 	 */
-	public Layout(de.esoco.lib.property.Layout eLayoutType)
+	public Layout(LayoutType eLayoutType, int nColumns)
 	{
 		this.eLayoutType = eLayoutType;
+
+		for (int i = 0; i < nColumns; i++)
+		{
+			aColumns.add(new Column());
+		}
+
+		aRows.add(new Row());
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Returns the layout type.
+	 *
+	 * @return The layout type
+	 */
+	public final LayoutType getLayoutType()
+	{
+		return eLayoutType;
+	}
+
+	/***************************************
+	 * Internal method to setup the layout for a component after it has been
+	 * added to it's parent container. Invoked by {@link
+	 * Container#addComponent(Component)}.
+	 *
+	 * @param rComponent The component that has been added to the container
+	 */
+	protected void layoutComponent(Component<?, ?> rComponent)
+	{
+		Cell aCell =
+			new Cell(aRows.get(aRows.size() - 1),
+					 aColumns.get(nCurrentColumn++),
+					 rComponent);
+
+		rComponent.setLayoutCell(aCell);
+		aCell.apply(rComponent);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
-	 * A single cell in a layout.
+	 * A cell in a layout (at a crossing of a row and a column) that contains a
+	 * single component.
 	 *
 	 * @author eso
 	 */
@@ -58,17 +115,23 @@ public class Layout extends LayoutElement<Layout>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Component<?, ?> rComponent;
+		private final Row			  rRow;
+		private final Column		  rColumn;
+		private final Component<?, ?> rComponent;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
 		 * Creates a new instance.
 		 *
+		 * @param rRow       The row of the cell
+		 * @param rColumn    The column of the cell
 		 * @param rComponent The component that has been placed in the layout
 		 */
-		public Cell(Component<?, ?> rComponent)
+		public Cell(Row rRow, Column rColumn, Component<?, ?> rComponent)
 		{
+			this.rRow	    = rRow;
+			this.rColumn    = rColumn;
 			this.rComponent = rComponent;
 		}
 

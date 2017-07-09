@@ -17,8 +17,7 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.LayoutContainer;
-import de.esoco.process.ui.layout.Layout;
+import de.esoco.process.ui.Layout;
 
 
 /********************************************************************
@@ -27,7 +26,7 @@ import de.esoco.process.ui.layout.Layout;
  *
  * @author eso
  */
-public class Panel extends LayoutContainer<Panel>
+public class Panel extends Container<Panel>
 {
 	//~ Constructors -----------------------------------------------------------
 

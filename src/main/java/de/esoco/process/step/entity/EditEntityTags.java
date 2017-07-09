@@ -21,7 +21,7 @@ import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.manage.TransactionException;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.CollectionParameter.SetParameter;
@@ -204,7 +204,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	{
 		clearInteractionParameters();
 
-		layout(Layout.TABLE).resid("EditEntityTagsFragment");
+		layout(LayoutType.TABLE).resid("EditEntityTagsFragment");
 
 		Set<String> aAllowedTags = getAllowedTags();
 

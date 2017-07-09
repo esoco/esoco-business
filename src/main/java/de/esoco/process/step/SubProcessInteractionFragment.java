@@ -18,7 +18,7 @@ package de.esoco.process.step;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.Process;
 import de.esoco.process.ProcessDefinition;
@@ -171,7 +171,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	@Override
 	public void init() throws ProcessException
 	{
-		layout(Layout.FILL);
+		layout(LayoutType.FILL);
 
 		if (rProcessClass != null)
 		{

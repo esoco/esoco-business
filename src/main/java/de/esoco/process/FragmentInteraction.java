@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
@@ -183,7 +183,7 @@ public class FragmentInteraction extends Interaction
 		@Override
 		public void init() throws Exception
 		{
-			layout(Layout.TABS).set(HTML_HEIGHT, "100%");
+			layout(LayoutType.TABS).set(HTML_HEIGHT, "100%");
 
 			addDisplayParameters(rFragmentParams);
 

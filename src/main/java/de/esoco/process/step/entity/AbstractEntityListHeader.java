@@ -18,7 +18,7 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.step.InteractionFragment;
 
@@ -59,7 +59,7 @@ public abstract class AbstractEntityListHeader<E extends Entity>
 	@Override
 	public void init() throws Exception
 	{
-		layout(Layout.LIST_ITEM);
+		layout(LayoutType.LIST_ITEM);
 
 		panel(p -> initTitlePanel(p));
 		panel(p -> initDataPanel(p));
@@ -67,7 +67,7 @@ public abstract class AbstractEntityListHeader<E extends Entity>
 
 	/***************************************
 	 * Must be implemented to initialize the fragment containing the data panel
-	 * of this instance. The panel layout is set to {@link Layout#GRID} which
+	 * of this instance. The panel layout is set to {@link LayoutType#GRID} which
 	 * can be overridden.
 	 *
 	 * @param rContentPanel rHeaderPanel The content panel fragment
@@ -76,7 +76,7 @@ public abstract class AbstractEntityListHeader<E extends Entity>
 
 	/***************************************
 	 * Must be implemented to initialize the fragment containing the title panel
-	 * of this instance. The panel layout is set to {@link Layout#GRID} which
+	 * of this instance. The panel layout is set to {@link LayoutType#GRID} which
 	 * can be overridden.
 	 *
 	 * @param rHeaderPanel The header panel fragment

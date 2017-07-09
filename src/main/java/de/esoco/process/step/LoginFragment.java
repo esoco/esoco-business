@@ -26,7 +26,7 @@ import de.esoco.entity.Entity;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ContentType;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.Parameter;
 import de.esoco.process.ValueEventHandler;
@@ -113,7 +113,7 @@ public class LoginFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		layout(Layout.FORM).set(DISABLE_ON_INTERACTION);
+		layout(LayoutType.FORM).set(DISABLE_ON_INTERACTION);
 
 		addInputFields();
 		addErrorLabel();

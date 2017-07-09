@@ -24,7 +24,7 @@ import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeScale;
@@ -832,7 +832,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P layout(Layout eLayout)
+	public P layout(LayoutType eLayout)
 	{
 		set(UserInterfaceProperties.LAYOUT, eLayout);
 

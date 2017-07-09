@@ -33,7 +33,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -372,7 +372,7 @@ public class DisplayEntityHistory extends InteractionFragment
 
 		setUIFlag(VERTICAL, rFragmentParam);
 		setUIProperty(UserInterfaceProperties.LAYOUT,
-					  Layout.SPLIT,
+					  LayoutType.SPLIT,
 					  rFragmentParam);
 
 		setInteractive(InteractiveInputMode.BOTH, ENTITY_HISTORY);

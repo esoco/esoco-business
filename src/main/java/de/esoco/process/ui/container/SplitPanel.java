@@ -19,8 +19,7 @@ package de.esoco.process.ui.container;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.LayoutContainer;
-import de.esoco.process.ui.layout.Layout;
+import de.esoco.process.ui.Layout;
 
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -31,7 +30,7 @@ import static de.esoco.lib.property.StyleProperties.VERTICAL;
  *
  * @author eso
  */
-public class SplitPanel extends LayoutContainer<SplitPanel>
+public class SplitPanel extends Container<SplitPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -43,7 +42,7 @@ public class SplitPanel extends LayoutContainer<SplitPanel>
 	 */
 	public SplitPanel(Container<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, new Layout(de.esoco.lib.property.Layout.SPLIT));
+		super(rParent, new Layout(de.esoco.lib.property.LayoutType.SPLIT));
 
 		if (eOrientation == Orientation.VERTICAL)
 		{

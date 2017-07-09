@@ -19,8 +19,7 @@ package de.esoco.process.ui.container;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.LayoutContainer;
-import de.esoco.process.ui.layout.Layout;
+import de.esoco.process.ui.Layout;
 
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -30,7 +29,7 @@ import static de.esoco.lib.property.StyleProperties.VERTICAL;
  *
  * @author eso
  */
-public class DockPanel extends LayoutContainer<DockPanel>
+public class DockPanel extends Container<DockPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -42,7 +41,7 @@ public class DockPanel extends LayoutContainer<DockPanel>
 	 */
 	public DockPanel(Container<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, new Layout(de.esoco.lib.property.Layout.DOCK));
+		super(rParent, new Layout(de.esoco.lib.property.LayoutType.DOCK));
 
 		if (eOrientation == Orientation.VERTICAL)
 		{

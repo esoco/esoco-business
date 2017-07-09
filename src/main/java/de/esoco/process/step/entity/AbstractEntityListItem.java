@@ -18,7 +18,7 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 
 import de.esoco.process.RuntimeProcessException;
@@ -78,7 +78,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	@Override
 	public void init() throws Exception
 	{
-		layout(Layout.LIST_ITEM).style(sDefaultStyle);
+		layout(LayoutType.LIST_ITEM).style(sDefaultStyle);
 
 		initItemContent();
 	}
@@ -168,7 +168,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 
 	/***************************************
 	 * Must be implemented to init the fragment containing the content panel of
-	 * this list item. The panel layout is pre-set to {@link Layout#GRID} which
+	 * this list item. The panel layout is pre-set to {@link LayoutType#GRID} which
 	 * can be overridden.
 	 *
 	 * @param rContentPanel The content panel fragment
@@ -183,7 +183,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	protected void createHeaderPanel(InteractionFragment p)
 	{
-		p.layout(Layout.HEADER).onAction(v -> handleItemSelection());
+		p.layout(LayoutType.HEADER).onAction(v -> handleItemSelection());
 		p.panel(p2 -> initHeaderPanel(p2));
 	}
 
@@ -191,7 +191,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * Needs to be implemented to initialize the header panel of list items in
 	 * list layouts that separate header and content (i.e. with a {@link
 	 * ListLayoutStyle} other than {@link ListLayoutStyle#SIMPLE}). The panel
-	 * layout is set to {@link Layout#GRID} which can be overridden. The default
+	 * layout is set to {@link LayoutType#GRID} which can be overridden. The default
 	 * implementation does nothing.
 	 *
 	 * @param rHeaderPanel The header panel fragment

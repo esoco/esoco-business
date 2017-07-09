@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Updatable;
 
 import java.util.List;
@@ -63,7 +63,7 @@ public class EditInteractionParameters extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		setLayout(Layout.SPLIT, getFragmentParameter());
+		setLayout(LayoutType.SPLIT, getFragmentParameter());
 
 		aElementTree   = new InteractionParameterTree(rRootParams);
 		aElementEditor = new EditInteractionParameter();

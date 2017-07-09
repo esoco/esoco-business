@@ -50,7 +50,7 @@ import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
@@ -295,7 +295,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		Layout								eLayout,
+		LayoutType								eLayout,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
@@ -345,7 +345,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		addPanel(rPanelParam,
-				 bResizable ? Layout.SPLIT : Layout.DOCK,
+				 bResizable ? LayoutType.SPLIT : LayoutType.DOCK,
 				 rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
@@ -455,7 +455,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam, Layout.STACK, Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, LayoutType.STACK, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -507,7 +507,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam, Layout.TABS, Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, LayoutType.TABS, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -1618,7 +1618,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Removes all parameters for a panel parameter that had previously been
-	 * added through {@link #addPanel(RelationType, Layout, List)}.
+	 * added through {@link #addPanel(RelationType, LayoutType, List)}.
 	 *
 	 * @param rPanelParam The parameter of the panel to remove
 	 */
@@ -1975,7 +1975,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rParam The parameter
 	 */
 	public void setLayout(
-		Layout								eMode,
+		LayoutType								eMode,
 		RelationType<List<RelationType<?>>> rParam)
 	{
 		setUIProperty(LAYOUT, eMode, rParam);

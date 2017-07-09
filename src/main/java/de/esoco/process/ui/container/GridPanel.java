@@ -16,10 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
+import de.esoco.lib.property.LayoutType;
+
 import de.esoco.process.ui.Component;
 import de.esoco.process.ui.Container;
-import de.esoco.process.ui.LayoutContainer;
-import de.esoco.process.ui.layout.Layout;
+import de.esoco.process.ui.Layout;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ import java.util.List;
  *
  * @author eso
  */
-public class GridPanel extends LayoutContainer<GridPanel>
+public class GridPanel extends Container<GridPanel>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -45,7 +46,7 @@ public class GridPanel extends LayoutContainer<GridPanel>
 	 */
 	public GridPanel(Container<?> rParent)
 	{
-		super(rParent, new Layout(de.esoco.lib.property.Layout.GRID));
+		super(rParent, new Layout(LayoutType.GRID));
 	}
 
 	//~ Methods ----------------------------------------------------------------

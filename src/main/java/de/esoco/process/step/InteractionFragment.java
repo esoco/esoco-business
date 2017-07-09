@@ -38,7 +38,7 @@ import de.esoco.lib.property.CheckBoxStyle;
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LabelStyle;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.ViewDisplayType;
@@ -490,7 +490,7 @@ public abstract class InteractionFragment extends ProcessFragment
 			setParam(rEnumClass.getSimpleName(), rEnumClass, true);
 
 		return aCheckBoxes.input().set(LIST_STYLE, ListStyle.DISCRETE)
-						  .layout(Layout.TABLE)
+						  .layout(LayoutType.TABLE)
 						  .columns(1);
 	}
 
@@ -1191,7 +1191,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The parameter list of this fragment for concatenation
 	 */
-	public ParameterList layout(Layout eLayout)
+	public ParameterList layout(LayoutType eLayout)
 	{
 		return fragmentParam().layout(eLayout);
 	}
@@ -1343,7 +1343,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public ParameterList panel(Initializer<InteractionFragment> rInitializer)
 	{
-		return panel(null, Layout.GRID, rInitializer);
+		return panel(null, LayoutType.GRID, rInitializer);
 	}
 
 	/***************************************
@@ -1369,13 +1369,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return the parameter wrapper for the panel parameter
 	 *
-	 * @see    #panel(String, Layout, Initializer)
+	 * @see    #panel(String, LayoutType, Initializer)
 	 */
 	public ParameterList panel(
 		String							 sName,
 		Initializer<InteractionFragment> rInitializer)
 	{
-		return panel(sName, Layout.GRID, rInitializer);
+		return panel(sName, LayoutType.GRID, rInitializer);
 	}
 
 	/***************************************
@@ -1399,7 +1399,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	@SuppressWarnings("serial")
 	public ParameterList panel(
 		String								   sName,
-		Layout								   ePanelLayout,
+		LayoutType								   ePanelLayout,
 		final Initializer<InteractionFragment> rInitializer)
 	{
 		ParameterList aPanel =
@@ -1507,7 +1507,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		return param(rEnumClass).input().set(LIST_STYLE, ListStyle.DISCRETE)
 								.hideLabel()
-								.layout(Layout.TABLE)
+								.layout(LayoutType.TABLE)
 								.columns(1);
 	}
 

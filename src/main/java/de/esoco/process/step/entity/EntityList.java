@@ -22,7 +22,7 @@ import de.esoco.entity.EntityIterator;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.reflect.ReflectUtil;
@@ -304,7 +304,7 @@ public class EntityList<E extends Entity,
 	@Override
 	public void init()
 	{
-		layout(Layout.FLOW).style(EntityList.class.getSimpleName());
+		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
 
 		panel(this::initHeaderPanel);
 		aItemListPanel =
@@ -496,7 +496,7 @@ public class EntityList<E extends Entity,
 	{
 		if (rHeader != null)
 		{
-			rHeaderPanel.layout(Layout.LIST).resid("EntityListHeaderPanel")
+			rHeaderPanel.layout(LayoutType.LIST).resid("EntityListHeaderPanel")
 						.set(LIST_LAYOUT_STYLE, ListLayoutStyle.SIMPLE);
 
 			rHeaderPanel.panel(rHeader);
@@ -689,7 +689,7 @@ public class EntityList<E extends Entity,
 		@Override
 		public void init()
 		{
-			layout(Layout.LIST);
+			layout(LayoutType.LIST);
 			updateItemList();
 		}
 
@@ -789,7 +789,7 @@ public class EntityList<E extends Entity,
 		@Override
 		public void init() throws Exception
 		{
-			layout(Layout.TABLE);
+			layout(LayoutType.TABLE);
 
 			if (aAllowedListSizes.size() > 1)
 			{
@@ -936,7 +936,7 @@ public class EntityList<E extends Entity,
 							  .buttonStyle(ButtonStyle.ICON)
 							  .images()
 							  .set(ICON_SIZE, RelativeScale.SMALL)
-							  .layout(Layout.TABLE)
+							  .layout(LayoutType.TABLE)
 							  .onAction(new ValueEventHandler<PagingNavigation>()
 				{
 					@Override

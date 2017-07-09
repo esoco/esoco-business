@@ -29,9 +29,10 @@ public abstract class View<V extends View<V>> extends Container<V>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent view
+	 * @param rLayout The view layout
 	 */
-	public View(View<?> rParent)
+	public View(View<?> rParent, Layout rLayout)
 	{
-		super(rParent);
+		super(rParent, rLayout);
 	}
 }

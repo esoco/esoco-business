@@ -30,6 +30,7 @@ public abstract class Component<T, C extends Component<T, C>>
 	//~ Instance fields --------------------------------------------------------
 
 	private final Container<?> rParent;
+	private Layout.Cell		   rLayoutCell;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -66,6 +67,16 @@ public abstract class Component<T, C extends Component<T, C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns the layout cell in which this component has been placed.
+	 *
+	 * @return The cell
+	 */
+	public final Layout.Cell getCell()
+	{
+		return rLayoutCell;
+	}
+
+	/***************************************
 	 * Returns the parent container.
 	 *
 	 * @return The parent
@@ -73,5 +84,16 @@ public abstract class Component<T, C extends Component<T, C>>
 	public final Container<?> getParent()
 	{
 		return rParent;
+	}
+
+	/***************************************
+	 * Internal method to set the layout cell in which this component has been
+	 * placed. Will be invoked from {@link Layout#layoutComponent(Component)}.
+	 *
+	 * @param rCell The new layout cell
+	 */
+	void setLayoutCell(Layout.Cell rCell)
+	{
+		rLayoutCell = rCell;
 	}
 }

@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.container.RootView;
@@ -51,7 +51,7 @@ public abstract class UiFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		layout(Layout.INLINE);
+		layout(LayoutType.INLINE);
 	}
 
 	/***************************************
@@ -68,6 +68,6 @@ public abstract class UiFragment extends InteractionFragment
 	@Override
 	protected void initComplete() throws Exception
 	{
-		buildUserInterface(new RootView(this));
+		buildUserInterface(new RootView(this, new Layout(LayoutType.FILL)));
 	}
 }

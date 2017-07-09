@@ -14,46 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.layout;
 
-import de.esoco.process.ui.layout.Layout;
+import de.esoco.lib.property.LayoutType;
+import de.esoco.process.ui.Layout;
 
 
 /********************************************************************
- * A container that has a layout for the arrangement of the child components.
+ * Places components in a grid structure.
  *
  * @author eso
  */
-public class LayoutContainer<C extends LayoutContainer<C>> extends Container<C>
+public class GridLayout extends Layout
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private Layout rLayout;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
-	 *
-	 * @param rParent The parent container
-	 * @param rLayout The container layout
 	 */
-	public LayoutContainer(Container<?> rParent, Layout rLayout)
+	public GridLayout()
 	{
-		super(rParent);
-
-		this.rLayout = rLayout;
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Returns the layout of this container.
-	 *
-	 * @return The layout
-	 */
-	public final Layout getLayout()
-	{
-		return rLayout;
+		super(LayoutType.GRID);
 	}
 }

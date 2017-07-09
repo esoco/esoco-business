@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.layout;
+package de.esoco.process.ui;
 
 import de.esoco.lib.property.Alignment;
 
@@ -81,5 +81,23 @@ public abstract class LayoutElement<E extends LayoutElement<E>>
 		eVerticalAlignment = eAlignment;
 
 		return (E) this;
+	}
+
+	/***************************************
+	 * Applies the layout parameters to the given component.
+	 *
+	 * @param rComponent The target component
+	 */
+	protected void apply(Component<?, ?> rComponent)
+	{
+		if (eHorizontalAlignment != null)
+		{
+			rComponent.alignHorizontal(eHorizontalAlignment);
+		}
+
+		if (eVerticalAlignment != null)
+		{
+			rComponent.alignVertical(eVerticalAlignment);
+		}
 	}
 }
