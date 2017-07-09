@@ -16,11 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.LayoutContainer;
+import de.esoco.process.ui.layout.Layout;
 
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -42,7 +42,7 @@ public class DockPanel extends LayoutContainer<DockPanel>
 	 */
 	public DockPanel(Container<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, Layout.DOCK);
+		super(rParent, new Layout(de.esoco.lib.property.Layout.DOCK));
 
 		if (eOrientation == Orientation.VERTICAL)
 		{

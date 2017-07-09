@@ -16,11 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.SingleSelection;
 
 import de.esoco.process.ui.container.Panel;
 import de.esoco.process.ui.event.HasUpdateEvents;
+import de.esoco.process.ui.layout.Layout;
 
 import java.util.List;
 

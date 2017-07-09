@@ -16,10 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.lib.property.Layout;
-
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.LayoutContainer;
+import de.esoco.process.ui.layout.Layout;
 
 
 /********************************************************************

@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.process.ui.layout.Layout;
 
 
 /********************************************************************
@@ -26,18 +26,34 @@ import de.esoco.lib.property.Layout;
  */
 public class LayoutContainer<C extends LayoutContainer<C>> extends Container<C>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private Layout rLayout;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
-	 * @param eLayout The container layout
+	 * @param rLayout The container layout
 	 */
-	public LayoutContainer(Container<?> rParent, Layout eLayout)
+	public LayoutContainer(Container<?> rParent, Layout rLayout)
 	{
 		super(rParent);
 
-		layout(eLayout);
+		this.rLayout = rLayout;
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Returns the layout of this container.
+	 *
+	 * @return The layout
+	 */
+	public final Layout getLayout()
+	{
+		return rLayout;
 	}
 }

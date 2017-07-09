@@ -16,10 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.lib.property.Layout;
-
 import de.esoco.process.ui.Container;
 import de.esoco.process.ui.SwitchPanel;
+import de.esoco.process.ui.layout.Layout;
 
 
 /********************************************************************
@@ -39,6 +38,6 @@ public class StackPanel extends SwitchPanel<StackPanel>
 	 */
 	public StackPanel(Container<?> rParent)
 	{
-		super(rParent, Layout.STACK);
+		super(rParent, new Layout(de.esoco.lib.property.Layout.STACK));
 	}
 }

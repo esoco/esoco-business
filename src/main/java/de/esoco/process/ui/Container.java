@@ -18,7 +18,6 @@ package de.esoco.process.ui;
 
 import de.esoco.entity.Entity;
 
-import de.esoco.lib.property.Layout;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.step.InteractionFragment;
@@ -41,6 +40,7 @@ import de.esoco.process.ui.container.Panel;
 import de.esoco.process.ui.container.SplitPanel;
 import de.esoco.process.ui.container.StackPanel;
 import de.esoco.process.ui.container.TabPanel;
+import de.esoco.process.ui.layout.Layout;
 
 import java.util.ArrayList;
 
