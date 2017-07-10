@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.Container;
@@ -42,7 +43,7 @@ public class SplitPanel extends Container<SplitPanel>
 	 */
 	public SplitPanel(Container<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, new Layout(de.esoco.lib.property.LayoutType.SPLIT));
+		super(rParent, new Layout(LayoutType.SPLIT));
 
 		if (eOrientation == Orientation.VERTICAL)
 		{

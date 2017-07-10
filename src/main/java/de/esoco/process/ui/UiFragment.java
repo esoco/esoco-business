@@ -68,6 +68,6 @@ public abstract class UiFragment extends InteractionFragment
 	@Override
 	protected void initComplete() throws Exception
 	{
-		buildUserInterface(new RootView(this, new Layout(LayoutType.FILL)));
+		buildUserInterface(new RootView(this));
 	}
 }

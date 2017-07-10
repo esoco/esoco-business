@@ -76,6 +76,16 @@ public class Layout extends LayoutElement<Layout>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Applies this layout to a container
+	 *
+	 * @param rContainer rComponent The container
+	 */
+	public void applyTo(Container<?> rContainer)
+	{
+		rContainer.layout(eLayoutType);
+	}
+
+	/***************************************
 	 * Returns the layout type.
 	 *
 	 * @return The layout type
@@ -94,13 +104,13 @@ public class Layout extends LayoutElement<Layout>
 	 */
 	protected void layoutComponent(Component<?, ?> rComponent)
 	{
-		Cell aCell =
-			new Cell(aRows.get(aRows.size() - 1),
-					 aColumns.get(nCurrentColumn++),
-					 rComponent);
-
-		rComponent.setLayoutCell(aCell);
-		aCell.apply(rComponent);
+//		Cell aCell =
+//			new Cell(aRows.get(aRows.size() - 1),
+//					 aColumns.get(nCurrentColumn++),
+//					 rComponent);
+//
+//		rComponent.setLayoutCell(aCell);
+//		aCell.apply(rComponent);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

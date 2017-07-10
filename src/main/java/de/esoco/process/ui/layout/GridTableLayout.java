@@ -14,39 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
-import de.esoco.lib.property.Orientation;
 
-import de.esoco.process.ui.Container;
 import de.esoco.process.ui.Layout;
-
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
- * A panel that layouts components on the edges of it's center area.
+ * Places components in a table that is organized by a horizontal grid structure
+ * with a fixed number of columns.
  *
  * @author eso
  */
-public class DockPanel extends Container<DockPanel>
+public class GridTableLayout extends Layout
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
-	 *
-	 * @param rParent      The parent container
-	 * @param eOrientation bVertical TRUE for vertical orientation
+	 * Creates a new instance that is horizontally subdivided into 12 columns.
 	 */
-	public DockPanel(Container<?> rParent, Orientation eOrientation)
+	public GridTableLayout()
 	{
-		super(rParent, new Layout(LayoutType.DOCK));
-
-		if (eOrientation == Orientation.VERTICAL)
-		{
-			set(VERTICAL);
-		}
+		super(LayoutType.CSS_GRID, 12);
 	}
 }

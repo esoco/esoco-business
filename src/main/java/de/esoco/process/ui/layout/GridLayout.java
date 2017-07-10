@@ -17,11 +17,12 @@
 package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
+
 import de.esoco.process.ui.Layout;
 
 
 /********************************************************************
- * Places components in a grid structure.
+ * Places components in a two-dimensional grid structure.
  *
  * @author eso
  */
@@ -31,9 +32,11 @@ public class GridLayout extends Layout
 
 	/***************************************
 	 * Creates a new instance.
+	 *
+	 * @param nColumns The number of columns in the grid
 	 */
-	public GridLayout()
+	public GridLayout(int nColumns)
 	{
-		super(LayoutType.GRID);
+		super(LayoutType.CSS_GRID, nColumns);
 	}
 }

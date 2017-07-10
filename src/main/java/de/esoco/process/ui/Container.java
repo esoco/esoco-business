@@ -87,11 +87,6 @@ public abstract class Container<C extends Container<C>>
 					{
 						build();
 					}
-
-					@Override
-					protected void initComplete() throws Exception
-					{
-					}
 				};
 
 			RelationType<java.util.List<RelationType<?>>> rContainerParamType =
@@ -103,6 +98,8 @@ public abstract class Container<C extends Container<C>>
 
 			rParentFragment.addSubFragment(rContainerParamType,
 										   aContainerFragment);
+
+			rLayout.applyTo(this);
 		}
 	}
 

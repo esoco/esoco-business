@@ -82,22 +82,4 @@ public abstract class LayoutElement<E extends LayoutElement<E>>
 
 		return (E) this;
 	}
-
-	/***************************************
-	 * Applies the layout parameters to the given component.
-	 *
-	 * @param rComponent The target component
-	 */
-	protected void apply(Component<?, ?> rComponent)
-	{
-		if (eHorizontalAlignment != null)
-		{
-			rComponent.alignHorizontal(eHorizontalAlignment);
-		}
-
-		if (eVerticalAlignment != null)
-		{
-			rComponent.alignVertical(eVerticalAlignment);
-		}
-	}
 }
