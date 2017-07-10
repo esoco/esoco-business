@@ -17,6 +17,9 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.RelativeSize;
+
+import de.esoco.process.ui.style.SizeUnit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,19 +73,45 @@ public class Layout extends LayoutElement<Layout>
 			aColumns.add(new Column());
 		}
 
-		aRows.add(new Row());
+		addRow();
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Applies this layout to a container
+	 * Adds a new row to this layout.
 	 *
-	 * @param rContainer rComponent The container
+	 * @return The new row
 	 */
-	public void applyTo(Container<?> rContainer)
+	public Row addRow()
 	{
-		rContainer.layout(eLayoutType);
+		Row aRow = new Row();
+
+		aRows.add(aRow);
+
+		return aRow;
+	}
+
+	/***************************************
+	 * Returns a certain column.
+	 *
+	 * @param  nIndex The column index
+	 *
+	 * @return The column
+	 */
+	public Column getColumn(int nIndex)
+	{
+		return aColumns.get(nIndex);
+	}
+
+	/***************************************
+	 * Returns the number of columns in this layout.
+	 *
+	 * @return The column count
+	 */
+	public int getColumnCount()
+	{
+		return aColumns.size();
 	}
 
 	/***************************************
@@ -96,6 +125,28 @@ public class Layout extends LayoutElement<Layout>
 	}
 
 	/***************************************
+	 * Returns a certain row.
+	 *
+	 * @param  nIndex The row index
+	 *
+	 * @return The row
+	 */
+	public Row getRow(int nIndex)
+	{
+		return aRows.get(nIndex);
+	}
+
+	/***************************************
+	 * Returns the number of rows in this layout.
+	 *
+	 * @return The row count
+	 */
+	public int getRowCount()
+	{
+		return aRows.size();
+	}
+
+	/***************************************
 	 * Internal method to setup the layout for a component after it has been
 	 * added to it's parent container. Invoked by {@link
 	 * Container#addComponent(Component)}.
@@ -104,13 +155,30 @@ public class Layout extends LayoutElement<Layout>
 	 */
 	protected void layoutComponent(Component<?, ?> rComponent)
 	{
-//		Cell aCell =
-//			new Cell(aRows.get(aRows.size() - 1),
-//					 aColumns.get(nCurrentColumn++),
-//					 rComponent);
-//
-//		rComponent.setLayoutCell(aCell);
-//		aCell.apply(rComponent);
+		Row    rRow  = aRows.get(aRows.size() - 1);
+		Column rCol  = aColumns.get(nCurrentColumn++);
+		Cell   aCell = new Cell(rRow, rCol, rComponent);
+
+		if (nCurrentColumn >= aColumns.size())
+		{
+			nCurrentColumn = 0;
+		}
+
+		rComponent.setLayoutCell(aCell);
+
+		applyDefaults(rComponent);
+		rCol.applyDefaults(rComponent);
+		rRow.applyDefaults(rComponent);
+	}
+
+	/***************************************
+	 * Applies this layout to the given container.
+	 *
+	 * @param rContainer The container
+	 */
+	void applyTo(Container<?> rContainer)
+	{
+		rContainer.layout(eLayoutType);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -148,6 +216,16 @@ public class Layout extends LayoutElement<Layout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
+		 * Returns the column of this cell.
+		 *
+		 * @return The column
+		 */
+		public Column column()
+		{
+			return rColumn;
+		}
+
+		/***************************************
 		 * Sets the width of the component in this cell in HTML units.
 		 *
 		 * @param  sHeight The HTML width string
@@ -159,6 +237,16 @@ public class Layout extends LayoutElement<Layout>
 			rComponent.height(sHeight);
 
 			return this;
+		}
+
+		/***************************************
+		 * Returns the row of this cell.
+		 *
+		 * @return The row
+		 */
+		public Row row()
+		{
+			return rRow;
 		}
 
 		/***************************************
@@ -183,6 +271,35 @@ public class Layout extends LayoutElement<Layout>
 	 */
 	public class Column extends ChildElement<Column>
 	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Sets the width of this column relative to the total number of
+		 * columns.
+		 *
+		 * @param  eRelativeWidth The relative width
+		 *
+		 * @return This instance for concatenation
+		 */
+		public Column width(RelativeSize eRelativeWidth)
+		{
+			return width(eRelativeWidth.calcSize(getColumnCount()),
+						 SizeUnit.FRACTION);
+		}
+
+		/***************************************
+		 * Sets the width of this column to a certain value and unit. Which
+		 * units are supported depends on the actual layout type used.
+		 *
+		 * @param  nWidth The width value
+		 * @param  eUnit  The width unit
+		 *
+		 * @return This instance for concatenation
+		 */
+		public Column width(int nWidth, SizeUnit eUnit)
+		{
+			return size(nWidth, eUnit);
+		}
 	}
 
 	/********************************************************************
@@ -192,6 +309,34 @@ public class Layout extends LayoutElement<Layout>
 	 */
 	public class Row extends ChildElement<Row>
 	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Sets the height of this row relative to the total number of columns.
+		 *
+		 * @param  eRelativeHeight The relative height
+		 *
+		 * @return This instance for concatenation
+		 */
+		public Row height(RelativeSize eRelativeHeight)
+		{
+			return height(eRelativeHeight.calcSize(getColumnCount()),
+						  SizeUnit.FRACTION);
+		}
+
+		/***************************************
+		 * Sets the height of this row to a certain value and unit. Which units
+		 * are supported depends on the actual layout type used.
+		 *
+		 * @param  nHeight The height value
+		 * @param  eUnit   The height unit
+		 *
+		 * @return This instance for concatenation
+		 */
+		public Row height(int nHeight, SizeUnit eUnit)
+		{
+			return size(nHeight, eUnit);
+		}
 	}
 
 	/********************************************************************
@@ -202,6 +347,11 @@ public class Layout extends LayoutElement<Layout>
 	abstract class ChildElement<E extends ChildElement<E>>
 		extends LayoutElement<E>
 	{
+		//~ Instance fields ----------------------------------------------------
+
+		private int		 nSize     = 1;
+		private SizeUnit eSizeUnit = SizeUnit.FRACTION;
+
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
@@ -212,6 +362,23 @@ public class Layout extends LayoutElement<Layout>
 		public final Layout getLayout()
 		{
 			return Layout.this;
+		}
+
+		/***************************************
+		 * Internal method to set the element size.
+		 *
+		 * @param  nSize The size value
+		 * @param  eUnit The size unit
+		 *
+		 * @return This instance to allow fluent invocations
+		 */
+		@SuppressWarnings("unchecked")
+		E size(int nSize, SizeUnit eUnit)
+		{
+			this.nSize     = nSize;
+			this.eSizeUnit = eUnit;
+
+			return (E) this;
 		}
 	}
 }

@@ -28,10 +28,40 @@ public abstract class LayoutElement<E extends LayoutElement<E>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Alignment eHorizontalAlignment = Alignment.FILL;
-	private Alignment eVerticalAlignment   = Alignment.FILL;
+	private Alignment eHorizontalAlignment = null;
+	private Alignment eVerticalAlignment   = null;
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the horizontal alignment of layout cells.
+	 *
+	 * @param  eAlignment The horizontal alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final E alignHorizontal(Alignment eAlignment)
+	{
+		eHorizontalAlignment = eAlignment;
+
+		return (E) this;
+	}
+
+	/***************************************
+	 * Sets the vertical alignment value of layout cells.
+	 *
+	 * @param  eAlignment The vertical alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final E alignVertical(Alignment eAlignment)
+	{
+		eVerticalAlignment = eAlignment;
+
+		return (E) this;
+	}
 
 	/***************************************
 	 * Returns the horizontal alignment of layout cells.
@@ -54,32 +84,20 @@ public abstract class LayoutElement<E extends LayoutElement<E>>
 	}
 
 	/***************************************
-	 * Sets the horizontal alignment of layout cells.
+	 * Applies the layout parameters to the given component.
 	 *
-	 * @param  eAlignment The horizontal alignment
-	 *
-	 * @return This instance for concatenation
+	 * @param rComponent The target component
 	 */
-	@SuppressWarnings("unchecked")
-	public final E hAlign(Alignment eAlignment)
+	void applyDefaults(Component<?, ?> rComponent)
 	{
-		eHorizontalAlignment = eAlignment;
+		if (eHorizontalAlignment != null)
+		{
+			rComponent.alignHorizontal(eHorizontalAlignment);
+		}
 
-		return (E) this;
-	}
-
-	/***************************************
-	 * Sets the vertical alignment value of layout cells.
-	 *
-	 * @param  eAlignment The vertical alignment
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	public final E vAlign(Alignment eAlignment)
-	{
-		eVerticalAlignment = eAlignment;
-
-		return (E) this;
+		if (eVerticalAlignment != null)
+		{
+			rComponent.alignVertical(eVerticalAlignment);
+		}
 	}
 }

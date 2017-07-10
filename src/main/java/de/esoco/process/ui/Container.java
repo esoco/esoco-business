@@ -98,8 +98,6 @@ public abstract class Container<C extends Container<C>>
 
 			rParentFragment.addSubFragment(rContainerParamType,
 										   aContainerFragment);
-
-			rLayout.applyTo(this);
 		}
 	}
 
@@ -447,6 +445,15 @@ public abstract class Container<C extends Container<C>>
 	}
 
 	/***************************************
+	 * Applies the layout to this container. Will be invoked after the container
+	 * has been added to it's parent.
+	 */
+	protected void applyLayout()
+	{
+		rLayout.applyTo(this);
+	}
+
+	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
 	 * after creation. This may also be used in combination. In that case this
@@ -471,6 +478,23 @@ public abstract class Container<C extends Container<C>>
 	 */
 	protected void componentAdded(Component<?, ?> rComponent)
 	{
+	}
+
+	/***************************************
+	 * Overridden to apply the container layout and to invoke this method
+	 * recursively on all child components.
+	 *
+	 * @see Component#finishSetup()
+	 */
+	@Override
+	protected void finishSetup()
+	{
+		applyLayout();
+
+		for (Component<?, ?> rChild : rComponents)
+		{
+			rChild.finishSetup();
+		}
 	}
 
 	/***************************************

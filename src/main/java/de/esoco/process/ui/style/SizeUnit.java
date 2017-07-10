@@ -14,47 +14,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
-
-import de.esoco.process.step.InteractionFragment;
-import de.esoco.process.ui.Layout;
-import de.esoco.process.ui.View;
-
+package de.esoco.process.ui.style;
 
 /********************************************************************
- * The root view of an application UI. All other components or the UI must be
- * (direct or indirect) children of a root view.
- *
- * @author eso
+ * An enumeration of size units that have HTML representations.
  */
-public class RootView extends View<RootView>
+public enum SizeUnit
 {
+	CHAR("em"), FRACTION("fr"), PERCENT("%"), PIXEL("px"), POINT("pt");
+
+	//~ Instance fields --------------------------------------------------------
+
+	private final String sHtmlSizeUnit;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rFragment The fragment this view shall be rendered in
-	 * @param rLayout   The view layout
+	 * @param sHtmlSizeUnit The HTML size unit token
 	 */
-	public RootView(InteractionFragment rFragment, Layout rLayout)
+	private SizeUnit(String sHtmlSizeUnit)
 	{
-		super(null, rLayout);
-
-		setFragment(rFragment);
-		setParameterType(rFragment.getFragmentParameter());
-		applyLayout();
+		this.sHtmlSizeUnit = sHtmlSizeUnit;
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Overridden to be public so that it may be invoked externally on root
-	 * views.
+	 * Returns the HTML size unit token.
+	 *
+	 * @return The token
 	 */
-	@Override
-	public void finishSetup()
+	public final String getHtmlSizeUnit()
 	{
-		super.finishSetup();
+		return sHtmlSizeUnit;
 	}
 }

@@ -68,6 +68,22 @@ public abstract class UiFragment extends InteractionFragment
 	@Override
 	protected void initComplete() throws Exception
 	{
-		buildUserInterface(new RootView(this));
+		RootView aRootView = createRootView();
+
+		buildUserInterface(aRootView);
+
+		aRootView.finishSetup();
+	}
+
+	/***************************************
+	 * Creates the root view of this fragment. Can be overridden by subclasses
+	 * to return a different view than the default instance of {@link RootView}
+	 * with a fill layout.
+	 *
+	 * @return The fragment's root view
+	 */
+	private RootView createRootView()
+	{
+		return new RootView(this, new Layout(LayoutType.FILL));
 	}
 }

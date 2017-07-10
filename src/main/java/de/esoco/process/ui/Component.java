@@ -71,7 +71,7 @@ public abstract class Component<T, C extends Component<T, C>>
 	 *
 	 * @return The cell
 	 */
-	public final Layout.Cell getCell()
+	public final Layout.Cell cell()
 	{
 		return rLayoutCell;
 	}
@@ -84,6 +84,14 @@ public abstract class Component<T, C extends Component<T, C>>
 	public final Container<?> getParent()
 	{
 		return rParent;
+	}
+
+	/***************************************
+	 * Will be invoked to finish the setup of this component after it has been
+	 * attached to it's container.
+	 */
+	protected void finishSetup()
+	{
 	}
 
 	/***************************************
