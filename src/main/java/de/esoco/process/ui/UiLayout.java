@@ -17,6 +17,7 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
 
 import de.esoco.process.ui.style.SizeUnit;
@@ -49,6 +50,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 
 	private List<Column> aColumns = new ArrayList<>();
 	private List<Row>    aRows    = new ArrayList<>();
+	private List<Cell>   aCells   = new ArrayList<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -170,9 +172,11 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 
 		rComponent.setLayoutCell(aCell);
 
-		applyDefaults(rComponent);
-		rCol.applyDefaults(rComponent);
-		rRow.applyDefaults(rComponent);
+		rRow.applyPropertiesTo(rComponent);
+		rCol.applyPropertiesTo(rComponent);
+		applyPropertiesTo(rComponent);
+
+		aCells.add(aCell);
 	}
 
 	/***************************************
@@ -230,17 +234,16 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Sets the width of the component in this cell in HTML units.
+		 * Sets the height of this cell.
 		 *
-		 * @param  sHeight The HTML width string
+		 * @param  nHeight The height value
+		 * @param  eUnit   The height unit
 		 *
 		 * @return This instance for concatenation
 		 */
-		public Cell height(String sHeight)
+		public Cell height(int nHeight, SizeUnit eUnit)
 		{
-			rComponent.set(HTML_HEIGHT, sHeight);
-
-			return this;
+			return size(HTML_HEIGHT, nHeight, eUnit);
 		}
 
 		/***************************************
@@ -254,17 +257,16 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Sets the width of the component in this cell in HTML units.
+		 * Sets the width of this cell.
 		 *
-		 * @param  sWidth The HTML width string
+		 * @param  nWidth The width value
+		 * @param  eUnit  The width unit
 		 *
 		 * @return This instance for concatenation
 		 */
-		public Cell width(String sWidth)
+		public Cell width(int nWidth, SizeUnit eUnit)
 		{
-			rComponent.set(HTML_WIDTH, sWidth);
-
-			return this;
+			return size(HTML_WIDTH, nWidth, eUnit);
 		}
 	}
 
@@ -302,7 +304,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Column width(int nWidth, SizeUnit eUnit)
 		{
-			return size(nWidth, eUnit);
+			return size(HTML_WIDTH, nWidth, eUnit);
 		}
 	}
 
@@ -339,7 +341,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Row height(int nHeight, SizeUnit eUnit)
 		{
-			return size(nHeight, eUnit);
+			return size(HTML_HEIGHT, nHeight, eUnit);
 		}
 	}
 
@@ -351,11 +353,6 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 	abstract class ChildElement<E extends ChildElement<E>>
 		extends UiLayoutElement<E>
 	{
-		//~ Instance fields ----------------------------------------------------
-
-		private int		 nSize     = 1;
-		private SizeUnit eSizeUnit = SizeUnit.FRACTION;
-
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
@@ -369,20 +366,17 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Internal method to set the element size.
+		 * Internal method to set a string size property.
 		 *
-		 * @param  nSize The size value
-		 * @param  eUnit The size unit
+		 * @param  rSizeProperty The size property
+		 * @param  nSize         The size value
+		 * @param  eUnit         The size unit
 		 *
 		 * @return This instance to allow fluent invocations
 		 */
-		@SuppressWarnings("unchecked")
-		E size(int nSize, SizeUnit eUnit)
+		E size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit)
 		{
-			this.nSize     = nSize;
-			this.eSizeUnit = eUnit;
-
-			return (E) this;
+			return set(rSizeProperty, nSize + eUnit.getHtmlSizeUnit());
 		}
 	}
 }

@@ -45,7 +45,6 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	@SuppressWarnings("unchecked")
 	public final E alignHorizontal(Alignment eAlignment)
 	{
 		return set(HORIZONTAL_ALIGN, eAlignment);
@@ -58,54 +57,22 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	@SuppressWarnings("unchecked")
 	public final E alignVertical(Alignment eAlignment)
 	{
 		return set(VERTICAL_ALIGN, eAlignment);
 	}
 
 	/***************************************
-	 * Returns the value of a certain property of this element.
+	 * Applies the properties of this layout element to the given component if
+	 * they are not already set.
 	 *
-	 * @param  rProperty The property name
-	 *
-	 * @return The property value
+	 * @param rComponent The target component
 	 */
-	public final <V> V get(PropertyName<V> rProperty)
+	void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
-		return aProperties.getProperty(rProperty, null);
-	}
+		MutableProperties rComponentProperties = rComponent.getUiProperties();
 
-	/***************************************
-	 * Returns the horizontal alignment of layout cells.
-	 *
-	 * @return The horizontal alignment
-	 */
-	public final Alignment getHorizontalAlignment()
-	{
-		return get(HORIZONTAL_ALIGN);
-	}
-
-	/***************************************
-	 * Returns the vertical alignment of layout cells.
-	 *
-	 * @return The vertical alignment
-	 */
-	public final Alignment getVerticalAlignment()
-	{
-		return get(VERTICAL_ALIGN);
-	}
-
-	/***************************************
-	 * Checks if a certain property exists in this element.
-	 *
-	 * @param  rProperty The property name
-	 *
-	 * @return TRUE if the property exists
-	 */
-	public final boolean has(PropertyName<?> rProperty)
-	{
-		return aProperties.hasProperty(rProperty);
+		rComponentProperties.setProperties(aProperties, false);
 	}
 
 	/***************************************
@@ -116,7 +83,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final E set(PropertyName<Boolean> rFlag)
+	final E set(PropertyName<Boolean> rFlag)
 	{
 		aProperties.setFlag(rFlag);
 
@@ -132,7 +99,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final <V> E set(PropertyName<V> rProperty, V rValue)
+	final <V> E set(PropertyName<V> rProperty, V rValue)
 	{
 		aProperties.setProperty(rProperty, rValue);
 
@@ -148,20 +115,10 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final E set(PropertyName<Integer> rProperty, int nValue)
+	final E set(PropertyName<Integer> rProperty, int nValue)
 	{
 		aProperties.setProperty(rProperty, nValue);
 
 		return (E) this;
-	}
-
-	/***************************************
-	 * Applies the layout parameters to the given component.
-	 *
-	 * @param rComponent The target component
-	 */
-	void applyDefaults(UiComponent<?, ?> rComponent)
-	{
-		MutableProperties rComponentProperties = rComponent.getUiProperties();
 	}
 }

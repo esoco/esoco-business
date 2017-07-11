@@ -94,6 +94,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 */
 	protected void finishSetup()
 	{
+		rLayoutCell.applyPropertiesTo(this);
 	}
 
 	/***************************************
