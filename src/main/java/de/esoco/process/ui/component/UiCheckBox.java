@@ -52,19 +52,17 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("boxing")
 	public boolean isSelected()
 	{
-		return value();
+		return fragment().getParameter(type()).booleanValue();
 	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("boxing")
 	public void setSelected(boolean bSelected)
 	{
-		value(bSelected);
+		fragment().setParameter(type(), bSelected);
 	}
 }

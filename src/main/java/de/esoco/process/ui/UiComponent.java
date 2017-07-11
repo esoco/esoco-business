@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.process.ParameterBase;
+import de.esoco.process.ParameterWrapper;
 
 
 /********************************************************************
@@ -25,12 +25,12 @@ import de.esoco.process.ParameterBase;
  * @author eso
  */
 public abstract class UiComponent<T, C extends UiComponent<T, C>>
-	extends ParameterBase<T, C>
+	extends ParameterWrapper<T, C>
 {
 	//~ Instance fields --------------------------------------------------------
 
 	private final UiContainer<?> rParent;
-	private UiLayout.Cell		   rLayoutCell;
+	private UiLayout.Cell		 rLayoutCell;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -54,7 +54,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 			if (rDatatype != null)
 			{
-				display();
+				fragment().addDisplayParameters(type());
 
 				if (rDatatype.isEnum())
 				{
@@ -96,7 +96,8 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 	/***************************************
 	 * Internal method to set the layout cell in which this component has been
-	 * placed. Will be invoked from {@link UiLayout#layoutComponent(UiComponent)}.
+	 * placed. Will be invoked from {@link
+	 * UiLayout#layoutComponent(UiComponent)}.
 	 *
 	 * @param rCell The new layout cell
 	 */

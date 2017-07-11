@@ -46,9 +46,9 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	 * @param eListStyle The style for the rendering of the buttons
 	 */
 	@SuppressWarnings("unchecked")
-	public UiButtonGroup(UiContainer<?>		rParent,
-					   Class<? super T> rDatatype,
-					   ListStyle		eListStyle)
+	public UiButtonGroup(UiContainer<?>   rParent,
+						 Class<? super T> rDatatype,
+						 ListStyle		  eListStyle)
 	{
 		super(rParent, rDatatype);
 
@@ -80,7 +80,7 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	 */
 	public void addButtons(Collection<T> rButtonLabels)
 	{
-		Collection<T> rAllowedValues = allowedValues();
+		Collection<T> rAllowedValues = fragment().getAllowedValues(type());
 
 		if (rAllowedValues != null)
 		{
@@ -89,7 +89,7 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 		}
 		else
 		{
-			allow(rButtonLabels);
+			fragment().setAllowedValues(type(), rButtonLabels);
 			checkSetColumns(rButtonLabels);
 		}
 	}
@@ -107,7 +107,7 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 
 		fragment().disableElements(rParamType,
 								   (Class<T>) rParamType.getTargetType(),
-								   allowedValues(),
+								   fragment().getAllowedValues(type()),
 								   rDisabledButtons);
 	}
 
@@ -139,7 +139,7 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	@Override
 	public T getSelection()
 	{
-		return value();
+		return fragment().getParameter(type());
 	}
 
 	/***************************************
@@ -151,7 +151,7 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	 */
 	public void setButtons(Collection<T> rNewButtons)
 	{
-		allow(rNewButtons);
+		fragment().setAllowedValues(type(), rNewButtons);
 		checkSetColumns(rNewButtons);
 	}
 
@@ -165,6 +165,6 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	@Override
 	public void setSelection(T rNewSelection)
 	{
-		value(rNewSelection);
+		fragment().setParameter(type(), rNewSelection);
 	}
 }

@@ -42,7 +42,7 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 * @param rDatatype  The datatype of the list values
 	 * @param eListStyle The list style
 	 */
-	public UiListControl(UiContainer<?>	  rParent,
+	public UiListControl(UiContainer<?>   rParent,
 						 Class<? super T> rDatatype,
 						 ListStyle		  eListStyle)
 	{
@@ -63,7 +63,7 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 */
 	public T getSelection()
 	{
-		return value();
+		return fragment().getParameter(type());
 	}
 
 	/***************************************
@@ -73,6 +73,6 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 */
 	public void setSelection(T rValue)
 	{
-		value(rValue);
+		fragment().setParameter(type(), rValue);
 	}
 }

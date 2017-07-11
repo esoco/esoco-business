@@ -19,6 +19,8 @@ package de.esoco.process.ui.component;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
+import static de.esoco.lib.property.LayoutProperties.ROWS;
+
 
 /********************************************************************
  * A multi-line text input field.
@@ -38,7 +40,7 @@ public class UiTextArea extends UiTextInputField<UiTextArea>
 	{
 		super(rContainer, sText);
 
-		rows(-1);
+		set(-1, ROWS);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -50,6 +52,6 @@ public class UiTextArea extends UiTextInputField<UiTextArea>
 	 */
 	public void setVisibleRows(int nRows)
 	{
-		rows(nRows);
+		set(nRows, ROWS);
 	}
 }

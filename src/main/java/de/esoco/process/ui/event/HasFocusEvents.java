@@ -14,49 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.event;
 
-import de.esoco.lib.property.TextAttribute;
+import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.UiComponent;
 
 
 /********************************************************************
- * A text input field.
+ * Indicates that a component can provide input focus events.
  *
  * @author eso
  */
-public abstract class UiTextInputField<T extends UiTextInputField<T>>
-	extends UiInputField<String, T> implements TextAttribute
+public interface HasFocusEvents<T, C extends UiComponent<?, ?>>
 {
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 *
-	 * @param rParent rContainer rFragment The parent fragment
-	 * @param sText   The initial text
-	 */
-	public UiTextInputField(UiContainer<?> rParent, String sText)
-	{
-		super(rParent, String.class, sText);
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Registers an event handler that will be invoked if a interactive
+	 * component loses the input focus.
+	 *
+	 * @param  rEventHandler The event handler to be invoked
+	 *
+	 * @return The component the handler has been registered on
 	 */
-	@Override
-	public String getText()
-	{
-		return fragment().getParameter(type());
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setText(String sText)
-	{
-		fragment().setParameter(type(), sText);
-	}
+	public C onFocusLost(ValueEventHandler<T> rEventHandler);
 }

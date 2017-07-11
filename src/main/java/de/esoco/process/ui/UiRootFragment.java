@@ -51,7 +51,6 @@ public abstract class UiRootFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		layout(LayoutType.INLINE);
 	}
 
 	/***************************************
@@ -68,22 +67,25 @@ public abstract class UiRootFragment extends InteractionFragment
 	@Override
 	protected void initComplete() throws Exception
 	{
-		UiRootView aRootView = createRootView();
-
-		buildUserInterface(aRootView);
-
-		aRootView.finishSetup();
+		createRootView();
 	}
 
 	/***************************************
 	 * Creates the root view of this fragment. Can be overridden by subclasses
-	 * to return a different view than the default instance of {@link UiRootView}
-	 * with a fill layout.
+	 * to return a different view than the default instance of {@link
+	 * UiRootView} with a fill layout.
 	 *
 	 * @return The fragment's root view
 	 */
 	private UiRootView createRootView()
 	{
-		return new UiRootView(this, new UiLayout(LayoutType.FILL));
+		return new UiRootView(this, new UiLayout(LayoutType.FILL))
+		{
+			@Override
+			protected void build()
+			{
+				buildUserInterface(this);
+			}
+		};
 	}
 }

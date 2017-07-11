@@ -30,7 +30,8 @@ import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
  *
  * @author eso
  */
-public class UiLabel extends UiComponent<String, UiLabel> implements TextAttribute
+public class UiLabel extends UiComponent<String, UiLabel>
+	implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -56,7 +57,7 @@ public class UiLabel extends UiComponent<String, UiLabel> implements TextAttribu
 	@Override
 	public String getText()
 	{
-		return value();
+		return fragment().getParameter(type());
 	}
 
 	/***************************************
@@ -75,6 +76,6 @@ public class UiLabel extends UiComponent<String, UiLabel> implements TextAttribu
 	@Override
 	public void setText(String sText)
 	{
-		value(sText);
+		fragment().setParameter(type(), sText);
 	}
 }

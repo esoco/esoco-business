@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.process.ui.event.HasFocusEvents;
+
 import org.obrel.core.RelationType;
 
 
@@ -25,6 +27,7 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
+	implements HasFocusEvents<T, UiComponent<?, C>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -39,7 +42,7 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 
 		if (rDatatype != null)
 		{
-			input();
+			fragment().addInputParameters(type());
 		}
 	}
 
@@ -62,6 +65,6 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 			fragment().getTemporaryListType(null, rElementDatatype);
 
 		setParameterType(rListType);
-		input();
+		fragment().addInputParameters(rListType);
 	}
 }

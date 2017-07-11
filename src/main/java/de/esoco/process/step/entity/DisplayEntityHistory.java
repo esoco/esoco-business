@@ -31,7 +31,6 @@ import de.esoco.lib.event.EditListener;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
-import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
@@ -946,20 +945,6 @@ public class DisplayEntityHistory extends InteractionFragment
 				setParameter(ENTITY_HISTORY_TYPES,
 							 new LinkedHashSet<>(getParameter(HISTORY_TYPE_OPTIONS)));
 			}
-			else if (rInteractionParam == ENABLE_HISTORY_ORIGIN)
-			{
-				@SuppressWarnings("boxing")
-				boolean bEnableOrigins = param(ENABLE_HISTORY_ORIGIN).value();
-
-				Parameter<String> rOrigin = param(ENTITY_HISTORY_ORIGIN);
-
-				rOrigin.setEnabled(bEnableOrigins);
-
-				if (!bEnableOrigins)
-				{
-					rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
-				}
-			}
 
 			rChangeListener.update();
 		}
@@ -1010,7 +995,7 @@ public class DisplayEntityHistory extends InteractionFragment
 						   rHistoryTypes);
 
 			param(ENABLE_HISTORY_ORIGIN).label("")
-										.interactive(InteractionEventType.ACTION);
+										.onAction(this::setOriginsEnabled);
 			param(ENTITY_HISTORY_ORIGIN).sameRow().disable();
 			param(HISTORY_TYPE_OPTIONS).colSpan(2);
 			param(ENTITY_HISTORY_DATE).colSpan(2);
@@ -1019,6 +1004,23 @@ public class DisplayEntityHistory extends InteractionFragment
 			setUIProperty(RESOURCE_ID,
 						  StandardDateRange.class.getSimpleName(),
 						  ENTITY_HISTORY_DATE);
+		}
+
+		/***************************************
+		 * Sets the state of the history origins display.
+		 *
+		 * @param bEnable TRUE to enable
+		 */
+		private void setOriginsEnabled(boolean bEnable)
+		{
+			Parameter<String> rOrigin = param(ENTITY_HISTORY_ORIGIN);
+
+			rOrigin.setEnabled(bEnable);
+
+			if (!bEnable)
+			{
+				rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
+			}
 		}
 	}
 }

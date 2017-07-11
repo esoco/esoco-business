@@ -18,6 +18,9 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.Alignment;
 
+import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
+import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
+
 
 /********************************************************************
  * The abstract base class for the elements of layouts.
@@ -92,12 +95,12 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	{
 		if (eHorizontalAlignment != null)
 		{
-			rComponent.alignHorizontal(eHorizontalAlignment);
+			rComponent.set(HORIZONTAL_ALIGN, eHorizontalAlignment);
 		}
 
 		if (eVerticalAlignment != null)
 		{
-			rComponent.alignVertical(eVerticalAlignment);
+			rComponent.set(VERTICAL_ALIGN, eVerticalAlignment);
 		}
 	}
 }

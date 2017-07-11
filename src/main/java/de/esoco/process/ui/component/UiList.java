@@ -63,7 +63,7 @@ public class UiList<T> extends UiListControl<T, UiList<T>>
 	@SuppressWarnings("unchecked")
 	public void setListValues(T... rValues)
 	{
-		allow(rValues);
+		fragment().setAllowedValues(type(), rValues);
 	}
 
 	/***************************************
@@ -73,6 +73,6 @@ public class UiList<T> extends UiListControl<T, UiList<T>>
 	 */
 	public void setListValues(Collection<T> rValues)
 	{
-		allow(rValues);
+		fragment().setAllowedValues(type(), rValues);
 	}
 }

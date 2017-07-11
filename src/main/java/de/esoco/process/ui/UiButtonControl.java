@@ -55,7 +55,7 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	{
 		if (!has(COLUMNS))
 		{
-			columns(rNewButtons.size());
+			set(rNewButtons.size(), COLUMNS);
 		}
 	}
 }

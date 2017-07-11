@@ -27,7 +27,7 @@ import de.esoco.process.ui.event.HasUpdateEvents;
  */
 public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	extends UiControl<T, C> implements HasUpdateEvents<T, C>,
-									 HasActionEvents<T, C>
+									   HasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -42,6 +42,6 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	{
 		super(rParent, rDatatype);
 
-		value(rValue);
+		fragment().setParameter(type(), rValue);
 	}
 }

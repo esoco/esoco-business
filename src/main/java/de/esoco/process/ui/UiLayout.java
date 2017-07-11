@@ -24,6 +24,10 @@ import de.esoco.process.ui.style.SizeUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.LAYOUT;
+
 
 /********************************************************************
  * The base class for layouts of process UI {@link UiContainer Containers}. A
@@ -178,7 +182,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	void applyTo(UiContainer<?> rContainer)
 	{
-		rContainer.layout(eLayoutType);
+		rContainer.set(LAYOUT, eLayoutType);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -193,8 +197,8 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final Row			  rRow;
-		private final Column		  rColumn;
+		private final Row			    rRow;
+		private final Column		    rColumn;
 		private final UiComponent<?, ?> rComponent;
 
 		//~ Constructors -------------------------------------------------------
@@ -234,7 +238,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Cell height(String sHeight)
 		{
-			rComponent.height(sHeight);
+			rComponent.set(HTML_HEIGHT, sHeight);
 
 			return this;
 		}
@@ -258,7 +262,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Cell width(String sWidth)
 		{
-			rComponent.width(sWidth);
+			rComponent.set(HTML_WIDTH, sWidth);
 
 			return this;
 		}

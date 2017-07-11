@@ -30,7 +30,8 @@ import java.util.Collection;
  *
  * @author eso
  */
-public class UiComboBox extends UiTextInputField<UiComboBox> implements TextAttribute
+public class UiComboBox extends UiTextInputField<UiComboBox>
+	implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -54,7 +55,7 @@ public class UiComboBox extends UiTextInputField<UiComboBox> implements TextAttr
 	 */
 	public void setSuggestions(String... rValues)
 	{
-		allow(rValues);
+		fragment().setAllowedValues(type(), rValues);
 	}
 
 	/***************************************
@@ -65,6 +66,6 @@ public class UiComboBox extends UiTextInputField<UiComboBox> implements TextAttr
 	 */
 	public void setSuggestions(Collection<String> rValues)
 	{
-		allow(rValues);
+		fragment().setAllowedValues(type(), rValues);
 	}
 }

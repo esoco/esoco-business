@@ -54,8 +54,8 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 	 * @param eListStyle The style for the rendering of the buttons
 	 */
 	public UiMultiSelectionButtonGroup(UiContainer<?> rParent,
-									 Class<T>	  rDatatype,
-									 ListStyle    eListStyle)
+									   Class<T>		  rDatatype,
+									   ListStyle	  eListStyle)
 	{
 		super(rParent, null);
 
@@ -156,7 +156,7 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 	@Override
 	public List<T> getSelection()
 	{
-		return value();
+		return fragment().getParameter(type());
 	}
 
 	/***************************************
@@ -185,6 +185,6 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 	@Override
 	public void setSelection(List<T> rNewSelection)
 	{
-		value(rNewSelection);
+		fragment().setParameter(type(), rNewSelection);
 	}
 }

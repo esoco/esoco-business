@@ -24,6 +24,8 @@ import de.esoco.process.ui.UiLayout;
 
 import java.util.List;
 
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+
 
 /********************************************************************
  * A panel that layouts in a vertically aligned grid. Components are added to
@@ -57,11 +59,11 @@ public class UiGridPanel extends UiContainer<UiGridPanel>
 	public void newRow()
 	{
 		List<UiComponent<?, ?>> rComponents = getComponents();
-		int					  nCount	  = rComponents.size();
+		int					    nCount	    = rComponents.size();
 
 		for (int i = nRowStart + 1; i < nCount; i++)
 		{
-			rComponents.get(i).sameRow();
+			rComponents.get(i).set(SAME_ROW);
 		}
 
 		nRowStart = nCount;
