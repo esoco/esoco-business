@@ -14,33 +14,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.Selectable;
 
-import de.esoco.process.step.InteractionFragment;
-import de.esoco.process.ui.container.UiRootView;
+import de.esoco.process.ui.UiButtonControl;
+import de.esoco.process.ui.UiContainer;
 
 
 /********************************************************************
- * An interactive process fragment that renders UI components (subclasses of
- * {@link UiComponent}).
+ * A check box button that has a selectable state.
  *
  * @author eso
  */
-public abstract class UiFragment extends InteractionFragment
+public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
+	implements Selectable
 {
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
+	 *
+	 * @param rParent The parent container
+	 * @param sLabel  The check box label
 	 */
-	public UiFragment()
+	public UiCheckBox(UiContainer<?> rParent, String sLabel)
 	{
+		super(rParent, Boolean.class);
+
+		label(sLabel);
+		hideLabel();
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -49,41 +52,19 @@ public abstract class UiFragment extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init() throws Exception
+	@SuppressWarnings("boxing")
+	public boolean isSelected()
 	{
-		layout(LayoutType.INLINE);
+		return value();
 	}
-
-	/***************************************
-	 * Must be implemented by subclasses to build the application UI in the
-	 * given root view.
-	 *
-	 * @param rRootView The root view
-	 */
-	protected abstract void buildUserInterface(UiRootView rRootView);
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initComplete() throws Exception
+	@SuppressWarnings("boxing")
+	public void setSelected(boolean bSelected)
 	{
-		UiRootView aRootView = createRootView();
-
-		buildUserInterface(aRootView);
-
-		aRootView.finishSetup();
-	}
-
-	/***************************************
-	 * Creates the root view of this fragment. Can be overridden by subclasses
-	 * to return a different view than the default instance of {@link UiRootView}
-	 * with a fill layout.
-	 *
-	 * @return The fragment's root view
-	 */
-	private UiRootView createRootView()
-	{
-		return new UiRootView(this, new UiLayout(LayoutType.FILL));
+		value(bSelected);
 	}
 }

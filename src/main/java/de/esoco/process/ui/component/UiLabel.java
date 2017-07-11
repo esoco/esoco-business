@@ -14,33 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.LabelStyle;
+import de.esoco.lib.property.TextAttribute;
 
-import de.esoco.process.step.InteractionFragment;
-import de.esoco.process.ui.container.UiRootView;
+import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.UiContainer;
+
+import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
 /********************************************************************
- * An interactive process fragment that renders UI components (subclasses of
- * {@link UiComponent}).
+ * A UI label.
  *
  * @author eso
  */
-public abstract class UiFragment extends InteractionFragment
+public class UiLabel extends UiComponent<String, UiLabel> implements TextAttribute
 {
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
+	 *
+	 * @param rParent rContainer rFragment The fragment
+	 * @param sText   The label text
 	 */
-	public UiFragment()
+	public UiLabel(UiContainer<?> rParent, String sText)
 	{
+		super(rParent, String.class);
+
+		setText(sText);
+		hideLabel();
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -49,41 +54,27 @@ public abstract class UiFragment extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init() throws Exception
+	public String getText()
 	{
-		layout(LayoutType.INLINE);
+		return value();
 	}
 
 	/***************************************
-	 * Must be implemented by subclasses to build the application UI in the
-	 * given root view.
+	 * Sets the style of this label.
 	 *
-	 * @param rRootView The root view
+	 * @param eStyle The label style
 	 */
-	protected abstract void buildUserInterface(UiRootView rRootView);
+	public void setLabelStyle(LabelStyle eStyle)
+	{
+		set(LABEL_STYLE, eStyle);
+	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initComplete() throws Exception
+	public void setText(String sText)
 	{
-		UiRootView aRootView = createRootView();
-
-		buildUserInterface(aRootView);
-
-		aRootView.finishSetup();
-	}
-
-	/***************************************
-	 * Creates the root view of this fragment. Can be overridden by subclasses
-	 * to return a different view than the default instance of {@link UiRootView}
-	 * with a fill layout.
-	 *
-	 * @return The fragment's root view
-	 */
-	private UiRootView createRootView()
-	{
-		return new UiRootView(this, new UiLayout(LayoutType.FILL));
+		value(sText);
 	}
 }

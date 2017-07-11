@@ -14,29 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
-
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
-
+package de.esoco.process.ui;
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * The base class for top-level UI rendering contexts.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public abstract class UiView<V extends UiView<V>> extends UiContainer<V>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
+	 * Creates a new instance.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * @param rParent The parent view
+	 * @param rLayout The view layout
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	public UiView(UiView<?> rParent, UiLayout rLayout)
+	{
+		super(rParent, rLayout);
+	}
 }

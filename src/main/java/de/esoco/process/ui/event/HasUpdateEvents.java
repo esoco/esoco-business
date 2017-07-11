@@ -17,7 +17,7 @@
 package de.esoco.process.ui.event;
 
 import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.Component;
+import de.esoco.process.ui.UiComponent;
 
 
 /********************************************************************
@@ -25,7 +25,7 @@ import de.esoco.process.ui.Component;
  *
  * @author eso
  */
-public interface HasUpdateEvents<T, C extends Component<?, ?>>
+public interface HasUpdateEvents<T, C extends UiComponent<?, ?>>
 {
 	//~ Methods ----------------------------------------------------------------
 

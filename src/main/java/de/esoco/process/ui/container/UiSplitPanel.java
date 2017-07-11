@@ -14,29 +14,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
+package de.esoco.process.ui.container;
 
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
+import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.Orientation;
+
+import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayout;
+
+import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * A panel that layouts components so that they can be resized with a split
+ * control between them.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public class UiSplitPanel extends UiContainer<UiSplitPanel>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
+	 * Creates a new instance.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * @param rParent      The parent container
+	 * @param eOrientation bVertical TRUE for vertical orientation
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	public UiSplitPanel(UiContainer<?> rParent, Orientation eOrientation)
+	{
+		super(rParent, new UiLayout(LayoutType.SPLIT));
+
+		if (eOrientation == Orientation.VERTICAL)
+		{
+			set(VERTICAL);
+		}
+	}
 }

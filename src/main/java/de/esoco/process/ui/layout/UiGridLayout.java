@@ -14,29 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
+package de.esoco.process.ui.layout;
 
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
+import de.esoco.lib.property.LayoutType;
+
+import de.esoco.process.ui.UiLayout;
 
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * Places components in a two-dimensional grid structure.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public class UiGridLayout extends UiLayout
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
+	 * Creates a new instance.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * @param nColumns The number of columns in the grid
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	public UiGridLayout(int nColumns)
+	{
+		super(LayoutType.CSS_GRID, nColumns);
+	}
 }

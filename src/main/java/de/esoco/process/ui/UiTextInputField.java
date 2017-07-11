@@ -14,29 +14,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
+package de.esoco.process.ui;
 
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
+import de.esoco.lib.property.TextAttribute;
 
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * A text input field.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public abstract class UiTextInputField<T extends UiTextInputField<T>>
+	extends UiInputField<String, T> implements TextAttribute
 {
+	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance.
+	 *
+	 * @param rParent rContainer rFragment The parent fragment
+	 * @param sText   The initial text
+	 */
+	public UiTextInputField(UiContainer<?> rParent, String sText)
+	{
+		super(rParent, String.class, sText);
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
-	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * {@inheritDoc}
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	@Override
+	public String getText()
+	{
+		return value();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setText(String sText)
+	{
+		value(sText);
+	}
 }

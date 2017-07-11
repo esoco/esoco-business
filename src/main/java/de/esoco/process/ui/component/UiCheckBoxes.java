@@ -14,29 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
+package de.esoco.process.ui.component;
 
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
+import de.esoco.lib.property.ListStyle;
+
+import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiMultiSelectionButtonGroup;
 
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * A group of checkboxes that have a selection state that can be toggled
+ * independent from each other (other than {@link RadioButtonGroup} where the
+ * selection is mutually exclusive). The datatype defines the type of the button
+ * labels. Typically string and enum values are supported.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public class UiCheckBoxes<T> extends UiMultiSelectionButtonGroup<T, UiCheckBoxes<T>>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as buttons.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the check box labels
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	public UiCheckBoxes(UiContainer<?> rParent, Class<T> rDatatype)
+	{
+		super(rParent, rDatatype, ListStyle.DISCRETE);
+	}
 }

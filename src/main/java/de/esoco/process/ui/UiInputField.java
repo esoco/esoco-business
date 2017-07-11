@@ -14,29 +14,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
+package de.esoco.process.ui;
 
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.event.HasActionEvents;
+import de.esoco.process.ui.event.HasUpdateEvents;
 
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * The base class for input fields.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public abstract class UiInputField<T, C extends UiInputField<T, C>>
+	extends UiControl<T, C> implements HasUpdateEvents<T, C>,
+									 HasActionEvents<T, C>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
+	 * Creates a new instance.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * @param rParent   The parent container
+	 * @param rDatatype The value datatype
+	 * @param rValue    The initial value
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	public UiInputField(UiContainer<?> rParent, Class<T> rDatatype, T rValue)
+	{
+		super(rParent, rDatatype);
+
+		value(rValue);
+	}
 }

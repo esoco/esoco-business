@@ -14,29 +14,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.event;
+package de.esoco.process.ui.component;
 
-import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.UiComponent;
+import de.esoco.lib.property.ListStyle;
+
+import de.esoco.process.ui.UiButtonGroup;
+import de.esoco.process.ui.UiContainer;
 
 
 /********************************************************************
- * Indicates that a component can produce action events upon some respective
- * interaction.
+ * A group of buttons with mutual exclusive selection. The datatype defines the
+ * type of the button labels. Typically string and enum values are supported.
  *
  * @author eso
  */
-public interface HasActionEvents<T, C extends UiComponent<?, ?>>
+public class UiRadioButtons<T> extends UiButtonGroup<T, UiRadioButtons<T>>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
-	 * new component value.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as buttons.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
-	 * @return The component the handler has been registered on
+	 * @param rParent   The parent container
+	 * @param rDatatype The datatype of the list values
 	 */
-	public C onAction(ValueEventHandler<T> rEventHandler);
+	public UiRadioButtons(UiContainer<?> rParent, Class<T> rDatatype)
+	{
+		super(rParent, rDatatype, ListStyle.DISCRETE);
+	}
 }
