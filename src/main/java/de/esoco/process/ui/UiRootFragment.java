@@ -28,7 +28,7 @@ import de.esoco.process.ui.container.UiRootView;
  *
  * @author eso
  */
-public abstract class UiFragment extends InteractionFragment
+public abstract class UiRootFragment extends InteractionFragment
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -39,7 +39,7 @@ public abstract class UiFragment extends InteractionFragment
 	/***************************************
 	 * Creates a new instance.
 	 */
-	public UiFragment()
+	public UiRootFragment()
 	{
 	}
 
