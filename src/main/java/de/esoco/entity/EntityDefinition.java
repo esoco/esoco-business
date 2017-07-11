@@ -1246,7 +1246,7 @@ public class EntityDefinition<E extends Entity>
 	{
 		if (rAdditionalProperties != null)
 		{
-			rProperties.setProperties(rAdditionalProperties);
+			rProperties.setProperties(rAdditionalProperties, true);
 		}
 	}
 

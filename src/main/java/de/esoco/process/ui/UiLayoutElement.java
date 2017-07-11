@@ -17,6 +17,9 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.MutableProperties;
+import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.StringProperties;
 
 import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
@@ -31,8 +34,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Alignment eHorizontalAlignment = null;
-	private Alignment eVerticalAlignment   = null;
+	private MutableProperties aProperties = new StringProperties();
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -46,9 +48,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	@SuppressWarnings("unchecked")
 	public final E alignHorizontal(Alignment eAlignment)
 	{
-		eHorizontalAlignment = eAlignment;
-
-		return (E) this;
+		return set(HORIZONTAL_ALIGN, eAlignment);
 	}
 
 	/***************************************
@@ -61,9 +61,19 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	@SuppressWarnings("unchecked")
 	public final E alignVertical(Alignment eAlignment)
 	{
-		eVerticalAlignment = eAlignment;
+		return set(VERTICAL_ALIGN, eAlignment);
+	}
 
-		return (E) this;
+	/***************************************
+	 * Returns the value of a certain property of this element.
+	 *
+	 * @param  rProperty The property name
+	 *
+	 * @return The property value
+	 */
+	public final <V> V get(PropertyName<V> rProperty)
+	{
+		return aProperties.getProperty(rProperty, null);
 	}
 
 	/***************************************
@@ -73,7 +83,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 */
 	public final Alignment getHorizontalAlignment()
 	{
-		return eHorizontalAlignment;
+		return get(HORIZONTAL_ALIGN);
 	}
 
 	/***************************************
@@ -83,7 +93,66 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 */
 	public final Alignment getVerticalAlignment()
 	{
-		return eVerticalAlignment;
+		return get(VERTICAL_ALIGN);
+	}
+
+	/***************************************
+	 * Checks if a certain property exists in this element.
+	 *
+	 * @param  rProperty The property name
+	 *
+	 * @return TRUE if the property exists
+	 */
+	public final boolean has(PropertyName<?> rProperty)
+	{
+		return aProperties.hasProperty(rProperty);
+	}
+
+	/***************************************
+	 * Sets a certain boolean property of this element.
+	 *
+	 * @param  rFlag rProperty The property name
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final E set(PropertyName<Boolean> rFlag)
+	{
+		aProperties.setFlag(rFlag);
+
+		return (E) this;
+	}
+
+	/***************************************
+	 * Sets a certain property of this element.
+	 *
+	 * @param  rProperty The property name
+	 * @param  rValue    The property value
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final <V> E set(PropertyName<V> rProperty, V rValue)
+	{
+		aProperties.setProperty(rProperty, rValue);
+
+		return (E) this;
+	}
+
+	/***************************************
+	 * Sets a certain property of this element.
+	 *
+	 * @param  rProperty The property name
+	 * @param  nValue    The property value
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final E set(PropertyName<Integer> rProperty, int nValue)
+	{
+		aProperties.setProperty(rProperty, nValue);
+
+		return (E) this;
 	}
 
 	/***************************************
@@ -93,14 +162,6 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 */
 	void applyDefaults(UiComponent<?, ?> rComponent)
 	{
-		if (eHorizontalAlignment != null)
-		{
-			rComponent.set(HORIZONTAL_ALIGN, eHorizontalAlignment);
-		}
-
-		if (eVerticalAlignment != null)
-		{
-			rComponent.set(VERTICAL_ALIGN, eVerticalAlignment);
-		}
+		MutableProperties rComponentProperties = rComponent.getUiProperties();
 	}
 }

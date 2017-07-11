@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.MutableProperties;
+
 import de.esoco.process.ParameterWrapper;
 
 
@@ -92,6 +94,16 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 */
 	protected void finishSetup()
 	{
+	}
+
+	/***************************************
+	 * Internal method to return the UI properties of this component.
+	 *
+	 * @return The UI properties or NULL for none
+	 */
+	MutableProperties getUiProperties()
+	{
+		return fragment().getUIProperties(type());
 	}
 
 	/***************************************
