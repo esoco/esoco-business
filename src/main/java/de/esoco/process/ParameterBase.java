@@ -611,17 +611,14 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Marks the wrapped relation type to be displayed as editable in the
-	 * fragment this parameter belongs to.
+	 * Overridden to be public.
 	 *
-	 * @return This instance for concatenation
+	 * @see ParameterWrapper#input()
 	 */
-	@SuppressWarnings("unchecked")
+	@Override
 	public P input()
 	{
-		rFragment.addInputParameters(rParamType);
-
-		return (P) this;
+		return super.input();
 	}
 
 	/***************************************

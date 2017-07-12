@@ -401,7 +401,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 		}
 
 		rInteractionEventTypes.add(eEventType);
-		fragment().addInputParameters(type());
+		input();
 
 		return set(INTERACTION_EVENT_TYPES, rInteractionEventTypes);
 	}
@@ -417,6 +417,20 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	protected final void setParameterType(RelationType<T> rParamType)
 	{
 		this.rParamType = rParamType;
+	}
+
+	/***************************************
+	 * Internal method to mark the wrapped relation type to be displayed as
+	 * editable in the fragment this parameter belongs to.
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	P input()
+	{
+		rFragment.addInputParameters(rParamType);
+
+		return (P) this;
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
