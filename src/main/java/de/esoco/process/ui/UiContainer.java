@@ -124,7 +124,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	public UiCheckBoxes<String> addCheckBoxes(String... rLabels)
 	{
-		UiCheckBoxes<String> aCheckBoxes = new UiCheckBoxes<>(this, String.class);
+		UiCheckBoxes<String> aCheckBoxes =
+			new UiCheckBoxes<>(this, String.class);
 
 		aCheckBoxes.addButtons(rLabels);
 
@@ -288,7 +289,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @return The new component
 	 */
-	public <E extends Enum<E>> UiPushButtons<E> addPushButtons(Class<E> rEnumType)
+	public <E extends Enum<E>> UiPushButtons<E> addPushButtons(
+		Class<E> rEnumType)
 	{
 		return new UiPushButtons<>(this, rEnumType);
 	}
@@ -300,7 +302,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @return The new component
 	 */
-	public <E extends Entity> UiQueryTable<E> addQueryTable(Class<E> rEntityType)
+	public <E extends Entity> UiQueryTable<E> addQueryTable(
+		Class<E> rEntityType)
 	{
 		return new UiQueryTable<>(this, rEntityType);
 	}
@@ -445,15 +448,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Applies the layout to this container. Will be invoked after the container
-	 * has been added to it's parent.
-	 */
-	protected void applyLayout()
-	{
-		rLayout.applyTo(this);
-	}
-
-	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
 	 * after creation. This may also be used in combination. In that case this
@@ -484,16 +478,16 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * Overridden to apply the container layout and to invoke this method
 	 * recursively on all child components.
 	 *
-	 * @see UiComponent#finishSetup()
+	 * @see UiComponent#applyProperties()
 	 */
 	@Override
-	protected void finishSetup()
+	protected void applyProperties()
 	{
-		applyLayout();
+		rLayout.applyTo(this);
 
 		for (UiComponent<?, ?> rChild : rComponents)
 		{
-			rChild.finishSetup();
+			rChild.applyProperties();
 		}
 	}
 

@@ -17,8 +17,13 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.MutableProperties;
+import de.esoco.lib.property.PropertyName;
 
 import de.esoco.process.ParameterWrapper;
+import de.esoco.process.ui.style.SizeUnit;
+
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 
 
 /********************************************************************
@@ -89,10 +94,37 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
-	 * Will be invoked to finish the setup of this component after it has been
-	 * attached to it's container.
+	 * Sets the height of this component.
+	 *
+	 * @param  nHeight The height value
+	 * @param  eUnit   The height unit
+	 *
+	 * @return This instance for concatenation
 	 */
-	protected void finishSetup()
+	public C height(int nHeight, SizeUnit eUnit)
+	{
+		return size(HTML_HEIGHT, nHeight, eUnit);
+	}
+
+	/***************************************
+	 * Sets the width of this component.
+	 *
+	 * @param  nWidth The width value
+	 * @param  eUnit  The width unit
+	 *
+	 * @return This instance for concatenation
+	 */
+	public C width(int nWidth, SizeUnit eUnit)
+	{
+		return size(HTML_WIDTH, nWidth, eUnit);
+	}
+
+	/***************************************
+	 * Will be invoked to apply all properties of this component to the
+	 * corresponding process parameter after it has been attached to the parent
+	 * container.
+	 */
+	protected void applyProperties()
 	{
 		rLayoutCell.applyPropertiesTo(this);
 	}
@@ -117,5 +149,19 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	void setLayoutCell(UiLayout.Cell rCell)
 	{
 		rLayoutCell = rCell;
+	}
+
+	/***************************************
+	 * Internal method to set a string size property.
+	 *
+	 * @param  rSizeProperty The size property
+	 * @param  nSize         The size value
+	 * @param  eUnit         The size unit
+	 *
+	 * @return This instance to allow fluent invocations
+	 */
+	C size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit)
+	{
+		return set(rSizeProperty, eUnit.getHtmlSize(nSize));
 	}
 }

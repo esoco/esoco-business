@@ -45,7 +45,7 @@ public abstract class UiRootView extends UiView<UiRootView>
 		setFragment(rFragment);
 		setParameterType(rFragment.getFragmentParameter());
 		build();
-		finishSetup();
+		applyProperties();
 	}
 
 	//~ Methods ----------------------------------------------------------------

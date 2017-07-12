@@ -42,12 +42,14 @@ public enum SizeUnit
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the HTML size unit token.
+	 * Generates a HTML size string with this unit from a certain integer value.
 	 *
-	 * @return The token
+	 * @param  nSizeValue The integer size value
+	 *
+	 * @return The HTML size string
 	 */
-	public final String getHtmlSizeUnit()
+	public final String getHtmlSize(int nSizeValue)
 	{
-		return sHtmlSizeUnit;
+		return nSizeValue + sHtmlSizeUnit;
 	}
 }
