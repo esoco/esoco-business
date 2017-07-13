@@ -139,6 +139,19 @@ public class UiStyle extends UiElement<UiStyle>
 	}
 
 	/***************************************
+	 * Sets the height of a text line in the component.
+	 *
+	 * @param  nHeight The height value
+	 * @param  eUnit   The height unit
+	 *
+	 * @return This instance for concatenation
+	 */
+	public UiStyle lineHeight(int nHeight, SizeUnit eUnit)
+	{
+		return css("lineHeight", eUnit.getHtmlSize(nHeight));
+	}
+
+	/***************************************
 	 * Sets the component margin.
 	 *
 	 * @param  sMargin sPadding The HTML margin definition string

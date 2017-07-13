@@ -20,6 +20,7 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
+import de.esoco.process.ui.UiStyle;
 
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
@@ -90,19 +91,20 @@ public class UiGridLayout extends UiLayout
 			sColumnsTemplate.append(' ');
 		}
 
-		rContainer.style().css("display", "grid")
-				  .css("gridTemplateRows", sRowsTemplate.toString().trim())
-				  .css("gridTemplateColumns",
-					   sColumnsTemplate.toString().trim());
+		UiStyle rStyle = rContainer.style();
+
+		rStyle.css("display", "grid")
+			  .css("gridTemplateRows", sRowsTemplate.toString().trim())
+			  .css("gridTemplateColumns", sColumnsTemplate.toString().trim());
 
 		if (sColumnGap != null)
 		{
-			rContainer.style().css("gridColumnGap", sColumnGap);
+			rStyle.css("gridColumnGap", sColumnGap);
 		}
 
 		if (sRowGap != null)
 		{
-			rContainer.style().css("gridRowGap", sRowGap);
+			rStyle.css("gridRowGap", sRowGap);
 		}
 	}
 }
