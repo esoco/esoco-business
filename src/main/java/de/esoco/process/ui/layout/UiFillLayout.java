@@ -48,7 +48,7 @@ public class UiFillLayout extends UiLayout
 	@Override
 	protected void layoutComponent(UiComponent<?, ?> rComponent)
 	{
-		if (rComponent.getParent().getComponents().size() > 0)
+		if (rComponent.getParent().getComponents().size() > 1)
 		{
 			throw new IllegalStateException("UiFillLayout can only contain a single component");
 		}

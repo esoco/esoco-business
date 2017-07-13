@@ -450,6 +450,15 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only work
+	 * for layouts that support multiple rows of components.
+	 */
+	public void nextRow()
+	{
+		layout().nextRow();
+	}
+
+	/***************************************
 	 * Overridden to apply the container layout and to invoke this method
 	 * recursively on all child components.
 	 *

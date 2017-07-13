@@ -160,16 +160,16 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	/***************************************
 	 * Proceeds to the next row in this layout even if the current row hasn't
 	 * been filled completely yet. Adds a new row if necessary.
-	 *
-	 * @return The new row
 	 */
-	public Row nextRow()
+	public void nextRow()
 	{
-		Row aRow = new Row();
+		nCurrentColumn = 0;
+		nCurrentRow++;
 
-		aRows.add(aRow);
-
-		return aRow;
+		if (aRows.size() <= nCurrentRow)
+		{
+			aRows.add(new Row());
+		}
 	}
 
 	/***************************************
@@ -185,15 +185,9 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 
 		if (nCurrentColumn >= aColumns.size())
 		{
-			nCurrentColumn = 0;
-			nCurrentRow++;
-
-			if (aRows.size() <= nCurrentRow)
-			{
-				nextRow();
-			}
+			nextRow();
 		}
-		else
+		else if (nCurrentColumn > 1)
 		{
 			rComponent.set(UserInterfaceProperties.SAME_ROW);
 		}
