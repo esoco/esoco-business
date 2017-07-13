@@ -66,5 +66,6 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 
 		setParameterType(rListType);
 		fragment().addInputParameters(rListType);
+		getParent().addComponent(this);
 	}
 }

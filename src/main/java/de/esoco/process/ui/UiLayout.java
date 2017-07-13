@@ -19,6 +19,7 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
+import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.ui.style.SizeUnit;
 
@@ -30,7 +31,6 @@ import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
-import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 
 
 /********************************************************************
@@ -180,7 +180,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		}
 		else
 		{
-			rComponent.set(SAME_ROW);
+			rComponent.set(UserInterfaceProperties.SAME_ROW);
 		}
 
 		Row  rRow  = aRows.get(nCurrentRow);

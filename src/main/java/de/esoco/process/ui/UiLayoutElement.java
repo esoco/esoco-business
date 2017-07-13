@@ -70,9 +70,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 */
 	void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
-		MutableProperties rComponentProperties = rComponent.getUiProperties();
-
-		rComponentProperties.setProperties(aProperties, false);
+		rComponent.setProperties(aProperties, false);
 	}
 
 	/***************************************

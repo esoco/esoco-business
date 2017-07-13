@@ -16,8 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.entity.EntityRelationTypes;
+
+import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.StringProperties;
 
 import de.esoco.process.ParameterWrapper;
 import de.esoco.process.ui.style.SizeUnit;
@@ -55,18 +59,14 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 		this.rParent = rParent;
 
-		if (rParent != null)
+		if (rParent != null && rDatatype != null)
 		{
 			rParent.addComponent(this);
+			fragment().addDisplayParameters(type());
 
-			if (rDatatype != null)
+			if (rDatatype.isEnum())
 			{
-				fragment().addDisplayParameters(type());
-
-				if (rDatatype.isEnum())
-				{
-					resid(rDatatype.getSimpleName());
-				}
+				resid(rDatatype.getSimpleName());
 			}
 		}
 	}
@@ -130,16 +130,6 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
-	 * Internal method to return the UI properties of this component.
-	 *
-	 * @return The UI properties or NULL for none
-	 */
-	MutableProperties getUiProperties()
-	{
-		return fragment().getUIProperties(type());
-	}
-
-	/***************************************
 	 * Internal method to set the layout cell in which this component has been
 	 * placed. Will be invoked from {@link
 	 * UiLayout#layoutComponent(UiComponent)}.
@@ -149,6 +139,31 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	void setLayoutCell(UiLayout.Cell rCell)
 	{
 		rLayoutCell = rCell;
+	}
+
+	/***************************************
+	 * Internal method to set the UI properties of this component.
+	 *
+	 * @param rNewProperties The new UI properties
+	 * @param bReplace       TRUE to replace existing properties, FALSE to only
+	 *                       set new properties
+	 */
+	void setProperties(HasProperties rNewProperties, boolean bReplace)
+	{
+		MutableProperties rProperties = fragment().getUIProperties(type());
+
+		if (rProperties == null)
+		{
+			rProperties = new StringProperties(rNewProperties);
+			fragment().annotateParameter(type(),
+										 null,
+										 EntityRelationTypes.DISPLAY_PROPERTIES,
+										 rProperties);
+		}
+		else
+		{
+			rProperties.setProperties(rNewProperties, bReplace);
+		}
 	}
 
 	/***************************************
