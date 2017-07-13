@@ -40,6 +40,8 @@ import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -72,6 +74,7 @@ import static de.esoco.lib.property.LayoutProperties.TEXT_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
+import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.STYLE;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
@@ -442,6 +445,31 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 			new RelationAccessor<>(rCoupledRelatable, rCoupledType);
 
 		return couple(aAccessor, aAccessor);
+	}
+
+	/***************************************
+	 * Sets a CSS style property for the parameter.
+	 *
+	 * @param  sCssProperty The name of the CSS property
+	 * @param  sValue       The value of the CSS property or NULL to clear
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P css(String sCssProperty, String sValue)
+	{
+		Map<String, String> rCssStyles =
+			rFragment.getUIProperty(CSS_STYLES, rParamType);
+
+		if (rCssStyles == null)
+		{
+			rCssStyles = new HashMap<>();
+		}
+
+		rCssStyles.put(sCssProperty, sValue != null ? sValue : "");
+		set(CSS_STYLES, rCssStyles);
+
+		return (P) this;
 	}
 
 	/***************************************

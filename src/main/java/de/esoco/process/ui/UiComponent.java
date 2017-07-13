@@ -42,6 +42,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 	private final UiContainer<?> rParent;
 	private UiLayout.Cell		 rLayoutCell;
+	private UiStyle				 aStyle = new UiStyle();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -107,6 +108,32 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Returns the style object of this component which provides methods to
+	 * modify the component's appearance.
+	 *
+	 * @return The component style
+	 */
+	public final UiStyle style()
+	{
+		return aStyle;
+	}
+
+	/***************************************
+	 * Sets the style of this component to a copy of an existing style
+	 * definition.
+	 *
+	 * @param  rStyle The style object to apply
+	 *
+	 * @return The component style to allow subsequent modifications
+	 */
+	public final UiStyle style(UiStyle rStyle)
+	{
+		aStyle = new UiStyle(rStyle);
+
+		return aStyle;
+	}
+
+	/***************************************
 	 * Sets the width of this component.
 	 *
 	 * @param  nWidth The width value
@@ -127,6 +154,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	protected void applyProperties()
 	{
 		rLayoutCell.applyPropertiesTo(this);
+		aStyle.applyPropertiesTo(this);
 	}
 
 	/***************************************

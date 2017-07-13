@@ -17,9 +17,6 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.Alignment;
-import de.esoco.lib.property.MutableProperties;
-import de.esoco.lib.property.PropertyName;
-import de.esoco.lib.property.StringProperties;
 
 import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
@@ -31,11 +28,8 @@ import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
  * @author eso
  */
 public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
+	extends UiElement<E>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private MutableProperties aProperties = new StringProperties();
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -60,72 +54,5 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	public final E alignVertical(Alignment eAlignment)
 	{
 		return set(VERTICAL_ALIGN, eAlignment);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString()
-	{
-		return String.format("%s%s", getClass().getSimpleName(), aProperties);
-	}
-
-	/***************************************
-	 * Applies the properties of this layout element to the given component if
-	 * they are not already set.
-	 *
-	 * @param rComponent The target component
-	 */
-	void applyPropertiesTo(UiComponent<?, ?> rComponent)
-	{
-		rComponent.setProperties(aProperties, false);
-	}
-
-	/***************************************
-	 * Sets a certain boolean property of this element.
-	 *
-	 * @param  rFlag rProperty The property name
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	final E set(PropertyName<Boolean> rFlag)
-	{
-		aProperties.setFlag(rFlag);
-
-		return (E) this;
-	}
-
-	/***************************************
-	 * Sets a certain property of this element.
-	 *
-	 * @param  rProperty The property name
-	 * @param  rValue    The property value
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	final <V> E set(PropertyName<V> rProperty, V rValue)
-	{
-		aProperties.setProperty(rProperty, rValue);
-
-		return (E) this;
-	}
-
-	/***************************************
-	 * Sets a certain property of this element.
-	 *
-	 * @param  rProperty The property name
-	 * @param  nValue    The property value
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	final E set(PropertyName<Integer> rProperty, int nValue)
-	{
-		aProperties.setProperty(rProperty, nValue);
-
-		return (E) this;
 	}
 }

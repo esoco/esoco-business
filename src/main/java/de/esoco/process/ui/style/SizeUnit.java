@@ -21,7 +21,8 @@ package de.esoco.process.ui.style;
  */
 public enum SizeUnit
 {
-	CHAR("em"), FRACTION("fr"), PERCENT("%"), PIXEL("px"), POINT("pt");
+	CHAR("em"), FRACTION("fr"), PERCENT("%"), PIXEL("px"), POINT("pt"),
+	ROOT_CHAR("rem");
 
 	//~ Instance fields --------------------------------------------------------
 

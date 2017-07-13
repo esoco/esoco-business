@@ -48,10 +48,12 @@ public class UiTextArea extends UiTextInputField<UiTextArea>
 	/***************************************
 	 * Sets the number of rows that should be displayed.
 	 *
-	 * @param nRows The visible rows
+	 * @param  nRows The visible rows
+	 *
+	 * @return This instance for concatenation
 	 */
-	public void setVisibleRows(int nRows)
+	public UiTextArea visibleRows(int nRows)
 	{
-		set(nRows, ROWS);
+		return set(nRows, ROWS);
 	}
 }

@@ -37,7 +37,6 @@ import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
 import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_TYPES;
-import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
@@ -93,31 +92,6 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	public final P clear(PropertyName<Boolean> rProperty)
 	{
 		rFragment.clearUIFlag(rProperty, rParamType);
-
-		return (P) this;
-	}
-
-	/***************************************
-	 * Sets a CSS style property for the parameter.
-	 *
-	 * @param  sCssProperty The name of the CSS property
-	 * @param  sValue       The value of the CSS property or NULL to clear
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	public final P css(String sCssProperty, String sValue)
-	{
-		Map<String, String> rCssStyles =
-			rFragment.getUIProperty(CSS_STYLES, rParamType);
-
-		if (rCssStyles == null)
-		{
-			rCssStyles = new HashMap<>();
-		}
-
-		rCssStyles.put(sCssProperty, sValue != null ? sValue : "");
-		set(CSS_STYLES, rCssStyles);
 
 		return (P) this;
 	}
