@@ -76,17 +76,17 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	public UiLayout(LayoutType eLayoutType, int nColumns)
 	{
-		this(eLayoutType, 1, nColumns);
+		this(eLayoutType, nColumns, 1);
 	}
 
 	/***************************************
 	 * Creates a new instance with a fixed number of columns and rows.
 	 *
 	 * @param eLayoutType The layout type
-	 * @param nRows       The number of rows in this layout
 	 * @param nColumns    The number of columns in this layout
+	 * @param nRows       The number of rows in this layout
 	 */
-	public UiLayout(LayoutType eLayoutType, int nRows, int nColumns)
+	public UiLayout(LayoutType eLayoutType, int nColumns, int nRows)
 	{
 		this.eLayoutType = eLayoutType;
 
@@ -104,25 +104,23 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns a certain column.
+	 * Returns the cells in this layout.
 	 *
-	 * @param  nIndex The column index
-	 *
-	 * @return The column
+	 * @return The layout cells
 	 */
-	public Column getColumn(int nIndex)
+	public List<Cell> getCells()
 	{
-		return aColumns.get(nIndex);
+		return aCells;
 	}
 
 	/***************************************
-	 * Returns the number of columns in this layout.
+	 * Returns the columns in this layout.
 	 *
-	 * @return The column count
+	 * @return The column list
 	 */
-	public int getColumnCount()
+	public List<Column> getColumns()
 	{
-		return aColumns.size();
+		return aColumns;
 	}
 
 	/***************************************
@@ -136,25 +134,13 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
-	 * Returns a certain row.
+	 * Returns the rows in this layout.
 	 *
-	 * @param  nIndex The row index
-	 *
-	 * @return The row
+	 * @return The row list
 	 */
-	public Row getRow(int nIndex)
+	public List<Row> getRows()
 	{
-		return aRows.get(nIndex);
-	}
-
-	/***************************************
-	 * Returns the number of rows in this layout.
-	 *
-	 * @return The row count
-	 */
-	public int getRowCount()
-	{
-		return aRows.size();
+		return aRows;
 	}
 
 	/***************************************
@@ -170,6 +156,16 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			aRows.add(new Row());
 		}
+	}
+
+	/***************************************
+	 * Applies this layout to the given container.
+	 *
+	 * @param rContainer The container
+	 */
+	protected void applyTo(UiContainer<?> rContainer)
+	{
+		rContainer.set(LAYOUT, eLayoutType);
 	}
 
 	/***************************************
@@ -193,21 +189,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		Row  rRow  = aRows.get(nCurrentRow);
-		Cell aCell = new Cell(rRow, rCol, rComponent);
+		Cell aCell = new Cell(rCol, rRow, rComponent);
 
 		rComponent.setLayoutCell(aCell);
 
 		aCells.add(aCell);
-	}
-
-	/***************************************
-	 * Applies this layout to the given container.
-	 *
-	 * @param rContainer The container
-	 */
-	void applyTo(UiContainer<?> rContainer)
-	{
-		rContainer.set(LAYOUT, eLayoutType);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -222,8 +208,8 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final Row			    rRow;
 		private final Column		    rColumn;
+		private final Row			    rRow;
 		private final UiComponent<?, ?> rComponent;
 
 		//~ Constructors -------------------------------------------------------
@@ -231,15 +217,18 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param rRow       The row of the cell
 		 * @param rColumn    The column of the cell
+		 * @param rRow       The row of the cell
 		 * @param rComponent The component that has been placed in the layout
 		 */
-		public Cell(Row rRow, Column rColumn, UiComponent<?, ?> rComponent)
+		public Cell(Column rColumn, Row rRow, UiComponent<?, ?> rComponent)
 		{
-			this.rRow	    = rRow;
 			this.rColumn    = rColumn;
+			this.rRow	    = rRow;
 			this.rComponent = rComponent;
+
+			rColumn.aCells.add(this);
+			rRow.aCells.add(this);
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -265,8 +254,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Cell colSpan(RelativeSize eRelativeWidth)
 		{
-			return colSpan(eRelativeWidth.calcSize(getLayout()
-												   .getColumnCount()));
+			return colSpan(eRelativeWidth.calcSize(getColumns().size()));
 		}
 
 		/***************************************
@@ -311,7 +299,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Cell rowSpan(RelativeSize eRelativeHeight)
 		{
-			return rowSpan(eRelativeHeight.calcSize(getLayout().getRowCount()));
+			return rowSpan(eRelativeHeight.calcSize(getRows().size()));
 		}
 
 		/***************************************
@@ -340,6 +328,16 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Returns the component that is placed in this cell.
+		 *
+		 * @return The component
+		 */
+		protected final UiComponent<?, ?> getComponent()
+		{
+			return rComponent;
+		}
+
+		/***************************************
 		 * Overridden to also apply the parent properties if no set in the cell.
 		 *
 		 * @see ChildElement#applyPropertiesTo(UiComponent)
@@ -362,6 +360,10 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	public class Column extends ChildElement<Column>
 	{
+		//~ Instance fields ----------------------------------------------------
+
+		private List<Cell> aCells = new ArrayList<>();
+
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
@@ -374,7 +376,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Column width(RelativeSize eRelativeWidth)
 		{
-			return width(eRelativeWidth.calcSize(getColumnCount()),
+			return width(eRelativeWidth.calcSize(getColumns().size()),
 						 SizeUnit.FRACTION);
 		}
 
@@ -391,6 +393,16 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			return size(HTML_WIDTH, nWidth, eUnit);
 		}
+
+		/***************************************
+		 * Returns the cells in this column.
+		 *
+		 * @return The list of column cells
+		 */
+		protected final List<Cell> getCells()
+		{
+			return aCells;
+		}
 	}
 
 	/********************************************************************
@@ -400,6 +412,10 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	public class Row extends ChildElement<Row>
 	{
+		//~ Instance fields ----------------------------------------------------
+
+		private List<Cell> aCells = new ArrayList<>();
+
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
@@ -411,7 +427,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public Row height(RelativeSize eRelativeHeight)
 		{
-			return height(eRelativeHeight.calcSize(getColumnCount()),
+			return height(eRelativeHeight.calcSize(getRows().size()),
 						  SizeUnit.FRACTION);
 		}
 
@@ -427,6 +443,16 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public Row height(int nHeight, SizeUnit eUnit)
 		{
 			return size(HTML_HEIGHT, nHeight, eUnit);
+		}
+
+		/***************************************
+		 * Returns the cells in this row.
+		 *
+		 * @return The list of row cells
+		 */
+		protected final List<Cell> getCells()
+		{
+			return aCells;
 		}
 	}
 

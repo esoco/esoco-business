@@ -77,7 +77,9 @@ public class UiStyle extends UiElement<UiStyle>
 	}
 
 	/***************************************
-	 * Sets a CSS style property for the parameter.
+	 * Sets a CSS style property for the parameter. The names of multi-word CSS
+	 * properties must be given in CamelCase form without hyphens, starting with
+	 * a lower case letter (e.g. 'font-size' must be set as 'fontSize').
 	 *
 	 * @param  sCssProperty The name of the CSS property
 	 * @param  sValue       The value of the CSS property or NULL to clear
@@ -158,5 +160,17 @@ public class UiStyle extends UiElement<UiStyle>
 	public UiStyle padding(String sPadding)
 	{
 		return css("padding", sPadding);
+	}
+
+	/***************************************
+	 * Sets the style name(s) of a component.
+	 *
+	 * @param  sStyleName The style name(s)
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiStyle styleName(String sStyleName)
+	{
+		return set(StyleProperties.STYLE, sStyleName);
 	}
 }

@@ -23,8 +23,8 @@ import de.esoco.process.ui.UiView;
 
 /********************************************************************
  * The root view of an application UI. All other components or the UI must be
- * (direct or indirect) children of a root view. This class is abstract and must be subclassed
- * to provide an implementation of the {@link #build()} method.
+ * (direct or indirect) children of a root view. This class is abstract and must
+ * be subclassed to provide an implementation of the {@link #build()} method.
  *
  * @author eso
  */

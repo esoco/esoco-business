@@ -54,6 +54,20 @@ public class UiElement<E extends UiElement<E>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Queries a certain property.
+	 *
+	 * @param  rPropertyName The property name
+	 * @param  rDefault      The default value to return if the property doesn't
+	 *                       exist
+	 *
+	 * @return The property value or the default value if it isn't set
+	 */
+	public final <T> T get(PropertyName<T> rPropertyName, T rDefault)
+	{
+		return aProperties.getProperty(rPropertyName, rDefault);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -71,20 +85,6 @@ public class UiElement<E extends UiElement<E>>
 	void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
 		rComponent.setProperties(aProperties, false);
-	}
-
-	/***************************************
-	 * Queries a certain property.
-	 *
-	 * @param  rPropertyName The property name
-	 * @param  rDefault      The default value to return if the property doesn't
-	 *                       exist
-	 *
-	 * @return The property value or the default value if it isn't set
-	 */
-	final <T> T get(PropertyName<T> rPropertyName, T rDefault)
-	{
-		return aProperties.getProperty(rPropertyName, rDefault);
 	}
 
 	/***************************************

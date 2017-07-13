@@ -467,7 +467,11 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	@Override
 	protected void applyProperties()
 	{
+		// apply layout first so it can add styles to the container before
+		// applying them
 		rLayout.applyTo(this);
+
+		super.applyProperties();
 
 		for (UiComponent<?, ?> rChild : rComponents)
 		{
