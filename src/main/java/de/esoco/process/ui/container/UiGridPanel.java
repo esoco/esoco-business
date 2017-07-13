@@ -16,13 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
-
-import java.util.List;
-
-import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 
 
 /********************************************************************
@@ -33,10 +28,6 @@ import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
  */
 public class UiGridPanel extends UiContainer<UiGridPanel>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private int nRowStart = 0;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -47,23 +38,5 @@ public class UiGridPanel extends UiContainer<UiGridPanel>
 	public UiGridPanel(UiContainer<?> rParent)
 	{
 		super(rParent, new UiColumnGridLayout());
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Starts a new row.
-	 */
-	public void newRow()
-	{
-		List<UiComponent<?, ?>> rComponents = getComponents();
-		int					    nCount	    = rComponents.size();
-
-		for (int i = nRowStart + 1; i < nCount; i++)
-		{
-			rComponents.get(i).set(SAME_ROW);
-		}
-
-		nRowStart = nCount;
 	}
 }
