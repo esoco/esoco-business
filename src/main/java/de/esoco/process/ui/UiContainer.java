@@ -444,7 +444,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @return The layout
 	 */
-	public final UiLayout getLayout()
+	public final UiLayout layout()
 	{
 		return rLayout;
 	}

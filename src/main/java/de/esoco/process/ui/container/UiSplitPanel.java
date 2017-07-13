@@ -43,11 +43,34 @@ public class UiSplitPanel extends UiContainer<UiSplitPanel>
 	 */
 	public UiSplitPanel(UiContainer<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, new UiLayout(LayoutType.SPLIT));
+		super(rParent, new SplitLayout(eOrientation));
 
 		if (eOrientation == Orientation.VERTICAL)
 		{
 			set(VERTICAL);
+		}
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * The internal split panel layout.
+	 *
+	 * @author eso
+	 */
+	static class SplitLayout extends UiLayout
+	{
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param eOrientation The layout orientation
+		 */
+		public SplitLayout(Orientation eOrientation)
+		{
+			super(LayoutType.SPLIT,
+				  eOrientation == Orientation.VERTICAL ? 1 : 3);
 		}
 	}
 }

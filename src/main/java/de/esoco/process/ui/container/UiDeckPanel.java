@@ -41,20 +41,40 @@ public class UiDeckPanel extends UiSwitchPanel<UiDeckPanel>
 	 */
 	public UiDeckPanel(UiContainer<?> rParent)
 	{
-		super(rParent, new UiLayout(LayoutType.DECK, 1));
+		super(rParent, new DeckLayout());
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * Adds a new panel as a deck page. This is a variant of the base class
-	 * method {@link #addPage(String, UiLayout)} because the page title is ignored
-	 * in deck panels.
+	 * method {@link #addPage(String, UiLayout)} because the page title is
+	 * ignored in deck panels.
 	 *
 	 * @see #addPage(String, UiLayout)
 	 */
 	public UiPanel addPage(UiLayout eLayout)
 	{
 		return addPage("", eLayout);
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * The internal deck panel layout.
+	 *
+	 * @author eso
+	 */
+	static class DeckLayout extends UiLayout
+	{
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 */
+		public DeckLayout()
+		{
+			super(LayoutType.DECK, 1);
+		}
 	}
 }

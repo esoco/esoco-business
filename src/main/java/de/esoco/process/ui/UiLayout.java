@@ -43,7 +43,7 @@ import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
  *
  * @author eso
  */
-public class UiLayout extends UiLayoutElement<UiLayout>
+public abstract class UiLayout extends UiLayoutElement<UiLayout>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -158,6 +158,21 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
+	 * Proceeds to the next row in this layout even if the current row hasn't
+	 * been filled completely yet. Adds a new row if necessary.
+	 *
+	 * @return The new row
+	 */
+	public Row nextRow()
+	{
+		Row aRow = new Row();
+
+		aRows.add(aRow);
+
+		return aRow;
+	}
+
+	/***************************************
 	 * Internal method to setup the layout for a component after it has been
 	 * added to it's parent container. Invoked by {@link
 	 * UiContainer#addComponent(UiComponent)}.
@@ -199,21 +214,6 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 	void applyTo(UiContainer<?> rContainer)
 	{
 		rContainer.set(LAYOUT, eLayoutType);
-	}
-
-	/***************************************
-	 * Proceeds to the next row in this layout even if the current row hasn't
-	 * been filled completely yet. Adds a new row if necessary.
-	 *
-	 * @return The new row
-	 */
-	Row nextRow()
-	{
-		Row aRow = new Row();
-
-		aRows.add(aRow);
-
-		return aRow;
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

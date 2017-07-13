@@ -26,7 +26,7 @@ import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
- * A panel that layouts components on the edges of it's center area.
+ * A panel that layouts components in and around a center area.
  *
  * @author eso
  */
@@ -42,11 +42,34 @@ public class UiDockPanel extends UiContainer<UiDockPanel>
 	 */
 	public UiDockPanel(UiContainer<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, new UiLayout(LayoutType.DOCK));
+		super(rParent, new DockLayout(eOrientation));
 
 		if (eOrientation == Orientation.VERTICAL)
 		{
 			set(VERTICAL);
+		}
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * The internal dock panel layout.
+	 *
+	 * @author eso
+	 */
+	static class DockLayout extends UiLayout
+	{
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param eOrientation The layout orientation
+		 */
+		public DockLayout(Orientation eOrientation)
+		{
+			super(LayoutType.DOCK,
+				  eOrientation == Orientation.VERTICAL ? 1 : 3);
 		}
 	}
 }

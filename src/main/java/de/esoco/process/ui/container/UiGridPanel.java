@@ -16,11 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiLayout;
+import de.esoco.process.ui.layout.UiColumnGridLayout;
 
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class UiGridPanel extends UiContainer<UiGridPanel>
 	 */
 	public UiGridPanel(UiContainer<?> rParent)
 	{
-		super(rParent, new UiLayout(LayoutType.GRID));
+		super(rParent, new UiColumnGridLayout());
 	}
 
 	//~ Methods ----------------------------------------------------------------

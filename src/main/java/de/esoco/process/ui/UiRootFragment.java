@@ -16,10 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.container.UiRootView;
+import de.esoco.process.ui.layout.UiFillLayout;
 
 
 /********************************************************************
@@ -74,7 +73,7 @@ public abstract class UiRootFragment extends InteractionFragment
 	 */
 	protected UiRootView createRootView()
 	{
-		return new UiRootView(this, new UiLayout(LayoutType.FILL))
+		return new UiRootView(this, new UiFillLayout())
 		{
 			@Override
 			protected void build()

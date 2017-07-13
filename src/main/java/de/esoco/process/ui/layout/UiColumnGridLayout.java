@@ -14,51 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
 
-import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.UiSwitchPanel;
 
 
 /********************************************************************
- * A panel that arranges components in selectable tab pages.
+ * Places components in a horizontal grid structure with a fixed number of
+ * columns.
  *
  * @author eso
  */
-public class UiTabPanel extends UiSwitchPanel<UiTabPanel>
+public class UiColumnGridLayout extends UiLayout
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
-	 *
-	 * @param rParent The parent container
+	 * Creates a new instance that is horizontally subdivided into 12 columns.
 	 */
-	public UiTabPanel(UiContainer<?> rParent)
+	public UiColumnGridLayout()
 	{
-		super(rParent, new TabLayout());
-	}
-
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
-	 * The internal tab panel layout.
-	 *
-	 * @author eso
-	 */
-	static class TabLayout extends UiLayout
-	{
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
-		 * Creates a new instance.
-		 */
-		public TabLayout()
-		{
-			super(LayoutType.TABS);
-		}
+		super(LayoutType.GRID, 12);
 	}
 }

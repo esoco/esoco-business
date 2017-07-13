@@ -40,6 +40,26 @@ public class UiStackPanel extends UiSwitchPanel<UiStackPanel>
 	 */
 	public UiStackPanel(UiContainer<?> rParent)
 	{
-		super(rParent, new UiLayout(LayoutType.STACK));
+		super(rParent, new StackLayout());
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * The internal stack panel layout.
+	 *
+	 * @author eso
+	 */
+	static class StackLayout extends UiLayout
+	{
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 */
+		public StackLayout()
+		{
+			super(LayoutType.STACK);
+		}
 	}
 }

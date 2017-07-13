@@ -18,24 +18,41 @@ package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
 
+import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiLayout;
 
 
 /********************************************************************
- * Places components in a table that is organized by a horizontal grid structure
- * with a fixed number of columns.
+ * A simple layout that accepts a single component that fills the available
+ * area.
  *
  * @author eso
  */
-public class UiGridTableLayout extends UiLayout
+public class UiFillLayout extends UiLayout
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance that is horizontally subdivided into 12 columns.
+	 * Creates a new instance.
 	 */
-	public UiGridTableLayout()
+	public UiFillLayout()
 	{
-		super(LayoutType.CSS_GRID, 12);
+		super(LayoutType.FILL, 1);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * @see UiLayout#layoutComponent(UiComponent)
+	 */
+	@Override
+	protected void layoutComponent(UiComponent<?, ?> rComponent)
+	{
+		if (rComponent.getParent().getComponents().size() > 0)
+		{
+			throw new IllegalStateException("UiFillLayout can only contain a single component");
+		}
+
+		super.layoutComponent(rComponent);
 	}
 }
