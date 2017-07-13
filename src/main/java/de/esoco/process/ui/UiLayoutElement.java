@@ -63,6 +63,15 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString()
+	{
+		return String.format("%s%s", getClass().getSimpleName(), aProperties);
+	}
+
+	/***************************************
 	 * Applies the properties of this layout element to the given component if
 	 * they are not already set.
 	 *

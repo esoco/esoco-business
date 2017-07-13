@@ -98,6 +98,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 
 			rParentFragment.addSubFragment(rContainerParamType,
 										   aContainerFragment);
+
+			rParent.addComponent(this);
 		}
 	}
 
@@ -448,6 +450,23 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Overridden to apply the container layout and to invoke this method
+	 * recursively on all child components.
+	 *
+	 * @see UiComponent#applyProperties()
+	 */
+	@Override
+	protected void applyProperties()
+	{
+		rLayout.applyTo(this);
+
+		for (UiComponent<?, ?> rChild : rComponents)
+		{
+			rChild.applyProperties();
+		}
+	}
+
+	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
 	 * after creation. This may also be used in combination. In that case this
@@ -472,23 +491,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	protected void componentAdded(UiComponent<?, ?> rComponent)
 	{
-	}
-
-	/***************************************
-	 * Overridden to apply the container layout and to invoke this method
-	 * recursively on all child components.
-	 *
-	 * @see UiComponent#applyProperties()
-	 */
-	@Override
-	protected void applyProperties()
-	{
-		rLayout.applyTo(this);
-
-		for (UiComponent<?, ?> rChild : rComponents)
-		{
-			rChild.applyProperties();
-		}
 	}
 
 	/***************************************

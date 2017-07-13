@@ -51,33 +51,28 @@ public abstract class UiRootFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
+		// not needed
 	}
 
 	/***************************************
-	 * Must be implemented by subclasses to build the application UI in the
-	 * given root view.
+	 * Can be implemented by subclasses to build the application UI in the given
+	 * root view after it has been created by {@link #createRootView()}.
 	 *
 	 * @param rRootView The root view
 	 */
-	protected abstract void buildUserInterface(UiRootView rRootView);
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void initComplete() throws Exception
+	protected void buildUserInterface(UiRootView rRootView)
 	{
-		createRootView();
 	}
 
 	/***************************************
 	 * Creates the root view of this fragment. Can be overridden by subclasses
-	 * to return a different view than the default instance of {@link
-	 * UiRootView} with a fill layout.
+	 * to return a different view than the default instance (a {@link
+	 * UiRootView} with a fill layout that invokes {@link
+	 * #buildUserInterface(UiRootView)}).
 	 *
 	 * @return The fragment's root view
 	 */
-	private UiRootView createRootView()
+	protected UiRootView createRootView()
 	{
 		return new UiRootView(this, new UiLayout(LayoutType.FILL))
 		{
@@ -87,5 +82,14 @@ public abstract class UiRootFragment extends InteractionFragment
 				buildUserInterface(this);
 			}
 		};
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void initComplete() throws Exception
+	{
+		createRootView();
 	}
 }
