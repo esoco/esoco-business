@@ -54,6 +54,20 @@ public class UiElement<E extends UiElement<E>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Queries an integer property.
+	 *
+	 * @param  rIntegerProperty The property name
+	 * @param  nDefault         The default value to return if the property
+	 *                          doesn't exist
+	 *
+	 * @return The property value or the default value if it isn't set
+	 */
+	public final int get(PropertyName<Integer> rIntegerProperty, int nDefault)
+	{
+		return aProperties.getIntProperty(rIntegerProperty, nDefault);
+	}
+
+	/***************************************
 	 * Queries a certain property.
 	 *
 	 * @param  rPropertyName The property name
@@ -65,6 +79,18 @@ public class UiElement<E extends UiElement<E>>
 	public final <T> T get(PropertyName<T> rPropertyName, T rDefault)
 	{
 		return aProperties.getProperty(rPropertyName, rDefault);
+	}
+
+	/***************************************
+	 * Checks whether a certain property has been set.
+	 *
+	 * @param  rPropertyName The property name
+	 *
+	 * @return TRUE if the property exists
+	 */
+	public boolean hasProperty(PropertyName<?> rPropertyName)
+	{
+		return aProperties.hasProperty(rPropertyName);
 	}
 
 	/***************************************

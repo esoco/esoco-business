@@ -92,12 +92,12 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 
 		for (int i = 0; i < nColumns; i++)
 		{
-			aColumns.add(new Column());
+			aColumns.add(new Column(i));
 		}
 
 		for (int i = 0; i < nRows; i++)
 		{
-			aRows.add(new Row());
+			aRows.add(new Row(i));
 		}
 	}
 
@@ -152,9 +152,9 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		nCurrentColumn = 0;
 		nCurrentRow++;
 
-		if (aRows.size() <= nCurrentRow)
+		if (aRows.size() == nCurrentRow)
 		{
-			aRows.add(new Row());
+			aRows.add(new Row(nCurrentRow));
 		}
 	}
 
@@ -177,8 +177,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	protected void layoutComponent(UiComponent<?, ?> rComponent)
 	{
-		Column rCol = aColumns.get(nCurrentColumn++);
-
 		if (nCurrentColumn >= aColumns.size())
 		{
 			nextRow();
@@ -188,8 +186,9 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			rComponent.set(UserInterfaceProperties.SAME_ROW);
 		}
 
-		Row  rRow  = aRows.get(nCurrentRow);
-		Cell aCell = new Cell(rCol, rRow, rComponent);
+		Column rCol  = aColumns.get(nCurrentColumn++);
+		Row    rRow  = aRows.get(nCurrentRow);
+		Cell   aCell = new Cell(rCol, rRow, rComponent);
 
 		rComponent.setLayoutCell(aCell);
 
@@ -208,8 +207,8 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final Column		    rColumn;
-		private final Row			    rRow;
+		private Column				    rColumn;
+		private Row					    rRow;
 		private final UiComponent<?, ?> rComponent;
 
 		//~ Constructors -------------------------------------------------------
@@ -227,8 +226,8 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			this.rRow	    = rRow;
 			this.rComponent = rComponent;
 
-			rColumn.aCells.add(this);
-			rRow.aCells.add(this);
+			rColumn.getCells().add(this);
+			rRow.getCells().add(this);
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -258,13 +257,55 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Sets the column in which this cell should be placed.
+		 *
+		 * @param  nColumn The column index
+		 *
+		 * @return This instance for concatenation
+		 */
+		public Cell column(int nColumn)
+		{
+			if (nColumn != rColumn.getIndex())
+			{
+				rColumn.getCells().remove(this);
+				rColumn = getLayout().getColumns().get(nColumn);
+				rColumn.getCells()
+					   .add(Math.min(rColumn.getCells().size(),
+									 rRow.getIndex()),
+							this);
+			}
+
+			return this;
+		}
+
+		/***************************************
 		 * Returns the column of this cell.
 		 *
 		 * @return The column
 		 */
-		public Column column()
+		public Column getColumn()
 		{
 			return rColumn;
+		}
+
+		/***************************************
+		 * Returns the component that is placed in this cell.
+		 *
+		 * @return The component
+		 */
+		public final UiComponent<?, ?> getComponent()
+		{
+			return rComponent;
+		}
+
+		/***************************************
+		 * Returns the row of this cell.
+		 *
+		 * @return The row
+		 */
+		public Row getRow()
+		{
+			return rRow;
 		}
 
 		/***************************************
@@ -281,13 +322,24 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Returns the row of this cell.
+		 * Sets the row in which this cell should be placed.
 		 *
-		 * @return The row
+		 * @param  nRow The row index
+		 *
+		 * @return This instance for concatenation
 		 */
-		public Row row()
+		public Cell row(int nRow)
 		{
-			return rRow;
+			if (nRow != rRow.getIndex())
+			{
+				rRow.getCells().remove(this);
+				rRow = getLayout().getRows().get(nRow);
+				rRow.getCells()
+					.add(Math.min(rRow.getCells().size(), rColumn.getIndex()),
+						 this);
+			}
+
+			return this;
 		}
 
 		/***************************************
@@ -328,16 +380,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Returns the component that is placed in this cell.
-		 *
-		 * @return The component
-		 */
-		protected final UiComponent<?, ?> getComponent()
-		{
-			return rComponent;
-		}
-
-		/***************************************
 		 * Overridden to also apply the parent properties if no set in the cell.
 		 *
 		 * @see ChildElement#applyPropertiesTo(UiComponent)
@@ -358,11 +400,19 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 *
 	 * @author eso
 	 */
-	public class Column extends ChildElement<Column>
+	public class Column extends StructureElement<Column>
 	{
-		//~ Instance fields ----------------------------------------------------
+		//~ Constructors -------------------------------------------------------
 
-		private List<Cell> aCells = new ArrayList<>();
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param nIndex The column index
+		 */
+		public Column(int nIndex)
+		{
+			super(nIndex);
+		}
 
 		//~ Methods ------------------------------------------------------------
 
@@ -393,16 +443,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			return size(HTML_WIDTH, nWidth, eUnit);
 		}
-
-		/***************************************
-		 * Returns the cells in this column.
-		 *
-		 * @return The list of column cells
-		 */
-		protected final List<Cell> getCells()
-		{
-			return aCells;
-		}
 	}
 
 	/********************************************************************
@@ -410,11 +450,19 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 *
 	 * @author eso
 	 */
-	public class Row extends ChildElement<Row>
+	public class Row extends StructureElement<Row>
 	{
-		//~ Instance fields ----------------------------------------------------
+		//~ Constructors -------------------------------------------------------
 
-		private List<Cell> aCells = new ArrayList<>();
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param nIndex The row index
+		 */
+		public Row(int nIndex)
+		{
+			super(nIndex);
+		}
 
 		//~ Methods ------------------------------------------------------------
 
@@ -444,16 +492,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			return size(HTML_HEIGHT, nHeight, eUnit);
 		}
-
-		/***************************************
-		 * Returns the cells in this row.
-		 *
-		 * @return The list of row cells
-		 */
-		protected final List<Cell> getCells()
-		{
-			return aCells;
-		}
 	}
 
 	/********************************************************************
@@ -461,7 +499,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 *
 	 * @author eso
 	 */
-	abstract class ChildElement<E extends ChildElement<E>>
+	protected abstract class ChildElement<E extends ChildElement<E>>
 		extends UiLayoutElement<E>
 	{
 		//~ Methods ------------------------------------------------------------
@@ -488,6 +526,56 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		E size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit)
 		{
 			return set(rSizeProperty, eUnit.getHtmlSize(nSize));
+		}
+	}
+
+	/********************************************************************
+	 * The base class for child elements of layouts that define the layout
+	 * structure (columns and rows).
+	 *
+	 * @author eso
+	 */
+	protected abstract class StructureElement<E extends StructureElement<E>>
+		extends ChildElement<E>
+	{
+		//~ Instance fields ----------------------------------------------------
+
+		private final int nIndex;
+
+		private List<Cell> aCells = new ArrayList<>();
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param nIndex The index of the element in the layout structure
+		 */
+		public StructureElement(int nIndex)
+		{
+			this.nIndex = nIndex;
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Returns the cells in this column.
+		 *
+		 * @return The list of column cells
+		 */
+		public final List<Cell> getCells()
+		{
+			return aCells;
+		}
+
+		/***************************************
+		 * Returns the index of this element in the layout structure.
+		 *
+		 * @return The index
+		 */
+		public final int getIndex()
+		{
+			return nIndex;
 		}
 	}
 }

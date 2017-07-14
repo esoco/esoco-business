@@ -39,7 +39,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final E alignHorizontal(Alignment eAlignment)
+	public E alignHorizontal(Alignment eAlignment)
 	{
 		return set(HORIZONTAL_ALIGN, eAlignment);
 	}
@@ -51,7 +51,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final E alignVertical(Alignment eAlignment)
+	public E alignVertical(Alignment eAlignment)
 	{
 		return set(VERTICAL_ALIGN, eAlignment);
 	}

@@ -16,14 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.layout;
 
+import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiStyle;
 
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
+import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 
 
 /********************************************************************
@@ -37,6 +42,9 @@ public class UiGridLayout extends UiLayout
 
 	private String sColumnGap = null;
 	private String sRowGap    = null;
+
+	private Alignment eHorizontalAlignment = null;
+	private Alignment eVerticalAlignment   = null;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -54,11 +62,45 @@ public class UiGridLayout extends UiLayout
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Sets the horizontal alignment of layout cells. Overridden to store this
+	 * value locally, not in the properties because they must be applied to the
+	 * container instead of the child components.
+	 *
+	 * @param  eAlignment The horizontal alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	@Override
+	public UiGridLayout alignHorizontal(Alignment eAlignment)
+	{
+		eHorizontalAlignment = eAlignment;
+
+		return this;
+	}
+
+	/***************************************
+	 * Sets the vertical alignment value of layout cells. Overridden to store
+	 * this value locally, not in the properties because they must be applied to
+	 * the container instead of the child components.
+	 *
+	 * @param  eAlignment The vertical alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	@Override
+	public UiGridLayout alignVertical(Alignment eAlignment)
+	{
+		eVerticalAlignment = eAlignment;
+
+		return this;
+	}
+
+	/***************************************
 	 * Sets the gaps between layout columns and rows. The default is null, i.e.
 	 * no gap.
 	 *
-	 * @param sColumnGap The column gap in HTML units
-	 * @param sRowGap    The row gap in HTML units
+	 * @param sColumnGap The column gap in HTML units or NULL for the default
+	 * @param sRowGap    The row gap in HTML units or NULL for the default
 	 */
 	public void setGaps(String sColumnGap, String sRowGap)
 	{
@@ -67,15 +109,41 @@ public class UiGridLayout extends UiLayout
 	}
 
 	/***************************************
-	 * Overridden to generate the CSS grid layout styles.
-	 *
-	 * @see UiLayout#applyTo(UiContainer)
+	 * Derives the cell-specific CSS grid properties from the layout components
+	 * and applies them to the components.
 	 */
-	@Override
-	protected void applyTo(UiContainer<?> rContainer)
+	protected void applyCellStyles()
 	{
-		super.applyTo(rContainer);
+		for (Cell rCell : getCells())
+		{
+			UiStyle rStyle = rCell.getComponent().style();
 
+			applyAlignment("justifySelf",
+						   rCell.get(HORIZONTAL_ALIGN, null),
+						   rStyle);
+			applyAlignment("alignSelf",
+						   rCell.get(VERTICAL_ALIGN, null),
+						   rStyle);
+
+			applyGridSpan("gridColumn",
+						  rCell.getColumn().getIndex(),
+						  rCell.get(COLUMN_SPAN, 1),
+						  rStyle);
+			applyGridSpan("gridRow",
+						  rCell.getRow().getIndex(),
+						  rCell.get(ROW_SPAN, 1),
+						  rStyle);
+		}
+	}
+
+	/***************************************
+	 * Derives the grid structure from the columns and rows of this instance and
+	 * applies it to the given style object
+	 *
+	 * @param rStyle The style object
+	 */
+	protected void applyGridStructure(UiStyle rStyle)
+	{
 		StringBuilder sRowsTemplate    = new StringBuilder();
 		StringBuilder sColumnsTemplate = new StringBuilder();
 
@@ -91,20 +159,122 @@ public class UiGridLayout extends UiLayout
 			sColumnsTemplate.append(' ');
 		}
 
-		UiStyle rStyle = rContainer.style();
-
 		rStyle.css("display", "grid")
 			  .css("gridTemplateRows", sRowsTemplate.toString().trim())
 			  .css("gridTemplateColumns", sColumnsTemplate.toString().trim());
+	}
 
-		if (sColumnGap != null)
+	/***************************************
+	 * Applies the grid style properties to the given style object.
+	 *
+	 * @param rStyle The style object
+	 */
+	protected void applyGridStyle(UiStyle rStyle)
+	{
+		applyStyle("gridColumnGap", sColumnGap, rStyle);
+		applyStyle("gridRowGap", sRowGap, rStyle);
+		applyAlignment("justifyItem", eHorizontalAlignment, rStyle);
+		applyAlignment("alignItem", eVerticalAlignment, rStyle);
+	}
+
+	/***************************************
+	 * Overridden to generate the CSS grid layout styles.
+	 *
+	 * @see UiLayout#applyTo(UiContainer)
+	 */
+	@Override
+	protected void applyTo(UiContainer<?> rContainer)
+	{
+		super.applyTo(rContainer);
+
+		UiStyle rStyle = rContainer.style();
+
+		applyGridStructure(rStyle);
+		applyGridStyle(rStyle);
+
+		applyCellStyles();
+	}
+
+	/***************************************
+	 * Shortcut method to map and set an alignment if it is not NULL.
+	 *
+	 * @param sStyleName The alignment style name
+	 * @param eAlignment The alignment value or NULL for none
+	 * @param rStyle     The style to set the alignment in
+	 */
+	private final void applyAlignment(String    sStyleName,
+									  Alignment eAlignment,
+									  UiStyle   rStyle)
+	{
+		if (eAlignment != null)
 		{
-			rStyle.css("gridColumnGap", sColumnGap);
+			rStyle.css(sStyleName, mapAlignment(eAlignment));
 		}
+	}
 
-		if (sRowGap != null)
+	/***************************************
+	 * Applies a column or row span to a style object if it greater than 1.
+	 *
+	 * @param sStyleName The style name
+	 * @param nIndex     The column or row index
+	 * @param nSpan      The span size
+	 * @param rStyle     The style object to set the span in
+	 */
+	@SuppressWarnings("boxing")
+	private void applyGridSpan(String  sStyleName,
+							   int	   nIndex,
+							   int	   nSpan,
+							   UiStyle rStyle)
+	{
+		if (nSpan > 1)
 		{
-			rStyle.css("gridRowGap", sRowGap);
+			int nStart = nIndex + 1;
+			int nEnd   = nStart + nSpan;
+
+			rStyle.css(sStyleName, String.format("%d / %d", nStart, nEnd));
+		}
+	}
+
+	/***************************************
+	 * Sets a style property in the given style if the value isn't NULL.
+	 *
+	 * @param sStyleName The style name
+	 * @param sValue     The style value or NULL for none
+	 * @param rStyle     The style to set the property
+	 */
+	private void applyStyle(String sStyleName, String sValue, UiStyle rStyle)
+	{
+		if (sValue != null)
+		{
+			rStyle.css(sStyleName, sValue);
+		}
+	}
+
+	/***************************************
+	 * Maps an alignment value to the correspondings CSS grid layout value.
+	 *
+	 * @param  eAlignment The alignment to map
+	 *
+	 * @return The CSS grid alignment value
+	 */
+	private String mapAlignment(Alignment eAlignment)
+	{
+		switch (eAlignment)
+		{
+			case BEGIN:
+				return "start";
+
+			case CENTER:
+				return "center";
+
+			case END:
+				return "end";
+
+			case FILL:
+				return "stretch";
+
+			default:
+				throw new AssertionError("Undefined: " + eAlignment);
 		}
 	}
 }

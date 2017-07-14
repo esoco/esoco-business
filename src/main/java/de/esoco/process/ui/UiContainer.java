@@ -444,7 +444,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @return The layout
 	 */
-	public final UiLayout layout()
+	public final UiLayout getLayout()
 	{
 		return rLayout;
 	}
@@ -455,7 +455,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	public void nextRow()
 	{
-		layout().nextRow();
+		getLayout().nextRow();
 	}
 
 	/***************************************
