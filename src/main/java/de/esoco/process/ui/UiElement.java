@@ -108,28 +108,26 @@ public class UiElement<E extends UiElement<E>>
 	 *
 	 * @param rComponent The target component
 	 */
-	void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
 		rComponent.setProperties(aProperties, false);
 	}
 
 	/***************************************
-	 * Sets a certain boolean property of this element.
+	 * Sets a boolean property.
 	 *
-	 * @param  rFlag rProperty The property name
-	 *
-	 * @return This instance for concatenation
+	 * @see #set(PropertyName, Object)
 	 */
 	@SuppressWarnings("unchecked")
-	final E set(PropertyName<Boolean> rFlag)
+	protected final E set(PropertyName<Boolean> rFlag)
 	{
-		aProperties.setFlag(rFlag);
-
-		return (E) this;
+		return set(rFlag, Boolean.TRUE);
 	}
 
 	/***************************************
-	 * Sets a certain property of this element.
+	 * Sets a certain property of this element. All other property set methods
+	 * redirect to this method so that subclasses only need to override this
+	 * method if they want to intercept property updates.
 	 *
 	 * @param  rProperty The property name
 	 * @param  rValue    The property value
@@ -137,7 +135,7 @@ public class UiElement<E extends UiElement<E>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	final <V> E set(PropertyName<V> rProperty, V rValue)
+	protected <V> E set(PropertyName<V> rProperty, V rValue)
 	{
 		aProperties.setProperty(rProperty, rValue);
 
@@ -145,18 +143,23 @@ public class UiElement<E extends UiElement<E>>
 	}
 
 	/***************************************
-	 * Sets a certain property of this element.
+	 * Sets an integer property.
 	 *
-	 * @param  rProperty The property name
-	 * @param  nValue    The property value
-	 *
-	 * @return This instance for concatenation
+	 * @see #set(PropertyName, Object)
 	 */
 	@SuppressWarnings("unchecked")
-	final E set(PropertyName<Integer> rProperty, int nValue)
+	protected final E set(PropertyName<Integer> rProperty, int nValue)
 	{
-		aProperties.setProperty(rProperty, nValue);
+		return set(rProperty, Integer.valueOf(nValue));
+	}
 
-		return (E) this;
+	/***************************************
+	 * Internal method that returns the properties of this instance.
+	 *
+	 * @return The properties value
+	 */
+	final MutableProperties getProperties()
+	{
+		return aProperties;
 	}
 }

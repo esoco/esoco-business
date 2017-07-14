@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -144,7 +145,9 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 */
 	public final boolean has(PropertyName<?> rProperty)
 	{
-		return rFragment.getUIProperties(rParamType).hasProperty(rProperty);
+		HasProperties rProperties = rFragment.getUIProperties(rParamType);
+
+		return rProperties != null && rProperties.hasProperty(rProperty);
 	}
 
 	/***************************************

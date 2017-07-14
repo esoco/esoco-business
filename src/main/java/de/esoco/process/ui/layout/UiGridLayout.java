@@ -21,7 +21,7 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.UiStyle;
+import de.esoco.process.ui.style.UiStyle;
 
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
@@ -57,9 +57,29 @@ public class UiGridLayout extends UiLayout
 	public UiGridLayout(int nColumns, int nRows)
 	{
 		super(LayoutType.CSS_GRID, nColumns, nRows);
+
+		ignoreProperties(HTML_WIDTH, HTML_HEIGHT);
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the default cell alignments for both directions.
+	 *
+	 * @param  eHorizontalAlign The horizontal alignment
+	 * @param  eVerticalAlign   The vertical alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public UiGridLayout align(
+		Alignment eHorizontalAlign,
+		Alignment eVerticalAlign)
+	{
+		eHorizontalAlignment = eHorizontalAlign;
+		eVerticalAlignment   = eVerticalAlign;
+
+		return this;
+	}
 
 	/***************************************
 	 * Sets the horizontal alignment of layout cells. Overridden to store this
@@ -99,13 +119,17 @@ public class UiGridLayout extends UiLayout
 	 * Sets the gaps between layout columns and rows. The default is null, i.e.
 	 * no gap.
 	 *
-	 * @param sColumnGap The column gap in HTML units or NULL for the default
-	 * @param sRowGap    The row gap in HTML units or NULL for the default
+	 * @param  sColumnGap The column gap in HTML units or NULL for the default
+	 * @param  sRowGap    The row gap in HTML units or NULL for the default
+	 *
+	 * @return This instance for concatenation.
 	 */
-	public void setGaps(String sColumnGap, String sRowGap)
+	public UiGridLayout gaps(String sColumnGap, String sRowGap)
 	{
 		this.sColumnGap = sColumnGap;
 		this.sRowGap    = sRowGap;
+
+		return this;
 	}
 
 	/***************************************
@@ -173,8 +197,8 @@ public class UiGridLayout extends UiLayout
 	{
 		applyStyle("gridColumnGap", sColumnGap, rStyle);
 		applyStyle("gridRowGap", sRowGap, rStyle);
-		applyAlignment("justifyItem", eHorizontalAlignment, rStyle);
-		applyAlignment("alignItem", eVerticalAlignment, rStyle);
+		applyAlignment("justifyItems", eHorizontalAlignment, rStyle);
+		applyAlignment("alignItems", eVerticalAlignment, rStyle);
 	}
 
 	/***************************************

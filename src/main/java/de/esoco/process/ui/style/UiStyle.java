@@ -14,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.style;
 
 import de.esoco.lib.property.StyleProperties;
 
-import de.esoco.process.ui.style.SizeUnit;
+import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.UiElement;
 
 import java.util.HashMap;
 import java.util.Map;

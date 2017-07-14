@@ -24,7 +24,9 @@ import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.process.ui.style.SizeUnit;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
@@ -55,6 +57,8 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	private List<Column> aColumns = new ArrayList<>();
 	private List<Row>    aRows    = new ArrayList<>();
 	private List<Cell>   aCells   = new ArrayList<>();
+
+	private Set<PropertyName<?>> aIgnoredProperties = new HashSet<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -166,6 +170,33 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	protected void applyTo(UiContainer<?> rContainer)
 	{
 		rContainer.set(LAYOUT, eLayoutType);
+	}
+
+	/***************************************
+	 * Can be invoked by subclasses to exclude certain properties from
+	 * application upon components.
+	 *
+	 * @param rProperties The properties to ignore
+	 */
+	protected void ignoreProperties(PropertyName<?>... rProperties)
+	{
+		for (PropertyName<?> rProperty : rProperties)
+		{
+			aIgnoredProperties.add(rProperty);
+		}
+	}
+
+	/***************************************
+	 * Checks whether a certain property should be ignored for application on
+	 * components.
+	 *
+	 * @param  rProperty The property name
+	 *
+	 * @return TRUE if the property is to be ignored
+	 */
+	protected boolean isIgnored(PropertyName<?> rProperty)
+	{
+		return aIgnoredProperties.contains(rProperty);
 	}
 
 	/***************************************
@@ -385,7 +416,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @see ChildElement#applyPropertiesTo(UiComponent)
 		 */
 		@Override
-		void applyPropertiesTo(UiComponent<?, ?> rComponent)
+		protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
 		{
 			super.applyPropertiesTo(rComponent);
 
@@ -415,20 +446,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * Sets the width of this column relative to the total number of
-		 * columns.
-		 *
-		 * @param  eRelativeWidth The relative width
-		 *
-		 * @return This instance for concatenation
-		 */
-		public Column width(RelativeSize eRelativeWidth)
-		{
-			return width(eRelativeWidth.calcSize(getColumns().size()),
-						 SizeUnit.FRACTION);
-		}
 
 		/***************************************
 		 * Sets the width of this column to a certain value and unit. Which
@@ -467,19 +484,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Sets the height of this row relative to the total number of columns.
-		 *
-		 * @param  eRelativeHeight The relative height
-		 *
-		 * @return This instance for concatenation
-		 */
-		public Row height(RelativeSize eRelativeHeight)
-		{
-			return height(eRelativeHeight.calcSize(getRows().size()),
-						  SizeUnit.FRACTION);
-		}
-
-		/***************************************
 		 * Sets the height of this row to a certain value and unit. Which units
 		 * are supported depends on the actual layout type used.
 		 *
@@ -515,6 +519,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Overridden to skip ignored properties.
+		 *
+		 * @see UiElement#applyPropertiesTo(UiComponent)
+		 * @see UiLayout#ignoreProperties(PropertyName...)
+		 */
+		@Override
+		protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
+		{
+			for (PropertyName<?> rProperty : getProperties().getPropertyNames())
+			{
+				applyProperty(rComponent, rProperty);
+			}
+		}
+
+		/***************************************
 		 * Internal method to set a string size property.
 		 *
 		 * @param  rSizeProperty The size property
@@ -526,6 +545,22 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		E size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit)
 		{
 			return set(rSizeProperty, eUnit.getHtmlSize(nSize));
+		}
+
+		/***************************************
+		 * Applies a single property to a component if it is not to be ignored.
+		 *
+		 * @param rComponent The component
+		 * @param rProperty  The property
+		 */
+		private <T> void applyProperty(
+			UiComponent<?, ?> rComponent,
+			PropertyName<T>   rProperty)
+		{
+			if (!rComponent.has(rProperty) && !getLayout().isIgnored(rProperty))
+			{
+				rComponent.set(rProperty, get(rProperty, null));
+			}
 		}
 	}
 

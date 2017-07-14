@@ -25,6 +25,7 @@ import de.esoco.lib.property.StringProperties;
 
 import de.esoco.process.ParameterWrapper;
 import de.esoco.process.ui.style.SizeUnit;
+import de.esoco.process.ui.style.UiStyle;
 
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
