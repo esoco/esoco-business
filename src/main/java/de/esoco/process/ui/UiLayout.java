@@ -300,10 +300,10 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			{
 				rColumn.getCells().remove(this);
 				rColumn = getLayout().getColumns().get(nColumn);
-				rColumn.getCells()
-					   .add(Math.min(rColumn.getCells().size(),
-									 rRow.getIndex()),
-							this);
+
+				int nRow = Math.min(rColumn.getCells().size(), rRow.getIndex());
+
+				rColumn.getCells().add(nRow, this);
 			}
 
 			return this;
@@ -365,9 +365,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			{
 				rRow.getCells().remove(this);
 				rRow = getLayout().getRows().get(nRow);
-				rRow.getCells()
-					.add(Math.min(rRow.getCells().size(), rColumn.getIndex()),
-						 this);
+
+				int nColumn =
+					Math.min(rRow.getCells().size(), rColumn.getIndex());
+
+				rRow.getCells().add(nColumn, this);
 			}
 
 			return this;

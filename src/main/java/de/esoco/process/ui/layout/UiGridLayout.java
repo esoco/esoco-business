@@ -142,21 +142,21 @@ public class UiGridLayout extends UiLayout
 		{
 			UiStyle rStyle = rCell.getComponent().style();
 
+			applyCellPosition("gridColumn",
+							  rCell.getColumn().getIndex(),
+							  rCell.get(COLUMN_SPAN, 1),
+							  rStyle);
+			applyCellPosition("gridRow",
+							  rCell.getRow().getIndex(),
+							  rCell.get(ROW_SPAN, 1),
+							  rStyle);
+
 			applyAlignment("justifySelf",
 						   rCell.get(HORIZONTAL_ALIGN, null),
 						   rStyle);
 			applyAlignment("alignSelf",
 						   rCell.get(VERTICAL_ALIGN, null),
 						   rStyle);
-
-			applyGridSpan("gridColumn",
-						  rCell.getColumn().getIndex(),
-						  rCell.get(COLUMN_SPAN, 1),
-						  rStyle);
-			applyGridSpan("gridRow",
-						  rCell.getRow().getIndex(),
-						  rCell.get(ROW_SPAN, 1),
-						  rStyle);
 		}
 	}
 
@@ -237,25 +237,31 @@ public class UiGridLayout extends UiLayout
 	}
 
 	/***************************************
-	 * Applies a column or row span to a style object if it greater than 1.
+	 * Applies a cells position and size to a style object.
 	 *
 	 * @param sStyleName The style name
-	 * @param nIndex     The column or row index
+	 * @param nPosition  The column or row index
 	 * @param nSpan      The span size
 	 * @param rStyle     The style object to set the span in
 	 */
 	@SuppressWarnings("boxing")
-	private void applyGridSpan(String  sStyleName,
-							   int	   nIndex,
-							   int	   nSpan,
-							   UiStyle rStyle)
+	private void applyCellPosition(String  sStyleName,
+								   int	   nPosition,
+								   int	   nSpan,
+								   UiStyle rStyle)
 	{
-		if (nSpan > 1)
 		{
-			int nStart = nIndex + 1;
+			int nStart = nPosition + 1;
 			int nEnd   = nStart + nSpan;
 
-			rStyle.css(sStyleName, String.format("%d / %d", nStart, nEnd));
+			if (nSpan > 1)
+			{
+				rStyle.css(sStyleName, String.format("%d / %d", nStart, nEnd));
+			}
+			else
+			{
+				rStyle.css(sStyleName, String.format("%d", nStart));
+			}
 		}
 	}
 
