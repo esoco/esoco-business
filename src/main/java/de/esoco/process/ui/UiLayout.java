@@ -16,10 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
-import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.ui.style.SizeUnit;
 
@@ -51,11 +51,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 
 	private final LayoutType eLayoutType;
 
-	private int nCurrentRow    = 0;
-	private int nCurrentColumn = 0;
+	private int nLastRow    = 0;
+	private int nNextColumn = 0;
 
-	private List<Column> aColumns = new ArrayList<>();
 	private List<Row>    aRows    = new ArrayList<>();
+	private List<Column> aColumns = new ArrayList<>();
 	private List<Cell>   aCells   = new ArrayList<>();
 
 	private Set<PropertyName<?>> aIgnoredProperties = new HashSet<>();
@@ -80,35 +80,40 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	public UiLayout(LayoutType eLayoutType, int nColumns)
 	{
-		this(eLayoutType, nColumns, 1);
+		this(eLayoutType, 1, nColumns);
 	}
 
 	/***************************************
-	 * Creates a new instance with a fixed number of columns and rows.
+	 * Creates a new instance with a fixed number of columns and rows. All rows
+	 * and columns will be created and filled with empty cells (component =
+	 * NULL).
 	 *
 	 * @param eLayoutType The layout type
-	 * @param nColumns    The number of columns in this layout
 	 * @param nRows       The number of rows in this layout
+	 * @param nColumns    The number of columns in this layout
 	 */
-	public UiLayout(LayoutType eLayoutType, int nColumns, int nRows)
+	public UiLayout(LayoutType eLayoutType, int nRows, int nColumns)
 	{
 		this.eLayoutType = eLayoutType;
 
-		for (int i = 0; i < nColumns; i++)
+		for (int nCol = 0; nCol < nColumns; nCol++)
 		{
-			aColumns.add(new Column(i));
+			aColumns.add(new Column(nCol));
 		}
 
-		for (int i = 0; i < nRows; i++)
+		for (int nRow = 0; nRow < nRows; nRow++)
 		{
-			aRows.add(new Row(i));
+			addRow();
 		}
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the cells in this layout.
+	 * Returns the cells in this layout. Their order will follow the layout
+	 * structure, i.e. row by row and column after column in the respective row.
+	 * Depending on the layout type cells can be empty, i.e. their component may
+	 * be NULL.
 	 *
 	 * @return The layout cells
 	 */
@@ -125,6 +130,16 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	public List<Column> getColumns()
 	{
 		return aColumns;
+	}
+
+	/***************************************
+	 * Returns the last row in the layout which is used to add new components.
+	 *
+	 * @return The last row
+	 */
+	public Row getLastRow()
+	{
+		return aRows.get(nLastRow);
 	}
 
 	/***************************************
@@ -153,12 +168,12 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	public void nextRow()
 	{
-		nCurrentColumn = 0;
-		nCurrentRow++;
+		nNextColumn = 0;
+		nLastRow++;
 
-		if (aRows.size() == nCurrentRow)
+		if (aRows.size() == nLastRow)
 		{
-			aRows.add(new Row(nCurrentRow));
+			addRow();
 		}
 	}
 
@@ -170,6 +185,84 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	protected void applyTo(UiContainer<?> rContainer)
 	{
 		rContainer.set(LAYOUT, eLayoutType);
+	}
+
+	/***************************************
+	 * Returns the layout cell for a certain component at the next calculated
+	 * grid position. Can be overridden by subclasses that need to modify the
+	 * grid position, e.g. because of irregular grid structures.
+	 *
+	 * @param  rRow    The row at which to place the component
+	 * @param  rColumn The column at which to place the component
+	 *
+	 * @return The layout cell
+	 */
+	protected Cell getLayoutCell(Row rRow, Column rColumn)
+	{
+		return rRow.getCell(rColumn.getIndex());
+	}
+
+	/***************************************
+	 * Returns the next grid column under consideration of column spans that may
+	 * have been set on the cell at the given grid coordinate. This method is
+	 * intended to be used by subclasses that allow to define irregular grids.
+	 *
+	 * @param  nRow    The index of the cell column
+	 * @param  nColumn The index of the cell row
+	 *
+	 * @return The next row
+	 */
+	protected Column getNextGridColumn(int nRow, int nColumn)
+	{
+		if (nColumn >= 0)
+		{
+			nColumn += aColumns.get(nColumn).getCell(nRow).get(COLUMN_SPAN, 1);
+
+			if (nColumn >= aColumns.size())
+			{
+				nColumn = 0;
+				nextRow();
+			}
+		}
+		else
+		{
+			nColumn = 0;
+		}
+
+		return aColumns.get(nColumn);
+	}
+
+	/***************************************
+	 * Returns the next grid row under consideration of row spans that may have
+	 * been set on the cell at the given grid coordinate. This method is
+	 * intended to be used by subclasses that allow to define irregular grids.
+	 *
+	 * @param  nRow    The index of the cell row
+	 * @param  nColumn The index of the cell column
+	 *
+	 * @return The next row
+	 */
+	protected Row getNextGridRow(int nRow, int nColumn)
+	{
+		if (nRow >= 0)
+		{
+			int nSpan = aRows.get(nRow).getCell(nColumn).get(ROW_SPAN, 1);
+
+			nRow += nSpan;
+		}
+		else
+		{
+			nRow = 0;
+		}
+
+		nLastRow = nRow;
+
+		while (aRows.size() <= nRow)
+		{
+			addRow();
+		}
+
+		return aRows.get(nRow);
 	}
 
 	/***************************************
@@ -208,29 +301,60 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	protected void layoutComponent(UiComponent<?, ?> rComponent)
 	{
-		if (nCurrentColumn >= aColumns.size())
+		if (nNextColumn >= aColumns.size())
 		{
 			nextRow();
 		}
-		else if (nCurrentColumn > 1)
+		else if (nNextColumn > 0)
 		{
-			rComponent.set(UserInterfaceProperties.SAME_ROW);
+			rComponent.set(LayoutProperties.SAME_ROW);
 		}
 
-		Column rCol  = aColumns.get(nCurrentColumn++);
-		Row    rRow  = aRows.get(nCurrentRow);
-		Cell   aCell = new Cell(rCol, rRow, rComponent);
+		Row    rRow    = aRows.get(nLastRow);
+		Column rColumn = aColumns.get(nNextColumn);
 
+		Cell aCell = getLayoutCell(rRow, rColumn);
+
+		nNextColumn = aCell.getColumn().getIndex() + 1;
+
+		aCell.rComponent = rComponent;
 		rComponent.setLayoutCell(aCell);
 
 		aCells.add(aCell);
+	}
+
+	/***************************************
+	 * Removes the last row and decrements the last row pointer. Allows
+	 * subclasses that build complex grid structures to remove the last row
+	 * while building the grid.
+	 */
+	protected void removeLastRow()
+	{
+		aRows.remove(nLastRow--);
+	}
+
+	/***************************************
+	 * Adds a new row at the end of the layout grid and fills each column with
+	 * an empty cell.
+	 */
+	private void addRow()
+	{
+		Row aRow = new Row(aRows.size());
+
+		aRows.add(aRow);
+
+		for (Column rColumn : aColumns)
+		{
+			aCells.add(new Cell(aRow, rColumn, null));
+		}
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
 	 * A cell in a layout (at a crossing of a row and a column) that contains a
-	 * single component.
+	 * single component. Depending on the layout type cells can be empty, i.e.
+	 * their component may be NULL.
 	 *
 	 * @author eso
 	 */
@@ -238,27 +362,27 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Column				    rColumn;
-		private Row					    rRow;
-		private final UiComponent<?, ?> rComponent;
+		private Row				  rRow;
+		private Column			  rColumn;
+		private UiComponent<?, ?> rComponent;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param rColumn    The column of the cell
 		 * @param rRow       The row of the cell
+		 * @param rColumn    The column of the cell
 		 * @param rComponent The component that has been placed in the layout
 		 */
-		public Cell(Column rColumn, Row rRow, UiComponent<?, ?> rComponent)
+		public Cell(Row rRow, Column rColumn, UiComponent<?, ?> rComponent)
 		{
-			this.rColumn    = rColumn;
 			this.rRow	    = rRow;
+			this.rColumn    = rColumn;
 			this.rComponent = rComponent;
 
-			rColumn.getCells().add(this);
 			rRow.getCells().add(this);
+			rColumn.getCells().add(this);
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -285,28 +409,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public Cell colSpan(RelativeSize eRelativeWidth)
 		{
 			return colSpan(eRelativeWidth.calcSize(getColumns().size()));
-		}
-
-		/***************************************
-		 * Sets the column in which this cell should be placed.
-		 *
-		 * @param  nColumn The column index
-		 *
-		 * @return This instance for concatenation
-		 */
-		public Cell column(int nColumn)
-		{
-			if (nColumn != rColumn.getIndex())
-			{
-				rColumn.getCells().remove(this);
-				rColumn = getLayout().getColumns().get(nColumn);
-
-				int nRow = Math.min(rColumn.getCells().size(), rRow.getIndex());
-
-				rColumn.getCells().add(nRow, this);
-			}
-
-			return this;
 		}
 
 		/***************************************
@@ -340,6 +442,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Returns the row neighbor.
+		 *
+		 * @param  nDistance The row neighbor
+		 *
+		 * @return The row neighbor
+		 */
+		public Cell getRowNeighbor(int nDistance)
+		{
+			Row rNeighborRow =
+				getLayout().getRows().get(rRow.getIndex() + nDistance);
+
+			return rNeighborRow.getCell(rColumn.getIndex());
+		}
+
+		/***************************************
 		 * Sets the height of this cell.
 		 *
 		 * @param  nHeight The height value
@@ -353,26 +470,46 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Sets the row in which this cell should be placed.
+		 * Checks whether this cell is empty (i.e. the component is NULL).
 		 *
-		 * @param  nRow The row index
-		 *
-		 * @return This instance for concatenation
+		 * @return TRUE for an empty cell without a component
 		 */
-		public Cell row(int nRow)
+		public final boolean isEmpty()
 		{
-			if (nRow != rRow.getIndex())
+			return rComponent == null;
+		}
+
+		/***************************************
+		 * Sets the grid position at which this cell should be placed.
+		 *
+		 * @param  nRow    The row index
+		 * @param  nColumn The column index
+		 *
+		 * @return The component's (new) cell for concatenation
+		 */
+		public Cell position(int nRow, int nColumn)
+		{
+			Cell rNewCell = getLayout().getRows().get(nRow).getCell(nColumn);
+
+			if (rNewCell != this)
 			{
-				rRow.getCells().remove(this);
-				rRow = getLayout().getRows().get(nRow);
+				if (rNewCell.rComponent != null)
+				{
+					throw new IllegalArgumentException("Cell already has component " +
+													   rNewCell.rComponent);
+				}
 
-				int nColumn =
-					Math.min(rRow.getCells().size(), rColumn.getIndex());
+				rNewCell.rComponent = rComponent;
 
-				rRow.getCells().add(nColumn, this);
+				rNewCell.clearProperties();
+				rNewCell.copyPropertiesFrom(this, true);
+				clearProperties();
+
+				rComponent.setLayoutCell(rNewCell);
+				rComponent = null;
 			}
 
-			return this;
+			return rNewCell;
 		}
 
 		/***************************************
@@ -397,6 +534,19 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public Cell rowSpan(int nRows)
 		{
 			return set(ROW_SPAN, nRows);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		@SuppressWarnings("boxing")
+		public String toString()
+		{
+			return String.format("%s(R%d,C%d)",
+								 getClass().getSimpleName(),
+								 rRow.getIndex(),
+								 rColumn.getIndex());
 		}
 
 		/***************************************
@@ -498,6 +648,24 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			return size(HTML_HEIGHT, nHeight, eUnit);
 		}
+
+		/***************************************
+		 * Checks whether no cell in this row contain a component.
+		 *
+		 * @return TRUE if the doesn't contain a component
+		 */
+		public boolean isEmpty()
+		{
+			for (Cell rCell : getCells())
+			{
+				if (rCell.rComponent != null)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
 	}
 
 	/********************************************************************
@@ -596,7 +764,22 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns the cells in this column.
+		 * Returns the cell at a certain position in this element. All layout
+		 * positions will be filled but depending on the layout type cells can
+		 * be empty, i.e. their component may be NULL.
+		 *
+		 * @param  nIndex The cell index in this element
+		 *
+		 * @return The list of column cells
+		 */
+		public final Cell getCell(int nIndex)
+		{
+			return aCells.get(nIndex);
+		}
+
+		/***************************************
+		 * Returns the cells in this column. Depending on the layout type cells
+		 * can be empty, i.e. their component may be NULL.
 		 *
 		 * @return The list of column cells
 		 */
@@ -613,6 +796,18 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public final int getIndex()
 		{
 			return nIndex;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		@SuppressWarnings("boxing")
+		public String toString()
+		{
+			return String.format("%s(%d)",
+								 getClass().getSimpleName(),
+								 getIndex());
 		}
 	}
 }

@@ -135,6 +135,17 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString()
+	{
+		return String.format("%s[%s]",
+							 getClass().getSimpleName(),
+							 fragment().getParameter(type()));
+	}
+
+	/***************************************
 	 * Sets the width of this component.
 	 *
 	 * @param  nWidth The width value

@@ -99,7 +99,7 @@ public class UiElement<E extends UiElement<E>>
 	@Override
 	public String toString()
 	{
-		return String.format("%s%s", getClass().getSimpleName(), aProperties);
+		return getClass().getSimpleName();
 	}
 
 	/***************************************
@@ -111,6 +111,25 @@ public class UiElement<E extends UiElement<E>>
 	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
 		rComponent.setProperties(aProperties, false);
+	}
+
+	/***************************************
+	 * Clears all properties in this element.
+	 */
+	protected void clearProperties()
+	{
+		aProperties.clearProperties();
+	}
+
+	/***************************************
+	 * Copies the properties from another UI element to this instance.
+	 *
+	 * @param rOther   The other element
+	 * @param bReplace TRUE to replace existing properties in this instance
+	 */
+	protected void copyPropertiesFrom(UiElement<?> rOther, boolean bReplace)
+	{
+		aProperties.setProperties(rOther.aProperties, bReplace);
 	}
 
 	/***************************************

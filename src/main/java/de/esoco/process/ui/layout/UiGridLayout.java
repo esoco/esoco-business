@@ -51,12 +51,12 @@ public class UiGridLayout extends UiLayout
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param nColumns The number of columns in the grid
 	 * @param nRows    The number of rows in the grid
+	 * @param nColumns The number of columns in the grid
 	 */
-	public UiGridLayout(int nColumns, int nRows)
+	public UiGridLayout(int nRows, int nColumns)
 	{
-		super(LayoutType.CSS_GRID, nColumns, nRows);
+		super(LayoutType.CSS_GRID, nRows, nColumns);
 
 		ignoreProperties(HTML_WIDTH, HTML_HEIGHT);
 	}
@@ -116,6 +116,17 @@ public class UiGridLayout extends UiLayout
 	}
 
 	/***************************************
+	 * Sets identical gaps between layout columns and rows. The default is null,
+	 * i.e. no gaps.
+	 *
+	 * @see #gaps(String, String)
+	 */
+	public UiGridLayout gaps(String sGap)
+	{
+		return gaps(sGap, sGap);
+	}
+
+	/***************************************
 	 * Sets the gaps between layout columns and rows. The default is null, i.e.
 	 * no gap.
 	 *
@@ -140,23 +151,26 @@ public class UiGridLayout extends UiLayout
 	{
 		for (Cell rCell : getCells())
 		{
-			UiStyle rStyle = rCell.getComponent().style();
+			if (!rCell.isEmpty())
+			{
+				UiStyle rStyle = rCell.getComponent().style();
 
-			applyCellPosition("gridColumn",
-							  rCell.getColumn().getIndex(),
-							  rCell.get(COLUMN_SPAN, 1),
-							  rStyle);
-			applyCellPosition("gridRow",
-							  rCell.getRow().getIndex(),
-							  rCell.get(ROW_SPAN, 1),
-							  rStyle);
+				applyCellPosition("gridColumn",
+								  rCell.getColumn().getIndex(),
+								  rCell.get(COLUMN_SPAN, 1),
+								  rStyle);
+				applyCellPosition("gridRow",
+								  rCell.getRow().getIndex(),
+								  rCell.get(ROW_SPAN, 1),
+								  rStyle);
 
-			applyAlignment("justifySelf",
-						   rCell.get(HORIZONTAL_ALIGN, null),
-						   rStyle);
-			applyAlignment("alignSelf",
-						   rCell.get(VERTICAL_ALIGN, null),
-						   rStyle);
+				applyAlignment("justifySelf",
+							   rCell.get(HORIZONTAL_ALIGN, null),
+							   rStyle);
+				applyAlignment("alignSelf",
+							   rCell.get(VERTICAL_ALIGN, null),
+							   rStyle);
+			}
 		}
 	}
 
@@ -211,12 +225,41 @@ public class UiGridLayout extends UiLayout
 	{
 		super.applyTo(rContainer);
 
+		if (getLastRow().isEmpty())
+		{
+			removeLastRow();
+		}
+
 		UiStyle rStyle = rContainer.style();
 
 		applyGridStructure(rStyle);
 		applyGridStyle(rStyle);
 
 		applyCellStyles();
+	}
+
+	/***************************************
+	 * Overridden to modify the placement of cells with preceding cells that
+	 * have row and/or column spans different than 1.
+	 *
+	 * @see UiLayout#getLayoutCell(Row, Column)
+	 */
+	@Override
+	protected Cell getLayoutCell(Row rRow, Column rColumn)
+	{
+		int nRow = rRow.getIndex();
+		int nCol = rColumn.getIndex();
+
+		Column rNextColumn = getNextGridColumn(nRow, nCol - 1);
+
+		if (rNextColumn.getIndex() > nCol - 1)
+		{
+			nRow -= 1;
+		}
+
+		Row rNextRow = getNextGridRow(nRow, rNextColumn.getIndex());
+
+		return super.getLayoutCell(rNextRow, rNextColumn);
 	}
 
 	/***************************************
@@ -240,27 +283,27 @@ public class UiGridLayout extends UiLayout
 	 * Applies a cells position and size to a style object.
 	 *
 	 * @param sStyleName The style name
-	 * @param nPosition  The column or row index
+	 * @param nIndex     The column or row index
 	 * @param nSpan      The span size
 	 * @param rStyle     The style object to set the span in
 	 */
 	@SuppressWarnings("boxing")
 	private void applyCellPosition(String  sStyleName,
-								   int	   nPosition,
+								   int	   nIndex,
 								   int	   nSpan,
 								   UiStyle rStyle)
 	{
 		{
-			int nStart = nPosition + 1;
-			int nEnd   = nStart + nSpan;
+			int nGridPos = nIndex + 1;
 
 			if (nSpan > 1)
 			{
-				rStyle.css(sStyleName, String.format("%d / %d", nStart, nEnd));
+				rStyle.css(sStyleName,
+						   String.format("%d / span %d", nGridPos, nSpan));
 			}
 			else
 			{
-				rStyle.css(sStyleName, String.format("%d", nStart));
+				rStyle.css(sStyleName, Integer.toString(nGridPos));
 			}
 		}
 	}

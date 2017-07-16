@@ -459,6 +459,17 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString()
+	{
+		return String.format("%s%s",
+							 getClass().getSimpleName(),
+							 getComponents());
+	}
+
+	/***************************************
 	 * Overridden to apply the container layout and to invoke this method
 	 * recursively on all child components.
 	 *
