@@ -16,13 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiLayout;
-
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
+import de.esoco.process.ui.layout.UiDockLayout;
 
 
 /********************************************************************
@@ -42,34 +39,6 @@ public class UiDockPanel extends UiContainer<UiDockPanel>
 	 */
 	public UiDockPanel(UiContainer<?> rParent, Orientation eOrientation)
 	{
-		super(rParent, new DockLayout(eOrientation));
-
-		if (eOrientation == Orientation.VERTICAL)
-		{
-			set(VERTICAL);
-		}
-	}
-
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
-	 * The internal dock panel layout.
-	 *
-	 * @author eso
-	 */
-	static class DockLayout extends UiLayout
-	{
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
-		 * Creates a new instance.
-		 *
-		 * @param eOrientation The layout orientation
-		 */
-		public DockLayout(Orientation eOrientation)
-		{
-			super(LayoutType.DOCK,
-				  eOrientation == Orientation.VERTICAL ? 1 : 3);
-		}
+		super(rParent, new UiDockLayout(eOrientation, false));
 	}
 }

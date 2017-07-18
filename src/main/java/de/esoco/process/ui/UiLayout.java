@@ -188,6 +188,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
+	 * Creates a new layout cell. Can be overridden by subclasses to create
+	 * layout-specific cell types. The default implementation returns an
+	 * instance of the inner class {@link Cell}.
+	 *
+	 * @param  rRow    The row of the cell
+	 * @param  rColumn The column of the cell
+	 *
+	 * @return The new cell
+	 */
+	protected Cell createCell(Row rRow, Column rColumn)
+	{
+		return new Cell(rRow, rColumn, null);
+	}
+
+	/***************************************
 	 * Returns the layout cell for a certain component at the next calculated
 	 * grid position. Can be overridden by subclasses that need to modify the
 	 * grid position, e.g. because of irregular grid structures.
@@ -345,7 +360,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 
 		for (Column rColumn : aColumns)
 		{
-			aCells.add(new Cell(aRow, rColumn, null));
+			aCells.add(createCell(aRow, rColumn));
 		}
 	}
 
