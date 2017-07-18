@@ -85,6 +85,20 @@ public class UiDockLayout extends UiLayout
 		return new DockCell(rRow, rColumn, null);
 	}
 
+	/***************************************
+	 * @see de.esoco.process.ui.UiLayout#layoutComponent(de.esoco.process.ui.UiComponent)
+	 */
+	@Override
+	protected void layoutComponent(UiComponent<?, ?> rComponent)
+	{
+		if (rComponent.getParent().getComponents().size() > 3)
+		{
+			throw new IllegalStateException("UiDockLayout can only contain a maxium of 3 components");
+		}
+
+		super.layoutComponent(rComponent);
+	}
+
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************

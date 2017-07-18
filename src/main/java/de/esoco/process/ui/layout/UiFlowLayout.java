@@ -18,7 +18,6 @@ package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
 
-import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiLayout;
 
 
@@ -28,31 +27,15 @@ import de.esoco.process.ui.UiLayout;
  *
  * @author eso
  */
-public class UiFillLayout extends UiLayout
+public class UiFlowLayout extends UiLayout
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 */
-	public UiFillLayout()
+	public UiFlowLayout()
 	{
-		super(LayoutType.FILL);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * @see UiLayout#layoutComponent(UiComponent)
-	 */
-	@Override
-	protected void layoutComponent(UiComponent<?, ?> rComponent)
-	{
-		if (rComponent.getParent().getComponents().size() > 1)
-		{
-			throw new IllegalStateException("UiFillLayout can only contain a single component");
-		}
-
-		super.layoutComponent(rComponent);
+		super(LayoutType.FLOW);
 	}
 }
