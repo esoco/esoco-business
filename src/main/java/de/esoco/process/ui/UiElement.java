@@ -137,7 +137,6 @@ public class UiElement<E extends UiElement<E>>
 	 *
 	 * @see #set(PropertyName, Object)
 	 */
-	@SuppressWarnings("unchecked")
 	protected final E set(PropertyName<Boolean> rFlag)
 	{
 		return set(rFlag, Boolean.TRUE);
@@ -166,7 +165,6 @@ public class UiElement<E extends UiElement<E>>
 	 *
 	 * @see #set(PropertyName, Object)
 	 */
-	@SuppressWarnings("unchecked")
 	protected final E set(PropertyName<Integer> rProperty, int nValue)
 	{
 		return set(rProperty, Integer.valueOf(nValue));
