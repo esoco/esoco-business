@@ -26,10 +26,10 @@ import de.esoco.entity.Entity;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ContentType;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ParameterEventHandler;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ProcessRelationTypes;
 
 import static de.esoco.lib.property.StateProperties.DISABLE_ON_INTERACTION;
@@ -113,7 +113,7 @@ public class LoginFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		layout(Layout.FORM).set(DISABLE_ON_INTERACTION);
+		layout(LayoutType.FORM).set(DISABLE_ON_INTERACTION);
 
 		addInputFields();
 		addErrorLabel();
@@ -172,10 +172,10 @@ public class LoginFragment extends InteractionFragment
 	{
 		aLoginName =
 			inputText("LoginName").ensureNotEmpty().set(FOCUSED)
-								  .onAction(new ParameterEventHandler<String>()
+								  .onAction(new ValueEventHandler<String>()
 				{
 					@Override
-					public void handleParameterUpdate(String sLoginName)
+					public void handleValueUpdate(String sLoginName)
 						throws Exception
 					{
 						handleLoginNameInput(sLoginName);
@@ -183,10 +183,10 @@ public class LoginFragment extends InteractionFragment
 				});
 		aPassword  =
 			inputText("Password").content(ContentType.PASSWORD).ensureNotEmpty()
-								 .onAction(new ParameterEventHandler<String>()
+								 .onAction(new ValueEventHandler<String>()
 				{
 					@Override
-					public void handleParameterUpdate(String sPassword)
+					public void handleValueUpdate(String sPassword)
 						throws Exception
 					{
 						handlePasswordInput(sPassword);

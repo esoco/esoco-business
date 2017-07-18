@@ -19,7 +19,7 @@ package de.esoco.process.step;
 import de.esoco.lib.event.EditListener;
 import de.esoco.lib.event.EditListener.EditAction;
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 
 import java.util.LinkedHashMap;
@@ -249,11 +249,11 @@ public class EditText extends InteractionFragment
 		setUIProperty(STYLE, "EditTextValue", rValueParam);
 		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
 
-		addPanel(aActionPanelParam, Layout.TABLE, aActionPanelParams);
+		addPanel(aActionPanelParam, LayoutType.TABLE, aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
 		setUIFlag(VERTICAL, getFragmentParameter());
-		setLayout(Layout.DOCK, getFragmentParameter());
+		setLayout(LayoutType.DOCK, getFragmentParameter());
 
 		setEditInfo("");
 		stopEditing(null);

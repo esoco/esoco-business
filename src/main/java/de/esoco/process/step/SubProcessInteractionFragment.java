@@ -17,11 +17,14 @@
 package de.esoco.process.step;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
-import de.esoco.process.HasProcess;
+
+import de.esoco.lib.property.LayoutType;
+
 import de.esoco.process.Process;
 import de.esoco.process.ProcessDefinition;
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessManager;
+import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.ProcessControlFragment.ProcessExecutionHandler;
 
@@ -32,6 +35,7 @@ import org.obrel.core.RelationType;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
+import static de.esoco.process.ProcessRelationTypes.PROCESS;
 
 
 /********************************************************************
@@ -41,7 +45,7 @@ import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
  * @author eso
  */
 public class SubProcessInteractionFragment extends InteractionFragment
-	implements HasProcess, ProcessExecutionHandler
+	implements ProcessExecutionHandler
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -50,7 +54,8 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	//~ Instance fields --------------------------------------------------------
 
 	private Class<? extends ProcessDefinition> rProcessClass;
-	private Process							   rProcess;
+
+	private Process rProcess;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -63,7 +68,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	public SubProcessInteractionFragment(
 		Class<? extends ProcessDefinition> rSubProcessClass)
 	{
-		setProcessDefinition(rSubProcessClass);
+		displayProcess(rSubProcessClass);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -77,66 +82,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 		if (rProcess != null)
 		{
 			rProcess.cancel();
-			rProcess = null;
-		}
-	}
-
-	/***************************************
-	 * Executes the process of this fragment with a particular execution mode.
-	 *
-	 * @param  eMode The process execution mode
-	 *
-	 * @throws ProcessException If the execution fails
-	 */
-	@Override
-	public void executeProcess(ProcessExecutionMode eMode)
-		throws ProcessException
-	{
-		List<RelationType<?>> rInteractionParams = getInteractionParameters();
-
-		Collection<RelationType<?>> rInputParams = getInputParameters();
-
-		rInteractionParams.clear();
-		rInputParams.clear();
-
-		rProcess.execute(eMode);
-
-		if (rProcess.isFinished())
-		{
-			rProcess = null;
-		}
-		else
-		{
-			rInteractionParams.addAll(rProcess.getInteractionStep()
-									  .get(INTERACTION_PARAMS));
-			rInputParams.addAll(rProcess.getInteractionStep()
-								.get(INPUT_PARAMS));
-		}
-	}
-
-	/***************************************
-	 * Returns the current fragment process. This will only return a value after
-	 * the fragment has been initialized.
-	 *
-	 * @return The fragment process (NULL if not yet initialized)
-	 */
-	@Override
-	public final Process getProcess()
-	{
-		return rProcess;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void init() throws ProcessException
-	{
-		if (rProcessClass != null)
-		{
-			rProcess = ProcessManager.getProcess(rProcessClass);
-
-			executeProcess(ProcessExecutionMode.EXECUTE);
+			setProcess(null);
 		}
 	}
 
@@ -150,7 +96,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	 *
 	 * @throws ProcessException If executing the new process fails
 	 */
-	public void setProcessDefinition(
+	public void displayProcess(
 		Class<? extends ProcessDefinition> rSubProcessClass)
 	{
 		this.rProcessClass = rSubProcessClass;
@@ -171,11 +117,94 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	}
 
 	/***************************************
+	 * Executes the process of this fragment with a particular execution mode.
+	 *
+	 * @param  eMode The process execution mode
+	 *
+	 * @throws ProcessException If the execution fails
+	 */
+	@Override
+	public void executeProcess(ProcessExecutionMode eMode)
+		throws ProcessException
+	{
+		if (rProcess != null)
+		{
+			List<RelationType<?>> rInteractionParams =
+				getInteractionParameters();
+
+			Collection<RelationType<?>> rInputParams = getInputParameters();
+
+			rProcess.execute(eMode);
+
+			rInteractionParams.clear();
+			rInputParams.clear();
+			fragmentParam().modified();
+
+			if (rProcess.isFinished())
+			{
+				setProcess(null);
+			}
+			else
+			{
+				ProcessStep rInteractionStep = rProcess.getInteractionStep();
+
+				rInteractionParams.addAll(rInteractionStep.get(INTERACTION_PARAMS));
+				rInputParams.addAll(rInteractionStep.get(INPUT_PARAMS));
+			}
+		}
+	}
+
+	/***************************************
+	 * Returns the current fragment process. This will only return a value after
+	 * the fragment has been initialized.
+	 *
+	 * @return The fragment process (NULL if not yet initialized)
+	 */
+	public final Process getFragmentProcess()
+	{
+		return rProcess;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void init() throws ProcessException
+	{
+		layout(LayoutType.FILL);
+
+		if (rProcessClass != null)
+		{
+			setProcess(ProcessManager.getProcess(rProcessClass));
+
+			executeProcess(ProcessExecutionMode.EXECUTE);
+		}
+		else
+		{
+			getInteractionParameters().clear();
+			getInputParameters().clear();
+
+			label("No Process");
+		}
+	}
+
+	/***************************************
 	 * @see InteractionFragment#rollback()
 	 */
 	@Override
 	protected void rollback() throws Exception
 	{
 		cleanup();
+	}
+
+	/***************************************
+	 * Sets a new process for this instance.
+	 *
+	 * @param rNewProcess The new process or NULL for none
+	 */
+	protected void setProcess(Process rNewProcess)
+	{
+		rProcess = rNewProcess;
+		fragmentParam().annotate(PROCESS, rProcess);
 	}
 }

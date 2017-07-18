@@ -667,26 +667,32 @@ public class EntityDefinition<E extends Entity>
 			}
 			else if (aAttributes.contains(rRelationType))
 			{
-				if (rEvent.getType() == EventType.UPDATE)
-				{
-					Relation<?> rRelation  = rEntity.getRelation(rRelationType);
-					Object	    rPrevValue = rRelation.getTarget();
-					Object	    rNewValue  = rUpdateValue;
+				EventType   eEventType = rEvent.getType();
+				Relation<?> rRelation  = rEvent.getElement();
+				Object	    rPrevValue = rRelation.getTarget();
+				Object	    rNewValue  = rUpdateValue;
+				boolean     bModified  = false;
 
-					// only store previous value on first change to remember
-					// the persistent state, not intermediate changes
-					if (!rRelation.hasAnnotation(PREVIOUS_VALUE))
+				if (eEventType == EventType.ADD)
+				{
+					rNewValue  = rPrevValue;
+					rPrevValue = null;
+				}
+
+				// only store previous value on first change to remember
+				// the persistent state, not intermediate changes; upon store
+				// the PREVIOUS_VALUE relation will be removed
+				if (!rRelation.hasAnnotation(PREVIOUS_VALUE))
+				{
+					if ((rNewValue == null && rPrevValue != null) ||
+						(rNewValue != null && !rNewValue.equals(rPrevValue)))
 					{
-						if ((rNewValue == null && rPrevValue != null) ||
-							(rNewValue != null &&
-							 !rNewValue.equals(rPrevValue)))
-						{
-							rRelation.annotate(PREVIOUS_VALUE, rPrevValue);
-							rEntity.set(MODIFIED);
-						}
+						rRelation.annotate(PREVIOUS_VALUE, rPrevValue);
+						bModified = true;
 					}
 				}
-				else
+
+				if (bModified || eEventType != EventType.UPDATE)
 				{
 					rEntity.set(MODIFIED);
 				}
@@ -1299,7 +1305,7 @@ public class EntityDefinition<E extends Entity>
 	{
 		if (rAdditionalProperties != null)
 		{
-			rProperties.setProperties(rAdditionalProperties);
+			rProperties.setProperties(rAdditionalProperties, true);
 		}
 	}
 

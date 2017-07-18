@@ -98,9 +98,9 @@ public class ProcessControlFragment extends InteractionFragment
 	@Override
 	public void init() throws Exception
 	{
-		buttons(ProcessControlAction.class).onAction(a ->
-													 rExecutionHandler
-													 .executeProcess(a.getExecutionMode()));
+		iconButtons(ProcessControlAction.class).onAction(a ->
+														 rExecutionHandler
+														 .executeProcess(a.getExecutionMode()));
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

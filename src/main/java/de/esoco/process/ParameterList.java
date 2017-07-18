@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.InteractionFragment;
@@ -62,41 +62,13 @@ public class ParameterList
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds certain parameters to this list.
-	 *
-	 * @param  rParams The parameters to add
-	 *
-	 * @return This instance for concatenation
-	 */
-	public ParameterList add(ParameterBase<?, ?>... rParams)
-	{
-		rLastAddedParams = rParams;
-
-		for (ParameterBase<?, ?> rParam : rParams)
-		{
-			RelationType<?> rParamType = rParam.type();
-
-			value().add(rParamType);
-
-			if (!bIsFragment)
-			{
-				// if the params are not placed in their own fragment the need
-				// to be added to the panel parameters of the enclosing fragment
-				fragment().addPanelParameters(ProcessElement.params(rParamType));
-			}
-		}
-
-		return this;
-	}
-
-	/***************************************
 	 * Sets the list display mode to display this parameter list with.
 	 *
 	 * @param  eMode The list display mode
 	 *
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(Layout eMode)
+	public ParameterList as(LayoutType eMode)
 	{
 		set(UserInterfaceProperties.LAYOUT, eMode);
 

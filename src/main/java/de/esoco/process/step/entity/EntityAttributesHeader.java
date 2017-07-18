@@ -30,7 +30,7 @@ import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ParameterEventHandler;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StoragePredicates;
@@ -229,10 +229,10 @@ public class EntityAttributesHeader<E extends Entity>
 		Parameter<String> aTitleLabel =
 			rTitlePanel.label("").buttons(sColumnTitle)
 					   .content(ContentType.HYPERLINK)
-					   .onAction(new ParameterEventHandler<String>()
+					   .onAction(new ValueEventHandler<String>()
 				{
 					@Override
-					public void handleParameterUpdate(String sValue)
+					public void handleValueUpdate(String sValue)
 						throws Exception
 					{
 						changeSortColumn(rAttr);

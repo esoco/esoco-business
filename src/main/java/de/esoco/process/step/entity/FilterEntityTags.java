@@ -26,7 +26,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.CollectionParameter.SetParameter;
@@ -98,7 +98,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	private TagFilterListener<E> rTagFilterListener;
 	private Runnable			 rHelpAction;
 	private String				 sLabel;
-	private Layout				 eLayout;
+	private LayoutType				 eLayout;
 	private boolean				 bSingleRow;
 
 	private boolean     bUseHeaderLabel = false;
@@ -127,7 +127,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public FilterEntityTags(Class<E> rEntityType,
 							Entity   rTagOwner,
-							Layout   eLayout,
+							LayoutType   eLayout,
 							Runnable rHelpAction)
 	{
 		this(rEntityType, rTagOwner, null, rHelpAction, null, eLayout, true);
@@ -153,7 +153,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 			 rTagFilterListener,
 			 null,
 			 sLabel,
-			 Layout.TABLE,
+			 LayoutType.TABLE,
 			 true);
 	}
 
@@ -177,7 +177,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 							TagFilterListener<E> rTagFilterListener,
 							Runnable			 rHelpAction,
 							String				 sLabel,
-							Layout				 eLayout,
+							LayoutType				 eLayout,
 							boolean				 bSingleRow)
 	{
 		this.rEntityType	    = rEntityType;
@@ -600,7 +600,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	private void initOptionsPanel(InteractionFragment rPanel)
 	{
-		rPanel.layout(Layout.TABLE);
+		rPanel.layout(LayoutType.TABLE);
 		aFilterJoin =
 			rPanel.dropDown(TagFilterJoin.class).resid("TagFilterJoin")
 				  .hideLabel()
@@ -612,7 +612,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 		aFilterAction =
 			rPanel.imageButtons(TagFilterAction.class).buttonStyle(eButtonStyle)
-				  .layout(Layout.TABLE)
+				  .layout(LayoutType.TABLE)
 				  .sameRow()
 				  .columns(3)
 				  .resid("TagFilterAction")

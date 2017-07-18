@@ -22,15 +22,15 @@ import de.esoco.entity.EntityIterator;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.reflect.ReflectUtil;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ParameterEventHandler;
 import de.esoco.process.ParameterList;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
 
@@ -304,7 +304,7 @@ public class EntityList<E extends Entity,
 	@Override
 	public void init()
 	{
-		layout(Layout.FLOW).style(EntityList.class.getSimpleName());
+		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
 
 		panel(this::initHeaderPanel);
 		aItemListPanel =
@@ -496,7 +496,7 @@ public class EntityList<E extends Entity,
 	{
 		if (rHeader != null)
 		{
-			rHeaderPanel.layout(Layout.LIST).resid("EntityListHeaderPanel")
+			rHeaderPanel.layout(LayoutType.LIST).resid("EntityListHeaderPanel")
 						.set(LIST_LAYOUT_STYLE, ListLayoutStyle.SIMPLE);
 
 			rHeaderPanel.panel(rHeader);
@@ -689,7 +689,7 @@ public class EntityList<E extends Entity,
 		@Override
 		public void init()
 		{
-			layout(Layout.LIST);
+			layout(LayoutType.LIST);
 			updateItemList();
 		}
 
@@ -789,7 +789,7 @@ public class EntityList<E extends Entity,
 		@Override
 		public void init() throws Exception
 		{
-			layout(Layout.TABLE);
+			layout(LayoutType.TABLE);
 
 			if (aAllowedListSizes.size() > 1)
 			{
@@ -798,10 +798,10 @@ public class EntityList<E extends Entity,
 				aListSizeDropDown =
 					dropDown("EntityListPageSize", aAllowedListSizes).value(sPageSize)
 																	 .input()
-																	 .onUpdate(new ParameterEventHandler<String>()
+																	 .onUpdate(new ValueEventHandler<String>()
 						{
 							@Override
-							public void handleParameterUpdate(String sPageSize)
+							public void handleValueUpdate(String sPageSize)
 								throws Exception
 							{
 								changePageSize(sPageSize);
@@ -936,12 +936,12 @@ public class EntityList<E extends Entity,
 							  .buttonStyle(ButtonStyle.ICON)
 							  .images()
 							  .set(ICON_SIZE, RelativeScale.SMALL)
-							  .layout(Layout.TABLE)
-							  .onAction(new ParameterEventHandler<PagingNavigation>()
+							  .layout(LayoutType.TABLE)
+							  .onAction(new ValueEventHandler<PagingNavigation>()
 				{
 					@Override
-					public void handleParameterUpdate(
-						PagingNavigation eNavigation) throws Exception
+					public void handleValueUpdate(PagingNavigation eNavigation)
+						throws Exception
 					{
 						navigate(eNavigation);
 					}

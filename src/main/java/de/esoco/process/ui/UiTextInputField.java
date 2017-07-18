@@ -14,22 +14,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.ui;
+
+import de.esoco.lib.property.TextAttribute;
+
 
 /********************************************************************
- * An interface for objects that provide access to a process instance.
+ * A text input field.
  *
  * @author eso
  */
-@FunctionalInterface
-public interface HasProcess
+public abstract class UiTextInputField<T extends UiTextInputField<T>>
+	extends UiInputField<String, T> implements TextAttribute
 {
+	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance.
+	 *
+	 * @param rParent rContainer rFragment The parent fragment
+	 * @param sText   The initial text
+	 */
+	public UiTextInputField(UiContainer<?> rParent, String sText)
+	{
+		super(rParent, String.class, sText);
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the process if available.
-	 *
-	 * @return The process (NULL if not available)
+	 * {@inheritDoc}
 	 */
-	Process getProcess();
+	@Override
+	public String getText()
+	{
+		return fragment().getParameter(type());
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setText(String sText)
+	{
+		fragment().setParameter(type(), sText);
+	}
 }

@@ -21,11 +21,11 @@ import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.manage.TransactionException;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.CollectionParameter.SetParameter;
-import de.esoco.process.ParameterEventHandler;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.InteractionFragment;
 
@@ -46,7 +46,7 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_TAGS;
  * @author eso
  */
 public class EditEntityTags<E extends Entity> extends InteractionFragment
-	implements ParameterEventHandler<Set<String>>
+	implements ValueEventHandler<Set<String>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -183,7 +183,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleParameterUpdate(Set<String> aValues)
+	public void handleValueUpdate(Set<String> aValues)
 	{
 		try
 		{
@@ -204,7 +204,7 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	{
 		clearInteractionParameters();
 
-		layout(Layout.TABLE).resid("EditEntityTagsFragment");
+		layout(LayoutType.TABLE).resid("EditEntityTagsFragment");
 
 		Set<String> aAllowedTags = getAllowedTags();
 

@@ -21,6 +21,7 @@ import de.esoco.data.DownloadData;
 import de.esoco.data.FileType;
 import de.esoco.data.SessionManager;
 import de.esoco.data.element.DataElement;
+import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.DataSetDataElement;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
@@ -49,11 +50,13 @@ import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
-import de.esoco.lib.property.Layout;
+import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
+import de.esoco.lib.property.StyleProperties;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
@@ -292,7 +295,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		Layout								eLayout,
+		LayoutType								eLayout,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
@@ -342,7 +345,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		addPanel(rPanelParam,
-				 bResizable ? Layout.SPLIT : Layout.DOCK,
+				 bResizable ? LayoutType.SPLIT : LayoutType.DOCK,
 				 rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
@@ -452,7 +455,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam, Layout.STACK, Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, LayoutType.STACK, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -504,7 +507,7 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam, Layout.TABS, Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam, LayoutType.TABS, Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -805,10 +808,60 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<E> rEnumParam,
 		Collection<E>   rDisabledElements)
 	{
-		disableDiscrecteElements(rEnumParam,
-								 (Class<E>) rEnumParam.getTargetType(),
-								 getAllowedValues(rEnumParam),
-								 rDisabledElements);
+		disableElements(rEnumParam,
+						(Class<E>) rEnumParam.getTargetType(),
+						getAllowedValues(rEnumParam),
+						rDisabledElements);
+	}
+
+	/***************************************
+	 * Sets the property {@link StyleProperties#DISABLED_ELEMENTS} for a certain
+	 * set of values. If the datatype is an enum class and the all elements
+	 * argument is NULL the enum values will be read from the datatype class
+	 * with {@link Class#getEnumConstants()}.
+	 *
+	 * @param rParam            The parameter to disable the elements of
+	 * @param rDatatype         The parameter datatype
+	 * @param rAllElements      All values that are displayed (NULL for all
+	 *                          values of an enum data type)
+	 * @param rDisabledElements The elements to disable (NULL or none to enable
+	 *                          all)
+	 */
+	public <T> void disableElements(RelationType<?> rParam,
+									Class<T>		rDatatype,
+									Collection<T>   rAllElements,
+									Collection<T>   rDisabledElements)
+	{
+		if (rDisabledElements != null && rDisabledElements.size() > 0)
+		{
+			if (rAllElements == null && rDatatype.isEnum())
+			{
+				rAllElements = Arrays.asList(rDatatype.getEnumConstants());
+			}
+
+			StringBuilder aDisabledElements = new StringBuilder();
+			List<T>		  aIndexedElements  = new ArrayList<T>(rAllElements);
+
+			for (T eElement : rDisabledElements)
+			{
+				int nIndex = aIndexedElements.indexOf(eElement);
+
+				if (nIndex >= 0)
+				{
+					aDisabledElements.append('(');
+					aDisabledElements.append(nIndex);
+					aDisabledElements.append(')');
+				}
+			}
+
+			setUIProperty(DISABLED_ELEMENTS,
+						  aDisabledElements.toString(),
+						  rParam);
+		}
+		else
+		{
+			removeUIProperties(rParam, DISABLED_ELEMENTS);
+		}
 	}
 
 	/***************************************
@@ -825,10 +878,10 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<C> rEnumCollectionParam,
 		Collection<E>   rDisabledElements)
 	{
-		disableDiscrecteElements(rEnumCollectionParam,
-								 (Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
-								 getAllowedElements(rEnumCollectionParam),
-								 rDisabledElements);
+		disableElements(rEnumCollectionParam,
+						(Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
+						getAllowedElements(rEnumCollectionParam),
+						rDisabledElements);
 	}
 
 	/***************************************
@@ -1116,6 +1169,123 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
 		return aSubFragments.get(rFragmentParam);
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type that references a list with a
+	 * certain element datatype. The parameter will have an empty list as it's
+	 * initial value.
+	 *
+	 * @param  sName        The name of the parameter
+	 * @param  rElementType The list element datatype
+	 *
+	 * @return The temporary list parameter type
+	 *
+	 * @see    #getTemporaryParameterType(String, Class)
+	 */
+	public <T> RelationType<List<T>> getTemporaryListType(
+		String			 sName,
+		Class<? super T> rElementType)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<List<T>> rParam =
+			(RelationType<List<T>>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newListType(sName, rElementType);
+		}
+		else
+		{
+			assert rParam.getTargetType() == List.class &&
+				   rParam.get(ELEMENT_DATATYPE) == rElementType;
+		}
+
+		getProcess().registerTemporaryParameterType(rParam);
+
+		return rParam;
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type with an automatically
+	 * generated name.
+	 *
+	 * @see #getTemporaryParameterType(String, Class)
+	 */
+	public <T> RelationType<T> getTemporaryParameterType(
+		Class<? super T> rDatatype)
+	{
+		return getTemporaryParameterType(null, rDatatype);
+	}
+
+	/***************************************
+	 * Returns a temporary parameter relation type with a certain name. If the
+	 * parameter doesn't exist yet it will be created. The name string will be
+	 * converted to standard relation type notation, i.e. upper case text with
+	 * separating underscores.
+	 *
+	 * <p>This method is intended to generate parameter types dynamically at
+	 * runtime when it is not possible to create the parameters as static
+	 * constants. The parameters will only be valid for the current process
+	 * execution and will be removed when the process ends.</p>
+	 *
+	 * @param  sName     The name of the parameter type or NULL for a default
+	 *                   name
+	 * @param  rDatatype The datatype class of the type
+	 *
+	 * @return The temporary relation type instance
+	 */
+	public <T> RelationType<T> getTemporaryParameterType(
+		String			 sName,
+		Class<? super T> rDatatype)
+	{
+		sName = getTemporaryParameterName(sName);
+
+		@SuppressWarnings("unchecked")
+		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);
+
+		if (rParam == null)
+		{
+			rParam = newRelationType(sName, rDatatype);
+		}
+		else
+		{
+			assert rParam.getTargetType() == rDatatype;
+		}
+
+		getProcess().registerTemporaryParameterType(rParam);
+
+		return rParam;
+	}
+
+	/***************************************
+	 * Returns a temporary parameter type for another relation type. The derived
+	 * type will also contain the original relation type in the meta-relation
+	 * {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
+	 *
+	 * @param  sName         The name of the new relation type or NULL to use
+	 *                       the simple name of the original type
+	 * @param  rOriginalType The original parameter relation type
+	 *
+	 * @return The temporary parameter relation type
+	 */
+	public <T> RelationType<T> getTemporaryParameterType(
+		String			sName,
+		RelationType<T> rOriginalType)
+	{
+		if (sName == null)
+		{
+			sName = rOriginalType.getSimpleName();
+		}
+
+		RelationType<T> aDerivedType =
+			getTemporaryParameterType(sName, rOriginalType.getTargetType());
+
+		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
+
+		return aDerivedType;
 	}
 
 	/***************************************
@@ -1448,7 +1618,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Removes all parameters for a panel parameter that had previously been
-	 * added through {@link #addPanel(RelationType, Layout, List)}.
+	 * added through {@link #addPanel(RelationType, LayoutType, List)}.
 	 *
 	 * @param rPanelParam The parameter of the panel to remove
 	 */
@@ -1805,7 +1975,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rParam The parameter
 	 */
 	public void setLayout(
-		Layout								eMode,
+		LayoutType								eMode,
 		RelationType<List<RelationType<?>>> rParam)
 	{
 		setUIProperty(LAYOUT, eMode, rParam);
@@ -2341,43 +2511,6 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Returns a temporary parameter relation type that references a list with a
-	 * certain element datatype. The parameter will have an empty list as it's
-	 * initial value.
-	 *
-	 * @param  sName        The name of the parameter
-	 * @param  rElementType The list element datatype
-	 *
-	 * @return The temporary list parameter type
-	 *
-	 * @see    #getTemporaryParameterType(String, Class)
-	 */
-	protected <T> RelationType<List<T>> getTemporaryListType(
-		String			 sName,
-		Class<? super T> rElementType)
-	{
-		sName = getTemporaryParameterName(sName);
-
-		@SuppressWarnings("unchecked")
-		RelationType<List<T>> rParam =
-			(RelationType<List<T>>) RelationType.valueOf(sName);
-
-		if (rParam == null)
-		{
-			rParam = newListType(sName, rElementType);
-		}
-		else
-		{
-			assert rParam.getTargetType() == List.class &&
-				   rParam.get(ELEMENT_DATATYPE) == rElementType;
-		}
-
-		getProcess().registerTemporaryParameterType(rParam);
-
-		return rParam;
-	}
-
-	/***************************************
 	 * Returns an integer ID for the automatic naming of process parameters. The
 	 * default implementation return the result of {@link
 	 * Process#getNextParameterId()}.
@@ -2463,73 +2596,6 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		return sFragmentParamPackage;
-	}
-
-	/***************************************
-	 * Returns a temporary parameter type for another relation type. The derived
-	 * type will also contain the original relation type in the meta-relation
-	 * {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
-	 *
-	 * @param  sName         The name of the new relation type or NULL to use
-	 *                       the simple name of the original type
-	 * @param  rOriginalType The original parameter relation type
-	 *
-	 * @return The temporary parameter relation type
-	 */
-	protected <T> RelationType<T> getTemporaryParameterType(
-		String			sName,
-		RelationType<T> rOriginalType)
-	{
-		if (sName == null)
-		{
-			sName = rOriginalType.getSimpleName();
-		}
-
-		RelationType<T> aDerivedType =
-			getTemporaryParameterType(sName, rOriginalType.getTargetType());
-
-		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
-
-		return aDerivedType;
-	}
-
-	/***************************************
-	 * Returns a temporary parameter relation type with a certain name. If the
-	 * parameter doesn't exist yet it will be created. The name string will be
-	 * converted to standard relation type notation, i.e. upper case text with
-	 * separating underscores.
-	 *
-	 * <p>This method is intended to generate parameter types dynamically at
-	 * runtime when it is not possible to create the parameters as static
-	 * constants. The parameters will only be valid for the current process
-	 * execution and will be removed when the process ends.</p>
-	 *
-	 * @param  sName     The name of the parameter type
-	 * @param  rDatatype The datatype class of the type
-	 *
-	 * @return The temporary relation type instance
-	 */
-	protected <T> RelationType<T> getTemporaryParameterType(
-		String			 sName,
-		Class<? super T> rDatatype)
-	{
-		sName = getTemporaryParameterName(sName);
-
-		@SuppressWarnings("unchecked")
-		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);
-
-		if (rParam == null)
-		{
-			rParam = newRelationType(sName, rDatatype);
-		}
-		else
-		{
-			assert rParam.getTargetType() == rDatatype;
-		}
-
-		getProcess().registerTemporaryParameterType(rParam);
-
-		return rParam;
 	}
 
 	/***************************************
@@ -2831,58 +2897,6 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		throw new IllegalStateException(String.format("Parameter %s not set",
 													  rParamType));
-	}
-
-	/***************************************
-	 * Sets the user interface property {@link
-	 * StyleProperties#DISABLED_ELEMENTS} for a certain set of enum values in a
-	 * parameter with a discrete display style.
-	 *
-	 * @param rParam            The parameter to disable the elements of
-	 * @param rEnumType         The enum datatype
-	 * @param rAllElements      All enum values that are displayed (NULL for all
-	 *                          values of the enum type)
-	 * @param rDisabledElements The elements to disable (NULL or none to enable
-	 *                          all)
-	 */
-	<E extends Enum<E>> void disableDiscrecteElements(
-		RelationType<?> rParam,
-		Class<E>		rEnumType,
-		Collection<E>   rAllElements,
-		Collection<E>   rDisabledElements)
-	{
-		if (rDisabledElements != null && rDisabledElements.size() > 0)
-		{
-			if (rAllElements == null)
-			{
-				E[] rEnumConstants = rEnumType.getEnumConstants();
-
-				rAllElements = Arrays.asList(rEnumConstants);
-			}
-
-			StringBuilder aDisabledElements = new StringBuilder();
-			List<E>		  aIndexedElements  = new ArrayList<E>(rAllElements);
-
-			for (E eElement : rDisabledElements)
-			{
-				int nIndex = aIndexedElements.indexOf(eElement);
-
-				if (nIndex >= 0)
-				{
-					aDisabledElements.append('(');
-					aDisabledElements.append(nIndex);
-					aDisabledElements.append(')');
-				}
-			}
-
-			setUIProperty(DISABLED_ELEMENTS,
-						  aDisabledElements.toString(),
-						  rParam);
-		}
-		else
-		{
-			removeUIProperties(rParam, DISABLED_ELEMENTS);
-		}
 	}
 
 	/***************************************
