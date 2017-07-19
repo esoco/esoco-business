@@ -20,7 +20,7 @@ import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.FunctionException;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractFunction;
+import de.esoco.lib.logging.Log;
 
 import de.esoco.storage.StorageException;
 
@@ -181,17 +181,11 @@ public class ExtraAttribute extends Entity
 
 					rXA.deleteRelation(VALUE);
 					rXA.set(VALUE,
-						new AbstractFunction<Pair<String, String>, Object>("ParseExtraAttributeValue")
-						{
-							@Override
-							public Object evaluate(
-								Pair<String, String> rRawData)
-							{
-								return Conversions.parseValue(rRawData.second(),
-															  getKeyRelationType(rRawData
-																				 .first()));
-							}
-						},
+							rRawData ->
+							Conversions.parseValue(rRawData.second(),
+												   getKeyRelationType(rRawData
+																	  .first(),
+																	  true)),
 							new Pair<String, String>(sKeyName, sValue));
 				}
 				else
@@ -255,7 +249,7 @@ public class ExtraAttribute extends Entity
 			RelationType<RelationType<?>> rRelationTypeAttr,
 			String						  sKeyName)
 		{
-			RelationType<?> rType = getKeyRelationType(sKeyName);
+			RelationType<?> rType = getKeyRelationType(sKeyName, false);
 
 			if (rType != null)
 			{
@@ -264,14 +258,7 @@ public class ExtraAttribute extends Entity
 			else
 			{
 				rExtraAttribute.set(rRelationTypeAttr,
-					new AbstractFunction<String, RelationType<?>>("GetKeyRelationType")
-					{
-						@Override
-						public RelationType<?> evaluate(String sKey)
-						{
-							return getKeyRelationType(sKey);
-						}
-					},
+									sKey -> getKeyRelationType(sKey, true),
 									sKeyName);
 			}
 		}
@@ -279,11 +266,14 @@ public class ExtraAttribute extends Entity
 		/***************************************
 		 * Returns the relation type for a certain extra attribute key.
 		 *
-		 * @param  sKeyName The name of the key
+		 * @param  sKeyName    The name of the key
+		 * @param  bLogMissing TRUE to log an error if the key relation type
+		 *                     cannot be resolved
 		 *
 		 * @return The key relation type or NULL for none
 		 */
-		RelationType<?> getKeyRelationType(String sKeyName)
+		RelationType<?> getKeyRelationType(String  sKeyName,
+										   boolean bLogMissing)
 		{
 			RelationType<?> rType = RelationType.valueOf(sKeyName);
 
@@ -292,6 +282,13 @@ public class ExtraAttribute extends Entity
 				rType =
 					RelationType.valueOf(EXTRA_ATTRIBUTES_NAMESPACE + "." +
 										 sKeyName);
+
+				if (rType == null && bLogMissing)
+				{
+					Log.errorf("Missing extra attribute type %s (in entity %s)",
+							   sKeyName,
+							   get(ENTITY));
+				}
 			}
 
 			return rType;
