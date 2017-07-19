@@ -96,6 +96,17 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Returns the parent view of this component.
+	 *
+	 * @return The view of the hierarchy this component is placed in
+	 */
+	public UiView<?> getView()
+	{
+		return rParent instanceof UiView ? (UiView<?>) rParent
+										 : rParent.getView();
+	}
+
+	/***************************************
 	 * Sets the height of this component.
 	 *
 	 * @param  nHeight The height value
