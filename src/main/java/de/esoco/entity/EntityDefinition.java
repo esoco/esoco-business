@@ -20,6 +20,8 @@ import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
+import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.HasProperties;
@@ -177,8 +179,8 @@ public class EntityDefinition<E extends Entity>
 	private transient List<RelationType<?>>								   aAttributes;
 	private transient Map<EntityDefinition<?>, RelationType<List<Entity>>> aChildAttributes;
 
-	private transient Map<String, Class<? extends E>> aTypeSubClasses =
-		new HashMap<>();
+	private transient Map<String, Class<? extends E>>  aTypeSubClasses = null;
+	private transient Map<Class<? extends E>, Enum<?>> aSubClassTypes  = null;
 
 	private final transient Map<DisplayMode, List<RelationType<?>>> aDisplayAttributes =
 		new HashMap<DisplayMode, List<RelationType<?>>>();
@@ -450,6 +452,30 @@ public class EntityDefinition<E extends Entity>
 		EntityDefinition<?> rChildMapping)
 	{
 		return rParent.get(aChildAttributes.get(rChildMapping));
+	}
+
+	/***************************************
+	 * Overridden to return a prediate for a type attribute value if a specific
+	 * sub-class of the entity type exists.
+	 *
+	 * @see StorageMapping#getDefaultCriteria(Class)
+	 */
+	@Override
+	public Predicate<E> getDefaultCriteria(Class<? extends E> rType)
+	{
+		Predicate<E> pDefault = null;
+
+		if (aSubClassTypes != null)
+		{
+			Enum<?> eType = aSubClassTypes.get(rType);
+
+			if (eType != null)
+			{
+				pDefault = rTypeAttribute.is(Predicates.equalTo(eType));
+			}
+		}
+
+		return pDefault;
 	}
 
 	/***************************************
@@ -922,18 +948,21 @@ public class EntityDefinition<E extends Entity>
 	}
 
 	/***************************************
-	 * Creates a new instance of the entity class of this instance.
+	 * Creates a new instance of the entity class. If the entity has a type
+	 * attribute and a subclass that has the same name as the type value in the
+	 * attribute values (converted to camel case) a subclass of that type will
+	 * be created instead.
 	 *
 	 * @param  rAttributeValues The attribute values of the new instance
 	 *
-	 * @return
+	 * @return The new entity
 	 */
 	@SuppressWarnings("unchecked")
 	protected E createEntityInstance(List<?> rAttributeValues)
 	{
 		Class<? extends E> rClass = rEntityClass;
 
-		if (rTypeAttribute != null)
+		if (aTypeSubClasses != null && rTypeAttribute != null)
 		{
 			Object rType =
 				rAttributeValues.get(getAttributeIndex(rTypeAttribute));
@@ -945,30 +974,6 @@ public class EntityDefinition<E extends Entity>
 				if (rSubClass != null)
 				{
 					rClass = rSubClass;
-				}
-				else
-				{
-					String sEntityTypeClass =
-						rEntityClass.getPackage().getName() + "." +
-						TextConvert.capitalizedIdentifier(rType.toString());
-
-					try
-					{
-						Class<? extends E> rTypeClass =
-							(Class<? extends E>) Class.forName(sEntityTypeClass);
-
-						if (rClass.isAssignableFrom(rTypeClass))
-						{
-							rClass = rTypeClass;
-							EntityManager.registerEntitySubType(rClass, this);
-						}
-					}
-					catch (ClassNotFoundException e)
-					{
-						// ignore if no sub-type exists and continue with base class
-					}
-
-					aTypeSubClasses.put(rType.toString(), rClass);
 				}
 			}
 		}
@@ -1028,6 +1033,8 @@ public class EntityDefinition<E extends Entity>
 				else if (rAttribute.hasFlag(OBJECT_TYPE_ATTRIBUTE))
 				{
 					rTypeAttribute = (RelationType<Enum<?>>) rAttribute;
+
+					registerSubTypes();
 				}
 				else if (rAttribute == StandardTypes.NAME ||
 						 rAttribute.hasFlag(OBJECT_NAME_ATTRIBUTE))
@@ -1688,6 +1695,47 @@ public class EntityDefinition<E extends Entity>
 		}
 
 		return rParentAttr;
+	}
+
+	/***************************************
+	 * Registers this definition also for sub-classes of this definitions entity
+	 * type if they are marked as sub-types without separate definition.
+	 */
+	private void registerSubTypes()
+	{
+		Enum<?>[] rEntityTypes =
+			(Enum<?>[]) rTypeAttribute.getTargetType().getEnumConstants();
+
+		for (Enum<?> eType : rEntityTypes)
+		{
+			String sSubTypeClass =
+				rEntityClass.getPackage().getName() + "." +
+				TextConvert.capitalizedIdentifier(eType.toString());
+
+			try
+			{
+				@SuppressWarnings("unchecked")
+				Class<? extends E> rTypeClass =
+					(Class<? extends E>) Class.forName(sSubTypeClass);
+
+				if (rEntityClass.isAssignableFrom(rTypeClass))
+				{
+					if (aTypeSubClasses == null)
+					{
+						aTypeSubClasses = new HashMap<>();
+						aSubClassTypes  = new HashMap<>();
+					}
+
+					EntityManager.registerEntitySubType(rTypeClass, this);
+					aTypeSubClasses.put(eType.toString(), rTypeClass);
+					aSubClassTypes.put(rTypeClass, eType);
+				}
+			}
+			catch (ClassNotFoundException e)
+			{
+				// ignore non-existing sub-type and use the base class
+			}
+		}
 	}
 
 	/***************************************
