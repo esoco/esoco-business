@@ -26,7 +26,9 @@ import de.esoco.process.ui.component.UiCheckBox;
 import de.esoco.process.ui.component.UiCheckBoxes;
 import de.esoco.process.ui.component.UiComboBox;
 import de.esoco.process.ui.component.UiDateField;
+import de.esoco.process.ui.component.UiDecimalField;
 import de.esoco.process.ui.component.UiDropDown;
+import de.esoco.process.ui.component.UiIntegerField;
 import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiList;
 import de.esoco.process.ui.component.UiMultiSelectionList;
@@ -42,6 +44,8 @@ import de.esoco.process.ui.container.UiPanel;
 import de.esoco.process.ui.container.UiSplitPanel;
 import de.esoco.process.ui.container.UiStackPanel;
 import de.esoco.process.ui.container.UiTabPanel;
+
+import java.math.BigDecimal;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -162,13 +166,25 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * accepts only date input but additional time input can be enabled with
 	 * {@link UiCalendar#withTimeInput()}.
 	 *
-	 * @param  rDate The initial date value
+	 * @param  rDate The initial value
 	 *
 	 * @return The new component
 	 */
 	public UiDateField addDateField(Date rDate)
 	{
 		return new UiDateField(this, rDate);
+	}
+
+	/***************************************
+	 * Adds an input field for decimal values.
+	 *
+	 * @param  rValue The initial value
+	 *
+	 * @return The new component
+	 */
+	public UiDecimalField addDecimalField(BigDecimal rValue)
+	{
+		return new UiDecimalField(this, rValue);
 	}
 
 	/***************************************
@@ -204,6 +220,20 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	public <T> UiDropDown<T> addDropDown(Class<T> rDatatype)
 	{
 		return new UiDropDown<>(this, rDatatype);
+	}
+
+	/***************************************
+	 * Adds an integer input field. To allow only the input of a certain value
+	 * range with spinner controls {@link UiIntegerField#withBounds(int, int)}
+	 * can be invoked on it.
+	 *
+	 * @param  nValue The initial value
+	 *
+	 * @return The new component
+	 */
+	public UiIntegerField addIntegerField(int nValue)
+	{
+		return new UiIntegerField(this, nValue);
 	}
 
 	/***************************************
