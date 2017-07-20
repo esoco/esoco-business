@@ -97,7 +97,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * but an additional time of day selector can be enabled with the method
 	 * {@link UiCalendar#withTimeInput()}.
 	 *
-	 * @param  rDate The initial date value
+	 * @param  rDate The initial date value or NULL for the current date
 	 *
 	 * @return The new component
 	 */
@@ -166,7 +166,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * accepts only date input but additional time input can be enabled with
 	 * {@link UiCalendar#withTimeInput()}.
 	 *
-	 * @param  rDate The initial value
+	 * @param  rDate The initial value or NULL for the current date
 	 *
 	 * @return The new component
 	 */
