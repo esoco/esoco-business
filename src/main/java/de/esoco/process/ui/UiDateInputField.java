@@ -16,28 +16,42 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.TextAttribute;
+import de.esoco.data.element.DateDataElement.DateInputType;
+
+import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.DateAttribute;
+
+import java.util.Date;
+
+import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
+
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 
 
 /********************************************************************
- * A text input field.
+ * A date input field.
  *
  * @author eso
  */
-public abstract class UiTextInputField<T extends UiTextInputField<T>>
-	extends UiInputField<String, T> implements TextAttribute
+public abstract class UiDateInputField<C extends UiDateInputField<C>>
+	extends UiInputField<Date, C> implements DateAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent rContainer The parent container
-	 * @param sText   The initial text
+	 * @param rParent rContainer The parent fragment
+	 * @param rDate   The initial date value
+	 * @param eType   The type of date input
 	 */
-	public UiTextInputField(UiContainer<?> rParent, String sText)
+	protected UiDateInputField(UiContainer<?> rParent,
+							   Date			  rDate,
+							   DateInputType  eType)
 	{
-		super(rParent, String.class, sText);
+		super(rParent, Date.class, rDate != null ? rDate : new Date());
+
+		set(DATE_INPUT_TYPE, eType);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -46,7 +60,7 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText()
+	public Date getDate()
 	{
 		return fragment().getParameter(type());
 	}
@@ -55,8 +69,21 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText)
+	public void setDate(Date rDate)
 	{
-		fragment().setParameter(type(), sText);
+		fragment().setParameter(type(), rDate);
+	}
+
+	/***************************************
+	 * Enables the input of a time value besides the calendar date.
+	 *
+	 * @return This instance
+	 */
+	@SuppressWarnings("unchecked")
+	public C withTimeInput()
+	{
+		set(CONTENT_TYPE, ContentType.DATE_TIME);
+
+		return (C) this;
 	}
 }

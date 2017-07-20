@@ -14,49 +14,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.TextAttribute;
+import de.esoco.data.element.DateDataElement.DateInputType;
+
+import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiDateInputField;
+
+import java.util.Date;
 
 
 /********************************************************************
- * A text input field.
+ * A component that allows to select a date from a calendar display.
  *
  * @author eso
  */
-public abstract class UiTextInputField<T extends UiTextInputField<T>>
-	extends UiInputField<String, T> implements TextAttribute
+public class UiCalendar extends UiDateInputField<UiCalendar>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance with the current date as it's value.
 	 *
 	 * @param rParent rContainer The parent container
-	 * @param sText   The initial text
 	 */
-	public UiTextInputField(UiContainer<?> rParent, String sText)
+	public UiCalendar(UiContainer<?> rParent)
 	{
-		super(rParent, String.class, sText);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getText()
-	{
-		return fragment().getParameter(type());
+		this(rParent, null);
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Creates a new instance for a particular date.
+	 *
+	 * @see UiDateInputField#UiDateInputField(UiContainer, Date)
 	 */
-	@Override
-	public void setText(String sText)
+	public UiCalendar(UiContainer<?> rContainer, Date rDate)
 	{
-		fragment().setParameter(type(), sText);
+		super(rContainer, rDate, DateInputType.CALENDAR);
 	}
 }

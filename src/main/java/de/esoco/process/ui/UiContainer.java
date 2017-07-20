@@ -21,9 +21,11 @@ import de.esoco.entity.Entity;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.component.UiCalendar;
 import de.esoco.process.ui.component.UiCheckBox;
 import de.esoco.process.ui.component.UiCheckBoxes;
 import de.esoco.process.ui.component.UiComboBox;
+import de.esoco.process.ui.component.UiDateField;
 import de.esoco.process.ui.component.UiDropDown;
 import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiList;
@@ -42,6 +44,7 @@ import de.esoco.process.ui.container.UiStackPanel;
 import de.esoco.process.ui.container.UiTabPanel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.obrel.core.RelationType;
@@ -84,6 +87,20 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a date selector. By default it only provides a calendar date input
+	 * but an additional time of day selector can be enabled with the method
+	 * {@link UiCalendar#withTimeInput()}.
+	 *
+	 * @param  rDate The initial date value
+	 *
+	 * @return The new component
+	 */
+	public UiCalendar addCalendar(Date rDate)
+	{
+		return new UiCalendar(this, rDate);
+	}
 
 	/***************************************
 	 * Adds a group of check boxes with string labels.
@@ -138,6 +155,20 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	public UiComboBox addComboBox(String sText)
 	{
 		return new UiComboBox(this, sText);
+	}
+
+	/***************************************
+	 * Adds a date input field with a pop-up date selector. By default it
+	 * accepts only date input but additional time input can be enabled with
+	 * {@link UiCalendar#withTimeInput()}.
+	 *
+	 * @param  rDate The initial date value
+	 *
+	 * @return The new component
+	 */
+	public UiDateField addDateField(Date rDate)
+	{
+		return new UiDateField(this, rDate);
 	}
 
 	/***************************************
