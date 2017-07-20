@@ -22,11 +22,11 @@ import de.esoco.process.ui.UiView;
 
 
 /********************************************************************
- * A view for dialogs.
+ * A view that is displayed as a pop-up windows over a parent view.
  *
  * @author eso
  */
-public class UiDialog extends UiChildView<UiDialog>
+public class UiPopupView extends UiChildView<UiPopupView>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -36,7 +36,7 @@ public class UiDialog extends UiChildView<UiDialog>
 	 * @param rParent The parent view
 	 * @param rLayout The dialog layout
 	 */
-	public UiDialog(UiView<?> rParent, UiLayout rLayout)
+	public UiPopupView(UiView<?> rParent, UiLayout rLayout)
 	{
 		super(rParent, rLayout);
 	}

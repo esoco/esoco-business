@@ -22,6 +22,7 @@ import de.esoco.lib.property.TextAttribute;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
@@ -46,7 +47,7 @@ public class UiLabel extends UiComponent<String, UiLabel>
 		super(rParent, String.class);
 
 		setText(sText);
-		hideLabel();
+		set(HIDE_LABEL);
 	}
 
 	//~ Methods ----------------------------------------------------------------

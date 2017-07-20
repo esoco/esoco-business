@@ -55,6 +55,7 @@ import org.obrel.type.StandardTypes;
 import static de.esoco.lib.expression.Predicates.not;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.ICON;
+import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.ContentProperties.NULL_VALUE;
 import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
@@ -76,6 +77,7 @@ import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.STYLE;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
@@ -473,6 +475,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Marks this parameter to be disabled in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setEnabled(boolean)
+	 */
+	public final P disable()
+	{
+		return setEnabled(false);
+	}
+
+	/***************************************
 	 * Marks the wrapped relation type to be displayed as readonly in the
 	 * fragment this parameter belongs to.
 	 *
@@ -484,6 +498,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		rFragment.addDisplayParameters(rParamType);
 
 		return (P) this;
+	}
+
+	/***************************************
+	 * Marks this parameter to be disabled in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setEnabled(boolean)
+	 */
+	public final P enable()
+	{
+		return setEnabled(true);
 	}
 
 	/***************************************
@@ -553,6 +579,28 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P height(String sHeight)
 	{
 		return set(HTML_HEIGHT, sHeight);
+	}
+
+	/***************************************
+	 * Marks this parameter to be hidden in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setVisible(boolean)
+	 */
+	public final P hide()
+	{
+		return setVisible(false);
+	}
+
+	/***************************************
+	 * Hides the label of this parameter.
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P hideLabel()
+	{
+		return set(HIDE_LABEL);
 	}
 
 	/***************************************
@@ -686,6 +734,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final boolean is(PropertyName<Boolean> rFlagProperty)
 	{
 		return get(rFlagProperty) == Boolean.TRUE;
+	}
+
+	/***************************************
+	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
+	 *
+	 * @param  sLabel sWidth The label string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P label(String sLabel)
+	{
+		return set(LABEL, sLabel);
 	}
 
 	/***************************************
@@ -859,6 +919,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P sameRow(RelativeSize eColumnWidth)
 	{
 		return sameRow().width(eColumnWidth);
+	}
+
+	/***************************************
+	 * Marks this parameter to be visible in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setVisible(boolean)
+	 */
+	public final P show()
+	{
+		return setVisible(true);
 	}
 
 	/***************************************

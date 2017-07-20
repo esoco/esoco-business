@@ -42,6 +42,7 @@ import de.esoco.process.ui.container.UiStackPanel;
 import de.esoco.process.ui.container.UiTabPanel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.obrel.core.RelationType;
 
@@ -52,11 +53,11 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public abstract class UiContainer<C extends UiContainer<C>>
-	extends UiComponent<java.util.List<RelationType<?>>, C>
+	extends UiComponent<List<RelationType<?>>, C>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private java.util.List<UiComponent<?, ?>> rComponents = new ArrayList<>();
+	private List<UiComponent<?, ?>> rComponents = new ArrayList<>();
 
 	private UiLayout rLayout;
 
@@ -70,36 +71,15 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	public UiContainer(UiContainer<?> rParent, UiLayout rLayout)
 	{
+		// NULL for datatype to prevent component attachTo() as a special list
+		// parameter type needs to be created in the container implementation
 		super(rParent, null);
 
 		this.rLayout = rLayout;
 
 		if (rParent != null)
 		{
-			InteractionFragment rParentFragment = rParent.fragment();
-
-			@SuppressWarnings("serial")
-			InteractionFragment aContainerFragment =
-				new InteractionFragment()
-				{
-					@Override
-					public void init() throws Exception
-					{
-						build();
-					}
-				};
-
-			RelationType<java.util.List<RelationType<?>>> rContainerParamType =
-				rParentFragment.getTemporaryListType(null, RelationType.class);
-
-			setFragment(aContainerFragment);
-			setParameterType(rContainerParamType);
-			rParentFragment.addInputParameters(rContainerParamType);
-
-			rParentFragment.addSubFragment(rContainerParamType,
-										   aContainerFragment);
-
-			rParent.addComponent(this);
+			attachTo(rParent);
 		}
 	}
 
@@ -434,7 +414,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @return The collection of components
 	 */
-	public java.util.List<UiComponent<?, ?>> getComponents()
+	public List<UiComponent<?, ?>> getComponents()
 	{
 		return new ArrayList<>(rComponents);
 	}
@@ -491,6 +471,32 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Overridden to setup the container fragment and to attach it to the parent
+	 * fragment.
+	 *
+	 * @see UiComponent#attachTo(UiContainer)
+	 */
+	@Override
+	protected void attachTo(UiContainer<?> rParent)
+	{
+		setupContainerFragment(rParent);
+		attachToParentFragment(rParent.fragment());
+
+		rParent.addComponent(this);
+	}
+
+	/***************************************
+	 * Attaches this container to it's parent fragment.
+	 *
+	 * @param rParentFragment The parent fragment
+	 */
+	protected void attachToParentFragment(InteractionFragment rParentFragment)
+	{
+		rParentFragment.addInputParameters(type());
+		rParentFragment.addSubFragment(type(), fragment());
+	}
+
+	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
 	 * after creation. This may also be used in combination. In that case this
@@ -518,6 +524,19 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Creates the interaction fragment this container is rendered in and the
+	 * corresponding list parameter type.
+	 *
+	 * @param rParent The parent container
+	 */
+	protected void setupContainerFragment(UiContainer<?> rParent)
+	{
+		setFragment(new UiContainerFragment());
+		setParameterType(rParent.fragment()
+						 .getTemporaryListType(null, RelationType.class));
+	}
+
+	/***************************************
 	 * Internal method to add a component to this container.
 	 *
 	 * @param rComponent The component to add
@@ -528,5 +547,30 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		rLayout.layoutComponent(rComponent);
 
 		componentAdded(rComponent);
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * An interaction fragment subclass that wraps containers.
+	 *
+	 * @author eso
+	 */
+	class UiContainerFragment extends InteractionFragment
+	{
+		//~ Static fields/initializers -----------------------------------------
+
+		private static final long serialVersionUID = 1L;
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void init() throws Exception
+		{
+			build();
+		}
 	}
 }

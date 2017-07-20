@@ -27,6 +27,8 @@ import de.esoco.process.ParameterWrapper;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
 
+import org.obrel.core.RelationType;
+
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 
@@ -63,13 +65,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 		if (rParent != null && rDatatype != null)
 		{
-			rParent.addComponent(this);
-			fragment().addDisplayParameters(type());
-
-			if (rDatatype.isEnum())
-			{
-				resid(rDatatype.getSimpleName());
-			}
+			attachTo(rParent);
 		}
 	}
 
@@ -183,6 +179,26 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		}
 
 		aStyle.applyPropertiesTo(this);
+	}
+
+	/***************************************
+	 * Attaches this component to it's parent container.
+	 *
+	 * @param rParent The parent container
+	 */
+	protected void attachTo(UiContainer<?> rParent)
+	{
+		rParent.addComponent(this);
+
+		RelationType<T>  rParamType = type();
+		Class<? super T> rDatatype  = rParamType.getTargetType();
+
+		fragment().addDisplayParameters(rParamType);
+
+		if (rDatatype.isEnum())
+		{
+			resid(rDatatype.getSimpleName());
+		}
 	}
 
 	/***************************************

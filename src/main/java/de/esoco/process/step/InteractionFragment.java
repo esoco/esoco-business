@@ -41,6 +41,7 @@ import de.esoco.lib.property.LabelStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.CollectionParameter.ListParameter;
@@ -52,8 +53,11 @@ import de.esoco.process.EnumParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ParameterList;
 import de.esoco.process.Process;
+import de.esoco.process.ProcessElement;
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessFragment;
+import de.esoco.process.ProcessRelationTypes;
+import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ViewFragment;
 import de.esoco.process.step.DialogFragment.DialogAction;
@@ -1399,7 +1403,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	@SuppressWarnings("serial")
 	public ParameterList panel(
 		String								   sName,
-		LayoutType								   ePanelLayout,
+		LayoutType							   ePanelLayout,
 		final Initializer<InteractionFragment> rInitializer)
 	{
 		ParameterList aPanel =
@@ -1712,7 +1716,6 @@ public abstract class InteractionFragment extends ProcessFragment
 									 InteractionFragment  rContentFragment,
 									 DialogActionListener rDialogListener,
 									 DialogAction... 	  rDialogActions)
-		throws Exception
 	{
 		return showDialog(sParamNameTemplate,
 						  rContentFragment,
@@ -1732,7 +1735,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		InteractionFragment		 rContentFragment,
 		boolean					 bModal,
 		DialogActionListener	 rDialogListener,
-		Collection<DialogAction> rDialogActions) throws Exception
+		Collection<DialogAction> rDialogActions)
 	{
 		return showDialog(sParamNameTemplate,
 						  rContentFragment,
@@ -1766,8 +1769,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *                            buttons
 	 *
 	 * @return The new dialog fragment instance
-	 *
-	 * @throws Exception If displaying the dialog fails
 	 */
 	public DialogFragment showDialog(
 		String					 sParamNameTemplate,
@@ -1775,7 +1776,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		boolean					 bModal,
 		String					 sQuestion,
 		DialogActionListener	 rDialogListener,
-		Collection<DialogAction> rDialogActions) throws Exception
+		Collection<DialogAction> rDialogActions)
 	{
 		DialogFragment aDialog =
 			new DialogFragment(sParamNameTemplate,
@@ -1873,15 +1874,7 @@ public abstract class InteractionFragment extends ProcessFragment
 								   rDialogActions,
 								   rExtraParams);
 
-		try
-		{
-			showDialogImpl(aMessageBox, rDialogListener);
-		}
-		catch (Exception e)
-		{
-			// message boxes should not fail
-			throw new IllegalStateException(e);
-		}
+		showDialogImpl(aMessageBox, rDialogListener);
 
 		return aMessageBox;
 	}
@@ -1895,7 +1888,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public DialogFragment showModalDialog(
 		InteractionFragment		 rContentFragment,
-		Collection<DialogAction> rDialogActions) throws Exception
+		Collection<DialogAction> rDialogActions)
 	{
 		return showDialog(null, rContentFragment, true, null, rDialogActions);
 	}
@@ -1918,12 +1911,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @return The new view fragment to provide access to it's method {@link
 	 *         ViewFragment#hide()}
-	 *
-	 * @throws Exception If displaying the dialog fails
 	 */
 	public ViewFragment showView(String				 sParamNameTemplate,
 								 InteractionFragment rContentFragment,
-								 boolean			 bModal) throws Exception
+								 boolean			 bModal)
 	{
 		ViewFragment aViewFragment =
 			new ViewFragment(sParamNameTemplate,
@@ -2582,7 +2573,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	private void showDialogImpl(
 		DialogFragment		 rDialogFragment,
-		DialogActionListener rDialogListener) throws Exception
+		DialogActionListener rDialogListener)
 	{
 		if (rDialogListener != null)
 		{

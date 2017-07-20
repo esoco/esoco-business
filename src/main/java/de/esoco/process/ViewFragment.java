@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -139,8 +139,7 @@ public class ViewFragment extends InteractionFragment
 	}
 
 	/***************************************
-	 * Removes the corresponding parameters of the parent fragment to hide the
-	 * dialog for this fragment.
+	 * Hides this view.
 	 */
 	public void hide()
 	{
@@ -184,7 +183,7 @@ public class ViewFragment extends InteractionFragment
 	 *
 	 * @throws Exception
 	 */
-	public void show(InteractionFragment rParent) throws Exception
+	public void show(InteractionFragment rParent)
 	{
 		aViewFragmentParam =
 			rParent.getTemporaryListType(sParamBaseName, RelationType.class);

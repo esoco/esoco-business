@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 
@@ -90,7 +91,7 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
 											   rPageComponent.getParent());
 		}
 
-		rPageComponent.label(sTitle);
+		rPageComponent.set(LABEL, sTitle);
 
 		return rPageComponent;
 	}

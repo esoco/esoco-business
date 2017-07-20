@@ -33,12 +33,10 @@ import java.util.Set;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
 import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_TYPES;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
 /********************************************************************
@@ -98,26 +96,6 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
-	 * Marks this parameter to be disabled in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P disable()
-	{
-		return set(DISABLED);
-	}
-
-	/***************************************
-	 * Marks this parameter to be disabled in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P enable()
-	{
-		return clear(DISABLED);
-	}
-
-	/***************************************
 	 * Returns the fragment this parameter belongs to (i.e. where it is
 	 * displayed).
 	 *
@@ -148,38 +126,6 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 		HasProperties rProperties = rFragment.getUIProperties(rParamType);
 
 		return rProperties != null && rProperties.hasProperty(rProperty);
-	}
-
-	/***************************************
-	 * Marks this parameter to be hidden in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P hide()
-	{
-		return set(HIDDEN);
-	}
-
-	/***************************************
-	 * Hides the label of this parameter.
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P hideLabel()
-	{
-		return set(HIDE_LABEL);
-	}
-
-	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
-	 *
-	 * @param  sLabel sWidth The label string
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P label(String sLabel)
-	{
-		return set(LABEL, sLabel);
 	}
 
 	/***************************************
@@ -278,13 +224,10 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @param  bEnabled TRUE to enable the parameter, FALSE to disable it
 	 *
 	 * @return This instance for concatenation
-	 *
-	 * @see    #enable()
-	 * @see    #disable()
 	 */
-	public final P setEnabled(boolean bEnabled)
+	public P setEnabled(boolean bEnabled)
 	{
-		return bEnabled ? enable() : disable();
+		return bEnabled ? clear(DISABLED) : set(DISABLED);
 	}
 
 	/***************************************
@@ -293,23 +236,10 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @param  bVisible TRUE to show the parameter, FALSE to hide it
 	 *
 	 * @return This instance for concatenation
-	 *
-	 * @see    #hide()
-	 * @see    #show()
 	 */
-	public final P setVisible(boolean bVisible)
+	public P setVisible(boolean bVisible)
 	{
-		return bVisible ? show() : hide();
-	}
-
-	/***************************************
-	 * Marks this parameter to be visible in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P show()
-	{
-		return clear(HIDDEN);
+		return bVisible ? clear(HIDDEN) : set(HIDDEN);
 	}
 
 	/***************************************

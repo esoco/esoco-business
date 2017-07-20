@@ -14,77 +14,89 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
+package de.esoco.process.ui;
 
-import de.esoco.lib.property.Selectable;
-import de.esoco.lib.property.TextAttribute;
-
-import de.esoco.process.ui.UiButtonControl;
-import de.esoco.process.ui.UiContainer;
-
-import static de.esoco.lib.property.ContentProperties.LABEL;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import de.esoco.process.ViewFragment;
 
 
 /********************************************************************
- * A check box button that has a selectable state.
+ * A view that is displayed as a child of another view.
  *
  * @author eso
  */
-public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
-	implements Selectable, TextAttribute
+public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private ViewFragment rViewFragment;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance and shows it.
 	 *
-	 * @param rParent The parent container
-	 * @param sLabel  The check box label
+	 * @see UiView#UiView(UiView, UiLayout)
 	 */
-	public UiCheckBox(UiContainer<?> rParent, String sLabel)
+	public UiChildView(UiView<?> rParent, UiLayout rLayout)
 	{
-		super(rParent, Boolean.class);
+		super(rParent, rLayout);
 
-		setText(sLabel);
-		set(HIDE_LABEL);
+		setVisible(true);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Closes this view.
 	 */
-	@Override
-	public String getText()
+	public final void close()
 	{
-		return get(LABEL);
+		setVisible(false);
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Opens this view.
 	 */
-	@Override
-	public boolean isSelected()
+	public final void open()
 	{
-		return fragment().getParameter(type()).booleanValue();
+		applyProperties();
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Overridden to show or hide this view.
+	 *
+	 * @see UiContainer#setVisible(boolean)
 	 */
 	@Override
-	public void setSelected(boolean bSelected)
+	@SuppressWarnings("unchecked")
+	public V setVisible(boolean bVisible)
 	{
-		fragment().setParameter(type(), bSelected);
+		if (bVisible)
+		{
+			if (rViewFragment == null)
+			{
+				rViewFragment =
+					getParent().fragment().showView("", fragment(), false);
+			}
+		}
+		else if (rViewFragment != null)
+		{
+			rViewFragment.hide();
+			rViewFragment = null;
+		}
+
+		return (V) this;
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Overridden to setup the container fragment and to attach it to the parent
+	 * fragment.
+	 *
+	 * @see UiComponent#attachTo(UiContainer)
 	 */
 	@Override
-	public void setText(String sText)
+	protected void attachTo(UiContainer<?> rParent)
 	{
-		set(LABEL, sText);
+		setupContainerFragment(rParent);
 	}
 }
