@@ -957,7 +957,6 @@ public class EntityDefinition<E extends Entity>
 	 *
 	 * @return The new entity
 	 */
-	@SuppressWarnings("unchecked")
 	protected E createEntityInstance(List<?> rAttributeValues)
 	{
 		Class<? extends E> rClass = rEntityClass;
