@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.IntAttribute;
+
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiNumberInputField;
 
@@ -27,13 +29,15 @@ import de.esoco.process.ui.UiNumberInputField;
  * @author eso
  */
 public class UiIntegerField extends UiNumberInputField<Integer, UiIntegerField>
+	implements IntAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiNumberInputField#UiNumberInputField(UiContainer, Class, Number)
+	 * @param rContainer rParent The parent container
+	 * @param nValue     The initial value
 	 */
 	public UiIntegerField(UiContainer<?> rContainer, int nValue)
 	{
@@ -41,6 +45,24 @@ public class UiIntegerField extends UiNumberInputField<Integer, UiIntegerField>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getValue()
+	{
+		return getValueImpl().intValue();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setValue(int nValue)
+	{
+		setValueImpl(Integer.valueOf(nValue));
+	}
 
 	/***************************************
 	 * Sets the minimum and maximum values for the integer input. If these

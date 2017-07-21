@@ -16,14 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.LabelStyle;
-import de.esoco.lib.property.TextAttribute;
+import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.IntAttribute;
 
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 
 
 /********************************************************************
@@ -31,23 +30,27 @@ import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
  *
  * @author eso
  */
-public class UiLabel extends UiComponent<String, UiLabel>
-	implements TextAttribute
+public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
+	implements IntAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance that is initialized to a progress value of 0 and
+	 * bounds of 0 and 100.
 	 *
 	 * @param rParent The parent container
-	 * @param sText   The label text
+	 *
+	 * @see   #withBounds(int, int)
 	 */
-	public UiLabel(UiContainer<?> rParent, String sText)
+	public UiProgressBar(UiContainer<?> rParent)
 	{
-		super(rParent, String.class);
+		super(rParent, Integer.class);
 
-		setText(sText);
-		set(HIDE_LABEL);
+		set(CONTENT_TYPE, ContentType.PROGRESS);
+
+		setValue(0);
+		withBounds(0, 100);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -56,27 +59,33 @@ public class UiLabel extends UiComponent<String, UiLabel>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText()
+	public int getValue()
 	{
-		return getValueImpl();
-	}
-
-	/***************************************
-	 * Sets the style of this label.
-	 *
-	 * @param eStyle The label style
-	 */
-	public void setLabelStyle(LabelStyle eStyle)
-	{
-		set(LABEL_STYLE, eStyle);
+		return getValueImpl().intValue();
 	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText)
+	public void setValue(int nValue)
 	{
-		setValueImpl(sText);
+		setValueImpl(Integer.valueOf(nValue));
+	}
+
+	/***************************************
+	 * Sets the minimum and maximum values for the progress value. If not set
+	 * these values are initialized to 0 and 100, respectively.
+	 *
+	 * @param  nMinimum The minimum integer value
+	 * @param  nMaximum The maximum integer value
+	 *
+	 * @return This instance
+	 */
+	public UiProgressBar withBounds(int nMinimum, int nMaximum)
+	{
+		fragment().setParameterBounds(type(), nMinimum, nMaximum);
+
+		return this;
 	}
 }

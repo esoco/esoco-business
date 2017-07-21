@@ -55,19 +55,35 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Validates that the value of this parameter fulfills a certain constraint.
-	 * If not an exception will be thrown.
+	 * Sets a validation for the control's input value. This validation will be
+	 * executed on process interactions. To immediately validate the component
+	 * input the method {@link #validate(Function)} can be used.
 	 *
-	 * @param  fValidation The constraint to be validated
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @throws InvalidParametersException If the constraint is violated
+	 * @param fValidation The validation function
 	 */
 	@SuppressWarnings("unchecked")
-	public C validate(Function<? super T, ValidationResult> fValidation)
+	public void setValidation(Function<? super T, ValidationResult> fValidation)
 	{
-		ValidationResult rResult = fValidation.apply(getValue());
+		fragment().setParameterValidation(type(),
+										  v -> fValidation.apply(v)
+										  .getMessage());
+	}
+
+	/***************************************
+	 * Immediately validates whether the input value of this control fulfills a
+	 * certain constraint. If not an exception will be thrown that will then be
+	 * handled by the process framework. To let the validation be performed by
+	 * the process framework use the method {@link #setValidation(Function)}
+	 * instead.
+	 *
+	 * @param  fValidation The validation function for the control value
+	 *
+	 * @throws InvalidParametersException If the validation fails
+	 */
+	@SuppressWarnings("unchecked")
+	public void validate(Function<? super T, ValidationResult> fValidation)
+	{
+		ValidationResult rResult = fValidation.apply(getValueImpl());
 
 		if (!rResult.isValid())
 		{
@@ -79,8 +95,6 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 
 			throw new InvalidParametersException(fragment(), sMessage, rParam);
 		}
-
-		return (C) this;
 	}
 
 	/***************************************

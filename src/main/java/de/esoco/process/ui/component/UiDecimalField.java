@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.HasValue;
+
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiNumberInputField;
 
@@ -29,6 +31,7 @@ import java.math.BigDecimal;
  */
 public class UiDecimalField
 	extends UiNumberInputField<BigDecimal, UiDecimalField>
+	implements HasValue<BigDecimal>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -40,5 +43,25 @@ public class UiDecimalField
 	public UiDecimalField(UiContainer<?> rContainer, BigDecimal rValue)
 	{
 		super(rContainer, BigDecimal.class, rValue);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BigDecimal getValue()
+	{
+		return getValueImpl();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setValue(BigDecimal rValue)
+	{
+		setValueImpl(rValue);
 	}
 }

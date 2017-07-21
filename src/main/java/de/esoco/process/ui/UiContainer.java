@@ -32,6 +32,7 @@ import de.esoco.process.ui.component.UiIntegerField;
 import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiList;
 import de.esoco.process.ui.component.UiMultiSelectionList;
+import de.esoco.process.ui.component.UiProgressBar;
 import de.esoco.process.ui.component.UiPushButtons;
 import de.esoco.process.ui.component.UiQueryTable;
 import de.esoco.process.ui.component.UiRadioButtons;
@@ -305,6 +306,18 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	public UiPanel addPanel(UiLayout eLayout)
 	{
 		return new UiPanel(this, eLayout);
+	}
+
+	/***************************************
+	 * Adds a progress bar. The integer value of the bar defines the current
+	 * progress in relation to the progress bar bounds. These default to 0 and
+	 * 100 and can be changed with {@link UiProgressBar#withBounds(int, int)}.
+	 *
+	 * @return The new component
+	 */
+	public UiProgressBar addProgressBar()
+	{
+		return new UiProgressBar(this);
 	}
 
 	/***************************************
