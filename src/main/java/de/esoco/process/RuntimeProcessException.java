@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,15 +23,11 @@ package de.esoco.process;
  *
  * @author eso
  */
-public class RuntimeProcessException extends RuntimeException
+public class RuntimeProcessException extends ProcessException
 {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
-
-	//~ Instance fields --------------------------------------------------------
-
-	private final ProcessFragment rStep;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -68,38 +64,6 @@ public class RuntimeProcessException extends RuntimeException
 								   String		   sMessage,
 								   Throwable	   aCause)
 	{
-		super(sMessage, aCause);
-
-		this.rStep = rStep;
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Returns the process step that caused this exception.
-	 *
-	 * @return The process step
-	 */
-	public final ProcessFragment getProcessStep()
-	{
-		return rStep;
-	}
-
-	/***************************************
-	 * Returns the root exception of this instance, i.e. the topmost causing
-	 * exception or this if no cause exists.
-	 *
-	 * @return The root exception
-	 */
-	public Throwable getRootException()
-	{
-		Throwable eRoot = this;
-
-		while (eRoot.getCause() != null)
-		{
-			eRoot = eRoot.getCause();
-		}
-
-		return eRoot;
+		super(rStep, sMessage, aCause);
 	}
 }
