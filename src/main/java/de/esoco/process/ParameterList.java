@@ -37,8 +37,7 @@ public class ParameterList
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private boolean				  bIsFragment;
-	private ParameterBase<?, ?>[] rLastAddedParams;
+	private boolean bIsFragment;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -114,25 +113,6 @@ public class ParameterList
 		}
 
 		rFragment.enableEdit(bEnable);
-
-		return this;
-	}
-
-	/***************************************
-	 * Marks the parameters that have been added to this parameter's fragment
-	 * with the last call to {@link #add(ParameterBase...)} for input.
-	 *
-	 * @return This instance for concatenation
-	 */
-	public ParameterList forInput()
-	{
-		if (rLastAddedParams != null)
-		{
-			for (ParameterBase<?, ?> rParam : rLastAddedParams)
-			{
-				rParam.input();
-			}
-		}
 
 		return this;
 	}

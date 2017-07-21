@@ -202,6 +202,31 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Returns the value of this component's parameter. This is intended to be
+	 * used by subclasses only which should provide a type-specific public
+	 * method (like String getText()).
+	 *
+	 * @return The current value
+	 */
+	protected final T getValue()
+	{
+		return fragment().getParameter(type());
+	}
+
+	/***************************************
+	 * Sets the value of this component's parameter. This is intended to be used
+	 * by subclasses only which should provide a type-specific public method
+	 * (like setText(String)).
+	 *
+	 * @param rValue The new value
+	 */
+	@SuppressWarnings("unchecked")
+	protected final void setValue(T rValue)
+	{
+		fragment().setParameter(type(), rValue);
+	}
+
+	/***************************************
 	 * Internal method to set the layout cell in which this component has been
 	 * placed. Will be invoked from {@link
 	 * UiLayout#layoutComponent(UiComponent)}.

@@ -16,7 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.expression.function.Validation.ValidationResult;
+
+import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ui.event.HasFocusEvents;
+
+import java.util.Collections;
+import java.util.function.Function;
 
 import org.obrel.core.RelationType;
 
@@ -47,6 +53,35 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Validates that the value of this parameter fulfills a certain constraint.
+	 * If not an exception will be thrown.
+	 *
+	 * @param  fValidation The constraint to be validated
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @throws InvalidParametersException If the constraint is violated
+	 */
+	@SuppressWarnings("unchecked")
+	public C validate(Function<? super T, ValidationResult> fValidation)
+	{
+		ValidationResult rResult = fValidation.apply(getValue());
+
+		if (!rResult.isValid())
+		{
+			String		    sMessage = rResult.getMessage();
+			RelationType<T> rParam   = type();
+
+			fragment().validationError(Collections.singletonMap(rParam,
+																sMessage));
+
+			throw new InvalidParametersException(fragment(), sMessage, rParam);
+		}
+
+		return (C) this;
+	}
 
 	/***************************************
 	 * Initializes this control with a list parameter type. This is intended for
