@@ -14,49 +14,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
+package de.esoco.process.ui;
 
 import de.esoco.lib.property.ListStyle;
 
-import de.esoco.process.ProcessRelationTypes;
-import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiListControl;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
-import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 
 /********************************************************************
- * A list component that allows the selection of multiple values. The datatype
- * of of the list values can be defined on creation. Typically string and enum
- * values are supported.
+ * The base class for lists with a single selectable value. The generic datatype
+ * defines the type of the list values. Typically string and enum values are
+ * supported.
  *
  * @author eso
  */
-public class UiMultiSelectionList<T>
-	extends UiListControl<List<T>, UiMultiSelectionList<T>>
+public abstract class UiSingleSelectionList<T, C extends UiSingleSelectionList<T, C>>
+	extends UiListControl<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. If the datatype is an enum all enum values will
+	 * be pre-set as the list values. This can be changed after construction
+	 * through the {@link #setListValues(java.util.Collection) setListValues}
+	 * methods.
 	 *
 	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list elements
+	 * @param rDatatype The datatype of the list values
+	 * @param eStyle    The list style
 	 */
-	public UiMultiSelectionList(UiContainer<?> rParent, Class<T> rDatatype)
+	public UiSingleSelectionList(UiContainer<?> rParent,
+								 Class<T>		rDatatype,
+								 ListStyle		eStyle)
 	{
-		super(rParent, null, null);
-
-		initListParameterType(rDatatype);
-		set(LIST_STYLE, ListStyle.LIST);
+		super(rParent, rDatatype, eStyle);
 
 		if (rDatatype.isEnum())
 		{
-			resid(rDatatype.getSimpleName());
+			setListValues(rDatatype.getEnumConstants());
+		}
+		else
+		{
+			// set empty list to force rendering as a list
+			setListValues(new ArrayList<>());
 		}
 	}
 
@@ -67,10 +68,9 @@ public class UiMultiSelectionList<T>
 	 *
 	 * @return The list values
 	 */
-	@SuppressWarnings("unchecked")
 	public Collection<T> getListValues()
 	{
-		return (Collection<T>) fragment().getAllowedValues(type());
+		return fragment().getAllowedValues(type());
 	}
 
 	/***************************************
@@ -81,7 +81,7 @@ public class UiMultiSelectionList<T>
 	@SuppressWarnings("unchecked")
 	public void setListValues(T... rValues)
 	{
-		setListValues(Arrays.asList(rValues));
+		fragment().setAllowedValues(type(), rValues);
 	}
 
 	/***************************************
@@ -91,9 +91,6 @@ public class UiMultiSelectionList<T>
 	 */
 	public void setListValues(Collection<T> rValues)
 	{
-		fragment().annotateParameter(type(),
-									 null,
-									 ProcessRelationTypes.ALLOWED_VALUES,
-									 rValues);
+		fragment().setAllowedValues(type(), rValues);
 	}
 }

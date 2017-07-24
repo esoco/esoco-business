@@ -19,9 +19,7 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiListControl;
-
-import java.util.Collection;
+import de.esoco.process.ui.UiSingleSelectionList;
 
 
 /********************************************************************
@@ -30,7 +28,7 @@ import java.util.Collection;
  *
  * @author eso
  */
-public class UiList<T> extends UiListControl<T, UiList<T>>
+public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -46,43 +44,5 @@ public class UiList<T> extends UiListControl<T, UiList<T>>
 	public UiList(UiContainer<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype, ListStyle.LIST);
-
-		if (rDatatype.isEnum())
-		{
-			setListValues(rDatatype.getEnumConstants());
-		}
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Returns the collection of values that is displayed in this list.
-	 *
-	 * @return The list values
-	 */
-	public Collection<T> getListValues()
-	{
-		return fragment().getAllowedValues(type());
-	}
-
-	/***************************************
-	 * Sets the values to be displayed in this list.
-	 *
-	 * @param rValues The list values
-	 */
-	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues)
-	{
-		fragment().setAllowedValues(type(), rValues);
-	}
-
-	/***************************************
-	 * Sets a collection of values to be displayed in this list.
-	 *
-	 * @param rValues The list values
-	 */
-	public void setListValues(Collection<T> rValues)
-	{
-		fragment().setAllowedValues(type(), rValues);
 	}
 }

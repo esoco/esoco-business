@@ -19,7 +19,7 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.ListStyle;
 
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiListControl;
+import de.esoco.process.ui.UiSingleSelectionList;
 
 
 /********************************************************************
@@ -29,7 +29,7 @@ import de.esoco.process.ui.UiListControl;
  *
  * @author eso
  */
-public class UiDropDown<T> extends UiListControl<T, UiDropDown<T>>
+public class UiDropDown<T> extends UiSingleSelectionList<T, UiDropDown<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
