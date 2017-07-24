@@ -56,6 +56,16 @@ public class UiList<T> extends UiListControl<T, UiList<T>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns the collection of values that is displayed in this list.
+	 *
+	 * @return The list values
+	 */
+	public Collection<T> getListValues()
+	{
+		return fragment().getAllowedValues(type());
+	}
+
+	/***************************************
 	 * Sets the values to be displayed in this list.
 	 *
 	 * @param rValues The list values
