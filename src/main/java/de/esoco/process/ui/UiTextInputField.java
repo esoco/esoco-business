@@ -18,6 +18,8 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.TextAttribute;
 
+import static de.esoco.lib.property.StyleProperties.EDITABLE;
+
 
 /********************************************************************
  * A text input field.
@@ -49,6 +51,18 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	public String getText()
 	{
 		return fragment().getParameter(type());
+	}
+
+	/***************************************
+	 * Sets the editable state of this text field. If set to FALSE no input will
+	 * be possible but the field will not be rendered as disabled.
+	 *
+	 * @param bEditable The new editable
+	 */
+	@SuppressWarnings("boxing")
+	public void setEditable(boolean bEditable)
+	{
+		set(EDITABLE, bEditable);
 	}
 
 	/***************************************
