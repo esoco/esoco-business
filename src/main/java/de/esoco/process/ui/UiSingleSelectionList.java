@@ -21,6 +21,8 @@ import de.esoco.lib.property.ListStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static de.esoco.lib.property.ContentProperties.NULL_VALUE;
+
 
 /********************************************************************
  * The base class for lists with a single selectable value. The generic datatype
@@ -92,5 +94,17 @@ public abstract class UiSingleSelectionList<T, C extends UiSingleSelectionList<T
 	public void setListValues(Collection<T> rValues)
 	{
 		fragment().setAllowedValues(type(), rValues);
+	}
+
+	/***************************************
+	 * Sets a value that should be displayed as a placeholder for the choice of
+	 * no list selection. This represents a NULL value of the component.
+	 *
+	 * @param sValue The string value to display as the "no selection" choice or
+	 *               NULL to not provide this choice
+	 */
+	public void setNoSelectionValue(String sValue)
+	{
+		set(NULL_VALUE, sValue);
 	}
 }
