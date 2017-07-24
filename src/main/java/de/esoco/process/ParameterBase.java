@@ -475,18 +475,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Marks this parameter to be disabled in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #setEnabled(boolean)
-	 */
-	public final P disable()
-	{
-		return setEnabled(false);
-	}
-
-	/***************************************
 	 * Marks the wrapped relation type to be displayed as readonly in the
 	 * fragment this parameter belongs to.
 	 *
@@ -498,18 +486,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		rFragment.addDisplayParameters(rParamType);
 
 		return (P) this;
-	}
-
-	/***************************************
-	 * Marks this parameter to be disabled in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #setEnabled(boolean)
-	 */
-	public final P enable()
-	{
-		return setEnabled(true);
 	}
 
 	/***************************************
@@ -579,18 +555,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P height(String sHeight)
 	{
 		return set(HTML_HEIGHT, sHeight);
-	}
-
-	/***************************************
-	 * Marks this parameter to be hidden in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #setVisible(boolean)
-	 */
-	public final P hide()
-	{
-		return setVisible(false);
 	}
 
 	/***************************************
@@ -919,18 +883,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P sameRow(RelativeSize eColumnWidth)
 	{
 		return sameRow().width(eColumnWidth);
-	}
-
-	/***************************************
-	 * Marks this parameter to be visible in the user interface.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #setVisible(boolean)
-	 */
-	public final P show()
-	{
-		return setVisible(true);
 	}
 
 	/***************************************

@@ -96,6 +96,30 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
+	 * Marks this parameter to be disabled in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setEnabled(boolean)
+	 */
+	public final P disable()
+	{
+		return setEnabled(false);
+	}
+
+	/***************************************
+	 * Marks this parameter to be disabled in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setEnabled(boolean)
+	 */
+	public final P enable()
+	{
+		return setEnabled(true);
+	}
+
+	/***************************************
 	 * Returns the fragment this parameter belongs to (i.e. where it is
 	 * displayed).
 	 *
@@ -126,6 +150,18 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 		HasProperties rProperties = rFragment.getUIProperties(rParamType);
 
 		return rProperties != null && rProperties.hasProperty(rProperty);
+	}
+
+	/***************************************
+	 * Marks this parameter to be hidden in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setVisible(boolean)
+	 */
+	public final P hide()
+	{
+		return setVisible(false);
 	}
 
 	/***************************************
@@ -240,6 +276,18 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	public P setVisible(boolean bVisible)
 	{
 		return bVisible ? clear(HIDDEN) : set(HIDDEN);
+	}
+
+	/***************************************
+	 * Marks this parameter to be visible in the user interface.
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @see    #setVisible(boolean)
+	 */
+	public P show()
+	{
+		return setVisible(true);
 	}
 
 	/***************************************

@@ -47,22 +47,6 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Closes this view.
-	 */
-	public final void close()
-	{
-		setVisible(false);
-	}
-
-	/***************************************
-	 * Opens this view.
-	 */
-	public final void open()
-	{
-		applyProperties();
-	}
-
-	/***************************************
 	 * Overridden to show or hide this view.
 	 *
 	 * @see UiContainer#setVisible(boolean)
@@ -84,6 +68,20 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 			rViewFragment.hide();
 			rViewFragment = null;
 		}
+
+		return (V) this;
+	}
+
+	/***************************************
+	 * Overridden to show this view.
+	 *
+	 * @return This instance
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public final V show()
+	{
+		applyProperties();
 
 		return (V) this;
 	}
