@@ -16,10 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
+import de.esoco.entity.EntitySyncEndpoint.EntitySyncData;
+
 import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointChain;
+import de.esoco.lib.expression.Function;
 
+import static de.esoco.entity.EntitySyncEndpoint.syncRequest;
 import static de.esoco.entity.EntitySyncEndpoint.lockEntity;
 import static de.esoco.entity.EntitySyncEndpoint.releaseEntityLock;
 
@@ -40,31 +44,69 @@ public class EntitySyncEndpointTest
 	 */
 	public static void main(String[] rArgs)
 	{
-		Endpoint aSync = Endpoint.at("http://localhost:8377");
+		String   sContext     = "test";
+		Endpoint aSyncService = Endpoint.at("http://localhost:8377");
 
-		EndpointChain<String, String> fLock = lockEntity().from(aSync);
+		EndpointChain<EntitySyncData, String> fLock =
+			lockEntity().from(aSyncService);
 
-		EndpointChain<String, String> fRelease =
-			releaseEntityLock().from(aSync);
+		EndpointChain<EntitySyncData, String> fRelease =
+			releaseEntityLock().from(aSyncService);
 
-		for (int i = 0; i < 10; i++)
-		{
-			System.out.printf("LOCK   : '%s'\n",
-							  fLock.evaluate("\"E-100" + i + "\""));
-		}
+		lockEntities("test1", fLock);
+		lockEntities("test2", fLock);
+		releaseEntities("test1", fRelease);
+		releaseEntities("test2", fRelease);
 
-		for (int i = 9; i >= 8; i--)
-		{
-			System.out.printf("RELEASE: '%s'\n",
-							  fRelease.evaluate("\"E-100" + i + "\""));
-		}
+		System.out.printf("LOCK   : '%s'\n",
+						  fLock.evaluate(syncRequest(sContext, "E-1001")));
 
-		System.out.printf("LOCK   : '%s'\n", fLock.evaluate("\"E-1001\""));
-
-		String sRunning = Service.CHECK_RUNNING.from(aSync).result();
+		String sRunning = Service.CHECK_RUNNING.from(aSyncService).result();
 
 		System.out.printf("RUNNING: %s\n", sRunning);
 
-		Service.REQUEST_STOP.from(aSync).result();
+//		Service.REQUEST_STOP.from(aSyncService).result();
+	}
+
+	/***************************************
+	 * Test lock entities
+	 *
+	 * @param sContext
+	 * @param fLock
+	 */
+	private static void lockEntities(
+		String							 sContext,
+		Function<EntitySyncData, String> fLock)
+	{
+		for (int i = 0; i < 10; i++)
+		{
+			String sGlobalId = "E-100" + i;
+
+			System.out.printf("LOCK %s:%s: '%s'\n",
+							  sContext,
+							  sGlobalId,
+							  fLock.evaluate(syncRequest(sContext, sGlobalId)));
+		}
+	}
+
+	/***************************************
+	 * Test release entities
+	 *
+	 * @param sContext
+	 * @param fRelease
+	 */
+	private static void releaseEntities(
+		String								  sContext,
+		EndpointChain<EntitySyncData, String> fRelease)
+	{
+		for (int i = 9; i >= 0; i--)
+		{
+			String sGlobalId = "E-100" + i;
+
+			System.out.printf("RELEASE %s:%s: '%s'\n",
+							  sContext,
+							  sGlobalId,
+							  fRelease.evaluate(syncRequest(sContext, sGlobalId)));
+		}
 	}
 }

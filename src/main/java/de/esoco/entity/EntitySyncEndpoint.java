@@ -19,6 +19,9 @@ package de.esoco.entity;
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
 
+import static de.esoco.entity.EntitySyncService.JSON_REQUEST_CONTEXT;
+import static de.esoco.entity.EntitySyncService.JSON_REQUEST_GLOBAL_ID;
+
 import static de.esoco.lib.comm.CommunicationRelationTypes.ENDPOINT_ADDRESS;
 import static de.esoco.lib.expression.Functions.identity;
 
@@ -48,6 +51,20 @@ public class EntitySyncEndpoint extends HttpEndpoint
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
+	 * Static helper method that creates a data record for an entity
+	 * synchronization request.
+	 *
+	 * @param  sContext  The name of the synchronization context
+	 * @param  sGlobalId The global ID of the entity to synchronize
+	 *
+	 * @return The data record for use with {@link EntitySyncRequest}
+	 */
+	public static EntitySyncData syncRequest(String sContext, String sGlobalId)
+	{
+		return new EntitySyncData(sContext, sGlobalId);
+	}
+
+	/***************************************
 	 * Returns a request method that will lock an entity with a certain global
 	 * ID.
 	 *
@@ -72,11 +89,57 @@ public class EntitySyncEndpoint extends HttpEndpoint
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
+	 * A simple data record that contains the data needed for an entity
+	 * synchronization request and a method to convert it into JSON.
+	 *
+	 * @author eso
+	 */
+	public static class EntitySyncData
+	{
+		//~ Instance fields ----------------------------------------------------
+
+		private final String sContext;
+		private final String sGlobalId;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param sContext  The synchronization context
+		 * @param sGlobalId The global ID of the affected entity
+		 */
+		public EntitySyncData(String sContext, String sGlobalId)
+		{
+			this.sContext  = sContext;
+			this.sGlobalId = sGlobalId;
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Formats this data record into a JSON string in the entity sync
+		 * service format.
+		 *
+		 * @return
+		 */
+		public String toJson()
+		{
+			return String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}",
+								 JSON_REQUEST_CONTEXT,
+								 sContext,
+								 JSON_REQUEST_GLOBAL_ID,
+								 sGlobalId);
+		}
+	}
+
+	/********************************************************************
 	 * The base class for request methods to the {@link EntitySyncEndpoint}.
 	 *
 	 * @author eso
 	 */
-	public static class EntitySyncRequest extends HttpRequest<String, String>
+	public static class EntitySyncRequest
+		extends HttpRequest<EntitySyncData, String>
 	{
 		//~ Constructors -------------------------------------------------------
 
@@ -91,7 +154,7 @@ public class EntitySyncEndpoint extends HttpEndpoint
 				  null,
 				  HttpRequestMethod.POST,
 				  "/api/sync/" + sRequestUrl,
-				  identity(),
+				  data -> data.toJson(),
 				  identity());
 		}
 	}

@@ -81,6 +81,7 @@ import static de.esoco.entity.EntityRelationTypes.LAST_CHANGE;
 import static de.esoco.entity.EntityRelationTypes.MASTER_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.PARENT_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
+import static de.esoco.entity.EntitySyncEndpoint.syncRequest;
 
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
@@ -160,6 +161,7 @@ public class EntityManager
 
 	private static Lock aCacheLock = new ReentrantLock();
 
+	private static String			  sEntitySyncContext;
 	private static EntitySyncEndpoint rEntitySyncEndpoint;
 
 	private static final ThreadLocal<String> aEntityModificationContextId =
@@ -1773,12 +1775,17 @@ public class EntityManager
 
 	/***************************************
 	 * Sets the endpoint of an entity sync service to be used for entity lock
-	 * synchronization.
+	 * synchronization. The context should be derived from the current
+	 * application's execution context, e.g. production, test, or development.
 	 *
+	 * @param sSyncContext  The application context to sync entities in
 	 * @param rSyncEndpoint The entity sync service endpoint
 	 */
-	public static void setEntitySyncService(EntitySyncEndpoint rSyncEndpoint)
+	public static void setEntitySyncService(
+		String			   sSyncContext,
+		EntitySyncEndpoint rSyncEndpoint)
 	{
+		sEntitySyncContext  = sSyncContext;
 		rEntitySyncEndpoint = rSyncEndpoint;
 	}
 
@@ -2003,7 +2010,8 @@ public class EntityManager
 			{
 				String sMessage =
 					EntitySyncEndpoint.lockEntity().from(rEntitySyncEndpoint)
-									  .evaluate(sEntityId);
+									  .evaluate(syncRequest(sEntitySyncContext,
+															sEntityId));
 
 				if (!"".equals(sMessage))
 				{
@@ -2151,7 +2159,8 @@ public class EntityManager
 		{
 			String sMessage =
 				EntitySyncEndpoint.releaseEntityLock().from(rEntitySyncEndpoint)
-								  .evaluate(sEntityId);
+								  .evaluate(syncRequest(sEntitySyncContext,
+														sEntityId));
 
 			if (!"".equals(sMessage))
 			{
