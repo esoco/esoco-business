@@ -65,7 +65,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private List<UiComponent<?, ?>> rComponents = new ArrayList<>();
+	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
 
 	private UiLayout rLayout;
 
@@ -490,7 +490,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	public List<UiComponent<?, ?>> getComponents()
 	{
-		return new ArrayList<>(rComponents);
+		return new ArrayList<>(aComponents);
 	}
 
 	/***************************************
@@ -510,6 +510,19 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	public void nextRow()
 	{
 		getLayout().nextRow();
+	}
+
+	/***************************************
+	 * Removes a component from this container.
+	 *
+	 * @param rComponent The component to remove
+	 */
+	public void removeComponent(UiComponent<?, ?> rComponent)
+	{
+		if (aComponents.remove(rComponent))
+		{
+			fragment().removeInteractionParameters(rComponent.type());
+		}
 	}
 
 	/***************************************
@@ -538,7 +551,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 
 		super.applyProperties();
 
-		for (UiComponent<?, ?> rChild : rComponents)
+		for (UiComponent<?, ?> rChild : aComponents)
 		{
 			rChild.applyProperties();
 		}
@@ -617,7 +630,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	void addComponent(UiComponent<?, ?> rComponent)
 	{
-		rComponents.add(rComponent);
+		aComponents.add(rComponent);
 		rLayout.layoutComponent(rComponent);
 
 		componentAdded(rComponent);
