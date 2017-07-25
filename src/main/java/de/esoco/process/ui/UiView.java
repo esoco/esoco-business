@@ -35,4 +35,12 @@ public abstract class UiView<V extends UiView<V>> extends UiContainer<V>
 	{
 		super(rParent, rLayout);
 	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public abstract V setVisible(boolean bVisible);
 }

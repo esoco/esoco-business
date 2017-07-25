@@ -89,6 +89,6 @@ public abstract class UiRootFragment extends InteractionFragment
 	@Override
 	protected void initComplete() throws Exception
 	{
-		createRootView();
+		createRootView().show();
 	}
 }

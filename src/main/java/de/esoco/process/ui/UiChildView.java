@@ -41,7 +41,7 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	{
 		super(rParent, rLayout);
 
-		setVisible(true);
+		rViewFragment = getParent().fragment().showView("", fragment(), false);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -57,31 +57,13 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	{
 		if (bVisible)
 		{
-			if (rViewFragment == null)
-			{
-				rViewFragment =
-					getParent().fragment().showView("", fragment(), false);
-			}
+			applyProperties();
 		}
 		else if (rViewFragment != null)
 		{
 			rViewFragment.hide();
 			rViewFragment = null;
 		}
-
-		return (V) this;
-	}
-
-	/***************************************
-	 * Overridden to show this view.
-	 *
-	 * @return This instance
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	public final V show()
-	{
-		applyProperties();
 
 		return (V) this;
 	}

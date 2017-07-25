@@ -285,7 +285,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 *
 	 * @see    #setVisible(boolean)
 	 */
-	public P show()
+	public final P show()
 	{
 		return setVisible(true);
 	}

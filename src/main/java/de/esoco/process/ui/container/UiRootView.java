@@ -17,6 +17,7 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
 
@@ -44,11 +45,25 @@ public abstract class UiRootView extends UiView<UiRootView>
 
 		setFragment(rFragment);
 		setParameterType(rFragment.getFragmentParameter());
-		build();
-		applyProperties();
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Overridden to show or hide this view.
+	 *
+	 * @see UiContainer#setVisible(boolean)
+	 */
+	@Override
+	public UiRootView setVisible(boolean bVisible)
+	{
+		if (bVisible)
+		{
+			applyProperties();
+		}
+
+		return this;
+	}
 
 	/***************************************
 	 * Overridden to be abstract as it must be implemented.

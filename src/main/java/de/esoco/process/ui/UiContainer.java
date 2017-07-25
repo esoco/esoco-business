@@ -545,6 +545,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	@Override
 	protected void applyProperties()
 	{
+		build();
+
 		// apply layout first so it can add styles to the container before
 		// applying them
 		rLayout.applyTo(this);
@@ -657,7 +659,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		@Override
 		public void init() throws Exception
 		{
-			build();
 		}
 	}
 }
