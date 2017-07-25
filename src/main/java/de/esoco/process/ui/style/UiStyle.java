@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.style;
 
+import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.ui.UiComponent;
@@ -186,5 +187,45 @@ public class UiStyle extends UiElement<UiStyle>
 	public final UiStyle styleName(String sStyleName)
 	{
 		return set(StyleProperties.STYLE, sStyleName);
+	}
+
+	/***************************************
+	 * Sets the horizontal alignment of text in the component.
+	 *
+	 * @param  eTextAlignment The horizontal text alignment
+	 *
+	 * @return This instance for concatenation
+	 */
+	public UiStyle textAlign(Alignment eTextAlignment)
+	{
+		return css("textAlign", mapTextAlignment(eTextAlignment));
+	}
+
+	/***************************************
+	 * Maps an alignment value to the corresponding CSS text alignment value.
+	 *
+	 * @param  eAlignment The alignment to map
+	 *
+	 * @return The CSS text alignment value
+	 */
+	private String mapTextAlignment(Alignment eAlignment)
+	{
+		switch (eAlignment)
+		{
+			case BEGIN:
+				return "start";
+
+			case CENTER:
+				return "center";
+
+			case END:
+				return "end";
+
+			case FILL:
+				return "justify";
+
+			default:
+				throw new AssertionError("Undefined: " + eAlignment);
+		}
 	}
 }
