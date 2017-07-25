@@ -16,9 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
-import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
+import de.esoco.process.ui.UiRootFragment;
 import de.esoco.process.ui.UiView;
 
 
@@ -39,7 +39,7 @@ public abstract class UiRootView extends UiView<UiRootView>
 	 * @param rFragment The fragment this view shall be rendered in
 	 * @param rLayout   The view layout
 	 */
-	public UiRootView(InteractionFragment rFragment, UiLayout rLayout)
+	public UiRootView(UiRootFragment rFragment, UiLayout rLayout)
 	{
 		super(null, rLayout);
 

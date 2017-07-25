@@ -65,9 +65,11 @@ public abstract class UiContainer<C extends UiContainer<C>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
-
 	private UiLayout rLayout;
+
+	private boolean bBuilt;
+
+	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -545,7 +547,11 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	@Override
 	protected void applyProperties()
 	{
-		build();
+		if (!bBuilt)
+		{
+			build();
+			bBuilt = true;
+		}
 
 		// apply layout first so it can add styles to the container before
 		// applying them

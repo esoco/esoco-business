@@ -33,6 +33,10 @@ public abstract class UiRootFragment extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
+	//~ Instance fields --------------------------------------------------------
+
+	private UiRootView aRootView;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -51,6 +55,15 @@ public abstract class UiRootFragment extends InteractionFragment
 	public void init() throws Exception
 	{
 		// not needed
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void prepareInteraction() throws Exception
+	{
+		aRootView.applyProperties();
 	}
 
 	/***************************************
@@ -89,6 +102,6 @@ public abstract class UiRootFragment extends InteractionFragment
 	@Override
 	protected void initComplete() throws Exception
 	{
-		createRootView().show();
+		aRootView = createRootView().show();
 	}
 }

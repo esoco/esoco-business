@@ -134,11 +134,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
-	 * Returns the last row in the layout which is used to add new components.
+	 * Returns the row in the layout which is used to add new components.
 	 *
 	 * @return The last row
 	 */
-	public Row getLastRow()
+	public Row getCurrentRow()
 	{
 		return aRows.get(nLastRow);
 	}

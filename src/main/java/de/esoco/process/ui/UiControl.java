@@ -61,7 +61,6 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 *
 	 * @param fValidation The validation function
 	 */
-	@SuppressWarnings("unchecked")
 	public void setValidation(Function<? super T, ValidationResult> fValidation)
 	{
 		fragment().setParameterValidation(type(),
@@ -80,7 +79,6 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 *
 	 * @throws InvalidParametersException If the validation fails
 	 */
-	@SuppressWarnings("unchecked")
 	public void validate(Function<? super T, ValidationResult> fValidation)
 	{
 		ValidationResult rResult = fValidation.apply(getValueImpl());

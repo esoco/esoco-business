@@ -116,6 +116,20 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Sets the size of this component.
+	 *
+	 * @param  nWidth  The width
+	 * @param  nHeight The height
+	 * @param  eUnit   The unit of the size values
+	 *
+	 * @return This instance for concatenation
+	 */
+	public C size(int nWidth, int nHeight, SizeUnit eUnit)
+	{
+		return width(nWidth, eUnit).height(nHeight, eUnit);
+	}
+
+	/***************************************
 	 * Returns the style object of this component which provides methods to
 	 * modify the component's appearance.
 	 *
@@ -246,19 +260,23 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 */
 	void setProperties(HasProperties rNewProperties, boolean bReplace)
 	{
-		MutableProperties rProperties = fragment().getUIProperties(type());
+		if (rNewProperties.getPropertyCount() > 0)
+		{
+			MutableProperties rProperties = fragment().getUIProperties(type());
 
-		if (rProperties == null)
-		{
-			rProperties = new StringProperties(rNewProperties);
-			fragment().annotateParameter(type(),
-										 null,
-										 EntityRelationTypes.DISPLAY_PROPERTIES,
-										 rProperties);
-		}
-		else
-		{
-			rProperties.setProperties(rNewProperties, bReplace);
+			if (rProperties == null)
+			{
+				rProperties = new StringProperties(rNewProperties);
+				fragment().annotateParameter(type(),
+											 null,
+											 EntityRelationTypes.DISPLAY_PROPERTIES,
+											 rProperties);
+			}
+			else
+			{
+				rProperties.setProperties(rNewProperties, bReplace);
+				fragment().markParameterAsModified(type());
+			}
 		}
 	}
 
