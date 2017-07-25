@@ -220,7 +220,6 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 *
 	 * @param rValue The new value
 	 */
-	@SuppressWarnings("unchecked")
 	protected final void setValueImpl(T rValue)
 	{
 		fragment().setParameter(type(), rValue);

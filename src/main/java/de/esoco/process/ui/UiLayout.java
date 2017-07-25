@@ -22,6 +22,7 @@ import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
 
 import de.esoco.process.ui.style.SizeUnit;
+import de.esoco.process.ui.style.UiStyle;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -760,8 +761,8 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final int nIndex;
-
+		private final int  nIndex;
+		private UiStyle    aStyle = new UiStyle();
 		private List<Cell> aCells = new ArrayList<>();
 
 		//~ Constructors -------------------------------------------------------
@@ -814,6 +815,32 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Returns the style object of this component which provides methods to
+		 * modify the component's appearance.
+		 *
+		 * @return The component style
+		 */
+		public final UiStyle style()
+		{
+			return aStyle;
+		}
+
+		/***************************************
+		 * Sets the style of this component to a copy of an existing style
+		 * definition.
+		 *
+		 * @param  rStyle The style object to apply
+		 *
+		 * @return The component style to allow subsequent modifications
+		 */
+		public final UiStyle style(UiStyle rStyle)
+		{
+			aStyle = new UiStyle(rStyle);
+
+			return aStyle;
+		}
+
+		/***************************************
 		 * {@inheritDoc}
 		 */
 		@Override
@@ -823,6 +850,20 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			return String.format("%s(%d)",
 								 getClass().getSimpleName(),
 								 getIndex());
+		}
+
+		/***************************************
+		 * Overridden to also apply the styles of this instance.
+		 *
+		 * @see UiElement#applyPropertiesTo(UiComponent)
+		 * @see UiLayout#ignoreProperties(PropertyName...)
+		 */
+		@Override
+		protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
+		{
+			super.applyPropertiesTo(rComponent);
+
+			aStyle.applyPropertiesTo(rComponent);
 		}
 	}
 }
