@@ -210,6 +210,7 @@ public class UiQueryTable<E extends Entity>
 	 *
 	 * @param rValue The new selection or NULL for none
 	 */
+	@SuppressWarnings("boxing")
 	public void setSelection(E rValue)
 	{
 		setValueImpl(rValue);
