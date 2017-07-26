@@ -18,8 +18,10 @@ package de.esoco.process.ui;
 
 import de.esoco.entity.Entity;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.Orientation;
 
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.component.UiCalendar;
 import de.esoco.process.ui.component.UiCheckBox;
@@ -512,6 +514,22 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	public void nextRow()
 	{
 		getLayout().nextRow();
+	}
+
+	/***************************************
+	 * Sets the event handler for click events on this panel. The handler will
+	 * receive the panel instance as it's argument.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final C onClick(ValueEventHandler<C> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										v -> rEventHandler.handleValueUpdate((C)
+																			 this));
 	}
 
 	/***************************************

@@ -123,11 +123,12 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P onSelection(
-		ValueEventHandler<UiSwitchPanel<?>> rEventHandler)
+	@SuppressWarnings("unchecked")
+	public final P onSelection(ValueEventHandler<P> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										v -> rEventHandler.handleValueUpdate(this));
+										v -> rEventHandler.handleValueUpdate((P)
+																			 this));
 	}
 
 	/***************************************
