@@ -16,7 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.process.ui.event.HasActionEvents;
+import de.esoco.lib.property.InteractionEventType;
+
+import de.esoco.process.ValueEventHandler;
 
 import java.util.Collection;
 
@@ -29,7 +31,7 @@ import static de.esoco.lib.property.LayoutProperties.COLUMNS;
  * @author eso
  */
 public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
-	extends UiControl<T, C> implements HasActionEvents<T, C>
+	extends UiControl<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -45,6 +47,19 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the event handler for click events on buttons.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final C onClick(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
+	}
 
 	/***************************************
 	 * Checks whether the columns should be set to the number of buttons.

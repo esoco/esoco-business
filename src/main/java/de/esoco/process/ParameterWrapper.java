@@ -165,45 +165,6 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
-	 * Sets a simple event handler for action events of this parameter.
-	 *
-	 * @param  rEventHandler The event handler to be invoked on an event
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P onAction(ValueEventHandler<T> rEventHandler)
-	{
-		return setParameterEventHandler(InteractionEventType.ACTION,
-										rEventHandler);
-	}
-
-	/***************************************
-	 * Sets a simple event handler for action events of this parameter.
-	 *
-	 * @param  rEventHandler The event handler to be invoked on an event
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P onFocusLost(ValueEventHandler<T> rEventHandler)
-	{
-		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
-										rEventHandler);
-	}
-
-	/***************************************
-	 * Sets an event handler for update events of this parameter.
-	 *
-	 * @param  rEventHandler The event handler to be invoked on an event
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P onUpdate(ValueEventHandler<T> rEventHandler)
-	{
-		return setParameterEventHandler(InteractionEventType.UPDATE,
-										rEventHandler);
-	}
-
-	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#RESOURCE_ID}.
 	 *
 	 * @param  sResourceId sWidth The resource ID string

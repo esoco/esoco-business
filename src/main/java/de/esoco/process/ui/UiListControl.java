@@ -16,9 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 
-import de.esoco.process.ui.event.HasUpdateEvents;
+import de.esoco.process.ValueEventHandler;
 
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -30,7 +31,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  * @author eso
  */
 public abstract class UiListControl<T, C extends UiListControl<T, C>>
-	extends UiControl<T, C> implements HasUpdateEvents<T, C>
+	extends UiControl<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -64,6 +65,33 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	public T getSelection()
 	{
 		return fragment().getParameter(type());
+	}
+
+	/***************************************
+	 * Sets the event handler for selection events of this table.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final C onSelection(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										rEventHandler);
+	}
+
+	/***************************************
+	 * Sets the event handler for selection confirmed events (e.g. by double
+	 * click) of this list.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final C onSelectionConfirmed(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
 	}
 
 	/***************************************

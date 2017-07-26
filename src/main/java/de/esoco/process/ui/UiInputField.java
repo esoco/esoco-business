@@ -16,8 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.process.ui.event.HasActionEvents;
-import de.esoco.process.ui.event.HasUpdateEvents;
+import de.esoco.lib.property.InteractionEventType;
+
+import de.esoco.process.ValueEventHandler;
 
 
 /********************************************************************
@@ -26,8 +27,7 @@ import de.esoco.process.ui.event.HasUpdateEvents;
  * @author eso
  */
 public abstract class UiInputField<T, C extends UiInputField<T, C>>
-	extends UiControl<T, C> implements HasUpdateEvents<T, C>,
-									   HasActionEvents<T, C>
+	extends UiControl<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -43,5 +43,34 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 		super(rParent, rDatatype);
 
 		fragment().setParameter(type(), rValue);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the event handler for input confirmation events (enter key) of this
+	 * input field.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final C onEnter(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
+	}
+
+	/***************************************
+	 * Sets the event handler for value update events of this input field.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final C onUpdate(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										rEventHandler);
 	}
 }

@@ -20,7 +20,9 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.property.InteractionEventType;
 
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
 import de.esoco.process.ui.UiTextInputField;
@@ -45,7 +47,8 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
  *
  * @author eso
  */
-public class UiQueryTable<E extends Entity> extends UiTableControl<E, UiQueryTable<E>>
+public class UiQueryTable<E extends Entity>
+	extends UiTableControl<E, UiQueryTable<E>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -72,6 +75,34 @@ public class UiQueryTable<E extends Entity> extends UiTableControl<E, UiQueryTab
 	public final QueryPredicate<E> getCurrentQuery()
 	{
 		return fragment().getCurrentQuery(type());
+	}
+
+	/***************************************
+	 * Sets the event handler for selection events of this table.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiQueryTable<E> onSelection(ValueEventHandler<E> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										rEventHandler);
+	}
+
+	/***************************************
+	 * Sets the event handler for selection confirmed events (e.g. by double
+	 * click) of this table.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiQueryTable<E> onSelectionConfirmed(
+		ValueEventHandler<E> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
 	}
 
 	/***************************************

@@ -16,28 +16,18 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.entity.Entity;
+import de.esoco.data.element.SelectionDataElement;
 
-import de.esoco.lib.expression.Function;
-import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.model.ColumnDefinition;
+import de.esoco.lib.property.InteractionEventType;
 
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
 import de.esoco.process.ui.UiTextInputField;
 
-import de.esoco.storage.QueryPredicate;
-import de.esoco.storage.StoragePredicates;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-
-import org.obrel.core.RelationType;
-
-import static de.esoco.entity.EntityRelationTypes.ENTITY_ATTRIBUTES;
-import static de.esoco.entity.EntityRelationTypes.ENTITY_QUERY_PREDICATE;
-import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
 
 
 /********************************************************************
@@ -45,7 +35,8 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
  *
  * @author eso
  */
-public class UiDataTable<E extends Entity> extends UiTableControl<E, UiDataTable<E>>
+public class UiDataTable
+	extends UiTableControl<SelectionDataElement, UiDataTable>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -54,22 +45,42 @@ public class UiDataTable<E extends Entity> extends UiTableControl<E, UiDataTable
 	 *
 	 * @see UiTextInputField#TextInput(UiContainer, String)
 	 */
-	public UiDataTable(UiContainer<?> rContainer, Class<E> rEntityType)
+	public UiDataTable(UiContainer<?> rContainer)
 	{
-		super(rContainer, rEntityType);
+		super(rContainer, SelectionDataElement.class);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the current storage query for this parameter, including the
-	 * filter criteria that have been set by the user.
+	 * Sets the event handler for selection events of this table.
 	 *
-	 * @return The current query
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
 	 */
-	public final QueryPredicate<E> getCurrentQuery()
+	public final UiDataTable onSelection(
+		ValueEventHandler<String> rEventHandler)
 	{
-		return fragment().getCurrentQuery(type());
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										sd ->
+										rEventHandler.handleValueUpdate(sd.getValue()));
+	}
+
+	/***************************************
+	 * Sets the event handler for selection confirmed events (e.g. by double
+	 * click) of this table.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiDataTable onSelectionConfirmed(
+		ValueEventHandler<String> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										sd ->
+										rEventHandler.handleValueUpdate(sd.getValue()));
 	}
 
 	/***************************************
@@ -78,9 +89,9 @@ public class UiDataTable<E extends Entity> extends UiTableControl<E, UiDataTable
 	 * @see #setColumns(Collection)
 	 */
 	@SuppressWarnings("unchecked")
-	public void setColumns(Function<? super E, ?>... rAttributes)
+	public void setColumns(ColumnDefinition... rColumns)
 	{
-		setColumns(Arrays.asList(rAttributes));
+		setColumns(Arrays.asList(rColumns));
 	}
 
 	/***************************************
@@ -93,70 +104,10 @@ public class UiDataTable<E extends Entity> extends UiTableControl<E, UiDataTable
 	 * that extracts the name from an entity reference (e.g. <code>
 	 * NAME.from(OTHER_ENTITY)</code>).
 	 *
-	 * @param rColumnAttributes The entity attribute access functions
+	 * @param rColumns rColumnAttributes The entity attribute access functions
 	 */
 	@SuppressWarnings("unchecked")
-	public void setColumns(Collection<Function<? super E, ?>> rColumnAttributes)
+	public void setColumns(Collection<ColumnDefinition> rColumns)
 	{
-		List<Function<? super Entity, ?>> rGenericAttributes = null;
-
-		if (rColumnAttributes != null && rColumnAttributes.size() > 0)
-		{
-			rGenericAttributes = new ArrayList<Function<? super Entity, ?>>();
-
-			for (Function<? super E, ?> rFunction : rColumnAttributes)
-			{
-				rGenericAttributes.add((Function<? super Entity, ?>) rFunction);
-			}
-		}
-
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_ATTRIBUTES,
-									 rGenericAttributes);
-	}
-
-	/***************************************
-	 * Sets the default query order with a predicate that may contain multiple
-	 * order criteria. For ordering by a single entity attribute see method
-	 * {@link #setOrderBy(RelationType, boolean)}.
-	 *
-	 * @param pOrder The sort order criteria (NULL for none)
-	 */
-	public void setOrderBy(Predicate<? super Entity> pOrder)
-	{
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_SORT_PREDICATE,
-									 pOrder);
-	}
-
-	/***************************************
-	 * Sets the default query order for a single attribute. For complex order
-	 * criteria see {@link #setOrderBy(Predicate)}.
-	 *
-	 * @param rOrderAttribute The entity attribute to order the query by
-	 * @param bAscending      TRUE for ascending, FALSE for descending ordering
-	 */
-	public void setOrderBy(RelationType<?> rOrderAttribute, boolean bAscending)
-	{
-		setOrderBy(StoragePredicates.sortBy(rOrderAttribute, bAscending));
-	}
-
-	/***************************************
-	 * Sets the storage query criteria of this table.
-	 *
-	 * @param pCriteria The query criteria to apply (NULL for none)
-	 */
-	public void setQuery(Predicate<? super E> pCriteria)
-	{
-		@SuppressWarnings("unchecked")
-		QueryPredicate<E> pQuery =
-			new QueryPredicate<E>((Class<E>) type().getTargetType(), pCriteria);
-
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_QUERY_PREDICATE,
-									 pQuery);
 	}
 }

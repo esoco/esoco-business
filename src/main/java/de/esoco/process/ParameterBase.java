@@ -25,6 +25,7 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.LayoutType;
@@ -757,6 +758,19 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Sets a simple event handler for action events of this parameter.
+	 *
+	 * @param  rEventHandler The event handler to be invoked on an event
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P onAction(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
+	}
+
+	/***************************************
 	 * Registers an event handler that will be notified of changes of this
 	 * parameter's relation.
 	 *
@@ -807,6 +821,32 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
 
 		return (P) this;
+	}
+
+	/***************************************
+	 * Sets a simple event handler for action events of this parameter.
+	 *
+	 * @param  rEventHandler The event handler to be invoked on an event
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P onFocusLost(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
+										rEventHandler);
+	}
+
+	/***************************************
+	 * Sets an event handler for update events of this parameter.
+	 *
+	 * @param  rEventHandler The event handler to be invoked on an event
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P onUpdate(ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										rEventHandler);
 	}
 
 	/***************************************

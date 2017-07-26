@@ -16,14 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.SingleSelection;
 
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.container.UiPanel;
-import de.esoco.process.ui.event.HasUpdateEvents;
-
-import java.util.List;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
@@ -37,7 +34,7 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
  * @author eso
  */
 public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
-	implements SingleSelection, HasUpdateEvents<List<RelationType<?>>, P>
+	implements SingleSelection
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -97,13 +94,40 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
 	}
 
 	/***************************************
+	 * Returns the component of the currently selected (visible) page.
+	 *
+	 * @return The selected component
+	 */
+	public UiComponent<?, ?> getSelection()
+	{
+		return getComponents().get(getSelectionIndex());
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("boxing")
 	public int getSelectionIndex()
 	{
-		return get(CURRENT_SELECTION);
+		Integer rSelectionIndex = get(CURRENT_SELECTION);
+
+		return rSelectionIndex != null ? rSelectionIndex.intValue() : 0;
+	}
+
+	/***************************************
+	 * Sets the event handler for selection events of this panel. The event
+	 * handler will receive this panel as it's argument so that it can query the
+	 * current selection index or the selected page component.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P onSelection(
+		ValueEventHandler<UiSwitchPanel<?>> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										v -> rEventHandler.handleValueUpdate(this));
 	}
 
 	/***************************************
