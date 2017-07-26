@@ -68,7 +68,7 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final C onUpdate(ValueEventHandler<T> rEventHandler)
+	public final C onInput(ValueEventHandler<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										rEventHandler);
