@@ -64,7 +64,7 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 */
 	public T getSelection()
 	{
-		return fragment().getParameter(type());
+		return getValueImpl();
 	}
 
 	/***************************************
@@ -101,6 +101,6 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 */
 	public void setSelection(T rValue)
 	{
-		fragment().setParameter(type(), rValue);
+		setValueImpl(rValue);
 	}
 }

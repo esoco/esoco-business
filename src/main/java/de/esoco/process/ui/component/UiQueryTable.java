@@ -41,6 +41,8 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_ATTRIBUTES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_QUERY_PREDICATE;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
 
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+
 
 /********************************************************************
  * A single-line text input field.
@@ -75,6 +77,16 @@ public class UiQueryTable<E extends Entity>
 	public final QueryPredicate<E> getCurrentQuery()
 	{
 		return fragment().getCurrentQuery(type());
+	}
+
+	/***************************************
+	 * Returns the currently selected entity.
+	 *
+	 * @return The selected entity (NULL for none)
+	 */
+	public E getSelection()
+	{
+		return getValueImpl();
 	}
 
 	/***************************************
@@ -191,5 +203,18 @@ public class UiQueryTable<E extends Entity>
 									 null,
 									 ENTITY_QUERY_PREDICATE,
 									 pQuery);
+	}
+
+	/***************************************
+	 * Sets (or clears) the currently selected entity.
+	 *
+	 * @param rValue The new selection or NULL for none
+	 */
+	public void setSelection(E rValue)
+	{
+		setValueImpl(rValue);
+
+		// reset selection index for recalculation
+		set(CURRENT_SELECTION, -1);
 	}
 }
