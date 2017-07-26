@@ -185,4 +185,17 @@ public class EntityParameter<E extends Entity> extends Parameter<E>
 
 		return this;
 	}
+
+	/***************************************
+	 * Reloads the entity that is stored in this parameter. NULL values are
+	 * ignored.
+	 *
+	 * @return This instance
+	 */
+	public EntityParameter<E> reloadEntity()
+	{
+		fragment().reloadEntity(rParamType);
+
+		return this;
+	}
 }
