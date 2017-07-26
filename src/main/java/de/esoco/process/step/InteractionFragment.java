@@ -24,6 +24,7 @@ import de.esoco.data.element.DateDataElement.DateInputType;
 import de.esoco.data.element.SelectionDataElement;
 
 import de.esoco.entity.Entity;
+import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes.HierarchicalQueryMode;
 import de.esoco.entity.ExtraAttributes;
 
@@ -1513,6 +1514,34 @@ public abstract class InteractionFragment extends ProcessFragment
 								.hideLabel()
 								.layout(LayoutType.TABLE)
 								.columns(1);
+	}
+
+	/***************************************
+	 * Re-queries an entity that is stored in certain a process parameter. If
+	 * the parameter is NULL it will be ignored.
+	 *
+	 * @param rEntityParam The parameter relation type under which the entity is
+	 *                     stored
+	 */
+	@SuppressWarnings("unchecked")
+	public <E extends Entity> void reloadEntity(RelationType<E> rEntityParam)
+	{
+		E rEntity = getParameter(rEntityParam);
+
+		if (rEntity != null)
+		{
+			try
+			{
+				rEntity =
+					(E) EntityManager.queryEntity(rEntity.getClass(),
+												  rEntity.getId());
+				setParameter(rEntityParam, rEntity);
+			}
+			catch (StorageException e)
+			{
+				throw new ProcessException(this, e);
+			}
+		}
 	}
 
 	/***************************************
