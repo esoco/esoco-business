@@ -88,7 +88,6 @@ public class UiDataTable
 	 *
 	 * @see #setColumns(Collection)
 	 */
-	@SuppressWarnings("unchecked")
 	public void setColumns(ColumnDefinition... rColumns)
 	{
 		setColumns(Arrays.asList(rColumns));
@@ -106,7 +105,6 @@ public class UiDataTable
 	 *
 	 * @param rColumns rColumnAttributes The entity attribute access functions
 	 */
-	@SuppressWarnings("unchecked")
 	public void setColumns(Collection<ColumnDefinition> rColumns)
 	{
 	}

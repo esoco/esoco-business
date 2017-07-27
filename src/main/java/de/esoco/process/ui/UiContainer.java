@@ -669,7 +669,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @author eso
 	 */
-	class UiContainerFragment extends InteractionFragment
+	protected static class UiContainerFragment extends InteractionFragment
 	{
 		//~ Static fields/initializers -----------------------------------------
 
