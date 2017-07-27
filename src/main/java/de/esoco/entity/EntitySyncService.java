@@ -173,7 +173,8 @@ public class EntitySyncService extends Service implements AuthenticationService
 	 */
 	private String getClientAddress()
 	{
-		return HttpRequestHandler.getThreadLocalRequest().get(IP_ADDRESS)
+		return HttpRequestHandler.getThreadLocalRequest()
+								 .get(IP_ADDRESS)
 								 .getHostAddress();
 	}
 
@@ -210,7 +211,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 		}
 		else
 		{
-			respond(HttpStatusCode.BAD_REQUEST, "Unknown context " + sContext);
+			respond(HttpStatusCode.NOT_FOUND, "Unknown context " + sContext);
 		}
 
 		if (sCurrentLock != null)

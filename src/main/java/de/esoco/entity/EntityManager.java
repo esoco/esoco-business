@@ -2153,55 +2153,60 @@ public class EntityManager
 	 */
 	static synchronized void endEntityModification(Entity rEntity)
 	{
-		String sEntityId = rEntity.getGlobalId();
-
-		if (rEntitySyncEndpoint != null)
+		if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
 		{
-			String sMessage =
-				EntitySyncEndpoint.releaseEntityLock().from(rEntitySyncEndpoint)
-								  .evaluate(syncRequest(sEntitySyncContext,
-														sEntityId));
+			String sEntityId = rEntity.getGlobalId();
 
-			if (!"".equals(sMessage))
+			if (rEntitySyncEndpoint != null)
 			{
-				Log.warnf("Releasing entity lock for %s failed: %s",
-						  sEntityId,
-						  sMessage);
+				String sMessage =
+					EntitySyncEndpoint.releaseEntityLock()
+									  .from(rEntitySyncEndpoint)
+									  .evaluate(syncRequest(sEntitySyncContext,
+															sEntityId));
+
+				if (!"".equals(sMessage))
+				{
+					Log.warnf("Releasing entity lock for %s failed: %s",
+							  sEntityId,
+							  sMessage);
+				}
 			}
-		}
-		else if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
-		{
-			String sContextId = getEntityModificationContextId();
-
-			if (sContextId != null)
+			else
 			{
-				Relatable rContext = aEntityModificationContext.get();
-				String    sHandle  = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+				String sContextId = getEntityModificationContextId();
 
-				if (!sHandle.equals(sContextId))
+				if (sContextId != null)
 				{
-					throwConcurrentEntityModification(rEntity,
-													  MSG_CONCURRENT_MODIFICATION,
-													  rEntity,
-													  sContextId,
-													  sHandle);
-				}
+					Relatable rContext = aEntityModificationContext.get();
+					String    sHandle  =
+						rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
-				if (rContext != null)
-				{
-					Entity rContextEntity =
-						rContext.get(CONTEXT_MODIFIED_ENTITIES)
-								.remove(sEntityId);
-
-					if (rContextEntity != null)
+					if (!sHandle.equals(sContextId))
 					{
-						rContext.get(CONTEXT_UPDATED_ENTITIES)
-								.add(rContextEntity);
+						throwConcurrentEntityModification(rEntity,
+														  MSG_CONCURRENT_MODIFICATION,
+														  rEntity,
+														  sContextId,
+														  sHandle);
 					}
-				}
 
-				rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
-				aModifiedEntities.remove(sEntityId);
+					if (rContext != null)
+					{
+						Entity rContextEntity =
+							rContext.get(CONTEXT_MODIFIED_ENTITIES)
+									.remove(sEntityId);
+
+						if (rContextEntity != null)
+						{
+							rContext.get(CONTEXT_UPDATED_ENTITIES)
+									.add(rContextEntity);
+						}
+					}
+
+					rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
+					aModifiedEntities.remove(sEntityId);
+				}
 			}
 		}
 	}
