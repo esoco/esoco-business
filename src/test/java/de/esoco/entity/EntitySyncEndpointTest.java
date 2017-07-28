@@ -16,20 +16,20 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
-import de.esoco.entity.EntitySyncEndpoint.EntitySyncData;
-
 import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointChain;
 import de.esoco.lib.expression.Function;
+import de.esoco.service.ModificationSyncEndpoint;
+import de.esoco.service.ModificationSyncEndpoint.SyncData;
 
-import static de.esoco.entity.EntitySyncEndpoint.syncRequest;
-import static de.esoco.entity.EntitySyncEndpoint.lockEntity;
-import static de.esoco.entity.EntitySyncEndpoint.releaseEntityLock;
+import static de.esoco.service.ModificationSyncEndpoint.requestLock;
+import static de.esoco.service.ModificationSyncEndpoint.releaseLock;
+import static de.esoco.service.ModificationSyncEndpoint.syncRequest;
 
 
 /********************************************************************
- * Tests the functionality of {@link EntitySyncEndpoint}.
+ * Tests the functionality of {@link ModificationSyncEndpoint}.
  *
  * @author eso
  */
@@ -47,11 +47,11 @@ public class EntitySyncEndpointTest
 		String   sContext     = "test";
 		Endpoint aSyncService = Endpoint.at("http://localhost:8377");
 
-		EndpointChain<EntitySyncData, String> fLock =
-			lockEntity().from(aSyncService);
+		EndpointChain<SyncData, String> fLock =
+			requestLock().from(aSyncService);
 
-		EndpointChain<EntitySyncData, String> fRelease =
-			releaseEntityLock().from(aSyncService);
+		EndpointChain<SyncData, String> fRelease =
+			releaseLock().from(aSyncService);
 
 		lockEntities("test1", fLock);
 		lockEntities("test2", fLock);
@@ -76,7 +76,7 @@ public class EntitySyncEndpointTest
 	 */
 	private static void lockEntities(
 		String							 sContext,
-		Function<EntitySyncData, String> fLock)
+		Function<SyncData, String> fLock)
 	{
 		for (int i = 0; i < 10; i++)
 		{
@@ -97,7 +97,7 @@ public class EntitySyncEndpointTest
 	 */
 	private static void releaseEntities(
 		String								  sContext,
-		EndpointChain<EntitySyncData, String> fRelease)
+		EndpointChain<SyncData, String> fRelease)
 	{
 		for (int i = 9; i >= 0; i--)
 		{

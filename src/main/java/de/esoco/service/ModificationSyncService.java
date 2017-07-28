@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.entity;
+package de.esoco.service;
 
 import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.http.HttpRequestHandler;
@@ -42,20 +42,21 @@ import static org.obrel.type.StandardTypes.NAME;
 
 
 /********************************************************************
- * A service that implements the monitoring and synchronization of entity
+ * A service that implements the monitoring and synchronization of data
  * modifications across multiple applications.
  *
  * @author eso
  */
-public class EntitySyncService extends Service implements AuthenticationService
+public class ModificationSyncService extends Service
+	implements AuthenticationService
 {
 	//~ Static fields/initializers ---------------------------------------------
 
 	/** The name of the JSON attribute that contains the request context. */
 	public static final String JSON_REQUEST_CONTEXT = "context";
 
-	/** The name of the JSON attribute that contains the global entity ID. */
-	public static final String JSON_REQUEST_GLOBAL_ID = "entity";
+	/** The name of the JSON attribute that contains the target ID. */
+	public static final String JSON_REQUEST_TARGET_ID = "target";
 
 	/** The part of the API providing access to server control. */
 	public static final RelationType<ObjectSpace<Object>> SYNC = newType();
@@ -72,12 +73,12 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 	static
 	{
-		RelationTypes.init(EntitySyncService.class);
+		RelationTypes.init(ModificationSyncService.class);
 	}
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Map<String, Map<String, String>> aEntityContextLocks =
+	private Map<String, Map<String, String>> aContextLocks =
 		new LinkedHashMap<>();
 
 	private Lock aLock = new ReentrantLock();
@@ -87,7 +88,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 	/***************************************
 	 * Creates a new instance.
 	 */
-	public EntitySyncService()
+	public ModificationSyncService()
 	{
 		super(true);
 	}
@@ -101,7 +102,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 	 */
 	public static void main(String[] rArgs)
 	{
-		new EntitySyncService().run(rArgs);
+		new ModificationSyncService().run(rArgs);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -136,34 +137,26 @@ public class EntitySyncService extends Service implements AuthenticationService
 		ObjectSpace<String> rApiSpace  = rRootSpace.get(API);
 		ObjectSpace<Object> aSyncSpace = new RelationSpace<>(true);
 
-		rApiSpace.get(STATUS).set(CURRENT_LOCKS, aEntityContextLocks);
+		rApiSpace.get(STATUS).set(CURRENT_LOCKS, aContextLocks);
 		rApiSpace.set(SYNC, aSyncSpace);
 
 		aSyncSpace.set(NAME, getServiceName() + " Sync API");
 
-		aSyncSpace.init(CHECK_LOCK).onUpdate(this::checkEntityLock);
-		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestEntityLock);
-		aSyncSpace.init(RELEASE_LOCK).onUpdate(this::releaseEntityLock);
+		aSyncSpace.init(CHECK_LOCK).onUpdate(this::checkLock);
+		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestLock);
+		aSyncSpace.init(RELEASE_LOCK).onUpdate(this::releaseLock);
 
 		return rRootSpace;
 	}
 
 	/***************************************
-	 * @see de.esoco.lib.app.Service#runService()
-	 */
-	@Override
-	protected void runService() throws Exception
-	{
-	}
-
-	/***************************************
-	 * Tries to acquire an entity lock for an entity with a certain global ID.
+	 * Tries to acquire a lock for a certain request.
 	 *
-	 * @param rRequest sGlobalId The global ID of the entity to lock
+	 * @param rRequest The lock request
 	 */
-	private void checkEntityLock(Map<String, String> rRequest)
+	private void checkLock(Map<String, String> rRequest)
 	{
-		processEntitySyncRequest(rRequest, this::handleCheckLock);
+		processSyncRequest(rRequest, this::handleCheckLock);
 	}
 
 	/***************************************
@@ -179,16 +172,16 @@ public class EntitySyncService extends Service implements AuthenticationService
 	}
 
 	/***************************************
-	 * Handles a request to check for an entity lock.
+	 * Handles a request to check for a lock.
 	 *
 	 * @param sContext  The lock context
-	 * @param sGlobalId The global entity ID
+	 * @param sTargetId The target ID
 	 */
-	private void handleCheckLock(String sContext, String sGlobalId)
+	private void handleCheckLock(String sContext, String sTargetId)
 	{
 		boolean bHasLock =
-			aEntityContextLocks.containsKey(sContext) &&
-			aEntityContextLocks.get(sContext).containsKey(sGlobalId);
+			aContextLocks.containsKey(sContext) &&
+			aContextLocks.get(sContext).containsKey(sTargetId);
 
 		throw new HttpStatusException(HttpStatusCode.OK,
 									  Boolean.toString(bHasLock));
@@ -198,16 +191,16 @@ public class EntitySyncService extends Service implements AuthenticationService
 	 * Handles a request to release an entity lock.
 	 *
 	 * @param sContext  The lock context
-	 * @param sGlobalId The global entity ID
+	 * @param sTargetId The target ID
 	 */
-	private void handleReleaseLock(String sContext, String sGlobalId)
+	private void handleReleaseLock(String sContext, String sTargetId)
 	{
-		Map<String, String> aLocks		 = aEntityContextLocks.get(sContext);
+		Map<String, String> aLocks		 = aContextLocks.get(sContext);
 		String			    sCurrentLock = null;
 
 		if (aLocks != null)
 		{
-			sCurrentLock = aLocks.get(sGlobalId);
+			sCurrentLock = aLocks.get(sTargetId);
 		}
 		else
 		{
@@ -220,11 +213,11 @@ public class EntitySyncService extends Service implements AuthenticationService
 
 			if (sCurrentLock.equals(sClientAddress))
 			{
-				aLocks.remove(sGlobalId);
+				aLocks.remove(sTargetId);
 
 				if (Log.isLevelEnabled(LogLevel.DEBUG))
 				{
-					Log.debugf("Current locks: %s", aEntityContextLocks);
+					Log.debugf("Current locks: %s", aContextLocks);
 				}
 			}
 			else
@@ -234,36 +227,36 @@ public class EntitySyncService extends Service implements AuthenticationService
 		}
 		else
 		{
-			respond(HttpStatusCode.NOT_FOUND, sContext + ":" + sGlobalId);
+			respond(HttpStatusCode.NOT_FOUND, sContext + ":" + sTargetId);
 		}
 	}
 
 	/***************************************
-	 * Handles a request to set an entity lock.
+	 * Handles a request to set a lock.
 	 *
 	 * @param sContext  The lock context
-	 * @param sGlobalId The global entity ID
+	 * @param sTargetId The target ID
 	 */
-	private void handleRequestLock(String sContext, String sGlobalId)
+	private void handleRequestLock(String sContext, String sTargetId)
 	{
-		Map<String, String> aLocks = aEntityContextLocks.get(sContext);
+		Map<String, String> aLocks = aContextLocks.get(sContext);
 
 		if (aLocks == null)
 		{
 			aLocks = new HashMap<>();
-			aEntityContextLocks.put(sContext, aLocks);
+			aContextLocks.put(sContext, aLocks);
 		}
 
-		String sCurrentLock   = aLocks.get(sGlobalId);
+		String sCurrentLock   = aLocks.get(sTargetId);
 		String sClientAddress = getClientAddress();
 
 		if (sCurrentLock == null)
 		{
-			aLocks.put(sGlobalId, sClientAddress);
+			aLocks.put(sTargetId, sClientAddress);
 
 			if (Log.isLevelEnabled(LogLevel.DEBUG))
 			{
-				Log.debug("Current locks: " + aEntityContextLocks);
+				Log.debug("Current locks: " + aContextLocks);
 			}
 		}
 		else
@@ -284,10 +277,10 @@ public class EntitySyncService extends Service implements AuthenticationService
 	 * handling to methods that implement the {@link SyncRequestHandler}
 	 * interface.
 	 *
-	 * @param rRequest        The entity sync request
+	 * @param rRequest        The sync request
 	 * @param rRequestHandler The request handler
 	 */
-	private void processEntitySyncRequest(
+	private void processSyncRequest(
 		Map<String, String> rRequest,
 		SyncRequestHandler  rRequestHandler)
 	{
@@ -296,7 +289,7 @@ public class EntitySyncService extends Service implements AuthenticationService
 		try
 		{
 			String sContext  = rRequest.get(JSON_REQUEST_CONTEXT).toString();
-			String sGlobalId = rRequest.get(JSON_REQUEST_GLOBAL_ID).toString();
+			String sGlobalId = rRequest.get(JSON_REQUEST_TARGET_ID).toString();
 
 			if (sContext == null || sGlobalId == null)
 			{
@@ -321,23 +314,23 @@ public class EntitySyncService extends Service implements AuthenticationService
 	}
 
 	/***************************************
-	 * Releases an entity lock for an entity in a certain context.
+	 * Releases a lock in a certain context.
 	 *
-	 * @param rRequest The entity lock release request
+	 * @param rRequest The lock release request
 	 */
-	private void releaseEntityLock(Map<String, String> rRequest)
+	private void releaseLock(Map<String, String> rRequest)
 	{
-		processEntitySyncRequest(rRequest, this::handleReleaseLock);
+		processSyncRequest(rRequest, this::handleReleaseLock);
 	}
 
 	/***************************************
-	 * Tries to acquire an entity lock for an entity in a certain context.
+	 * Tries to acquire a lock on a target in a certain context.
 	 *
-	 * @param rRequest The entity lock request
+	 * @param rRequest The lock request
 	 */
-	private void requestEntityLock(Map<String, String> rRequest)
+	private void requestLock(Map<String, String> rRequest)
 	{
-		processEntitySyncRequest(rRequest, this::handleRequestLock);
+		processSyncRequest(rRequest, this::handleRequestLock);
 	}
 
 	/***************************************
@@ -371,9 +364,8 @@ public class EntitySyncService extends Service implements AuthenticationService
 		 * Handles a request.
 		 *
 		 * @param sContext  The target context of the request
-		 * @param sGlobalId sContext The global ID of the target entity of the
-		 *                  request
+		 * @param sTargetId The unique ID of the request target
 		 */
-		public void handleRequest(String sContext, String sGlobalId);
+		public void handleRequest(String sContext, String sTargetId);
 	}
 }

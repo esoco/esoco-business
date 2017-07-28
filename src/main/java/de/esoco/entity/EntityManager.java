@@ -22,6 +22,7 @@ import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.comm.EndpointChain;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.CollectionFunctions;
 import de.esoco.lib.expression.Conversions;
@@ -32,6 +33,9 @@ import de.esoco.lib.manage.MultiLevelCache;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
 import de.esoco.lib.reflect.ReflectUtil;
+
+import de.esoco.service.ModificationSyncEndpoint;
+import de.esoco.service.ModificationSyncEndpoint.SyncData;
 
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
@@ -81,12 +85,16 @@ import static de.esoco.entity.EntityRelationTypes.LAST_CHANGE;
 import static de.esoco.entity.EntityRelationTypes.MASTER_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.PARENT_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
-import static de.esoco.entity.EntitySyncEndpoint.syncRequest;
 
+import static de.esoco.lib.comm.CommunicationRelationTypes.ENDPOINT_ADDRESS;
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.ifRelation;
 import static de.esoco.lib.expression.Predicates.isNull;
+
+import static de.esoco.service.ModificationSyncEndpoint.releaseLock;
+import static de.esoco.service.ModificationSyncEndpoint.requestLock;
+import static de.esoco.service.ModificationSyncEndpoint.syncRequest;
 
 import static de.esoco.storage.StoragePredicates.like;
 import static de.esoco.storage.StorageRelationTypes.PERSISTENT;
@@ -161,8 +169,8 @@ public class EntityManager
 
 	private static Lock aCacheLock = new ReentrantLock();
 
-	private static String			  sEntitySyncContext;
-	private static EntitySyncEndpoint rEntitySyncEndpoint;
+	private static String				    sEntitySyncContext;
+	private static ModificationSyncEndpoint rEntitySyncEndpoint;
 
 	private static final ThreadLocal<String> aEntityModificationContextId =
 		new ThreadLocal<>();
@@ -1782,8 +1790,8 @@ public class EntityManager
 	 * @param rSyncEndpoint The entity sync service endpoint
 	 */
 	public static void setEntitySyncService(
-		String			   sSyncContext,
-		EntitySyncEndpoint rSyncEndpoint)
+		String					 sSyncContext,
+		ModificationSyncEndpoint rSyncEndpoint)
 	{
 		sEntitySyncContext  = sSyncContext;
 		rEntitySyncEndpoint = rSyncEndpoint;
@@ -2004,57 +2012,41 @@ public class EntityManager
 	{
 		if (rEntity.isPersistent())
 		{
-			String sEntityId = rEntity.getGlobalId();
+			checkSyncEndpointLock(rEntity);
 
-			if (rEntitySyncEndpoint != null)
+			String sContextId = getEntityModificationContextId();
+
+			if (sContextId != null)
 			{
-				String sMessage =
-					EntitySyncEndpoint.lockEntity().from(rEntitySyncEndpoint)
-									  .evaluate(syncRequest(sEntitySyncContext,
-															sEntityId));
+				checkModificationLockRules(rEntity, sContextId);
 
-				if (!"".equals(sMessage))
+				String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+
+				if (sHandle == null)
+				{
+					String sEntityId = rEntity.getGlobalId();
+
+					rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
+
+					Relatable rContext = aEntityModificationContext.get();
+
+					if (rContext != null)
+					{
+						Map<String, Entity> rEntities =
+							rContext.get(CONTEXT_MODIFIED_ENTITIES);
+
+						rEntities.put(sEntityId, rEntity);
+					}
+
+					aModifiedEntities.put(sEntityId, rEntity);
+				}
+				else if (!sHandle.equals(sContextId))
 				{
 					throwConcurrentEntityModification(rEntity,
-													  MSG_ENTITY_LOCKED,
+													  MSG_CONCURRENT_MODIFICATION,
 													  rEntity,
-													  sMessage);
-				}
-			}
-			else
-			{
-				String sContextId = getEntityModificationContextId();
-
-				if (sContextId != null)
-				{
-					checkModificationLockRules(rEntity, sContextId);
-
-					String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-
-					if (sHandle == null)
-					{
-						rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
-
-						Relatable rContext = aEntityModificationContext.get();
-
-						if (rContext != null)
-						{
-							Map<String, Entity> rEntities =
-								rContext.get(CONTEXT_MODIFIED_ENTITIES);
-
-							rEntities.put(sEntityId, rEntity);
-						}
-
-						aModifiedEntities.put(sEntityId, rEntity);
-					}
-					else if (!sHandle.equals(sContextId))
-					{
-						throwConcurrentEntityModification(rEntity,
-														  MSG_CONCURRENT_MODIFICATION,
-														  rEntity,
-														  sContextId,
-														  sHandle);
-					}
+													  sContextId,
+													  sHandle);
 				}
 			}
 		}
@@ -2146,6 +2138,78 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Checks whether a synchronization endpoint is available and if so,
+	 * registers an entity lock with it.
+	 *
+	 * @param rEntity The entity to lock
+	 */
+	static void checkSyncEndpointLock(Entity rEntity)
+	{
+		if (rEntitySyncEndpoint != null)
+		{
+			try
+			{
+				EndpointChain<SyncData, String> fRequestLock =
+					requestLock().from(rEntitySyncEndpoint);
+
+				String sResponse =
+					fRequestLock.send(syncRequest(sEntitySyncContext,
+												  rEntity.getGlobalId()));
+
+				if (!"".equals(sResponse))
+				{
+					throwConcurrentEntityModification(rEntity,
+													  MSG_ENTITY_LOCKED,
+													  rEntity,
+													  sResponse);
+				}
+			}
+			catch (Exception e)
+			{
+				// just log but continue with local lock mechanism
+				Log.errorf(e,
+						   "Error communicating with sync endpoint at %s",
+						   rEntitySyncEndpoint.get(ENDPOINT_ADDRESS));
+			}
+		}
+	}
+
+	/***************************************
+	 * Checks whether a synchronization endpoint is available and if so,
+	 * releases an entity lock with it.
+	 *
+	 * @param rEntity The entity to unlock
+	 */
+	static void checkSyncEndpointRelease(Entity rEntity)
+	{
+		if (rEntitySyncEndpoint != null)
+		{
+			try
+			{
+				EndpointChain<SyncData, String> fReleaseLock =
+					releaseLock().from(rEntitySyncEndpoint);
+
+				String sResponse =
+					fReleaseLock.send(syncRequest(sEntitySyncContext,
+												  rEntity.getGlobalId()));
+
+				if (!"".equals(sResponse))
+				{
+					Log.warnf("Releasing entity lock for %s failed: %s",
+							  rEntity.getGlobalId(),
+							  sResponse);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.warnf(e,
+						  "Error communicating with sync endpoint at %s",
+						  rEntitySyncEndpoint.get(ENDPOINT_ADDRESS));
+			}
+		}
+	}
+
+	/***************************************
 	 * Signals the end of an entity modification that had been started by a call
 	 * to {@link #beginEntityModification(Entity)}.
 	 *
@@ -2155,58 +2219,40 @@ public class EntityManager
 	{
 		if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
 		{
-			String sEntityId = rEntity.getGlobalId();
+			checkSyncEndpointRelease(rEntity);
 
-			if (rEntitySyncEndpoint != null)
+			String sContextId = getEntityModificationContextId();
+
+			if (sContextId != null)
 			{
-				String sMessage =
-					EntitySyncEndpoint.releaseEntityLock()
-									  .from(rEntitySyncEndpoint)
-									  .evaluate(syncRequest(sEntitySyncContext,
-															sEntityId));
+				String    sEntityId = rEntity.getGlobalId();
+				Relatable rContext  = aEntityModificationContext.get();
+				String    sHandle   = rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
-				if (!"".equals(sMessage))
+				if (!sHandle.equals(sContextId))
 				{
-					Log.warnf("Releasing entity lock for %s failed: %s",
-							  sEntityId,
-							  sMessage);
+					throwConcurrentEntityModification(rEntity,
+													  MSG_CONCURRENT_MODIFICATION,
+													  rEntity,
+													  sContextId,
+													  sHandle);
 				}
-			}
-			else
-			{
-				String sContextId = getEntityModificationContextId();
 
-				if (sContextId != null)
+				if (rContext != null)
 				{
-					Relatable rContext = aEntityModificationContext.get();
-					String    sHandle  =
-						rEntity.get(ENTITY_MODIFICATION_HANDLE);
+					Entity rContextEntity =
+						rContext.get(CONTEXT_MODIFIED_ENTITIES)
+								.remove(sEntityId);
 
-					if (!sHandle.equals(sContextId))
+					if (rContextEntity != null)
 					{
-						throwConcurrentEntityModification(rEntity,
-														  MSG_CONCURRENT_MODIFICATION,
-														  rEntity,
-														  sContextId,
-														  sHandle);
+						rContext.get(CONTEXT_UPDATED_ENTITIES)
+								.add(rContextEntity);
 					}
-
-					if (rContext != null)
-					{
-						Entity rContextEntity =
-							rContext.get(CONTEXT_MODIFIED_ENTITIES)
-									.remove(sEntityId);
-
-						if (rContextEntity != null)
-						{
-							rContext.get(CONTEXT_UPDATED_ENTITIES)
-									.add(rContextEntity);
-						}
-					}
-
-					rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
-					aModifiedEntities.remove(sEntityId);
 				}
+
+				rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
+				aModifiedEntities.remove(sEntityId);
 			}
 		}
 	}
