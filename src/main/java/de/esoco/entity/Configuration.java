@@ -215,8 +215,7 @@ public class Configuration extends Entity implements ProvidesConfiguration,
 	{
 		T rValue = getXA(rType, rDefaultValue);
 
-		// use default if available and value hasn't been explicitly set to NULL
-		if (rValue == null && !hasXA(rType))
+		if (rValue == rDefaultValue && !hasXA(rType))
 		{
 			Configuration rDefaults = get(DEFAULTS);
 
