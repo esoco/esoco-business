@@ -24,11 +24,8 @@ import de.esoco.lib.logging.Log;
 import de.esoco.lib.logging.LogLevel;
 import de.esoco.lib.security.AuthenticationService;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
@@ -52,11 +49,16 @@ public class ModificationSyncService extends Service
 {
 	//~ Static fields/initializers ---------------------------------------------
 
-	/** The name of the JSON attribute that contains the request context. */
+	/** The name of the JSON attribute with the request context. */
 	public static final String JSON_REQUEST_CONTEXT = "context";
 
-	/** The name of the JSON attribute that contains the target ID. */
+	/** The name of the JSON attribute with the target ID. */
 	public static final String JSON_REQUEST_TARGET_ID = "target";
+
+	/**
+	 * The name of the JSON attribute with a flag to force a certain request.
+	 */
+	public static final String JSON_REQUEST_FORCE_FLAG = "force";
 
 	/** The part of the API providing access to server control. */
 	public static final RelationType<ObjectSpace<Object>> SYNC = newType();
@@ -80,8 +82,6 @@ public class ModificationSyncService extends Service
 
 	private Map<String, Map<String, String>> aContextLocks =
 		new LinkedHashMap<>();
-
-	private Lock aLock = new ReentrantLock();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -137,14 +137,16 @@ public class ModificationSyncService extends Service
 		ObjectSpace<String> rApiSpace  = rRootSpace.get(API);
 		ObjectSpace<Object> aSyncSpace = new RelationSpace<>(true);
 
-		rApiSpace.get(STATUS).set(CURRENT_LOCKS, aContextLocks);
 		rApiSpace.set(SYNC, aSyncSpace);
+		rApiSpace.get(STATUS).set(CURRENT_LOCKS, aContextLocks);
 
 		aSyncSpace.set(NAME, getServiceName() + " Sync API");
 
 		aSyncSpace.init(CHECK_LOCK).onUpdate(this::checkLock);
 		aSyncSpace.init(REQUEST_LOCK).onUpdate(this::requestLock);
 		aSyncSpace.init(RELEASE_LOCK).onUpdate(this::releaseLock);
+		aSyncSpace.set(CURRENT_LOCKS, aContextLocks)
+				  .onUpdate(this::updateLocks);
 
 		return rRootSpace;
 	}
@@ -174,10 +176,13 @@ public class ModificationSyncService extends Service
 	/***************************************
 	 * Handles a request to check for a lock.
 	 *
-	 * @param sContext  The lock context
-	 * @param sTargetId The target ID
+	 * @param sContext      The lock context
+	 * @param sTargetId     The target ID
+	 * @param bForceRequest Ignored in this context
 	 */
-	private void handleCheckLock(String sContext, String sTargetId)
+	private void handleCheckLock(String  sContext,
+								 String  sTargetId,
+								 boolean bForceRequest)
 	{
 		boolean bHasLock =
 			aContextLocks.containsKey(sContext) &&
@@ -190,10 +195,14 @@ public class ModificationSyncService extends Service
 	/***************************************
 	 * Handles a request to release an entity lock.
 	 *
-	 * @param sContext  The lock context
-	 * @param sTargetId The target ID
+	 * @param sContext      The lock context
+	 * @param sTargetId     The target ID
+	 * @param bForceRequest TRUE to force the release even if the lock has been
+	 *                      acquired by a different client
 	 */
-	private void handleReleaseLock(String sContext, String sTargetId)
+	private void handleReleaseLock(String  sContext,
+								   String  sTargetId,
+								   boolean bForceRequest)
 	{
 		Map<String, String> aLocks		 = aContextLocks.get(sContext);
 		String			    sCurrentLock = null;
@@ -209,10 +218,18 @@ public class ModificationSyncService extends Service
 
 		if (sCurrentLock != null)
 		{
-			String sClientAddress = getClientAddress();
+			String  sClientAddress  = getClientAddress();
+			boolean bLockedByClient = sCurrentLock.equals(sClientAddress);
 
-			if (sCurrentLock.equals(sClientAddress))
+			if (bLockedByClient || bForceRequest)
 			{
+				if (bForceRequest && !bLockedByClient)
+				{
+					Log.warnf("Locked by %s, release forced by %s",
+							  sCurrentLock,
+							  sClientAddress);
+				}
+
 				aLocks.remove(sTargetId);
 
 				if (Log.isLevelEnabled(LogLevel.DEBUG))
@@ -234,24 +251,35 @@ public class ModificationSyncService extends Service
 	/***************************************
 	 * Handles a request to set a lock.
 	 *
-	 * @param sContext  The lock context
-	 * @param sTargetId The target ID
+	 * @param sContext      The lock context
+	 * @param sTargetId     The target ID
+	 * @param bForceRequest TRUE to force the lock even if the same lock has
+	 *                      already been acquired by a different client
 	 */
-	private void handleRequestLock(String sContext, String sTargetId)
+	private void handleRequestLock(String  sContext,
+								   String  sTargetId,
+								   boolean bForceRequest)
 	{
 		Map<String, String> aLocks = aContextLocks.get(sContext);
 
 		if (aLocks == null)
 		{
-			aLocks = new HashMap<>();
+			aLocks = new LinkedHashMap<>();
 			aContextLocks.put(sContext, aLocks);
 		}
 
 		String sCurrentLock   = aLocks.get(sTargetId);
 		String sClientAddress = getClientAddress();
 
-		if (sCurrentLock == null)
+		if (sCurrentLock == null || bForceRequest)
 		{
+			if (bForceRequest && sCurrentLock != null)
+			{
+				Log.warnf("Locked by %s, forcing lock to %s",
+						  sCurrentLock,
+						  sCurrentLock);
+			}
+
 			aLocks.put(sTargetId, sClientAddress);
 
 			if (Log.isLevelEnabled(LogLevel.DEBUG))
@@ -284,19 +312,26 @@ public class ModificationSyncService extends Service
 		Map<String, String> rRequest,
 		SyncRequestHandler  rRequestHandler)
 	{
-		aLock.lock();
-
 		try
 		{
-			String sContext  = rRequest.get(JSON_REQUEST_CONTEXT).toString();
-			String sGlobalId = rRequest.get(JSON_REQUEST_TARGET_ID).toString();
+			Object sContext   = rRequest.get(JSON_REQUEST_CONTEXT);
+			Object sGlobalId  = rRequest.get(JSON_REQUEST_TARGET_ID);
+			Object rForceFlag = rRequest.get(JSON_REQUEST_FORCE_FLAG);
 
-			if (sContext == null || sGlobalId == null)
+			if (sContext == null ||
+				sGlobalId == null ||
+				(rForceFlag != null && !(rForceFlag instanceof Boolean)))
 			{
 				respond(HttpStatusCode.BAD_REQUEST, rRequest.toString());
 			}
 
-			rRequestHandler.handleRequest(sContext, sGlobalId);
+			boolean bForceRequest =
+				rForceFlag != null ? ((Boolean) rForceFlag).booleanValue()
+								   : false;
+
+			rRequestHandler.handleRequest(sContext.toString(),
+										  sGlobalId.toString(),
+										  bForceRequest);
 		}
 		catch (HttpStatusException e)
 		{
@@ -306,10 +341,6 @@ public class ModificationSyncService extends Service
 		catch (Exception e)
 		{
 			respond(HttpStatusCode.BAD_REQUEST, rRequest.toString());
-		}
-		finally
-		{
-			aLock.unlock();
 		}
 	}
 
@@ -347,6 +378,18 @@ public class ModificationSyncService extends Service
 		throw new HttpStatusException(eStatus, sMessage);
 	}
 
+	/***************************************
+	 * Invoked upon tries to set all locks by writing to {@link #CURRENT_LOCKS}.
+	 * Currently not supported, therefore throws an exception.
+	 *
+	 * @param aNewLocks The new lock mapping
+	 */
+	private void updateLocks(Map<?, ?> aNewLocks)
+	{
+		respond(HttpStatusCode.METHOD_NOT_ALLOWED,
+				"Setting all locks is not supported");
+	}
+
 	//~ Inner Interfaces -------------------------------------------------------
 
 	/********************************************************************
@@ -363,9 +406,12 @@ public class ModificationSyncService extends Service
 		/***************************************
 		 * Handles a request.
 		 *
-		 * @param sContext  The target context of the request
-		 * @param sTargetId The unique ID of the request target
+		 * @param sContext      The target context of the request
+		 * @param sTargetId     The unique ID of the request target
+		 * @param bForceRequest TRUE to force the request execution
 		 */
-		public void handleRequest(String sContext, String sTargetId);
+		public void handleRequest(String  sContext,
+								  String  sTargetId,
+								  boolean bForceRequest);
 	}
 }

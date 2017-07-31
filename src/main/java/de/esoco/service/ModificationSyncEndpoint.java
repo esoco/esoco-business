@@ -18,11 +18,16 @@ package de.esoco.service;
 
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
+import de.esoco.lib.json.JsonBuilder;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static de.esoco.lib.comm.CommunicationRelationTypes.ENDPOINT_ADDRESS;
 import static de.esoco.lib.expression.Functions.identity;
 
 import static de.esoco.service.ModificationSyncService.JSON_REQUEST_CONTEXT;
+import static de.esoco.service.ModificationSyncService.JSON_REQUEST_FORCE_FLAG;
 import static de.esoco.service.ModificationSyncService.JSON_REQUEST_TARGET_ID;
 
 
@@ -51,13 +56,41 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
+	 * Static helper method that creates the data record for a forced
+	 * synchronization request. This should only be used by management code for
+	 * the handling of invalid locks.
+	 *
+	 * @param  sContext  The name of the synchronization context
+	 * @param  sTargetId The unique ID of the target to synchronize
+	 *
+	 * @return The data record for use with {@link SyncRequest}
+	 */
+	public static SyncData forceSyncRequest(String sContext, String sTargetId)
+	{
+		return new SyncData(sContext, sTargetId, true);
+	}
+
+	/***************************************
+	 * Returns a request method that will query the current locks. The result is
+	 * a map that contains entries for the lock contexts. Each context entry
+	 * contains another mapping from target IDs to the addresses of the clients
+	 * that hold the locks.
+	 *
+	 * @return The request method
+	 */
+	public static SyncRequest getCurrentLocks()
+	{
+		return new SyncRequest(HttpRequestMethod.GET, "current_locks");
+	}
+
+	/***************************************
 	 * Returns a request method that will release a lock on an certain target.
 	 *
 	 * @return The request method
 	 */
 	public static SyncRequest releaseLock()
 	{
-		return new SyncRequest("release_lock");
+		return new SyncRequest(HttpRequestMethod.POST, "release_lock");
 	}
 
 	/***************************************
@@ -67,11 +100,11 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 	 */
 	public static SyncRequest requestLock()
 	{
-		return new SyncRequest("request_lock");
+		return new SyncRequest(HttpRequestMethod.POST, "request_lock");
 	}
 
 	/***************************************
-	 * Static helper method that creates a data record for a synchronization
+	 * Static helper method that creates the data record for a synchronization
 	 * request.
 	 *
 	 * @param  sContext  The name of the synchronization context
@@ -81,7 +114,7 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 	 */
 	public static SyncData syncRequest(String sContext, String sTargetId)
 	{
-		return new SyncData(sContext, sTargetId);
+		return new SyncData(sContext, sTargetId, false);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -98,36 +131,48 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 
 		private final String sContext;
 		private final String sTargetId;
+		private boolean		 bForceRequest;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param sContext  The synchronization context
-		 * @param sTargetId The unique ID of the target
+		 * @param sContext      The synchronization context
+		 * @param sTargetId     The unique ID of the target
+		 * @param bForceRequest TRUE to force the request execution even if the
+		 *                      requirements are not met
 		 */
-		public SyncData(String sContext, String sTargetId)
+		public SyncData(String  sContext,
+						String  sTargetId,
+						boolean bForceRequest)
 		{
-			this.sContext  = sContext;
-			this.sTargetId = sTargetId;
+			this.sContext	   = sContext;
+			this.sTargetId     = sTargetId;
+			this.bForceRequest = bForceRequest;
 		}
 
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Formats this data record into a JSON string in the required sync
-		 * service format.
+		 * Formats this data record into a JSON request string as required by
+		 * the modification sync service.
 		 *
-		 * @return
+		 * @return The JSON request
 		 */
 		public String toJson()
 		{
-			return String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}",
-								 JSON_REQUEST_CONTEXT,
-								 sContext,
-								 JSON_REQUEST_TARGET_ID,
-								 sTargetId);
+			Map<String, Object> aRequestData = new LinkedHashMap<>(3);
+
+			aRequestData.put(JSON_REQUEST_CONTEXT, sContext);
+			aRequestData.put(JSON_REQUEST_TARGET_ID, sTargetId);
+
+			if (bForceRequest)
+			{
+				aRequestData.put(JSON_REQUEST_FORCE_FLAG, Boolean.TRUE);
+			}
+
+			return new JsonBuilder().appendObject(aRequestData).toString();
 		}
 	}
 
@@ -144,15 +189,16 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 		/***************************************
 		 * Creates a new instance.
 		 *
+		 * @param eMethod     The request method
 		 * @param sRequestUrl sMethodName The name of the request method
 		 */
-		SyncRequest(String sRequestUrl)
+		SyncRequest(HttpRequestMethod eMethod, String sRequestUrl)
 		{
 			super(sRequestUrl,
 				  null,
-				  HttpRequestMethod.POST,
+				  eMethod,
 				  "/api/sync/" + sRequestUrl,
-				  data -> data.toJson(),
+				  data -> data != null ? data.toJson() : "",
 				  identity());
 		}
 	}

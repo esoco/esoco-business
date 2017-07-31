@@ -14,17 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.entity;
+package de.esoco.service;
 
 import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointChain;
-import de.esoco.lib.expression.Function;
-import de.esoco.service.ModificationSyncEndpoint;
+
 import de.esoco.service.ModificationSyncEndpoint.SyncData;
 
-import static de.esoco.service.ModificationSyncEndpoint.requestLock;
+import static de.esoco.service.ModificationSyncEndpoint.getCurrentLocks;
 import static de.esoco.service.ModificationSyncEndpoint.releaseLock;
+import static de.esoco.service.ModificationSyncEndpoint.requestLock;
 import static de.esoco.service.ModificationSyncEndpoint.syncRequest;
 
 
@@ -33,7 +33,7 @@ import static de.esoco.service.ModificationSyncEndpoint.syncRequest;
  *
  * @author eso
  */
-public class EntitySyncEndpointTest
+public class ModificationSyncEndpointTest
 {
 	//~ Static methods ---------------------------------------------------------
 
@@ -44,8 +44,7 @@ public class EntitySyncEndpointTest
 	 */
 	public static void main(String[] rArgs)
 	{
-		String   sContext     = "test";
-		Endpoint aSyncService = Endpoint.at("http://localhost:8377");
+		Endpoint aSyncService = Endpoint.at("http://localhost:7962");
 
 		EndpointChain<SyncData, String> fLock =
 			requestLock().from(aSyncService);
@@ -53,17 +52,23 @@ public class EntitySyncEndpointTest
 		EndpointChain<SyncData, String> fRelease =
 			releaseLock().from(aSyncService);
 
+		EndpointChain<SyncData, String> fGetLocks =
+			getCurrentLocks().from(aSyncService);
+
+		System.out.printf("RUNNING: %s\n",
+						  Service.CHECK_RUNNING.from(aSyncService).result());
+
 		lockEntities("test1", fLock);
 		lockEntities("test2", fLock);
+		System.out.printf("LOCKS: %s\n", fGetLocks.result());
 		releaseEntities("test1", fRelease);
 		releaseEntities("test2", fRelease);
 
 		System.out.printf("LOCK   : '%s'\n",
-						  fLock.evaluate(syncRequest(sContext, "E-1001")));
-
-		String sRunning = Service.CHECK_RUNNING.from(aSyncService).result();
-
-		System.out.printf("RUNNING: %s\n", sRunning);
+						  fLock.send(syncRequest("test1", "E-1000")));
+		System.out.printf("LOCK   : '%s'\n",
+						  fLock.send(syncRequest("test2", "E-1005")));
+		System.out.printf("LOCKS: %s\n", fGetLocks.result());
 
 //		Service.REQUEST_STOP.from(aSyncService).result();
 	}
@@ -75,8 +80,8 @@ public class EntitySyncEndpointTest
 	 * @param fLock
 	 */
 	private static void lockEntities(
-		String							 sContext,
-		Function<SyncData, String> fLock)
+		String							sContext,
+		EndpointChain<SyncData, String> fLock)
 	{
 		for (int i = 0; i < 10; i++)
 		{
@@ -85,7 +90,7 @@ public class EntitySyncEndpointTest
 			System.out.printf("LOCK %s:%s: '%s'\n",
 							  sContext,
 							  sGlobalId,
-							  fLock.evaluate(syncRequest(sContext, sGlobalId)));
+							  fLock.send(syncRequest(sContext, sGlobalId)));
 		}
 	}
 
@@ -96,7 +101,7 @@ public class EntitySyncEndpointTest
 	 * @param fRelease
 	 */
 	private static void releaseEntities(
-		String								  sContext,
+		String							sContext,
 		EndpointChain<SyncData, String> fRelease)
 	{
 		for (int i = 9; i >= 0; i--)
@@ -106,7 +111,7 @@ public class EntitySyncEndpointTest
 			System.out.printf("RELEASE %s:%s: '%s'\n",
 							  sContext,
 							  sGlobalId,
-							  fRelease.evaluate(syncRequest(sContext, sGlobalId)));
+							  fRelease.send(syncRequest(sContext, sGlobalId)));
 		}
 	}
 }
