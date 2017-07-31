@@ -22,6 +22,7 @@ import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointChain;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.CollectionFunctions;
@@ -34,7 +35,6 @@ import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
 import de.esoco.lib.reflect.ReflectUtil;
 
-import de.esoco.service.ModificationSyncEndpoint;
 import de.esoco.service.ModificationSyncEndpoint.SyncData;
 
 import de.esoco.storage.Query;
@@ -169,8 +169,8 @@ public class EntityManager
 
 	private static Lock aCacheLock = new ReentrantLock();
 
-	private static String				    sEntitySyncContext;
-	private static ModificationSyncEndpoint rEntitySyncEndpoint;
+	private static String   sEntitySyncContext;
+	private static Endpoint rEntitySyncEndpoint;
 
 	private static final ThreadLocal<String> aEntityModificationContextId =
 		new ThreadLocal<>();
@@ -1790,8 +1790,8 @@ public class EntityManager
 	 * @param rSyncEndpoint The entity sync service endpoint
 	 */
 	public static void setEntitySyncService(
-		String					 sSyncContext,
-		ModificationSyncEndpoint rSyncEndpoint)
+		String   sSyncContext,
+		Endpoint rSyncEndpoint)
 	{
 		sEntitySyncContext  = sSyncContext;
 		rEntitySyncEndpoint = rSyncEndpoint;

@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.service;
 
+import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
 import de.esoco.lib.json.JsonBuilder;
@@ -23,7 +24,6 @@ import de.esoco.lib.json.JsonBuilder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static de.esoco.lib.comm.CommunicationRelationTypes.ENDPOINT_ADDRESS;
 import static de.esoco.lib.expression.Functions.identity;
 
 import static de.esoco.service.ModificationSyncService.JSON_REQUEST_CONTEXT;
@@ -34,25 +34,15 @@ import static de.esoco.service.ModificationSyncService.JSON_REQUEST_TARGET_ID;
 /********************************************************************
  * The HTTP endpoint for interaction with the {@link ModificationSyncService}
  * REST service. The endpoint itself uses the standard HTTP endpoint
- * implementation. This class only serves as a holder for the REST methods that
- * are specific for the sync service.
+ * implementation. An instance can be created by invoking the standard method
+ * {@link Endpoint#at(String)} with the sync service URL. This class only serves
+ * as a holder for the static REST method definitions that are specific for the
+ * sync service.
  *
  * @author eso
  */
 public class ModificationSyncEndpoint extends HttpEndpoint
 {
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance for a certain endpoint URL.
-	 *
-	 * @param sEndpointUrl The endpoint URL
-	 */
-	public ModificationSyncEndpoint(String sEndpointUrl)
-	{
-		set(ENDPOINT_ADDRESS, sEndpointUrl);
-	}
-
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
