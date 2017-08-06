@@ -161,7 +161,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	@Override
 	public String toString()
 	{
-		return String.format("%s[%s]",
+		return String.format("%s(%s)",
 							 getClass().getSimpleName(),
 							 fragment().getParameter(type()));
 	}

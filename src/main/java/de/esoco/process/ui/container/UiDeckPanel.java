@@ -53,7 +53,7 @@ public class UiDeckPanel extends UiSwitchPanel<UiDeckPanel>
 	 *
 	 * @see #addPage(String, UiLayout)
 	 */
-	public UiPanel addPage(UiLayout eLayout)
+	public UiLayoutPanel addPage(UiLayout eLayout)
 	{
 		return addPage("", eLayout);
 	}

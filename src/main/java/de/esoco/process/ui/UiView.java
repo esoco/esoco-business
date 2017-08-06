@@ -21,7 +21,7 @@ package de.esoco.process.ui;
  *
  * @author eso
  */
-public abstract class UiView<V extends UiView<V>> extends UiContainer<V>
+public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 {
 	//~ Constructors -----------------------------------------------------------
 

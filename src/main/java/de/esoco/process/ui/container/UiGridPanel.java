@@ -17,6 +17,7 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 
 
@@ -26,7 +27,7 @@ import de.esoco.process.ui.layout.UiColumnGridLayout;
  *
  * @author eso
  */
-public class UiGridPanel extends UiContainer<UiGridPanel>
+public class UiGridPanel extends UiLayoutContainer<UiGridPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 

@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.InteractionEventType;
-
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;
@@ -28,7 +25,7 @@ import org.obrel.core.RelationType;
 
 
 /********************************************************************
- * The base class for UI containers.
+ * The base class for all UI containers.
  *
  * @author eso
  */
@@ -43,7 +40,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 
 	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
 
-	private UiBuilder<C> aBuilder;
+	private UiBuilder<C> aContainerBuilder;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -70,24 +67,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns a {@link UiBuilder} instance for this container. The builder
-	 * instance is cached internally so that it doesn't need to be kept by the
-	 * invoking code.
-	 *
-	 * @return A UI builder instance for this container
-	 */
-	@SuppressWarnings("unchecked")
-	public UiBuilder<C> builder()
-	{
-		if (aBuilder == null)
-		{
-			aBuilder = new UiBuilder<>((C) this);
-		}
-
-		return aBuilder;
-	}
-
-	/***************************************
 	 * Returns the components of this container in the order in which they have
 	 * been added.
 	 *
@@ -99,62 +78,12 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Returns the layout of this container.
-	 *
-	 * @return The layout
-	 */
-	public final UiLayout getLayout()
-	{
-		return rLayout;
-	}
-
-	/***************************************
-	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only work
-	 * for layouts that support multiple rows of components.
-	 */
-	public void nextRow()
-	{
-		getLayout().nextRow();
-	}
-
-	/***************************************
-	 * Sets the event handler for click events on this panel. The handler will
-	 * receive the panel instance as it's argument.
-	 *
-	 * @param  rEventHandler The event handler
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	public final C onClick(ValueEventHandler<C> rEventHandler)
-	{
-		return setParameterEventHandler(InteractionEventType.ACTION,
-										v -> rEventHandler.handleValueUpdate((C)
-																			 this));
-	}
-
-	/***************************************
-	 * Removes a component from this container.
-	 *
-	 * @param rComponent The component to remove
-	 */
-	public void removeComponent(UiComponent<?, ?> rComponent)
-	{
-		if (aComponents.remove(rComponent))
-		{
-			fragment().removeInteractionParameters(rComponent.type());
-		}
-	}
-
-	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString()
 	{
-		return String.format("%s%s",
-							 getClass().getSimpleName(),
-							 getComponents());
+		return super.toString() + getComponents();
 	}
 
 	/***************************************
@@ -224,6 +153,24 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Returns a {@link UiBuilder} instance for this container. The builder
+	 * instance is cached internally so that it doesn't need to be kept by the
+	 * invoking code.
+	 *
+	 * @return A UI builder instance for this container
+	 */
+	@SuppressWarnings("unchecked")
+	protected UiBuilder<C> builder()
+	{
+		if (aContainerBuilder == null)
+		{
+			aContainerBuilder = new UiBuilder<>((C) this);
+		}
+
+		return aContainerBuilder;
+	}
+
+	/***************************************
 	 * Will be invoked if a new component has been added to this container. Can
 	 * be overridden by subclasses to handle component additions. The complete
 	 * list of child components (including the new one at the end) can be
@@ -235,6 +182,29 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	protected void componentAdded(UiComponent<?, ?> rComponent)
 	{
+	}
+
+	/***************************************
+	 * Returns the layout of this container.
+	 *
+	 * @return The layout
+	 */
+	protected UiLayout getLayout()
+	{
+		return rLayout;
+	}
+
+	/***************************************
+	 * Removes a component from this container.
+	 *
+	 * @param rComponent The component to remove
+	 */
+	protected void removeComponent(UiComponent<?, ?> rComponent)
+	{
+		if (aComponents.remove(rComponent))
+		{
+			fragment().removeInteractionParameters(rComponent.type());
+		}
 	}
 
 	/***************************************

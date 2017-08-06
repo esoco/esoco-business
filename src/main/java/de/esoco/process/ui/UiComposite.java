@@ -14,19 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
-
-import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiLayout;
-
+package de.esoco.process.ui;
 
 /********************************************************************
- * A simple panel container that arranges it's child containers according to a
- * layout.
+ * A base class for components that are build from the combination of other
+ * components. A composite is always a container with a certain layout in which
+ * it's
  *
  * @author eso
  */
-public class UiPanel extends UiContainer<UiPanel>
+public abstract class UiComposite<C extends UiComposite<C>>
+	extends UiContainer<C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -36,8 +34,19 @@ public class UiPanel extends UiContainer<UiPanel>
 	 * @param rParent The parent container
 	 * @param eLayout The layout of this panel
 	 */
-	public UiPanel(UiContainer<?> rParent, UiLayout eLayout)
+	public UiComposite(UiContainer<?> rParent, UiLayout eLayout)
 	{
 		super(rParent, eLayout);
 	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Overridden to be abstract because it must always be implemented to create
+	 * the content of this composite.
+	 *
+	 * @see UiContainer#build()
+	 */
+	@Override
+	protected abstract void build();
 }

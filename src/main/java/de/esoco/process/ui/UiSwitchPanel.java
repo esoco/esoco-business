@@ -20,7 +20,7 @@ import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.SingleSelection;
 
 import de.esoco.process.ValueEventHandler;
-import de.esoco.process.ui.container.UiPanel;
+import de.esoco.process.ui.container.UiLayoutPanel;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
@@ -33,8 +33,8 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
  *
  * @author eso
  */
-public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
-	implements SingleSelection
+public class UiSwitchPanel<C extends UiSwitchPanel<C>>
+	extends UiLayoutContainer<C> implements SingleSelection
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -59,7 +59,7 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
 	 *
 	 * @return The new panel
 	 */
-	public UiPanel addPage(String sTitle, UiLayout eLayout)
+	public UiLayoutPanel addPage(String sTitle, UiLayout eLayout)
 	{
 		return addPage(sTitle, builder().addPanel(eLayout));
 	}
@@ -124,10 +124,10 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onSelection(ValueEventHandler<P> rEventHandler)
+	public final C onSelection(ValueEventHandler<C> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										v -> rEventHandler.handleValueUpdate((P)
+										v -> rEventHandler.handleValueUpdate((C)
 																			 this));
 	}
 

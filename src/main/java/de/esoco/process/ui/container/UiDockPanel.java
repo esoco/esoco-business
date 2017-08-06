@@ -19,6 +19,7 @@ package de.esoco.process.ui.container;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiDockLayout;
 
 
@@ -27,7 +28,7 @@ import de.esoco.process.ui.layout.UiDockLayout;
  *
  * @author eso
  */
-public class UiDockPanel extends UiContainer<UiDockPanel>
+public class UiDockPanel extends UiLayoutContainer<UiDockPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 

@@ -40,7 +40,7 @@ import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.container.UiDeckPanel;
 import de.esoco.process.ui.container.UiDockPanel;
-import de.esoco.process.ui.container.UiPanel;
+import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.container.UiSplitPanel;
 import de.esoco.process.ui.container.UiStackPanel;
 import de.esoco.process.ui.container.UiTabPanel;
@@ -285,9 +285,9 @@ public class UiBuilder<C extends UiContainer<C>>
 	 *
 	 * @return The new panel
 	 */
-	public UiPanel addPanel(UiLayout eLayout)
+	public UiLayoutPanel addPanel(UiLayout eLayout)
 	{
-		return new UiPanel(rContainer, eLayout);
+		return new UiLayoutPanel(rContainer, eLayout);
 	}
 
 	/***************************************
