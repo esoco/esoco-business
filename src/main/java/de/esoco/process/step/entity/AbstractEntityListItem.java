@@ -168,8 +168,8 @@ public abstract class AbstractEntityListItem<E extends Entity>
 
 	/***************************************
 	 * Must be implemented to init the fragment containing the content panel of
-	 * this list item. The panel layout is pre-set to {@link LayoutType#GRID} which
-	 * can be overridden.
+	 * this list item. The panel layout is pre-set to {@link LayoutType#GRID}
+	 * which can be overridden.
 	 *
 	 * @param rContentPanel The content panel fragment
 	 */
@@ -179,20 +179,20 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * Internal method to create the event handling wrapper for the header
 	 * panel.
 	 *
-	 * @param p The header panel fragment
+	 * @param rHeader The header panel fragment
 	 */
-	protected void createHeaderPanel(InteractionFragment p)
+	protected void createHeaderPanel(InteractionFragment rHeader)
 	{
-		p.layout(LayoutType.HEADER).onAction(v -> handleItemSelection());
-		p.panel(p2 -> initHeaderPanel(p2));
+		rHeader.layout(LayoutType.HEADER).onAction(v -> handleItemSelection());
+		rHeader.panel(p -> initHeaderPanel(p));
 	}
 
 	/***************************************
 	 * Needs to be implemented to initialize the header panel of list items in
 	 * list layouts that separate header and content (i.e. with a {@link
 	 * ListLayoutStyle} other than {@link ListLayoutStyle#SIMPLE}). The panel
-	 * layout is set to {@link LayoutType#GRID} which can be overridden. The default
-	 * implementation does nothing.
+	 * layout is set to {@link LayoutType#GRID} which can be overridden. The
+	 * default implementation does nothing.
 	 *
 	 * @param rHeaderPanel The header panel fragment
 	 */

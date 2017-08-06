@@ -24,8 +24,11 @@ import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.layout.UiHeaderLayout;
 
 import java.util.List;
+
+import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 
 
 /********************************************************************
@@ -38,7 +41,8 @@ public class UiListPanel extends UiComposite<UiListPanel>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private List<Item> aItems;
+	private List<Item>			  aItems;
+	private final ListLayoutStyle eListStyle;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -51,6 +55,10 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	public UiListPanel(UiContainer<?> rParent, ListLayoutStyle eListStyle)
 	{
 		super(rParent, new ListLayout());
+
+		this.eListStyle = eListStyle;
+
+		set(LIST_LAYOUT_STYLE, eListStyle);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -82,6 +90,16 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	}
 
 	/***************************************
+	 * Returns the listStyle value.
+	 *
+	 * @return The listStyle value
+	 */
+	public final ListLayoutStyle getListStyle()
+	{
+		return eListStyle;
+	}
+
+	/***************************************
 	 * Removes an item from this list.
 	 *
 	 * @param rItem The item to remove
@@ -99,11 +117,12 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	 *
 	 * @author eso
 	 */
-	public static class Item extends UiComposite<Item>
+	public class Item extends UiComposite<Item>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final UiLayoutPanel aItemContent;
+		private UiLayoutPanel aItemHeader  = null;
+		private UiLayoutPanel aItemContent;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -117,19 +136,40 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		{
 			super(rParent, new ListItemLayout());
 
+			if (eListStyle != ListLayoutStyle.SIMPLE)
+			{
+				aItemHeader = builder().addPanel(new UiHeaderLayout());
+			}
+
 			aItemContent = builder().addPanel(rItemLayout);
 		}
 
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns a builder for the item content.
+		 * Returns the builder for the content panel of this item.
 		 *
 		 * @return The item content builder
 		 */
-		public final UiBuilder<?> getItemContent()
+		public final UiBuilder<?> getContentBuilder()
 		{
 			return aItemContent.builder();
+		}
+
+		/***************************************
+		 * Returns the builder for the header panel of this item or NULL if the
+		 * list has a simple style with items that have only content but no
+		 * header.
+		 *
+		 * <p>As the header uses a special layout it is recommended to add only
+		 * a single component with this builder (typically some panel with it's
+		 * own layout) or else the resulting rendering can be unexpected.</p>
+		 *
+		 * @return The item header builder or NULL for none
+		 */
+		public final UiBuilder<?> getHeaderBuilder()
+		{
+			return aItemHeader != null ? aItemHeader.builder() : null;
 		}
 	}
 
