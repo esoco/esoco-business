@@ -61,7 +61,7 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>> extends UiContainer<P>
 	 */
 	public UiPanel addPage(String sTitle, UiLayout eLayout)
 	{
-		return addPage(sTitle, addPanel(eLayout));
+		return addPage(sTitle, builder().addPanel(eLayout));
 	}
 
 	/***************************************
