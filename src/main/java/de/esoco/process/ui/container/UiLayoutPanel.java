@@ -22,8 +22,8 @@ import de.esoco.process.ui.UiLayoutContainer;
 
 
 /********************************************************************
- * A simple panel container that arranges it's child containers according to a
- * layout.
+ * A generic panel container that arranges it's child containers according to a
+ * particular layout.
  *
  * @author eso
  */
@@ -35,10 +35,10 @@ public class UiLayoutPanel extends UiLayoutContainer<UiLayoutPanel>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
-	 * @param eLayout The layout of this panel
+	 * @param rLayout The layout of this panel
 	 */
-	public UiLayoutPanel(UiContainer<?> rParent, UiLayout eLayout)
+	public UiLayoutPanel(UiContainer<?> rParent, UiLayout rLayout)
 	{
-		super(rParent, eLayout);
+		super(rParent, rLayout);
 	}
 }

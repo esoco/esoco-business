@@ -38,15 +38,4 @@ public abstract class UiComposite<C extends UiComposite<C>>
 	{
 		super(rParent, eLayout);
 	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Overridden to be abstract because it must always be implemented to create
-	 * the content of this composite.
-	 *
-	 * @see UiContainer#build()
-	 */
-	@Override
-	protected abstract void build();
 }

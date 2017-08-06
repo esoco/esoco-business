@@ -33,8 +33,8 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
  *
  * @author eso
  */
-public class UiSwitchPanel<C extends UiSwitchPanel<C>>
-	extends UiLayoutContainer<C> implements SingleSelection
+public class UiSwitchPanel<P extends UiSwitchPanel<P>>
+	extends UiLayoutContainer<P> implements SingleSelection
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -42,11 +42,11 @@ public class UiSwitchPanel<C extends UiSwitchPanel<C>>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
-	 * @param eLayout The panel layout
+	 * @param rLayout The panel layout
 	 */
-	public UiSwitchPanel(UiContainer<?> rParent, UiLayout eLayout)
+	public UiSwitchPanel(UiContainer<?> rParent, UiLayout rLayout)
 	{
-		super(rParent, eLayout);
+		super(rParent, rLayout);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -124,10 +124,10 @@ public class UiSwitchPanel<C extends UiSwitchPanel<C>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final C onSelection(ValueEventHandler<C> rEventHandler)
+	public final P onSelection(ValueEventHandler<P> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										v -> rEventHandler.handleValueUpdate((C)
+										v -> rEventHandler.handleValueUpdate((P)
 																			 this));
 	}
 
