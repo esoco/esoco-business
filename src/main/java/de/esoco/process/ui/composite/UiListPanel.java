@@ -19,7 +19,6 @@ package de.esoco.process.ui.composite;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 
-import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -39,24 +38,57 @@ import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
  */
 public class UiListPanel extends UiComposite<UiListPanel>
 {
+	//~ Enums ------------------------------------------------------------------
+
+	/********************************************************************
+	 * The available styles for expandable lists:
+	 *
+	 * <ul>
+	 *   <li>{@link #EXPAND}: expands an item inside the list.</li>
+	 *   <li>{@link #POPOUT}: expands an item and separates it from the other
+	 *     list items.</li>
+	 * </ul>
+	 */
+	public enum ExpandableListStyle { EXPAND, POPOUT }
+
 	//~ Instance fields --------------------------------------------------------
 
-	private List<Item>			  aItems;
-	private final ListLayoutStyle eListStyle;
+	private final ExpandableListStyle eExpandStyle;
+
+	private List<Item> aItems;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance with simple items that are not expandable.
 	 *
-	 * @param rParent    The parent container
-	 * @param eListStyle The list style
+	 * @param rParent The parent container
 	 */
-	public UiListPanel(UiContainer<?> rParent, ListLayoutStyle eListStyle)
+	public UiListPanel(UiContainer<?> rParent)
+	{
+		this(rParent, null);
+	}
+
+	/***************************************
+	 * Creates a new instance with items that can be expanded by selecting their
+	 * header area. Expanding an item will reveal the item content and hide any
+	 * other previously expanded item content.
+	 *
+	 * @param rParent      The parent container
+	 * @param eExpandStyle The expand style
+	 */
+	public UiListPanel(UiContainer<?>	   rParent,
+					   ExpandableListStyle eExpandStyle)
 	{
 		super(rParent, new ListLayout());
 
-		this.eListStyle = eListStyle;
+		this.eExpandStyle = eExpandStyle;
+
+		ListLayoutStyle eListStyle =
+			eExpandStyle == ExpandableListStyle.EXPAND
+			? ListLayoutStyle.EXPAND
+			: eExpandStyle == ExpandableListStyle.POPOUT
+			? ListLayoutStyle.POPOUT : null;
 
 		set(LIST_LAYOUT_STYLE, eListStyle);
 	}
@@ -66,13 +98,11 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	/***************************************
 	 * Adds a new item to this list.
 	 *
-	 * @param  rItemLayout The layout of the item content
-	 *
 	 * @return The new item
 	 */
-	public Item addItem(UiLayout rItemLayout)
+	public Item addItem()
 	{
-		Item aItem = new Item(this, rItemLayout);
+		Item aItem = new Item(this);
 
 		aItems.add(aItem);
 
@@ -90,16 +120,6 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	}
 
 	/***************************************
-	 * Returns the listStyle value.
-	 *
-	 * @return The listStyle value
-	 */
-	public final ListLayoutStyle getListStyle()
-	{
-		return eListStyle;
-	}
-
-	/***************************************
 	 * Removes an item from this list.
 	 *
 	 * @param rItem The item to remove
@@ -113,7 +133,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
-	 * The implementation of the list item container.
+	 * The container for a single list item.
 	 *
 	 * @author eso
 	 */
@@ -121,55 +141,57 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private UiLayoutPanel aItemHeader  = null;
-		private UiLayoutPanel aItemContent;
+		private UiLayoutPanel aItemHeader = null;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param rParent     The list panel this item belongs to
-		 * @param rItemLayout The layout of the panel inside the item
+		 * @param rParent The list panel this item belongs to
 		 */
-		Item(UiListPanel rParent, UiLayout rItemLayout)
+		Item(UiListPanel rParent)
 		{
 			super(rParent, new ListItemLayout());
 
-			if (eListStyle != ListLayoutStyle.SIMPLE)
+			if (eExpandStyle != null)
 			{
 				aItemHeader = builder().addPanel(new UiHeaderLayout());
 			}
-
-			aItemContent = builder().addPanel(rItemLayout);
 		}
 
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns the builder for the content panel of this item.
+		 * Helper method to create a new header panel with a certain layout in
+		 * the item header returned by {@link #getHeader()}. This method should
+		 * only be invoked once or else additional panels will be added to the
+		 * header.
 		 *
-		 * @return The item content builder
+		 * @param  rLayout The header panel layout
+		 *
+		 * @return The new panel with the given layout
 		 */
-		public final UiBuilder<?> getContentBuilder()
+		public final UiLayoutPanel createHeader(UiLayout rLayout)
 		{
-			return aItemContent.builder();
+			return new UiLayoutPanel(getHeader(), rLayout);
 		}
 
 		/***************************************
-		 * Returns the builder for the header panel of this item or NULL if the
-		 * list has a simple style with items that have only content but no
-		 * header.
+		 * Returns the header container panel of this item. If the list has a
+		 * simple style this method returns the item itself so that it can be
+		 * used to build the content in it.
 		 *
-		 * <p>As the header uses a special layout it is recommended to add only
-		 * a single component with this builder (typically some panel with it's
-		 * own layout) or else the resulting rendering can be unexpected.</p>
+		 * <p>The item header uses a special layout and therefore it is
+		 * recommended to add only a single component with this builder
+		 * (typically some panel with it's own layout) or else the resulting
+		 * rendering can be unexpected.</p>
 		 *
-		 * @return The item header builder or NULL for none
+		 * @return The item header container
 		 */
-		public final UiBuilder<?> getHeaderBuilder()
+		public final UiContainer<?> getHeader()
 		{
-			return aItemHeader != null ? aItemHeader.builder() : null;
+			return aItemHeader != null ? aItemHeader : this;
 		}
 	}
 
