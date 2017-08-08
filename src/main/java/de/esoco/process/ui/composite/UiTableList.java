@@ -19,6 +19,7 @@ package de.esoco.process.ui.composite;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.text.TextConvert;
 
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.component.UiLabel;
@@ -104,7 +105,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 		aHeaderPanel = new UiListPanel(this);
 		aTableHeader =
-			aHeaderPanel.addItem().createHeader(new UiColumnGridLayout());
+			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
 		aDataList    = new UiListPanel(this, eListStyle);
 	}
 
@@ -118,7 +119,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @return The new column
 	 */
-	public Column addColumn(Function<T, ?> fGetColumnData)
+	public Column addColumn(Function<? super T, ?> fGetColumnData)
 	{
 		Objects.requireNonNull(fGetColumnData);
 
@@ -178,8 +179,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Function<T, ?> fGetColumnData;
-		private UiLabel		   aTitleLabel;
+		private Function<? super T, ?> fGetColumnData;
+		private UiLabel				   aTitleLabel;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -190,7 +191,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @param fGetColumnData A function that retrieves the column value from
 		 *                       a row data object
 		 */
-		Column(UiContainer<?> rParent, Function<T, ?> fGetColumnData)
+		Column(UiContainer<?> rParent, Function<? super T, ?> fGetColumnData)
 		{
 			super(rParent, new UiFillLayout());
 
@@ -230,7 +231,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @return The column title
 		 */
-		private String deriveColumnTitle(Function<T, ?> fGetColumnData)
+		private String deriveColumnTitle(Function<? super T, ?> fGetColumnData)
 		{
 			String sTitle = null;
 
@@ -292,6 +293,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Returns a builder for the content of an expandable row.
+		 *
+		 * @return The row content builder
+		 */
+		public UiBuilder<?> getContentBuilder()
+		{
+			return rItem.builder();
+		}
 
 		/***************************************
 		 * Returns the row data object.

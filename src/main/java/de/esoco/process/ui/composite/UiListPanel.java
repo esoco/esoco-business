@@ -19,6 +19,7 @@ package de.esoco.process.ui.composite;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -163,6 +164,17 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
+		 * Returns the builder for the item content-
+		 *
+		 * @return The item builder
+		 */
+		@Override
+		public UiBuilder<Item> builder()
+		{
+			return super.builder();
+		}
+
+		/***************************************
 		 * Helper method to create a new header panel with a certain layout in
 		 * the item header returned by {@link #getHeader()}. This method should
 		 * only be invoked once or else additional panels will be added to the
@@ -172,7 +184,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		 *
 		 * @return The new panel with the given layout
 		 */
-		public final UiLayoutPanel createHeader(UiLayout rLayout)
+		public final UiLayoutPanel createHeaderPanel(UiLayout rLayout)
 		{
 			return new UiLayoutPanel(getHeader(), rLayout);
 		}
