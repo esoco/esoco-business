@@ -176,7 +176,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @author eso
 	 */
-	public class Column extends UiComposite<Row>
+	public class Column extends UiComposite<Column>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -223,6 +223,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public void setTitle(String sTitle)
 		{
 			aTitleLabel.setText(sTitle);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected String getComponentStyleName()
+		{
+			return UiTableList.this.getComponentStyleName() +
+				   super.getComponentStyleName();
 		}
 
 		/***************************************
@@ -333,6 +343,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 				((UiLabel) getComponents().get(nIndex++)).setText(sText);
 			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected String getComponentStyleName()
+		{
+			return UiTableList.this.getComponentStyleName() +
+				   super.getComponentStyleName();
 		}
 	}
 }

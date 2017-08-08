@@ -206,6 +206,16 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		{
 			return aItemHeader != null ? aItemHeader : this;
 		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected String getComponentStyleName()
+		{
+			return UiListPanel.this.getComponentStyleName() +
+				   super.getComponentStyleName();
+		}
 	}
 
 	/********************************************************************

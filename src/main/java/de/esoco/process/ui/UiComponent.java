@@ -67,6 +67,8 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		{
 			attachTo(rParent);
 		}
+
+		aStyle.styleName(getComponentStyleName());
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -152,6 +154,15 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	{
 		aStyle = new UiStyle(rStyle);
 
+		String sStyleName = aStyle.getStyleName();
+
+		String sComponentStyle = getComponentStyleName();
+
+		if (!sStyleName.startsWith(sComponentStyle))
+		{
+			aStyle.styleName(sComponentStyle + " " + sStyleName);
+		}
+
 		return aStyle;
 	}
 
@@ -213,6 +224,20 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		{
 			resid(rDatatype.getSimpleName());
 		}
+	}
+
+	/***************************************
+	 * Returns the style name for this component. By default this is the simple
+	 * class name of this component. Subclasses should override this if the
+	 * class name is ambiguous and needs further specification. This is
+	 * typically the case for non-static inner classes of composites which often
+	 * have names that start without the 'Ui' prefix.
+	 *
+	 * @return The component style name
+	 */
+	protected String getComponentStyleName()
+	{
+		return getClass().getSimpleName();
 	}
 
 	/***************************************

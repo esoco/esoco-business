@@ -25,6 +25,8 @@ import de.esoco.process.ui.UiElement;
 import java.util.HashMap;
 import java.util.Map;
 
+import static de.esoco.lib.property.StyleProperties.STYLE;
+
 
 /********************************************************************
  * Contains properties that define the style of a {@link UiComponent}.
@@ -52,7 +54,44 @@ public class UiStyle extends UiElement<UiStyle>
 		super(rStyle);
 	}
 
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Adds an additional style name to an existing style name and returns the
+	 * corresponding string.
+	 *
+	 * @param  sStyleName      The existing style name (NULL or empty for none)
+	 * @param  sAdditionalName The style name to add
+	 *
+	 * @return The resulting style name
+	 */
+	public static String addStyleName(String sStyleName, String sAdditionalName)
+	{
+		if (sStyleName != null && sStyleName.length() > 0)
+		{
+			sStyleName += " " + sAdditionalName;
+		}
+		else
+		{
+			sStyleName = sAdditionalName;
+		}
+
+		return sStyleName.trim();
+	}
+
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a style name to the current style name.
+	 *
+	 * @param  sAdditionalName The style name to add
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiStyle addStyleName(String sAdditionalName)
+	{
+		return styleName(addStyleName(get(STYLE, ""), sAdditionalName));
+	}
 
 	/***************************************
 	 * Sets the background color.
@@ -141,6 +180,18 @@ public class UiStyle extends UiElement<UiStyle>
 	}
 
 	/***************************************
+	 * Returns the style name(s) of a component.
+	 *
+	 * @return The style name (empty string for none)
+	 */
+	public final String getStyleName()
+	{
+		String sStyle = get(STYLE, "");
+
+		return sStyle != null ? sStyle : "";
+	}
+
+	/***************************************
 	 * Sets the height of a text line in the component.
 	 *
 	 * @param  nHeight The height value
@@ -178,15 +229,16 @@ public class UiStyle extends UiElement<UiStyle>
 	}
 
 	/***************************************
-	 * Sets the style name(s) of a component.
+	 * Sets the style name. The style name can consist of multiple words that
+	 * are separated by spaces.
 	 *
-	 * @param  sStyleName The style name(s)
+	 * @param  sStyleName The style name
 	 *
 	 * @return This instance for concatenation
 	 */
 	public final UiStyle styleName(String sStyleName)
 	{
-		return set(StyleProperties.STYLE, sStyleName);
+		return set(STYLE, sStyleName);
 	}
 
 	/***************************************
