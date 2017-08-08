@@ -30,6 +30,7 @@ import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFillLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -68,8 +69,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	private UiLayoutPanel aTableHeader;
 	private UiListPanel   aDataList;
 
-	private List<Column> aColumns;
-	private List<Row>    aRows;
+	private List<Column> aColumns = new ArrayList<>();
+	private List<Row>    aRows    = new ArrayList<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -252,7 +253,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				sTitle = fGetColumnData.toString();
 			}
 
-			return null;
+			return sTitle;
 		}
 	}
 

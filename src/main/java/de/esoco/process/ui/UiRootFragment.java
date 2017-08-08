@@ -77,16 +77,16 @@ public abstract class UiRootFragment extends InteractionFragment
 	}
 
 	/***************************************
-	 * Creates the root view of this fragment. Can be overridden by subclasses
-	 * to return a different view than the default instance (a {@link
-	 * UiRootView} with a fill layout that invokes {@link
-	 * #buildUserInterface(UiRootView)}).
+	 * Creates the root view of this fragment. This method can be overridden by
+	 * subclasses to return a different view than the default instance: a {@link
+	 * UiRootView} with the layout returned by {@link #getRootViewLayout()} that
+	 * invokes {@link #buildUserInterface(UiRootView)}.
 	 *
 	 * @return The fragment's root view
 	 */
 	protected UiRootView createRootView()
 	{
-		return new UiRootView(this, new UiFillLayout())
+		return new UiRootView(this, getRootViewLayout())
 		{
 			@Override
 			protected void build()
@@ -94,6 +94,18 @@ public abstract class UiRootFragment extends InteractionFragment
 				buildUserInterface(this);
 			}
 		};
+	}
+
+	/***************************************
+	 * Returns the layout to be used by the root view created by the method
+	 * {@link #createRootView()}. The default implementation returns an instance
+	 * of {@link UiFillLayout}.
+	 *
+	 * @return The root view layout
+	 */
+	protected UiLayout getRootViewLayout()
+	{
+		return new UiFillLayout();
 	}
 
 	/***************************************

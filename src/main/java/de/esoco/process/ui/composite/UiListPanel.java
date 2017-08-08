@@ -26,6 +26,7 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiHeaderLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
@@ -56,7 +57,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 
 	private final ExpandableListStyle eExpandStyle;
 
-	private List<Item> aItems;
+	private List<Item> aItems = new ArrayList<>();
 
 	//~ Constructors -----------------------------------------------------------
 
