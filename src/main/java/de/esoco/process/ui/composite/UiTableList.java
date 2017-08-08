@@ -27,7 +27,6 @@ import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
-import de.esoco.process.ui.layout.UiFillLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
 import java.util.ArrayList;
@@ -194,7 +193,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		Column(UiContainer<?> rParent, Function<? super T, ?> fGetColumnData)
 		{
-			super(rParent, new UiFillLayout());
+			super(rParent, new UiFlowLayout());
 
 			this.fGetColumnData = fGetColumnData;
 
