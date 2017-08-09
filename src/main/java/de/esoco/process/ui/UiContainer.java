@@ -98,7 +98,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		if (!bBuilt)
 		{
 			build();
-			bBuilt = true;
+			bBuilt			  = true;
+			aContainerBuilder = null;
 		}
 
 		// apply layout first so it can add styles to the container before
