@@ -86,14 +86,20 @@ public abstract class UiRootFragment extends InteractionFragment
 	 */
 	protected UiRootView createRootView()
 	{
-		return new UiRootView(this, getRootViewLayout())
-		{
-			@Override
-			protected void build()
+		UiRootView aRootView =
+			new UiRootView(this, getRootViewLayout())
 			{
-				buildUserInterface(this);
-			}
-		};
+				@Override
+				protected void build()
+				{
+					buildUserInterface(this);
+				}
+			};
+
+		// set explcit style name for anoymous inner class
+		aRootView.style().styleName(getClass().getSimpleName() + "RootView");
+
+		return aRootView;
 	}
 
 	/***************************************

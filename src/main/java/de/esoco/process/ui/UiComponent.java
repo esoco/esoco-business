@@ -68,7 +68,12 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 			attachTo(rParent);
 		}
 
-		aStyle.styleName(getComponentStyleName());
+		String sComponentStyle = getComponentStyleName();
+
+		if (sComponentStyle.length() > 0)
+		{
+			aStyle.styleName(sComponentStyle);
+		}
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -154,11 +159,11 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	{
 		aStyle = new UiStyle(rStyle);
 
-		String sStyleName = aStyle.getStyleName();
-
+		String sStyleName	   = aStyle.getStyleName();
 		String sComponentStyle = getComponentStyleName();
 
-		if (!sStyleName.startsWith(sComponentStyle))
+		if (sComponentStyle.length() > 0 &&
+			!sStyleName.startsWith(sComponentStyle))
 		{
 			aStyle.styleName(sComponentStyle + " " + sStyleName);
 		}
