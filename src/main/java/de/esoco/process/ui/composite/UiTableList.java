@@ -20,6 +20,7 @@ import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiBuilder;
+import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.component.UiLabel;
@@ -28,6 +29,7 @@ import de.esoco.process.ui.composite.UiListPanel.Item;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
+import de.esoco.process.ui.style.UiStyle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +70,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	private UiLayoutPanel aTableHeader;
 	private UiListPanel   aDataList;
 
+	private String sColumnPrefix = null;
+
 	private List<Column> aColumns = new ArrayList<>();
 	private List<Row>    aRows    = new ArrayList<>();
 
@@ -107,6 +111,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		aTableHeader =
 			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
 		aDataList    = new UiListPanel(this, eListStyle);
+
+		aHeaderPanel.style().addStyleName(getComponentStyleName() + "Header");
+		aDataList.style().addStyleName(getComponentStyleName() + "DataList");
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -166,6 +173,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	public List<Row> getRows()
 	{
 		return aRows;
+	}
+
+	/***************************************
+	 * Sets the prefix to be used for column titles.
+	 *
+	 * @param  sPrefix The column title prefix
+	 *
+	 * @return This instance
+	 */
+	public UiTableList<T> withColumnPrefix(String sPrefix)
+	{
+		sColumnPrefix = sPrefix;
+
+		return this;
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -247,10 +268,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			if (fGetColumnData instanceof RelationType)
 			{
+				String sPrefix =
+					sColumnPrefix != null ? sColumnPrefix
+										  : ColumnDefinition.STD_COLUMN_PREFIX;
+
 				sTitle = ((RelationType<?>) fGetColumnData).getSimpleName();
-				sTitle =
-					ColumnDefinition.STD_COLUMN_PREFIX +
-					TextConvert.capitalizedIdentifier(sTitle);
+				sTitle = sPrefix + TextConvert.capitalizedIdentifier(sTitle);
 			}
 			else if (fGetColumnData instanceof Relatable)
 			{
@@ -275,7 +298,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Item rItem;
+		private Item rRowItem;
 		private T    rRowData;
 
 		//~ Constructors -------------------------------------------------------
@@ -283,14 +306,14 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param rItem    The item to place the row in
+		 * @param rRowItem The item to place the row in
 		 * @param rRowData The row data object
 		 */
-		Row(Item rItem, T rRowData)
+		Row(Item rRowItem, T rRowData)
 		{
-			super(rItem.getHeader(), new UiColumnGridLayout());
+			super(rRowItem.getHeader(), new UiColumnGridLayout());
 
-			this.rItem    = rItem;
+			this.rRowItem = rRowItem;
 			this.rRowData = rRowData;
 
 			for (Column rColumn : aColumns)
@@ -311,7 +334,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		public UiBuilder<?> getContentBuilder()
 		{
-			return rItem.builder();
+			return rRowItem.builder();
 		}
 
 		/***************************************
@@ -322,6 +345,26 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public final T getData()
 		{
 			return rRowData;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public UiStyle style()
+		{
+			// redirect to the item style
+			return rRowItem.style();
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public UiStyle style(UiStyle rStyle)
+		{
+			// redirect to the item style
+			return rRowItem.style(rStyle);
 		}
 
 		/***************************************
@@ -341,6 +384,24 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				String sText  = rValue != null ? rValue.toString() : "";
 
 				((UiLabel) getComponents().get(nIndex++)).setText(sText);
+			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected void applyProperties()
+		{
+			super.applyProperties();
+
+			int nIndex = 0;
+
+			for (Column rColumn : aColumns)
+			{
+				UiComponent<?, ?> rComponent = getComponents().get(nIndex++);
+
+				rColumn.style().applyPropertiesTo(rComponent);
 			}
 		}
 

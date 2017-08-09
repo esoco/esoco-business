@@ -404,6 +404,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
+		 * Overridden to also apply the parent properties if no set in the cell.
+		 *
+		 * @see ChildElement#applyPropertiesTo(UiComponent)
+		 */
+		@Override
+		public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+		{
+			super.applyPropertiesTo(rComponent);
+
+			rRow.applyPropertiesTo(rComponent);
+			rColumn.applyPropertiesTo(rComponent);
+			getLayout().applyPropertiesTo(rComponent);
+		}
+
+		/***************************************
 		 * Sets the number of columns this cell occupies in it's layout.
 		 *
 		 * @param  nColumns The number of columns
@@ -577,21 +592,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			return size(HTML_WIDTH, nWidth, eUnit);
 		}
-
-		/***************************************
-		 * Overridden to also apply the parent properties if no set in the cell.
-		 *
-		 * @see ChildElement#applyPropertiesTo(UiComponent)
-		 */
-		@Override
-		protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
-		{
-			super.applyPropertiesTo(rComponent);
-
-			rRow.applyPropertiesTo(rComponent);
-			rColumn.applyPropertiesTo(rComponent);
-			getLayout().applyPropertiesTo(rComponent);
-		}
 	}
 
 	/********************************************************************
@@ -695,6 +695,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
+		 * Overridden to skip ignored properties.
+		 *
+		 * @see UiElement#applyPropertiesTo(UiComponent)
+		 * @see UiLayout#ignoreProperties(PropertyName...)
+		 */
+		@Override
+		public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+		{
+			for (PropertyName<?> rProperty : getProperties().getPropertyNames())
+			{
+				applyProperty(rComponent, rProperty);
+			}
+		}
+
+		/***************************************
 		 * Returns the layout this element belongs to.
 		 *
 		 * @return The parent layout
@@ -702,21 +717,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public final UiLayout getLayout()
 		{
 			return UiLayout.this;
-		}
-
-		/***************************************
-		 * Overridden to skip ignored properties.
-		 *
-		 * @see UiElement#applyPropertiesTo(UiComponent)
-		 * @see UiLayout#ignoreProperties(PropertyName...)
-		 */
-		@Override
-		protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
-		{
-			for (PropertyName<?> rProperty : getProperties().getPropertyNames())
-			{
-				applyProperty(rComponent, rProperty);
-			}
 		}
 
 		/***************************************
@@ -778,6 +778,20 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Overridden to also apply the styles of this instance.
+		 *
+		 * @see UiElement#applyPropertiesTo(UiComponent)
+		 * @see UiLayout#ignoreProperties(PropertyName...)
+		 */
+		@Override
+		public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+		{
+			super.applyPropertiesTo(rComponent);
+
+			aStyle.applyPropertiesTo(rComponent);
+		}
 
 		/***************************************
 		 * Returns the cell at a certain position in this element. All layout
@@ -850,20 +864,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			return String.format("%s(%d)",
 								 getClass().getSimpleName(),
 								 getIndex());
-		}
-
-		/***************************************
-		 * Overridden to also apply the styles of this instance.
-		 *
-		 * @see UiElement#applyPropertiesTo(UiComponent)
-		 * @see UiLayout#ignoreProperties(PropertyName...)
-		 */
-		@Override
-		protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
-		{
-			super.applyPropertiesTo(rComponent);
-
-			aStyle.applyPropertiesTo(rComponent);
 		}
 	}
 }

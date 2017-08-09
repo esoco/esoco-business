@@ -54,6 +54,17 @@ public class UiElement<E extends UiElement<E>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Applies the properties of this element to the given component if they are
+	 * not already set.
+	 *
+	 * @param rComponent The target component
+	 */
+	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	{
+		rComponent.setProperties(aProperties, false);
+	}
+
+	/***************************************
 	 * Queries an integer property.
 	 *
 	 * @param  rIntegerProperty The property name
@@ -100,17 +111,6 @@ public class UiElement<E extends UiElement<E>>
 	public String toString()
 	{
 		return getClass().getSimpleName();
-	}
-
-	/***************************************
-	 * Applies the properties of this layout element to the given component if
-	 * they are not already set.
-	 *
-	 * @param rComponent The target component
-	 */
-	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
-	{
-		rComponent.setProperties(aProperties, false);
 	}
 
 	/***************************************

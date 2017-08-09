@@ -137,7 +137,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 *
 	 * @return The component style
 	 */
-	public final UiStyle style()
+	public UiStyle style()
 	{
 		return aStyle;
 	}
@@ -150,7 +150,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 *
 	 * @return The component style to allow subsequent modifications
 	 */
-	public final UiStyle style(UiStyle rStyle)
+	public UiStyle style(UiStyle rStyle)
 	{
 		aStyle = new UiStyle(rStyle);
 
