@@ -1486,10 +1486,10 @@ public abstract class ProcessFragment extends ProcessElement
 		if (rEarliestDate != null)
 		{
 			setParameterValidation(rParam,
-								   doIfElse(isNull(),
-											value(MSG_PARAM_NOT_SET),
-											doIf(lessThan(rEarliestDate),
-												 value("DateIsBeforeToday"))));
+								   false, doIfElse(isNull(),
+															value(MSG_PARAM_NOT_SET),
+															doIf(lessThan(rEarliestDate),
+																 value("DateIsBeforeToday"))));
 		}
 	}
 

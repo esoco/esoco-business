@@ -18,15 +18,15 @@ package de.esoco.process;
 
 import de.esoco.entity.Entity;
 
+import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
-
-import de.esoco.lib.expression.Function;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
@@ -40,9 +40,7 @@ import static de.esoco.process.ProcessRelationTypes.HISTORY_END;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_START;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAM_VALIDATIONS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
-import static de.esoco.process.ProcessRelationTypes.PARAM_VALIDATIONS;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_END;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_START;
 
@@ -521,11 +519,7 @@ public abstract class ProcessStep extends ProcessFragment
 	protected Map<RelationType<?>, String> validateParameters(
 		boolean bOnInteraction)
 	{
-		Map<RelationType<?>, Function<?, String>> rParamValidations =
-			bOnInteraction ? get(INTERACTION_PARAM_VALIDATIONS)
-						   : get(PARAM_VALIDATIONS);
-
-		return performParameterValidations(rParamValidations);
+		return performParameterValidations(getParameterValidations(bOnInteraction));
 	}
 
 	/***************************************

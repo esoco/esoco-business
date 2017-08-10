@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import static de.esoco.lib.expression.Predicates.isNull;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAM_VALIDATIONS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_VALIDATIONS;
 
 import static org.obrel.type.MetaTypes.MANDATORY;
@@ -167,14 +168,6 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Removes all parameter validations from this step.
-	 */
-	public void clearParameterValidations()
-	{
-		get(PARAM_VALIDATIONS).clear();
-	}
-
-	/***************************************
 	 * Marks interaction parameters types as continuation parameters.
 	 *
 	 * @param rParams The parameters to be marked for process continuation
@@ -231,6 +224,15 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Removes all parameter validations from this step.
+	 */
+	public void removeAllParameterValidations()
+	{
+		getParameterValidations(false).clear();
+		getParameterValidations(true).clear();
+	}
+
+	/***************************************
 	 * Removes certain parameter types from the list of this step's interaction
 	 * parameters.
 	 *
@@ -261,11 +263,15 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	public void removeParameterValidations(
 		Collection<? extends RelationType<?>> rParams)
 	{
-		Map<RelationType<?>, Function<?, String>> rMap = get(PARAM_VALIDATIONS);
+		Map<RelationType<?>, Function<?, String>> rFinishValidations	  =
+			getParameterValidations(false);
+		Map<RelationType<?>, Function<?, String>> rInteractionValidations =
+			getParameterValidations(true);
 
 		for (RelationType<?> rParam : rParams)
 		{
-			rMap.remove(rParam);
+			rFinishValidations.remove(rParam);
+			rInteractionValidations.remove(rParam);
 		}
 	}
 
@@ -405,14 +411,17 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	 * describes why the value is invalid (typically a resource key). Invoking
 	 * this method overrides any previous validation function.
 	 *
-	 * @param rParam      The parameter to check
-	 * @param fValidation The validation function
+	 * @param rParam         The parameter to check
+	 * @param bOnInteraction TRUE to validate on each interaction, FALSE to
+	 *                       validate only if the process step is finished
+	 * @param fValidation    The validation function
 	 */
 	public <T> void setParameterValidation(
 		RelationType<T>				rParam,
+		boolean						bOnInteraction,
 		Function<? super T, String> fValidation)
 	{
-		get(PARAM_VALIDATIONS).put(rParam, fValidation);
+		getParameterValidations(bOnInteraction).put(rParam, fValidation);
 	}
 
 	/***************************************
@@ -425,14 +434,33 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	 * @param sInvalidInfo The string to return if the parameter is invalid
 	 * @param pIsInvalid   A predicate that checks if the parameter is invalid
 	 *
-	 * @see   #setParameterValidation(RelationType, Function)
+	 * @see   #setParameterValidation(RelationType, boolean, Function)
 	 */
 	public <T> void setParameterValidation(RelationType<T>		rParam,
 										   String				sInvalidInfo,
 										   Predicate<? super T> pIsInvalid)
 	{
 		setParameterValidation(rParam,
+							   false,
 							   Functions.<T, String>doIf(pIsInvalid,
 														 value(sInvalidInfo)));
+	}
+
+	/***************************************
+	 * Returns the parameter validations for a certain validation type.
+	 *
+	 * @param  bOnInteraction TRUE for interaction validations, FALSE for
+	 *                        finishing validations
+	 *
+	 * @return
+	 */
+	protected Map<RelationType<?>, Function<?, String>> getParameterValidations(
+		boolean bOnInteraction)
+	{
+		Map<RelationType<?>, Function<?, String>> rParamValidations =
+			bOnInteraction ? get(INTERACTION_PARAM_VALIDATIONS)
+						   : get(PARAM_VALIDATIONS);
+
+		return rParamValidations;
 	}
 }

@@ -149,7 +149,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	private List<RelationType<?>> aInteractionParams = new ArrayList<>();
 	private Set<RelationType<?>>  aInputParams		 = new HashSet<>();
 
-	private Map<RelationType<?>, Function<?, String>> aFragmentValidations =
+	private Map<RelationType<?>, Function<?, String>> aParamValidations			   =
+		new HashMap<>();
+	private Map<RelationType<?>, Function<?, String>> aParamInteractionValidations =
 		new HashMap<>();
 
 	//~ Constructors -----------------------------------------------------------
@@ -494,7 +496,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		SetParameter<E> aCheckBoxes =
 			setParam(rEnumClass.getSimpleName(), rEnumClass, true);
 
-		return aCheckBoxes.input().set(LIST_STYLE, ListStyle.DISCRETE)
+		return aCheckBoxes.input()
+						  .set(LIST_STYLE, ListStyle.DISCRETE)
 						  .layout(LayoutType.TABLE)
 						  .columns(1);
 	}
@@ -519,18 +522,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		getInteractionParameters().clear();
 		getInputParameters().clear();
-	}
-
-	/***************************************
-	 * Overridden to handle fragment-local validation.
-	 *
-	 * @see #setParameterValidation(RelationType, Function)
-	 * @see ProcessFragment#clearParameterValidations()
-	 */
-	@Override
-	public void clearParameterValidations()
-	{
-		aFragmentValidations.clear();
 	}
 
 	/***************************************
@@ -1083,7 +1074,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		SetParameter<String> aSetParam = setParam(null, String.class, true);
 
-		return aSetParam.input().set(LIST_STYLE, ListStyle.EDITABLE)
+		return aSetParam.input()
+						.set(LIST_STYLE, ListStyle.EDITABLE)
 						.allowElements(rPresetValues);
 	}
 
@@ -1185,7 +1177,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public Parameter<String> label(String sLabelText, LabelStyle eStyle)
 	{
-		return textParam(null).set(LABEL_STYLE, eStyle).hideLabel()
+		return textParam(null).set(LABEL_STYLE, eStyle)
+							  .hideLabel()
 							  .value(sLabelText);
 	}
 
@@ -1510,7 +1503,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <E extends Enum<E>> EnumParameter<E> radioButtons(
 		Class<E> rEnumClass)
 	{
-		return param(rEnumClass).input().set(LIST_STYLE, ListStyle.DISCRETE)
+		return param(rEnumClass).input()
+								.set(LIST_STYLE, ListStyle.DISCRETE)
 								.hideLabel()
 								.layout(LayoutType.TABLE)
 								.columns(1);
@@ -1559,22 +1553,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		getInteractionParameters().removeAll(rParams);
 		getInputParameters().removeAll(rParams);
-	}
-
-	/***************************************
-	 * Overridden to handle fragment-local validation.
-	 *
-	 * @see #setParameterValidation(RelationType, Function)
-	 * @see ProcessFragment#removeParameterValidations(Collection)
-	 */
-	@Override
-	public void removeParameterValidations(
-		Collection<? extends RelationType<?>> rParams)
-	{
-		for (RelationType<?> rParam : rParams)
-		{
-			aFragmentValidations.remove(rParam);
-		}
 	}
 
 	/***************************************
@@ -1667,23 +1645,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		getProcessStep().setParameterInteractionHandler(rParam,
 														rInteractionHandler);
-	}
-
-	/***************************************
-	 * Overridden to store parameter validations in the fragment to allow
-	 * fragment-local validations. This is necessary because normally pre-set
-	 * validations only occur if the process execution continues to the next
-	 * step which doesn't happen in certain scenarios, e.g. if a view fragment
-	 * is closed.
-	 *
-	 * @see ProcessFragment#setParameterValidation(RelationType, Function)
-	 */
-	@Override
-	public <T> void setParameterValidation(
-		RelationType<T>				rParam,
-		Function<? super T, String> fValidation)
-	{
-		aFragmentValidations.put(rParam, fValidation);
 	}
 
 	/***************************************
@@ -2122,6 +2083,19 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Overridden to return the fragment-local validation maps.
+	 *
+	 * @see de.esoco.process.ProcessElement#getParameterValidations(boolean)
+	 */
+	@Override
+	protected Map<RelationType<?>, Function<?, String>> getParameterValidations(
+		boolean bOnInteraction)
+	{
+		return bOnInteraction ? aParamInteractionValidations
+							  : aParamValidations;
+	}
+
+	/***************************************
 	 * Overridden to return a parameter ID that is relative to the current
 	 * fragment instance.
 	 *
@@ -2381,10 +2355,10 @@ public abstract class InteractionFragment extends ProcessFragment
 		Map<RelationType<?>, String> aFragmentErrors =
 			validateParameters(bOnInteraction);
 
-		if (!bOnInteraction)
-		{
-			aFragmentErrors.putAll(performParameterValidations(aFragmentValidations));
-		}
+		Map<RelationType<?>, Function<?, String>> rValidations =
+			getParameterValidations(bOnInteraction);
+
+		aFragmentErrors.putAll(performParameterValidations(rValidations));
 
 		if (!aFragmentErrors.isEmpty())
 		{
