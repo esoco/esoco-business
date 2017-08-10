@@ -17,15 +17,18 @@
 package de.esoco.process.ui.composite;
 
 import de.esoco.lib.model.ColumnDefinition;
+import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.text.TextConvert;
 
-import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiLabel;
+import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
+import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
@@ -39,6 +42,8 @@ import java.util.function.Function;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
+
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 
 
 /********************************************************************
@@ -201,7 +206,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		//~ Instance fields ----------------------------------------------------
 
 		private Function<? super T, ?> fGetColumnData;
-		private UiLabel				   aTitleLabel;
+		private UiLink				   aColumnTitle;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -218,7 +223,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			this.fGetColumnData = fGetColumnData;
 
-			aTitleLabel = new UiLabel(this, deriveColumnTitle(fGetColumnData));
+			aColumnTitle = new UiLink(this, deriveColumnTitle(fGetColumnData));
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -242,7 +247,36 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		public void setTitle(String sTitle)
 		{
-			aTitleLabel.setText(sTitle);
+			aColumnTitle.setText(sTitle);
+		}
+
+		/***************************************
+		 * Sets the relative width of this column.
+		 *
+		 * @param  eWidth The relative size constant for the column width
+		 *
+		 * @return This instance for concatenation
+		 */
+		public final Column width(RelativeSize eWidth)
+		{
+			cell().width(eWidth);
+
+			return this;
+		}
+
+		/***************************************
+		 * Sets the width of this column as an absolute number of layout
+		 * columns. The number must be less or equal to the total number of
+		 * layout columns available (see {@link UiLayout#getColumns()}).
+		 *
+		 * @param  nGridColumns The number of layout columns this column should
+		 *                      span
+		 *
+		 * @return This instance for concatenation
+		 */
+		public final Column width(int nGridColumns)
+		{
+			return set(nGridColumns, COLUMN_SPAN);
 		}
 
 		/***************************************

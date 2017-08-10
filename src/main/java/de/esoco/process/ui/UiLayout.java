@@ -33,6 +33,7 @@ import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
+import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
 
 
@@ -581,6 +582,18 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Sets the relative width of this cell.
+		 *
+		 * @param  eWidth The relative size constant for the cell width
+		 *
+		 * @return This instance for concatenation
+		 */
+		public final Cell width(RelativeSize eWidth)
+		{
+			return set(RELATIVE_WIDTH, eWidth);
+		}
+
+		/***************************************
 		 * Sets the width of this cell.
 		 *
 		 * @param  nWidth The width value
@@ -614,6 +627,18 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Sets the relative width of this column.
+		 *
+		 * @param  eWidth The relative size constant for the column width
+		 *
+		 * @return This instance for concatenation
+		 */
+		public final Column width(RelativeSize eWidth)
+		{
+			return set(RELATIVE_WIDTH, eWidth);
+		}
 
 		/***************************************
 		 * Sets the width of this column to a certain value and unit. Which

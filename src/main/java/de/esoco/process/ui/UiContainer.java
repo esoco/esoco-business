@@ -17,6 +17,7 @@
 package de.esoco.process.ui;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.container.UiBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

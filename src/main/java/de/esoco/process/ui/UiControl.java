@@ -77,7 +77,7 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	public void setValidation(Function<? super T, ValidationResult> fValidation)
 	{
 		fragment().setParameterValidation(type(),
-										  v -> fValidation.apply(v)
+										  false, v -> fValidation.apply(v)
 										  .getMessage());
 	}
 

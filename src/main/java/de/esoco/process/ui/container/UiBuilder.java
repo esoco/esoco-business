@@ -14,12 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.container;
 
 import de.esoco.entity.Entity;
 
 import de.esoco.lib.property.Orientation;
 
+import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiCalendar;
 import de.esoco.process.ui.component.UiCheckBox;
 import de.esoco.process.ui.component.UiCheckBoxes;
@@ -29,6 +31,7 @@ import de.esoco.process.ui.component.UiDecimalField;
 import de.esoco.process.ui.component.UiDropDown;
 import de.esoco.process.ui.component.UiIntegerField;
 import de.esoco.process.ui.component.UiLabel;
+import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.component.UiList;
 import de.esoco.process.ui.component.UiMultiSelectionList;
 import de.esoco.process.ui.component.UiProgressBar;
@@ -38,12 +41,6 @@ import de.esoco.process.ui.component.UiRadioButtons;
 import de.esoco.process.ui.component.UiTextArea;
 import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiToggleButtons;
-import de.esoco.process.ui.container.UiDeckPanel;
-import de.esoco.process.ui.container.UiDockPanel;
-import de.esoco.process.ui.container.UiLayoutPanel;
-import de.esoco.process.ui.container.UiSplitPanel;
-import de.esoco.process.ui.container.UiStackPanel;
-import de.esoco.process.ui.container.UiTabPanel;
 
 import java.math.BigDecimal;
 
@@ -90,7 +87,7 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Adds a group of check boxes with string labels.
+	 * Adds a single check boxes that represents a boolean value.
 	 *
 	 * @param  sLabel The check box label
 	 *
@@ -229,6 +226,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiLabel addLabel(String sText)
 	{
 		return new UiLabel(rContainer, sText);
+	}
+
+	/***************************************
+	 * Adds a group of check boxes with string labels.
+	 *
+	 * @param  sLabel The check box label
+	 *
+	 * @return The new component
+	 */
+	public UiLink addLink(String sLabel)
+	{
+		return new UiLink(rContainer, sLabel);
 	}
 
 	/***************************************

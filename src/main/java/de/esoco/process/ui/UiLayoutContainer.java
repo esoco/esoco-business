@@ -19,6 +19,7 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.container.UiBuilder;
 
 
 /********************************************************************
