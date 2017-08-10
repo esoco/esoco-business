@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.step.InteractionFragment;
@@ -192,6 +193,18 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Clears this container by removing all child components.
+	 */
+	protected void clear()
+	{
+		List<RelationType<?>> rParamTypes =
+			CollectionUtil.map(aComponents, c -> c.type());
+
+		fragment().removeInteractionParameters(rParamTypes);
+		aComponents.clear();
+	}
+
+	/***************************************
 	 * Will be invoked if a new component has been added to this container. Can
 	 * be overridden by subclasses to handle component additions. The complete
 	 * list of child components (including the new one at the end) can be
@@ -222,10 +235,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	protected void removeComponent(UiComponent<?, ?> rComponent)
 	{
-		if (aComponents.remove(rComponent))
-		{
-			fragment().removeInteractionParameters(rComponent.type());
-		}
+		fragment().removeInteractionParameters(rComponent.type());
+		aComponents.remove(rComponent);
 	}
 
 	/***************************************

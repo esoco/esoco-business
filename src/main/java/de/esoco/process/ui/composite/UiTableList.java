@@ -35,6 +35,7 @@ import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.style.UiStyle;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -166,6 +167,35 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Adds a new row for a certain data object to this table.
+	 *
+	 * @param  rRowDatas The data object for the row
+	 *
+	 * @return The new row
+	 */
+	public List<Row> addRows(Collection<T> rRowDatas)
+	{
+		List<Row> aRows = new ArrayList<>(rRowDatas.size());
+
+		for (T rRowData : rRowDatas)
+		{
+			aRows.add(addRow(rRowData));
+		}
+
+		return aRows;
+	}
+
+	/***************************************
+	 * Removes all rows from this table.
+	 */
+	@Override
+	public void clear()
+	{
+		aDataList.clear();
+		aRows.clear();
+	}
+
+	/***************************************
 	 * Returns the columns of this table.
 	 *
 	 * @return The column list
@@ -215,6 +245,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		this.fHandleRowSelection = fHandleRowSelection;
 
 		return this;
+	}
+
+	/***************************************
+	 * Removes a certain row from this table.
+	 *
+	 * @param rRow The row to remove
+	 */
+	public void removeRow(Row rRow)
+	{
+		aDataList.removeItem(rRow.rRowItem);
+		aRows.remove(rRow);
 	}
 
 	/***************************************

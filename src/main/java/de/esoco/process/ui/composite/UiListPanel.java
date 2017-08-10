@@ -18,6 +18,7 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
+
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -111,6 +112,16 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	}
 
 	/***************************************
+	 * @see de.esoco.process.ui.UiContainer#clear()
+	 */
+	@Override
+	public void clear()
+	{
+		aItems.clear();
+		super.clear();
+	}
+
+	/***************************************
 	 * Returns the items in this list.
 	 *
 	 * @return The list items
@@ -127,8 +138,8 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	 */
 	public void removeItem(Item rItem)
 	{
-		removeComponent(rItem);
 		aItems.remove(rItem);
+		removeComponent(rItem);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
