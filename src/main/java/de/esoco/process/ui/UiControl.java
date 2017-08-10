@@ -68,31 +68,67 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	}
 
 	/***************************************
-	 * Sets a validation for the control's input value. This validation will be
-	 * executed on process interactions. To immediately validate the component
-	 * input the method {@link #validate(Function)} can be used.
+	 * Sets a final validation for the control's input value. This validation
+	 * will be executed when the interactive process step this control belongs
+	 * to is finished. All registered validations will be executed together and
+	 * any errors that are detected will be signaled to the user.
 	 *
 	 * @param fValidation The validation function
+	 *
+	 * @see   #validateNow(Function)
+	 * @see   #validateInteractive(Function)
 	 */
-	public void setValidation(Function<? super T, ValidationResult> fValidation)
+	public void validateFinally(
+		Function<? super T, ValidationResult> fValidation)
 	{
 		fragment().setParameterValidation(type(),
-										  false, v -> fValidation.apply(v)
+										  false,
+										  v -> fValidation.apply(v)
+										  .getMessage());
+	}
+
+	/***************************************
+	 * Sets an interactive validation for the control's input value. This
+	 * validation will be executed on each interaction (i.e. user input event)
+	 * that occurs in the process step to which this control belongs. All
+	 * registered validations will be executed together and any errors that are
+	 * detected will be signaled to the user.
+	 *
+	 * <p>Because this validation type is executed on each interaction event it
+	 * should be used cautiously and only if continuous validation is really
+	 * needed. Otherwise a continuous signaling of errors can become annoying
+	 * for the user.</p>
+	 *
+	 * @param fValidation The validation function
+	 *
+	 * @see   #validateNow(Function)
+	 * @see   #validateFinally(Function)
+	 */
+	public void validateInteractive(
+		Function<? super T, ValidationResult> fValidation)
+	{
+		fragment().setParameterValidation(type(),
+										  true,
+										  v -> fValidation.apply(v)
 										  .getMessage());
 	}
 
 	/***************************************
 	 * Immediately validates whether the input value of this control fulfills a
 	 * certain constraint. If not an exception will be thrown that will then be
-	 * handled by the process framework. To let the validation be performed by
-	 * the process framework use the method {@link #setValidation(Function)}
-	 * instead.
+	 * handled by the process framework. This will then only indicate this
+	 * single error to the user. To validate multiple components together the
+	 * methods {@link #validateInteractive(Function)} and {@link
+	 * #validateFinally(Function)} should be used.
 	 *
 	 * @param  fValidation The validation function for the control value
 	 *
 	 * @throws InvalidParametersException If the validation fails
+	 *
+	 * @see    #validateInteractive(Function)
+	 * @see    #validateFinally(Function)
 	 */
-	public void validate(Function<? super T, ValidationResult> fValidation)
+	public void validateNow(Function<? super T, ValidationResult> fValidation)
 	{
 		ValidationResult rResult = fValidation.apply(getValueImpl());
 
