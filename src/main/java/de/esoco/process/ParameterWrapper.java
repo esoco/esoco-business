@@ -344,7 +344,12 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	@SuppressWarnings("unchecked")
 	P input()
 	{
-		rFragment.addInputParameters(rParamType);
+		// ignore the fragment parameter itself (e.g. when registering click
+		// handlers on a container) to prevent recursion
+		if (rParamType != rFragment.getFragmentParameter())
+		{
+			rFragment.addInputParameters(rParamType);
+		}
 
 		return (P) this;
 	}

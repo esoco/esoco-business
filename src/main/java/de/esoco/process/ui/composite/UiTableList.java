@@ -37,6 +37,7 @@ import de.esoco.process.ui.style.UiStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.obrel.core.Relatable;
@@ -80,6 +81,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	private List<Column> aColumns = new ArrayList<>();
 	private List<Row>    aRows    = new ArrayList<>();
+
+	private Consumer<Column> fHandleColumnSelection;
+	private Consumer<Row>    fHandleRowSelection;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -182,6 +186,38 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Registers a listener for column selections (i.e. clicks on column
+	 * headers). The listener will be invoked with the respective column as it's
+	 * argument.
+	 *
+	 * @param  fHandleColumnSelection The column selection handler
+	 *
+	 * @return This instance
+	 */
+	public UiTableList<T> onColumnSelection(
+		Consumer<Column> fHandleColumnSelection)
+	{
+		this.fHandleColumnSelection = fHandleColumnSelection;
+
+		return this;
+	}
+
+	/***************************************
+	 * Registers a listener for row selections (i.e. clicks on rows). The
+	 * listener will be invoked with the respective row as it's argument.
+	 *
+	 * @param  fHandleRowSelection The row selection handler
+	 *
+	 * @return This instance
+	 */
+	public UiTableList<T> onRowSelection(Consumer<Row> fHandleRowSelection)
+	{
+		this.fHandleRowSelection = fHandleRowSelection;
+
+		return this;
+	}
+
+	/***************************************
 	 * Sets the prefix to be used for column titles.
 	 *
 	 * @param  sPrefix The column title prefix
@@ -195,6 +231,32 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		return this;
 	}
 
+	/***************************************
+	 * Handles the selection event of a certain column.
+	 *
+	 * @param rColumn The selected column
+	 */
+	void handleColumnSelection(Column rColumn)
+	{
+		if (fHandleColumnSelection != null)
+		{
+			fHandleColumnSelection.accept(rColumn);
+		}
+	}
+
+	/***************************************
+	 * Handles the selection event of a certain row.
+	 *
+	 * @param rRow The selected row
+	 */
+	void handleRowSelection(Row rRow)
+	{
+		if (fHandleRowSelection != null)
+		{
+			fHandleRowSelection.accept(rRow);
+		}
+	}
+
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
@@ -202,7 +264,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @author eso
 	 */
-	public class Column extends UiComposite<Column>
+	public class Column extends TableElement<Column>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -225,6 +287,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			this.fGetColumnData = fGetColumnData;
 
 			aColumnTitle = new UiLink(this, deriveColumnTitle(fGetColumnData));
+			aColumnTitle.onClick(v -> handleColumnSelection(this));
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -329,7 +392,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @author eso
 	 */
-	public class Row extends UiComposite<Row>
+	public class Row extends TableElement<Row>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -358,6 +421,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 				builder().addLabel(sText);
 			}
+
+			rRowItem.getHeader().onClick(v -> handleRowSelection(this));
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -463,6 +528,40 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			return UiTableList.this.getComponentStyleName() +
 				   super.getComponentStyleName();
+		}
+	}
+
+	/********************************************************************
+	 * The base class for child components of {@link UiTableList}.
+	 *
+	 * @author eso
+	 */
+	abstract class TableElement<E extends TableElement<E>>
+		extends UiComposite<E>
+	{
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param rParent The parent container
+		 * @param eLayout The element layout
+		 */
+		public TableElement(UiContainer<?> rParent, UiLayout eLayout)
+		{
+			super(rParent, eLayout);
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Returns the parent table of this element.
+		 *
+		 * @return The parent table
+		 */
+		public UiTableList<T> getTable()
+		{
+			return UiTableList.this;
 		}
 	}
 }

@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.InteractionEventType;
-
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.container.UiBuilder;
 
 
@@ -75,23 +72,6 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	public void nextRow()
 	{
 		getLayout().nextRow();
-	}
-
-	/***************************************
-	 * Sets the event handler for click events on this container's visible area
-	 * that is not occupied by components. The handler will receive the
-	 * container instance as it's argument.
-	 *
-	 * @param  rEventHandler The event handler
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	public final C onClick(ValueEventHandler<C> rEventHandler)
-	{
-		return setParameterEventHandler(InteractionEventType.ACTION,
-										v -> rEventHandler.handleValueUpdate((C)
-																			 this));
 	}
 
 	/***************************************

@@ -16,11 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.InteractionEventType;
+
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.container.UiBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.obrel.core.RelationType;
 
@@ -76,6 +79,22 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	public List<UiComponent<?, ?>> getComponents()
 	{
 		return new ArrayList<>(aComponents);
+	}
+
+	/***************************************
+	 * Sets the event handler for click events on this container's visible area
+	 * that is not occupied by components. The handler will receive this
+	 * container instance as it's argument.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final C onClick(Consumer<C> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										v -> rEventHandler.accept((C) this));
 	}
 
 	/***************************************
