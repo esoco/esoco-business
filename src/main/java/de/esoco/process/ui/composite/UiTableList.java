@@ -44,6 +44,7 @@ import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
 
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 
 
 /********************************************************************
@@ -435,7 +436,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				UiComponent<?, ?> rComponent = getComponents().get(nIndex++);
 
+				RelativeSize eColumnWidth =
+					rColumn.cell().get(RELATIVE_WIDTH, null);
+
+				int nColumnSpan = rColumn.cell().get(COLUMN_SPAN, 0);
+
 				rColumn.style().applyPropertiesTo(rComponent);
+
+				if (eColumnWidth != null)
+				{
+					rComponent.set(RELATIVE_WIDTH, eColumnWidth);
+				}
+
+				if (nColumnSpan > 0)
+				{
+					rComponent.set(nColumnSpan, COLUMN_SPAN);
+				}
 			}
 		}
 
