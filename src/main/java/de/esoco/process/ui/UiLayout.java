@@ -180,6 +180,46 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
+	 * Removes a certain column from this layout. This will also remove all
+	 * components in the column cells from their parent container. Attention:
+	 * depending on the layout type this call can have unforeseen effects if the
+	 * layout parameters are not adjusted accordingly (e.g. column count).
+	 *
+	 * @param rColumn The column to remove
+	 */
+	public void removeColumn(Column rColumn)
+	{
+		for (Cell rCell : rColumn.getCells())
+		{
+			UiComponent<?, ?> rComponent = rCell.getComponent();
+
+			rComponent.getParent().removeComponent(rComponent);
+			rCell.getRow().getCells().remove(rCell);
+		}
+
+		aColumns.remove(rColumn);
+	}
+
+	/***************************************
+	 * Removes a certain row from this layout. This will also remove all
+	 * components in the row cells from their parent container.
+	 *
+	 * @param rRow The row to remove
+	 */
+	public void removeRow(Row rRow)
+	{
+		for (Cell rCell : rRow.getCells())
+		{
+			UiComponent<?, ?> rComponent = rCell.getComponent();
+
+			rComponent.getParent().removeComponent(rComponent);
+			rCell.getColumn().getCells().remove(rCell);
+		}
+
+		aRows.remove(rRow);
+	}
+
+	/***************************************
 	 * Applies this layout to the given container.
 	 *
 	 * @param rContainer The container
