@@ -73,5 +73,6 @@ public class UiLink extends UiButtonControl<String, UiLink>
 	public void setText(String sText)
 	{
 		setValueImpl(sText);
+		fragment().setAllowedValues(type(), sText);
 	}
 }
