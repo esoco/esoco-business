@@ -22,6 +22,7 @@ import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
+import de.esoco.process.ui.component.UiButton;
 import de.esoco.process.ui.component.UiCalendar;
 import de.esoco.process.ui.component.UiCheckBox;
 import de.esoco.process.ui.component.UiCheckBoxes;
@@ -34,6 +35,8 @@ import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.component.UiList;
 import de.esoco.process.ui.component.UiMultiSelectionList;
+import de.esoco.process.ui.component.UiPasswordField;
+import de.esoco.process.ui.component.UiPhoneNumberField;
 import de.esoco.process.ui.component.UiProgressBar;
 import de.esoco.process.ui.component.UiPushButtons;
 import de.esoco.process.ui.component.UiQueryTable;
@@ -41,6 +44,7 @@ import de.esoco.process.ui.component.UiRadioButtons;
 import de.esoco.process.ui.component.UiTextArea;
 import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiToggleButtons;
+import de.esoco.process.ui.component.UiWebPage;
 
 import java.math.BigDecimal;
 
@@ -71,6 +75,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a clickable button.
+	 *
+	 * @param  sLabel The button label
+	 *
+	 * @return The new component
+	 */
+	public UiButton addButton(String sLabel)
+	{
+		return new UiButton(rContainer, sLabel);
+	}
 
 	/***************************************
 	 * Adds a date selector. By default it only provides a calendar date input
@@ -229,9 +245,9 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Adds a group of check boxes with string labels.
+	 * Adds a clickable link.
 	 *
-	 * @param  sLabel The check box label
+	 * @param  sLabel The link label
 	 *
 	 * @return The new component
 	 */
@@ -297,6 +313,31 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiLayoutPanel addPanel(UiLayout eLayout)
 	{
 		return new UiLayoutPanel(rContainer, eLayout);
+	}
+
+	/***************************************
+	 * Adds a single-line text input field that hides the input.
+	 *
+	 * @param  sText The text to edit
+	 *
+	 * @return The new component
+	 */
+	public UiPasswordField addPasswordField(String sText)
+	{
+		return new UiPasswordField(rContainer, sText);
+	}
+
+	/***************************************
+	 * Adds a single-line text input field for the input of international phone
+	 * numbers.
+	 *
+	 * @param  sPhoneNumber The phone number to edit
+	 *
+	 * @return The new component
+	 */
+	public UiPhoneNumberField addPhoneNumberField(String sPhoneNumber)
+	{
+		return new UiPhoneNumberField(rContainer, sPhoneNumber);
 	}
 
 	/***************************************
@@ -471,6 +512,18 @@ public class UiBuilder<C extends UiContainer<C>>
 		aToggleButtons.addButtons(rButtonLabels);
 
 		return aToggleButtons;
+	}
+
+	/***************************************
+	 * Adds a web page display.
+	 *
+	 * @param  sUrl The URL of the page to display
+	 *
+	 * @return The new component
+	 */
+	public UiWebPage addWebPage(String sUrl)
+	{
+		return new UiWebPage(rContainer, sUrl);
 	}
 
 	/***************************************
