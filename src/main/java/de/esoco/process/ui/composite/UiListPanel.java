@@ -175,7 +175,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns the builder for the item content-
+		 * Returns the builder for the item content.
 		 *
 		 * @return The item builder
 		 */

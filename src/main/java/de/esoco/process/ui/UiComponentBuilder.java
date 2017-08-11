@@ -17,21 +17,33 @@
 package de.esoco.process.ui;
 
 /********************************************************************
- * A factory for UI components
+ * A factory for UI components that also supports lazy initialization and
+ * subsequent updating of the component content. This is handled by the method
+ * {@link #updateComponent(Object)} that will be invoked to set the component
+ * value. It has an empty default implementation so that this interface can also
+ * be used as a functional interface in simple cases.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface UiComponentFactory
+public interface UiComponentBuilder<T>
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * Creates a new component in the given parent.
 	 *
-	 * @param  rParent The parent container to create the component in
-	 *
-	 * @return The new component
+	 * @param rParent The parent container to create the component in
+	 * @param rValue  The component value
 	 */
-	public UiComponent<?, ?> createComponent(UiContainer<?> rParent);
+	public void buildComponent(UiContainer<?> rParent, T rValue);
+
+	/***************************************
+	 * Updates the component from the given value.
+	 *
+	 * @param rValue The new component value
+	 */
+	default public void updateComponent(T rValue)
+	{
+	}
 }

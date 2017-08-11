@@ -22,7 +22,7 @@ import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
-import de.esoco.process.ui.UiComponentFactory;
+import de.esoco.process.ui.UiComponentBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -76,7 +76,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private UiComponentFactory<T> rRowContentFactory;
+	private UiComponentBuilder<T> rRowContentBuilder;
 
 	private UiListPanel   aHeaderPanel;
 	private UiLayoutPanel aTableHeader;
@@ -113,16 +113,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @param rParent            The parent container
 	 * @param eExpandStyle       The expand style
-	 * @param rRowContentFactory The factory that produces the content of
+	 * @param rRowContentBuilder The factory that produces the content of
 	 *                           expanded rows
 	 */
 	public UiTableList(UiContainer<?>		 rParent,
 					   ExpandableTableStyle  eExpandStyle,
-					   UiComponentFactory<T> rRowContentFactory)
+					   UiComponentBuilder<T> rRowContentBuilder)
 	{
 		super(rParent, new UiFlowLayout());
 
-		this.rRowContentFactory = rRowContentFactory;
+		this.rRowContentBuilder = rRowContentBuilder;
 
 		ExpandableListStyle eListStyle =
 			eExpandStyle != null
@@ -357,7 +357,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		if (bHasSelection)
 		{
 			rSelectedRow = rRow;
-			rRowContentFactory.updateComponent(rRow.getData());
+			rRowContentBuilder.updateComponent(rRow.getData());
 		}
 
 		if (fHandleRowSelection != null)
@@ -531,7 +531,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
 
-			rRowContentFactory.createComponent(rRowItem, rRowData);
+			rRowContentBuilder.buildComponent(rRowItem, rRowData);
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -607,7 +607,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			if (bSelected)
 			{
-				rRowContentFactory.updateComponent(rRowData);
+				rRowContentBuilder.updateComponent(rRowData);
 			}
 		}
 
