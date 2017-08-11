@@ -167,11 +167,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * Adds a new row for a certain data object to this table.
+	 * Adds multiple rows to this table.
 	 *
-	 * @param  rRowDatas The data object for the row
+	 * @param  rRowDatas The data objects for the rows
 	 *
-	 * @return The new row
+	 * @return The new rows
 	 */
 	public List<Row> addRows(Collection<T> rRowDatas)
 	{
@@ -256,6 +256,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		aDataList.removeItem(rRow.rRowItem);
 		aRows.remove(rRow);
+	}
+
+	/***************************************
+	 * Clears this table and then adds rows from a collection of data objects.
+	 *
+	 * @param  rRowDatas The data objects for the rows
+	 *
+	 * @return The new rows
+	 */
+	public List<Row> setRows(Collection<T> rRowDatas)
+	{
+		clear();
+
+		return addRows(rRowDatas);
 	}
 
 	/***************************************
