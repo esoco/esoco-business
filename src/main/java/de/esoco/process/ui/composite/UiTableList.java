@@ -17,10 +17,12 @@
 package de.esoco.process.ui.composite;
 
 import de.esoco.lib.model.ColumnDefinition;
+import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.UiComponentFactory;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -28,7 +30,6 @@ import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
@@ -58,6 +59,7 @@ import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
  * @author eso
  */
 public class UiTableList<T> extends UiComposite<UiTableList<T>>
+	implements HasSelection<UiTableList<T>.Row>
 {
 	//~ Enums ------------------------------------------------------------------
 
@@ -74,9 +76,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
+	private UiComponentFactory<T> rRowContentFactory;
+
 	private UiListPanel   aHeaderPanel;
 	private UiLayoutPanel aTableHeader;
 	private UiListPanel   aDataList;
+
+	private Row rSelectedRow = null;
 
 	private String sColumnPrefix = null;
 
@@ -97,7 +103,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public UiTableList(UiContainer<?> rParent)
 	{
-		this(rParent, null);
+		this(rParent, null, null);
 	}
 
 	/***************************************
@@ -105,14 +111,18 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * header area. Expanding an item will reveal the item content and hide any
 	 * other previously expanded item content.
 	 *
-	 * @param rParent      The parent container
-	 * @param eExpandStyle The expand style
+	 * @param rParent            The parent container
+	 * @param eExpandStyle       The expand style
+	 * @param rRowContentFactory The factory that produces the content of
+	 *                           expanded rows
 	 */
-	public UiTableList(
-		UiContainer<?>		 rParent,
-		ExpandableTableStyle eExpandStyle)
+	public UiTableList(UiContainer<?>		 rParent,
+					   ExpandableTableStyle  eExpandStyle,
+					   UiComponentFactory<T> rRowContentFactory)
 	{
 		super(rParent, new UiFlowLayout());
+
+		this.rRowContentFactory = rRowContentFactory;
 
 		ExpandableListStyle eListStyle =
 			eExpandStyle != null
@@ -221,6 +231,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Returns the currently selected row.
+	 *
+	 * @return The selected or (NULL for none)
+	 */
+	@Override
+	public Row getSelection()
+	{
+		return rSelectedRow;
+	}
+
+	/***************************************
 	 * Registers a listener for column selections (i.e. clicks on column
 	 * headers). The listener will be invoked with the respective column as it's
 	 * argument.
@@ -278,6 +299,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Sets the selection to a certain row.
+	 *
+	 * @param rRow The row to select or NULL for no selection
+	 */
+	@Override
+	public void setSelection(Row rRow)
+	{
+		handleRowSelection(rRow, false);
+	}
+
+	/***************************************
 	 * Sets the prefix to be used for column titles.
 	 *
 	 * @param  sPrefix The column title prefix
@@ -307,10 +339,27 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	/***************************************
 	 * Handles the selection event of a certain row.
 	 *
-	 * @param rRow The selected row
+	 * @param rRow       The selected row
+	 * @param bFireEvent TRUE to notifiy a row selection listener if available
 	 */
-	void handleRowSelection(Row rRow)
+	void handleRowSelection(Row rRow, boolean bFireEvent)
 	{
+		boolean bHasSelection = !rRow.isSelected();
+
+		if (rSelectedRow != null)
+		{
+			rSelectedRow.setSelected(false);
+			rSelectedRow = null;
+		}
+
+		rRow.setSelected(bHasSelection);
+
+		if (bHasSelection)
+		{
+			rSelectedRow = rRow;
+			rRowContentFactory.updateComponent(rRow.getData());
+		}
+
 		if (fHandleRowSelection != null)
 		{
 			fHandleRowSelection.accept(rRow);
@@ -456,8 +505,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Item rRowItem;
-		private T    rRowData;
+		private Item    rRowItem;
+		private T	    rRowData;
+		private boolean bSelected = false;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -479,20 +529,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				addColumnComponent(rColumn);
 			}
 
-			rRowItem.getHeader().onClick(v -> handleRowSelection(this));
+			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
+
+			rRowContentFactory.createComponent(rRowItem, rRowData);
 		}
 
 		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * Returns a builder for the content of an expandable row.
-		 *
-		 * @return The row content builder
-		 */
-		public UiBuilder<?> getContentBuilder()
-		{
-			return rRowItem.builder();
-		}
 
 		/***************************************
 		 * Returns the row data object.
@@ -502,6 +544,26 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public final T getData()
 		{
 			return rRowData;
+		}
+
+		/***************************************
+		 * Returns the row's selection state.
+		 *
+		 * @return The selection state
+		 */
+		public final boolean isSelected()
+		{
+			return bSelected;
+		}
+
+		/***************************************
+		 * Sets this row's selection state.
+		 *
+		 * @param bSelected The selection state
+		 */
+		public final void setSelected(boolean bSelected)
+		{
+			this.bSelected = bSelected;
 		}
 
 		/***************************************
@@ -541,6 +603,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				String sText  = rValue != null ? rValue.toString() : "";
 
 				((UiLabel) getComponents().get(nIndex++)).setText(sText);
+			}
+
+			if (bSelected)
+			{
+				rRowContentFactory.updateComponent(rRowData);
 			}
 		}
 

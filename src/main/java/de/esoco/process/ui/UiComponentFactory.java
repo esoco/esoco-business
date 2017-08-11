@@ -14,60 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
-
-import de.esoco.lib.property.ButtonStyle;
-import de.esoco.lib.property.TextAttribute;
-
-import de.esoco.process.ui.UiButtonControl;
-import de.esoco.process.ui.UiContainer;
-
-import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-
+package de.esoco.process.ui;
 
 /********************************************************************
- * An interactive button control that represents a clickable link.
+ * A factory for UI components that also supports lazy initialization and
+ * subsequent updating of the component content. This is handled by the method
+ * {@link #updateComponent(Object)} that will be invoked to set the component
+ * value. It has an empty default implementation so that this interface can also
+ * be used as a functional interface in simple cases.
  *
  * @author eso
  */
-public class UiLink extends UiButtonControl<String, UiLink>
-	implements TextAttribute
+@FunctionalInterface
+public interface UiComponentFactory<T>
 {
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 *
-	 * @param rParent The parent container
-	 * @param sLabel  The link label
-	 */
-	public UiLink(UiContainer<?> rParent, String sLabel)
-	{
-		super(rParent, String.class);
-
-		setText(sLabel);
-		set(HIDE_LABEL);
-		set(BUTTON_STYLE, ButtonStyle.LINK);
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Creates a new component in the given parent.
+	 *
+	 * @param  rParent The parent container to create the component in
+	 * @param  rValue  The component value
+	 *
+	 * @return The new component
 	 */
-	@Override
-	public String getText()
-	{
-		return getValueImpl();
-	}
+	public UiComponent<?, ?> createComponent(UiContainer<?> rParent, T rValue);
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Updates the component from the given value.
+	 *
+	 * @param rValue The new component value
 	 */
-	@Override
-	public void setText(String sText)
+	default public void updateComponent(T rValue)
 	{
-		setValueImpl(sText);
 	}
 }
