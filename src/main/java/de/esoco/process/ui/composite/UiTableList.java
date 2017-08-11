@@ -145,6 +145,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 		aColumns.add(aColumn);
 
+		for (Row rRow : aRows)
+		{
+			rRow.addColumnComponent(aColumn);
+		}
+
 		return aColumn;
 	}
 
@@ -471,10 +476,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			for (Column rColumn : aColumns)
 			{
-				Object rValue = rColumn.getColumnValue(rRowData);
-				String sText  = rValue != null ? rValue.toString() : "";
-
-				builder().addLabel(sText);
+				addColumnComponent(rColumn);
 			}
 
 			rRowItem.getHeader().onClick(v -> handleRowSelection(this));
@@ -540,6 +542,19 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 				((UiLabel) getComponents().get(nIndex++)).setText(sText);
 			}
+		}
+
+		/***************************************
+		 * Adds a row component for a certain column.
+		 *
+		 * @param rColumn The column to add the component for
+		 */
+		protected void addColumnComponent(Column rColumn)
+		{
+			Object rValue = rColumn.getColumnValue(rRowData);
+			String sText  = rValue != null ? rValue.toString() : "";
+
+			builder().addLabel(sText);
 		}
 
 		/***************************************
