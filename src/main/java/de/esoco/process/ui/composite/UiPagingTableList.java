@@ -18,7 +18,7 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.lib.model.DataProvider;
 
-import de.esoco.process.ui.UiComponentBuilder;
+import de.esoco.process.ui.UiComponentAdapter;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.composite.UiTableList.ExpandableTableStyle;
@@ -62,7 +62,7 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 	 */
 	public UiPagingTableList(UiContainer<?>		   rParent,
 							 ExpandableTableStyle  eExpandStyle,
-							 UiComponentBuilder<T> rRowContentBuilder)
+							 UiComponentAdapter<T> rRowContentBuilder)
 	{
 		super(rParent, new UiFlowLayout());
 

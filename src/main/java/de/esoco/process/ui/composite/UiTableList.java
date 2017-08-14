@@ -22,7 +22,7 @@ import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
-import de.esoco.process.ui.UiComponentBuilder;
+import de.esoco.process.ui.UiComponentAdapter;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -76,7 +76,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private UiComponentBuilder<T> rRowContentBuilder;
+	private UiComponentAdapter<T> rRowContentBuilder;
 
 	private UiListPanel   aHeaderPanel;
 	private UiLayoutPanel aTableHeader;
@@ -118,7 +118,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public UiTableList(UiContainer<?>		 rParent,
 					   ExpandableTableStyle  eExpandStyle,
-					   UiComponentBuilder<T> rRowContentBuilder)
+					   UiComponentAdapter<T> rRowContentBuilder)
 	{
 		super(rParent, new UiFlowLayout());
 
