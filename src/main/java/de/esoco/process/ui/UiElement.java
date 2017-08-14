@@ -179,4 +179,14 @@ public class UiElement<E extends UiElement<E>>
 	{
 		return aProperties;
 	}
+
+	/***************************************
+	 * Internal method to replace the properties of this instance.
+	 *
+	 * @param rNewProperties The new properties
+	 */
+	final void setProperties(MutableProperties rNewProperties)
+	{
+		aProperties = rNewProperties;
+	}
 }

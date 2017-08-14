@@ -225,11 +225,6 @@ public class UiGridLayout extends UiLayout
 	{
 		super.applyTo(rContainer);
 
-		if (getCurrentRow().isEmpty())
-		{
-			removeLastRow();
-		}
-
 		UiStyle rStyle = rContainer.style();
 
 		applyGridStructure(rStyle);

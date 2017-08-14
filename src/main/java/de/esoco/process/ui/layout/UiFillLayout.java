@@ -43,16 +43,16 @@ public class UiFillLayout extends UiLayout
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * @see UiLayout#layoutComponent(UiComponent)
+	 * {@inheritDoc}
 	 */
 	@Override
-	protected void layoutComponent(UiComponent<?, ?> rComponent)
+	protected void addComponent(UiComponent<?, ?> rComponent)
 	{
 		if (rComponent.getParent().getComponents().size() > 1)
 		{
 			throw new IllegalStateException("UiFillLayout can only contain a single component");
 		}
 
-		super.layoutComponent(rComponent);
+		super.addComponent(rComponent);
 	}
 }

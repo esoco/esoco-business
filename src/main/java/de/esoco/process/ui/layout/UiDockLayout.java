@@ -66,6 +66,20 @@ public class UiDockLayout extends UiLayout
 	 * {@inheritDoc}
 	 */
 	@Override
+	protected void addComponent(UiComponent<?, ?> rComponent)
+	{
+		if (rComponent.getParent().getComponents().size() > 3)
+		{
+			throw new IllegalStateException("UiDockLayout can contain a maxium of 3 components");
+		}
+
+		super.addComponent(rComponent);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void applyTo(UiContainer<?> rContainer)
 	{
 		super.applyTo(rContainer);
@@ -82,21 +96,7 @@ public class UiDockLayout extends UiLayout
 	@Override
 	protected Cell createCell(Row rRow, Column rColumn)
 	{
-		return new DockCell(rRow, rColumn, null);
-	}
-
-	/***************************************
-	 * @see de.esoco.process.ui.UiLayout#layoutComponent(de.esoco.process.ui.UiComponent)
-	 */
-	@Override
-	protected void layoutComponent(UiComponent<?, ?> rComponent)
-	{
-		if (rComponent.getParent().getComponents().size() > 3)
-		{
-			throw new IllegalStateException("UiDockLayout can only contain a maxium of 3 components");
-		}
-
-		super.layoutComponent(rComponent);
+		return new DockCell(rRow, rColumn);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -116,9 +116,9 @@ public class UiDockLayout extends UiLayout
 		 *
 		 * @see Cell#Cell(Row, Column, UiComponent)
 		 */
-		public DockCell(Row rRow, Column rColumn, UiComponent<?, ?> rComponent)
+		protected DockCell(Row rRow, Column rColumn)
 		{
-			super(rRow, rColumn, rComponent);
+			super(rRow, rColumn);
 		}
 
 		//~ Methods ------------------------------------------------------------

@@ -18,6 +18,7 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
 
@@ -53,8 +54,10 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 
 	private final LayoutType eLayoutType;
 
-	private int nLastRow    = 0;
-	private int nNextColumn = 0;
+	private boolean bLayoutPerformed = false;
+	private boolean bNextRow		 = false;
+	private int     nCurrentRow		 = 0;
+	private int     nNextColumn		 = 0;
 
 	private List<Row>    aRows    = new ArrayList<>();
 	private List<Column> aColumns = new ArrayList<>();
@@ -98,15 +101,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		this.eLayoutType = eLayoutType;
 
-		for (int nCol = 0; nCol < nColumns; nCol++)
-		{
-			aColumns.add(new Column(nCol));
-		}
-
-		for (int nRow = 0; nRow < nRows; nRow++)
-		{
-			addRow();
-		}
+		reset(nRows, nColumns);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -141,7 +136,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	public Row getCurrentRow()
 	{
-		return aRows.get(nLastRow);
+		return aRows.get(nCurrentRow);
 	}
 
 	/***************************************
@@ -165,18 +160,12 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
-	 * Proceeds to the next row in this layout even if the current row hasn't
-	 * been filled completely yet. Adds a new row if necessary.
+	 * Signals that the next component added to this layout should be placed at
+	 * the beginning of the next layout row.
 	 */
 	public void nextRow()
 	{
-		nNextColumn = 0;
-		nLastRow++;
-
-		if (aRows.size() == nLastRow)
-		{
-			addRow();
-		}
+		bNextRow = true;
 	}
 
 	/***************************************
@@ -220,6 +209,28 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
+	 * Internal method to initially add a component to the layout. This will add
+	 * a dummy layout cell to the component that is not positioned in the layout
+	 * but can be used to set layout parameters on the component by querying it
+	 * with {@link UiComponent#cell()}. The actual layout is performed by the
+	 * method {@link #layoutComponent(UiComponent)}.
+	 *
+	 * <p>Invoked by {@link UiContainer#addComponent(UiComponent)}.</p>
+	 *
+	 * @param rComponent The component that has been added to the container
+	 */
+	protected void addComponent(UiComponent<?, ?> rComponent)
+	{
+		Cell aInitialCell = createCell(null, null);
+
+		aInitialCell.rComponent   = rComponent;
+		aInitialCell.bStartNewRow = bNextRow;
+		bNextRow				  = false;
+
+		rComponent.setLayoutCell(aInitialCell);
+	}
+
+	/***************************************
 	 * Applies this layout to the given container.
 	 *
 	 * @param rContainer The container
@@ -227,6 +238,31 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	protected void applyTo(UiContainer<?> rContainer)
 	{
 		rContainer.set(LAYOUT, eLayoutType);
+
+		if (!bLayoutPerformed)
+		{
+			nNextColumn = 0;
+			nCurrentRow = 0;
+
+			for (UiComponent<?, ?> rComponent : rContainer.getComponents())
+			{
+				layoutComponent(rComponent);
+			}
+
+			for (Cell rCell : aCells)
+			{
+				rCell.checkRepositioning();
+			}
+
+			// remove trailing empty rows that may have been created due to
+			// cell repositioning
+			while (nCurrentRow > 0 && aRows.get(nCurrentRow).isEmpty())
+			{
+				aRows.remove(nCurrentRow--);
+			}
+
+			bLayoutPerformed = true;
+		}
 	}
 
 	/***************************************
@@ -241,7 +277,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	protected Cell createCell(Row rRow, Column rColumn)
 	{
-		return new Cell(rRow, rColumn, null);
+		return new Cell(rRow, rColumn);
 	}
 
 	/***************************************
@@ -278,7 +314,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			if (nColumn >= aColumns.size())
 			{
 				nColumn = 0;
-				nextRow();
+				proceedToNextRow();
 			}
 		}
 		else
@@ -312,7 +348,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			nRow = 0;
 		}
 
-		nLastRow = nRow;
+		nCurrentRow = nRow;
 
 		while (aRows.size() <= nRow)
 		{
@@ -350,44 +386,55 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	/***************************************
-	 * Internal method to setup the layout for a component after it has been
-	 * added to it's parent container. Invoked by {@link
-	 * UiContainer#addComponent(UiComponent)}.
+	 * Internal method to place a component in the layout. Invoked by {@link
+	 * UiContainer#applyProperties()}.
 	 *
-	 * @param rComponent The component that has been added to the container
+	 * @param rComponent The component to layout
 	 */
 	protected void layoutComponent(UiComponent<?, ?> rComponent)
 	{
-		if (nNextColumn >= aColumns.size())
+		if (rComponent.cell().bStartNewRow || nNextColumn >= aColumns.size())
 		{
-			nextRow();
+			proceedToNextRow();
 		}
 		else if (nNextColumn > 0)
 		{
 			rComponent.set(LayoutProperties.SAME_ROW);
 		}
 
-		Row    rRow    = aRows.get(nLastRow);
+		Row    rRow    = aRows.get(nCurrentRow);
 		Column rColumn = aColumns.get(nNextColumn);
 
 		Cell aCell = getLayoutCell(rRow, rColumn);
 
-		nNextColumn = aCell.getColumn().getIndex() + 1;
-
-		aCell.rComponent = rComponent;
+		aCell.updateFrom(rComponent);
 		rComponent.setLayoutCell(aCell);
 
-		aCells.add(aCell);
+		nNextColumn = aCell.getColumn().getIndex() + 1;
 	}
 
 	/***************************************
-	 * Removes the last row and decrements the last row pointer. Allows
-	 * subclasses that build complex grid structures to remove the last row
-	 * while building the grid.
+	 * Resets this layout for recalculation.
+	 *
+	 * @param nRows    The number of rows
+	 * @param nColumns The number of column
 	 */
-	protected void removeLastRow()
+	protected void reset(int nRows, int nColumns)
 	{
-		aRows.remove(nLastRow--);
+		bLayoutPerformed = false;
+		aColumns.clear();
+		aRows.clear();
+		aCells.clear();
+
+		for (int nCol = 0; nCol < nColumns; nCol++)
+		{
+			aColumns.add(new Column(nCol));
+		}
+
+		for (int nRow = 0; nRow < nRows; nRow++)
+		{
+			addRow();
+		}
 	}
 
 	/***************************************
@@ -403,6 +450,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		for (Column rColumn : aColumns)
 		{
 			aCells.add(createCell(aRow, rColumn));
+		}
+	}
+
+	/***************************************
+	 * Proceeds to the next row in this layout even if the current row hasn't
+	 * been filled completely yet. Adds a new row if necessary.
+	 */
+	private void proceedToNextRow()
+	{
+		nNextColumn = 0;
+		nCurrentRow++;
+
+		if (aRows.size() == nCurrentRow)
+		{
+			addRow();
 		}
 	}
 
@@ -423,23 +485,29 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		private Column			  rColumn;
 		private UiComponent<?, ?> rComponent;
 
+		private boolean bStartNewRow	  = false;
+		private int     nRepositionRow    = -1;
+		private int     nRepositionColumn = -1;
+
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
-		 * Creates a new instance.
+		 * Creates a new instance of a cell that is placed at a certain layout
+		 * position. These are the actual layout cells while
 		 *
-		 * @param rRow       The row of the cell
-		 * @param rColumn    The column of the cell
-		 * @param rComponent The component that has been placed in the layout
+		 * @param rRow    The row of the cell
+		 * @param rColumn The column of the cell
 		 */
-		public Cell(Row rRow, Column rColumn, UiComponent<?, ?> rComponent)
+		protected Cell(Row rRow, Column rColumn)
 		{
-			this.rRow	    = rRow;
-			this.rColumn    = rColumn;
-			this.rComponent = rComponent;
+			this.rRow    = rRow;
+			this.rColumn = rColumn;
 
-			rRow.getCells().add(this);
-			rColumn.getCells().add(this);
+			if (rRow != null)
+			{
+				rRow.getCells().add(this);
+				rColumn.getCells().add(this);
+			}
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -484,7 +552,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Returns the column of this cell.
+		 * Returns the column of this cell. This method in intended for internal
+		 * use by subclasses because it may return NULL before a layout has been
+		 * applied to it's container. It is therefore recommended that
+		 * Application code accesses rows and column only through the layout and
+		 * not through the cell returned by a component.
 		 *
 		 * @return The column
 		 */
@@ -494,9 +566,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Returns the component that is placed in this cell.
+		 * Returns the component that is placed in this cell. The cell of a
+		 * layout will only contain a valid component reference after the layout
+		 * has been applied to it's container.
 		 *
-		 * @return The component
+		 * @return The component in this cell
 		 */
 		public final UiComponent<?, ?> getComponent()
 		{
@@ -504,28 +578,17 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
-		 * Returns the row of this cell.
+		 * Returns the row of this cell. This method in intended for internal
+		 * use by subclasses because it may return NULL before a layout has been
+		 * applied to it's container. It is therefore recommended that
+		 * Application code accesses rows and column only through the layout and
+		 * not through the cell returned by a component.
 		 *
 		 * @return The row
 		 */
 		public Row getRow()
 		{
 			return rRow;
-		}
-
-		/***************************************
-		 * Returns the row neighbor.
-		 *
-		 * @param  nDistance The row neighbor
-		 *
-		 * @return The row neighbor
-		 */
-		public Cell getRowNeighbor(int nDistance)
-		{
-			Row rNeighborRow =
-				getLayout().getRows().get(rRow.getIndex() + nDistance);
-
-			return rNeighborRow.getCell(rColumn.getIndex());
 		}
 
 		/***************************************
@@ -554,34 +617,13 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		/***************************************
 		 * Sets the grid position at which this cell should be placed.
 		 *
-		 * @param  nRow    The row index
-		 * @param  nColumn The column index
-		 *
-		 * @return The component's (new) cell for concatenation
+		 * @param nRow    The row index
+		 * @param nColumn The column index
 		 */
-		public Cell position(int nRow, int nColumn)
+		public void position(int nRow, int nColumn)
 		{
-			Cell rNewCell = getLayout().getRows().get(nRow).getCell(nColumn);
-
-			if (rNewCell != this)
-			{
-				if (rNewCell.rComponent != null)
-				{
-					throw new IllegalArgumentException("Cell already has component " +
-													   rNewCell.rComponent);
-				}
-
-				rNewCell.rComponent = rComponent;
-
-				rNewCell.clearProperties();
-				rNewCell.copyPropertiesFrom(this, true);
-				clearProperties();
-
-				rComponent.setLayoutCell(rNewCell);
-				rComponent = null;
-			}
-
-			return rNewCell;
+			nRepositionRow    = nRow;
+			nRepositionColumn = nColumn;
 		}
 
 		/***************************************
@@ -644,6 +686,63 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public Cell width(int nWidth, SizeUnit eUnit)
 		{
 			return size(HTML_WIDTH, nWidth, eUnit);
+		}
+
+		/***************************************
+		 * Performs a repositioning of this cell if new layout coordinates had
+		 * been set with {@link #position(int, int)}.
+		 */
+		void checkRepositioning()
+		{
+			if (nRepositionRow >= 0 && nRepositionColumn >= 0)
+			{
+				Cell rNewCell =
+					getLayout().getRows()
+							   .get(nRepositionRow)
+							   .getCell(nRepositionColumn);
+
+				if (rNewCell != this)
+				{
+					if (rNewCell.rComponent != null)
+					{
+						throw new IllegalArgumentException("Cell already has component " +
+														   rNewCell.rComponent);
+					}
+
+					rNewCell.rComponent = rComponent;
+
+					rNewCell.clearProperties();
+					rNewCell.copyPropertiesFrom(this, true);
+					clearProperties();
+
+					rComponent.setLayoutCell(rNewCell);
+					rComponent = null;
+				}
+			}
+		}
+
+		/***************************************
+		 * Updates this cell with the data from a certain component's (initial)
+		 * layout cell and also sets the component reference.
+		 *
+		 * @param rComponent The component
+		 */
+		void updateFrom(UiComponent<?, ?> rComponent)
+		{
+			Cell rComponentCell = rComponent.cell();
+
+			this.rComponent   = rComponent;
+			bStartNewRow	  = rComponentCell.bStartNewRow;
+			nRepositionRow    = rComponentCell.nRepositionRow;
+			nRepositionColumn = rComponentCell.nRepositionColumn;
+
+			// replace cell properties with the combination of component cell and
+			// layout cell, with precedence for component cell styles
+			MutableProperties rComponentCellProperties =
+				rComponentCell.getProperties();
+
+			rComponentCellProperties.setProperties(getProperties(), false);
+			setProperties(rComponentCellProperties);
 		}
 	}
 

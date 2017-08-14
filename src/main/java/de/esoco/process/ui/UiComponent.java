@@ -123,6 +123,25 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Places this component before another component in the same parent
+	 * container.
+	 *
+	 * @param  rBeforeComponent The component to place this component before
+	 *
+	 * @return This instance for concatenation
+	 *
+	 * @throws IllegalArgumentException If the given component is not found in
+	 *                                  the parent container
+	 */
+	@SuppressWarnings("unchecked")
+	public C placeBefore(UiComponent<?, ?> rBeforeComponent)
+	{
+		rParent.placeComponentBefore(rBeforeComponent, this);
+
+		return (C) this;
+	}
+
+	/***************************************
 	 * Sets the size of this component.
 	 *
 	 * @param  nWidth  The width

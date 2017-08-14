@@ -43,4 +43,16 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	 */
 	@Override
 	public abstract V setVisible(boolean bVisible);
+
+	/***************************************
+	 * Overridden to always throw an {@link UnsupportedOperationException} as
+	 * this functionality is not possible for views.
+	 *
+	 * @see de.esoco.process.ui.UiComponent#placeBefore(UiComponent)
+	 */
+	@Override
+	public V placeBefore(UiComponent<?, ?> rBeforeComponent)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

@@ -40,12 +40,11 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	//~ Instance fields --------------------------------------------------------
 
 	private UiLayout rLayout;
-
-	private boolean bBuilt;
+	private boolean  bBuilt;
 
 	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
 
-	private UiBuilder<C> aContainerBuilder;
+	private UiBuilder<C> aContainerBuilder = null;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -60,6 +59,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		// NULL for datatype to prevent component attachTo() as a special list
 		// parameter type needs to be created in the container implementation
 		super(rParent, null);
+
+		assert rLayout != null : "Container layout must not be NULL";
 
 		this.rLayout = rLayout;
 
@@ -219,6 +220,21 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Will be invoked after the list of components has been modified. The base
+	 * implementation resets the layout for recalculation.
+	 */
+	protected void componentListChanged()
+	{
+		if (bBuilt)
+		{
+			// if components are added after the initial building the layout
+			// needs to be reprocessed
+			rLayout.reset(rLayout.getRows().size(),
+						  rLayout.getColumns().size());
+		}
+	}
+
+	/***************************************
 	 * Returns the layout of this container.
 	 *
 	 * @return The layout
@@ -260,9 +276,48 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	void addComponent(UiComponent<?, ?> rComponent)
 	{
 		aComponents.add(rComponent);
-		rLayout.layoutComponent(rComponent);
-
+		rLayout.addComponent(rComponent);
 		componentAdded(rComponent);
+
+		componentListChanged();
+	}
+
+	/***************************************
+	 * Internal method to provide access to the component list.
+	 *
+	 * @return The list of this container's components
+	 */
+	List<UiComponent<?, ?>> getComponentList()
+	{
+		return aComponents;
+	}
+
+	/***************************************
+	 * Internal method to place a component before another component. Publicly
+	 * available through {@link UiComponent#placeBefore(UiComponent)}.
+	 *
+	 * @param  rBeforeComponent The component to insert before
+	 * @param  rComponent       The component to place before the other
+	 *
+	 * @throws IllegalArgumentException If the given component is not found in
+	 *                                  the parent container
+	 */
+	@SuppressWarnings("unchecked")
+	void placeComponentBefore(
+		UiComponent<?, ?> rBeforeComponent,
+		UiComponent<?, ?> rComponent)
+	{
+		int nIndex = aComponents.indexOf(rBeforeComponent);
+
+		if (nIndex < 0)
+		{
+			throw new IllegalArgumentException("Component to place before must be in the same container");
+		}
+
+		aComponents.remove(rComponent);
+		aComponents.add(nIndex, rComponent);
+
+		componentListChanged();
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
