@@ -113,8 +113,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @param rParent            The parent container
 	 * @param eExpandStyle       The expand style
-	 * @param rRowContentBuilder The factory that produces the content of
-	 *                           expanded rows
+	 * @param rRowContentBuilder The component builder that produces the content
+	 *                           of expanded rows
 	 */
 	public UiTableList(UiContainer<?>		 rParent,
 					   ExpandableTableStyle  eExpandStyle,
@@ -357,7 +357,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		if (bHasSelection)
 		{
 			rSelectedRow = rRow;
-			rRowContentBuilder.updateComponent(rRow.getData());
+
+			if (rRowContentBuilder != null)
+			{
+				rRowContentBuilder.updateComponent(rRow.getData());
+			}
 		}
 
 		if (fHandleRowSelection != null)
@@ -531,7 +535,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
 
-			rRowContentBuilder.buildComponent(rRowItem, rRowData);
+			if (rRowContentBuilder != null)
+			{
+				rRowContentBuilder.buildComponent(rRowItem, rRowData);
+			}
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -605,7 +612,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				((UiLabel) getComponents().get(nIndex++)).setText(sText);
 			}
 
-			if (bSelected)
+			if (bSelected && rRowContentBuilder != null)
 			{
 				rRowContentBuilder.updateComponent(rRowData);
 			}
