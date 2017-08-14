@@ -18,7 +18,6 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.lib.model.DataProvider;
 
-import de.esoco.process.ui.UiComponentAdapter;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.composite.UiTableList.ExpandableTableStyle;
@@ -34,7 +33,7 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private UiTableList		   aTable;
+	private UiTableList<T>     aTable;
 	private UiPagingNavigation aNavigation;
 
 	private DataProvider<T> rDataProvider;
@@ -49,24 +48,22 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 	 */
 	public UiPagingTableList(UiContainer<?> rParent)
 	{
-		this(rParent, null, null);
+		this(rParent, null);
 	}
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent            The parent container
-	 * @param eExpandStyle       The expand style
-	 * @param rRowContentBuilder The component builder that produces the content
-	 *                           of expanded rows
+	 * @param rParent      The parent container
+	 * @param eExpandStyle The expand style
 	 */
-	public UiPagingTableList(UiContainer<?>		   rParent,
-							 ExpandableTableStyle  eExpandStyle,
-							 UiComponentAdapter<T> rRowContentBuilder)
+	public UiPagingTableList(
+		UiContainer<?>		 rParent,
+		ExpandableTableStyle eExpandStyle)
 	{
 		super(rParent, new UiFlowLayout());
 
-		aTable = new UiTableList<>(this, eExpandStyle, rRowContentBuilder);
+		aTable = new UiTableList<>(this, eExpandStyle);
 //		aNavigation = new UiPagingNavigation(this);
 	}
 

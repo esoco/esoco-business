@@ -43,7 +43,7 @@ public interface UiComponentAdapter<T>
 	/***************************************
 	 * Updates the component from the given value.
 	 *
-	 * @param rValue The new component value
+	 * @param rValue The new value to update the component from
 	 */
 	default public void updateComponent(T rValue)
 	{

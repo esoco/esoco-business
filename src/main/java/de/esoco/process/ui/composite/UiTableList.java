@@ -22,7 +22,6 @@ import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
-import de.esoco.process.ui.UiComponentAdapter;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -30,6 +29,7 @@ import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
+import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
@@ -76,8 +76,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private UiComponentAdapter<T> rRowContentBuilder;
-
 	private UiListPanel   aHeaderPanel;
 	private UiLayoutPanel aTableHeader;
 	private UiListPanel   aDataList;
@@ -103,7 +101,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public UiTableList(UiContainer<?> rParent)
 	{
-		this(rParent, null, null);
+		this(rParent, null);
 	}
 
 	/***************************************
@@ -111,18 +109,14 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * header area. Expanding an item will reveal the item content and hide any
 	 * other previously expanded item content.
 	 *
-	 * @param rParent            The parent container
-	 * @param eExpandStyle       The expand style
-	 * @param rRowContentBuilder The component builder that produces the content
-	 *                           of expanded rows
+	 * @param rParent      The parent container
+	 * @param eExpandStyle The expand style
 	 */
-	public UiTableList(UiContainer<?>		 rParent,
-					   ExpandableTableStyle  eExpandStyle,
-					   UiComponentAdapter<T> rRowContentBuilder)
+	public UiTableList(
+		UiContainer<?>		 rParent,
+		ExpandableTableStyle eExpandStyle)
 	{
 		super(rParent, new UiFlowLayout());
-
-		this.rRowContentBuilder = rRowContentBuilder;
 
 		ExpandableListStyle eListStyle =
 			eExpandStyle != null
@@ -174,7 +168,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		Objects.requireNonNull(rRowData);
 
-		Row rRow = new Row(aDataList.addItem(), rRowData);
+		Row rRow = createRow(aDataList.addItem(), rRowData);
 
 		aRows.add(rRow);
 
@@ -324,6 +318,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Creates a new row. Subclasses can override this method to return their
+	 * own row subclasses, e.g. to handle the row content.
+	 *
+	 * @param  rItem    The row item
+	 * @param  rRowData The row data
+	 *
+	 * @return A new row instance
+	 */
+	protected Row createRow(Item rItem, T rRowData)
+	{
+		return new Row(rItem, rRowData);
+	}
+
+	/***************************************
 	 * Handles the selection event of a certain column.
 	 *
 	 * @param rColumn The selected column
@@ -357,11 +365,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		if (bHasSelection)
 		{
 			rSelectedRow = rRow;
-
-			if (rRowContentBuilder != null)
-			{
-				rRowContentBuilder.updateComponent(rRow.getData());
-			}
+			rSelectedRow.updateExpandedContent();
 		}
 
 		if (fHandleRowSelection != null)
@@ -521,7 +525,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @param rRowItem The item to place the row in
 		 * @param rRowData The row data object
 		 */
-		Row(Item rRowItem, T rRowData)
+		protected Row(Item rRowItem, T rRowData)
 		{
 			super(rRowItem.getHeader(), new UiColumnGridLayout());
 
@@ -535,13 +539,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
 
-			if (rRowContentBuilder != null)
-			{
-				rRowContentBuilder.buildComponent(rRowItem, rRowData);
-			}
+			initExpandedContent(rRowItem);
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Returns the builder for the content of expandable rows. This can be
+		 * used as an alternative to overriding {@link
+		 * #initExpandedContent(UiContainer)}.
+		 *
+		 * @return The content builder
+		 */
+		public UiBuilder<?> contentBuilder()
+		{
+			return builder();
+		}
 
 		/***************************************
 		 * Returns the row data object.
@@ -612,9 +625,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				((UiLabel) getComponents().get(nIndex++)).setText(sText);
 			}
 
-			if (bSelected && rRowContentBuilder != null)
+			if (bSelected)
 			{
-				rRowContentBuilder.updateComponent(rRowData);
+				updateExpandedContent();
 			}
 		}
 
@@ -672,6 +685,29 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			return UiTableList.this.getComponentStyleName() +
 				   super.getComponentStyleName();
+		}
+
+		/***************************************
+		 * Must be overridden by subclasses to initialize the content of
+		 * expandable rows. To update that content upon selection or setting of
+		 * new row data the method {@link #updateExpandedContent()} needs to be
+		 * implemented too. The row data is available through {@link
+		 * #getData()}.
+		 *
+		 * @param rParent The parent to build the content in
+		 */
+		protected void initExpandedContent(UiContainer<?> rParent)
+		{
+		}
+
+		/***************************************
+		 * Can be overridden by subclasses that need to update the content of
+		 * expandable rows on selection or if a new row data is set. The content
+		 * must be created in {@link #initExpandedContent(UiContainer)}. The row
+		 * data is available through {@link #getData()}.
+		 */
+		protected void updateExpandedContent()
+		{
 		}
 	}
 
