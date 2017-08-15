@@ -14,24 +14,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
+package de.esoco.process.ui;
 
-import de.esoco.lib.property.LabelStyle;
+import de.esoco.lib.property.TextAttribute;
 
-import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiTextComponent;
-
-import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
 /********************************************************************
- * A read-only UI text label.
+ * Base class for read-only text components.
  *
  * @author eso
  */
-public class UiLabel extends UiTextComponent<UiLabel>
+public abstract class UiTextComponent<C extends UiTextComponent<C>>
+	extends UiComponent<String, UiTextComponent<C>> implements TextAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -39,33 +35,33 @@ public class UiLabel extends UiTextComponent<UiLabel>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
-	 * @param sText   The label text
+	 * @param sText   The initial component text
 	 */
-	public UiLabel(UiContainer<?> rParent, String sText)
+	public UiTextComponent(UiContainer<?> rParent, String sText)
 	{
-		super(rParent, sText);
+		super(rParent, String.class);
+
+		setText(sText);
+		set(HIDE_LABEL);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets a caption label to be displayed over the label text.
-	 *
-	 * @param sCaption The caption label
+	 * {@inheritDoc}
 	 */
-	public void setCaption(String sCaption)
+	@Override
+	public String getText()
 	{
-		clear(HIDE_LABEL);
-		set(LABEL, sCaption);
+		return getValueImpl();
 	}
 
 	/***************************************
-	 * Sets the style of this label.
-	 *
-	 * @param eStyle The label style
+	 * {@inheritDoc}
 	 */
-	public void setLabelStyle(LabelStyle eStyle)
+	@Override
+	public void setText(String sText)
 	{
-		set(LABEL_STYLE, eStyle);
+		setValueImpl(sText);
 	}
 }

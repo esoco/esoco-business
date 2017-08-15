@@ -43,6 +43,7 @@ import de.esoco.process.ui.component.UiQueryTable;
 import de.esoco.process.ui.component.UiRadioButtons;
 import de.esoco.process.ui.component.UiTextArea;
 import de.esoco.process.ui.component.UiTextField;
+import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.component.UiWebPage;
 
@@ -481,6 +482,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiTextField addTextField(String sText)
 	{
 		return new UiTextField(rContainer, sText);
+	}
+
+	/***************************************
+	 * Adds a non-interactive title label.
+	 *
+	 * @param  sText The title text
+	 *
+	 * @return The new component
+	 */
+	public UiTitle addTitle(String sText)
+	{
+		return new UiTitle(rContainer, sText);
 	}
 
 	/***************************************

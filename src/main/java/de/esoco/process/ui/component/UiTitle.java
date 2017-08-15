@@ -21,17 +21,15 @@ import de.esoco.lib.property.LabelStyle;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextComponent;
 
-import static de.esoco.lib.property.ContentProperties.LABEL;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
 /********************************************************************
- * A read-only UI text label.
+ * A read-only text component that is rendered as a title.
  *
  * @author eso
  */
-public class UiLabel extends UiTextComponent<UiLabel>
+public class UiTitle extends UiTextComponent<UiTitle>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -39,33 +37,12 @@ public class UiLabel extends UiTextComponent<UiLabel>
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
-	 * @param sText   The label text
+	 * @param sText   The initial title text
 	 */
-	public UiLabel(UiContainer<?> rParent, String sText)
+	public UiTitle(UiContainer<?> rParent, String sText)
 	{
 		super(rParent, sText);
-	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Sets a caption label to be displayed over the label text.
-	 *
-	 * @param sCaption The caption label
-	 */
-	public void setCaption(String sCaption)
-	{
-		clear(HIDE_LABEL);
-		set(LABEL, sCaption);
-	}
-
-	/***************************************
-	 * Sets the style of this label.
-	 *
-	 * @param eStyle The label style
-	 */
-	public void setLabelStyle(LabelStyle eStyle)
-	{
-		set(LABEL_STYLE, eStyle);
+		set(LABEL_STYLE, LabelStyle.TITLE);
 	}
 }
