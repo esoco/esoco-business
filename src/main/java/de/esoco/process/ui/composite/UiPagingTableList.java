@@ -23,6 +23,8 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.composite.UiTableList.ExpandableTableStyle;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
+import java.util.Collection;
+
 
 /********************************************************************
  * A composite that adds paging navigation to a {@link UiTableList}.
@@ -63,19 +65,55 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 	{
 		super(rParent, new UiFlowLayout());
 
-		aTable = new UiTableList<>(this, eExpandStyle);
-//		aNavigation = new UiPagingNavigation(this);
+		aTable	    = new UiTableList<>(this, eExpandStyle);
+		aNavigation = new UiPagingNavigation(rParent, this::handlePageChange);
+
+		aNavigation.setPageSizes(this::handlePageSizeChange,
+								 UiPagingNavigation.DEFAULT_PAGE_SIZES);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the data.
+	 * Sets the data provider for the table rows.
 	 *
 	 * @param rDataProvider The new data
 	 */
 	public void setData(DataProvider<T> rDataProvider)
 	{
 		this.rDataProvider = rDataProvider;
+
+		displayData(aNavigation.getPageStart(), aNavigation.getPageSize());
+	}
+
+	/***************************************
+	 * Displays data from the data provider in table rows.
+	 *
+	 * @param nStart nPageSize
+	 * @param nCount rPageStart TODO: DOCUMENT ME!
+	 */
+	protected void displayData(int nStart, int nCount)
+	{
+		Collection<T> rData = rDataProvider.getData(nStart, nCount);
+
+		aTable.updateRows(rData);
+	}
+
+	/***************************************
+	 * Handles changes of the currently displayed page.
+	 *
+	 * @param nNewPageStart The starting index of the current page
+	 */
+	private void handlePageChange(int nNewPageStart)
+	{
+	}
+
+	/***************************************
+	 * Handles changes of the displayed page size.
+	 *
+	 * @param nNewPageStart The new page size
+	 */
+	private void handlePageSizeChange(int nNewPageStart)
+	{
 	}
 }

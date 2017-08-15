@@ -81,20 +81,6 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	}
 
 	/***************************************
-	 * Sets the event handler for selection confirmed events (e.g. by double
-	 * click) of this list.
-	 *
-	 * @param  rEventHandler The event handler
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final C onSelectionConfirmed(ValueEventHandler<T> rEventHandler)
-	{
-		return setParameterEventHandler(InteractionEventType.ACTION,
-										rEventHandler);
-	}
-
-	/***************************************
 	 * Sets the selected value.
 	 *
 	 * @param rValue The new selection or NULL for none

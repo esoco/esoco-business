@@ -18,7 +18,9 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.component.UiButton;
 import de.esoco.process.ui.component.UiDropDown;
+import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.layout.UiTableLayout;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	/********************************************************************
 	 * Enumeration of paging navigation action.
 	 */
-	public enum NavigationAction
+	private enum NavigationAction
 	{
 		FIRST_PAGE, PREVIOUS_PAGE, NEXT_PAGE, LAST_PAGE
 	}
@@ -55,11 +57,16 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private int   nStartIndex = 0;
-	private int   nPageSize;
-	private int[] aPageSizes  = null;
+	private Consumer<Integer> fPageChangeHandler;
+
+	private int   nPageStart = 0;
+	private int   nPageSize  = 10;
+	private int[] aPageSizes = null;
 
 	private UiDropDown<String> aPageSizeSelector;
+	private UiButton		   aFirstPageButton;
+
+	private UiLabel aNavPosition;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -76,11 +83,31 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	{
 		super(rParent, new UiTableLayout(6));
 
-		aPageSizeSelector =
-			builder().addDropDown(String.class).setVisible(false);
+		this.fPageChangeHandler = fPageChangeHandler;
+
+		aFirstPageButton =
+			builder().addButton("<<")
+					 .onClick(v -> handleNavigation(NavigationAction.FIRST_PAGE));
+		builder().addButton("<")
+				 .onClick(v -> handleNavigation(NavigationAction.PREVIOUS_PAGE));
+		aNavPosition = builder().addLabel("");
+		builder().addButton(">")
+				 .onClick(v -> handleNavigation(NavigationAction.NEXT_PAGE));
+		builder().addButton(">>")
+				 .onClick(v -> handleNavigation(NavigationAction.LAST_PAGE));
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Returns the currently selected page size.
+	 *
+	 * @return The current page size
+	 */
+	public final int getPageSize()
+	{
+		return nPageSize;
+	}
 
 	/***************************************
 	 * Returns the page sizes that can be selected by the user.
@@ -93,10 +120,31 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	}
 
 	/***************************************
+	 * Returns the index of the first element on the current page.
+	 *
+	 * @return The starting index of the current page
+	 */
+	public final int getPageStart()
+	{
+		return nPageStart;
+	}
+
+	/***************************************
+	 * Sets the page size. This will not fire an event to the page size change
+	 * handler.
+	 *
+	 * @param nPageSize The new page size
+	 */
+	public final void setPageSize(int nPageSize)
+	{
+		this.nPageSize = nPageSize;
+	}
+
+	/***************************************
 	 * Sets the page sizes that can be selected by the user. If set to NULL no
 	 * page size selection will be available.
 	 *
-	 * @param fPageSizeHandler TODO: DOCUMENT ME!
+	 * @param fPageSizeHandler A handler for page size changes.
 	 * @param rPageSizes       The selectable page sizes or NULL to hide the
 	 *                         page size selection
 	 */
@@ -104,10 +152,21 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 		Consumer<Integer> fPageSizeHandler,
 		int... 			  rPageSizes)
 	{
-		aPageSizes = rPageSizes;
+		this.aPageSizes = rPageSizes;
 
 		if (rPageSizes != null)
 		{
+			if (aPageSizeSelector == null)
+			{
+				aPageSizeSelector =
+					builder().addDropDown(String.class)
+							 .setVisible(false)
+							 .onSelection(sPageSize ->
+										  fPageSizeHandler.accept(Integer
+																  .valueOf(sPageSize)));
+				aPageSizeSelector.placeBefore(aFirstPageButton);
+			}
+
 			List<String> aPageSizeValues = new ArrayList<>(aPageSizes.length);
 
 			for (int nPageSize : aPageSizes)
@@ -117,5 +176,30 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 
 			aPageSizeSelector.setListValues(aPageSizeValues);
 		}
+		else if (aPageSizeSelector != null)
+		{
+			removeComponent(aPageSizeSelector);
+			aPageSizeSelector = null;
+		}
+	}
+
+	/***************************************
+	 * Returns the index of the first element on the current page. This will not
+	 * fire an event to the page change handler.
+	 *
+	 * @param nPageStart The new starting index of the current page
+	 */
+	public final void setPageStart(int nPageStart)
+	{
+		this.nPageStart = nPageStart;
+	}
+
+	/***************************************
+	 * TODO: DOCUMENT ME!
+	 *
+	 * @param eAction TODO: DOCUMENT ME!
+	 */
+	protected void handleNavigation(NavigationAction eAction)
+	{
 	}
 }

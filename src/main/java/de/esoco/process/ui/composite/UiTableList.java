@@ -304,6 +304,36 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Update the rows of this table. This will also adjust the number of table
+	 * rows (i.e. add or remove rows) to match the size of the given data set.
+	 *
+	 * @param rRowDatas The data objects to update the rows from
+	 */
+	public void updateRows(Collection<T> rRowDatas)
+	{
+		int nRowIndex = 0;
+
+		for (T rData : rRowDatas)
+		{
+			if (nRowIndex < aRows.size())
+			{
+				aRows.get(nRowIndex).update(rData);
+			}
+			else
+			{
+				addRow(rData);
+			}
+
+			nRowIndex++;
+		}
+
+		while (nRowIndex < aRows.size())
+		{
+			removeRow(aRows.get(nRowIndex));
+		}
+	}
+
+	/***************************************
 	 * Sets the prefix to be used for column titles.
 	 *
 	 * @param  sPrefix The column title prefix

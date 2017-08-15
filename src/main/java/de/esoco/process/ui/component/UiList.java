@@ -16,8 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiSingleSelectionList;
 
@@ -44,5 +46,22 @@ public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
 	public UiList(UiContainer<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype, ListStyle.LIST);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the event handler for selection confirmed events (e.g. by double
+	 * click) of this list.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiList<T> onSelectionConfirmed(
+		ValueEventHandler<T> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										rEventHandler);
 	}
 }
