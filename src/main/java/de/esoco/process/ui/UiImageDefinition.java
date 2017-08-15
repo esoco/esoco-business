@@ -16,52 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.TextAttribute;
-
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-
-
 /********************************************************************
- * Base class for read-only text components.
+ * A data object that contains a reference to an image
  *
  * @author eso
  */
-public abstract class UiTextComponent<C extends UiTextComponent<C>>
-	extends UiComponent<String, C> implements TextAttribute
+public class UiImageDefinition extends UiElement<UiImageDefinition>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
-	 *
-	 * @param rParent The parent container
-	 * @param sText   The initial component text
 	 */
-	public UiTextComponent(UiContainer<?> rParent, String sText)
+	public UiImageDefinition()
 	{
-		super(rParent, String.class);
-
-		setText(sText);
-		set(HIDE_LABEL);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getText()
-	{
-		return getValueImpl();
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setText(String sText)
-	{
-		setValueImpl(sText);
 	}
 }

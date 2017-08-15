@@ -583,7 +583,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		public UiBuilder<?> contentBuilder()
 		{
-			return builder();
+			return rRowItem.builder();
 		}
 
 		/***************************************

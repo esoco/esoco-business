@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.TitleAttribute;
 
@@ -27,6 +29,10 @@ import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
+
+import static de.esoco.lib.property.ContentProperties.ICON;
+import static de.esoco.lib.property.LayoutProperties.ICON_ALIGN;
+import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 
 
 /********************************************************************
@@ -56,7 +62,9 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	{
 		super(rParent, new CardLayout());
 
-		aCardTitle = new UiTitle(this, sTitle);
+		aCardTitle =
+			new UiTitle(this, sTitle).set(ICON, "HELP")
+									 .set(ICON_ALIGN, Alignment.END);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -69,8 +77,17 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	 */
 	public UiBuilder<?> backSideBuilder()
 	{
-		aBackSide = builder().addPanel(new UiSecondaryContentLayout());
-		aBackSide.builder().addButton("X");
+		if (aBackSide == null)
+		{
+			aBackSide = builder().addPanel(new UiSecondaryContentLayout());
+
+			aBackSide.builder()
+					 .addButton("")
+					 .set(ICON, "CLOSE")
+					 .set(BUTTON_STYLE, ButtonStyle.ICON)
+					 .set(ICON_ALIGN, Alignment.END)
+					 .onClick(v -> handleBackSideClose());
+		}
 
 		return aBackSide.builder();
 	}
@@ -82,7 +99,10 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	 */
 	public UiBuilder<?> cardActionBuilder()
 	{
-		aCardActions = builder().addPanel(new UiFooterLayout());
+		if (aCardActions == null)
+		{
+			aCardActions = builder().addPanel(new UiFooterLayout());
+		}
 
 		return aCardActions.builder();
 	}
@@ -113,6 +133,14 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	public void setTitle(String sTitle)
 	{
 		aCardTitle.setText(sTitle);
+	}
+
+	/***************************************
+	 * Will be invoked if the card back side has been displayed and is closed by
+	 * the user. The default implementation does nothing.
+	 */
+	protected void handleBackSideClose()
+	{
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

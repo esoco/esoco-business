@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.CheckBoxStyle;
 import de.esoco.lib.property.Selectable;
 import de.esoco.lib.property.TextAttribute;
 
@@ -23,6 +24,7 @@ import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
@@ -68,6 +70,16 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	public boolean isSelected()
 	{
 		return fragment().getParameter(type()).booleanValue();
+	}
+
+	/***************************************
+	 * Sets the style of this check box.
+	 *
+	 * @param eStyle The new check box style
+	 */
+	public void setCheckBoxStyle(CheckBoxStyle eStyle)
+	{
+		set(CHECK_BOX_STYLE, eStyle);
 	}
 
 	/***************************************
