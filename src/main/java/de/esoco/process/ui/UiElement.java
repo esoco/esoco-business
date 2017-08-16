@@ -54,14 +54,13 @@ public class UiElement<E extends UiElement<E>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Applies the properties of this element to the given component if they are
-	 * not already set.
+	 * Applies the properties of this element to the given component.
 	 *
 	 * @param rComponent The target component
 	 */
 	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
-		rComponent.setProperties(aProperties, false);
+		rComponent.setProperties(aProperties, true);
 	}
 
 	/***************************************

@@ -520,11 +520,11 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		@Override
 		public void applyPropertiesTo(UiComponent<?, ?> rComponent)
 		{
-			super.applyPropertiesTo(rComponent);
-
-			rRow.applyPropertiesTo(rComponent);
-			rColumn.applyPropertiesTo(rComponent);
 			getLayout().applyPropertiesTo(rComponent);
+			rColumn.applyPropertiesTo(rComponent);
+			rRow.applyPropertiesTo(rComponent);
+
+			super.applyPropertiesTo(rComponent);
 		}
 
 		/***************************************

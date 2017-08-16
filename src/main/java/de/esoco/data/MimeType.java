@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ public enum MimeType
 	GZIP("application/gzip", ".gz .gzip"), IMAGE_BMP("image/bmp", ".bmp"),
 	IMAGE_GIF("image/gif", ".gif"),
 	IMAGE_JPEG("image/jpeg", ".jpg .jpeg .jpe .jfif"),
+	IMAGE_PNG("image/png", ".png"),
 	IMAGE_PSD("image/vnd.adobe.photoshop", ".psd"),
 	IMAGE_SVG("image/svg+xml", ".svg .svgz"),
 	IMAGE_TGA("image/x-targa", ".tga"), IMAGE_TIFF("image/tiff", ".tiff .tif"),

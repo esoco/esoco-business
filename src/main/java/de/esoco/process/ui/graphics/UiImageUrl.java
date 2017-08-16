@@ -14,32 +14,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.graphics;
 
-import static de.esoco.lib.property.ContentProperties.ICON;
+import de.esoco.process.ui.UiImageDefinition;
+
 import static de.esoco.lib.property.ContentProperties.IMAGE;
 
 
 /********************************************************************
- * The base class for the definition of images to be used in UI components.
+ * An image that is reference by a URL.
  *
  * @author eso
  */
-public abstract class UiImageDefinition<E extends UiImageDefinition<E>>
-	extends UiElement<E>
+public class UiImageUrl extends UiImageDefinition<UiImageUrl>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Creates a new instance from a certain URL. The URL can either be
+	 * application-relative or absolute, in which case it must start with
+	 * http:// (or https://).
+	 *
+	 * @param sUrl The image URL
 	 */
-	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	public UiImageUrl(String sUrl)
 	{
-		// remove properties related to image-data to prevent conflict when
-		// the image type has changed
-		rComponent.remove(IMAGE, ICON);
-
-		super.applyPropertiesTo(rComponent);
+		set(IMAGE, "f:" + sUrl);
 	}
 }

@@ -21,6 +21,7 @@ import de.esoco.entity.Entity;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiImageDefinition;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiButton;
 import de.esoco.process.ui.component.UiCalendar;
@@ -30,6 +31,8 @@ import de.esoco.process.ui.component.UiComboBox;
 import de.esoco.process.ui.component.UiDateField;
 import de.esoco.process.ui.component.UiDecimalField;
 import de.esoco.process.ui.component.UiDropDown;
+import de.esoco.process.ui.component.UiIcon;
+import de.esoco.process.ui.component.UiImage;
 import de.esoco.process.ui.component.UiIntegerField;
 import de.esoco.process.ui.component.UiLabel;
 import de.esoco.process.ui.component.UiLink;
@@ -46,6 +49,7 @@ import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.component.UiWebPage;
+import de.esoco.process.ui.graphics.UiIconSupplier;
 
 import java.math.BigDecimal;
 
@@ -217,6 +221,30 @@ public class UiBuilder<C extends UiContainer<C>>
 	public <T> UiDropDown<T> addDropDown(Class<T> rDatatype)
 	{
 		return new UiDropDown<>(rContainer, rDatatype);
+	}
+
+	/***************************************
+	 * Adds a non-interactive icon.
+	 *
+	 * @param  rIconSupplier The icon supplier
+	 *
+	 * @return The new component
+	 */
+	public UiIcon addIcon(UiIconSupplier rIconSupplier)
+	{
+		return new UiIcon(rContainer, rIconSupplier);
+	}
+
+	/***************************************
+	 * Adds a non-interactive image.
+	 *
+	 * @param  rImage The image definition
+	 *
+	 * @return The new component
+	 */
+	public UiImage addImage(UiImageDefinition<?> rImage)
+	{
+		return new UiImage(rContainer, rImage);
 	}
 
 	/***************************************

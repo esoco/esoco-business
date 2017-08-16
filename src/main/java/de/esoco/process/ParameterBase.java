@@ -850,19 +850,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
-	 * Removes a certain property.
-	 *
-	 * @see ProcessFragment#setUIFlag(PropertyName, RelationType...)
-	 */
-	@SuppressWarnings("unchecked")
-	public final P remove(PropertyName<?> rProperty)
-	{
-		rFragment.removeUIProperties(rParamType);
-
-		return (P) this;
-	}
-
-	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#ROWS}.
 	 *
 	 * @param  nRows the number of rows.

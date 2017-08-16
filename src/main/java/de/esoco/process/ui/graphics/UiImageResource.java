@@ -14,32 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.graphics;
 
-import static de.esoco.lib.property.ContentProperties.ICON;
-import static de.esoco.lib.property.ContentProperties.IMAGE;
+import de.esoco.process.ui.UiImageDefinition;
+
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 
 
 /********************************************************************
- * The base class for the definition of images to be used in UI components.
+ * An image that is defined in the application resource. The resource name is
+ * derived from the component's resource ID.
  *
  * @author eso
  */
-public abstract class UiImageDefinition<E extends UiImageDefinition<E>>
-	extends UiElement<E>
+public class UiImageResource extends UiImageDefinition<UiImageResource>
 {
-	//~ Methods ----------------------------------------------------------------
+	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Creates a new instance with a certain resource ID. The argument ID will
+	 * override any existing resource ID of component the image is set on. Use
+	 * NULL to keep existing IDs.
+	 *
+	 * @param sResourceId The resource ID
 	 */
-	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	public UiImageResource(String sResourceId)
 	{
-		// remove properties related to image-data to prevent conflict when
-		// the image type has changed
-		rComponent.remove(IMAGE, ICON);
+		if (sResourceId != null)
+		{
+			set(RESOURCE_ID, sResourceId);
+		}
 
-		super.applyPropertiesTo(rComponent);
+		set(HAS_IMAGES);
 	}
 }

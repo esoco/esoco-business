@@ -16,49 +16,51 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.CheckBoxStyle;
-import de.esoco.lib.property.ListStyle;
+import de.esoco.lib.property.LabelStyle;
 
+import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiMultiSelectionButtonGroup;
+import de.esoco.process.ui.UiImageDefinition;
 
-import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
+import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
 /********************************************************************
- * A group of checkboxes that have a selection state that can be toggled
- * independent from each other (other than {@link RadioButtonGroup} where the
- * selection is mutually exclusive). The datatype defines the type of the button
- * labels. Typically string and enum values are supported.
+ * A component that displays an image.
  *
  * @author eso
  */
-public class UiCheckBoxes<T>
-	extends UiMultiSelectionButtonGroup<T, UiCheckBoxes<T>>
+public class UiImage extends UiComponent<String, UiImage>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as buttons.
+	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the check box labels
+	 * @param rParent The parent container
+	 * @param rImage  The initial image
 	 */
-	public UiCheckBoxes(UiContainer<?> rParent, Class<T> rDatatype)
+	public UiImage(UiContainer<?> rParent, UiImageDefinition<?> rImage)
 	{
-		super(rParent, rDatatype, ListStyle.DISCRETE);
+		super(rParent, String.class);
+
+		setImage(rImage);
+		set(HIDE_LABEL);
+		set(LABEL_STYLE, LabelStyle.IMAGE);
+		set(HAS_IMAGES);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the style of this check box.
+	 * Sets the image to be displayed.
 	 *
-	 * @param eStyle The new check box style
+	 * @param rImage The component's image.
 	 */
-	public void setCheckBoxStyle(CheckBoxStyle eStyle)
+	public void setImage(UiImageDefinition<?> rImage)
 	{
-		set(CHECK_BOX_STYLE, eStyle);
+		super.image(rImage);
 	}
 }

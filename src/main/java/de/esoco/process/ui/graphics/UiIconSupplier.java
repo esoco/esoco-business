@@ -14,32 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
-
-import static de.esoco.lib.property.ContentProperties.ICON;
-import static de.esoco.lib.property.ContentProperties.IMAGE;
-
+package de.esoco.process.ui.graphics;
 
 /********************************************************************
- * The base class for the definition of images to be used in UI components.
+ * An interface that provides access to an {@link UiIconDefinition}. This can be
+ * implemented by enumerations of icon names to provide access to an icon
+ * instance initialized with the respective name.
  *
  * @author eso
  */
-public abstract class UiImageDefinition<E extends UiImageDefinition<E>>
-	extends UiElement<E>
+public interface UiIconSupplier
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Returns the UI icon.
+	 *
+	 * @return The icon
 	 */
-	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
-	{
-		// remove properties related to image-data to prevent conflict when
-		// the image type has changed
-		rComponent.remove(IMAGE, ICON);
-
-		super.applyPropertiesTo(rComponent);
-	}
+	public UiIconDefinition getIcon();
 }

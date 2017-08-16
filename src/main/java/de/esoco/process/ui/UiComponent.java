@@ -44,8 +44,10 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	//~ Instance fields --------------------------------------------------------
 
 	private final UiContainer<?> rParent;
+
 	private UiLayout.Cell		 rLayoutCell;
 	private UiStyle				 aStyle = new UiStyle();
+	private UiImageDefinition<?> rImage = null;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -228,6 +230,11 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		{
 			rLayoutCell.applyPropertiesTo(this);
 		}
+
+		if (rImage != null)
+		{
+			rImage.applyPropertiesTo(this);
+		}
 	}
 
 	/***************************************
@@ -274,6 +281,24 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	protected final T getValueImpl()
 	{
 		return fragment().getParameter(type());
+	}
+
+	/***************************************
+	 * Sets an image for this component. This method is protected to provide the
+	 * image handling functionality for all subclasses. Subclasses that support
+	 * the setting of images should override this method as public.
+	 *
+	 * @param  rImage The component image
+	 *
+	 * @return This instance so that this method can be used for fluent
+	 *         implementations
+	 */
+	@SuppressWarnings("unchecked")
+	protected C image(UiImageDefinition<?> rImage)
+	{
+		this.rImage = rImage;
+
+		return (C) this;
 	}
 
 	/***************************************

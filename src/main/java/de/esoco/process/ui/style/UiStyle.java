@@ -17,6 +17,7 @@
 package de.esoco.process.ui.style;
 
 import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.Color;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.ui.UiComponent;
@@ -96,13 +97,13 @@ public class UiStyle extends UiElement<UiStyle>
 	/***************************************
 	 * Sets the background color.
 	 *
-	 * @param  sColor The HTML color string
+	 * @param  rColor The HTML color string
 	 *
 	 * @return This instance for concatenation
 	 */
-	public UiStyle backgroundColor(String sColor)
+	public UiStyle backgroundColor(Color rColor)
 	{
-		return css("backgroundColor", sColor);
+		return css("backgroundColor", rColor.toHtml());
 	}
 
 	/***************************************
@@ -170,13 +171,13 @@ public class UiStyle extends UiElement<UiStyle>
 	/***************************************
 	 * Sets the foreground color.
 	 *
-	 * @param  sColor The HTML color string
+	 * @param  rColor The HTML color string
 	 *
 	 * @return This instance for concatenation
 	 */
-	public UiStyle foregroundColor(String sColor)
+	public UiStyle foregroundColor(Color rColor)
 	{
-		return css("color", sColor);
+		return css("color", rColor.toHtml());
 	}
 
 	/***************************************

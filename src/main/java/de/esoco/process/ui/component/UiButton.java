@@ -21,6 +21,8 @@ import de.esoco.lib.property.TextAttribute;
 
 import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiImageDefinition;
+import de.esoco.process.ui.graphics.UiIconSupplier;
 
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
@@ -47,11 +49,22 @@ public class UiButton extends UiButtonControl<String, UiButton>
 		super(rParent, String.class);
 
 		setText(sLabel);
-		setStyle(ButtonStyle.DEFAULT);
 		set(HIDE_LABEL);
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the button style.
+	 *
+	 * @param  eStyle The new style
+	 *
+	 * @return This instance
+	 */
+	public UiButton buttonStyle(ButtonStyle eStyle)
+	{
+		return set(BUTTON_STYLE, eStyle);
+	}
 
 	/***************************************
 	 * {@inheritDoc}
@@ -63,13 +76,32 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	}
 
 	/***************************************
-	 * Sets the button style.
+	 * Sets an icon for the button. If both image and text are set both may be
+	 * displayed but that depends on the client-side UI toolkit. As icons are a
+	 * subclass of {@link UiImageDefinition} setting an icon will replace any
+	 * previously set image and vice versa.
 	 *
-	 * @param eStyle The new style
+	 * @param  rIconSupplier rImage The button image
+	 *
+	 * @return This instance
 	 */
-	public void setStyle(ButtonStyle eStyle)
+	public UiButton icon(UiIconSupplier rIconSupplier)
 	{
-		set(BUTTON_STYLE, eStyle);
+		return image(rIconSupplier.getIcon());
+	}
+
+	/***************************************
+	 * Sets the button image. If both image and text are set both may be
+	 * displayed but that depends on the client-side UI toolkit.
+	 *
+	 * @param  rImage The button image
+	 *
+	 * @return This instance
+	 */
+	@Override
+	public UiButton image(UiImageDefinition<?> rImage)
+	{
+		return super.image(rImage);
 	}
 
 	/***************************************

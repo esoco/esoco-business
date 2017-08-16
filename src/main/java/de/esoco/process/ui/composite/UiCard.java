@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
-import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.TitleAttribute;
@@ -27,12 +26,10 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.graphics.MaterialIcon;
+import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
-
-import static de.esoco.lib.property.ContentProperties.ICON;
-import static de.esoco.lib.property.LayoutProperties.ICON_ALIGN;
-import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 
 
 /********************************************************************
@@ -46,7 +43,7 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private UiTitle		  aCardTitle;
+	private UiCardTitle   aCardTitle;
 	private UiLayoutPanel aBackSide;
 	private UiLayoutPanel aCardActions;
 
@@ -62,9 +59,7 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	{
 		super(rParent, new CardLayout());
 
-		aCardTitle =
-			new UiTitle(this, sTitle).set(ICON, "HELP")
-									 .set(ICON_ALIGN, Alignment.END);
+		aCardTitle = new UiCardTitle(this, sTitle);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -83,9 +78,8 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 
 			aBackSide.builder()
 					 .addButton("")
-					 .set(ICON, "CLOSE")
-					 .set(BUTTON_STYLE, ButtonStyle.ICON)
-					 .set(ICON_ALIGN, Alignment.END)
+					 .icon(MaterialIcon.CLOSE.getIcon().alignRight())
+					 .buttonStyle(ButtonStyle.ICON)
 					 .onClick(v -> handleBackSideClose());
 		}
 
@@ -127,6 +121,20 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	}
 
 	/***************************************
+	 * Sets the icon to be displayed in the upper right corner of the card.
+	 *
+	 * @param  rIconSupplier A icon supplier that returns the card icon
+	 *
+	 * @return This instance
+	 */
+	public UiCard icon(UiIconSupplier rIconSupplier)
+	{
+		aCardTitle.icon(rIconSupplier);
+
+		return this;
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -144,6 +152,41 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * The card title component.
+	 *
+	 * @author eso
+	 */
+	public static class UiCardTitle extends UiTitle
+	{
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param rParent The parent container
+		 * @param sText   The title text
+		 */
+		public UiCardTitle(UiContainer<?> rParent, String sText)
+		{
+			super(rParent, sText);
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Sets the title icon.
+		 *
+		 * @param  rIconSupplier The title icon
+		 *
+		 * @return This instance
+		 */
+		public UiCardTitle icon(UiIconSupplier rIconSupplier)
+		{
+			return (UiCardTitle) image(rIconSupplier.getIcon().alignRight());
+		}
+	}
 
 	/********************************************************************
 	 * The layout for UI cards.

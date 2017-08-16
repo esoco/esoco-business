@@ -165,6 +165,21 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
+	 * Removes certain properties from the wrapped parameter.
+	 *
+	 * @param  rProperties The names of the properties to remove
+	 *
+	 * @return This instance for concatenation
+	 */
+	@SuppressWarnings("unchecked")
+	public final P remove(PropertyName<?>... rProperties)
+	{
+		rFragment.removeUIProperties(rParamType, rProperties);
+
+		return (P) this;
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#RESOURCE_ID}.
 	 *
 	 * @param  sResourceId sWidth The resource ID string

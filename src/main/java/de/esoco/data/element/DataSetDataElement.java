@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.lib.model.DataSet;
+import de.esoco.lib.property.Color;
 import de.esoco.lib.property.PropertyName;
 
 import java.util.Set;
@@ -61,9 +62,9 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	public static final PropertyName<LegendPosition> CHART_LEGEND_POSITION =
 		PropertyName.newEnumName("CHART_LEGEND_POSITION", LegendPosition.class);
 
-	/** String property: the chart background color */
-	public static final PropertyName<String> CHART_BACKGROUND =
-		PropertyName.newStringName("CHART_BACKGROUND");
+	/** The chart background color */
+	public static final PropertyName<Color> CHART_BACKGROUND =
+		PropertyName.newName("CHART_BACKGROUND", Color.class);
 
 	/** Boolean property: display chart in 3D */
 	public static final PropertyName<Boolean> CHART_3D =
@@ -110,7 +111,7 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	{
 		this(sName, aDataSet, DISPLAY_FLAGS);
 
-		setProperty(CHART_BACKGROUND, sBackgroundColor);
+		setProperty(CHART_BACKGROUND, Color.valueOf(sBackgroundColor));
 		setProperty(CHART_LEGEND_POSITION, eLegendPosition);
 		setProperty(CHART_TYPE, eChartType);
 
