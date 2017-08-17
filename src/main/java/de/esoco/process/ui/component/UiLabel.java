@@ -49,7 +49,8 @@ public class UiLabel extends UiTextComponent<UiLabel>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets a caption label to be displayed over the label text.
+	 * Sets a caption label to be displayed over the label text (if supported by
+	 * the container layout).
 	 *
 	 * @param sCaption The caption label
 	 */
