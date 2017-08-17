@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
-import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.TitleAttribute;
 
@@ -26,8 +25,8 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
-import de.esoco.process.ui.graphics.UiMaterialIcon;
 import de.esoco.process.ui.graphics.UiIconSupplier;
+import de.esoco.process.ui.graphics.UiStandardIcon;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
 
@@ -65,8 +64,27 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Adds a close icon button to the back side of this card. If the back side
+	 * has not been added yet it will be by this call. If the back side is
+	 * closed the method {@link #handleBackSideClose()} will be invoked.
+	 */
+	public void addBackSideCloser()
+	{
+		backSideBuilder().addIconButton(UiStandardIcon.CLOSE.getIcon()
+										.alignRight())
+						 .onClick(v -> handleBackSideClose());
+	}
+
+	/***************************************
 	 * Returns a builder for the optional back side of a card. If set the back
-	 * side will be displayed when the user clicks on the card title icon.
+	 * side will be displayed when the user clicks on the card icon (which must
+	 * therefore be set). Furthermore the back side must contain an interactive
+	 * component (typically a button) with a registered action listener so that
+	 * it can be closed and the display switched back to the front side. This is
+	 * not done by the framework to not impose a fixed layout. But a standard
+	 * close button can be added by invoking {@link #addBackSideCloser()}. To
+	 * achieve a standard layout this should then be the first call before
+	 * adding further back side content.
 	 *
 	 * @return The back side builder
 	 */
@@ -75,19 +93,15 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 		if (aBackSide == null)
 		{
 			aBackSide = builder().addPanel(new UiSecondaryContentLayout());
-
-			aBackSide.builder()
-					 .addButton("")
-					 .icon(UiMaterialIcon.CLOSE.getIcon().alignRight())
-					 .buttonStyle(ButtonStyle.ICON)
-					 .onClick(v -> handleBackSideClose());
 		}
 
 		return aBackSide.builder();
 	}
 
 	/***************************************
-	 * Returns the builder for the card actions.
+	 * Returns the builder for the actions area at the bottom of this card. This
+	 * are typically contains buttons that are used to confirm or cancel input
+	 * that has been performed in the content are.
 	 *
 	 * @return The panel content builder
 	 */
@@ -144,8 +158,9 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	}
 
 	/***************************************
-	 * Will be invoked if the card back side has been displayed and is closed by
-	 * the user. The default implementation does nothing.
+	 * Will be invoked if the card's back side has been opened and is closed by
+	 * the user through the button added with {@link #addBackSideCloser()}. The
+	 * default implementation does nothing.
 	 */
 	protected void handleBackSideClose()
 	{

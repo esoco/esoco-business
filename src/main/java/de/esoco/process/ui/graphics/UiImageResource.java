@@ -18,8 +18,7 @@ package de.esoco.process.ui.graphics;
 
 import de.esoco.process.ui.UiImageDefinition;
 
-import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
-import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
+import static de.esoco.lib.property.ContentProperties.IMAGE;
 
 
 /********************************************************************
@@ -33,19 +32,12 @@ public class UiImageResource extends UiImageDefinition<UiImageResource>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with a certain resource ID. The argument ID will
-	 * override any existing resource ID of component the image is set on. Use
-	 * NULL to keep existing IDs.
+	 * Creates a new instance with a certain resource ID.
 	 *
-	 * @param sResourceId The resource ID
+	 * @param sResourceId The image resource ID
 	 */
 	public UiImageResource(String sResourceId)
 	{
-		if (sResourceId != null)
-		{
-			set(RESOURCE_ID, sResourceId);
-		}
-
-		set(HAS_IMAGES);
+		set(IMAGE, "$" + sResourceId);
 	}
 }

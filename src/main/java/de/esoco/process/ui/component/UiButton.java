@@ -29,7 +29,7 @@ import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
 /********************************************************************
- * An interactive button control that represents a clickable link.
+ * An interactive button control that produces click events.
  *
  * @author eso
  */
@@ -81,7 +81,7 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	 * subclass of {@link UiImageDefinition} setting an icon will replace any
 	 * previously set image and vice versa.
 	 *
-	 * @param  rIconSupplier rImage The button image
+	 * @param  rIconSupplier The button icon
 	 *
 	 * @return This instance
 	 */

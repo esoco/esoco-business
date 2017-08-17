@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.graphics;
 
+import java.util.function.Function;
+
+
 /********************************************************************
  * Enumeration of material icons.
  *
@@ -211,7 +214,8 @@ public enum UiMaterialIcon implements UiIconSupplier
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns a new {@link UiIconDefinition} initialized from this enumeration constant.
+	 * Returns a new {@link UiIconDefinition} initialized from this enumeration
+	 * constant.
 	 *
 	 * @return The new icon
 	 */
@@ -219,5 +223,77 @@ public enum UiMaterialIcon implements UiIconSupplier
 	public UiIconDefinition getIcon()
 	{
 		return new UiIconDefinition(this);
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * Implements a mapping from standard icons to material icons.
+	 *
+	 * @author eso
+	 */
+	public static class StandardIconMapper
+		implements Function<UiStandardIcon, UiIconSupplier>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public UiIconSupplier apply(UiStandardIcon eStandardIcon)
+		{
+			switch (eStandardIcon)
+			{
+				case NEXT:
+					return NAVIGATE_NEXT;
+
+				case PREVIOUS:
+					return NAVIGATE_BEFORE;
+
+				case ARROW_LEFT:
+					return ARROW_BACK;
+
+				case ARROW_RIGHT:
+					return ARROW_FORWARD;
+
+				case ARROW_UP:
+					return ARROW_UPWARD;
+
+				case ARROW_DOWN:
+					return ARROW_DOWNWARD;
+
+				case LEFT:
+					return KEYBOARD_ARROW_LEFT;
+
+				case RIGHT:
+					return KEYBOARD_ARROW_RIGHT;
+
+				case UP:
+					return KEYBOARD_ARROW_UP;
+
+				case DOWN:
+					return KEYBOARD_ARROW_DOWN;
+
+				case PLAY:
+					return PLAY_ARROW;
+
+				case MORE_HORIZONTAL:
+					return MORE_HORIZ;
+
+				case MORE_VERTICAL:
+					return MORE_VERT;
+
+				default:
+					try
+					{
+						return valueOf(eStandardIcon.name());
+					}
+					catch (Exception e)
+					{
+						return ERROR;
+					}
+			}
+		}
 	}
 }

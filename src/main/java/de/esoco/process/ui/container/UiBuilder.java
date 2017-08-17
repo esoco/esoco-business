@@ -32,6 +32,7 @@ import de.esoco.process.ui.component.UiDateField;
 import de.esoco.process.ui.component.UiDecimalField;
 import de.esoco.process.ui.component.UiDropDown;
 import de.esoco.process.ui.component.UiIcon;
+import de.esoco.process.ui.component.UiIconButton;
 import de.esoco.process.ui.component.UiImage;
 import de.esoco.process.ui.component.UiIntegerField;
 import de.esoco.process.ui.component.UiLabel;
@@ -233,6 +234,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiIcon addIcon(UiIconSupplier rIconSupplier)
 	{
 		return new UiIcon(rContainer, rIconSupplier);
+	}
+
+	/***************************************
+	 * Adds a clickable icon button.
+	 *
+	 * @param  rIcon The button icon
+	 *
+	 * @return The new component
+	 */
+	public UiIconButton addIconButton(UiIconSupplier rIcon)
+	{
+		return new UiIconButton(rContainer, rIcon);
 	}
 
 	/***************************************

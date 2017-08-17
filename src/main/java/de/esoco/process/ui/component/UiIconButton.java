@@ -16,47 +16,49 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
-import de.esoco.lib.property.ListStyle;
-import de.esoco.lib.property.StyleProperties;
+import de.esoco.lib.property.ButtonStyle;
 
-import de.esoco.process.ui.UiButtonGroup;
+import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.graphics.UiIconSupplier;
+
+import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
 /********************************************************************
- * A group of buttons that can be pressed to cause action events. The datatype
- * defines the type of the button labels. Typically string and enum values are
- * supported.
+ * An interactive icon button that produces click events.
  *
  * @author eso
  */
-public class UiPushButtons<T> extends UiButtonGroup<T, UiPushButtons<T>>
+public class UiIconButton extends UiButtonControl<String, UiIconButton>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. If the datatype is an enum all enum values will
-	 * be pre-set as buttons.
+	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list values
+	 * @param rParent The parent container
+	 * @param rIcon   The icon
 	 */
-	public UiPushButtons(UiContainer<?> rParent, Class<T> rDatatype)
+	public UiIconButton(UiContainer<?> rParent, UiIconSupplier rIcon)
 	{
-		super(rParent, rDatatype, ListStyle.IMMEDIATE);
+		super(rParent, String.class);
+
+		setIcon(rIcon);
+		set(HIDE_LABEL);
+		set(BUTTON_STYLE, ButtonStyle.ICON);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Marks this button group as having images for the button faces. The images
-	 * must be defined in the application resource together with the button
-	 * labels with an "im" prefix.
+	 * Sets the icon of this button.
 	 *
-	 * @return This instance
+	 * @param rIconSupplier The button icon
 	 */
-	public UiPushButtons<T> withImages()
+	public void setIcon(UiIconSupplier rIconSupplier)
 	{
-		return set(StyleProperties.HAS_IMAGES);
+		image(rIconSupplier.getIcon());
 	}
 }
