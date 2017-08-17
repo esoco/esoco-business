@@ -462,8 +462,7 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
-	 * Updates this list to display to display the entities for the current
-	 * criteria.
+	 * Updates this list to display the entities for the current criteria.
 	 *
 	 * @throws StorageException If performing the query fails
 	 */
@@ -496,7 +495,8 @@ public class EntityList<E extends Entity,
 	{
 		if (rHeader != null)
 		{
-			rHeaderPanel.layout(LayoutType.LIST).resid("EntityListHeaderPanel")
+			rHeaderPanel.layout(LayoutType.LIST)
+						.resid("EntityListHeaderPanel")
 						.set(LIST_LAYOUT_STYLE, ListLayoutStyle.SIMPLE);
 
 			rHeaderPanel.panel(rHeader);

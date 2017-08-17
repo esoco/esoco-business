@@ -16,16 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.property.Updatable;
+
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.component.UiButton;
 import de.esoco.process.ui.component.UiDropDown;
+import de.esoco.process.ui.component.UiIconButton;
 import de.esoco.process.ui.component.UiLabel;
+import de.esoco.process.ui.graphics.UiIconSupplier;
+import de.esoco.process.ui.graphics.UiStandardIcon;
 import de.esoco.process.ui.layout.UiTableLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 
 /********************************************************************
@@ -36,16 +39,6 @@ import java.util.function.Consumer;
  */
 public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 {
-	//~ Enums ------------------------------------------------------------------
-
-	/********************************************************************
-	 * Enumeration of paging navigation action.
-	 */
-	private enum NavigationAction
-	{
-		FIRST_PAGE, PREVIOUS_PAGE, NEXT_PAGE, LAST_PAGE
-	}
-
 	//~ Static fields/initializers ---------------------------------------------
 
 	/**
@@ -57,44 +50,51 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Consumer<Integer> fPageChangeHandler;
+	private Updatable rNavigationListener;
 
 	private int   nPageStart = 0;
 	private int   nPageSize  = 10;
+	private int   nTotalSize = 0;
 	private int[] aPageSizes = null;
 
 	private UiDropDown<String> aPageSizeSelector;
-	private UiButton		   aFirstPageButton;
-
-	private UiLabel aNavPosition;
+	private UiIconButton	   aFirstPageButton;
+	private UiIconButton	   aPreviousButton;
+	private UiLabel			   aNavPosition;
+	private UiIconButton	   aNextButton;
+	private UiIconButton	   aLastPageButton;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent            The parent container
-	 * @param fPageChangeHandler A consumer to be invoked with the start index
-	 *                           of a page after a paging event
+	 * @param rParent             The parent container
+	 * @param rNavigationListener fPageChangeHandler A consumer to be invoked
+	 *                            with the start index of a page after a paging
+	 *                            event
 	 */
 	public UiPagingNavigation(
-		UiContainer<?>    rParent,
-		Consumer<Integer> fPageChangeHandler)
+		UiContainer<?> rParent,
+		Updatable	   rNavigationListener)
 	{
 		super(rParent, new UiTableLayout(6));
 
-		this.fPageChangeHandler = fPageChangeHandler;
+		this.rNavigationListener = rNavigationListener;
 
 		aFirstPageButton =
-			builder().addButton("<<")
-					 .onClick(v -> handleNavigation(NavigationAction.FIRST_PAGE));
-		builder().addButton("<")
-				 .onClick(v -> handleNavigation(NavigationAction.PREVIOUS_PAGE));
-		aNavPosition = builder().addLabel("");
-		builder().addButton(">")
-				 .onClick(v -> handleNavigation(NavigationAction.NEXT_PAGE));
-		builder().addButton(">>")
-				 .onClick(v -> handleNavigation(NavigationAction.LAST_PAGE));
+			builder().addIconButton(UiStandardIcon.FIRST_PAGE)
+					 .onClick(a -> handleNavigation(a));
+		aPreviousButton  =
+			builder().addIconButton(UiStandardIcon.PREVIOUS)
+					 .onClick(a -> handleNavigation(a));
+		aNavPosition     = builder().addLabel("");
+		aNextButton		 =
+			builder().addIconButton(UiStandardIcon.NEXT)
+					 .onClick(a -> handleNavigation(a));
+		aLastPageButton  =
+			builder().addIconButton(UiStandardIcon.LAST_PAGE)
+					 .onClick(a -> handleNavigation(a));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -144,13 +144,10 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	 * Sets the page sizes that can be selected by the user. If set to NULL no
 	 * page size selection will be available.
 	 *
-	 * @param fPageSizeHandler A handler for page size changes.
-	 * @param rPageSizes       The selectable page sizes or NULL to hide the
-	 *                         page size selection
+	 * @param rPageSizes The selectable page sizes or NULL to hide the page size
+	 *                   selection
 	 */
-	public final void setPageSizes(
-		Consumer<Integer> fPageSizeHandler,
-		int... 			  rPageSizes)
+	public final void setPageSizes(int... rPageSizes)
 	{
 		this.aPageSizes = rPageSizes;
 
@@ -161,9 +158,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 				aPageSizeSelector =
 					builder().addDropDown(String.class)
 							 .setVisible(false)
-							 .onSelection(sPageSize ->
-										  fPageSizeHandler.accept(Integer
-																  .valueOf(sPageSize)));
+							 .onSelection(v -> rNavigationListener.update());
 				aPageSizeSelector.placeBefore(aFirstPageButton);
 			}
 
@@ -195,11 +190,89 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	}
 
 	/***************************************
-	 * TODO: DOCUMENT ME!
+	 * Sets the total size of data available.
 	 *
-	 * @param eAction TODO: DOCUMENT ME!
+	 * @param nSize The new total data size
 	 */
-	protected void handleNavigation(NavigationAction eAction)
+	public final void setTotalSize(int nSize)
 	{
+		this.nTotalSize = nSize;
+	}
+
+	/***************************************
+	 * Handles the navigation.
+	 *
+	 * @param eAction The navigation action icon
+	 */
+	protected void handleNavigation(UiIconSupplier eAction)
+	{
+		int nMax = Math.max(0, nTotalSize - nPageSize);
+
+		switch ((UiStandardIcon) eAction)
+		{
+			case FIRST_PAGE:
+				nPageStart = 0;
+				break;
+
+			case PREVIOUS:
+				nPageStart = Math.max(0, nPageStart - nPageSize);
+				break;
+
+			case NEXT:
+				nPageStart = Math.min(nMax, nPageStart + nPageSize);
+				break;
+
+			case LAST_PAGE:
+				nPageStart = nMax;
+				break;
+
+			default:
+				assert false;
+		}
+
+		rNavigationListener.update();
+	}
+
+	/***************************************
+	 * Updates the indicator of the current navigation position.
+	 */
+	@SuppressWarnings("boxing")
+	void update()
+	{
+		boolean bShowControls = nTotalSize > nPageSize;
+		String  sPosition     = "";
+
+		if (nTotalSize > 5)
+		{
+			int nLast = Math.min(nPageStart + nPageSize, nTotalSize);
+
+			sPosition =
+				String.format("$$%d - %d {$lblPositionOfCount} %d",
+							  nPageStart + 1,
+							  nLast,
+							  nTotalSize);
+		}
+		else if (nTotalSize == 0)
+		{
+			sPosition = "$lbl";
+
+//			if (pExtraCriteria != null || sGlobalFilter != null)
+//			{
+//				sPosition += "NoMatch";
+//			}
+//			else
+//			{
+//				sPosition += "Empty";
+//			}
+		}
+
+		aPageSizeSelector.setVisible(bShowControls);
+		aFirstPageButton.setVisible(bShowControls);
+		aLastPageButton.setVisible(bShowControls);
+		aPreviousButton.setVisible(bShowControls);
+		aNextButton.setVisible(bShowControls);
+		aNavPosition.setVisible(nTotalSize == 0 || nTotalSize > 5);
+
+		aNavPosition.setText(sPosition);
 	}
 }

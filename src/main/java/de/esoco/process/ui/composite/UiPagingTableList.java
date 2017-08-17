@@ -66,10 +66,9 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 		super(rParent, new UiFlowLayout());
 
 		aTable	    = new UiTableList<>(this, eExpandStyle);
-		aNavigation = new UiPagingNavigation(rParent, this::handlePageChange);
+		aNavigation = new UiPagingNavigation(rParent, this::update);
 
-		aNavigation.setPageSizes(this::handlePageSizeChange,
-								 UiPagingNavigation.DEFAULT_PAGE_SIZES);
+		aNavigation.setPageSizes(UiPagingNavigation.DEFAULT_PAGE_SIZES);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -89,8 +88,8 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 	/***************************************
 	 * Displays data from the data provider in table rows.
 	 *
-	 * @param nStart nPageSize
-	 * @param nCount rPageStart TODO: DOCUMENT ME!
+	 * @param nStart The starting index of the data to display
+	 * @param nCount The number of rows to display
 	 */
 	protected void displayData(int nStart, int nCount)
 	{
@@ -100,20 +99,11 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 	}
 
 	/***************************************
-	 * Handles changes of the currently displayed page.
-	 *
-	 * @param nNewPageStart The starting index of the current page
+	 * Updates this list on events.
 	 */
-	private void handlePageChange(int nNewPageStart)
+	private void update()
 	{
-	}
-
-	/***************************************
-	 * Handles changes of the displayed page size.
-	 *
-	 * @param nNewPageStart The new page size
-	 */
-	private void handlePageSizeChange(int nNewPageStart)
-	{
+		aNavigation.setTotalSize(rDataProvider.size());
+		displayData(aNavigation.getPageStart(), aNavigation.getPageSize());
 	}
 }
