@@ -26,7 +26,7 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
-import de.esoco.process.ui.graphics.MaterialIcon;
+import de.esoco.process.ui.graphics.UiMaterialIcon;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
@@ -78,7 +78,7 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 
 			aBackSide.builder()
 					 .addButton("")
-					 .icon(MaterialIcon.CLOSE.getIcon().alignRight())
+					 .icon(UiMaterialIcon.CLOSE.getIcon().alignRight())
 					 .buttonStyle(ButtonStyle.ICON)
 					 .onClick(v -> handleBackSideClose());
 		}

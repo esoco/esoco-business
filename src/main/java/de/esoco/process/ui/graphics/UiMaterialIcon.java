@@ -22,7 +22,7 @@ package de.esoco.process.ui.graphics;
  * @see <a href="https://www.google.com/design/icons/#ic_3d_rotation">Material
  *      Design Icons</a>
  */
-public enum MaterialIcon implements UiIconSupplier
+public enum UiMaterialIcon implements UiIconSupplier
 {
 	AC_UNIT, ACCESS_ALARM, ACCESS_ALARMS, ACCESS_TIME, ACCESSIBILITY,
 	ACCESSIBLE, ACCOUNT_BALANCE, ACCOUNT_BALANCE_WALLET, ACCOUNT_BOX,

@@ -21,7 +21,7 @@ package de.esoco.process.ui.graphics;
  *
  * @see <a href="http://fontawesome.io">Font Awesome</a>
  */
-public enum FontAwesomeIcon implements UiIconSupplier
+public enum UiFontAwesomeIcon implements UiIconSupplier
 {
 	ADDRESS_BOOK('\uf2b9'), ADDRESS_BOOK_O('\uf2ba'), ADDRESS_CARD('\uf2bb'),
 	ADDRESS_CARD_O('\uf2bc'), ADJUST('\uf042'), ADN('\uf170'),
@@ -250,7 +250,7 @@ public enum FontAwesomeIcon implements UiIconSupplier
 	 *
 	 * @param cFontChar The character code in the font awesome icon font.
 	 */
-	private FontAwesomeIcon(char cFontChar)
+	private UiFontAwesomeIcon(char cFontChar)
 	{
 		this.cFontChar = cFontChar;
 	}
