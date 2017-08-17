@@ -211,6 +211,18 @@ public enum UiMaterialIcon implements UiIconSupplier
 	WIFI_TETHERING, WORK, WRAP_TEXT, YOUTUBE_SEARCHED_FOR, ZOOM_IN, ZOOM_OUT,
 	ZOOM_OUT_MAP;
 
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns a mapping function from standard icons to material icons.
+	 *
+	 * @return The mapping function
+	 */
+	public static Function<UiStandardIcon, UiIconSupplier> getStandardIconMapper()
+	{
+		return new StandardIconMapper();
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -232,7 +244,7 @@ public enum UiMaterialIcon implements UiIconSupplier
 	 *
 	 * @author eso
 	 */
-	public static class StandardIconMapper
+	private static class StandardIconMapper
 		implements Function<UiStandardIcon, UiIconSupplier>
 	{
 		//~ Methods ------------------------------------------------------------

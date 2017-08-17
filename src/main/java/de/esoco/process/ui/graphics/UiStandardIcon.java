@@ -22,8 +22,8 @@ import java.util.function.Function;
 /********************************************************************
  * An enumeration of some standard icons that are used internally by the process
  * UI API. Applications must register a mapping to a specific icon library by
- * invoking {@link #registerStandardIconMapping(Function)} to make the standard
- * icons available.
+ * invoking {@link #registerIconMapping(Function)} to make the standard icons
+ * available.
  */
 public enum UiStandardIcon implements UiIconSupplier
 {
@@ -40,12 +40,12 @@ public enum UiStandardIcon implements UiIconSupplier
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Registers an icon mapping that provides implementation icons for standard
+	 * Registers a mapping function that maps implementation icons to standard
 	 * icon constants.
 	 *
 	 * @param fMapping The icon mapping function
 	 */
-	public static void registerStandardIconMapping(
+	public static void registerIconMapping(
 		Function<UiStandardIcon, UiIconSupplier> fMapping)
 	{
 		fIconMapping = fMapping;

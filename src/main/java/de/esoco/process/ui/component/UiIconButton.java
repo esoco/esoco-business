@@ -31,7 +31,7 @@ import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
  *
  * @author eso
  */
-public class UiIconButton extends UiButtonControl<String, UiIconButton>
+public class UiIconButton extends UiButtonControl<UiIconSupplier, UiIconButton>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -43,8 +43,9 @@ public class UiIconButton extends UiButtonControl<String, UiIconButton>
 	 */
 	public UiIconButton(UiContainer<?> rParent, UiIconSupplier rIcon)
 	{
-		super(rParent, String.class);
+		super(rParent, UiIconSupplier.class);
 
+		setValueImpl(rIcon);
 		setIcon(rIcon);
 		set(HIDE_LABEL);
 		set(BUTTON_STYLE, ButtonStyle.ICON);
