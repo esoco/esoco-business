@@ -59,11 +59,19 @@ public class UiImage extends UiComponent<String, UiImage>
 	 * Sets a caption label to be displayed over the image (if supported by the
 	 * container layout).
 	 *
-	 * @param sCaption The caption label
+	 * @param sCaption The caption label or null for none
 	 */
 	public void setCaption(String sCaption)
 	{
-		clear(HIDE_LABEL);
+		if (sCaption != null)
+		{
+			clear(HIDE_LABEL);
+		}
+		else
+		{
+			set(HIDE_LABEL);
+		}
+
 		set(LABEL, sCaption);
 	}
 

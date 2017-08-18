@@ -84,17 +84,17 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 
 		aFirstPageButton =
 			builder().addIconButton(UiStandardIcon.FIRST_PAGE)
-					 .onClick(a -> handleNavigation(a));
+					 .onClick(v -> handleNavigation(UiStandardIcon.FIRST_PAGE));
 		aPreviousButton  =
 			builder().addIconButton(UiStandardIcon.PREVIOUS)
-					 .onClick(a -> handleNavigation(a));
+					 .onClick(v -> handleNavigation(UiStandardIcon.PREVIOUS));
 		aNavPosition     = builder().addLabel("");
 		aNextButton		 =
 			builder().addIconButton(UiStandardIcon.NEXT)
-					 .onClick(a -> handleNavigation(a));
+					 .onClick(v -> handleNavigation(UiStandardIcon.NEXT));
 		aLastPageButton  =
 			builder().addIconButton(UiStandardIcon.LAST_PAGE)
-					 .onClick(a -> handleNavigation(a));
+					 .onClick(v -> handleNavigation(UiStandardIcon.LAST_PAGE));
 	}
 
 	//~ Methods ----------------------------------------------------------------
