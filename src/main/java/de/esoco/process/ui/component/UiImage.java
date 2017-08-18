@@ -22,7 +22,6 @@ import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
 
-import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
@@ -56,6 +55,18 @@ public class UiImage extends UiComponent<String, UiImage>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Fluent variant of {@link #setCaption(String)}.
+	 *
+	 * @param  sCaption The image caption
+	 *
+	 * @return This instance
+	 */
+	public UiImage caption(String sCaption)
+	{
+		return applyComponentLabel(sCaption);
+	}
+
+	/***************************************
 	 * Sets a caption label to be displayed over the image (if supported by the
 	 * container layout).
 	 *
@@ -63,16 +74,7 @@ public class UiImage extends UiComponent<String, UiImage>
 	 */
 	public void setCaption(String sCaption)
 	{
-		if (sCaption != null)
-		{
-			clear(HIDE_LABEL);
-		}
-		else
-		{
-			set(HIDE_LABEL);
-		}
-
-		set(LABEL, sCaption);
+		caption(sCaption);
 	}
 
 	/***************************************

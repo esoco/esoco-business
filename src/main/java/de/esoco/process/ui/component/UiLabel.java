@@ -21,8 +21,6 @@ import de.esoco.lib.property.LabelStyle;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextComponent;
 
-import static de.esoco.lib.property.ContentProperties.LABEL;
-import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
@@ -49,6 +47,18 @@ public class UiLabel extends UiTextComponent<UiLabel>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Fluent variant of {@link #setCaption(String)}.
+	 *
+	 * @param  sCaption The caption label
+	 *
+	 * @return This instance
+	 */
+	public UiLabel caption(String sCaption)
+	{
+		return applyComponentLabel(sCaption);
+	}
+
+	/***************************************
 	 * Sets a caption label to be displayed over the label text (if supported by
 	 * the container layout).
 	 *
@@ -56,8 +66,7 @@ public class UiLabel extends UiTextComponent<UiLabel>
 	 */
 	public void setCaption(String sCaption)
 	{
-		clear(HIDE_LABEL);
-		set(LABEL, sCaption);
+		caption(sCaption);
 	}
 
 	/***************************************

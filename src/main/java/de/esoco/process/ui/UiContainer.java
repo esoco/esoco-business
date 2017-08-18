@@ -245,6 +245,17 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only work
+	 * for layouts that support multiple rows of components. Container
+	 * subclasses that want to expose this methods in their public API should
+	 * override it as public.
+	 */
+	protected void nextRow()
+	{
+		getLayout().nextRow();
+	}
+
+	/***************************************
 	 * Removes a component from this container.
 	 *
 	 * @param rComponent The component to remove

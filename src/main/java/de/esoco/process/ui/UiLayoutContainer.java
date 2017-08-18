@@ -80,9 +80,10 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only work
 	 * for layouts that support multiple rows of components.
 	 */
+	@Override
 	public void nextRow()
 	{
-		getLayout().nextRow();
+		super.nextRow();
 	}
 
 	/***************************************

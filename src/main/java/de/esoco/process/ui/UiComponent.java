@@ -29,8 +29,11 @@ import de.esoco.process.ui.style.UiStyle;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.SHOW_LABEL;
 
 
 /********************************************************************
@@ -214,6 +217,31 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	public C width(int nWidth, SizeUnit eUnit)
 	{
 		return size(HTML_WIDTH, nWidth, eUnit);
+	}
+
+	/***************************************
+	 * Internal method to apply a label to this component by setting the
+	 * appropriate properties. Can be invoked by methods from the public API of
+	 * subclasses that support labels or captions.
+	 *
+	 * @param  sLabel The label text or NULL for none
+	 *
+	 * @return This instance
+	 */
+	protected C applyComponentLabel(String sLabel)
+	{
+		if (sLabel != null)
+		{
+			clear(HIDE_LABEL);
+			set(SHOW_LABEL);
+		}
+		else
+		{
+			set(HIDE_LABEL);
+			clear(SHOW_LABEL);
+		}
+
+		return set(LABEL, sLabel);
 	}
 
 	/***************************************
