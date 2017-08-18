@@ -317,6 +317,13 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		aComponents.remove(rComponent);
 		aComponents.add(nIndex, rComponent);
 
+		List<RelationType<?>> rParams = fragment().getInteractionParameters();
+
+		RelationType<?> rComponentParam = rComponent.type();
+
+		rParams.remove(rComponentParam);
+		rParams.add(rParams.indexOf(rBeforeComponent.type()), rComponentParam);
+
 		componentListChanged();
 	}
 
