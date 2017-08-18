@@ -49,6 +49,7 @@ public class UiButton extends UiButtonControl<String, UiButton>
 		super(rParent, String.class);
 
 		setText(sLabel);
+		buttonStyle(ButtonStyle.DEFAULT);
 		set(HIDE_LABEL);
 	}
 
