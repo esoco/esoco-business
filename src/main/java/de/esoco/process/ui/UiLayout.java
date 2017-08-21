@@ -395,7 +395,12 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	{
 		if (rComponent.cell().bStartNewRow || nNextColumn >= aColumns.size())
 		{
-			proceedToNextRow();
+			// do not proceed on first layout cell (e.g. if nextRow() has been
+			// invoked on empty layout)
+			if (nCurrentRow > 0 || nNextColumn > 0)
+			{
+				proceedToNextRow();
+			}
 		}
 		else if (nNextColumn > 0)
 		{
@@ -617,13 +622,17 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		/***************************************
 		 * Sets the grid position at which this cell should be placed.
 		 *
-		 * @param nRow    The row index
-		 * @param nColumn The column index
+		 * @param  nRow    The row index
+		 * @param  nColumn The column index
+		 *
+		 * @return TODO: DOCUMENT ME!
 		 */
-		public void position(int nRow, int nColumn)
+		public Cell position(int nRow, int nColumn)
 		{
 			nRepositionRow    = nRow;
 			nRepositionColumn = nColumn;
+
+			return this;
 		}
 
 		/***************************************
@@ -648,6 +657,20 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public Cell rowSpan(int nRows)
 		{
 			return set(ROW_SPAN, nRows);
+		}
+
+		/***************************************
+		 * Marks a cell to start a new layout row. This can be used as an
+		 * alternative to {@link UiLayout#nextRow()}, for example when moving
+		 * components with {@link UiComponent#placeBefore(UiComponent)}.
+		 *
+		 * @return This instance for concatenation
+		 */
+		public Cell startNewRow()
+		{
+			bStartNewRow = true;
+
+			return this;
 		}
 
 		/***************************************
