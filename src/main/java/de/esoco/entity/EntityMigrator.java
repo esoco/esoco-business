@@ -412,7 +412,7 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 			if (rRule != null)
 			{
 				Object   rValue    = rRule.evaluate(rSource);
-				Class<?> rAttrType = rAttribute.getTargetType();
+				Class<?> rAttrType = rAttribute.getValueType();
 
 				if (Entity.class.isAssignableFrom(rAttrType))
 				{

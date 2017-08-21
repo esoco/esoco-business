@@ -809,7 +809,7 @@ public abstract class ProcessFragment extends ProcessElement
 		Collection<E>   rDisabledElements)
 	{
 		disableElements(rEnumParam,
-						(Class<E>) rEnumParam.getTargetType(),
+						(Class<E>) rEnumParam.getValueType(),
 						getAllowedValues(rEnumParam),
 						rDisabledElements);
 	}
@@ -1199,7 +1199,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
-			assert rParam.getTargetType() == List.class &&
+			assert rParam.getValueType() == List.class &&
 				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
 
@@ -1252,7 +1252,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
-			assert rParam.getTargetType() == rDatatype;
+			assert rParam.getValueType() == rDatatype;
 		}
 
 		getProcess().registerTemporaryParameterType(rParam);
@@ -1281,7 +1281,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		RelationType<T> aDerivedType =
-			getTemporaryParameterType(sName, rOriginalType.getTargetType());
+			getTemporaryParameterType(sName, rOriginalType.getValueType());
 
 		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
 
@@ -2630,7 +2630,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
-			assert rParam.getTargetType() == Set.class &&
+			assert rParam.getValueType() == Set.class &&
 				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
 
@@ -2954,7 +2954,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 			if (rExistingValues == null || rExistingValues.size() == 0)
 			{
-				Class<?> rDatatype = rParam.getTargetType();
+				Class<?> rDatatype = rParam.getValueType();
 
 				if (Collection.class.isAssignableFrom(rDatatype))
 				{

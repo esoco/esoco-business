@@ -115,7 +115,7 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 		RelationType<T> rParamType = type();
 
 		fragment().disableElements(rParamType,
-								   (Class<T>) rParamType.getTargetType(),
+								   (Class<T>) rParamType.getValueType(),
 								   fragment().getAllowedValues(type()),
 								   rDisabledButtons);
 

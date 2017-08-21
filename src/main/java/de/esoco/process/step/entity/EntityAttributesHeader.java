@@ -185,7 +185,7 @@ public class EntityAttributesHeader<E extends Entity>
 		InteractionFragment rFilterPanel,
 		RelationType<?>		rAttr)
 	{
-		Class<?>     rDatatype   = rAttr.getTargetType();
+		Class<?>     rDatatype   = rAttr.getValueType();
 		String		 sAttrName   = rAttr.getSimpleName();
 		Parameter<?> aAttrFilter = null;
 
@@ -256,7 +256,7 @@ public class EntityAttributesHeader<E extends Entity>
 		{
 			Predicate<? super E> pAttrCriterion;
 
-			if (rAttribute.getTargetType() == String.class)
+			if (rAttribute.getValueType() == String.class)
 			{
 				pAttrCriterion =
 					rAttribute.is(EntityList.createLikeFilter(rFilterValue

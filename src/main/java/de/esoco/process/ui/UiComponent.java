@@ -275,7 +275,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		rParent.addComponent(this);
 
 		RelationType<T>  rParamType = type();
-		Class<? super T> rDatatype  = rParamType.getTargetType();
+		Class<? super T> rDatatype  = rParamType.getValueType();
 
 		fragment().addDisplayParameters(rParamType);
 

@@ -123,7 +123,7 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 
 		@SuppressWarnings("unchecked")
 		QueryPredicate<E> qSelectableEntities =
-			forEntity((Class<E>) rTargetParam.getTargetType(),
+			forEntity((Class<E>) rTargetParam.getValueType(),
 					  pSelectableEntities);
 
 		aSelectEntity =

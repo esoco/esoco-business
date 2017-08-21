@@ -351,7 +351,7 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	{
 		for (RelationType<?> rParam : rParams)
 		{
-			Class<?> rDatatype = rParam.getTargetType();
+			Class<?> rDatatype = rParam.getValueType();
 
 			if (CharSequence.class.isAssignableFrom(rDatatype))
 			{
