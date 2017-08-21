@@ -179,6 +179,31 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 	}
 
 	/***************************************
+	 * Sets the index of the next entity to be returned by the combination of
+	 * calls to {@link #hasNext()} and {@link #next()}. If the index is invalid
+	 * for the current query {@link #hasNext()} will return FALSE. This is based
+	 * on {@link QueryResult#setPosition(int, boolean)}, so the same limitations
+	 * apply.
+	 *
+	 * @param nIndex    The new position of this iterator
+	 * @param bRelative TRUE to set the position relative to the current
+	 *                  position, FALSE to set an absolute position relative to
+	 *                  the full query
+	 */
+	public void setPosition(int nIndex, boolean bRelative)
+	{
+		try
+		{
+			checkPrepareQuery();
+			rQueryResult.setPosition(nIndex, bRelative);
+		}
+		catch (StorageException e)
+		{
+			handleError(e);
+		}
+	}
+
+	/***************************************
 	 * Returns the size of the query result this iterator represents.
 	 *
 	 * @return The query size
