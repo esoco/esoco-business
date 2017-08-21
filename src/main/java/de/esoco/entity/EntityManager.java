@@ -61,8 +61,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
@@ -1981,6 +1985,27 @@ public class EntityManager
 				throw new TransactionException("Could not store entity", e);
 			}
 		}
+	}
+
+	/***************************************
+	 * Returns a stream of entities for a certain query. <em>Important:</em> the
+	 * returned stream MUST be closed after use or else a resource leak will
+	 * occur. It is recommended to use it as the argument of a try-with-resource
+	 * block to ensure the stream is closed correctly.
+	 *
+	 * @param  qEntities The entity query
+	 *
+	 * @return A stream of entities
+	 */
+	public static <E extends Entity> Stream<E> stream(
+		QueryPredicate<E> qEntities)
+	{
+		EntityIterator<E> aIterator    = new EntityIterator<>(qEntities);
+		Spliterator<E>    aSpliterator =
+			Spliterators.spliterator(aIterator, (long) aIterator.size(), 0);
+
+		return StreamSupport.stream(aSpliterator, false)
+							.onClose(() -> aIterator.close());
 	}
 
 	/***************************************
