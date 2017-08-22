@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
-import de.esoco.lib.model.AttributeBinding;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.HasAttributeOrdering;
@@ -408,7 +407,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		//~ Instance fields ----------------------------------------------------
 
 		private Function<? super T, ?> fGetColumnData;
-		private AttributeBinding<T, ?> rAttribute = null;
+		private Class<?>			   rDatatype;
 
 		private UiLink aColumnTitle;
 
@@ -427,11 +426,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			super(rParent, new UiFlowLayout());
 
 			this.fGetColumnData = fGetColumnData;
-
-			if (fGetColumnData instanceof AttributeBinding)
-			{
-				rAttribute = (AttributeBinding<T, ?>) fGetColumnData;
-			}
 
 			aColumnTitle = new UiLink(this, deriveColumnTitle(fGetColumnData));
 			aColumnTitle.onClick(v -> handleColumnSelection());
@@ -506,15 +500,14 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		protected void handleColumnSelection()
 		{
-			if (rAttribute != null &&
-				Comparable.class.isAssignableFrom(rAttribute.getValueType()) &&
+			if (Comparable.class.isAssignableFrom(rDatatype) &&
 				rDataProvider instanceof HasAttributeOrdering)
 			{
 				HasAttributeOrdering<T> rAttrOrdering =
 					(HasAttributeOrdering<T>) rDataProvider;
 
 				OrderDirection eColumnOrder =
-					rAttrOrdering.getOrder(rAttribute);
+					rAttrOrdering.getOrder(fGetColumnData);
 
 				String sColumnStyle;
 
@@ -534,8 +527,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 					sColumnStyle = null;
 				}
 
-				rAttrOrdering.applyOrder((AttributeBinding<T, Comparable>)
-										 rAttribute,
+				rAttrOrdering.applyOrder((Function<T, Comparable>)
+										 fGetColumnData,
 										 eColumnOrder);
 
 				aColumnTitle.style().styleName(sColumnStyle);

@@ -19,7 +19,6 @@ package de.esoco.entity;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.model.AbstractDataProvider;
-import de.esoco.lib.model.AttributeBinding;
 import de.esoco.lib.model.DataProvider;
 
 import de.esoco.storage.QueryPredicate;
@@ -27,6 +26,7 @@ import de.esoco.storage.QueryPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import org.obrel.core.RelationType;
 
@@ -131,10 +131,10 @@ public class EntityDataProvider<E extends Entity>
 	{
 		de.esoco.lib.expression.Predicate<E> pCriteria = null;
 
-		for (Entry<AttributeBinding<E, ?>, java.util.function.Predicate<?>> rFilter :
+		for (Entry<Function<? super E, ?>, java.util.function.Predicate<?>> rFilter :
 			 getAttributeFilters().entrySet())
 		{
-			AttributeBinding<E, ?>		    rAttribute = rFilter.getKey();
+			Function<? super E, ?>		    rAttribute = rFilter.getKey();
 			java.util.function.Predicate<?> pFilter    = rFilter.getValue();
 
 			if (rAttribute instanceof RelationType &&
@@ -154,10 +154,10 @@ public class EntityDataProvider<E extends Entity>
 
 		Predicate<E> pOrdering = null;
 
-		for (Entry<AttributeBinding<E, ? extends Comparable<?>>, OrderDirection> rOrdering :
+		for (Entry<Function<? super E, ? extends Comparable<?>>, OrderDirection> rOrdering :
 			 getAttributeOrders().entrySet())
 		{
-			AttributeBinding<E, ?> rAttribute = rOrdering.getKey();
+			Function<? super E, ?> rAttribute = rOrdering.getKey();
 			OrderDirection		   eDirection = rOrdering.getValue();
 
 			if (rAttribute instanceof RelationType)
