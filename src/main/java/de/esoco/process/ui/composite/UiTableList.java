@@ -17,6 +17,7 @@
 package de.esoco.process.ui.composite;
 
 import de.esoco.lib.model.ColumnDefinition;
+import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.text.TextConvert;
@@ -36,9 +37,9 @@ import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.style.UiStyle;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -76,6 +77,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
+	private DataProvider<T> rDataProvider;
+
 	private UiListPanel   aHeaderPanel;
 	private UiLayoutPanel aTableHeader;
 	private UiListPanel   aDataList;
@@ -87,8 +90,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	private List<Column> aColumns = new ArrayList<>();
 	private List<Row>    aRows    = new ArrayList<>();
 
-	private Consumer<Column> fHandleColumnSelection;
-	private Consumer<Row>    fHandleRowSelection;
+	private BiConsumer<UiBuilder<?>, T> fRowContentBuilder;
+	private Consumer<Column>		    fHandleColumnSelection;
+	private Consumer<Row>			    fHandleRowSelection;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -158,53 +162,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * Adds a new row for a certain data object to this table.
-	 *
-	 * @param  rRowData The data object for the row
-	 *
-	 * @return The new row
-	 */
-	public Row addRow(T rRowData)
-	{
-		Objects.requireNonNull(rRowData);
-
-		Row rRow = createRow(aDataList.addItem(), rRowData);
-
-		aRows.add(rRow);
-
-		return rRow;
-	}
-
-	/***************************************
-	 * Adds multiple rows to this table.
-	 *
-	 * @param  rRowDatas The data objects for the rows
-	 *
-	 * @return The new rows
-	 */
-	public List<Row> addRows(Collection<T> rRowDatas)
-	{
-		List<Row> aRows = new ArrayList<>(rRowDatas.size());
-
-		for (T rRowData : rRowDatas)
-		{
-			aRows.add(addRow(rRowData));
-		}
-
-		return aRows;
-	}
-
-	/***************************************
-	 * Removes all rows from this table.
-	 */
-	@Override
-	public void clear()
-	{
-		aDataList.clear();
-		aRows.clear();
-	}
-
-	/***************************************
 	 * Returns the columns of this table.
 	 *
 	 * @return The column list
@@ -212,6 +169,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	public List<Column> getColumns()
 	{
 		return aColumns;
+	}
+
+	/***************************************
+	 * Returns the provider of the table data.
+	 *
+	 * @return The table row data provider
+	 */
+	public final DataProvider<T> getData()
+	{
+		return rDataProvider;
 	}
 
 	/***************************************
@@ -279,17 +246,41 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * Clears this table and then adds rows from a collection of data objects.
+	 * Sets the data provider of the table row data. This will immediately build
+	 * the table rows from the data so all necessary initializations of this
+	 * table should have been performed already (e.g. settings columns or an
+	 * expanded row builder).
 	 *
-	 * @param  rRowDatas The data objects for the rows
-	 *
-	 * @return The new rows
+	 * @param rRowDataProvider The data provider that returns the table rows
 	 */
-	public List<Row> setRows(Collection<T> rRowDatas)
+	public void setData(DataProvider<T> rRowDataProvider)
 	{
-		clear();
+		Objects.requireNonNull(rRowDataProvider);
 
-		return addRows(rRowDatas);
+		aDataList.clear();
+		aRows.clear();
+		rDataProvider = rRowDataProvider;
+
+		displayData();
+	}
+
+	/***************************************
+	 * Sets a consumer that will be invoked to build the content of expanded
+	 * rows if this table has an expansion style. This can be used for rows with
+	 * simple row content where the full content can be build at once. For
+	 * complex cases where the expanded row content should be updated only upon
+	 * row selection a {@link Row} subclass should be used instead with
+	 * overridden methods {@link Row#initExpandedContent(UiContainer)} and
+	 * {@link Row#updateExpandedContent()}.
+	 *
+	 * <p>The argument is a binary consumer that will be invoked with the
+	 * builder for the row content container and the data object of the row.</p>
+	 *
+	 * @param fBuilder The builder for the row content
+	 */
+	public void setExpandedRowBuilder(BiConsumer<UiBuilder<?>, T> fBuilder)
+	{
+		fRowContentBuilder = fBuilder;
 	}
 
 	/***************************************
@@ -301,36 +292,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	public void setSelection(Row rRow)
 	{
 		handleRowSelection(rRow, false);
-	}
-
-	/***************************************
-	 * Update the rows of this table. This will also adjust the number of table
-	 * rows (i.e. add or remove rows) to match the size of the given data set.
-	 *
-	 * @param rRowDatas The data objects to update the rows from
-	 */
-	public void updateRows(Collection<T> rRowDatas)
-	{
-		int nRowIndex = 0;
-
-		for (T rData : rRowDatas)
-		{
-			if (nRowIndex < aRows.size())
-			{
-				aRows.get(nRowIndex).update(rData);
-			}
-			else
-			{
-				addRow(rData);
-			}
-
-			nRowIndex++;
-		}
-
-		while (nRowIndex < aRows.size())
-		{
-			removeRow(aRows.get(nRowIndex));
-		}
 	}
 
 	/***************************************
@@ -359,6 +320,48 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	protected Row createRow(Item rItem, T rRowData)
 	{
 		return new Row(rItem, rRowData);
+	}
+
+	/***************************************
+	 * Displays the data rows from the data provider that has been set through
+	 * {@link #setData(DataProvider)}. The default implementation renders all
+	 * data objects from the provider. Subclasses can override this method if
+	 * they need to display only part of the data, e.g. for a paging table.
+	 */
+	protected void displayData()
+	{
+		displayRows(0, rDataProvider.size());
+	}
+
+	/***************************************
+	 * Update the rows of this table. This will also adjust the number of table
+	 * rows (i.e. add or remove rows) to match the size of the given data set.
+	 *
+	 * @param nFirstRow The index of the first row to display
+	 * @param nCount    The number of rows to display
+	 */
+	protected void displayRows(int nFirstRow, int nCount)
+	{
+		int nRowIndex = 0;
+
+		for (T rRowData : rDataProvider.getData(nFirstRow, nCount))
+		{
+			if (nRowIndex < aRows.size())
+			{
+				aRows.get(nRowIndex).update(rRowData);
+			}
+			else
+			{
+				aRows.add(createRow(aDataList.addItem(), rRowData));
+			}
+
+			nRowIndex++;
+		}
+
+		while (nRowIndex < aRows.size())
+		{
+			removeRow(aRows.get(nRowIndex));
+		}
 	}
 
 	/***************************************
@@ -575,18 +578,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns the builder for the content of expandable rows. This can be
-		 * used as an alternative to overriding {@link
-		 * #initExpandedContent(UiContainer)}.
-		 *
-		 * @return The content builder
-		 */
-		public UiBuilder<?> contentBuilder()
-		{
-			return rRowItem.builder();
-		}
-
-		/***************************************
 		 * Returns the row data object.
 		 *
 		 * @return The row data object
@@ -718,16 +709,24 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
-		 * Must be overridden by subclasses to initialize the content of
-		 * expandable rows. To update that content upon selection or setting of
+		 * Can be overridden by subclasses to initialize the content of
+		 * expandable rows. To update the content upon selection or setting of
 		 * new row data the method {@link #updateExpandedContent()} needs to be
 		 * implemented too. The row data is available through {@link
 		 * #getData()}.
+		 *
+		 * <p>The default implementation invokes a row content builder if one
+		 * has been set with {@link
+		 * UiTableList#setExpandedRowBuilder(Consumer)}.</p>
 		 *
 		 * @param rParent The parent to build the content in
 		 */
 		protected void initExpandedContent(UiContainer<?> rParent)
 		{
+			if (fRowContentBuilder != null)
+			{
+				fRowContentBuilder.accept(rRowItem.builder(), rRowData);
+			}
 		}
 
 		/***************************************

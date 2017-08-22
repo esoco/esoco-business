@@ -16,14 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
-import de.esoco.lib.model.DataProvider;
-
-import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.composite.UiTableList.ExpandableTableStyle;
-import de.esoco.process.ui.layout.UiFlowLayout;
-
-import java.util.Collection;
 
 
 /********************************************************************
@@ -31,15 +24,11 @@ import java.util.Collection;
  *
  * @author eso
  */
-public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
+public class UiPagingTableList<T> extends UiTableList<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private UiTableList<T>     aTable;
 	private UiPagingNavigation aNavigation;
-
-	private DataProvider<T> rDataProvider;
-	int					    nStartRow;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -63,39 +52,21 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 		UiContainer<?>		 rParent,
 		ExpandableTableStyle eExpandStyle)
 	{
-		super(rParent, new UiFlowLayout());
+		super(rParent, eExpandStyle);
 
-		aTable	    = new UiTableList<>(this, eExpandStyle);
-		aNavigation = new UiPagingNavigation(rParent, this::update);
-
+		aNavigation = new UiPagingNavigation(this, this::update);
 		aNavigation.setPageSizes(UiPagingNavigation.DEFAULT_PAGE_SIZES);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the data provider for the table rows.
-	 *
-	 * @param rDataProvider The new data
+	 * Displays the rows of the current page.
 	 */
-	public void setData(DataProvider<T> rDataProvider)
+	@Override
+	protected void displayData()
 	{
-		this.rDataProvider = rDataProvider;
-
-		displayData(aNavigation.getPageStart(), aNavigation.getPageSize());
-	}
-
-	/***************************************
-	 * Displays data from the data provider in table rows.
-	 *
-	 * @param nStart The starting index of the data to display
-	 * @param nCount The number of rows to display
-	 */
-	protected void displayData(int nStart, int nCount)
-	{
-		Collection<T> rData = rDataProvider.getData(nStart, nCount);
-
-		aTable.updateRows(rData);
+		displayRows(aNavigation.getPageStart(), aNavigation.getPageSize());
 	}
 
 	/***************************************
@@ -103,7 +74,7 @@ public class UiPagingTableList<T> extends UiComposite<UiPagingTableList<T>>
 	 */
 	private void update()
 	{
-		aNavigation.setTotalSize(rDataProvider.size());
-		displayData(aNavigation.getPageStart(), aNavigation.getPageSize());
+		aNavigation.setTotalSize(getData().size());
+		displayData();
 	}
 }
