@@ -20,6 +20,7 @@ import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.RelativeSize;
+import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
@@ -440,11 +441,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns the column value.
+		 * Returns the value of this column from a data object.
 		 *
-		 * @param  rDataObject The column value
+		 * @param  rDataObject The data object
 		 *
-		 * @return The column value
+		 * @return The column value (can be NULL)
 		 */
 		public Object getColumnValue(T rDataObject)
 		{
@@ -498,6 +499,43 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			return UiTableList.this.getComponentStyleName() +
 				   super.getComponentStyleName();
+		}
+
+		/***************************************
+		 * Adds a display component for this column and the corresponding value
+		 * in a certain data object.
+		 *
+		 * @param  rBuilder    The builder to create the component with
+		 * @param  rDataObject The column value
+		 *
+		 * @return The column value
+		 */
+		UiComponent<?, ?> addDisplayComponent(UiBuilder rBuilder, T rDataObject)
+		{
+			UiLabel aComponent = rBuilder.addLabel("");
+
+			updateDisplay(aComponent, rDataObject);
+
+			return aComponent;
+		}
+
+		/***************************************
+		 * Updates the display of column data from a certain data object. The
+		 * argument component must be one that has been created by the method
+		 * {@link #addDisplayComponent(UiBuilder, Object)}.
+		 *
+		 * @param rComponent  The component to update
+		 * @param rDataObject The data object to read the update value from
+		 */
+		void updateDisplay(UiComponent<?, ?> rComponent, T rDataObject)
+		{
+			Object rValue = getColumnValue(rDataObject);
+			String sValue = rValue != null ? rValue.toString() : "&nbsp";
+
+			if (rComponent instanceof TextAttribute)
+			{
+				((TextAttribute) rComponent).setText(sValue);
+			}
 		}
 
 		/***************************************
@@ -633,14 +671,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			this.rRowData = rRowData;
 
-			int nIndex = 0;
+			List<UiComponent<?, ?>> rComponents = getComponents();
+			int					    nIndex	    = 0;
 
 			for (Column rColumn : aColumns)
 			{
-				Object rValue = rColumn.getColumnValue(rRowData);
-				String sText  = rValue != null ? rValue.toString() : "";
-
-				((UiLabel) getComponents().get(nIndex++)).setText(sText);
+				rColumn.updateDisplay(rComponents.get(nIndex++), rRowData);
 			}
 
 			if (bSelected)
@@ -656,10 +692,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected void addColumnComponent(Column rColumn)
 		{
-			Object rValue = rColumn.getColumnValue(rRowData);
-			String sText  = rValue != null ? rValue.toString() : "";
-
-			builder().addLabel(sText);
+			rColumn.addDisplayComponent(builder(), rRowData);
 		}
 
 		/***************************************
