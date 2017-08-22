@@ -132,7 +132,7 @@ public class EntityDataProvider<E extends Entity>
 		de.esoco.lib.expression.Predicate<E> pCriteria = null;
 
 		for (Entry<AttributeBinding<E, ?>, java.util.function.Predicate<?>> rFilter :
-			 getFilters().entrySet())
+			 getAttributeFilters().entrySet())
 		{
 			AttributeBinding<E, ?>		    rAttribute = rFilter.getKey();
 			java.util.function.Predicate<?> pFilter    = rFilter.getValue();
@@ -155,7 +155,7 @@ public class EntityDataProvider<E extends Entity>
 		Predicate<E> pOrdering = null;
 
 		for (Entry<AttributeBinding<E, ? extends Comparable<?>>, OrderDirection> rOrdering :
-			 getOrderCriteria().entrySet())
+			 getAttributeOrders().entrySet())
 		{
 			AttributeBinding<E, ?> rAttribute = rOrdering.getKey();
 			OrderDirection		   eDirection = rOrdering.getValue();

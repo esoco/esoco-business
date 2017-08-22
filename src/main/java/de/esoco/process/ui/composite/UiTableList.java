@@ -16,8 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.model.AttributeBinding;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
+import de.esoco.lib.property.HasAttributeOrdering;
+import de.esoco.lib.property.HasAttributeOrdering.OrderDirection;
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.TextAttribute;
@@ -132,8 +135,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
 		aDataList    = new UiListPanel(this, eListStyle);
 
-		aHeaderPanel.style().addStyleName(getComponentStyleName() + "Header");
-		aDataList.style().addStyleName(getComponentStyleName() + "DataList");
+		aHeaderPanel.style()
+					.addStyleName(getClass().getSimpleName() + "Header");
+		aDataList.style().addStyleName(getClass().getSimpleName() + "Data");
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -363,23 +367,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * Handles the selection event of a certain column.
-	 *
-	 * @param rColumn The selected column
-	 */
-	void handleColumnSelection(Column rColumn)
-	{
-		if (fHandleColumnSelection != null)
-		{
-			fHandleColumnSelection.accept(rColumn);
-		}
-	}
-
-	/***************************************
 	 * Handles the selection event of a certain row.
 	 *
 	 * @param rRow       The selected row
-	 * @param bFireEvent TRUE to notifiy a row selection listener if available
+	 * @param bFireEvent TRUE to notify a row selection listener if available
 	 */
 	void handleRowSelection(Row rRow, boolean bFireEvent)
 	{
@@ -417,7 +408,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		//~ Instance fields ----------------------------------------------------
 
 		private Function<? super T, ?> fGetColumnData;
-		private UiLink				   aColumnTitle;
+		private AttributeBinding<T, ?> rAttribute = null;
+
+		private UiLink aColumnTitle;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -428,14 +421,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @param fGetColumnData A function that retrieves the column value from
 		 *                       a row data object
 		 */
+		@SuppressWarnings("unchecked")
 		Column(UiContainer<?> rParent, Function<? super T, ?> fGetColumnData)
 		{
 			super(rParent, new UiFlowLayout());
 
 			this.fGetColumnData = fGetColumnData;
 
+			if (fGetColumnData instanceof AttributeBinding)
+			{
+				rAttribute = (AttributeBinding<T, ?>) fGetColumnData;
+			}
+
 			aColumnTitle = new UiLink(this, deriveColumnTitle(fGetColumnData));
-			aColumnTitle.onClick(v -> handleColumnSelection(this));
+			aColumnTitle.onClick(v -> handleColumnSelection());
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -502,6 +501,54 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
+		 * Handles the selection event of a certain column.
+		 */
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		protected void handleColumnSelection()
+		{
+			if (rAttribute != null &&
+				Comparable.class.isAssignableFrom(rAttribute.getValueType()) &&
+				rDataProvider instanceof HasAttributeOrdering)
+			{
+				HasAttributeOrdering<T> rAttrOrdering =
+					(HasAttributeOrdering<T>) rDataProvider;
+
+				OrderDirection eColumnOrder =
+					rAttrOrdering.getOrder(rAttribute);
+
+				String sColumnStyle;
+
+				if (eColumnOrder == null)
+				{
+					eColumnOrder = OrderDirection.ASCENDING;
+					sColumnStyle = "sort ascending";
+				}
+				else if (eColumnOrder == OrderDirection.ASCENDING)
+				{
+					eColumnOrder = OrderDirection.DESCENDING;
+					sColumnStyle = "sort descending";
+				}
+				else
+				{
+					eColumnOrder = null;
+					sColumnStyle = null;
+				}
+
+				rAttrOrdering.applyOrder((AttributeBinding<T, Comparable>)
+										 rAttribute,
+										 eColumnOrder);
+
+				aColumnTitle.style().styleName(sColumnStyle);
+				update();
+			}
+
+			if (fHandleColumnSelection != null)
+			{
+				fHandleColumnSelection.accept(this);
+			}
+		}
+
+		/***************************************
 		 * Adds a display component for this column and the corresponding value
 		 * in a certain data object.
 		 *
@@ -510,7 +557,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @return The column value
 		 */
-		UiComponent<?, ?> addDisplayComponent(UiBuilder rBuilder, T rDataObject)
+		UiComponent<?, ?> addDisplayComponent(
+			UiBuilder<?> rBuilder,
+			T			 rDataObject)
 		{
 			UiLabel aComponent = rBuilder.addLabel("");
 
