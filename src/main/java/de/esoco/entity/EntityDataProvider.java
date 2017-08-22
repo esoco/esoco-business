@@ -55,7 +55,7 @@ public class EntityDataProvider<E extends Entity>
 	 */
 	public EntityDataProvider(Class<E> rEntityType)
 	{
-		this(new QueryPredicate<>(rEntityType, null));
+		this(rEntityType, null);
 	}
 
 	/***************************************
@@ -69,6 +69,20 @@ public class EntityDataProvider<E extends Entity>
 	{
 		this.qBaseQuery  = qBaseQuery;
 		qVisibleEntities = qBaseQuery;
+	}
+
+	/***************************************
+	 * Creates a new instance that queries the entities of a certain type the
+	 * match certain criteria.
+	 *
+	 * @param rEntityType The class of the entity type to be queried
+	 * @param pCriteria   The criteria for which to limit the queried entities
+	 */
+	public EntityDataProvider(
+		Class<E>			 rEntityType,
+		Predicate<? super E> pCriteria)
+	{
+		this(new QueryPredicate<>(rEntityType, pCriteria));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -86,7 +100,7 @@ public class EntityDataProvider<E extends Entity>
 		{
 			aIterator.setPosition(nStart, false);
 
-			while (aIterator.hasNext())
+			while (nCount-- > 0 && aIterator.hasNext())
 			{
 				aResult.add(aIterator.next());
 			}

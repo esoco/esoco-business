@@ -246,6 +246,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Sets the prefix to be used for column titles.
+	 *
+	 * @param sPrefix The column title prefix
+	 */
+	public void setColumnPrefix(String sPrefix)
+	{
+		sColumnPrefix = sPrefix;
+	}
+
+	/***************************************
 	 * Sets the data provider of the table row data. This will immediately build
 	 * the table rows from the data so all necessary initializations of this
 	 * table should have been performed already (e.g. settings columns or an
@@ -261,7 +271,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		aRows.clear();
 		rDataProvider = rRowDataProvider;
 
-		displayData();
+		update();
 	}
 
 	/***************************************
@@ -295,20 +305,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * Sets the prefix to be used for column titles.
-	 *
-	 * @param  sPrefix The column title prefix
-	 *
-	 * @return This instance
-	 */
-	public UiTableList<T> withColumnPrefix(String sPrefix)
-	{
-		sColumnPrefix = sPrefix;
-
-		return this;
-	}
-
-	/***************************************
 	 * Creates a new row. Subclasses can override this method to return their
 	 * own row subclasses, e.g. to handle the row content.
 	 *
@@ -320,17 +316,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	protected Row createRow(Item rItem, T rRowData)
 	{
 		return new Row(rItem, rRowData);
-	}
-
-	/***************************************
-	 * Displays the data rows from the data provider that has been set through
-	 * {@link #setData(DataProvider)}. The default implementation renders all
-	 * data objects from the provider. Subclasses can override this method if
-	 * they need to display only part of the data, e.g. for a paging table.
-	 */
-	protected void displayData()
-	{
-		displayRows(0, rDataProvider.size());
 	}
 
 	/***************************************
@@ -362,6 +347,18 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			removeRow(aRows.get(nRowIndex));
 		}
+	}
+
+	/***************************************
+	 * Updates the table display from the data provider that has been set
+	 * through {@link #setData(DataProvider)}. The default implementation
+	 * renders all data objects from the provider. Subclasses can override this
+	 * method if they need to display only part of the data, e.g. for a paging
+	 * table.
+	 */
+	protected void update()
+	{
+		displayRows(0, rDataProvider.size());
 	}
 
 	/***************************************
@@ -572,7 +569,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
 
-			initExpandedContent(rRowItem);
+			initExpandedContent(rRowItem.builder());
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -715,17 +712,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * implemented too. The row data is available through {@link
 		 * #getData()}.
 		 *
-		 * <p>The default implementation invokes a row content builder if one
-		 * has been set with {@link
+		 * <p>The default implementation invokes the expanded row content
+		 * builder if one has been set through the method {@link
 		 * UiTableList#setExpandedRowBuilder(Consumer)}.</p>
 		 *
-		 * @param rParent The parent to build the content in
+		 * @param rBuilder The builder to build the content with
 		 */
-		protected void initExpandedContent(UiContainer<?> rParent)
+		protected void initExpandedContent(UiBuilder<?> rBuilder)
 		{
 			if (fRowContentBuilder != null)
 			{
-				fRowContentBuilder.accept(rRowItem.builder(), rRowData);
+				fRowContentBuilder.accept(rBuilder, rRowData);
 			}
 		}
 

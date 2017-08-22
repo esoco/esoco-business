@@ -16,7 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.property.Alignment;
+
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.container.UiColumnGridPanel;
 
 
 /********************************************************************
@@ -28,6 +31,7 @@ public class UiPagingTableList<T> extends UiTableList<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
+	private UiColumnGridPanel  aToolPanel;
 	private UiPagingNavigation aNavigation;
 
 	//~ Constructors -----------------------------------------------------------
@@ -54,7 +58,10 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	{
 		super(rParent, eExpandStyle);
 
-		aNavigation = new UiPagingNavigation(this, this::update);
+		aToolPanel  = new UiColumnGridPanel(this);
+		aNavigation = new UiPagingNavigation(aToolPanel, this::update, 10);
+
+		aNavigation.cell().alignHorizontal(Alignment.END);
 		aNavigation.setPageSizes(UiPagingNavigation.DEFAULT_PAGE_SIZES);
 	}
 
@@ -64,17 +71,9 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	 * Displays the rows of the current page.
 	 */
 	@Override
-	protected void displayData()
+	protected void update()
 	{
 		displayRows(aNavigation.getPageStart(), aNavigation.getPageSize());
-	}
-
-	/***************************************
-	 * Updates this list on events.
-	 */
-	private void update()
-	{
 		aNavigation.setTotalSize(getData().size());
-		displayData();
 	}
 }

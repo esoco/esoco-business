@@ -18,28 +18,27 @@ package de.esoco.process.ui.container;
 
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayoutContainer;
-import de.esoco.process.ui.layout.UiGridLayout;
+import de.esoco.process.ui.layout.UiColumnGridLayout;
 
 
 /********************************************************************
- * A panel that arranges it's children with a {@link UiGridLayout} in a
- * two-dimensional grid.
+ * A panel that layouts it's children with a {@link UiColumnGridLayout} in a
+ * vertically aligned grid. Components are added to the same grid row until
+ * {@link #nextRow()} is called.
  *
  * @author eso
  */
-public class UiGridPanel extends UiLayoutContainer<UiGridPanel>
+public class UiColumnGridPanel extends UiLayoutContainer<UiColumnGridPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent  The parent container
-	 * @param nRows    The number of layout rows
-	 * @param nColumns The number of layout columns
+	 * @param rParent The parent container
 	 */
-	public UiGridPanel(UiContainer<?> rParent, int nRows, int nColumns)
+	public UiColumnGridPanel(UiContainer<?> rParent)
 	{
-		super(rParent, new UiGridLayout(nRows, nColumns));
+		super(rParent, new UiColumnGridLayout());
 	}
 }
