@@ -38,6 +38,7 @@ import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.graphics.UiImageResource;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
@@ -606,7 +607,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			if (rComponentDatatype != null)
 			{
-				if (rComponentDatatype.isEnum())
+				if (rComponentDatatype.isEnum() ||
+					UiIconSupplier.class.isAssignableFrom(rComponentDatatype))
 				{
 					aComponent = rBuilder.addIcon(null);
 				}
@@ -705,20 +707,38 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			if (rComponent instanceof UiIcon)
 			{
-				UiImageResource rIcon = null;
-
-				if (rValue != null)
-				{
-					rIcon =
-						new UiImageResource("$im" +
-											DataElement.createItemName(rValue));
-				}
-
-				((UiIcon) rComponent).setIcon(rIcon);
+				updateIcon((UiIcon) rComponent, rValue);
 			}
 			else if (rComponent instanceof TextAttribute)
 			{
 				((TextAttribute) rComponent).setText(formatAsString(rValue));
+			}
+		}
+
+		/***************************************
+		 * Updates an icon component from a column value.
+		 *
+		 * @param rIcon  The icon component
+		 * @param rValue The column value
+		 */
+		protected void updateIcon(UiIcon rIcon, Object rValue)
+		{
+			if (rValue instanceof UiIconSupplier)
+			{
+				rIcon.setIcon(((UiIconSupplier) rValue).getIcon());
+			}
+			else
+			{
+				UiImageResource rIconResource = null;
+
+				if (rValue != null)
+				{
+					rIconResource =
+						new UiImageResource("$im" +
+											DataElement.createItemName(rValue));
+				}
+
+				rIcon.setIcon(rIconResource);
 			}
 		}
 
