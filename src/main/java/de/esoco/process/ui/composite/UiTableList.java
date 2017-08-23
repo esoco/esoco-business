@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.data.element.DataElement;
+
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.HasAttributeFilter;
@@ -140,8 +142,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		aDataList    = new UiListPanel(this, eListStyle);
 
 		aHeaderPanel.style()
-					.addStyleName(getClass().getSimpleName() + "Header");
-		aDataList.style().addStyleName(getClass().getSimpleName() + "Data");
+					.addStyleName(UiTableList.class.getSimpleName() + "Header");
+		aDataList.style()
+				 .addStyleName(UiTableList.class.getSimpleName() + "Data");
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -418,6 +421,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 		private Function<? super T, V> fGetColumnData;
 		private Class<? super V>	   rDatatype;
+		private Class<?>			   rDisplayDatatype;
 
 		private UiLink aColumnTitle;
 
@@ -481,6 +485,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public Object getColumnValue(T rDataObject)
 		{
 			return fGetColumnData.apply(rDataObject);
+		}
+
+		/***************************************
+		 * Sets the datatype of this column. If the value access function is an
+		 * instance of {@link RelationType} the datatype will be determined
+		 * automatically.
+		 *
+		 * @param  rDatatype The column datatype class
+		 *
+		 * @return This instance
+		 */
+		public Column<V> renderAs(Class<?> rDatatype)
+		{
+			this.rDisplayDatatype = rDatatype;
+
+			return this;
 		}
 
 		/***************************************
@@ -581,9 +601,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			UiComponent<?, ?> aComponent = null;
 
-			if (rDatatype != null)
+			Class<?> rComponentDatatype =
+				rDisplayDatatype != null ? rDisplayDatatype : rDatatype;
+
+			if (rComponentDatatype != null)
 			{
-				if (rDatatype.isEnum())
+				if (rComponentDatatype.isEnum())
 				{
 					aComponent = rBuilder.addImage(null);
 				}
@@ -621,15 +644,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected String formatAsString(Object rValue)
 		{
-			String sValue;
+			String sValue = "&nbsp;";
 
-			if (rValue instanceof Date)
+			if (rValue != null)
 			{
-				sValue = SimpleDateFormat.getDateInstance().format(rValue);
-			}
-			else
-			{
-				sValue = rValue != null ? rValue.toString() : "&nbsp";
+				if (rValue.getClass().isEnum())
+				{
+					sValue = DataElement.createItemResource(rValue);
+				}
+				else if (rValue instanceof Date)
+				{
+					sValue = SimpleDateFormat.getDateInstance().format(rValue);
+				}
+				else
+				{
+					sValue = rValue.toString();
+				}
 			}
 
 			return sValue;
@@ -681,9 +711,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				{
 					rImage =
 						new UiImageResource("$im" +
-											rValue.getClass().getSimpleName() +
-											TextConvert.capitalizedIdentifier(rValue
-																			  .toString()));
+											DataElement.createItemName(rValue));
 				}
 
 				((UiImage) rComponent).setImage(rImage);
@@ -760,7 +788,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			if (allowsSorting())
 			{
-				String sColumnStyle = null;
+				String sColumnStyle = "";
 
 				if (eDirection == SortDirection.ASCENDING)
 				{

@@ -134,13 +134,15 @@ public abstract class DataElement<T> extends StringProperties
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Creates an item resource string for a certain value.
+	 * Creates the string name for an item value (typically an enum constant).
+	 * The name will be composed from the simple name of the value's datatype
+	 * class and the capitalized string representation of the value.
 	 *
-	 * @param  rValue The value
+	 * @param  rValue The value to create the item name for
 	 *
 	 * @return The resulting item string
 	 */
-	public static String createItemResource(Object rValue)
+	public static String createItemName(Object rValue)
 	{
 		StringBuilder aItem = new StringBuilder();
 
@@ -155,9 +157,28 @@ public abstract class DataElement<T> extends StringProperties
 				sClassName = rDatatype.getSuperclass().getSimpleName();
 			}
 
-			aItem.append(ITEM_RESOURCE_PREFIX);
 			aItem.append(sClassName);
 			aItem.append(TextConvert.capitalizedIdentifier(rValue.toString()));
+		}
+
+		return aItem.toString();
+	}
+
+	/***************************************
+	 * Creates an item resource string for a certain value.
+	 *
+	 * @param  rValue The value
+	 *
+	 * @return The resulting item string
+	 */
+	public static String createItemResource(Object rValue)
+	{
+		StringBuilder aItem = new StringBuilder();
+
+		if (rValue != null)
+		{
+			aItem.append(ITEM_RESOURCE_PREFIX);
+			aItem.append(createItemName(rValue));
 		}
 
 		return aItem.toString();
