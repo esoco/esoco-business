@@ -18,8 +18,9 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
-import de.esoco.lib.property.HasAttributeOrdering;
-import de.esoco.lib.property.HasAttributeOrdering.OrderDirection;
+import de.esoco.lib.property.HasAttributeFilter;
+import de.esoco.lib.property.HasAttributeSorting;
+import de.esoco.lib.property.HasAttributeSorting.SortDirection;
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.TextAttribute;
@@ -29,17 +30,21 @@ import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.component.UiLabel;
+import de.esoco.process.ui.component.UiImage;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.graphics.UiImageResource;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.style.UiStyle;
 
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -90,11 +95,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	private String sColumnPrefix = null;
 
-	private List<Column> aColumns = new ArrayList<>();
-	private List<Row>    aRows    = new ArrayList<>();
+	private List<Column<?>> aColumns = new ArrayList<>();
+	private List<Row>	    aRows    = new ArrayList<>();
 
 	private BiConsumer<UiBuilder<?>, T> fRowContentBuilder;
-	private Consumer<Column>		    fHandleColumnSelection;
+	private Consumer<Column<?>>		    fHandleColumnSelection;
 	private Consumer<Row>			    fHandleRowSelection;
 
 	//~ Constructors -----------------------------------------------------------
@@ -149,11 +154,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @return The new column
 	 */
-	public Column addColumn(Function<? super T, ?> fGetColumnData)
+	public <V> Column<V> addColumn(Function<? super T, V> fGetColumnData)
 	{
 		Objects.requireNonNull(fGetColumnData);
 
-		Column aColumn = new Column(aTableHeader, fGetColumnData);
+		Column<V> aColumn = new Column<>(aTableHeader, fGetColumnData);
 
 		aColumns.add(aColumn);
 
@@ -170,7 +175,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @return The column list
 	 */
-	public List<Column> getColumns()
+	public List<Column<?>> getColumns()
 	{
 		return aColumns;
 	}
@@ -216,7 +221,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * @return This instance
 	 */
 	public UiTableList<T> onColumnSelection(
-		Consumer<Column> fHandleColumnSelection)
+		Consumer<Column<?>> fHandleColumnSelection)
 	{
 		this.fHandleColumnSelection = fHandleColumnSelection;
 
@@ -274,6 +279,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		aDataList.clear();
 		aRows.clear();
 		rDataProvider = rRowDataProvider;
+
+		for (Column<?> rColumn : aColumns)
+		{
+			rColumn.dataAvailable(rDataProvider);
+		}
 
 		update();
 	}
@@ -402,36 +412,64 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @author eso
 	 */
-	public class Column extends TableElement<Column>
+	public class Column<V> extends TableElement<Column<V>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Function<? super T, ?> fGetColumnData;
-		private Class<?>			   rDatatype;
+		private Function<? super T, V> fGetColumnData;
+		private Class<? super V>	   rDatatype;
 
 		private UiLink aColumnTitle;
+
+		private SortDirection eInitialSortDirection;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
-		 * Creates a new instance.
+		 * Creates a new instance that retrieves the column value from a row
+		 * data object with the given value access function. If the function is
+		 * an instance of {@link RelationType} the column datatype will be
+		 * queried from it. Otherwise the method {@link #datatype(Class)} should
+		 * be invoked to set the column datatype or else some functionality like
+		 * sorting and value formatting may not be available.
 		 *
 		 * @param rParent        The parent container
 		 * @param fGetColumnData A function that retrieves the column value from
 		 *                       a row data object
 		 */
 		@SuppressWarnings("unchecked")
-		Column(UiContainer<?> rParent, Function<? super T, ?> fGetColumnData)
+		Column(UiContainer<?> rParent, Function<? super T, V> fGetColumnData)
 		{
 			super(rParent, new UiFlowLayout());
 
 			this.fGetColumnData = fGetColumnData;
+
+			if (fGetColumnData instanceof RelationType)
+			{
+				datatype(((RelationType<V>) fGetColumnData).getValueType());
+			}
 
 			aColumnTitle = new UiLink(this, deriveColumnTitle(fGetColumnData));
 			aColumnTitle.onClick(v -> handleColumnSelection());
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Sets the datatype of this column. If the value access function is an
+		 * instance of {@link RelationType} the datatype will be determined
+		 * automatically.
+		 *
+		 * @param  rDatatype The column datatype class
+		 *
+		 * @return This instance
+		 */
+		public Column<V> datatype(Class<? super V> rDatatype)
+		{
+			this.rDatatype = rDatatype;
+
+			return this;
+		}
 
 		/***************************************
 		 * Returns the value of this column from a data object.
@@ -456,13 +494,57 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
+		 * Applies or removes sorting of this column in the given direction.
+		 *
+		 * @param  eDirection The sort direction or NULL to remove explicit
+		 *                    sorting
+		 *
+		 * @return This instance
+		 */
+		public Column<V> sort(SortDirection eDirection)
+		{
+			if (rDataProvider == null)
+			{
+				eInitialSortDirection = eDirection;
+			}
+			else
+			{
+				setSorting(eDirection);
+			}
+
+			return this;
+		}
+
+		/***************************************
+		 * A shortcut method for {@link #sort(SortDirection)} with ascending
+		 * direction.
+		 *
+		 * @return This instance
+		 */
+		public Column<V> sortAscending()
+		{
+			return sort(SortDirection.ASCENDING);
+		}
+
+		/***************************************
+		 * A shortcut method for {@link #sort(SortDirection)} with descending
+		 * direction.
+		 *
+		 * @return This instance
+		 */
+		public Column<V> sortDescending()
+		{
+			return sort(SortDirection.DESCENDING);
+		}
+
+		/***************************************
 		 * Sets the relative width of this column.
 		 *
 		 * @param  eWidth The relative size constant for the column width
 		 *
 		 * @return This instance for concatenation
 		 */
-		public final Column width(RelativeSize eWidth)
+		public final Column<V> width(RelativeSize eWidth)
 		{
 			cell().width(eWidth);
 
@@ -479,9 +561,78 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @return This instance for concatenation
 		 */
-		public final Column width(int nGridColumns)
+		public final Column<V> width(int nGridColumns)
 		{
 			return set(nGridColumns, COLUMN_SPAN);
+		}
+
+		/***************************************
+		 * Adds a display component for this column and the corresponding value
+		 * in a certain data object.
+		 *
+		 * @param  rBuilder    The builder to create the component with
+		 * @param  rDataObject The column value
+		 *
+		 * @return The new component
+		 */
+		protected UiComponent<?, ?> addDisplayComponent(
+			UiBuilder<?> rBuilder,
+			T			 rDataObject)
+		{
+			UiComponent<?, ?> aComponent = null;
+
+			if (rDatatype != null)
+			{
+				if (rDatatype.isEnum())
+				{
+					aComponent = rBuilder.addImage(null);
+				}
+			}
+
+			if (aComponent == null)
+			{
+				aComponent = rBuilder.addLabel("");
+			}
+
+			updateDisplay(aComponent, rDataObject);
+
+			return aComponent;
+		}
+
+		/***************************************
+		 * Will be notified when the table data is available.
+		 *
+		 * @param rDataProvider The table data provider
+		 */
+		protected void dataAvailable(DataProvider<T> rDataProvider)
+		{
+			if (eInitialSortDirection != null)
+			{
+				setSorting(eInitialSortDirection);
+			}
+		}
+
+		/***************************************
+		 * Formats a value into a string representation.
+		 *
+		 * @param  rValue The value to format
+		 *
+		 * @return The formatted string
+		 */
+		protected String formatAsString(Object rValue)
+		{
+			String sValue;
+
+			if (rValue instanceof Date)
+			{
+				sValue = SimpleDateFormat.getDateInstance().format(rValue);
+			}
+			else
+			{
+				sValue = rValue != null ? rValue.toString() : "&nbsp";
+			}
+
+			return sValue;
 		}
 
 		/***************************************
@@ -500,65 +651,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		protected void handleColumnSelection()
 		{
-			if (Comparable.class.isAssignableFrom(rDatatype) &&
-				rDataProvider instanceof HasAttributeOrdering)
-			{
-				HasAttributeOrdering<T> rAttrOrdering =
-					(HasAttributeOrdering<T>) rDataProvider;
-
-				OrderDirection eColumnOrder =
-					rAttrOrdering.getOrder(fGetColumnData);
-
-				String sColumnStyle;
-
-				if (eColumnOrder == null)
-				{
-					eColumnOrder = OrderDirection.ASCENDING;
-					sColumnStyle = "sort ascending";
-				}
-				else if (eColumnOrder == OrderDirection.ASCENDING)
-				{
-					eColumnOrder = OrderDirection.DESCENDING;
-					sColumnStyle = "sort descending";
-				}
-				else
-				{
-					eColumnOrder = null;
-					sColumnStyle = null;
-				}
-
-				rAttrOrdering.applyOrder((Function<T, Comparable>)
-										 fGetColumnData,
-										 eColumnOrder);
-
-				aColumnTitle.style().styleName(sColumnStyle);
-				update();
-			}
+			setSorting(nextSortDirection());
 
 			if (fHandleColumnSelection != null)
 			{
 				fHandleColumnSelection.accept(this);
 			}
-		}
-
-		/***************************************
-		 * Adds a display component for this column and the corresponding value
-		 * in a certain data object.
-		 *
-		 * @param  rBuilder    The builder to create the component with
-		 * @param  rDataObject The column value
-		 *
-		 * @return The column value
-		 */
-		UiComponent<?, ?> addDisplayComponent(
-			UiBuilder<?> rBuilder,
-			T			 rDataObject)
-		{
-			UiLabel aComponent = rBuilder.addLabel("");
-
-			updateDisplay(aComponent, rDataObject);
-
-			return aComponent;
 		}
 
 		/***************************************
@@ -569,14 +667,116 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @param rComponent  The component to update
 		 * @param rDataObject The data object to read the update value from
 		 */
-		void updateDisplay(UiComponent<?, ?> rComponent, T rDataObject)
+		protected void updateDisplay(
+			UiComponent<?, ?> rComponent,
+			T				  rDataObject)
 		{
 			Object rValue = getColumnValue(rDataObject);
-			String sValue = rValue != null ? rValue.toString() : "&nbsp";
 
-			if (rComponent instanceof TextAttribute)
+			if (rComponent instanceof UiImage)
 			{
-				((TextAttribute) rComponent).setText(sValue);
+				UiImageResource rImage = null;
+
+				if (rValue != null)
+				{
+					rImage =
+						new UiImageResource("$im" +
+											rValue.getClass().getSimpleName() +
+											TextConvert.capitalizedIdentifier(rValue
+																			  .toString()));
+				}
+
+				((UiImage) rComponent).setImage(rImage);
+			}
+			else if (rComponent instanceof TextAttribute)
+			{
+				((TextAttribute) rComponent).setText(formatAsString(rValue));
+			}
+		}
+
+		/***************************************
+		 * Checks whether the table data can be filtered by this column.
+		 *
+		 * @return
+		 */
+		boolean allowsFiltering()
+		{
+			return rDatatype != null && rDataProvider != null &&
+				   rDataProvider instanceof HasAttributeFilter;
+		}
+
+		/***************************************
+		 * Checks whether the table data can be sorted by this column.
+		 *
+		 * @return
+		 */
+		boolean allowsSorting()
+		{
+			return rDatatype != null && rDataProvider != null &&
+				   Comparable.class.isAssignableFrom(rDatatype) &&
+				   rDataProvider instanceof HasAttributeSorting;
+		}
+
+		/***************************************
+		 * Toggles the current sort direction of this column to the next values
+		 * (in the order ascending, descending, none).
+		 *
+		 * @return The new sort direction
+		 */
+		@SuppressWarnings("unchecked")
+		SortDirection nextSortDirection()
+		{
+			SortDirection eSortDirection = null;
+
+			if (allowsSorting())
+			{
+				eSortDirection =
+					((HasAttributeSorting<T>) rDataProvider).getSortDirection(fGetColumnData);
+
+				if (eSortDirection == null)
+				{
+					eSortDirection = SortDirection.ASCENDING;
+				}
+				else if (eSortDirection == SortDirection.ASCENDING)
+				{
+					eSortDirection = SortDirection.DESCENDING;
+				}
+				else
+				{
+					eSortDirection = null;
+				}
+			}
+
+			return eSortDirection;
+		}
+
+		/***************************************
+		 * Sets the sorting of this column.
+		 *
+		 * @param eDirection The sort direction or NULL to remove sorting
+		 */
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		void setSorting(SortDirection eDirection)
+		{
+			if (allowsSorting())
+			{
+				String sColumnStyle = null;
+
+				if (eDirection == SortDirection.ASCENDING)
+				{
+					sColumnStyle = "sort ascending";
+				}
+				else if (eDirection == SortDirection.DESCENDING)
+				{
+					sColumnStyle = "sort descending";
+				}
+
+				((HasAttributeSorting<T>) rDataProvider).applySorting((Function<T, Comparable>)
+																	  fGetColumnData,
+																	  eDirection);
+
+				aColumnTitle.style().styleName(sColumnStyle);
+				update();
 			}
 		}
 
@@ -642,7 +842,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			this.rRowItem = rRowItem;
 			this.rRowData = rRowData;
 
-			for (Column rColumn : aColumns)
+			for (Column<?> rColumn : aColumns)
 			{
 				addColumnComponent(rColumn);
 			}
@@ -716,7 +916,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			List<UiComponent<?, ?>> rComponents = getComponents();
 			int					    nIndex	    = 0;
 
-			for (Column rColumn : aColumns)
+			for (Column<?> rColumn : aColumns)
 			{
 				rColumn.updateDisplay(rComponents.get(nIndex++), rRowData);
 			}
@@ -732,7 +932,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @param rColumn The column to add the component for
 		 */
-		protected void addColumnComponent(Column rColumn)
+		protected void addColumnComponent(Column<?> rColumn)
 		{
 			rColumn.addDisplayComponent(builder(), rRowData);
 		}
@@ -747,7 +947,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			int nIndex = 0;
 
-			for (Column rColumn : aColumns)
+			for (Column<?> rColumn : aColumns)
 			{
 				UiComponent<?, ?> rComponent = getComponents().get(nIndex++);
 

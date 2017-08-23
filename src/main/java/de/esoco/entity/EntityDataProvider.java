@@ -154,11 +154,11 @@ public class EntityDataProvider<E extends Entity>
 
 		Predicate<E> pOrdering = null;
 
-		for (Entry<Function<? super E, ? extends Comparable<?>>, OrderDirection> rOrdering :
+		for (Entry<Function<? super E, ? extends Comparable<?>>, SortDirection> rOrdering :
 			 getAttributeOrders().entrySet())
 		{
 			Function<? super E, ?> rAttribute = rOrdering.getKey();
-			OrderDirection		   eDirection = rOrdering.getValue();
+			SortDirection		   eDirection = rOrdering.getValue();
 
 			if (rAttribute instanceof RelationType)
 			{
@@ -166,7 +166,7 @@ public class EntityDataProvider<E extends Entity>
 					Predicates.and(pOrdering,
 								   sortBy((RelationType<?>) rAttribute,
 										  eDirection ==
-										  OrderDirection.ASCENDING));
+										  SortDirection.ASCENDING));
 			}
 		}
 
