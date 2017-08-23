@@ -38,6 +38,6 @@ public class UiImageResource extends UiImageDefinition<UiImageResource>
 	 */
 	public UiImageResource(String sResourceId)
 	{
-		set(IMAGE, "$" + sResourceId);
+		set(IMAGE, sResourceId);
 	}
 }

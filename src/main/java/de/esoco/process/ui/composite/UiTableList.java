@@ -32,7 +32,7 @@ import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.component.UiImage;
+import de.esoco.process.ui.component.UiIcon;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
@@ -608,7 +608,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				if (rComponentDatatype.isEnum())
 				{
-					aComponent = rBuilder.addImage(null);
+					aComponent = rBuilder.addIcon(null);
 				}
 			}
 
@@ -703,18 +703,18 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			Object rValue = getColumnValue(rDataObject);
 
-			if (rComponent instanceof UiImage)
+			if (rComponent instanceof UiIcon)
 			{
-				UiImageResource rImage = null;
+				UiImageResource rIcon = null;
 
 				if (rValue != null)
 				{
-					rImage =
+					rIcon =
 						new UiImageResource("$im" +
 											DataElement.createItemName(rValue));
 				}
 
-				((UiImage) rComponent).setImage(rImage);
+				((UiIcon) rComponent).setIcon(rIcon);
 			}
 			else if (rComponent instanceof TextAttribute)
 			{

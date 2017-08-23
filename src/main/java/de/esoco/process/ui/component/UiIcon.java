@@ -21,6 +21,7 @@ import de.esoco.lib.property.LabelStyle;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.graphics.UiIconSupplier;
+import de.esoco.process.ui.graphics.UiImageResource;
 
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
@@ -53,12 +54,23 @@ public class UiIcon extends UiComponent<String, UiIcon>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the image to be displayed.
+	 * Sets the icon to be displayed from an icon supplier.
 	 *
-	 * @param rIconSupplier The component's image.
+	 * @param rIconSupplier The icon supplier
 	 */
 	public void setIcon(UiIconSupplier rIconSupplier)
 	{
-		super.image(rIconSupplier.getIcon());
+		super.image(rIconSupplier != null ? rIconSupplier.getIcon() : null);
+	}
+
+	/***************************************
+	 * Sets the icon to be displayed from an image resource (which must point to
+	 * an icon reference).
+	 *
+	 * @param rIconResource The icon image resource
+	 */
+	public void setIcon(UiImageResource rIconResource)
+	{
+		super.image(rIconResource);
 	}
 }
