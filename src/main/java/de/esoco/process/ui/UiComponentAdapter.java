@@ -17,35 +17,27 @@
 package de.esoco.process.ui;
 
 /********************************************************************
- * An adapter for UI components that like {@link UiComponentFactory} supports
- * on-demand creation and also subsequent updating of the component content. The
- * latter is handled by {@link #updateComponent(Object)} which will be invoked
- * to update the component value. It has an empty default implementation so that
- * this interface can also be used as a functional interface for lazy component
- * initialization in simple cases (e.g. for the creation of static content that
- * doesn't need to be updated).
+ * An extension of {@link UiComponentFactory} that also supports the updating of
+ * component value. The value update is implemented in the method {@link
+ * #updateComponent(UiComponent, Object)}.
+ *
+ * <p>Implementations of this interface are intended to be stateless so that
+ * they can be applied to multiple component instances (hat have been created by
+ * the same instance). They should only update components they receive as
+ * arguments to {@link #updateComponent(UiComponent, Object)} and not keep any
+ * reference to components in fields.</p>
  *
  * @author eso
  */
-@FunctionalInterface
-public interface UiComponentAdapter<T>
+public interface UiComponentAdapter<T> extends UiComponentFactory
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Creates a new component in the given parent.
+	 * Updates a component from the given value.
 	 *
-	 * @param rParent The parent container to create the component in
-	 * @param rValue  The component value
+	 * @param rComponent The component to be updated
+	 * @param rValue     The new value to update the component from
 	 */
-	public void buildComponent(UiContainer<?> rParent, T rValue);
-
-	/***************************************
-	 * Updates the component from the given value.
-	 *
-	 * @param rValue The new value to update the component from
-	 */
-	default public void updateComponent(T rValue)
-	{
-	}
+	public void updateComponent(UiComponent<?, ?> rComponent, T rValue);
 }

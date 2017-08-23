@@ -29,6 +29,7 @@ import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.UiComponentAdapter;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -175,6 +176,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
+	 * Adds multiple columns at once.
+	 *
+	 * @param rColumnDataReaders The
+	 */
+	@SuppressWarnings("unchecked")
+	public void addColumns(Function<? super T, ?>... rColumnDataReaders)
+	{
+		for (Function<? super T, ?> fGetColumnData : rColumnDataReaders)
+		{
+			addColumn(fGetColumnData);
+		}
+	}
+
+	/***************************************
 	 * Returns the columns of this table.
 	 *
 	 * @return The column list
@@ -288,8 +303,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			rColumn.dataAvailable(rDataProvider);
 		}
-
-		update();
 	}
 
 	/***************************************
@@ -320,6 +333,15 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	public void setSelection(Row rRow)
 	{
 		handleRowSelection(rRow, false);
+	}
+
+	/***************************************
+	 * @see de.esoco.process.ui.UiContainer#build()
+	 */
+	@Override
+	protected void build()
+	{
+		update();
 	}
 
 	/***************************************
@@ -423,6 +445,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		private Function<? super T, V> fGetColumnData;
 		private Class<? super V>	   rDatatype;
 		private Class<?>			   rDisplayDatatype;
+		private UiComponentAdapter<V>  rDisplayRenderer;
 
 		private UiLink aColumnTitle;
 
@@ -483,7 +506,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @return The column value (can be NULL)
 		 */
-		public Object getColumnValue(T rDataObject)
+		public V getColumnValue(T rDataObject)
 		{
 			return fGetColumnData.apply(rDataObject);
 		}
@@ -500,6 +523,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public Column<V> renderAs(Class<?> rDatatype)
 		{
 			this.rDisplayDatatype = rDatatype;
+
+			return this;
+		}
+
+		/***************************************
+		 * Sets the datatype of this column. If the value access function is an
+		 * instance of {@link RelationType} the datatype will be determined
+		 * automatically.
+		 *
+		 * @param  rRenderer rDatatype The column datatype class
+		 *
+		 * @return This instance
+		 */
+		public Column<V> renderWith(UiComponentAdapter<V> rRenderer)
+		{
+			this.rDisplayRenderer = rRenderer;
 
 			return this;
 		}
@@ -602,21 +641,28 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			UiComponent<?, ?> aComponent = null;
 
-			Class<?> rComponentDatatype =
-				rDisplayDatatype != null ? rDisplayDatatype : rDatatype;
-
-			if (rComponentDatatype != null)
+			if (rDisplayRenderer != null)
 			{
-				if (rComponentDatatype.isEnum() ||
-					UiIconSupplier.class.isAssignableFrom(rComponentDatatype))
-				{
-					aComponent = rBuilder.addIcon(null);
-				}
+				aComponent = rDisplayRenderer.createComponent(aDataList);
 			}
-
-			if (aComponent == null)
+			else
 			{
-				aComponent = rBuilder.addLabel("");
+				Class<?> rComponentDatatype =
+					rDisplayDatatype != null ? rDisplayDatatype : rDatatype;
+
+				if (rComponentDatatype != null)
+				{
+					if (rComponentDatatype.isEnum() ||
+						UiIconSupplier.class.isAssignableFrom(rComponentDatatype))
+					{
+						aComponent = rBuilder.addIcon(null);
+					}
+				}
+
+				if (aComponent == null)
+				{
+					aComponent = rBuilder.addLabel("");
+				}
 			}
 
 			updateDisplay(aComponent, rDataObject);
@@ -644,7 +690,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @return The formatted string
 		 */
-		protected String formatAsString(Object rValue)
+		protected String formatAsString(V rValue)
 		{
 			String sValue = "&nbsp;";
 
@@ -703,15 +749,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			UiComponent<?, ?> rComponent,
 			T				  rDataObject)
 		{
-			Object rValue = getColumnValue(rDataObject);
+			V rValue = getColumnValue(rDataObject);
 
-			if (rComponent instanceof UiIcon)
+			if (rDisplayRenderer != null)
 			{
-				updateIcon((UiIcon) rComponent, rValue);
+				rDisplayRenderer.updateComponent(rComponent, rValue);
 			}
-			else if (rComponent instanceof TextAttribute)
+			else
 			{
-				((TextAttribute) rComponent).setText(formatAsString(rValue));
+				if (rComponent instanceof UiIcon)
+				{
+					updateIcon((UiIcon) rComponent, rValue);
+				}
+				else if (rComponent instanceof TextAttribute)
+				{
+					((TextAttribute) rComponent).setText(formatAsString(rValue));
+				}
 			}
 		}
 
@@ -721,7 +774,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @param rIcon  The icon component
 		 * @param rValue The column value
 		 */
-		protected void updateIcon(UiIcon rIcon, Object rValue)
+		protected void updateIcon(UiIcon rIcon, V rValue)
 		{
 			if (rValue instanceof UiIconSupplier)
 			{

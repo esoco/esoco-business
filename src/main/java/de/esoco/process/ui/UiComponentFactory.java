@@ -17,7 +17,7 @@
 package de.esoco.process.ui;
 
 /********************************************************************
- * A factory for UI components
+ * A factory for UI components.
  *
  * @author eso
  */

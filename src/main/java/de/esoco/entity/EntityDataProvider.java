@@ -75,14 +75,15 @@ public class EntityDataProvider<E extends Entity>
 	 * Creates a new instance that queries the entities of a certain type the
 	 * match certain criteria.
 	 *
-	 * @param rEntityType The class of the entity type to be queried
-	 * @param pCriteria   The criteria for which to limit the queried entities
+	 * @param rEntityType      The class of the entity type to be queried
+	 * @param pDefaultCriteria The criteria for which to limit the queried
+	 *                         entities
 	 */
 	public EntityDataProvider(
 		Class<E>			 rEntityType,
-		Predicate<? super E> pCriteria)
+		Predicate<? super E> pDefaultCriteria)
 	{
-		this(new QueryPredicate<>(rEntityType, pCriteria));
+		this(new QueryPredicate<>(rEntityType, pDefaultCriteria));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -107,6 +108,18 @@ public class EntityDataProvider<E extends Entity>
 		}
 
 		return aResult;
+	}
+
+	/***************************************
+	 * Sets the default criteria.
+	 *
+	 * @param pCriteria The new default criteria
+	 */
+	public void setDefaultCriteria(Predicate<? super E> pCriteria)
+	{
+		qBaseQuery = new QueryPredicate<>(qBaseQuery.getQueryType(), pCriteria);
+
+		applyConstraints();
 	}
 
 	/***************************************
