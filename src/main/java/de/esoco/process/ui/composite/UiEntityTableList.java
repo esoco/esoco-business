@@ -20,8 +20,13 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDataProvider;
 
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.Predicates;
 
 import de.esoco.process.ui.UiContainer;
+
+import de.esoco.storage.StoragePredicates;
+
+import org.obrel.core.RelationType;
 
 
 /********************************************************************
@@ -34,6 +39,9 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	//~ Instance fields --------------------------------------------------------
 
 	private EntityDataProvider<E> aEntityProvider;
+
+	private String				   sGlobalFilter		   = null;
+	private RelationType<String>[] aGlobalFilterAttributes;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -84,5 +92,71 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	{
 		aEntityProvider.setDefaultCriteria(pCriteria);
 		update();
+	}
+
+	/***************************************
+	 * Returns the global filter string.
+	 *
+	 * @return The global filter string or NULL for none
+	 */
+	public final String getGlobalFilter()
+	{
+		return sGlobalFilter;
+	}
+
+	/***************************************
+	 * Sets a global filter string for this list. This will apply the filter to
+	 * all attributes set with {@link
+	 * #setGlobalFilterAttributes(RelationType...)}.
+	 *
+	 * @param sFilter The filter string or NULL or empty for no filter
+	 */
+	public void setGlobalFilter(String sFilter)
+	{
+		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
+		update();
+	}
+
+	/***************************************
+	 * Sets the attributes to be considered by the global filter.
+	 *
+	 * @param rAttributes The new filter attributes
+	 */
+	@SafeVarargs
+	public final void setGlobalFilterAttributes(
+		RelationType<String>... rAttributes)
+	{
+		this.aGlobalFilterAttributes = rAttributes;
+	}
+
+	/***************************************
+	 * Adds the global filter criteria (if such exist) to the given predicate.
+	 *
+	 * @param  pToCriteria The predicate to add the criteria to
+	 *
+	 * @return The resulting predicate
+	 */
+	private Predicate<? super E> addGlobalFilter(
+		Predicate<? super E> pToCriteria)
+	{
+		if (sGlobalFilter != null &&
+			!sGlobalFilter.isEmpty() &&
+			aGlobalFilterAttributes != null)
+		{
+			Predicate<? super E> pAttrCriteria = null;
+
+			Predicate<Object> pLikeFilter =
+				StoragePredicates.createLikeFilter(sGlobalFilter);
+
+			for (RelationType<String> rFilterAttr : aGlobalFilterAttributes)
+			{
+				pAttrCriteria =
+					Predicates.or(pAttrCriteria, rFilterAttr.is(pLikeFilter));
+			}
+
+			pToCriteria = Predicates.and(pToCriteria, pAttrCriteria);
+		}
+
+		return pToCriteria;
 	}
 }

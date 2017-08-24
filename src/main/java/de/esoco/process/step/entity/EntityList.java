@@ -36,7 +36,7 @@ import de.esoco.process.step.entity.EntityList.EntityListItem;
 
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
-import de.esoco.storage.StorageManager;
+import de.esoco.storage.StoragePredicates;
 import de.esoco.storage.StoragePredicates.SortPredicate;
 import de.esoco.storage.StorageRelationTypes;
 
@@ -52,8 +52,6 @@ import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 import static de.esoco.lib.property.StyleProperties.MULTI_SELECTION;
-
-import static de.esoco.storage.StoragePredicates.like;
 
 
 /********************************************************************
@@ -161,29 +159,6 @@ public class EntityList<E extends Entity,
 
 		aNavigation = new EntityListNavigation();
 		aItemList   = new EntityListItemList();
-	}
-
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
-	 * Creates a filter value for a SQL like expression.
-	 *
-	 * @param  sFilter The original filter value
-	 *
-	 * @return The converted filter value
-	 */
-	static Predicate<Object> createLikeFilter(String sFilter)
-	{
-		if (sFilter.indexOf('*') == -1)
-		{
-			sFilter += "*";
-		}
-
-		sFilter = StorageManager.convertToSqlConstraint(sFilter);
-
-		Predicate<Object> pLikeFilter = like(sFilter);
-
-		return pLikeFilter;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -570,7 +545,8 @@ public class EntityList<E extends Entity,
 
 			if (rFilterAttributes != null)
 			{
-				Predicate<Object> pLikeFilter = createLikeFilter(sGlobalFilter);
+				Predicate<Object> pLikeFilter =
+					StoragePredicates.createLikeFilter(sGlobalFilter);
 
 				for (RelationType<String> rFilterAttr : rFilterAttributes)
 				{

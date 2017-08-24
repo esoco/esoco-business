@@ -227,7 +227,8 @@ public class EntityAttributesHeader<E extends Entity>
 			TextConvert.capitalizedIdentifier(sAttrName);
 
 		Parameter<String> aTitleLabel =
-			rTitlePanel.label("").buttons(sColumnTitle)
+			rTitlePanel.label("")
+					   .buttons(sColumnTitle)
 					   .content(ContentType.HYPERLINK)
 					   .onAction(new ValueEventHandler<String>()
 				{
@@ -259,8 +260,8 @@ public class EntityAttributesHeader<E extends Entity>
 			if (rAttribute.getValueType() == String.class)
 			{
 				pAttrCriterion =
-					rAttribute.is(EntityList.createLikeFilter(rFilterValue
-															  .toString()));
+					rAttribute.is(StoragePredicates.createLikeFilter(rFilterValue
+																	 .toString()));
 			}
 			else
 			{
