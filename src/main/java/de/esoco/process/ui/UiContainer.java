@@ -73,6 +73,24 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns a {@link UiBuilder} instance for this container. The builder
+	 * instance is cached internally so that it doesn't need to be kept by the
+	 * invoking code.
+	 *
+	 * @return A UI builder instance for this container
+	 */
+	@SuppressWarnings("unchecked")
+	public UiBuilder<C> builder()
+	{
+		if (aContainerBuilder == null)
+		{
+			aContainerBuilder = new UiBuilder<>((C) this);
+		}
+
+		return aContainerBuilder;
+	}
+
+	/***************************************
 	 * Returns the components of this container in the order in which they have
 	 * been added.
 	 *
@@ -173,24 +191,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	protected void build()
 	{
-	}
-
-	/***************************************
-	 * Returns a {@link UiBuilder} instance for this container. The builder
-	 * instance is cached internally so that it doesn't need to be kept by the
-	 * invoking code.
-	 *
-	 * @return A UI builder instance for this container
-	 */
-	@SuppressWarnings("unchecked")
-	protected UiBuilder<C> builder()
-	{
-		if (aContainerBuilder == null)
-		{
-			aContainerBuilder = new UiBuilder<>((C) this);
-		}
-
-		return aContainerBuilder;
 	}
 
 	/***************************************

@@ -22,7 +22,6 @@ import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiHeaderLayout;
 
@@ -175,17 +174,6 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		}
 
 		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * Returns the builder for the item content.
-		 *
-		 * @return The item builder
-		 */
-		@Override
-		public UiBuilder<Item> builder()
-		{
-			return super.builder();
-		}
 
 		/***************************************
 		 * Helper method to create a new header panel with a certain layout in

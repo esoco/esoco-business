@@ -29,7 +29,6 @@ import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.ui.UiComponent;
-import de.esoco.process.ui.UiComponentAdapter;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -448,7 +447,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		private Function<? super T, V> fGetColumnData;
 		private Class<? super V>	   rDatatype;
 		private Class<?>			   rDisplayDatatype;
-		private UiComponentAdapter<V>  rDisplayRenderer;
+
+		private Function<UiBuilder<?>, UiComponent<?, ?>> fDisplayFactory;
+		private BiConsumer<UiComponent<?, ?>, V>		  fDisplayUpdate;
 
 		private UiLink aColumnTitle;
 
@@ -503,6 +504,25 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
+		 * Sets a factory function for the display components of this column.
+		 * The function must return a new component that has been created in the
+		 * container of the given UI builder. If a display factory is set it
+		 * will be used to create the display components for this column in each
+		 * row. Otherwise default display components will be created.
+		 *
+		 * @param  fDisplayFactory The display component factory function
+		 *
+		 * @return This instance
+		 */
+		public Column<V> displayWith(
+			Function<UiBuilder<?>, UiComponent<?, ?>> fDisplayFactory)
+		{
+			this.fDisplayFactory = fDisplayFactory;
+
+			return this;
+		}
+
+		/***************************************
 		 * Returns the value of this column from a data object.
 		 *
 		 * @param  rDataObject The data object
@@ -512,38 +532,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public V getColumnValue(T rDataObject)
 		{
 			return fGetColumnData.apply(rDataObject);
-		}
-
-		/***************************************
-		 * Sets the datatype of this column. If the value access function is an
-		 * instance of {@link RelationType} the datatype will be determined
-		 * automatically.
-		 *
-		 * @param  rDatatype The column datatype class
-		 *
-		 * @return This instance
-		 */
-		public Column<V> renderAs(Class<?> rDatatype)
-		{
-			this.rDisplayDatatype = rDatatype;
-
-			return this;
-		}
-
-		/***************************************
-		 * Sets the datatype of this column. If the value access function is an
-		 * instance of {@link RelationType} the datatype will be determined
-		 * automatically.
-		 *
-		 * @param  rRenderer rDatatype The column datatype class
-		 *
-		 * @return This instance
-		 */
-		public Column<V> renderWith(UiComponentAdapter<V> rRenderer)
-		{
-			this.rDisplayRenderer = rRenderer;
-
-			return this;
 		}
 
 		/***************************************
@@ -601,6 +589,24 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
+		 * Sets a consumer that will be invoked to update display components of
+		 * this column. This is typically used when an application defines their
+		 * own display components through {@link #displayWith(Function)}.
+		 *
+		 * @param  fDisplayUpdate A binary consumer that updates the given
+		 *                        component with a new column value
+		 *
+		 * @return This instance
+		 */
+		public Column<V> updateWith(
+			BiConsumer<UiComponent<?, ?>, V> fDisplayUpdate)
+		{
+			this.fDisplayUpdate = fDisplayUpdate;
+
+			return this;
+		}
+
+		/***************************************
 		 * Sets the relative width of this column.
 		 *
 		 * @param  eWidth The relative size constant for the column width
@@ -644,9 +650,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			UiComponent<?, ?> aComponent = null;
 
-			if (rDisplayRenderer != null)
+			if (fDisplayFactory != null)
 			{
-				aComponent = rDisplayRenderer.createComponent(aDataList);
+				aComponent = fDisplayFactory.apply(rBuilder);
 			}
 			else
 			{
@@ -753,9 +759,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			V rValue = getColumnValue(rDataObject);
 
-			if (rDisplayRenderer != null)
+			if (fDisplayUpdate != null)
 			{
-				rDisplayRenderer.updateComponent(rComponent, rValue);
+				fDisplayUpdate.accept(rComponent, rValue);
 			}
 			else
 			{

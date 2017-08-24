@@ -57,17 +57,6 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	/***************************************
 	 * Overridden to be public.
 	 *
-	 * @see UiContainer#removeComponent(UiComponent)
-	 */
-	@Override
-	public void clear()
-	{
-		super.clear();
-	}
-
-	/***************************************
-	 * Overridden to be public.
-	 *
 	 * @see UiContainer#getLayout()
 	 */
 	@Override
