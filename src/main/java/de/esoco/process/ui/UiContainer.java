@@ -245,6 +245,17 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Checks if the content of this container has already been built. Can be
+	 * used by subclasses to check the initialization status of a container.
+	 *
+	 * @return TRUE if the container content has been built
+	 */
+	protected final boolean isBuilt()
+	{
+		return bBuilt;
+	}
+
+	/***************************************
 	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only work
 	 * for layouts that support multiple rows of components. Container
 	 * subclasses that want to expose this methods in their public API should

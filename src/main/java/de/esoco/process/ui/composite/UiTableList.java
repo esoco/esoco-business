@@ -302,6 +302,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			rColumn.dataAvailable(rDataProvider);
 		}
+
+		// only update if the container has been built already, otherwise leave
+		// it to the build() method
+		if (isBuilt())
+		{
+			update();
+		}
 	}
 
 	/***************************************
@@ -335,12 +342,15 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * @see de.esoco.process.ui.UiContainer#build()
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected void build()
 	{
-		update();
+		if (rDataProvider != null)
+		{
+			update();
+		}
 	}
 
 	/***************************************
