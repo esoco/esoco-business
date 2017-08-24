@@ -155,6 +155,8 @@ public class UiListPanel extends UiComposite<UiListPanel>
 
 		private UiLayoutPanel aItemHeader = null;
 
+		private String sDefaultStyle = null;
+
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
@@ -225,6 +227,27 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		{
 			return UiListPanel.this.getComponentStyleName() +
 				   super.getComponentStyleName();
+		}
+
+		/***************************************
+		 * Returns the default style of this item.
+		 *
+		 * @return The default style
+		 */
+		protected final String getDefaultStyle()
+		{
+			return sDefaultStyle;
+		}
+
+		/***************************************
+		 * Sets the default style that should always be applied to this item (in
+		 * additional to any style set in {@link #style()}).
+		 *
+		 * @param rDefaultStyle The defaultStyle value
+		 */
+		protected final void setDefaultStyle(String rDefaultStyle)
+		{
+			sDefaultStyle = rDefaultStyle;
 		}
 	}
 

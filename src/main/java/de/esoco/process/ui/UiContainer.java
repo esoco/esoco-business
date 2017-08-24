@@ -313,7 +313,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @throws IllegalArgumentException If the given component is not found in
 	 *                                  the parent container
 	 */
-	@SuppressWarnings("unchecked")
 	void placeComponentBefore(
 		UiComponent<?, ?> rBeforeComponent,
 		UiComponent<?, ?> rComponent)

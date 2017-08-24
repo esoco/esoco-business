@@ -140,7 +140,7 @@ public abstract class DataElement<T> extends StringProperties
 	 *
 	 * @param  rValue The value to create the item name for
 	 *
-	 * @return The resulting item string
+	 * @return The resulting item string (an empty string for a NULL value)
 	 */
 	public static String createItemName(Object rValue)
 	{
@@ -169,7 +169,7 @@ public abstract class DataElement<T> extends StringProperties
 	 *
 	 * @param  rValue The value
 	 *
-	 * @return The resulting item string
+	 * @return The resulting item string (an empty string for a NULL value)
 	 */
 	public static String createItemResource(Object rValue)
 	{

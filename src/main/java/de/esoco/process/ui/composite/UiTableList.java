@@ -377,7 +377,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			}
 			else
 			{
-				aRows.add(createRow(aDataList.addItem(), rRowData));
+				Row aRow = createRow(aDataList.addItem(), rRowData);
+
+				aRow.setIndex(nRowIndex);
+				aRows.add(aRow);
 			}
 
 			nRowIndex++;
@@ -726,7 +729,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/***************************************
 		 * Handles the selection event of a certain column.
 		 */
-		@SuppressWarnings({ "unchecked", "rawtypes" })
 		protected void handleColumnSelection()
 		{
 			setSorting(nextSortDirection());
@@ -924,8 +926,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Item    rRowItem;
-		private T	    rRowData;
+		private Item rRowItem;
+		private T    rRowData;
+
+		private int     nRowIndex;
 		private boolean bSelected = false;
 
 		//~ Constructors -------------------------------------------------------
@@ -983,6 +987,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public final void setSelected(boolean bSelected)
 		{
 			this.bSelected = bSelected;
+			setRowItemStyle();
 		}
 
 		/***************************************
@@ -1110,6 +1115,32 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected void updateExpandedContent()
 		{
+		}
+
+		/***************************************
+		 * Internal method to set the index of this row in the table list.
+		 *
+		 * @param nIndex The new index
+		 */
+		void setIndex(int nIndex)
+		{
+			nRowIndex = nIndex;
+			setRowItemStyle();
+		}
+
+		/***************************************
+		 * Sets the style of the parent item according to the row state.
+		 */
+		private void setRowItemStyle()
+		{
+			String sItemStyle = nRowIndex % 2 == 1 ? "odd" : "even";
+
+			if (bSelected)
+			{
+				sItemStyle += " selected";
+			}
+
+			rRowItem.style().styleName(sItemStyle);
 		}
 	}
 
