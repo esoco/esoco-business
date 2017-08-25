@@ -260,8 +260,8 @@ public class EntityAttributesHeader<E extends Entity>
 			if (rAttribute.getValueType() == String.class)
 			{
 				pAttrCriterion =
-					rAttribute.is(StoragePredicates.createLikeFilter(rFilterValue
-																	 .toString()));
+					rAttribute.is(StoragePredicates.createWildcardFilter(rFilterValue
+																		 .toString()));
 			}
 			else
 			{

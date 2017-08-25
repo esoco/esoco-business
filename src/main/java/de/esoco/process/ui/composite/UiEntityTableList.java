@@ -20,11 +20,8 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDataProvider;
 
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.Predicates;
 
 import de.esoco.process.ui.UiContainer;
-
-import de.esoco.storage.StoragePredicates;
 
 import org.obrel.core.RelationType;
 
@@ -114,6 +111,9 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	public void setGlobalFilter(String sFilter)
 	{
 		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
+
+		aEntityProvider.setWildcardFilter(sGlobalFilter,
+										  aGlobalFilterAttributes);
 		update();
 	}
 
@@ -127,36 +127,8 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 		RelationType<String>... rAttributes)
 	{
 		this.aGlobalFilterAttributes = rAttributes;
-	}
 
-	/***************************************
-	 * Adds the global filter criteria (if such exist) to the given predicate.
-	 *
-	 * @param  pToCriteria The predicate to add the criteria to
-	 *
-	 * @return The resulting predicate
-	 */
-	private Predicate<? super E> addGlobalFilter(
-		Predicate<? super E> pToCriteria)
-	{
-		if (sGlobalFilter != null &&
-			!sGlobalFilter.isEmpty() &&
-			aGlobalFilterAttributes != null)
-		{
-			Predicate<? super E> pAttrCriteria = null;
-
-			Predicate<Object> pLikeFilter =
-				StoragePredicates.createLikeFilter(sGlobalFilter);
-
-			for (RelationType<String> rFilterAttr : aGlobalFilterAttributes)
-			{
-				pAttrCriteria =
-					Predicates.or(pAttrCriteria, rFilterAttr.is(pLikeFilter));
-			}
-
-			pToCriteria = Predicates.and(pToCriteria, pAttrCriteria);
-		}
-
-		return pToCriteria;
+		aEntityProvider.setWildcardFilter(sGlobalFilter,
+										  aGlobalFilterAttributes);
 	}
 }

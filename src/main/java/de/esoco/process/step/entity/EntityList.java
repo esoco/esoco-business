@@ -18,6 +18,7 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityIterator;
+import de.esoco.entity.EntityPredicates;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
@@ -36,7 +37,6 @@ import de.esoco.process.step.entity.EntityList.EntityListItem;
 
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
-import de.esoco.storage.StoragePredicates;
 import de.esoco.storage.StoragePredicates.SortPredicate;
 import de.esoco.storage.StorageRelationTypes;
 
@@ -110,7 +110,7 @@ public class EntityList<E extends Entity,
 	private InteractionFragment rHeader;
 	private ParameterList	    aItemListPanel;
 
-	private RelationType<String>[] rFilterAttributes;
+	private RelationType<String>[] rGlobalFilterAttributes;
 
 	private Collection<EntitySelectionListener<E>> aSelectionListeners =
 		new LinkedHashSet<>();
@@ -368,7 +368,7 @@ public class EntityList<E extends Entity,
 	public final void setGlobalFilterAttributes(
 		RelationType<String>... rFilterAttributes)
 	{
-		this.rFilterAttributes = rFilterAttributes;
+		this.rGlobalFilterAttributes = rFilterAttributes;
 	}
 
 	/***************************************
@@ -537,27 +537,13 @@ public class EntityList<E extends Entity,
 	 */
 	private void updateQuery()
 	{
+		// will be NULL if no global filter is set
+		Predicate<? super E> pGlobalFilter =
+			EntityPredicates.createWildcardFilter(sGlobalFilter,
+												  rGlobalFilterAttributes);
+
 		pAllCriteria = Predicates.and(pDefaultCriteria, pExtraCriteria);
-
-		if (sGlobalFilter != null && !sGlobalFilter.isEmpty())
-		{
-			Predicate<? super E> pAttrCriteria = null;
-
-			if (rFilterAttributes != null)
-			{
-				Predicate<Object> pLikeFilter =
-					StoragePredicates.createLikeFilter(sGlobalFilter);
-
-				for (RelationType<String> rFilterAttr : rFilterAttributes)
-				{
-					pAttrCriteria =
-						Predicates.or(pAttrCriteria,
-									  rFilterAttr.is(pLikeFilter));
-				}
-			}
-
-			pAllCriteria = Predicates.and(pAllCriteria, pAttrCriteria);
-		}
+		pAllCriteria = Predicates.and(pAllCriteria, pGlobalFilter);
 
 		try
 		{
@@ -913,15 +899,7 @@ public class EntityList<E extends Entity,
 							  .images()
 							  .set(ICON_SIZE, RelativeScale.SMALL)
 							  .layout(LayoutType.TABLE)
-							  .onAction(new ValueEventHandler<PagingNavigation>()
-				{
-					@Override
-					public void handleValueUpdate(PagingNavigation eNavigation)
-						throws Exception
-					{
-						navigate(eNavigation);
-					}
-				});
+							  .onAction(this::navigate);
 		}
 	}
 }

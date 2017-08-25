@@ -25,6 +25,7 @@ import de.esoco.storage.QueryPredicate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
@@ -45,6 +46,10 @@ public class EntityDataProvider<E extends Entity>
 
 	private QueryPredicate<E> qBaseQuery;
 	private QueryPredicate<E> qVisibleEntities;
+
+	private Predicate<E> pAttributeFilter;
+	private Predicate<E> pWildcardFilter;
+	private Predicate<E> pSortPredicate;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -119,7 +124,28 @@ public class EntityDataProvider<E extends Entity>
 	{
 		qBaseQuery = new QueryPredicate<>(qBaseQuery.getQueryType(), pCriteria);
 
-		applyConstraints();
+		updateVisibleEntities();
+	}
+
+	/***************************************
+	 * Sets a wildcard filter for certain text attributes of the entity type.
+	 * See {@link EntityPredicates#createWildcardFilter(String,
+	 * RelationType...)} for details.
+	 *
+	 * @param sFilter             sWildcard The wildcard filter string (can be
+	 *                            NULL or empty)
+	 * @param rFilteredAttributes The text attributes to filter (can be NULL or
+	 *                            empty)
+	 */
+	@SuppressWarnings("unchecked")
+	public void setWildcardFilter(
+		String					sFilter,
+		RelationType<String>... rFilteredAttributes)
+	{
+		pWildcardFilter =
+			EntityPredicates.createWildcardFilter(sFilter, rFilteredAttributes);
+
+		updateVisibleEntities();
 	}
 
 	/***************************************
@@ -140,12 +166,13 @@ public class EntityDataProvider<E extends Entity>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void applyConstraints()
+	protected void updateFilter(
+		Map<Function<? super E, ?>, java.util.function.Predicate<?>> rFilters)
 	{
-		de.esoco.lib.expression.Predicate<E> pCriteria = null;
+		pAttributeFilter = null;
 
 		for (Entry<Function<? super E, ?>, java.util.function.Predicate<?>> rFilter :
-			 getAttributeFilters().entrySet())
+			 rFilters.entrySet())
 		{
 			Function<? super E, ?>		    rAttribute = rFilter.getKey();
 			java.util.function.Predicate<?> pFilter    = rFilter.getValue();
@@ -153,41 +180,62 @@ public class EntityDataProvider<E extends Entity>
 			if (rAttribute instanceof RelationType &&
 				pFilter instanceof de.esoco.lib.expression.Predicate)
 			{
-				RelationType<Object>					  rEntityAttr =
+				RelationType<Object> rEntityAttr =
 					(RelationType<Object>) rAttribute;
-				de.esoco.lib.expression.Predicate<Object> pCriterion  =
-					(de.esoco.lib.expression.Predicate<Object>) pFilter;
 
-				pCriteria =
-					Predicates.and(pCriteria,
+				Predicate<Object> pCriterion = (Predicate<Object>) pFilter;
+
+				pAttributeFilter =
+					Predicates.and(pAttributeFilter,
 								   EntityPredicates.ifAttribute(rEntityAttr,
 																pCriterion));
 			}
 		}
 
-		Predicate<E> pOrdering = null;
+		updateVisibleEntities();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void updateSorting(
+		Map<Function<? super E, ? extends Comparable<?>>, SortDirection> rSortings)
+	{
+		pSortPredicate = null;
 
 		for (Entry<Function<? super E, ? extends Comparable<?>>, SortDirection> rOrdering :
-			 getAttributeOrders().entrySet())
+			 rSortings.entrySet())
 		{
 			Function<? super E, ?> rAttribute = rOrdering.getKey();
 			SortDirection		   eDirection = rOrdering.getValue();
 
 			if (rAttribute instanceof RelationType)
 			{
-				pOrdering =
-					Predicates.and(pOrdering,
+				pSortPredicate =
+					Predicates.and(pSortPredicate,
 								   sortBy((RelationType<?>) rAttribute,
 										  eDirection ==
 										  SortDirection.ASCENDING));
 			}
 		}
 
-		pCriteria = Predicates.and(pCriteria, pOrdering);
+		updateVisibleEntities();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	protected void updateVisibleEntities()
+	{
+		Predicate<E> pCriteria =
+			Predicates.and(qBaseQuery.getCriteria(), pAttributeFilter);
+
+		pCriteria = Predicates.and(pAttributeFilter, pWildcardFilter);
+		pCriteria = Predicates.and(pCriteria, pSortPredicate);
 
 		qVisibleEntities =
-			new QueryPredicate<>(qBaseQuery.getQueryType(),
-								 Predicates.and(qBaseQuery.getCriteria(),
-												pCriteria));
+			new QueryPredicate<>(qBaseQuery.getQueryType(), pCriteria);
 	}
 }

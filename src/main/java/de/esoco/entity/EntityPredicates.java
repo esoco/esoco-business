@@ -21,6 +21,7 @@ import de.esoco.entity.EntityFunctions.GetExtraAttribute;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
+import de.esoco.lib.expression.function.GetElement.GetRelationValue;
 import de.esoco.lib.expression.predicate.ElementPredicate;
 
 import de.esoco.storage.QueryPredicate;
@@ -58,6 +59,48 @@ public class EntityPredicates
 	}
 
 	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Creates a wildcard filter predicate for certain text attributes of an
+	 * entity type. The search string may contain wildcards as defined for
+	 * {@link StoragePredicates#createWildcardFilter(String)}. This method
+	 * accepts NULL and empty arguments so that it can be invoked without the
+	 * need to check the arguments. Such empty arguments will result in NULL
+	 * being returned (which can then for example be fed into {@link
+	 * Predicates#and(Predicate, Predicate)}).
+	 *
+	 * @param  sWildcard           The wildcard filter string (can be NULL or
+	 *                             empty)
+	 * @param  rFilteredAttributes The text attributes to filter (can be NULL or
+	 *                             empty)
+	 *
+	 * @return The resulting predicate (may be NULL if arguments are NULL or
+	 *         empty)
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E> Predicate<E> createWildcardFilter(
+		String					sWildcard,
+		RelationType<String>... rFilteredAttributes)
+	{
+		Predicate<E> pWildcardFilter = null;
+
+		if (sWildcard != null &&
+			!sWildcard.isEmpty() &&
+			rFilteredAttributes != null)
+		{
+			Predicate<String> pWildcardMatch =
+				StoragePredicates.createWildcardFilter(sWildcard);
+
+			for (RelationType<String> rAttr : rFilteredAttributes)
+			{
+				pWildcardFilter =
+					(Predicate<E>) Predicates.or(pWildcardFilter,
+												 rAttr.is(pWildcardMatch));
+			}
+		}
+
+		return pWildcardFilter;
+	}
 
 	/***************************************
 	 * A variant of {@link StoragePredicates#forType(Class, Predicate)} for
