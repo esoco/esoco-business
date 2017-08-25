@@ -599,6 +599,15 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
+		 * @see de.esoco.process.ui.UiContainer#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			return super.toString() + fragment().getUIProperties(type());
+		}
+
+		/***************************************
 		 * Sets a consumer that will be invoked to update display components of
 		 * this column. This is typically used when an application defines their
 		 * own display components through {@link #displayWith(Function)}.
@@ -625,9 +634,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		public final Column<V> width(RelativeSize eWidth)
 		{
-			cell().width(eWidth);
-
-			return this;
+			return set(RELATIVE_WIDTH, eWidth);
 		}
 
 		/***************************************
@@ -1073,10 +1080,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				UiComponent<?, ?> rComponent = getComponents().get(nIndex++);
 
-				RelativeSize eColumnWidth =
-					rColumn.cell().get(RELATIVE_WIDTH, null);
-
-				int nColumnSpan = rColumn.cell().get(COLUMN_SPAN, 0);
+				RelativeSize eColumnWidth = rColumn.get(RELATIVE_WIDTH);
+				Integer		 rColumnSpan  = rColumn.get(COLUMN_SPAN);
 
 				rColumn.style().applyPropertiesTo(rComponent);
 
@@ -1085,9 +1090,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 					rComponent.set(RELATIVE_WIDTH, eColumnWidth);
 				}
 
-				if (nColumnSpan > 0)
+				if (rColumnSpan != null && rColumnSpan.intValue() > 0)
 				{
-					rComponent.set(nColumnSpan, COLUMN_SPAN);
+					rComponent.set(rColumnSpan.intValue(), COLUMN_SPAN);
 				}
 			}
 		}
