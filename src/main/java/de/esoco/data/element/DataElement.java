@@ -508,6 +508,21 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * Trims this data element for minimal (serialization) size. Afterwards the
+	 * attributes of this data element should no longer be accessed.
+	 */
+	public void trim()
+	{
+		if (!bModified)
+		{
+			updateValue(null);
+			setValidator(null);
+			clearProperties();
+			sResourceId = null;
+		}
+	}
+
+	/***************************************
 	 * Updates the element value. Will be invoked by {@link #setValue(Object)}
 	 * to store a new value after validation. If a subclass wants to reject
 	 * certain values it should do so in the {@link #isValidValue(Object)}
