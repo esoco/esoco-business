@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
+import de.esoco.lib.property.ViewDisplayType;
+
 import de.esoco.process.ui.UiChildView;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
@@ -28,6 +30,10 @@ import de.esoco.process.ui.UiView;
  */
 public class UiPopupView extends UiChildView<UiPopupView>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private boolean bModal;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -35,9 +41,35 @@ public class UiPopupView extends UiChildView<UiPopupView>
 	 *
 	 * @param rParent The parent view
 	 * @param rLayout The dialog layout
+	 * @param bModal  TRUE to block any input outside of the view
 	 */
-	public UiPopupView(UiView<?> rParent, UiLayout rLayout)
+	public UiPopupView(UiView<?> rParent, UiLayout rLayout, boolean bModal)
 	{
-		super(rParent, rLayout);
+		super(rParent,
+			  rLayout,
+			  bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
+		this.bModal = bModal;
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTitle(String sTitle)
+	{
+		super.setTitle(sTitle);
+
+		if (sTitle != null)
+		{
+			setViewType(bModal ? ViewDisplayType.MODAL_DIALOG
+							   : ViewDisplayType.DIALOG);
+		}
+		else
+		{
+			setViewType(bModal ? ViewDisplayType.MODAL_VIEW
+							   : ViewDisplayType.VIEW);
+		}
 	}
 }

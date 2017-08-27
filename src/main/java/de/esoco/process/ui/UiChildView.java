@@ -16,7 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.process.ViewFragment;
+import de.esoco.lib.property.LayoutProperties;
+import de.esoco.lib.property.ViewDisplayType;
+
+import de.esoco.process.step.InteractionFragment;
+
+import java.util.List;
+
+import org.obrel.core.RelationType;
+
+import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
 
 /********************************************************************
@@ -26,10 +35,6 @@ import de.esoco.process.ViewFragment;
  */
 public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private ViewFragment rViewFragment;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -37,11 +42,14 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	 *
 	 * @see UiView#UiView(UiView, UiLayout)
 	 */
-	public UiChildView(UiView<?> rParent, UiLayout rLayout)
+	public UiChildView(UiView<?>	   rParent,
+					   UiLayout		   rLayout,
+					   ViewDisplayType eViewType)
 	{
 		super(rParent, rLayout);
 
-		rViewFragment = getParent().fragment().showView("", fragment(), false);
+		rParent.fragment().addSubFragment(type(), fragment());
+		setViewType(eViewType);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -55,14 +63,20 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	@SuppressWarnings("unchecked")
 	public V setVisible(boolean bVisible)
 	{
+		RelationType<List<RelationType<?>>> rViewParam = type();
+
 		if (bVisible)
 		{
+			fragment().get(VIEW_PARAMS).add(rViewParam);
 			applyProperties();
 		}
-		else if (rViewFragment != null)
+		else
 		{
-			rViewFragment.hide();
-			rViewFragment = null;
+			InteractionFragment rParentFragment = getParent().fragment();
+
+			fragment().get(VIEW_PARAMS).remove(rViewParam);
+			rParentFragment.removeInteractionParameters(rViewParam);
+			rParentFragment.removeSubFragment(rViewParam);
 		}
 
 		return (V) this;
@@ -78,5 +92,15 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	protected void attachTo(UiContainer<?> rParent)
 	{
 		setupContainerFragment(rParent);
+	}
+
+	/***************************************
+	 * Set the type of this view
+	 *
+	 * @param eViewType The view type
+	 */
+	protected void setViewType(ViewDisplayType eViewType)
+	{
+		set(LayoutProperties.VIEW_DISPLAY_TYPE, eViewType);
 	}
 }

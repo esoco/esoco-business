@@ -16,12 +16,17 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.StandardProperties;
+import de.esoco.lib.property.TitleAttribute;
+
+
 /********************************************************************
  * The base class for top-level UI rendering contexts.
  *
  * @author eso
  */
 public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
+	implements TitleAttribute
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -45,6 +50,15 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	public abstract V setVisible(boolean bVisible);
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getTitle()
+	{
+		return get(StandardProperties.TITLE);
+	}
+
+	/***************************************
 	 * Overridden to always throw an {@link UnsupportedOperationException} as
 	 * this functionality is not possible for views.
 	 *
@@ -54,5 +68,26 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	public V placeBefore(UiComponent<?, ?> rBeforeComponent)
 	{
 		throw new UnsupportedOperationException();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTitle(String sTitle)
+	{
+		set(StandardProperties.TITLE, sTitle);
+	}
+
+	/***************************************
+	 * Fluent variant of {@link #setTitle(String)}.
+	 *
+	 * @param  sTitle The view title
+	 *
+	 * @return This instance
+	 */
+	public V title(String sTitle)
+	{
+		return set(StandardProperties.TITLE, sTitle);
 	}
 }

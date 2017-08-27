@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
+import de.esoco.lib.property.ViewDisplayType;
+
 import de.esoco.process.ui.UiChildView;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
@@ -35,9 +37,12 @@ public class UiDialog extends UiChildView<UiDialog>
 	 *
 	 * @param rParent The parent view
 	 * @param rLayout The dialog layout
+	 * @param bModal  TRUE to block any input outside of the view
 	 */
-	public UiDialog(UiView<?> rParent, UiLayout rLayout)
+	public UiDialog(UiView<?> rParent, UiLayout rLayout, boolean bModal)
 	{
-		super(rParent, rLayout);
+		super(rParent,
+			  rLayout,
+			  bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 	}
 }
