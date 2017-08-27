@@ -517,7 +517,6 @@ public abstract class DataElement<T> extends StringProperties
 		{
 			updateValue(null);
 			setValidator(null);
-			clearProperties();
 			sResourceId = null;
 		}
 	}
