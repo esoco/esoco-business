@@ -14,60 +14,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui.view;
 
-import de.esoco.process.ui.UiContainer;
+import de.esoco.lib.property.ViewDisplayType;
+
+import de.esoco.process.ui.UiChildView;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.UiRootFragment;
 import de.esoco.process.ui.UiView;
 
 
 /********************************************************************
- * The root view of an application UI. All other components or the UI must be
- * (direct or indirect) children of a root view. This class is abstract and must
- * be subclassed to provide an implementation of the {@link #build()} method.
+ * A view that is displayed as a pop-up windows over a parent view.
  *
  * @author eso
  */
-public abstract class UiRootView extends UiView<UiRootView>
+public class UiPopupView extends UiChildView<UiPopupView>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private boolean bModal;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rFragment The fragment this view shall be rendered in
-	 * @param rLayout   The view layout
+	 * @param rParent The parent view
+	 * @param rLayout The dialog layout
+	 * @param bModal  TRUE to block any input outside of the view
 	 */
-	public UiRootView(UiRootFragment rFragment, UiLayout rLayout)
+	public UiPopupView(UiView<?> rParent, UiLayout rLayout, boolean bModal)
 	{
-		super(null, rLayout);
-
-		setFragment(rFragment);
-		setParameterType(rFragment.getFragmentParameter());
+		super(rParent,
+			  rLayout,
+			  bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
+		this.bModal = bModal;
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Overridden to show or hide this view.
-	 *
-	 * @see UiContainer#setVisible(boolean)
+	 * {@inheritDoc}
 	 */
 	@Override
-	public UiRootView setVisible(boolean bVisible)
+	public void setTitle(String sTitle)
 	{
-		if (bVisible)
+		super.setTitle(sTitle);
+
+		if (sTitle != null)
 		{
-			applyProperties();
+			setViewType(bModal ? ViewDisplayType.MODAL_DIALOG
+							   : ViewDisplayType.DIALOG);
 		}
-
-		return this;
+		else
+		{
+			setViewType(bModal ? ViewDisplayType.MODAL_VIEW
+							   : ViewDisplayType.VIEW);
+		}
 	}
-
-	/***************************************
-	 * Overridden to be abstract as it must be implemented.
-	 */
-	@Override
-	protected abstract void build();
 }
