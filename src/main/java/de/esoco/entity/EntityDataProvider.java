@@ -232,7 +232,8 @@ public class EntityDataProvider<E extends Entity>
 		Predicate<E> pCriteria =
 			Predicates.and(qBaseQuery.getCriteria(), pAttributeFilter);
 
-		pCriteria = Predicates.and(pAttributeFilter, pWildcardFilter);
+		pCriteria = Predicates.and(pCriteria, pAttributeFilter);
+		pCriteria = Predicates.and(pCriteria, pWildcardFilter);
 		pCriteria = Predicates.and(pCriteria, pSortPredicate);
 
 		qVisibleEntities =
