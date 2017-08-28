@@ -492,7 +492,7 @@ public abstract class DataElement<T> extends StringProperties
 		if (!isEqual(getValue(), rValue))
 		{
 			updateValue(rValue);
-			bModified = true;
+			setModified(true);
 		}
 	}
 
@@ -617,6 +617,16 @@ public abstract class DataElement<T> extends StringProperties
 	protected boolean isValueEqual(final DataElement<?> rOther)
 	{
 		return isEqual(getValue(), rOther.getValue());
+	}
+
+	/***************************************
+	 * Sets the modified state of this element.
+	 *
+	 * @param bModified The new modified state
+	 */
+	protected void setModified(boolean bModified)
+	{
+		this.bModified = bModified;
 	}
 
 	/***************************************

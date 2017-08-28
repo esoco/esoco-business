@@ -81,6 +81,8 @@ public abstract class ListDataElement<E> extends DataElement<E>
 			checkValidValue(rElement);
 			rList.add(rElement);
 		}
+
+		setModified(true);
 	}
 
 	/***************************************
@@ -104,6 +106,7 @@ public abstract class ListDataElement<E> extends DataElement<E>
 		checkImmutable();
 		checkValidValue(rElement);
 		getList().add(nIndex, rElement);
+		setModified(true);
 	}
 
 	/***************************************
@@ -113,6 +116,7 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	{
 		checkImmutable();
 		getList().clear();
+		setModified(true);
 	}
 
 	/***************************************
@@ -204,6 +208,7 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	{
 		checkImmutable();
 		getList().remove(rElement);
+		setModified(true);
 	}
 
 	/***************************************
