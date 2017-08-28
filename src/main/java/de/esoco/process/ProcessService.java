@@ -23,12 +23,11 @@ import de.esoco.lib.logging.LogLevel;
 
 
 /********************************************************************
- * An application class that can be run to execute a {@link Process} with a
- * {@link ProcessRunner} instance.
+ * An service implementation that executes a {@link Process}.
  *
  * @author eso
  */
-public class ProcessApp extends Service
+public class ProcessService extends Service
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -43,7 +42,7 @@ public class ProcessApp extends Service
 	/***************************************
 	 * Creates a new instance.
 	 */
-	public ProcessApp()
+	public ProcessService()
 	{
 		super(false);
 	}
@@ -57,7 +56,7 @@ public class ProcessApp extends Service
 	 */
 	public static void main(String[] rArgs)
 	{
-		new ProcessApp().run(rArgs);
+		new ProcessService().run(rArgs);
 	}
 
 	//~ Methods ----------------------------------------------------------------
