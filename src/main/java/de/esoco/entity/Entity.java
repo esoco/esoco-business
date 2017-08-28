@@ -21,6 +21,7 @@ import de.esoco.entity.EntityDefinition.DisplayMode;
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.json.JsonBuilder;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
@@ -45,6 +46,7 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.SerializableRelatedObject;
 import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import static de.esoco.entity.EntityRelationTypes.CACHE_ENTITY;
 import static de.esoco.entity.EntityRelationTypes.DEPENDENT_STORE_ENTITIES;
@@ -768,7 +770,8 @@ public class Entity extends SerializableRelatedObject
 		{
 			Entity rParent = getParent();
 
-			if ((rParent != null) && (rParent.getClass() == getClass()))
+			if ((rParent != null) &&
+				(rParent.getDefinition() == getDefinition()))
 			{
 				rValue = rParent.getExtraAttributeUpwards(rTypedKey);
 			}
@@ -868,7 +871,7 @@ public class Entity extends SerializableRelatedObject
 		{
 			Entity rParent = getParent();
 
-			if (rParent != null && rParent.getClass() == getClass())
+			if (rParent != null && rParent.getDefinition() == getDefinition())
 			{
 				rValue = rParent.getUpwards(rType);
 			}
