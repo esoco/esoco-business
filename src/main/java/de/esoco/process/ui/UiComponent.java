@@ -18,6 +18,7 @@ package de.esoco.process.ui;
 
 import de.esoco.entity.EntityRelationTypes;
 
+import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
@@ -193,6 +194,18 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		}
 
 		return aStyle;
+	}
+
+	/***************************************
+	 * Sets the tooltip to be displayed for this component.
+	 *
+	 * @param  sTooltip The tooltip text or NULL for none
+	 *
+	 * @return This instance
+	 */
+	public C tooltip(String sTooltip)
+	{
+		return set(ContentProperties.TOOLTIP, sTooltip);
 	}
 
 	/***************************************
