@@ -57,12 +57,35 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Fluent variant of {@link #setCaption(String)}.
+	 *
+	 * @param  sCaption The caption label
+	 *
+	 * @return This instance
+	 */
+	public UiProgressBar caption(String sCaption)
+	{
+		return applyComponentLabel(sCaption);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
 	public int getValue()
 	{
 		return getValueImpl().intValue();
+	}
+
+	/***************************************
+	 * Sets a caption label to be displayed over the label text (if supported by
+	 * the container layout).
+	 *
+	 * @param sCaption The caption label
+	 */
+	public void setCaption(String sCaption)
+	{
+		caption(sCaption);
 	}
 
 	/***************************************
