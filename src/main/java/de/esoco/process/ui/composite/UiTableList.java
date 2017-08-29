@@ -1038,7 +1038,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * @param rRowData The new row data object
 		 */
-		public final void update(T rRowData)
+		public void update(T rRowData)
 		{
 			this.rRowData = rRowData;
 
