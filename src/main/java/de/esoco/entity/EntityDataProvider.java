@@ -226,7 +226,6 @@ public class EntityDataProvider<E extends Entity>
 	/***************************************
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	protected void updateVisibleEntities()
 	{
 		Predicate<E> pCriteria =
