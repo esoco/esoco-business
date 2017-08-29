@@ -26,7 +26,10 @@ import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 
 
 /********************************************************************
- * A UI label.
+ * A component that shows the progress of an operation. If no progress
+ * parameters are set it may be rendered as an infinite animation to show an
+ * indeterminable progress. But that also depends on the UI toolkit that is used
+ * on the client side.
  *
  * @author eso
  */
@@ -36,8 +39,9 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance that is initialized to a progress value of 0 and
-	 * bounds of 0 and 100.
+	 * Creates a new instance that without preset values. Depending on the UI
+	 * toolkit it may be rendered as an infinite animation to show an
+	 * indeterminable progress.
 	 *
 	 * @param rParent The parent container
 	 *
@@ -48,9 +52,6 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 		super(rParent, Integer.class);
 
 		set(CONTENT_TYPE, ContentType.PROGRESS);
-
-		setValue(0);
-		withBounds(0, 100);
 	}
 
 	//~ Methods ----------------------------------------------------------------
