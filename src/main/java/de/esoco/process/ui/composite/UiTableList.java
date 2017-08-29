@@ -466,7 +466,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 		private UiLink aColumnTitle;
 
-		private SortDirection eInitialSortDirection;
+		private SortDirection	    eInitialSortDirection;
+		private Function<V, String> fValueFormat;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -531,6 +532,23 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			Function<UiBuilder<?>, UiComponent<?, ?>> fDisplayFactory)
 		{
 			this.fDisplayFactory = fDisplayFactory;
+
+			return this;
+		}
+
+		/***************************************
+		 * Sets a function that will be used for format values of this column as
+		 * a string. The function must be able to handle NULL values if the
+		 * column value in a certain rows can be NULL. It may return NULL values
+		 * which will be rendered as an empty cell.
+		 *
+		 * @param  fValueFormat A function that formats values as a string
+		 *
+		 * @return This instance
+		 */
+		public Column<V> formatWith(Function<V, String> fValueFormat)
+		{
+			this.fValueFormat = fValueFormat;
 
 			return this;
 		}
@@ -721,9 +739,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected String formatAsString(V rValue)
 		{
-			String sValue = "&nbsp;";
+			String sValue = null;
 
-			if (rValue != null)
+			if (fValueFormat != null)
+			{
+				sValue = fValueFormat.apply(rValue);
+			}
+			else if (rValue != null)
 			{
 				if (rValue.getClass().isEnum())
 				{
@@ -737,6 +759,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				{
 					sValue = rValue.toString();
 				}
+			}
+
+			if (sValue == null)
+			{
+				sValue = "&nbsp;";
 			}
 
 			return sValue;
