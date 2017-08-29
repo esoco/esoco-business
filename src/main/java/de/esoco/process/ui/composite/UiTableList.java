@@ -388,8 +388,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				Row aRow = createRow(aDataList.addItem(), rRowData);
 
-				aRow.setIndex(nRowIndex);
 				aRows.add(aRow);
+				aRow.setIndex(nRowIndex);
+				aRow.initExpandedContent(aRow.rRowItem.builder()
+										 .addPanel(new UiFlowLayout())
+										 .builder());
 			}
 
 			nRowIndex++;
@@ -976,8 +979,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			}
 
 			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
-
-			initExpandedContent(rRowItem.builder());
 		}
 
 		//~ Methods ------------------------------------------------------------
