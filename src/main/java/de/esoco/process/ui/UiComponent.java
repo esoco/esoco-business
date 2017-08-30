@@ -78,7 +78,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 		if (sComponentStyle.length() > 0)
 		{
-			aStyle.styleName(sComponentStyle);
+			aStyle.defaultStyleName(sComponentStyle);
 		}
 	}
 

@@ -486,6 +486,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		private SortDirection	    eInitialSortDirection;
 		private Function<V, String> fValueFormat;
 
+		private UiStyle aComponentStyle = new UiStyle();
+
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
@@ -517,6 +519,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Returns a {@link UiStyle} object that holds styles that will be
+		 * applied to all components in a certain column.
+		 *
+		 * @return The component style
+		 */
+		public UiStyle componentStyle()
+		{
+			return aComponentStyle;
+		}
 
 		/***************************************
 		 * Sets the datatype of this column. If the value access function is an
@@ -1137,7 +1150,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				RelativeSize eColumnWidth = rColumn.get(RELATIVE_WIDTH);
 				Integer		 rColumnSpan  = rColumn.get(COLUMN_SPAN);
 
-				rColumn.style().applyPropertiesTo(rComponent);
+				rColumn.componentStyle().applyPropertiesTo(rComponent);
 
 				if (eColumnWidth != null)
 				{

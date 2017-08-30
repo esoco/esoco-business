@@ -36,6 +36,10 @@ import static de.esoco.lib.property.StyleProperties.STYLE;
  */
 public class UiStyle extends UiElement<UiStyle>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private String sDefaultStyleName;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -64,20 +68,23 @@ public class UiStyle extends UiElement<UiStyle>
 	 * @param  sStyleName      The existing style name (NULL or empty for none)
 	 * @param  sAdditionalName The style name to add
 	 *
-	 * @return The resulting style name
+	 * @return The resulting style name (may be empty but will never be NULL)
 	 */
 	public static String addStyleName(String sStyleName, String sAdditionalName)
 	{
 		if (sStyleName != null && sStyleName.length() > 0)
 		{
-			sStyleName += " " + sAdditionalName;
+			if (sAdditionalName.length() > 0)
+			{
+				sStyleName += " " + sAdditionalName;
+			}
 		}
 		else
 		{
 			sStyleName = sAdditionalName;
 		}
 
-		return sStyleName.trim();
+		return sStyleName;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -92,6 +99,22 @@ public class UiStyle extends UiElement<UiStyle>
 	public final UiStyle addStyleName(String sAdditionalName)
 	{
 		return styleName(addStyleName(get(STYLE, ""), sAdditionalName));
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	{
+		super.applyPropertiesTo(rComponent);
+
+		String sFullStyle = addStyleName(sDefaultStyleName, get(STYLE, ""));
+
+		if (sFullStyle.length() > 0)
+		{
+			rComponent.set(STYLE, sFullStyle);
+		}
 	}
 
 	/***************************************
@@ -139,6 +162,21 @@ public class UiStyle extends UiElement<UiStyle>
 
 		rCssStyles.put(sCssProperty, sValue != null ? sValue : "");
 		set(StyleProperties.CSS_STYLES, rCssStyles);
+
+		return this;
+	}
+
+	/***************************************
+	 * Sets the default style name that should always be applied. The style name
+	 * can consist of multiple words that are separated by spaces.
+	 *
+	 * @param  sStyleName The new default style name
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiStyle defaultStyleName(String sStyleName)
+	{
+		sDefaultStyleName = sStyleName;
 
 		return this;
 	}
