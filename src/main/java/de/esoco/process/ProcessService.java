@@ -37,16 +37,6 @@ public class ProcessService extends Service
 
 	private ProcessRunner aProcessRunner;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 */
-	public ProcessService()
-	{
-		super(false);
-	}
-
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************

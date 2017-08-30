@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.service;
 
+import de.esoco.lib.app.RestService;
 import de.esoco.lib.app.Service;
 import de.esoco.lib.comm.http.HttpRequestHandler;
 import de.esoco.lib.comm.http.HttpStatusCode;
@@ -44,7 +45,7 @@ import static org.obrel.type.StandardTypes.NAME;
  *
  * @author eso
  */
-public class ModificationSyncService extends Service
+public class ModificationSyncService extends RestService
 	implements AuthenticationService
 {
 	//~ Static fields/initializers ---------------------------------------------
@@ -82,16 +83,6 @@ public class ModificationSyncService extends Service
 
 	private Map<String, Map<String, String>> aContextLocks =
 		new LinkedHashMap<>();
-
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 */
-	public ModificationSyncService()
-	{
-		super(true);
-	}
 
 	//~ Static methods ---------------------------------------------------------
 
