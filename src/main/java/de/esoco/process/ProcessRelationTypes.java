@@ -21,11 +21,16 @@ import de.esoco.data.process.ProcessState;
 
 import de.esoco.entity.Entity;
 
+import de.esoco.history.HistoryManager;
+
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.net.ExternalServiceAccess;
 import de.esoco.lib.property.InteractionEventType;
+import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
+
+import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +46,7 @@ import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
+import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityRelationTypes.newEntityAttribute;
 
@@ -132,10 +138,13 @@ public class ProcessRelationTypes
 	/** The information about the client (web browser) of the process user. */
 	public static final RelationType<String> CLIENT_INFO = newType();
 
-	/** The width of the client (web browser) of the process user. */
+	/** The information about the current user's locale. */
+	public static final RelationType<Locale> CLIENT_LOCALE = newType();
+
+	/** The width of the client area available to a process. */
 	public static final RelationType<Integer> CLIENT_WIDTH = newType();
 
-	/** The height of the client (web browser) of the process user. */
+	/** The height of the client area available to a process. */
 	public static final RelationType<Integer> CLIENT_HEIGHT = newType();
 
 	/** The start time of the process. */

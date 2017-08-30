@@ -1,5 +1,5 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-gwt' project.
+// This file is a part of the 'esoco-business' project.
 // Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,7 @@ public class ProcessDescription extends StringDataElement
 	private DataElement<?> rProcessInput = null;
 
 	private String sClientInfo;
+	private String sClientLocale;
 	private int    nClientWidth;
 	private int    nClientHeight;
 
@@ -123,6 +124,16 @@ public class ProcessDescription extends StringDataElement
 	}
 
 	/***************************************
+	 * Returns the name of the client's locale (e.g. 'en_US' or 'de_DE'.
+	 *
+	 * @return The name of the client locale
+	 */
+	public final String getClientLocale()
+	{
+		return sClientLocale;
+	}
+
+	/***************************************
 	 * Returns the width of the client area of the current user's web browser.
 	 *
 	 * @return The client area width
@@ -177,13 +188,23 @@ public class ProcessDescription extends StringDataElement
 	}
 
 	/***************************************
-	 * Sets a string with information about the connecting client (web browser).
+	 * Sets a string with information about the client (web browser).
 	 *
-	 * @param sClientInfo The client information
+	 * @param sInfo The client information
 	 */
-	public final void setClientInfo(String sClientInfo)
+	public final void setClientInfo(String sInfo)
 	{
-		this.sClientInfo = sClientInfo;
+		sClientInfo = sInfo;
+	}
+
+	/***************************************
+	 * Sets the name of the client's locale (e.g. 'en_US' or 'de_DE'.
+	 *
+	 * @param sLocale The name of the client locale
+	 */
+	public final void setClientLocale(String sLocale)
+	{
+		sClientLocale = sLocale;
 	}
 
 	/***************************************

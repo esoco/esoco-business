@@ -28,6 +28,7 @@ import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
 
+import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -44,11 +45,13 @@ import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.style.UiStyle;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -453,7 +456,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @author eso
 	 */
-	public class Column<V> extends TableElement<Column<V>>
+	public class Column<V> extends UiComposite<Column<V>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -753,7 +756,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				}
 				else if (rValue instanceof Date)
 				{
-					sValue = SimpleDateFormat.getDateInstance().format(rValue);
+					Locale rLocale =
+						fragment().getParameter(ProcessRelationTypes.CLIENT_LOCALE);
+
+					DateFormat rDateFormat =
+						SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT,
+														 rLocale);
+
+					// on first format of a data assign a formatting function
+					// that will be used subsequently
+					fValueFormat = v -> { return rDateFormat.format(v); };
 				}
 				else
 				{
@@ -975,7 +987,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 *
 	 * @author eso
 	 */
-	public class Row extends TableElement<Row>
+	public class Row extends UiComposite<Row>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -1190,40 +1202,6 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			}
 
 			rRowItem.style().styleName(sItemStyle);
-		}
-	}
-
-	/********************************************************************
-	 * The base class for child components of {@link UiTableList}.
-	 *
-	 * @author eso
-	 */
-	abstract class TableElement<E extends TableElement<E>>
-		extends UiComposite<E>
-	{
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
-		 * Creates a new instance.
-		 *
-		 * @param rParent The parent container
-		 * @param eLayout The element layout
-		 */
-		public TableElement(UiContainer<?> rParent, UiLayout eLayout)
-		{
-			super(rParent, eLayout);
-		}
-
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * Returns the parent table of this element.
-		 *
-		 * @return The parent table
-		 */
-		public UiTableList<T> getTable()
-		{
-			return UiTableList.this;
 		}
 	}
 }
