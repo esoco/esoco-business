@@ -165,7 +165,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		Objects.requireNonNull(fGetColumnData);
 
-		Column<V> aColumn = new Column<>(aTableHeader, fGetColumnData);
+		Column<V> aColumn = createColumn(fGetColumnData);
 
 		aColumns.add(aColumn);
 
@@ -354,6 +354,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			update();
 		}
+	}
+
+	/***************************************
+	 * Creates a new column. Subclasses can override this method to return their
+	 * own column subclasses, e.g. to handle special formatting or value
+	 * parsing.
+	 *
+	 * @param  fGetColumnData The column data access function
+	 *
+	 * @return The new column instance
+	 */
+	protected <V> Column<V> createColumn(Function<? super T, V> fGetColumnData)
+	{
+		return new Column<>(aTableHeader, fGetColumnData);
 	}
 
 	/***************************************
