@@ -49,7 +49,7 @@ public abstract class UiDateInputField<C extends UiDateInputField<C>>
 							   Date			  rDate,
 							   DateInputType  eType)
 	{
-		super(rParent, Date.class, rDate != null ? rDate : new Date());
+		super(rParent, Date.class, rDate);
 
 		set(DATE_INPUT_TYPE, eType);
 	}

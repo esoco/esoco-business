@@ -105,7 +105,7 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	//~ Instance fields --------------------------------------------------------
 
 	private UiLayoutPanel		  aContentPanel;
-	private UiPushButtons<Button> aButtonPanel;
+	private UiPushButtons<Button> aDialogButtons;
 
 	private Consumer<Button> fDialogListener;
 
@@ -131,9 +131,16 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 		setTitle(sTitle);
 
 		aContentPanel = builder().addPanel(rLayout);
-		aButtonPanel  = builder().addPushButtons(Button.class);
 
-		aButtonPanel.setButtons(Button.OK_CANCEL).onClick(this::handleButton);
+		UiLayoutPanel aButtonPanel = builder().addPanel(new UiFlowLayout());
+
+		aButtonPanel.style().addStyleName("UiDialogButtonPanel");
+
+		aDialogButtons = aButtonPanel.builder().addPushButtons(Button.class);
+
+		aDialogButtons.resid("UiDialogButton")
+					  .setButtons(Button.OK_CANCEL)
+					  .onClick(this::handleButton);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -195,7 +202,7 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	@SuppressWarnings("unchecked")
 	public V setButtons(Collection<Button> rButtons)
 	{
-		aButtonPanel.setButtons(rButtons);
+		aDialogButtons.setButtons(rButtons);
 
 		return (V) this;
 	}
@@ -210,7 +217,7 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	@SuppressWarnings("unchecked")
 	public V setButtons(Button... rButtons)
 	{
-		aButtonPanel.setButtons(rButtons);
+		aDialogButtons.setButtons(rButtons);
 
 		return (V) this;
 	}
@@ -236,6 +243,9 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 
 		hide();
 
-		fDialogListener.accept(eButton);
+		if (fDialogListener != null)
+		{
+			fDialogListener.accept(eButton);
+		}
 	}
 }

@@ -1070,7 +1070,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				addColumnComponent(rColumn);
 			}
 
-			rRowItem.getHeader().onClick(v -> handleRowSelection(this, true));
+			rRowItem.getHeader()
+					.onClickInContainerArea(v -> handleRowSelection(this, true));
 		}
 
 		//~ Methods ------------------------------------------------------------

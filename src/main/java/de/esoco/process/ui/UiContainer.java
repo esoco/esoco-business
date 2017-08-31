@@ -120,7 +120,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final C onClick(Consumer<C> rEventHandler)
+	public final C onClickInContainerArea(Consumer<C> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										v -> rEventHandler.accept((C) this));

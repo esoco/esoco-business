@@ -57,11 +57,9 @@ public class UiPopupView extends UiChildView<UiPopupView>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTitle(String sTitle)
+	public UiPopupView title(String sTitle)
 	{
-		super.setTitle(sTitle);
-
-		if (sTitle != null)
+		if (sTitle != null && sTitle.length() > 0)
 		{
 			setViewType(bModal ? ViewDisplayType.MODAL_DIALOG
 							   : ViewDisplayType.DIALOG);
@@ -71,5 +69,7 @@ public class UiPopupView extends UiChildView<UiPopupView>
 			setViewType(bModal ? ViewDisplayType.MODAL_VIEW
 							   : ViewDisplayType.VIEW);
 		}
+
+		return super.title(sTitle);
 	}
 }

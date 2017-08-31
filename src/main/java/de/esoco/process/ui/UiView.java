@@ -76,7 +76,7 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	@Override
 	public void setTitle(String sTitle)
 	{
-		set(StandardProperties.TITLE, sTitle);
+		title(sTitle);
 	}
 
 	/***************************************
