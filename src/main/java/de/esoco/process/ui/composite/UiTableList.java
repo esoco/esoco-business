@@ -792,7 +792,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 					// on first format of a data assign a formatting function
 					// that will be used subsequently
-					fValueFormat = v -> { return rDateFormat.format(v); };
+					fValueFormat =
+						v -> v != null ? rDateFormat.format(v) : null;
 				}
 				else
 				{
