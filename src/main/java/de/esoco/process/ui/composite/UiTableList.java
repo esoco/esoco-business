@@ -196,9 +196,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	}
 
 	/***************************************
-	 * TODO: DOCUMENT ME!
+	 * Adds components that will be displayed if a table is empty, i.e. it has
+	 * now visible data rows. The argument is a function that receives an UI
+	 * builder that must be used to build the empty table info component. This
+	 * component will then be displayed below the table header.
 	 *
-	 * @param fCreateEmtpyTableInfo TODO: DOCUMENT ME!
+	 * <p>The application should not make assumptions about the layout of the
+	 * builder's container and only add a single component. If it needs a more
+	 * complex UI it should add a container with the required layout.</p>
+	 *
+	 * @param fCreateEmtpyTableInfo A consumer that receives a builder for the
+	 *                              empty table info area
 	 */
 	public void addEmptyTableInfo(Consumer<UiBuilder<?>> fCreateEmtpyTableInfo)
 	{
