@@ -93,9 +93,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	private DataProvider<T> rDataProvider;
 
-	private UiListPanel   aHeaderPanel;
-	private UiLayoutPanel aTableHeader;
-	private UiListPanel   aDataList;
+	private UiListPanel    aHeaderPanel;
+	private UiLayoutPanel  aTableHeader;
+	private UiListPanel    aDataList;
+	private UiContainer<?> aEmptyTableInfo;
 
 	private Row rSelectedRow = null;
 
@@ -140,10 +141,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			eExpandStyle != null
 			? ExpandableListStyle.valueOf(eExpandStyle.name()) : null;
 
-		aHeaderPanel = new UiListPanel(this);
-		aTableHeader =
+		aHeaderPanel    = new UiListPanel(this);
+		aTableHeader    =
 			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
-		aDataList    = new UiListPanel(this, eListStyle);
+		aDataList	    = new UiListPanel(this, eListStyle);
+		aEmptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
+
+		aEmptyTableInfo.hide();
 
 		aHeaderPanel.style()
 					.addStyleName(UiTableList.class.getSimpleName() + "Header");
@@ -189,6 +193,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			addColumn(fGetColumnData);
 		}
+	}
+
+	/***************************************
+	 * TODO: DOCUMENT ME!
+	 *
+	 * @param fCreateEmtpyTableInfo TODO: DOCUMENT ME!
+	 */
+	public void addEmptyTableInfo(Consumer<UiBuilder<?>> fCreateEmtpyTableInfo)
+	{
+		fCreateEmtpyTableInfo.accept(aEmptyTableInfo.builder());
 	}
 
 	/***************************************
@@ -419,6 +433,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			removeRow(aRows.get(nRowIndex));
 		}
+
+		aEmptyTableInfo.setVisible(aRows.size() == 0 &&
+								   aEmptyTableInfo.getComponents().size() > 0);
 	}
 
 	/***************************************
