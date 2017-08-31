@@ -57,6 +57,8 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	private int   nTotalSize = 0;
 	private int[] aPageSizes = null;
 
+	private String sEmptyPageLabel = "$lblPageEmpty";
+
 	private UiDropDown<String> aPageSizeSelector;
 	private UiIconButton	   aFirstPageButton;
 	private UiIconButton	   aPreviousButton;
@@ -127,6 +129,16 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	public final int getPageStart()
 	{
 		return nPageStart;
+	}
+
+	/***************************************
+	 * Sets the label to be displayed if the current page is empty.
+	 *
+	 * @param rEmptyPageLabel The new empty page label
+	 */
+	public final void setEmptyPageLabel(String rEmptyPageLabel)
+	{
+		sEmptyPageLabel = rEmptyPageLabel;
 	}
 
 	/***************************************
@@ -231,7 +243,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 		}
 		else if (nTotalSize == 0)
 		{
-			sPosition = "$lblEmpty";
+			sPosition = sEmptyPageLabel;
 		}
 
 		aPageSizeSelector.setVisible(bShowControls);
@@ -240,7 +252,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 		aPreviousButton.setVisible(bShowControls);
 		aNextButton.setVisible(bShowControls);
 
-		aNavPosition.setVisible(nTotalSize == 0 || nTotalSize > 5);
+		aNavPosition.setVisible(!sPosition.isEmpty());
 		aNavPosition.setText(sPosition);
 	}
 

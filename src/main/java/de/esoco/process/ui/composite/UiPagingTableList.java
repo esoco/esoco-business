@@ -31,6 +31,8 @@ public class UiPagingTableList<T> extends UiTableList<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
+	private String sEmptyPageLabel;
+
 	private UiColumnGridPanel  aToolPanel;
 	private UiPagingNavigation aNavigation;
 
@@ -63,9 +65,36 @@ public class UiPagingTableList<T> extends UiTableList<T>
 
 		aNavigation.cell().alignHorizontal(Alignment.END);
 		aNavigation.setPageSizes(UiPagingNavigation.DEFAULT_PAGE_SIZES);
+
+		sEmptyPageLabel = "$lbl" + getComponentStyleName() + "Empty";
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Returns the text to be displayed in the navigation area if no data is
+	 * available. By default this returns a static label generated from the
+	 * component name which can be set with {@link #setEmptyPageLabel(String)}.
+	 * But subclasses can also choose to override this method to return a label
+	 * that has been generated from the current state.
+	 *
+	 * @return
+	 */
+	public String getEmptyPagelLabel()
+	{
+		return sEmptyPageLabel;
+	}
+
+	/***************************************
+	 * Sets the text to be displayed in the navigation area if no data is
+	 * available so that the current page is empty.
+	 *
+	 * @param rEmptyPageLabel The emptyPageLabel value
+	 */
+	public final void setEmptyPageLabel(String rEmptyPageLabel)
+	{
+		sEmptyPageLabel = rEmptyPageLabel;
+	}
 
 	/***************************************
 	 * Displays the rows of the current page.
@@ -74,6 +103,7 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	protected void update()
 	{
 		displayRows(aNavigation.getPageStart(), aNavigation.getPageSize());
+		aNavigation.setEmptyPageLabel(getEmptyPagelLabel());
 		aNavigation.setTotalSize(getData().size());
 	}
 }
