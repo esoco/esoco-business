@@ -1989,6 +1989,46 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Internal method to validate the fragment's process parameters during
+	 * state changes of the process. Subclasses must implement {@link
+	 * #validateParameters(boolean)} instead.
+	 *
+	 * @param  bOnInteraction TRUE if the validation occurs during an ongoing
+	 *                        interaction, FALSE after the final interaction
+	 *                        before the fragment is finished
+	 *
+	 * @return A mapping from invalid parameters to validation error message
+	 *         (empty for none)
+	 */
+	public Map<RelationType<?>, String> validateFragmentParameters(
+		boolean bOnInteraction)
+	{
+		Map<RelationType<?>, String> aValidationErrors = new HashMap<>();
+
+		for (InteractionFragment rSubFragment : getSubFragments())
+		{
+			aValidationErrors.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
+		}
+
+		Map<RelationType<?>, String> aFragmentErrors =
+			validateParameters(bOnInteraction);
+
+		Map<RelationType<?>, Function<?, String>> rValidations =
+			getParameterValidations(bOnInteraction);
+
+		aFragmentErrors.putAll(performParameterValidations(rValidations));
+
+		if (!aFragmentErrors.isEmpty())
+		{
+			validationError(aFragmentErrors);
+		}
+
+		aValidationErrors.putAll(aFragmentErrors);
+
+		return aValidationErrors;
+	}
+
+	/***************************************
 	 * This method can be overridden by subclasses to validate process
 	 * parameters during state changes of the process. The default
 	 * implementation returns an new empty map instance that may be modified
@@ -2328,46 +2368,6 @@ public abstract class InteractionFragment extends ProcessFragment
 				}
 			}
 		}
-	}
-
-	/***************************************
-	 * Internal method to validate the fragment's process parameters during
-	 * state changes of the process. Subclasses must implement {@link
-	 * #validateParameters(boolean)} instead.
-	 *
-	 * @param  bOnInteraction TRUE if the validation occurs during an ongoing
-	 *                        interaction, FALSE after the final interaction
-	 *                        before the fragment is finished
-	 *
-	 * @return A mapping from invalid parameters to validation error message
-	 *         (empty for none)
-	 */
-	protected Map<RelationType<?>, String> validateFragmentParameters(
-		boolean bOnInteraction)
-	{
-		Map<RelationType<?>, String> aValidationErrors = new HashMap<>();
-
-		for (InteractionFragment rSubFragment : getSubFragments())
-		{
-			aValidationErrors.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
-		}
-
-		Map<RelationType<?>, String> aFragmentErrors =
-			validateParameters(bOnInteraction);
-
-		Map<RelationType<?>, Function<?, String>> rValidations =
-			getParameterValidations(bOnInteraction);
-
-		aFragmentErrors.putAll(performParameterValidations(rValidations));
-
-		if (!aFragmentErrors.isEmpty())
-		{
-			validationError(aFragmentErrors);
-		}
-
-		aValidationErrors.putAll(aFragmentErrors);
-
-		return aValidationErrors;
 	}
 
 	/***************************************

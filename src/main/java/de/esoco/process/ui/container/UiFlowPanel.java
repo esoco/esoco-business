@@ -14,35 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.view;
+package de.esoco.process.ui.container;
 
-import de.esoco.process.ui.UiDialogView;
-import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.UiView;
+import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayoutContainer;
+import de.esoco.process.ui.layout.UiFlowLayout;
 
 
 /********************************************************************
- * A view for dialogs that display buttons from {@link Button}.
+ * A panel that layouts it's children with a {@link UiFlowLayout}.
  *
  * @author eso
  */
-public class UiDialog extends UiDialogView<UiDialog>
+public class UiFlowPanel extends UiLayoutContainer<UiFlowPanel>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent view
-	 * @param sTitle  The dialog title
-	 * @param rLayout The layout of the dialog content
-	 * @param bModal  TRUE to block any input outside of the view
+	 * @param rParent The parent container
 	 */
-	public UiDialog(UiView<?> rParent,
-					String    sTitle,
-					UiLayout  rLayout,
-					boolean   bModal)
+	public UiFlowPanel(UiContainer<?> rParent)
 	{
-		super(rParent, sTitle, rLayout, bModal);
+		super(rParent, new UiFlowLayout());
 	}
 }

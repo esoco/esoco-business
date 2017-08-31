@@ -16,9 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.process.ui.container.UiBuilder;
-
-
 /********************************************************************
  * The base class for containers that expose layout functionality through
  * generic layout methods.
@@ -44,20 +41,9 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Overridden to be public.
+	 * Returns the container layout.
 	 *
-	 * @see UiContainer#builder()
-	 */
-	@Override
-	public UiBuilder<C> builder()
-	{
-		return super.builder();
-	}
-
-	/***************************************
-	 * Overridden to be public.
-	 *
-	 * @see UiContainer#getLayout()
+	 * @return The layout
 	 */
 	@Override
 	public final UiLayout getLayout()
@@ -66,9 +52,9 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	}
 
 	/***************************************
-	 * Overridden to be public.
+	 * Removes a component from this container.
 	 *
-	 * @see UiContainer#removeComponent(UiComponent)
+	 * @param rComponent The component to remove
 	 */
 	@Override
 	public void removeComponent(UiComponent<?, ?> rComponent)

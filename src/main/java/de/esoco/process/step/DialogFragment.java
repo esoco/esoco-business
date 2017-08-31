@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -296,6 +296,26 @@ public class DialogFragment extends ViewFragment
 	}
 
 	/***************************************
+	 * Overridden to only validate on interactions. The final validation of a
+	 * dialog will be invoked by the {@link #finishDialog(DialogAction)} method.
+	 *
+	 * @see ViewFragment#validateFragmentParameters(boolean)
+	 */
+	@Override
+	public Map<RelationType<?>, String> validateFragmentParameters(
+		boolean bOnInteraction)
+	{
+		if (bOnInteraction)
+		{
+			return super.validateFragmentParameters(true);
+		}
+		else
+		{
+			return new HashMap<RelationType<?>, String>();
+		}
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -319,26 +339,6 @@ public class DialogFragment extends ViewFragment
 
 		getInteractionParameters().add(aDialogActionQuestionParam);
 		addInputParameters(aDialogActionParam);
-	}
-
-	/***************************************
-	 * Overridden to only validate on interactions. The final validation of a
-	 * dialog will be invoked by the {@link #finishDialog(DialogAction)} method.
-	 *
-	 * @see ViewFragment#validateFragmentParameters(boolean)
-	 */
-	@Override
-	protected Map<RelationType<?>, String> validateFragmentParameters(
-		boolean bOnInteraction)
-	{
-		if (bOnInteraction)
-		{
-			return super.validateFragmentParameters(true);
-		}
-		else
-		{
-			return new HashMap<RelationType<?>, String>();
-		}
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

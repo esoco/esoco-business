@@ -27,6 +27,7 @@ import de.esoco.lib.property.StringProperties;
 import de.esoco.process.ParameterWrapper;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
+import de.esoco.process.ui.view.UiRootView;
 
 import org.obrel.core.RelationType;
 
@@ -105,9 +106,22 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Returns the root view of this component's hierarchy.
+	 *
+	 * @return The root view
+	 */
+	public UiRootView getRootView()
+	{
+		UiView<?> rView = getView();
+
+		return rView instanceof UiRootView ? (UiRootView) rView
+										   : rView.getRootView();
+	}
+
+	/***************************************
 	 * Returns the parent view of this component.
 	 *
-	 * @return The view of the hierarchy this component is placed in
+	 * @return The parent view
 	 */
 	public UiView<?> getView()
 	{

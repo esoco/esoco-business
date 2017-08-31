@@ -80,7 +80,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return A UI builder instance for this container
 	 */
 	@SuppressWarnings("unchecked")
-	public UiBuilder<C> builder()
+	public final UiBuilder<C> builder()
 	{
 		if (aContainerBuilder == null)
 		{

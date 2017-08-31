@@ -20,6 +20,8 @@ import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.ValueEventHandler;
 
+import static de.esoco.lib.property.ContentProperties.PLACEHOLDER;
+
 
 /********************************************************************
  * The base class for input fields.
@@ -55,7 +57,7 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final C onEnter(ValueEventHandler<T> rEventHandler)
+	public C onEnter(ValueEventHandler<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										rEventHandler);
@@ -68,9 +70,21 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final C onInput(ValueEventHandler<T> rEventHandler)
+	public C onInput(ValueEventHandler<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										rEventHandler);
+	}
+
+	/***************************************
+	 * Sets a placeholder string to be displayed if the input field is empty.
+	 *
+	 * @param  sPlaceholder The placeholder string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public C placeholder(String sPlaceholder)
+	{
+		return set(PLACEHOLDER, sPlaceholder);
 	}
 }
