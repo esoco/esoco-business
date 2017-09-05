@@ -30,10 +30,6 @@ import de.esoco.process.ui.UiView;
  */
 public class UiPopupView extends UiChildView<UiPopupView>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private boolean bModal;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -48,28 +44,5 @@ public class UiPopupView extends UiChildView<UiPopupView>
 		super(rParent,
 			  rLayout,
 			  bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
-		this.bModal = bModal;
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public UiPopupView title(String sTitle)
-	{
-		if (sTitle != null && sTitle.length() > 0)
-		{
-			setViewType(bModal ? ViewDisplayType.MODAL_DIALOG
-							   : ViewDisplayType.DIALOG);
-		}
-		else
-		{
-			setViewType(bModal ? ViewDisplayType.MODAL_VIEW
-							   : ViewDisplayType.VIEW);
-		}
-
-		return super.title(sTitle);
 	}
 }

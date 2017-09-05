@@ -16,7 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.LayoutProperties;
+import de.esoco.lib.property.StyleProperties;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.step.InteractionFragment;
@@ -53,6 +56,26 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Enables automatic hiding of this view if the user clicks outside.
+	 *
+	 * @return This instance
+	 */
+	public V autoHide()
+	{
+		return set(StyleProperties.AUTO_HIDE);
+	}
+
+	/***************************************
+	 * Indicates that this view should be centered on the screen.
+	 *
+	 * @return This instance
+	 */
+	public V center()
+	{
+		return set(UserInterfaceProperties.VERTICAL_ALIGN, Alignment.CENTER);
+	}
 
 	/***************************************
 	 * Overridden to show or hide this view.
