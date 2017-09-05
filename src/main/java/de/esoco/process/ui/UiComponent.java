@@ -326,6 +326,16 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Returns the image of this component if set.
+	 *
+	 * @return The component image or NULL for none
+	 */
+	protected UiImageDefinition<?> getImage()
+	{
+		return rImage;
+	}
+
+	/***************************************
 	 * Internal method to return the value of this component's parameter. This
 	 * is intended to be used by subclasses only which should provide a
 	 * type-specific public method (like String getText()).

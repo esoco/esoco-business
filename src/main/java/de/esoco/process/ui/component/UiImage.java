@@ -29,7 +29,7 @@ import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
 /********************************************************************
- * A component that displays an image.
+ * A component that displays an image and can create click events.
  *
  * @author eso
  */
@@ -68,6 +68,17 @@ public class UiImage extends UiComponent<String, UiImage>
 	}
 
 	/***************************************
+	 * Returns the image that is displayed by this image component.
+	 *
+	 * @return The image definition
+	 */
+	@Override
+	public UiImageDefinition<?> getImage()
+	{
+		return super.getImage();
+	}
+
+	/***************************************
 	 * Sets the event handler for click events on images.
 	 *
 	 * @param  rEventHandler The event handler
@@ -94,7 +105,7 @@ public class UiImage extends UiComponent<String, UiImage>
 	/***************************************
 	 * Sets the image to be displayed.
 	 *
-	 * @param rImage The component's image.
+	 * @param rImage The image
 	 */
 	public void setImage(UiImageDefinition<?> rImage)
 	{
