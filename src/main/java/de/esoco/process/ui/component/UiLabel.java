@@ -55,7 +55,7 @@ public class UiLabel extends UiTextComponent<UiLabel>
 	 */
 	public UiLabel caption(String sCaption)
 	{
-		return applyComponentLabel(sCaption);
+		return label(sCaption);
 	}
 
 	/***************************************

@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LabelStyle;
 
 import de.esoco.process.ui.UiComponent;
@@ -63,7 +64,20 @@ public class UiImage extends UiComponent<String, UiImage>
 	 */
 	public UiImage caption(String sCaption)
 	{
-		return applyComponentLabel(sCaption);
+		return label(sCaption);
+	}
+
+	/***************************************
+	 * Sets the event handler for click events on images.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiImage onClick(Runnable rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										v -> rEventHandler.run());
 	}
 
 	/***************************************

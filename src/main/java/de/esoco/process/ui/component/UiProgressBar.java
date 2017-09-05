@@ -65,7 +65,7 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	 */
 	public UiProgressBar caption(String sCaption)
 	{
-		return applyComponentLabel(sCaption);
+		return label(sCaption);
 	}
 
 	/***************************************
