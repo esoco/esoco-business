@@ -442,6 +442,16 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * Sets the modified state of this element.
+	 *
+	 * @param bModified The new modified state
+	 */
+	public void setModified(boolean bModified)
+	{
+		this.bModified = bModified;
+	}
+
+	/***************************************
 	 * Sets the selected state of this element.
 	 *
 	 * @param bSelected The new selected state
@@ -516,7 +526,7 @@ public abstract class DataElement<T> extends StringProperties
 		if (!bModified)
 		{
 			updateValue(null);
-			setValidator(null);
+//			setValidator(null);
 			clearProperties();
 			sResourceId = null;
 		}
@@ -618,16 +628,6 @@ public abstract class DataElement<T> extends StringProperties
 	protected boolean isValueEqual(final DataElement<?> rOther)
 	{
 		return isEqual(getValue(), rOther.getValue());
-	}
-
-	/***************************************
-	 * Sets the modified state of this element.
-	 *
-	 * @param bModified The new modified state
-	 */
-	protected void setModified(boolean bModified)
-	{
-		this.bModified = bModified;
 	}
 
 	/***************************************
