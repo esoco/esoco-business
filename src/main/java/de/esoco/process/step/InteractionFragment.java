@@ -2573,7 +2573,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	final void setProcessStep(Interaction rProcessStep)
 	{
 		this.rProcessStep = rProcessStep;
-		initProcessStep(rProcessStep);
+
+		if (rProcessStep != null)
+		{
+			initProcessStep(rProcessStep);
+		}
 	}
 
 	/***************************************
