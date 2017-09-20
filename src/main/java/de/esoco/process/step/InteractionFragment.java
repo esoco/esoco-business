@@ -1143,6 +1143,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Checks whether this fragment is (still) attached to a process.
+	 *
+	 * @return TRUE if the fragment is attached
+	 */
+	public boolean isAttached()
+	{
+		return rProcessStep != null;
+	}
+
+	/***************************************
 	 * Checks whether this instance has already been initialized, i.e. returned
 	 * from it's {@link #init()} method.
 	 *
@@ -2563,7 +2573,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	final void setProcessStep(Interaction rProcessStep)
 	{
 		this.rProcessStep = rProcessStep;
-		initProcessStep(rProcessStep);
+
+		if (rProcessStep != null)
+		{
+			initProcessStep(rProcessStep);
+		}
 	}
 
 	/***************************************

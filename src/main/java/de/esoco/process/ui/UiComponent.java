@@ -143,6 +143,30 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
+	 * Sets a label for this component. How exactly the label is rendered and
+	 * where it is placed dependend on the parent container and it's layout.
+	 *
+	 * @param  sLabel The label text or NULL for none
+	 *
+	 * @return This instance for concatenation
+	 */
+	public C label(String sLabel)
+	{
+		if (sLabel != null)
+		{
+			clear(HIDE_LABEL);
+			set(SHOW_LABEL);
+		}
+		else
+		{
+			set(HIDE_LABEL);
+			clear(SHOW_LABEL);
+		}
+
+		return set(LABEL, sLabel);
+	}
+
+	/***************************************
 	 * Places this component before another component in the same parent
 	 * container.
 	 *
@@ -247,31 +271,6 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
-	 * Internal method to apply a label to this component by setting the
-	 * appropriate properties. Can be invoked by methods from the public API of
-	 * subclasses that support labels or captions.
-	 *
-	 * @param  sLabel The label text or NULL for none
-	 *
-	 * @return This instance
-	 */
-	protected C applyComponentLabel(String sLabel)
-	{
-		if (sLabel != null)
-		{
-			clear(HIDE_LABEL);
-			set(SHOW_LABEL);
-		}
-		else
-		{
-			set(HIDE_LABEL);
-			clear(SHOW_LABEL);
-		}
-
-		return set(LABEL, sLabel);
-	}
-
-	/***************************************
 	 * Will be invoked to apply all properties of this component to the
 	 * corresponding process parameter after it has been attached to the parent
 	 * container.
@@ -324,6 +323,16 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	protected String getComponentStyleName()
 	{
 		return getClass().getSimpleName();
+	}
+
+	/***************************************
+	 * Returns the image of this component if set.
+	 *
+	 * @return The component image or NULL for none
+	 */
+	protected UiImageDefinition<?> getImage()
+	{
+		return rImage;
 	}
 
 	/***************************************

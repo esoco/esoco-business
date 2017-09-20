@@ -50,6 +50,7 @@ import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.component.UiWebPage;
+import de.esoco.process.ui.composite.UiThumbnail;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 
 import java.math.BigDecimal;
@@ -249,7 +250,7 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Adds a non-interactive image.
+	 * Adds an image.
 	 *
 	 * @param  rImage The image definition
 	 *
@@ -523,6 +524,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiTextField addTextField(String sText)
 	{
 		return new UiTextField(rContainer, sText);
+	}
+
+	/***************************************
+	 * Adds an image thumbnail that opens a full-size image view when clicked.
+	 *
+	 * @param  rImage The image definition
+	 *
+	 * @return The new component
+	 */
+	public UiThumbnail addThumbnail(UiImageDefinition<?> rImage)
+	{
+		return new UiThumbnail(rContainer, rImage);
 	}
 
 	/***************************************

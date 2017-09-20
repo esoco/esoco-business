@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ public final class SwitchStep extends ProcessStep
 		if (rSwitchValue != null)
 		{
 			Object rNextStep		 = fTargetSelector.evaluate(rSwitchValue);
-			String sSwitchTargetStep;
+			String sSwitchTargetStep = null;
 
 			if (sDefaultNextStep == null)
 			{
@@ -124,7 +124,7 @@ public final class SwitchStep extends ProcessStep
 			{
 				sSwitchTargetStep = ((Class<?>) rNextStep).getSimpleName();
 			}
-			else
+			else if (rNextStep != null)
 			{
 				sSwitchTargetStep = rNextStep.toString();
 			}

@@ -16,7 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LayoutProperties;
+import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.step.InteractionFragment;
@@ -24,6 +27,8 @@ import de.esoco.process.step.InteractionFragment;
 import java.util.List;
 
 import org.obrel.core.RelationType;
+
+import static de.esoco.lib.property.StyleProperties.AUTO_HIDE;
 
 import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
@@ -35,6 +40,10 @@ import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
  */
 public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private Runnable rCloseHandler;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -53,6 +62,44 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Enables automatic hiding of this view if the user clicks outside.
+	 *
+	 * @return This instance
+	 */
+	public V autoHide()
+	{
+		setParameterEventHandler(InteractionEventType.UPDATE,
+								 v -> handleCloseView());
+
+		return set(AUTO_HIDE);
+	}
+
+	/***************************************
+	 * Indicates that this view should be centered on the screen.
+	 *
+	 * @return This instance
+	 */
+	public V center()
+	{
+		return set(UserInterfaceProperties.VERTICAL_ALIGN, Alignment.CENTER);
+	}
+
+	/***************************************
+	 * Adds a handler that will be invoked when this view is closed.
+	 *
+	 * @param  rCloseHandler The handler to be invoked if the view is closed
+	 *
+	 * @return This instance
+	 */
+	@SuppressWarnings("unchecked")
+	public V onClose(Runnable rCloseHandler)
+	{
+		this.rCloseHandler = rCloseHandler;
+
+		return (V) this;
+	}
 
 	/***************************************
 	 * Overridden to show or hide this view.
@@ -102,5 +149,23 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	protected void setViewType(ViewDisplayType eViewType)
 	{
 		set(LayoutProperties.VIEW_DISPLAY_TYPE, eViewType);
+	}
+
+	/***************************************
+	 * Handles close events for this view.
+	 */
+	private void handleCloseView()
+	{
+		if (rCloseHandler != null)
+		{
+			rCloseHandler.run();
+		}
+
+		Boolean rAutoHide = get(AUTO_HIDE);
+
+		if (rAutoHide != null && rAutoHide.booleanValue())
+		{
+			hide();
+		}
 	}
 }

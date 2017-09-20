@@ -394,7 +394,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 			ValueEventHandler<T> rEventHandler =
 				aEventTypeHandlers.get(rEvent.getType());
 
-			if (rEventHandler != null)
+			if (rEventHandler != null && rFragment.isAttached())
 			{
 				rEventHandler.handleValueUpdate(rFragment.getParameter(rParamType));
 			}

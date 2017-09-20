@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LabelStyle;
 
 import de.esoco.process.ui.UiComponent;
@@ -28,7 +29,7 @@ import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
 
 /********************************************************************
- * A component that displays an image.
+ * A component that displays an image and can create click events.
  *
  * @author eso
  */
@@ -63,7 +64,31 @@ public class UiImage extends UiComponent<String, UiImage>
 	 */
 	public UiImage caption(String sCaption)
 	{
-		return applyComponentLabel(sCaption);
+		return label(sCaption);
+	}
+
+	/***************************************
+	 * Returns the image that is displayed by this image component.
+	 *
+	 * @return The image definition
+	 */
+	@Override
+	public UiImageDefinition<?> getImage()
+	{
+		return super.getImage();
+	}
+
+	/***************************************
+	 * Sets the event handler for click events on images.
+	 *
+	 * @param  rEventHandler The event handler
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final UiImage onClick(Runnable rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										v -> rEventHandler.run());
 	}
 
 	/***************************************
@@ -80,7 +105,7 @@ public class UiImage extends UiComponent<String, UiImage>
 	/***************************************
 	 * Sets the image to be displayed.
 	 *
-	 * @param rImage The component's image.
+	 * @param rImage The image
 	 */
 	public void setImage(UiImageDefinition<?> rImage)
 	{
