@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,12 +122,15 @@ public class TransferParam extends ProcessStep
 	@SuppressWarnings({ "unchecked" })
 	protected void rollback() throws Exception
 	{
-		RelationType<?> rSource =
-			getParameter(ProcessRelationTypes.SOURCE_PARAM);
-		RelationType<?> rTarget =
-			getParameter(ProcessRelationTypes.TARGET_PARAM);
+		if (hasFlagParameter(TRANSFER_PARAM_MOVE))
+		{
+			RelationType<?> rSource =
+				getParameter(ProcessRelationTypes.SOURCE_PARAM);
+			RelationType<?> rTarget =
+				getParameter(ProcessRelationTypes.TARGET_PARAM);
 
-		setParameter((RelationType<Object>) rSource, getParameter(rTarget));
-		deleteParameters(rTarget);
+			setParameter((RelationType<Object>) rSource, getParameter(rTarget));
+			deleteParameters(rTarget);
+		}
 	}
 }
