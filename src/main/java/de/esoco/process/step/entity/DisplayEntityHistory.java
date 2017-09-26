@@ -37,6 +37,7 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 
+import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.Parameter;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
@@ -74,6 +75,7 @@ import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_ACTION_EVENT;
@@ -876,19 +878,8 @@ public class DisplayEntityHistory extends InteractionFragment
 
 		//~ Instance fields ----------------------------------------------------
 
-		private List<RelationType<?>> aInteractionParams =
-			params(HISTORY_TYPE_OPTIONS,
-				   ENTITY_HISTORY_DATE,
-				   ENABLE_HISTORY_ORIGIN,
-				   ENTITY_HISTORY_ORIGIN);
-
-		private List<RelationType<?>> aInputParams =
-			params(HISTORY_TYPE_OPTIONS,
-				   ENTITY_HISTORY_DATE,
-				   ENABLE_HISTORY_ORIGIN,
-				   ENTITY_HISTORY_ORIGIN);
-
 		private Updatable rChangeListener;
+		private boolean   bShowOriginFilter;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -904,13 +895,8 @@ public class DisplayEntityHistory extends InteractionFragment
 			Updatable rChangeListener,
 			boolean   bShowOriginFilter)
 		{
-			this.rChangeListener = rChangeListener;
-
-			if (!bShowOriginFilter)
-			{
-				removeInteractionParameters(ENABLE_HISTORY_ORIGIN,
-											ENTITY_HISTORY_ORIGIN);
-			}
+			this.rChangeListener   = rChangeListener;
+			this.bShowOriginFilter = bShowOriginFilter;
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -919,91 +905,93 @@ public class DisplayEntityHistory extends InteractionFragment
 		 * {@inheritDoc}
 		 */
 		@Override
-		public List<RelationType<?>> getInputParameters()
+		public void init() throws Exception
 		{
-			return aInputParams;
+			checkAddHistoryTypeOptions();
+
+			param(ENTITY_HISTORY_DATE).input()
+									  .colSpan(2)
+									  .set(LIST_STYLE, ListStyle.DROP_DOWN)
+									  .value(StandardDateRange.NONE)
+									  .allow(StandardDateRange.NONE,
+											 StandardDateRange.TODAY,
+											 StandardDateRange.YESTERDAY,
+											 StandardDateRange.BEFORE_YESTERDAY,
+											 StandardDateRange.CURRENT_WEEK,
+											 StandardDateRange.LAST_WEEK,
+											 StandardDateRange.CURRENT_MONTH,
+											 StandardDateRange.LAST_MONTH,
+											 StandardDateRange.CURRENT_QUARTER,
+											 StandardDateRange.LAST_QUARTER,
+											 StandardDateRange.CURRENT_YEAR,
+											 StandardDateRange.LAST_YEAR)
+									  .onUpdate(v -> rChangeListener.update());
+
+			checkAddOriginFilter();
+
+			setUIFlag(HIDE_LABEL, getInteractionParameters());
+			setUIProperty(RESOURCE_ID,
+						  StandardDateRange.class.getSimpleName(),
+						  ENTITY_HISTORY_DATE);
 		}
 
 		/***************************************
-		 * {@inheritDoc}
+		 * Updates the display if the selected history types change.
+		 *
+		 * @param rNewTypes The new selected history types
 		 */
-		@Override
-		public List<RelationType<?>> getInteractionParameters()
+		private void changeHistoryTypes(Set<HistoryType> rNewTypes)
 		{
-			return aInteractionParams;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void handleInteraction(RelationType<?> rInteractionParam)
-			throws Exception
-		{
-			if (rInteractionParam == HISTORY_TYPE_OPTIONS)
-			{
-				setParameter(ENTITY_HISTORY_TYPES,
-							 new LinkedHashSet<>(getParameter(HISTORY_TYPE_OPTIONS)));
-			}
+			param(ENTITY_HISTORY_TYPES).value(new LinkedHashSet<>(rNewTypes));
 
 			rChangeListener.update();
 		}
 
 		/***************************************
-		 * {@inheritDoc}
+		 * Adds the interactive history type options parameter if necessary.
 		 */
-		@Override
-		public void init() throws Exception
+		private void checkAddHistoryTypeOptions()
 		{
 			Set<HistoryType> rHistoryTypes = getParameter(ENTITY_HISTORY_TYPES);
 
 			if (rHistoryTypes != null && rHistoryTypes.size() > 1)
 			{
-				setParameter(HISTORY_TYPE_OPTIONS,
-							 EnumSet.of(HistoryType.NOTE));
-				setParameter(ENTITY_HISTORY_TYPES,
-							 new LinkedHashSet<>(getParameter(HISTORY_TYPE_OPTIONS)));
+				EnumSet<HistoryType> aSelectedTypeOptions =
+					EnumSet.of(HistoryType.NOTE);
+
+				SetParameter<HistoryType> aHistoryTypeParam =
+					new SetParameter<>(this, HISTORY_TYPE_OPTIONS);
+
+				aHistoryTypeParam.input()
+								 .set(LIST_STYLE, ListStyle.DISCRETE)
+								 .colSpan(2)
+								 .allowElements(rHistoryTypes)
+								 .value(aSelectedTypeOptions)
+								 .onAction(this::changeHistoryTypes);
+
+				param(ENTITY_HISTORY_TYPES).value(new LinkedHashSet<>(aSelectedTypeOptions));
 			}
-			else
+		}
+
+		/***************************************
+		 * Adds the history origin filter if enabled.
+		 */
+		private void checkAddOriginFilter()
+		{
+			if (bShowOriginFilter)
 			{
-				removeInteractionParameters(HISTORY_TYPE_OPTIONS);
+				param(ENABLE_HISTORY_ORIGIN).label("")
+											.onAction(this::setOriginsEnabled);
+				param(ENTITY_HISTORY_ORIGIN).input()
+											.sameRow()
+											.disable()
+											.set(LIST_STYLE,
+												 ListStyle.DROP_DOWN)
+											.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL)
+											.allow(ITEM_ENTITY_HISTORY_ORIGIN_ALL)
+											.onUpdate(v ->
+													  rChangeListener.update());
 			}
-
-			setInteractive(ENTITY_HISTORY_ORIGIN,
-						   ITEM_ENTITY_HISTORY_ORIGIN_ALL,
-						   ListStyle.DROP_DOWN,
-						   ITEM_ENTITY_HISTORY_ORIGIN_ALL);
-			setInteractive(ENTITY_HISTORY_DATE,
-						   StandardDateRange.NONE,
-						   ListStyle.DROP_DOWN,
-						   StandardDateRange.NONE,
-						   StandardDateRange.TODAY,
-						   StandardDateRange.YESTERDAY,
-						   StandardDateRange.BEFORE_YESTERDAY,
-						   StandardDateRange.CURRENT_WEEK,
-						   StandardDateRange.LAST_WEEK,
-						   StandardDateRange.CURRENT_MONTH,
-						   StandardDateRange.LAST_MONTH,
-						   StandardDateRange.CURRENT_QUARTER,
-						   StandardDateRange.LAST_QUARTER,
-						   StandardDateRange.CURRENT_YEAR,
-						   StandardDateRange.LAST_YEAR);
-
-			setInteractive(HISTORY_TYPE_OPTIONS,
-						   null,
-						   ListStyle.DISCRETE,
-						   rHistoryTypes);
-
-			param(ENABLE_HISTORY_ORIGIN).label("")
-										.onAction(this::setOriginsEnabled);
-			param(ENTITY_HISTORY_ORIGIN).sameRow().disable();
-			param(HISTORY_TYPE_OPTIONS).colSpan(2);
-			param(ENTITY_HISTORY_DATE).colSpan(2);
-
-			setUIFlag(HIDE_LABEL, aInteractionParams);
-			setUIProperty(RESOURCE_ID,
-						  StandardDateRange.class.getSimpleName(),
-						  ENTITY_HISTORY_DATE);
 		}
 
 		/***************************************
@@ -1021,6 +1009,8 @@ public class DisplayEntityHistory extends InteractionFragment
 			{
 				rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
 			}
+
+			rChangeListener.update();
 		}
 	}
 }
