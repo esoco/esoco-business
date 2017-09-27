@@ -2040,40 +2040,50 @@ public class EntityManager
 		{
 			trySyncEndpointLock(rEntity);
 
-			String sContextId = getEntityModificationContextId();
-
-			if (sContextId != null)
+			try
 			{
-				checkModificationLockRules(rEntity, sContextId);
+				String sContextId = getEntityModificationContextId();
 
-				String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-
-				if (sHandle == null)
+				if (sContextId != null)
 				{
-					String sEntityId = rEntity.getGlobalId();
+					checkModificationLockRules(rEntity, sContextId);
 
-					rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
+					String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
-					Relatable rContext = aEntityModificationContext.get();
-
-					if (rContext != null)
+					if (sHandle == null)
 					{
-						Map<String, Entity> rEntities =
-							rContext.get(CONTEXT_MODIFIED_ENTITIES);
+						String sEntityId = rEntity.getGlobalId();
 
-						rEntities.put(sEntityId, rEntity);
+						rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
+
+						Relatable rContext = aEntityModificationContext.get();
+
+						if (rContext != null)
+						{
+							Map<String, Entity> rEntities =
+								rContext.get(CONTEXT_MODIFIED_ENTITIES);
+
+							rEntities.put(sEntityId, rEntity);
+						}
+
+						aModifiedEntities.put(sEntityId, rEntity);
 					}
+					else if (!sHandle.equals(sContextId))
+					{
+						throwConcurrentEntityModification(rEntity,
+														  MSG_CONCURRENT_MODIFICATION,
+														  rEntity,
+														  sContextId,
+														  sHandle);
+					}
+				}
+			}
+			catch (RuntimeException e)
+			{
+				// make sure that lock is removed from sync service on errors
+				trySyncEndpointRelease(rEntity);
 
-					aModifiedEntities.put(sEntityId, rEntity);
-				}
-				else if (!sHandle.equals(sContextId))
-				{
-					throwConcurrentEntityModification(rEntity,
-													  MSG_CONCURRENT_MODIFICATION,
-													  rEntity,
-													  sContextId,
-													  sHandle);
-				}
+				throw e;
 			}
 		}
 	}
