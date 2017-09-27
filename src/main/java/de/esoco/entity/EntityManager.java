@@ -2043,39 +2043,34 @@ public class EntityManager
 			try
 			{
 				String sContextId = getEntityModificationContextId();
+				String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
-				if (sContextId != null)
+				checkModificationLockRules(rEntity, sContextId);
+
+				if (sHandle == null)
 				{
-					checkModificationLockRules(rEntity, sContextId);
+					Relatable rContext  = aEntityModificationContext.get();
+					String    sEntityId = rEntity.getGlobalId();
 
-					String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+					rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
 
-					if (sHandle == null)
+					if (rContext != null)
 					{
-						String sEntityId = rEntity.getGlobalId();
+						Map<String, Entity> rEntities =
+							rContext.get(CONTEXT_MODIFIED_ENTITIES);
 
-						rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
-
-						Relatable rContext = aEntityModificationContext.get();
-
-						if (rContext != null)
-						{
-							Map<String, Entity> rEntities =
-								rContext.get(CONTEXT_MODIFIED_ENTITIES);
-
-							rEntities.put(sEntityId, rEntity);
-						}
-
-						aModifiedEntities.put(sEntityId, rEntity);
+						rEntities.put(sEntityId, rEntity);
 					}
-					else if (!sHandle.equals(sContextId))
-					{
-						throwConcurrentEntityModification(rEntity,
-														  MSG_CONCURRENT_MODIFICATION,
-														  rEntity,
-														  sContextId,
-														  sHandle);
-					}
+
+					aModifiedEntities.put(sEntityId, rEntity);
+				}
+				else if (!sHandle.equals(sContextId))
+				{
+					throwConcurrentEntityModification(rEntity,
+													  MSG_CONCURRENT_MODIFICATION,
+													  rEntity,
+													  sContextId,
+													  sHandle);
 				}
 			}
 			catch (RuntimeException e)
@@ -2185,39 +2180,33 @@ public class EntityManager
 		{
 			trySyncEndpointRelease(rEntity);
 
-			String sContextId = getEntityModificationContextId();
+			String    sContextId = getEntityModificationContextId();
+			String    sEntityId  = rEntity.getGlobalId();
+			String    sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+			Relatable rContext   = aEntityModificationContext.get();
 
-			if (sContextId != null)
+			if (!sHandle.equals(sContextId))
 			{
-				String    sEntityId = rEntity.getGlobalId();
-				Relatable rContext  = aEntityModificationContext.get();
-				String    sHandle   = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-
-				if (!sHandle.equals(sContextId))
-				{
-					throwConcurrentEntityModification(rEntity,
-													  MSG_CONCURRENT_MODIFICATION,
-													  rEntity,
-													  sContextId,
-													  sHandle);
-				}
-
-				if (rContext != null)
-				{
-					Entity rContextEntity =
-						rContext.get(CONTEXT_MODIFIED_ENTITIES)
-								.remove(sEntityId);
-
-					if (rContextEntity != null)
-					{
-						rContext.get(CONTEXT_UPDATED_ENTITIES)
-								.add(rContextEntity);
-					}
-				}
-
-				rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
-				aModifiedEntities.remove(sEntityId);
+				throwConcurrentEntityModification(rEntity,
+												  MSG_CONCURRENT_MODIFICATION,
+												  rEntity,
+												  sContextId,
+												  sHandle);
 			}
+
+			if (rContext != null)
+			{
+				Entity rContextEntity =
+					rContext.get(CONTEXT_MODIFIED_ENTITIES).remove(sEntityId);
+
+				if (rContextEntity != null)
+				{
+					rContext.get(CONTEXT_UPDATED_ENTITIES).add(rContextEntity);
+				}
+			}
+
+			rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
+			aModifiedEntities.remove(sEntityId);
 		}
 	}
 
@@ -2607,19 +2596,19 @@ public class EntityManager
 	 */
 	private static String getEntityModificationContextId()
 	{
-		String sContext = aEntityModificationContextId.get();
+		String sContextId = aEntityModificationContextId.get();
 
-		if (sContext == null && rSessionManager != null)
+		if (sContextId == null && rSessionManager != null)
 		{
-			sContext = rSessionManager.getSessionId();
+			sContextId = rSessionManager.getSessionId();
 		}
 
-		if (sContext == null)
+		if (sContextId == null)
 		{
-			sContext = Thread.currentThread().getName();
+			sContextId = Thread.currentThread().getName();
 		}
 
-		return sContext;
+		return sContextId;
 	}
 
 	/***************************************
