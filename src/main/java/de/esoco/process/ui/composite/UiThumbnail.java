@@ -43,21 +43,42 @@ public class UiThumbnail extends UiComposite<UiThumbnail>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private UiImage aImage;
+	private UiImage				 aImage;
+	private UiImageDefinition<?> rFullImageDef;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with a default width of 300 pixels.
+	 * Creates a new instance that displays a down-scaled image as the thumbnail
+	 * with a default width of 300 pixels.
 	 *
-	 * @param rParent   The parent container
-	 * @param rImageDef The image to display
+	 * @param rParent The parent container
+	 * @param rImage  The image to display
 	 */
-	public UiThumbnail(UiContainer<?> rParent, UiImageDefinition<?> rImageDef)
+	public UiThumbnail(UiContainer<?> rParent, UiImageDefinition<?> rImage)
+	{
+		this(rParent, rImage, rImage);
+	}
+
+	/***************************************
+	 * Creates a new instance that displays a thumbnail with a default width of
+	 * 300 pixels.
+	 *
+	 * @param rParent     The parent container
+	 * @param rThumbImage The thumbnail image to display
+	 * @param rFullImage  The full image to display if the the thumbnail is
+	 *                    selected
+	 */
+	public UiThumbnail(UiContainer<?>		rParent,
+					   UiImageDefinition<?> rThumbImage,
+					   UiImageDefinition<?> rFullImage)
 	{
 		super(rParent, new UiInlineLayout());
 
-		aImage = builder().addImage(rImageDef).onClick(this::displayImageView);
+		this.rFullImageDef = rFullImage;
+
+		aImage =
+			builder().addImage(rThumbImage).onClick(this::displayImageView);
 		width(300);
 	}
 
@@ -129,7 +150,7 @@ public class UiThumbnail extends UiComposite<UiThumbnail>
 				  .alignHorizontal(Alignment.END);
 		aImageView.nextRow();
 		aImageView.builder()
-				  .addImage(aImage.getImage())
+				  .addImage(rFullImageDef)
 				  .tooltip(aImage.get(TOOLTIP));
 
 		aImageView.center().autoHide().show();

@@ -527,7 +527,8 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Adds an image thumbnail that opens a full-size image view when clicked.
+	 * Adds an image thumbnail that opens a larger image in a popup view when
+	 * clicked.
 	 *
 	 * @param  rImage The image definition
 	 *
@@ -536,6 +537,22 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiThumbnail addThumbnail(UiImageDefinition<?> rImage)
 	{
 		return new UiThumbnail(rContainer, rImage);
+	}
+
+	/***************************************
+	 * Adds an image thumbnail that opens a larger image in a popup view when
+	 * clicked.
+	 *
+	 * @param  rThumbImage The thumbnail image
+	 * @param  rFullImage  The larger image
+	 *
+	 * @return The new component
+	 */
+	public UiThumbnail addThumbnail(
+		UiImageDefinition<?> rThumbImage,
+		UiImageDefinition<?> rFullImage)
+	{
+		return new UiThumbnail(rContainer, rThumbImage, rFullImage);
 	}
 
 	/***************************************
