@@ -2038,47 +2038,34 @@ public class EntityManager
 	{
 		if (rEntity.isPersistent())
 		{
-			trySyncEndpointLock(rEntity);
+			String sContextId = getEntityModificationContextId();
+			String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
-			try
+			if (sHandle == null)
 			{
-				String sContextId = getEntityModificationContextId();
-				String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-
 				checkModificationLockRules(rEntity, sContextId);
+				trySyncEndpointLock(rEntity);
 
-				if (sHandle == null)
+				Relatable rContext  = aEntityModificationContext.get();
+				String    sEntityId = rEntity.getGlobalId();
+
+				rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
+
+				if (rContext != null)
 				{
-					Relatable rContext  = aEntityModificationContext.get();
-					String    sEntityId = rEntity.getGlobalId();
-
-					rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
-
-					if (rContext != null)
-					{
-						Map<String, Entity> rEntities =
-							rContext.get(CONTEXT_MODIFIED_ENTITIES);
-
-						rEntities.put(sEntityId, rEntity);
-					}
-
-					aModifiedEntities.put(sEntityId, rEntity);
+					rContext.get(CONTEXT_MODIFIED_ENTITIES)
+							.put(sEntityId, rEntity);
 				}
-				else if (!sHandle.equals(sContextId))
-				{
-					throwConcurrentEntityModification(rEntity,
-													  MSG_CONCURRENT_MODIFICATION,
-													  rEntity,
-													  sContextId,
-													  sHandle);
-				}
+
+				aModifiedEntities.put(sEntityId, rEntity);
 			}
-			catch (RuntimeException e)
+			else if (!sHandle.equals(sContextId))
 			{
-				// make sure that lock is removed from sync service on errors
-				trySyncEndpointRelease(rEntity);
-
-				throw e;
+				throwConcurrentEntityModification(rEntity,
+												  MSG_CONCURRENT_MODIFICATION,
+												  rEntity,
+												  sContextId,
+												  sHandle);
 			}
 		}
 	}
@@ -2178,12 +2165,8 @@ public class EntityManager
 	{
 		if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
 		{
-			trySyncEndpointRelease(rEntity);
-
-			String    sContextId = getEntityModificationContextId();
-			String    sEntityId  = rEntity.getGlobalId();
-			String    sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-			Relatable rContext   = aEntityModificationContext.get();
+			String sContextId = getEntityModificationContextId();
+			String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
 
 			if (!sHandle.equals(sContextId))
 			{
@@ -2193,6 +2176,11 @@ public class EntityManager
 												  sContextId,
 												  sHandle);
 			}
+
+			trySyncEndpointRelease(rEntity);
+
+			Relatable rContext  = aEntityModificationContext.get();
+			String    sEntityId = rEntity.getGlobalId();
 
 			if (rContext != null)
 			{

@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
@@ -697,7 +698,6 @@ public class EntityDefinition<E extends Entity>
 				Relation<?> rRelation  = rEvent.getElement();
 				Object	    rPrevValue = rRelation.getTarget();
 				Object	    rNewValue  = rUpdateValue;
-				boolean     bModified  = false;
 
 				if (eEventType == EventType.ADD)
 				{
@@ -705,21 +705,19 @@ public class EntityDefinition<E extends Entity>
 					rPrevValue = null;
 				}
 
+				boolean bModified = !Objects.equals(rNewValue, rPrevValue);
+
 				// only store previous value on first change to remember
 				// the persistent state, not intermediate changes; upon store
 				// the PREVIOUS_VALUE relation will be removed
-				if (!rRelation.hasAnnotation(PREVIOUS_VALUE))
+				if (bModified && !rRelation.hasAnnotation(PREVIOUS_VALUE))
 				{
-					if ((rNewValue == null && rPrevValue != null) ||
-						(rNewValue != null && !rNewValue.equals(rPrevValue)))
-					{
-						rRelation.annotate(PREVIOUS_VALUE, rPrevValue);
-						bModified = true;
-					}
+					rRelation.annotate(PREVIOUS_VALUE, rPrevValue);
 				}
 
 				if (bModified || eEventType != EventType.UPDATE)
 				{
+					// this will invoke the == MODIFIED branch above
 					rEntity.set(MODIFIED);
 				}
 			}
@@ -1071,8 +1069,7 @@ public class EntityDefinition<E extends Entity>
 
 				if (!rAttribute.hasRelation(STORAGE_DATATYPE))
 				{
-					rAttribute.set(STORAGE_DATATYPE,
-								   rAttribute.getValueType());
+					rAttribute.set(STORAGE_DATATYPE, rAttribute.getValueType());
 				}
 
 				if (!rAttribute.hasRelation(STORAGE_NAME))
