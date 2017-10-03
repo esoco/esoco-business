@@ -37,11 +37,13 @@ import java.io.ObjectOutputStream;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Consumer;
 
 import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
@@ -234,14 +236,15 @@ public class Process extends SerializableRelatedObject
 	/** Next step signal value for a process end-point */
 	public static final String PROCESS_END = "_PROCESS_END";
 
+	static final String CLEANUP_KEY_UNLOCK_ENTITY = "UnlockEntity-";
+
+	//- Relation types ---------------------------------------------------------
 	/**
 	 * An internal process parameter that marks process steps that have signaled
 	 * the actual need for an interaction.
 	 */
 	private static final RelationType<Boolean> STEP_WAS_INTERACTIVE =
 		RelationTypes.newFlagType(RelationTypeModifier.PRIVATE);
-
-	//- Relation types ---------------------------------------------------------
 
 	static
 	{
@@ -267,6 +270,9 @@ public class Process extends SerializableRelatedObject
 	private transient ProcessStep				   rCurrentStep;
 
 	private ProcessInteractionHandler rInteractionHandler = null;
+
+	private Map<String, Consumer<Process>> aCleanupActions =
+		new LinkedHashMap<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -299,6 +305,26 @@ public class Process extends SerializableRelatedObject
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Registers an cleanup action that will be executed when this process is
+	 * finished, either by completing regularly (including cancelation) or by
+	 * handling an error. If a different finish action is already registered
+	 * under a particular key it will be replaced. Therefore invoking code must
+	 * make sure to use unique keys or handle the replacement of actions in
+	 * appropriate ways.
+	 *
+	 * <p>When invoked a cleanup action receives the associated process instance
+	 * as it's argument to provide access to process parameters. Registered
+	 * Actions can be removed with {@link #removeCleanupAction(String)}.</p>
+	 *
+	 * @param sKey    A key that identifies the action for later removal
+	 * @param fAction The function to invoke on cleanup
+	 */
+	public void addCleanupAction(String sKey, Consumer<Process> fAction)
+	{
+		aCleanupActions.put(sKey, fAction);
+	}
 
 	/***************************************
 	 * Allows to cancel this process. This method can only be invoked on an
@@ -433,12 +459,12 @@ public class Process extends SerializableRelatedObject
 
 		if (rContext == null)
 		{
-			// set (only) the root process as the entity modification context.
-			// If process is spawned from another the first execution will be in
-			// the same thread. Therefore bKeepExisting is set to TRUE to not
-			// override the context of the starting process. On the next
+			// Set (only) the root process as the entity modification context.
+			// If a process is spawned from another the first execution will
+			// be in the same thread. Therefore bKeepExisting is set to TRUE to
+			// not override the context of the starting process. On the next
 			// interaction (on a separate thread) the context will be set to
-			// the new process
+			// the new process.
 			EntityManager.setEntityModificationContext(sUniqueProcessName,
 													   this,
 													   true);
@@ -739,6 +765,45 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Tries to acquire a modification lock on an entity for the remaining
+	 * execution of this process. If successful, a cleanup action will be
+	 * registered with {@link #addCleanupAction(String, Consumer)} that removes
+	 * the lock if the process is finished.
+	 *
+	 * @param  rEntity The entity to lock
+	 *
+	 * @return TRUE if the lock could be acquired, FALSE if the entity is
+	 *         already locked
+	 */
+	public final boolean lockEntity(Entity rEntity)
+	{
+		assert rEntity.isPersistent();
+
+		boolean bSuccess = rEntity.lock();
+
+		if (bSuccess)
+		{
+			addCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId(),
+							 p -> rEntity.unlock());
+		}
+
+		return bSuccess;
+	}
+
+	/***************************************
+	 * Removes a cleanup action that has previously been registered through the
+	 * method {@link #addCleanupAction(String, Action)}.
+	 *
+	 * @param  sKey The key that identifies the action to remove
+	 *
+	 * @return The registered action or NULL for none
+	 */
+	public Consumer<Process> removeCleanupAction(String sKey)
+	{
+		return aCleanupActions.remove(sKey);
+	}
+
+	/***************************************
 	 * Removes the current entity modification lock rule by invoking the method
 	 * {@link EntityManager#removeEntityModificationLock(String)} with the ID of
 	 * this process.
@@ -919,6 +984,19 @@ public class Process extends SerializableRelatedObject
 		return String.format("Process %s (current step: %s)",
 							 getName(),
 							 rCurrentStep);
+	}
+
+	/***************************************
+	 * Removes an entity lock that had been acquired by a successful call to
+	 * {@link #lockEntity(Entity)}. This will also remove the associated cleanup
+	 * action.
+	 *
+	 * @param rEntity The entity to unlock
+	 */
+	public final void unlockEntity(Entity rEntity)
+	{
+		removeCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId());
+		rEntity.unlock();
 	}
 
 	/***************************************
@@ -1167,6 +1245,8 @@ public class Process extends SerializableRelatedObject
 				}
 			}
 
+			executeCleanupActions();
+
 			// only remove temporary types if root process is terminated
 			if (rContext == null)
 			{
@@ -1196,6 +1276,29 @@ public class Process extends SerializableRelatedObject
 															  this);
 			}
 		}
+	}
+
+	/***************************************
+	 * Executes all actions that have previously been registered through the
+	 * method {@link #addCleanupAction(String, Action)}.
+	 */
+	private void executeCleanupActions()
+	{
+		for (String sKey : aCleanupActions.keySet())
+		{
+			Consumer<Process> rAction = aCleanupActions.get(sKey);
+
+			try
+			{
+				rAction.accept(this);
+			}
+			catch (Exception e)
+			{
+				Log.errorf(e, "Process cleanup action failed: %s", sKey);
+			}
+		}
+
+		aCleanupActions.clear();
 	}
 
 	/***************************************

@@ -64,6 +64,7 @@ import static de.esoco.storage.StorageRelationTypes.PERSISTENT;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
 
 import static org.obrel.type.MetaTypes.INITIALIZING;
+import static org.obrel.type.MetaTypes.LOCKED;
 import static org.obrel.type.MetaTypes.MODIFIED;
 import static org.obrel.type.StandardTypes.PREVIOUS_VALUE;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
@@ -1065,6 +1066,33 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Tries to acquire a modification lock on this entity.
+	 *
+	 * @return TRUE if the lock could be acquired, FALSE if the entity is
+	 *         already locked
+	 */
+	public boolean lock()
+	{
+		boolean bSuccess;
+
+		try
+		{
+			// this method doesn't need to be synchronized because
+			// beginEntityModification already is; if it returns successfully
+			// it will prevent parallel executions of lock() from succeeding
+			EntityManager.beginEntityModification(this);
+			bSuccess = true;
+			set(LOCKED);
+		}
+		catch (ConcurrentEntityModificationException e)
+		{
+			bSuccess = false;
+		}
+
+		return bSuccess;
+	}
+
+	/***************************************
 	 * Prints this entity and the hierarchy of it's children to a print stream.
 	 * This method is intended to be used for debugging and informational
 	 * purposes only. The format of the output may change any time.
@@ -1526,6 +1554,20 @@ public class Entity extends SerializableRelatedObject
 	public String toString(String sSeparator, RelationType<?>... rAttributes)
 	{
 		return toString(Arrays.asList(rAttributes), sSeparator);
+	}
+
+	/***************************************
+	 * Tries to release a modification lock on this entity. The lock must have
+	 * been acquired previously with {@link #lock()} by the same context
+	 * (process, thread).
+	 *
+	 * @throws ConcurrentEntityModificationException If the entity lock is not
+	 *                                               held by the current context
+	 */
+	public void unlock()
+	{
+		EntityManager.endEntityModification(this);
+		deleteRelation(LOCKED);
 	}
 
 	/***************************************

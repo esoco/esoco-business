@@ -42,6 +42,7 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.CalendarFunctions;
+import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.model.DataSet;
 import de.esoco.lib.model.IntDataSet;
@@ -229,17 +230,14 @@ public abstract class ProcessFragment extends ProcessElement
 	/***************************************
 	 * Registers an cleanup action that will be executed when this process
 	 * fragment is finished, i.e. the fragment is removed, the process continues
-	 * to the next step, or terminates. If a different finish action is already
-	 * registered it will be executed on this step. This can be used to perform
-	 * cleanups of resources that have been allocated during the step
-	 * initialization. It is intended mainly for framework methods to perform
-	 * automatic resource cleanup.
+	 * to the next step, or terminates (regularly or with an error). If a
+	 * different finish action is already registered under a particular key it
+	 * will be replaced. Therefore invoking code must make sure to use unique
+	 * keys or handle the replacement of actions in appropriate ways.
 	 *
-	 * <p>Subclasses of process steps and fragments should perform their
-	 * cleanups directly in their implemented methods. Actions can be removed by
-	 * their key through the method {@link #removeCleanupAction(String)}.A
-	 * finish action will receive the associated process fragment instance as
-	 * it's argument to allow it to modify process parameters if necessary.</p>
+	 * <p>When invoked a cleanup action receives the process fragment as it's
+	 * argument to provide access to process parameters. Registered Actions can
+	 * be removed with {@link #removeCleanupAction(String)}.</p>
 	 *
 	 * @param sKey    A key that identifies the action for later removal
 	 * @param fAction The function to invoke on cleanup
@@ -1453,6 +1451,33 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Tries to acquire a modification lock on an entity during the execution of
+	 * this process fragment. If successful, a cleanup action will be registered
+	 * with {@link #addCleanupAction(String, Consumer)} that removes the lock if
+	 * the process is finished.
+	 *
+	 * @param  rEntity The entity to lock
+	 *
+	 * @return TRUE if the lock could be acquired, FALSE if the entity is
+	 *         already locked
+	 */
+	public final boolean lockEntity(Entity rEntity)
+	{
+		assert rEntity.isPersistent();
+
+		boolean bSuccess = rEntity.lock();
+
+		if (bSuccess)
+		{
+			addCleanupAction(Process.CLEANUP_KEY_UNLOCK_ENTITY +
+							 rEntity.getGlobalId(),
+							 f -> rEntity.unlock());
+		}
+
+		return bSuccess;
+	}
+
+	/***************************************
 	 * Marks a certain parameter as modified to force a UI update in the next
 	 * interaction.
 	 *
@@ -2342,6 +2367,20 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
+	 * Removes an entity lock that had been acquired by a successful call to
+	 * {@link #lockEntity(Entity)}. This will also remove the associated cleanup
+	 * action.
+	 *
+	 * @param rEntity The entity to unlock
+	 */
+	public final void unlockEntity(Entity rEntity)
+	{
+		removeCleanupAction(Process.CLEANUP_KEY_UNLOCK_ENTITY +
+							rEntity.getGlobalId());
+		rEntity.unlock();
+	}
+
+	/***************************************
 	 * Returns the process step this fragment represents or belongs to.
 	 *
 	 * @return The process step of this fragment
@@ -2401,9 +2440,18 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected void executeCleanupActions()
 	{
-		for (Consumer<ProcessFragment> rAction : aCleanupActions.values())
+		for (String sKey : aCleanupActions.keySet())
 		{
-			rAction.accept(this);
+			Consumer<ProcessFragment> rAction = aCleanupActions.get(sKey);
+
+			try
+			{
+				rAction.accept(this);
+			}
+			catch (Exception e)
+			{
+				Log.errorf(e, "Fragment cleanup action failed: %s", sKey);
+			}
 		}
 
 		aCleanupActions.clear();
