@@ -188,7 +188,7 @@ public abstract class InteractionFragment extends ProcessFragment
 			rSubFragment.abortFragment();
 		}
 
-		executeFinishActions();
+		executeCleanupActions();
 		abort();
 	}
 
@@ -2230,7 +2230,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		if (sOldUrl != null)
 		{
 			rSessionManager.removeUpload(sOldUrl);
-			getProcessStep().removeFinishAction(sOldUrl);
+			getProcessStep().removeCleanupAction(sOldUrl);
 		}
 
 		final String sUploadUrl = rSessionManager.prepareUpload(rUploadHandler);
@@ -2239,7 +2239,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		setUIProperty(URL, sUploadUrl, rFileSelectParam);
 		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
 
-		addFinishAction(sUploadUrl,
+		addCleanupAction(sUploadUrl,
 						f -> rSessionManager.removeUpload(sUploadUrl));
 	}
 

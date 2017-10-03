@@ -427,7 +427,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 									fUpdateTarget,
 									fQuerySource);
 
-		rFragment.addFinishAction("RemoveCoupling_" + nNextFinishActionId++,
+		rFragment.addCleanupAction("RemoveCoupling_" + nNextFinishActionId++,
 								  f -> aCoupling.remove());
 
 		return (P) this;
@@ -793,7 +793,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		rRelation.addUpdateListener(rEventHandler);
 
 		// cleanup action: remove parameter change listener if step is left
-		rFragment.addFinishAction("RemoveChangeListener_" +
+		rFragment.addCleanupAction("RemoveChangeListener_" +
 								  nNextFinishActionId++,
 								  f -> removeChangeListener(rEventHandler));
 

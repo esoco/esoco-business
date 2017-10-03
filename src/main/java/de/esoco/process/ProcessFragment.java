@@ -39,7 +39,6 @@ import de.esoco.entity.EntityManager;
 import de.esoco.history.HistoryRecord;
 
 import de.esoco.lib.collection.CollectionUtil;
-import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.CalendarFunctions;
@@ -80,6 +79,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
@@ -164,7 +164,7 @@ public abstract class ProcessFragment extends ProcessElement
 	private Map<RelationType<List<RelationType<?>>>, InteractionFragment> aSubFragments =
 		new LinkedHashMap<>();
 
-	private Map<String, Action<ProcessFragment>> aFinishActions =
+	private Map<String, Consumer<ProcessFragment>> aCleanupActions =
 		new LinkedHashMap<>();
 
 	//~ Static methods ---------------------------------------------------------
@@ -227,26 +227,27 @@ public abstract class ProcessFragment extends ProcessElement
 	public abstract Process getProcess();
 
 	/***************************************
-	 * Registers an action that will be executed when this process fragment is
-	 * finished, i.e. the fragment is removed, the process continues to the next
-	 * step, or terminates. If a different finish action is already registered
-	 * it will be executed on this step. This can be used to perform cleanups of
-	 * resources that have been allocated during the step initialization. It is
-	 * intended mainly for framework methods to perform automatic resource
-	 * cleanup.
+	 * Registers an cleanup action that will be executed when this process
+	 * fragment is finished, i.e. the fragment is removed, the process continues
+	 * to the next step, or terminates. If a different finish action is already
+	 * registered it will be executed on this step. This can be used to perform
+	 * cleanups of resources that have been allocated during the step
+	 * initialization. It is intended mainly for framework methods to perform
+	 * automatic resource cleanup.
 	 *
 	 * <p>Subclasses of process steps and fragments should perform their
 	 * cleanups directly in their implemented methods. Actions can be removed by
-	 * their key through the method {@link #removeFinishAction(String)}.A finish
-	 * action will receive the associated process fragment instance as it's
-	 * argument to allow it to modify process parameters if necessary.</p>
+	 * their key through the method {@link #removeCleanupAction(String)}.A
+	 * finish action will receive the associated process fragment instance as
+	 * it's argument to allow it to modify process parameters if necessary.</p>
 	 *
-	 * @param sKey    A key that identifies the action for removal
-	 * @param fAction The finish action to register
+	 * @param sKey    A key that identifies the action for later removal
+	 * @param fAction The function to invoke on cleanup
 	 */
-	public void addFinishAction(String sKey, Action<ProcessFragment> fAction)
+	public void addCleanupAction(String					   sKey,
+								 Consumer<ProcessFragment> fAction)
 	{
-		aFinishActions.put(sKey, fAction);
+		aCleanupActions.put(sKey, fAction);
 	}
 
 	/***************************************
@@ -295,7 +296,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public void addPanel(
 		RelationType<List<RelationType<?>>> rPanelParam,
-		LayoutType								eLayout,
+		LayoutType							eLayout,
 		List<RelationType<?>>				rPanelContentParams)
 	{
 		setParameter(rPanelParam, rPanelContentParams);
@@ -455,7 +456,9 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam, LayoutType.STACK, Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam,
+				 LayoutType.STACK,
+				 Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -507,7 +510,9 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam, LayoutType.TABS, Arrays.asList(rPanelContentParams));
+		addPanel(rPanelParam,
+				 LayoutType.TABS,
+				 Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -1486,10 +1491,11 @@ public abstract class ProcessFragment extends ProcessElement
 		if (rEarliestDate != null)
 		{
 			setParameterValidation(rParam,
-								   false, doIfElse(isNull(),
-															value(MSG_PARAM_NOT_SET),
-															doIf(lessThan(rEarliestDate),
-																 value("DateIsBeforeToday"))));
+								   false,
+								   doIfElse(isNull(),
+											value(MSG_PARAM_NOT_SET),
+											doIf(lessThan(rEarliestDate),
+												 value("DateIsBeforeToday"))));
 		}
 	}
 
@@ -1541,7 +1547,7 @@ public abstract class ProcessFragment extends ProcessElement
 			if (sOldUrl != null)
 			{
 				rSessionManager.removeDownload(sOldUrl);
-				getProcessStep().removeFinishAction(sOldUrl);
+				getProcessStep().removeCleanupAction(sOldUrl);
 			}
 		}
 
@@ -1553,8 +1559,8 @@ public abstract class ProcessFragment extends ProcessElement
 			setParameter(rUrlParam, sDownloadUrl);
 		}
 
-		addFinishAction(sDownloadUrl,
-						f -> rSessionManager.removeDownload(sDownloadUrl));
+		addCleanupAction(sDownloadUrl,
+						 f -> rSessionManager.removeDownload(sDownloadUrl));
 
 		return sDownloadUrl;
 	}
@@ -1605,15 +1611,15 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Removes a cleanup action that has previously been registered through the
-	 * method {@link #addFinishAction(String, Action)}.
+	 * method {@link #addCleanupAction(String, Action)}.
 	 *
 	 * @param  sKey The key that identifies the action to remove
 	 *
 	 * @return The registered action or NULL for none
 	 */
-	public Action<ProcessFragment> removeFinishAction(String sKey)
+	public Consumer<ProcessFragment> removeCleanupAction(String sKey)
 	{
-		return aFinishActions.remove(sKey);
+		return aCleanupActions.remove(sKey);
 	}
 
 	/***************************************
@@ -1975,7 +1981,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rParam The parameter
 	 */
 	public void setLayout(
-		LayoutType								eMode,
+		LayoutType							eMode,
 		RelationType<List<RelationType<?>>> rParam)
 	{
 		setUIProperty(LAYOUT, eMode, rParam);
@@ -2391,16 +2397,16 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Executes all actions that have previously been registered through the
-	 * method {@link #addFinishAction(String, Action)}.
+	 * method {@link #addCleanupAction(String, Action)}.
 	 */
-	protected void executeFinishActions()
+	protected void executeCleanupActions()
 	{
-		for (Action<ProcessFragment> rAction : aFinishActions.values())
+		for (Consumer<ProcessFragment> rAction : aCleanupActions.values())
 		{
-			rAction.execute(this);
+			rAction.accept(this);
 		}
 
-		aFinishActions.clear();
+		aCleanupActions.clear();
 	}
 
 	/***************************************
@@ -2539,7 +2545,8 @@ public abstract class ProcessFragment extends ProcessElement
 
 		if (sBaseName == null)
 		{
-			aParamName.append("__").append(getClass().getSimpleName())
+			aParamName.append("__")
+					  .append(getClass().getSimpleName())
 					  .append('P')
 					  .append(getTemporaryParameterId());
 		}

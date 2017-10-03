@@ -1162,7 +1162,7 @@ public class Process extends SerializableRelatedObject
 			{
 				if (aExecutionStack.contains(rStep))
 				{
-					rStep.executeFinishActions();
+					rStep.executeCleanupActions();
 					rStep.cleanup();
 				}
 			}

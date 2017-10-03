@@ -624,7 +624,7 @@ public abstract class ProcessStep extends ProcessFragment
 		if (!isContinuedInteraction())
 		{
 			removeAllSubFragments();
-			executeFinishActions();
+			executeCleanupActions();
 		}
 		else if (isContinuationParam(rInteractionParam))
 		{
@@ -659,7 +659,7 @@ public abstract class ProcessStep extends ProcessFragment
 		else
 		{
 			// execute any remnant finish actions and clear action list
-			executeFinishActions();
+			executeCleanupActions();
 			prepareExecution();
 		}
 
