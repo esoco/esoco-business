@@ -1573,7 +1573,7 @@ public class Entity extends SerializableRelatedObject
 	/***************************************
 	 * Checks whether an attribute of this instance has a defined value and
 	 * throws an exception if that values is not equal to the given value. If
-	 * the current value is not defined, ergo NULL, no exception is thrown.
+	 * the current value is not set or NULL no exception is thrown.
 	 *
 	 * @param  rAttr  The attribute to test
 	 * @param  rValue The value to check the attribute value against
@@ -1649,7 +1649,7 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Appends an attribute change description to a string builder.
+	 * Appends a JSON string for a certain attribute to a string builder.
 	 *
 	 * @param rChanges      The string builder to append to
 	 * @param sIndent       The indentation
@@ -1657,11 +1657,11 @@ public class Entity extends SerializableRelatedObject
 	 * @param rAttrRelation The attribute relation
 	 * @param bChangesOnly  TRUE to include only changed attributes
 	 */
-	private void appendAttributeChange(StringBuilder rChanges,
-									   String		 sIndent,
-									   String		 sAttr,
-									   Relation<?>   rAttrRelation,
-									   boolean		 bChangesOnly)
+	private void appendJsonAttribute(StringBuilder rChanges,
+									 String		   sIndent,
+									 String		   sAttr,
+									 Relation<?>   rAttrRelation,
+									 boolean	   bChangesOnly)
 	{
 		Object rNewValue = rAttrRelation.getTarget();
 
@@ -1719,7 +1719,7 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Appends the change descriptions for modified attributes to a string
+	 * Appends the JSON representation of this entity's attributes to a string
 	 * builder.
 	 *
 	 * @param aChanges     The string builder
@@ -1727,10 +1727,10 @@ public class Entity extends SerializableRelatedObject
 	 * @param sIndent      The indentation
 	 * @param bChangesOnly TRUE to include only changed attributes
 	 */
-	private void appendAttributeChanges(StringBuilder		aChanges,
-										EntityDefinition<?> rDefinition,
-										String				sIndent,
-										boolean				bChangesOnly)
+	private void appendJsonAttributes(StringBuilder		  aChanges,
+									  EntityDefinition<?> rDefinition,
+									  String			  sIndent,
+									  boolean			  bChangesOnly)
 	{
 		for (RelationType<?> rAttribute : rDefinition.getAttributes())
 		{
@@ -1739,24 +1739,24 @@ public class Entity extends SerializableRelatedObject
 			if (rRelation != null &&
 				(!bChangesOnly || rRelation.hasRelation(PREVIOUS_VALUE)))
 			{
-				appendAttributeChange(aChanges,
-									  sIndent,
-									  rAttribute.getSimpleName(),
-									  rRelation,
-									  bChangesOnly);
+				appendJsonAttribute(aChanges,
+									sIndent,
+									rAttribute.getSimpleName(),
+									rRelation,
+									bChangesOnly);
 			}
 		}
 	}
 
 	/***************************************
-	 * Appends the changes of child entities to a change string builder.
+	 * Appends a JSON string with child entity informations to a string builder.
 	 *
 	 * @param aChanges        The string builder
 	 * @param sIndent         The indentation
 	 * @param rChildAttribute The child attribute
 	 * @param bChangesOnly    TRUE to include only changed attributes
 	 */
-	private void appendChildChanges(StringBuilder			   aChanges,
+	private void appendJsonChildren(StringBuilder			   aChanges,
 									String					   sIndent,
 									RelationType<List<Entity>> rChildAttribute,
 									boolean					   bChangesOnly)
@@ -1827,9 +1827,9 @@ public class Entity extends SerializableRelatedObject
 	 * @param sIndent      The indentation
 	 * @param bChangesOnly TRUE to include only changed attributes
 	 */
-	private void appendExtraAttributeChanges(StringBuilder aChanges,
-											 String		   sIndent,
-											 boolean	   bChangesOnly)
+	private void appendJsonExtraAttribute(StringBuilder aChanges,
+										  String		sIndent,
+										  boolean		bChangesOnly)
 	{
 		for (ExtraAttribute rExtraAttribute : get(EXTRA_ATTRIBUTE_MAP).values())
 		{
@@ -1843,11 +1843,11 @@ public class Entity extends SerializableRelatedObject
 				String sName =
 					rExtraAttribute.get(ExtraAttribute.KEY).getName();
 
-				appendAttributeChange(aChanges,
-									  sIndent,
-									  sName,
-									  rExtraAttrRelation,
-									  bChangesOnly);
+				appendJsonAttribute(aChanges,
+									sIndent,
+									sName,
+									rExtraAttrRelation,
+									bChangesOnly);
 			}
 		}
 	}
@@ -2142,17 +2142,17 @@ public class Entity extends SerializableRelatedObject
 		StringBuilder	    aChanges    = new StringBuilder("");
 		String			    sSubIndent  = sIndent + JSON_INDENT;
 
-		if (hasFlag(MODIFIED))
+		if (!bChangesOnly || hasFlag(MODIFIED))
 		{
-			appendAttributeChanges(aChanges,
-								   rDefinition,
-								   sSubIndent,
-								   bChangesOnly);
+			appendJsonAttributes(aChanges,
+								 rDefinition,
+								 sSubIndent,
+								 bChangesOnly);
 		}
 
 		if (hasFlag(EXTRA_ATTRIBUTES_MODIFIED))
 		{
-			appendExtraAttributeChanges(aChanges, sSubIndent, bChangesOnly);
+			appendJsonExtraAttribute(aChanges, sSubIndent, bChangesOnly);
 		}
 
 		Collection<RelationType<List<Entity>>> rChildAttributes =
@@ -2162,7 +2162,7 @@ public class Entity extends SerializableRelatedObject
 		{
 			for (RelationType<List<Entity>> rChildAttr : rChildAttributes)
 			{
-				appendChildChanges(aChanges,
+				appendJsonChildren(aChanges,
 								   sSubIndent,
 								   rChildAttr,
 								   bChangesOnly);
