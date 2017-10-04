@@ -25,10 +25,8 @@ import de.esoco.lib.property.InteractionEventType;
 import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
-import de.esoco.process.ui.UiTextInputField;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -52,11 +50,28 @@ public class UiDataTable
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiTextInputField#TextInput(UiContainer, String)
+	 * @param rContainer The parent container
 	 */
 	public UiDataTable(UiContainer<?> rContainer)
 	{
 		super(rContainer, SelectionDataElement.class);
+	}
+
+	/***************************************
+	 * Creates a new instance.
+	 *
+	 * @param rContainer The parent container
+	 * @param rData      The table data
+	 * @param rColumns   The table columns
+	 */
+	public UiDataTable(UiContainer<?>					  rContainer,
+					   Collection<HierarchicalDataObject> rData,
+					   Collection<ColumnDefinition>		  rColumns)
+	{
+		this(rContainer);
+
+		setData(rData);
+		setColumns(rColumns);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -110,21 +125,11 @@ public class UiDataTable
 	/***************************************
 	 * Sets the table columns.
 	 *
-	 * @see #setColumns(Collection)
-	 */
-	public void setColumns(ColumnDefinition... rColumns)
-	{
-		setColumns(Arrays.asList(rColumns));
-	}
-
-	/***************************************
-	 * Sets the table columns.
-	 *
 	 * @param rColumns The table column definitions
 	 */
 	public void setColumns(Collection<ColumnDefinition> rColumns)
 	{
-		aColumns = new ArrayList<>(rColumns);
+		aColumns = rColumns != null ? new ArrayList<>(rColumns) : null;
 		setValueImpl(null);
 	}
 
@@ -134,9 +139,9 @@ public class UiDataTable
 	 *
 	 * @param rData A list of table data objects
 	 */
-	public void setData(List<HierarchicalDataObject> rData)
+	public void setData(Collection<HierarchicalDataObject> rData)
 	{
-		aTableData = new ArrayList<>(rData);
+		aTableData = rData != null ? new ArrayList<>(rData) : null;
 		setValueImpl(null);
 	}
 

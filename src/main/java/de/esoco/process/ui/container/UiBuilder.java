@@ -16,8 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.container;
 
+import de.esoco.data.element.HierarchicalDataObject;
+
 import de.esoco.entity.Entity;
 
+import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiContainer;
@@ -28,6 +31,7 @@ import de.esoco.process.ui.component.UiCalendar;
 import de.esoco.process.ui.component.UiCheckBox;
 import de.esoco.process.ui.component.UiCheckBoxes;
 import de.esoco.process.ui.component.UiComboBox;
+import de.esoco.process.ui.component.UiDataTable;
 import de.esoco.process.ui.component.UiDateField;
 import de.esoco.process.ui.component.UiDecimalField;
 import de.esoco.process.ui.component.UiDropDown;
@@ -55,6 +59,7 @@ import de.esoco.process.ui.graphics.UiIconSupplier;
 
 import java.math.BigDecimal;
 
+import java.util.Collection;
 import java.util.Date;
 
 
@@ -162,6 +167,21 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiComboBox addComboBox(String sText)
 	{
 		return new UiComboBox(rContainer, sText);
+	}
+
+	/***************************************
+	 * Adds a table that displays static data.
+	 *
+	 * @param  rData    The data objects to display
+	 * @param  rColumns The data columns to display
+	 *
+	 * @return The new component
+	 */
+	public <E extends Entity> UiDataTable addDataTable(
+		Collection<HierarchicalDataObject> rData,
+		Collection<ColumnDefinition>	   rColumns)
+	{
+		return new UiDataTable(rContainer, rData, rColumns);
 	}
 
 	/***************************************
