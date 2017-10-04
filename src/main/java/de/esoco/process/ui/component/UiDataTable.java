@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.data.element.HierarchicalDataObject;
 import de.esoco.data.element.SelectionDataElement;
 
 import de.esoco.lib.model.ColumnDefinition;
@@ -26,18 +27,26 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
 import de.esoco.process.ui.UiTextInputField;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 
 /********************************************************************
- * A single-line text input field.
+ * A table that displays a static collection of {@link HierarchicalDataObject}
+ * that is stored in the validator of a {@link SelectionDataElement}.
  *
  * @author eso
  */
 public class UiDataTable
 	extends UiTableControl<SelectionDataElement, UiDataTable>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private List<ColumnDefinition>		 aColumns;
+	private List<HierarchicalDataObject> aTableData;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -53,38 +62,53 @@ public class UiDataTable
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the event handler for selection events of this table.
+	 * Returns the currently selected data object or NULL for none.
+	 *
+	 * @return The current selection (NULL for none)
+	 */
+	public HierarchicalDataObject getSelection()
+	{
+		int nSelection = getValueImpl().getSelectionIndex();
+
+		return nSelection >= 0 ? aTableData.get(nSelection) : null;
+	}
+
+	/***************************************
+	 * Sets the event handler for selection events of this table. The handler
+	 * will receive the currently selected data object or NULL if no object is
+	 * selected.
 	 *
 	 * @param  rEventHandler The event handler
 	 *
 	 * @return This instance for concatenation
 	 */
 	public final UiDataTable onSelection(
-		ValueEventHandler<String> rEventHandler)
+		ValueEventHandler<HierarchicalDataObject> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										sd ->
-										rEventHandler.handleValueUpdate(sd.getValue()));
+										rEventHandler.handleValueUpdate(getSelection()));
 	}
 
 	/***************************************
 	 * Sets the event handler for selection confirmed events (e.g. by double
-	 * click) of this table.
+	 * click) of this table. The handler will receive the currently selected
+	 * data object or NULL if no object is selected.
 	 *
 	 * @param  rEventHandler The event handler
 	 *
 	 * @return This instance for concatenation
 	 */
 	public final UiDataTable onSelectionConfirmed(
-		ValueEventHandler<String> rEventHandler)
+		ValueEventHandler<HierarchicalDataObject> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										sd ->
-										rEventHandler.handleValueUpdate(sd.getValue()));
+										rEventHandler.handleValueUpdate(getSelection()));
 	}
 
 	/***************************************
-	 * Sets the attributes to be displayed for entity queries.
+	 * Sets the table columns.
 	 *
 	 * @see #setColumns(Collection)
 	 */
@@ -94,18 +118,51 @@ public class UiDataTable
 	}
 
 	/***************************************
-	 * Sets the entity attributes to be displayed as the table columns. The
-	 * datatype of a column is a function that queries the attributes from an
-	 * entity. This applies to standard relation types as these are also
-	 * functions that can be applied to relatable objects (like entities). But
-	 * that can also be compound functions that generate the attribute value to
-	 * displayed in a result table on access. An example could be a function
-	 * that extracts the name from an entity reference (e.g. <code>
-	 * NAME.from(OTHER_ENTITY)</code>).
+	 * Sets the table columns.
 	 *
-	 * @param rColumns rColumnAttributes The entity attribute access functions
+	 * @param rColumns The table column definitions
 	 */
 	public void setColumns(Collection<ColumnDefinition> rColumns)
 	{
+		aColumns = new ArrayList<>(rColumns);
+		setValueImpl(null);
+	}
+
+	/***************************************
+	 * Sets the table data as a list of hierarchical data objects that will be
+	 * rendered as the table rows.
+	 *
+	 * @param rData A list of table data objects
+	 */
+	public void setData(List<HierarchicalDataObject> rData)
+	{
+		aTableData = new ArrayList<>(rData);
+		setValueImpl(null);
+	}
+
+	/***************************************
+	 * @see UiTableControl#applyProperties()
+	 */
+	@Override
+	protected void applyProperties()
+	{
+		if (getValueImpl() == null)
+		{
+			if (aTableData == null)
+			{
+				throw new IllegalStateException("No table data");
+			}
+
+			if (aColumns == null)
+			{
+				throw new IllegalStateException("No colums");
+			}
+
+			setValueImpl(new SelectionDataElement(type().getName(),
+												  aTableData,
+												  aColumns));
+		}
+
+		super.applyProperties();
 	}
 }

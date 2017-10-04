@@ -17,7 +17,7 @@
 package de.esoco.process.ui;
 
 /********************************************************************
- * The base class for input fields.
+ * The base class for UI tables.
  *
  * @author eso
  */

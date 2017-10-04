@@ -45,7 +45,7 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 
 /********************************************************************
- * A single-line text input field.
+ * A table that displays the result of a database query.
  *
  * @author eso
  */

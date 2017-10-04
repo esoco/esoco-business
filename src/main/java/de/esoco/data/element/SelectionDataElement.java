@@ -16,8 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.data.validate.SelectionValidator;
 import de.esoco.data.validate.Validator;
 
+import de.esoco.lib.model.ColumnDefinition;
+
+import java.util.List;
 import java.util.Set;
 
 
@@ -40,6 +44,24 @@ public class SelectionDataElement extends StringDataElement
 	public static final String NO_SELECTION = "-1";
 
 	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance with no initial selection and a {@link
+	 * SelectionValidator} that is initialized with the given data and columns.
+	 *
+	 * @param sName    The name of this element
+	 * @param rData    The data objects to be displayed and selected from
+	 * @param rColumns The data columns to be displayed
+	 */
+	public SelectionDataElement(String						 sName,
+								List<HierarchicalDataObject> rData,
+								List<ColumnDefinition>		 rColumns)
+	{
+		this(sName,
+			 NO_SELECTION,
+			 new SelectionValidator(rData, rColumns),
+			 null);
+	}
 
 	/***************************************
 	 * Creates a new instance.

@@ -272,8 +272,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 	/***************************************
 	 * Will be invoked to apply all properties of this component to the
-	 * corresponding process parameter after it has been attached to the parent
-	 * container.
+	 * corresponding process parameter before it is rendered.
 	 */
 	protected void applyProperties()
 	{
@@ -292,7 +291,8 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	}
 
 	/***************************************
-	 * Attaches this component to it's parent container.
+	 * Attaches this component to it's parent container. This will be invoked
+	 * just after the construction of a component instance.
 	 *
 	 * @param rParent The parent container
 	 */
