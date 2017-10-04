@@ -1813,6 +1813,14 @@ public class EntityDefinition<E extends Entity>
 		if (rRootAttribute != null)
 		{
 			rEntity.set((RelationType<Entity>) rRootAttribute, rRoot);
+
+			// the (first) root may be set to NULL if hierarchy levels change
+			// but then subsequent levels need to reference the current entity
+			// as their root
+			if (rRoot == null)
+			{
+				rRoot = rEntity;
+			}
 		}
 
 		if (rChildAttribute != null)
