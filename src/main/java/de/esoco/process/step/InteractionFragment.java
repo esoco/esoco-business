@@ -1222,6 +1222,50 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Tries to lock an entity during the remaining execution of the current
+	 * process and displays an information message if the entity is already
+	 * locked by some other context. The lock will automatically be removed if
+	 * the process is terminated in any way but. The lock can also be removed
+	 * explicitly by calling {@link Process#unlockEntity(Entity)}. Because the
+	 * lock is process-wide this method should also be invoked in
+	 * implementations of {@link #abort()} and {@link #rollback()} to handle
+	 * process rollbacks.
+	 *
+	 * @param  rEntity                 The entity to lock
+	 * @param  sLockUnavailableMessage The message to display if the lock
+	 *                                 couldn't be acquired
+	 *
+	 * @return TRUE if the lock could be acquired
+	 */
+	public boolean lockEntityForProcess(
+		Entity rEntity,
+		String sLockUnavailableMessage)
+	{
+		return lockEntity(rEntity, sLockUnavailableMessage, true);
+	}
+
+	/***************************************
+	 * Tries to lock an entity during the execution of the current step and
+	 * displays an information message if the entity is already locked by some
+	 * other context. The lock will automatically be removed if the process
+	 * progresses to another step (including rollback) or is terminated in any
+	 * way. The lock can also be removed explicitly by calling {@link
+	 * #unlockEntity(Entity)}.
+	 *
+	 * @param  rEntity                 The entity to lock
+	 * @param  sLockUnavailableMessage The message to display if the lock
+	 *                                 couldn't be acquired
+	 *
+	 * @return TRUE if the lock could be acquired
+	 */
+	public boolean lockEntityForStep(
+		Entity rEntity,
+		String sLockUnavailableMessage)
+	{
+		return lockEntity(rEntity, sLockUnavailableMessage, false);
+	}
+
+	/***************************************
 	 * Marks the input parameters of this fragment and all of it's
 	 * sub-fragments.
 	 */
@@ -2240,7 +2284,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
 
 		addCleanupAction(sUploadUrl,
-						f -> rSessionManager.removeUpload(sUploadUrl));
+						 f -> rSessionManager.removeUpload(sUploadUrl));
 	}
 
 	/***************************************
@@ -2578,6 +2622,40 @@ public abstract class InteractionFragment extends ProcessFragment
 		{
 			initProcessStep(rProcessStep);
 		}
+	}
+
+	/***************************************
+	 * Internal method that tries to lock an entity during the execution of
+	 * either the current step or the remaining process execution. It displays
+	 * an information message if the entity is already locked by some other
+	 * context. The lock will automatically be removed if the process progresses
+	 * to another step (including rollback) or is terminated in any way.
+	 *
+	 * @param  rEntity                 The entity to lock
+	 * @param  sLockUnavailableMessage The message to display if the lock
+	 *                                 couldn't be acquired
+	 * @param  bInProcess              TRUE to lock the entity for the process,
+	 *                                 FALSE to lock it only for the current
+	 *                                 step
+	 *
+	 * @return TRUE if the lock could be acquired
+	 *
+	 * @see    #lockEntityForProcess(Entity, String)
+	 * @see    #lockEntityForStep(Entity, String)
+	 */
+	private boolean lockEntity(Entity  rEntity,
+							   String  sLockUnavailableMessage,
+							   boolean bInProcess)
+	{
+		boolean bLocked =
+			bInProcess ? getProcess().lockEntity(rEntity) : lockEntity(rEntity);
+
+		if (!bLocked)
+		{
+			showInfoMessage(sLockUnavailableMessage);
+		}
+
+		return bLocked;
 	}
 
 	/***************************************
