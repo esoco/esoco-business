@@ -2040,14 +2040,14 @@ public class EntityManager
 		{
 			String sContextId = getEntityModificationContextId();
 			String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+			String sEntityId  = rEntity.getGlobalId();
 
-			if (sHandle == null)
+			if (sHandle == null && !aModifiedEntities.containsKey(sEntityId))
 			{
 				checkModificationLockRules(rEntity, sContextId);
 				trySyncEndpointLock(rEntity);
 
-				Relatable rContext  = aEntityModificationContext.get();
-				String    sEntityId = rEntity.getGlobalId();
+				Relatable rContext = aEntityModificationContext.get();
 
 				rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
 
@@ -2059,7 +2059,7 @@ public class EntityManager
 
 				aModifiedEntities.put(sEntityId, rEntity);
 			}
-			else if (!sHandle.equals(sContextId))
+			else if (sHandle == null || !sHandle.equals(sContextId))
 			{
 				throwConcurrentEntityModification(rEntity,
 												  MSG_CONCURRENT_MODIFICATION,

@@ -81,7 +81,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	{
 		if (rProcess != null)
 		{
-			rProcess.cancel();
+			rProcess.execute(ProcessExecutionMode.CANCEL);
 			setProcess(null);
 		}
 	}

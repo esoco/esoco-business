@@ -1563,6 +1563,9 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @throws ConcurrentEntityModificationException If the entity lock is not
 	 *                                               held by the current context
+	 *                                               (which can only happen if
+	 *                                               locking calls are handled
+	 *                                               incorrectly)
 	 */
 	public void unlock()
 	{

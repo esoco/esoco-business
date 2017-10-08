@@ -327,35 +327,6 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Allows to cancel this process. This method can only be invoked on an
-	 * interactive process that hasn't finished execution already. It will
-	 * invoke the method {@link ProcessStep#cancel()} on all executed steps, by
-	 * this undoing all persistent changes made so far. Finally, an active
-	 * history group will be canceled and an open transaction will be rolled
-	 * back.
-	 */
-	public void cancel()
-	{
-		try
-		{
-			for (int i = aExecutionStack.size() - 1; i >= 0; i--)
-			{
-				aExecutionStack.get(i).cancel();
-			}
-
-			rCurrentStep = null;
-			bSuspended   = false;
-
-			notifyListeners(ProcessEventType.CANCELED);
-			cleanup();
-		}
-		catch (Exception e)
-		{
-			wrapException(e, "Cancelling %s failed", this);
-		}
-	}
-
-	/***************************************
 	 * Checks whether this process can be rolled back to a certain step. An
 	 * application should invoke the method {@link #rollbackTo(ProcessStep)} for
 	 * a certain step only if this method returns TRUE for that step. Else the
@@ -437,26 +408,14 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Executes the process by executing all the contained process steps in the
-	 * order that has been defined by the process definition.
+	 * Executes this process according to a certain process execution mode.
 	 *
-	 * @throws ProcessException If the execution fails
+	 * @param  eMode The execution mode
+	 *
+	 * @throws ProcessException If the process execution fails
 	 */
-	public void execute() throws ProcessException
+	public void execute(ProcessExecutionMode eMode) throws ProcessException
 	{
-		if (rCurrentStep == null)
-		{
-			throw new ProcessException(null, "ProcessFinished");
-		}
-
-		if (!bInitialized)
-		{
-			init();
-			setParameter(PROCESS_START_TIME, new Date());
-			notifyListeners(ProcessEventType.STARTED);
-			bInitialized = true;
-		}
-
 		if (rContext == null)
 		{
 			// Set (only) the root process as the entity modification context.
@@ -472,21 +431,22 @@ public class Process extends SerializableRelatedObject
 
 		try
 		{
-			executeSteps();
+			switch (eMode)
+			{
+				case RELOAD:
+				case EXECUTE:
+					execute();
+					break;
 
-			if (rCurrentStep == null)
-			{
-				finish();
+				case ROLLBACK:
+					rollbackToPreviousInteraction();
+					execute();
+					break;
+
+				case CANCEL:
+					cancel();
+					break;
 			}
-			else
-			{
-				notifyListeners(ProcessEventType.SUSPENDED);
-			}
-		}
-		catch (Exception e)
-		{
-			bSuspended = true;
-			handleException(e);
 		}
 		finally
 		{
@@ -496,36 +456,6 @@ public class Process extends SerializableRelatedObject
 				EntityManager.removeEntityModificationContext(sUniqueProcessName,
 															  true);
 			}
-		}
-	}
-
-	/***************************************
-	 * Executes this process according to a certain process execution mode.
-	 *
-	 * @param  eMode The execution mode
-	 *
-	 * @throws ProcessException If the process execution fails
-	 */
-	public void execute(ProcessExecutionMode eMode) throws ProcessException
-	{
-		switch (eMode)
-		{
-			case RELOAD:
-			case EXECUTE:
-				execute();
-
-				break;
-
-			case ROLLBACK:
-				rollbackToPreviousInteraction();
-				execute();
-
-				break;
-
-			case CANCEL:
-				cancel();
-
-				break;
 		}
 	}
 
@@ -835,86 +765,6 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Performs a rollback of all steps up to and including a certain step. This
-	 * method is intended to be used with interactive processes that suspend
-	 * execution when reaching interactive process steps. The process must not
-	 * have finished execution completely when this method is invoked, else an
-	 * exception will be thrown. The given process step must exist in this
-	 * process and it must have been executed already. All process steps that
-	 * need to be rolled back must support the rollback functionality, or else
-	 * an exception will be thrown.
-	 *
-	 * <p>When this method finishes, the process execution stack has been reset
-	 * so that the argument step will be executed next if the {@link #execute()}
-	 * method is invoked again.</p>
-	 *
-	 * @param rStep The step to roll the process back to
-	 */
-	public void rollbackTo(ProcessStep rStep)
-	{
-		checkValidRollbackStep(rStep);
-
-		ProcessStep rRollbackStep;
-
-		try
-		{
-			rCurrentStep.resetParameters();
-			rCurrentStep.abort();
-
-			do
-			{
-				rRollbackStep = aExecutionStack.pop();
-
-				rRollbackStep.resetParameters();
-				rRollbackStep.rollback();
-			}
-			while (rStep != rRollbackStep);
-		}
-		catch (Exception e)
-		{
-			wrapException(e, "Rollback of %s failed", this);
-		}
-
-		rCurrentStep = rStep;
-		bSuspended   = false;
-
-		// if invoked from the interaction handler, the execution loop needs to
-		// be restarted with the changed current step
-		if (getInteractionHandler() != null)
-		{
-			bRollbackRestart = true;
-		}
-	}
-
-	/***************************************
-	 * Performs a rollback to the previous interactive step.
-	 *
-	 * @throws ProcessException If the rollback fails
-	 */
-	public void rollbackToPreviousInteraction() throws ProcessException
-	{
-		if (rCurrentStep != null &&
-			rCurrentStep.canRollbackToPreviousInteraction())
-		{
-			rCurrentStep.rollbackToPreviousInteraction();
-		}
-		else
-		{
-			ProcessStep rRollbackStep = findPreviousInteractiveStep();
-
-			if (rRollbackStep != null)
-			{
-				rollbackTo(rRollbackStep);
-			}
-			else
-			{
-				throw new ProcessException(rCurrentStep,
-										   "No previous interactive step");
-			}
-		}
-	}
-
-	/***************************************
 	 * Overridden to forward the call to the process context.
 	 *
 	 * @see RelatedObject#set(RelationType, Object)
@@ -1056,6 +906,35 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Allows to cancel this process. This method can only be invoked on an
+	 * interactive process that hasn't finished execution already. It will
+	 * invoke the method {@link ProcessStep#cancel()} on all executed steps, by
+	 * this undoing all persistent changes made so far. Finally, an active
+	 * history group will be canceled and an open transaction will be rolled
+	 * back.
+	 */
+	void cancel()
+	{
+		try
+		{
+			for (int i = aExecutionStack.size() - 1; i >= 0; i--)
+			{
+				aExecutionStack.get(i).cancel();
+			}
+
+			rCurrentStep = null;
+			bSuspended   = false;
+
+			notifyListeners(ProcessEventType.CANCELED);
+			cleanup();
+		}
+		catch (Exception e)
+		{
+			handleException(ProcessExecutionMode.CANCEL, e);
+		}
+	}
+
+	/***************************************
 	 * Commits a currently open transaction and optionally an open history
 	 * group.
 	 *
@@ -1091,6 +970,47 @@ public class Process extends SerializableRelatedObject
 		else
 		{
 			throw new ProcessException(rCurrentStep, "No open transaction");
+		}
+	}
+
+	/***************************************
+	 * Executes the process by executing all the contained process steps in the
+	 * order that has been defined by the process definition.
+	 *
+	 * @throws ProcessException If the execution fails
+	 */
+	void execute() throws ProcessException
+	{
+		if (rCurrentStep == null)
+		{
+			throw new ProcessException(null, "ProcessFinished");
+		}
+
+		if (!bInitialized)
+		{
+			init();
+			setParameter(PROCESS_START_TIME, new Date());
+			notifyListeners(ProcessEventType.STARTED);
+			bInitialized = true;
+		}
+
+		try
+		{
+			executeSteps();
+
+			if (rCurrentStep == null)
+			{
+				finish();
+			}
+			else
+			{
+				notifyListeners(ProcessEventType.SUSPENDED);
+			}
+		}
+		catch (Exception e)
+		{
+			bSuspended = true;
+			handleException(ProcessExecutionMode.EXECUTE, e);
 		}
 	}
 
@@ -1157,6 +1077,86 @@ public class Process extends SerializableRelatedObject
 		}
 
 		rTemporaryParamTypes.clear();
+	}
+
+	/***************************************
+	 * Performs a rollback of all steps up to and including a certain step. This
+	 * method is intended to be used with interactive processes that suspend
+	 * execution when reaching interactive process steps. The process must not
+	 * have finished execution completely when this method is invoked, else an
+	 * exception will be thrown. The given process step must exist in this
+	 * process and it must have been executed already. All process steps that
+	 * need to be rolled back must support the rollback functionality, or else
+	 * an exception will be thrown.
+	 *
+	 * <p>When this method finishes, the process execution stack has been reset
+	 * so that the argument step will be executed next if the {@link #execute()}
+	 * method is invoked again.</p>
+	 *
+	 * @param rStep The step to roll the process back to
+	 */
+	void rollbackTo(ProcessStep rStep)
+	{
+		checkValidRollbackStep(rStep);
+
+		ProcessStep rRollbackStep;
+
+		try
+		{
+			rCurrentStep.resetParameters();
+			rCurrentStep.abort();
+
+			do
+			{
+				rRollbackStep = aExecutionStack.pop();
+
+				rRollbackStep.resetParameters();
+				rRollbackStep.rollback();
+			}
+			while (rStep != rRollbackStep);
+		}
+		catch (Exception e)
+		{
+			handleException(ProcessExecutionMode.ROLLBACK, e);
+		}
+
+		rCurrentStep = rStep;
+		bSuspended   = false;
+
+		// if invoked from the interaction handler, the execution loop needs to
+		// be restarted with the changed current step
+		if (getInteractionHandler() != null)
+		{
+			bRollbackRestart = true;
+		}
+	}
+
+	/***************************************
+	 * Performs a rollback to the previous interactive step.
+	 *
+	 * @throws ProcessException If the rollback fails
+	 */
+	void rollbackToPreviousInteraction() throws ProcessException
+	{
+		if (rCurrentStep != null &&
+			rCurrentStep.canRollbackToPreviousInteraction())
+		{
+			rCurrentStep.rollbackToPreviousInteraction();
+		}
+		else
+		{
+			ProcessStep rRollbackStep = findPreviousInteractiveStep();
+
+			if (rRollbackStep != null)
+			{
+				rollbackTo(rRollbackStep);
+			}
+			else
+			{
+				throw new ProcessException(rCurrentStep,
+										   "No previous interactive step");
+			}
+		}
 	}
 
 	/***************************************
@@ -1453,12 +1453,14 @@ public class Process extends SerializableRelatedObject
 	/***************************************
 	 * Handles exceptions that may occur during process execution.
 	 *
-	 * @param  e The exception that occurred
+	 * @param  eMode The process execution mode of the failed invocation
+	 * @param  e     The exception that occurred
 	 *
 	 * @throws ProcessException Always throws a process exception that has been
 	 *                          created from the original exception
 	 */
-	private void handleException(Exception e) throws ProcessException
+	private void handleException(ProcessExecutionMode eMode, Exception e)
+		throws ProcessException
 	{
 		if (!(e instanceof InvalidParametersException))
 		{
@@ -1468,14 +1470,14 @@ public class Process extends SerializableRelatedObject
 			}
 			catch (Exception eCleanup)
 			{
-				// only log and then throw original exception
-				Log.errorf(eCleanup, "Error rollback failed in %s", this);
+				// only log and then continue with original exception below
+				Log.errorf(eCleanup, "Error cleanup failed in %s", this);
 			}
 		}
 
 		// TODO: introduce special error parameters and perform cleanup
 		// of disposable/closeable parameters
-		throw wrapException(e, "Execution of %s failed", this);
+		throw wrapException(e, "%s of %s failed", eMode, this);
 	}
 
 	/***************************************
