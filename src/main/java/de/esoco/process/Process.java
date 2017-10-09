@@ -1015,6 +1015,30 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Executes actions that reset process states with error handling. This
+	 * method is used internally by {@link #executeCleanupActions()} but can
+	 * also be used by subclasses for similar house keeping tasks.
+	 *
+	 * @param rActions A mapping from keys to the associated action to execute
+	 */
+	void executeActions(Map<String, Consumer<Process>> rActions)
+	{
+		for (String sKey : rActions.keySet())
+		{
+			try
+			{
+				rActions.get(sKey).accept(this);
+			}
+			catch (Exception e)
+			{
+				Log.errorf(e, "Process cleanup action failed: %s", sKey);
+			}
+		}
+
+		rActions.clear();
+	}
+
+	/***************************************
 	 * Returns the process interaction handler for this process.
 	 *
 	 * @return The interaction handler
@@ -1284,21 +1308,7 @@ public class Process extends SerializableRelatedObject
 	 */
 	private void executeCleanupActions()
 	{
-		for (String sKey : aCleanupActions.keySet())
-		{
-			Consumer<Process> rAction = aCleanupActions.get(sKey);
-
-			try
-			{
-				rAction.accept(this);
-			}
-			catch (Exception e)
-			{
-				Log.errorf(e, "Process cleanup action failed: %s", sKey);
-			}
-		}
-
-		aCleanupActions.clear();
+		executeActions(aCleanupActions);
 	}
 
 	/***************************************
