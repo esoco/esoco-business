@@ -20,6 +20,7 @@ import de.esoco.data.element.DataElement;
 import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.property.InteractionEventType;
+import de.esoco.lib.text.TextConvert;
 
 import java.util.Collections;
 import java.util.List;
@@ -378,5 +379,18 @@ public class ProcessState extends ProcessDescription
 	public final void setProcessId(int nProcessId)
 	{
 		this.nProcessId = nProcessId;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	public String toString()
+	{
+		return TextConvert.format("%s-%s[%s]",
+								  getName(),
+								  nProcessId,
+								  sCurrentStep);
 	}
 }
