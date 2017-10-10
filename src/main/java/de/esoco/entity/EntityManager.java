@@ -2264,23 +2264,17 @@ public class EntityManager
 	{
 		if (rEntitySyncEndpoint.isPresent())
 		{
+			String sResponse = "";
+
 			try
 			{
 				EndpointChain<SyncData, String> fRequestLock =
 					requestLock().from(rEntitySyncEndpoint.get());
 
-				String sResponse =
+				sResponse =
 					fRequestLock.send(syncRequest(sEntitySyncClientId,
 												  sEntitySyncContext,
 												  rEntity.getGlobalId()));
-
-				if (!"".equals(sResponse))
-				{
-					throwConcurrentEntityModification(rEntity,
-													  MSG_ENTITY_LOCKED,
-													  rEntity,
-													  sResponse);
-				}
 			}
 			catch (Exception e)
 			{
@@ -2288,6 +2282,14 @@ public class EntityManager
 				Log.errorf(e,
 						   "Error communicating with sync endpoint at %s",
 						   rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
+			}
+
+			if (!"".equals(sResponse))
+			{
+				throwConcurrentEntityModification(rEntity,
+												  MSG_ENTITY_LOCKED,
+												  rEntity,
+												  sResponse);
 			}
 		}
 	}

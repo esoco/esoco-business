@@ -19,7 +19,10 @@ package de.esoco.service;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
+import de.esoco.lib.comm.http.HttpStatusCode;
 import de.esoco.lib.json.JsonBuilder;
+
+import java.net.HttpURLConnection;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -203,6 +206,22 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 				  "/api/sync/" + sRequestUrl,
 				  data -> data != null ? data.toJson() : "",
 				  identity());
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Overridden to map errors to response strings.
+		 *
+		 * @see HttpRequest#handleHttpError(HttpURLConnection, Exception,
+		 *      HttpStatusCode)
+		 */
+		@Override
+		protected String handleHttpError(HttpURLConnection rUrlConnection,
+										 Exception		   eHttpException,
+										 HttpStatusCode    eStatusCode)
+		{
+			return eStatusCode.toString();
 		}
 	}
 }
