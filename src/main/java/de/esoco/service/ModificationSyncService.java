@@ -50,6 +50,9 @@ public class ModificationSyncService extends RestService
 {
 	//~ Static fields/initializers ---------------------------------------------
 
+	/** The name of the JSON attribute with the request client. */
+	public static final String JSON_REQUEST_CLIENT = "client";
+
 	/** The name of the JSON attribute with the request context. */
 	public static final String JSON_REQUEST_CONTEXT = "context";
 
@@ -64,11 +67,11 @@ public class ModificationSyncService extends RestService
 	/** The part of the API providing access to server control. */
 	public static final RelationType<ObjectSpace<Object>> SYNC = newType();
 
-	private static final RelationType<Map<String, String>> CHECK_LOCK   =
+	private static final RelationType<Map<String, Object>> CHECK_LOCK   =
 		newType();
-	private static final RelationType<Map<String, String>> REQUEST_LOCK =
+	private static final RelationType<Map<String, Object>> REQUEST_LOCK =
 		newType();
-	private static final RelationType<Map<String, String>> RELEASE_LOCK =
+	private static final RelationType<Map<String, Object>> RELEASE_LOCK =
 		newType();
 
 	private static final RelationType<Map<String, Map<String, String>>> CURRENT_LOCKS =
@@ -125,6 +128,7 @@ public class ModificationSyncService extends RestService
 	protected ObjectSpace<Object> buildRestServerSpace()
 	{
 		ObjectSpace<Object> rRootSpace = super.buildRestServerSpace();
+
 		ObjectSpace<String> rApiSpace  = rRootSpace.get(API);
 		ObjectSpace<Object> aSyncSpace = new RelationSpace<>(true);
 
@@ -147,7 +151,7 @@ public class ModificationSyncService extends RestService
 	 *
 	 * @param rRequest The lock request
 	 */
-	private void checkLock(Map<String, String> rRequest)
+	private void checkLock(Map<String, Object> rRequest)
 	{
 		processSyncRequest(rRequest, this::handleCheckLock);
 	}
@@ -155,9 +159,11 @@ public class ModificationSyncService extends RestService
 	/***************************************
 	 * Returns the IP address of the client that performs the current request.
 	 *
+	 * @param  sClient The client ID from the request
+	 *
 	 * @return The IP address string
 	 */
-	private String getClientAddress()
+	private String getClientId(String sClient)
 	{
 		return HttpRequestHandler.getThreadLocalRequest()
 								 .get(IP_ADDRESS)
@@ -167,11 +173,13 @@ public class ModificationSyncService extends RestService
 	/***************************************
 	 * Handles a request to check for a lock.
 	 *
+	 * @param sClient       The requesting client (ignored)
 	 * @param sContext      The lock context
 	 * @param sTargetId     The target ID
 	 * @param bForceRequest Ignored in this context
 	 */
-	private void handleCheckLock(String  sContext,
+	private void handleCheckLock(String  sClient,
+								 String  sContext,
 								 String  sTargetId,
 								 boolean bForceRequest)
 	{
@@ -186,12 +194,14 @@ public class ModificationSyncService extends RestService
 	/***************************************
 	 * Handles a request to release an entity lock.
 	 *
+	 * @param sClient       The requesting client
 	 * @param sContext      The lock context
 	 * @param sTargetId     The target ID
 	 * @param bForceRequest TRUE to force the release even if the lock has been
 	 *                      acquired by a different client
 	 */
-	private void handleReleaseLock(String  sContext,
+	private void handleReleaseLock(String  sClient,
+								   String  sContext,
 								   String  sTargetId,
 								   boolean bForceRequest)
 	{
@@ -209,8 +219,8 @@ public class ModificationSyncService extends RestService
 
 		if (sCurrentLock != null)
 		{
-			String  sClientAddress  = getClientAddress();
-			boolean bLockedByClient = sCurrentLock.equals(sClientAddress);
+			String  sClientId	    = getClientId(sClient);
+			boolean bLockedByClient = sCurrentLock.equals(sClientId);
 
 			if (bLockedByClient || bForceRequest)
 			{
@@ -218,7 +228,7 @@ public class ModificationSyncService extends RestService
 				{
 					Log.warnf("Locked by %s, release forced by %s",
 							  sCurrentLock,
-							  sClientAddress);
+							  sClientId);
 				}
 
 				aLocks.remove(sTargetId);
@@ -230,7 +240,7 @@ public class ModificationSyncService extends RestService
 			}
 			else
 			{
-				respond(HttpStatusCode.CONFLICT, sClientAddress);
+				respond(HttpStatusCode.CONFLICT, sClientId);
 			}
 		}
 		else
@@ -242,12 +252,14 @@ public class ModificationSyncService extends RestService
 	/***************************************
 	 * Handles a request to set a lock.
 	 *
+	 * @param sClient       The requesting client
 	 * @param sContext      The lock context
 	 * @param sTargetId     The target ID
 	 * @param bForceRequest TRUE to force the lock even if the same lock has
 	 *                      already been acquired by a different client
 	 */
-	private void handleRequestLock(String  sContext,
+	private void handleRequestLock(String  sClient,
+								   String  sContext,
 								   String  sTargetId,
 								   boolean bForceRequest)
 	{
@@ -259,8 +271,8 @@ public class ModificationSyncService extends RestService
 			aContextLocks.put(sContext, aLocks);
 		}
 
-		String sCurrentLock   = aLocks.get(sTargetId);
-		String sClientAddress = getClientAddress();
+		String sCurrentLock = aLocks.get(sTargetId);
+		String sClientId    = getClientId(sClient);
 
 		if (sCurrentLock == null || bForceRequest)
 		{
@@ -271,7 +283,7 @@ public class ModificationSyncService extends RestService
 						  sCurrentLock);
 			}
 
-			aLocks.put(sTargetId, sClientAddress);
+			aLocks.put(sTargetId, sClientId);
 
 			if (Log.isLevelEnabled(LogLevel.DEBUG))
 			{
@@ -280,13 +292,13 @@ public class ModificationSyncService extends RestService
 		}
 		else
 		{
-			if (sCurrentLock.equals(sClientAddress))
+			if (sCurrentLock.equals(sClientId))
 			{
 				respond(HttpStatusCode.ALREADY_REPORTED, "");
 			}
 			else
 			{
-				respond(HttpStatusCode.LOCKED, sClientAddress);
+				respond(HttpStatusCode.LOCKED, sClientId);
 			}
 		}
 	}
@@ -300,11 +312,12 @@ public class ModificationSyncService extends RestService
 	 * @param rRequestHandler The request handler
 	 */
 	private void processSyncRequest(
-		Map<String, String> rRequest,
+		Map<String, Object> rRequest,
 		SyncRequestHandler  rRequestHandler)
 	{
 		try
 		{
+			Object sClient    = rRequest.get(JSON_REQUEST_CLIENT);
 			Object sContext   = rRequest.get(JSON_REQUEST_CONTEXT);
 			Object sGlobalId  = rRequest.get(JSON_REQUEST_TARGET_ID);
 			Object rForceFlag = rRequest.get(JSON_REQUEST_FORCE_FLAG);
@@ -320,7 +333,8 @@ public class ModificationSyncService extends RestService
 				rForceFlag != null ? ((Boolean) rForceFlag).booleanValue()
 								   : false;
 
-			rRequestHandler.handleRequest(sContext.toString(),
+			rRequestHandler.handleRequest(sClient.toString(),
+										  sContext.toString(),
 										  sGlobalId.toString(),
 										  bForceRequest);
 		}
@@ -340,7 +354,7 @@ public class ModificationSyncService extends RestService
 	 *
 	 * @param rRequest The lock release request
 	 */
-	private void releaseLock(Map<String, String> rRequest)
+	private void releaseLock(Map<String, Object> rRequest)
 	{
 		processSyncRequest(rRequest, this::handleReleaseLock);
 	}
@@ -350,7 +364,7 @@ public class ModificationSyncService extends RestService
 	 *
 	 * @param rRequest The lock request
 	 */
-	private void requestLock(Map<String, String> rRequest)
+	private void requestLock(Map<String, Object> rRequest)
 	{
 		processSyncRequest(rRequest, this::handleRequestLock);
 	}
@@ -384,8 +398,8 @@ public class ModificationSyncService extends RestService
 	//~ Inner Interfaces -------------------------------------------------------
 
 	/********************************************************************
-	 * A simple interface that is used internally to delegate request handling
-	 * to methods.
+	 * A functional interface that is used internally to delegate request
+	 * handling to methods.
 	 *
 	 * @author eso
 	 */
@@ -395,13 +409,15 @@ public class ModificationSyncService extends RestService
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Handles a request.
+		 * Handles a synchronization request.
 		 *
+		 * @param sClient       An identifier of the client making the request
 		 * @param sContext      The target context of the request
 		 * @param sTargetId     The unique ID of the request target
 		 * @param bForceRequest TRUE to force the request execution
 		 */
-		public void handleRequest(String  sContext,
+		public void handleRequest(String  sClient,
+								  String  sContext,
 								  String  sTargetId,
 								  boolean bForceRequest);
 	}

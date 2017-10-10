@@ -99,13 +99,31 @@ public class UiThumbnail extends UiComposite<UiThumbnail>
 	}
 
 	/***************************************
-	 * Sets the thumbnail image.
+	 * Sets the image to be displayed as a thumbnail and on selection. To set
+	 * different images {@link #setImages(UiImageDefinition, UiImageDefinition)}
+	 * can be used.
 	 *
 	 * @param rImage The component's image.
 	 */
 	public void setImage(UiImageDefinition<?> rImage)
 	{
 		aImage.setImage(rImage);
+		rFullImageDef = rImage;
+	}
+
+	/***************************************
+	 * Sets the images for this thumbnail.
+	 *
+	 * @param rThumbImage The thumbnail image to display
+	 * @param rFullImage  The full image to display if the the thumbnail is
+	 *                    selected
+	 */
+	public void setImages(
+		UiImageDefinition<?> rThumbImage,
+		UiImageDefinition<?> rFullImage)
+	{
+		aImage.setImage(rThumbImage);
+		rFullImageDef = rFullImage;
 	}
 
 	/***************************************
