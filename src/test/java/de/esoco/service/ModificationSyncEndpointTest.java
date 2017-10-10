@@ -66,11 +66,15 @@ public class ModificationSyncEndpointTest
 		releaseEntities("test1", fRelease);
 		releaseEntities("test2", fRelease);
 
-		System.out.printf("LOCK   : '%s'\n",
-						  fLock.send(syncRequest("test1", "E-1000")));
-		System.out.printf("LOCK   : '%s'\n",
-						  fLock.send(syncRequest("test2", "E-1005")));
-		System.out.printf("LOCKS: %s\n", fGetLocks.result());
+//		System.out.printf("LOCK	  : '%s'\n",
+//						  fLock.send(syncRequest("TESTCLIENT",
+//												 "test1",
+//												 "E-1000")));
+//		System.out.printf("LOCK	  : '%s'\n",
+//						  fLock.send(syncRequest("TESTCLIENT",
+//												 "test2",
+//												 "E-1005")));
+//		System.out.printf("LOCKS: %s\n", fGetLocks.result());
 
 //		Service.REQUEST_STOP.from(aSyncService).result();
 	}
@@ -92,7 +96,9 @@ public class ModificationSyncEndpointTest
 			System.out.printf("LOCK %s:%s: '%s'\n",
 							  sContext,
 							  sGlobalId,
-							  fLock.send(syncRequest(sContext, sGlobalId)));
+							  fLock.send(syncRequest("TESTCLIENT",
+													 sContext,
+													 sGlobalId)));
 		}
 	}
 
@@ -113,7 +119,9 @@ public class ModificationSyncEndpointTest
 			System.out.printf("RELEASE %s:%s: '%s'\n",
 							  sContext,
 							  sGlobalId,
-							  fRelease.send(syncRequest(sContext, sGlobalId)));
+							  fRelease.send(syncRequest("TESTCLIENT",
+														sContext,
+														sGlobalId)));
 		}
 	}
 }

@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static de.esoco.lib.expression.Functions.identity;
 
+import static de.esoco.service.ModificationSyncService.JSON_REQUEST_CLIENT;
 import static de.esoco.service.ModificationSyncService.JSON_REQUEST_CONTEXT;
 import static de.esoco.service.ModificationSyncService.JSON_REQUEST_FORCE_FLAG;
 import static de.esoco.service.ModificationSyncService.JSON_REQUEST_TARGET_ID;
@@ -50,14 +51,17 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 	 * synchronization request. This should only be used by management code for
 	 * the handling of invalid locks.
 	 *
+	 * @param  sClient   A unique identifier of the client making the request
 	 * @param  sContext  The name of the synchronization context
 	 * @param  sTargetId The unique ID of the target to synchronize
 	 *
 	 * @return The data record for use with {@link SyncRequest}
 	 */
-	public static SyncData forceSyncRequest(String sContext, String sTargetId)
+	public static SyncData forceSyncRequest(String sClient,
+											String sContext,
+											String sTargetId)
 	{
-		return new SyncData(sContext, sTargetId, true);
+		return new SyncData(sClient, sContext, sTargetId, true);
 	}
 
 	/***************************************
@@ -97,14 +101,17 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 	 * Static helper method that creates the data record for a synchronization
 	 * request.
 	 *
+	 * @param  sClient   A unique identifier of the client making the request
 	 * @param  sContext  The name of the synchronization context
 	 * @param  sTargetId The unique ID of the target to synchronize
 	 *
 	 * @return The data record for use with {@link SyncRequest}
 	 */
-	public static SyncData syncRequest(String sContext, String sTargetId)
+	public static SyncData syncRequest(String sClient,
+									   String sContext,
+									   String sTargetId)
 	{
-		return new SyncData(sContext, sTargetId, false);
+		return new SyncData(sClient, sContext, sTargetId, false);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -119,24 +126,29 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final String sContext;
-		private final String sTargetId;
-		private boolean		 bForceRequest;
+		private final String  sClient;
+		private final String  sContext;
+		private final String  sTargetId;
+		private final boolean bForceRequest;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
 		 * Creates a new instance.
 		 *
+		 * @param sClient       A unique identifier of the client making the
+		 *                      request
 		 * @param sContext      The synchronization context
 		 * @param sTargetId     The unique ID of the target
 		 * @param bForceRequest TRUE to force the request execution even if the
 		 *                      requirements are not met
 		 */
-		public SyncData(String  sContext,
+		public SyncData(String  sClient,
+						String  sContext,
 						String  sTargetId,
 						boolean bForceRequest)
 		{
+			this.sClient	   = sClient;
 			this.sContext	   = sContext;
 			this.sTargetId     = sTargetId;
 			this.bForceRequest = bForceRequest;
@@ -154,6 +166,7 @@ public class ModificationSyncEndpoint extends HttpEndpoint
 		{
 			Map<String, Object> aRequestData = new LinkedHashMap<>(3);
 
+			aRequestData.put(JSON_REQUEST_CLIENT, sClient);
 			aRequestData.put(JSON_REQUEST_CONTEXT, sContext);
 			aRequestData.put(JSON_REQUEST_TARGET_ID, sTargetId);
 

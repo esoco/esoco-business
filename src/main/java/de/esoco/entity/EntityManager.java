@@ -174,8 +174,9 @@ public class EntityManager
 
 	private static Lock aCacheLock = new ReentrantLock();
 
-	private static Optional<Endpoint> rEntitySyncEndpoint = Optional.empty();
+	private static String			  sEntitySyncClientId;
 	private static String			  sEntitySyncContext;
+	private static Optional<Endpoint> rEntitySyncEndpoint = Optional.empty();
 
 	private static final ThreadLocal<String> aEntityModificationContextId =
 		new ThreadLocal<>();
@@ -1791,13 +1792,15 @@ public class EntityManager
 	 * synchronization. The context should be derived from the current
 	 * application's execution context, e.g. production, test, or development.
 	 *
+	 * @param sSyncClientId A unique identifier of the sync service client
 	 * @param sSyncContext  The application context to sync entities in
 	 * @param rSyncEndpoint The entity sync service endpoint
 	 */
-	public static void setEntitySyncService(
-		String   sSyncContext,
-		Endpoint rSyncEndpoint)
+	public static void setEntitySyncService(String   sSyncClientId,
+											String   sSyncContext,
+											Endpoint rSyncEndpoint)
 	{
+		sEntitySyncClientId = sSyncClientId;
 		sEntitySyncContext  = sSyncContext;
 		rEntitySyncEndpoint = Optional.ofNullable(rSyncEndpoint);
 	}
@@ -2267,7 +2270,8 @@ public class EntityManager
 					requestLock().from(rEntitySyncEndpoint.get());
 
 				String sResponse =
-					fRequestLock.send(syncRequest(sEntitySyncContext,
+					fRequestLock.send(syncRequest(sEntitySyncClientId,
+												  sEntitySyncContext,
 												  rEntity.getGlobalId()));
 
 				if (!"".equals(sResponse))
@@ -2304,7 +2308,8 @@ public class EntityManager
 					releaseLock().from(rEntitySyncEndpoint.get());
 
 				String sResponse =
-					fReleaseLock.send(syncRequest(sEntitySyncContext,
+					fReleaseLock.send(syncRequest(sEntitySyncClientId,
+												  sEntitySyncContext,
 												  rEntity.getGlobalId()));
 
 				if (!"".equals(sResponse))
