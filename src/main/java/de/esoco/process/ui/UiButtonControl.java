@@ -18,9 +18,10 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.InteractionEventType;
 
-import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.event.UiHasActionEvents;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 
@@ -31,7 +32,7 @@ import static de.esoco.lib.property.LayoutProperties.COLUMNS;
  * @author eso
  */
 public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
-	extends UiControl<T, C>
+	extends UiControl<T, C> implements UiHasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -49,13 +50,22 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public C onAction(Consumer<T> rEventHandler)
+	{
+		return onClick(rEventHandler);
+	}
+
+	/***************************************
 	 * Sets the event handler for click events on buttons.
 	 *
 	 * @param  rEventHandler The event handler
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final C onClick(ValueEventHandler<T> rEventHandler)
+	public final C onClick(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										rEventHandler);

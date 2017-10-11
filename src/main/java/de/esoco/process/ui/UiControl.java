@@ -20,9 +20,10 @@ import de.esoco.lib.expression.function.Validation.ValidationResult;
 import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.InvalidParametersException;
-import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.event.UiHasFocusEvents;
 
 import java.util.Collections;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.obrel.core.RelationType;
@@ -34,6 +35,7 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
+	implements UiHasFocusEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -55,13 +57,10 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the event handler for focus lost events of this control.
-	 *
-	 * @param  rEventHandler The event handler
-	 *
-	 * @return This instance for concatenation
+	 * {@inheritDoc}
 	 */
-	public final C onFocusLost(ValueEventHandler<T> rEventHandler)
+	@Override
+	public final C onFocusLost(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
 										rEventHandler);

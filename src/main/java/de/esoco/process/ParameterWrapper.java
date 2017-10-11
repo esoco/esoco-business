@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
@@ -301,8 +302,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 */
 	@SuppressWarnings("unchecked")
 	protected P setParameterEventHandler(
-		InteractionEventType	   eEventType,
-		final ValueEventHandler<T> rEventHandler)
+		InteractionEventType eEventType,
+		final Consumer<T>    rEventHandler)
 	{
 		InteractionHandler rInteractionHandler =
 			rFragment.getParameterInteractionHandler(rParamType);
@@ -380,7 +381,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private Map<InteractionEventType, ValueEventHandler<T>> aEventTypeHandlers =
+		private Map<InteractionEventType, Consumer<T>> aEventTypeHandlers =
 			new HashMap<>();
 
 		//~ Methods ------------------------------------------------------------
@@ -389,14 +390,14 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void handleInteraction(InteractionEvent rEvent) throws Exception
+		public void handleInteraction(InteractionEvent rEvent)
 		{
-			ValueEventHandler<T> rEventHandler =
+			Consumer<T> rEventHandler =
 				aEventTypeHandlers.get(rEvent.getType());
 
 			if (rEventHandler != null && rFragment.isAttached())
 			{
-				rEventHandler.handleValueUpdate(rFragment.getParameter(rParamType));
+				rEventHandler.accept(rFragment.getParameter(rParamType));
 			}
 		}
 
@@ -418,7 +419,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 		 */
 		void setEventTypeHandler(
 			InteractionEventType eEventType,
-			ValueEventHandler<T> rHandler)
+			Consumer<T>			 rHandler)
 		{
 			aEventTypeHandlers.put(eEventType, rHandler);
 		}

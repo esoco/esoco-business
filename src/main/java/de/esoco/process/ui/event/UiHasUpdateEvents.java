@@ -14,46 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.ui.event;
+
+import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.UiInputField;
+import de.esoco.process.ui.component.UiList;
 
 import java.util.function.Consumer;
 
 
 /********************************************************************
- * An event handler interface for value updates.
+ * An event listener abstraction that indicates that a component can produce
+ * events if a displayed value has been updated (e.g. text typed, item
+ * selected). Update events are typically mapped onto more specific events of
+ * components like {@link UiInputField#onInput(Consumer)} or {@link
+ * UiList#onSelection(Consumer)}.
  *
  * @author eso
  */
-@FunctionalInterface
-public interface ValueEventHandler<T> extends Consumer<T>
+public interface UiHasUpdateEvents<T, C extends UiComponent<T, ?>>
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Implemented to invoke {@link #handleValueUpdate(Object)}. Converts any
-	 * occuring exceptions into runtime exceptions.
+	 * Registers an event handler that will be invoked on update events with the
+	 * new component value.
 	 *
-	 * @see Consumer#accept(T)
+	 * @param  rEventHandler The event handler to be invoked
+	 *
+	 * @return The component the handler has been registered on
 	 */
-	@Override
-	default public void accept(T rValue)
-	{
-		try
-		{
-			handleValueUpdate(rValue);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException();
-		}
-	}
-
-	/***************************************
-	 * Will be invoked if a value update has been performed.
-	 *
-	 * @param  rNewValue The updated value
-	 *
-	 * @throws Exception May throw an exception on errors
-	 */
-	public void handleValueUpdate(T rNewValue) throws Exception;
+	public C onUpdate(Consumer<T> rEventHandler);
 }

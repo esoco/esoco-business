@@ -14,46 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.ui.event;
+
+import de.esoco.process.ui.UiButtonControl;
+import de.esoco.process.ui.UiComponent;
+import de.esoco.process.ui.UiInputField;
 
 import java.util.function.Consumer;
 
 
 /********************************************************************
- * An event handler interface for value updates.
+ * An event listener abstraction that indicates that a component can produce
+ * events if some action occurred (e.g. button clicked, text entered, selection
+ * confirmed). Action events are typically mapped onto more specific events of
+ * components like {@link UiButtonControl#onClick(Consumer)} or {@link
+ * UiInputField#onEnter(Consumer)}.
  *
  * @author eso
  */
-@FunctionalInterface
-public interface ValueEventHandler<T> extends Consumer<T>
+public interface UiHasActionEvents<T, C extends UiComponent<T, ?>>
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Implemented to invoke {@link #handleValueUpdate(Object)}. Converts any
-	 * occuring exceptions into runtime exceptions.
+	 * Registers an event handler that will be invoked on action events with the
+	 * new component value.
 	 *
-	 * @see Consumer#accept(T)
+	 * @param  rEventHandler The event handler to be invoked
+	 *
+	 * @return The component the handler has been registered on
 	 */
-	@Override
-	default public void accept(T rValue)
-	{
-		try
-		{
-			handleValueUpdate(rValue);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException();
-		}
-	}
-
-	/***************************************
-	 * Will be invoked if a value update has been performed.
-	 *
-	 * @param  rNewValue The updated value
-	 *
-	 * @throws Exception May throw an exception on errors
-	 */
-	public void handleValueUpdate(T rNewValue) throws Exception;
+	public C onAction(Consumer<T> rEventHandler);
 }

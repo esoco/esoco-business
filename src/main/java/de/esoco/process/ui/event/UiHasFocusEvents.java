@@ -14,46 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.ui.event;
+
+import de.esoco.process.ui.UiComponent;
 
 import java.util.function.Consumer;
 
 
 /********************************************************************
- * An event handler interface for value updates.
+ * Indicates that a component can provide input focus events.
  *
  * @author eso
  */
-@FunctionalInterface
-public interface ValueEventHandler<T> extends Consumer<T>
+public interface UiHasFocusEvents<T, C extends UiComponent<T, ?>>
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Implemented to invoke {@link #handleValueUpdate(Object)}. Converts any
-	 * occuring exceptions into runtime exceptions.
+	 * Registers an event handler that will be invoked if a interactive
+	 * component loses the input focus.
 	 *
-	 * @see Consumer#accept(T)
+	 * @param  rEventHandler The event handler to be invoked
+	 *
+	 * @return The component the handler has been registered on
 	 */
-	@Override
-	default public void accept(T rValue)
-	{
-		try
-		{
-			handleValueUpdate(rValue);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException();
-		}
-	}
-
-	/***************************************
-	 * Will be invoked if a value update has been performed.
-	 *
-	 * @param  rNewValue The updated value
-	 *
-	 * @throws Exception May throw an exception on errors
-	 */
-	public void handleValueUpdate(T rNewValue) throws Exception;
+	public C onFocusLost(Consumer<T> rEventHandler);
 }

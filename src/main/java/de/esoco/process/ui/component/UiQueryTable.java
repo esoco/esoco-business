@@ -22,10 +22,11 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.property.InteractionEventType;
 
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
 import de.esoco.process.ui.UiTextInputField;
+import de.esoco.process.ui.event.UiHasActionEvents;
+import de.esoco.process.ui.event.UiHasUpdateEvents;
 
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StoragePredicates;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.obrel.core.RelationType;
 
@@ -51,6 +53,8 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
  */
 public class UiQueryTable<E extends Entity>
 	extends UiTableControl<E, UiQueryTable<E>>
+	implements UiHasUpdateEvents<E, UiQueryTable<E>>,
+			   UiHasActionEvents<E, UiQueryTable<E>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -90,13 +94,22 @@ public class UiQueryTable<E extends Entity>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UiQueryTable<E> onAction(Consumer<E> rEventHandler)
+	{
+		return onSelectionConfirmed(rEventHandler);
+	}
+
+	/***************************************
 	 * Sets the event handler for selection events of this table.
 	 *
 	 * @param  rEventHandler The event handler
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final UiQueryTable<E> onSelection(ValueEventHandler<E> rEventHandler)
+	public final UiQueryTable<E> onSelection(Consumer<E> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										rEventHandler);
@@ -110,11 +123,19 @@ public class UiQueryTable<E extends Entity>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final UiQueryTable<E> onSelectionConfirmed(
-		ValueEventHandler<E> rEventHandler)
+	public final UiQueryTable<E> onSelectionConfirmed(Consumer<E> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										rEventHandler);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UiQueryTable<E> onUpdate(Consumer<E> rEventHandler)
+	{
+		return onSelection(rEventHandler);
 	}
 
 	/***************************************

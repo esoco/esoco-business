@@ -19,8 +19,9 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.SingleSelection;
 
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.container.UiLayoutPanel;
+
+import java.util.function.Consumer;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
@@ -124,11 +125,10 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onSelection(ValueEventHandler<P> rEventHandler)
+	public final P onSelection(Consumer<P> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										v -> rEventHandler.handleValueUpdate((P)
-																			 this));
+										v -> rEventHandler.accept((P) this));
 	}
 
 	/***************************************

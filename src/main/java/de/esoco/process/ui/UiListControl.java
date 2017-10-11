@@ -19,7 +19,9 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 
-import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.event.UiHasUpdateEvents;
+
+import java.util.function.Consumer;
 
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -31,7 +33,7 @@ import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
  * @author eso
  */
 public abstract class UiListControl<T, C extends UiListControl<T, C>>
-	extends UiControl<T, C>
+	extends UiControl<T, C> implements UiHasUpdateEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -74,10 +76,19 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final C onSelection(ValueEventHandler<T> rEventHandler)
+	public final C onSelection(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										rEventHandler);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public C onUpdate(Consumer<T> rEventHandler)
+	{
+		return onSelection(rEventHandler);
 	}
 
 	/***************************************

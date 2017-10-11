@@ -22,13 +22,15 @@ import de.esoco.data.element.SelectionDataElement;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.property.InteractionEventType;
 
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
+import de.esoco.process.ui.event.UiHasActionEvents;
+import de.esoco.process.ui.event.UiHasUpdateEvents;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 /********************************************************************
@@ -39,6 +41,8 @@ import java.util.List;
  */
 public class UiDataTable
 	extends UiTableControl<SelectionDataElement, UiDataTable>
+	implements UiHasUpdateEvents<SelectionDataElement, UiDataTable>,
+			   UiHasActionEvents<SelectionDataElement, UiDataTable>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -89,6 +93,16 @@ public class UiDataTable
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UiDataTable onAction(Consumer<SelectionDataElement> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.ACTION,
+										v -> rEventHandler.accept(v));
+	}
+
+	/***************************************
 	 * Sets the event handler for selection events of this table. The handler
 	 * will receive the currently selected data object or NULL if no object is
 	 * selected.
@@ -98,11 +112,10 @@ public class UiDataTable
 	 * @return This instance for concatenation
 	 */
 	public final UiDataTable onSelection(
-		ValueEventHandler<HierarchicalDataObject> rEventHandler)
+		Consumer<HierarchicalDataObject> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										sd ->
-										rEventHandler.handleValueUpdate(getSelection()));
+										v -> rEventHandler.accept(getSelection()));
 	}
 
 	/***************************************
@@ -115,11 +128,20 @@ public class UiDataTable
 	 * @return This instance for concatenation
 	 */
 	public final UiDataTable onSelectionConfirmed(
-		ValueEventHandler<HierarchicalDataObject> rEventHandler)
+		Consumer<HierarchicalDataObject> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
-										sd ->
-										rEventHandler.handleValueUpdate(getSelection()));
+										v -> rEventHandler.accept(getSelection()));
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UiDataTable onUpdate(Consumer<SelectionDataElement> rEventHandler)
+	{
+		return setParameterEventHandler(InteractionEventType.UPDATE,
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************

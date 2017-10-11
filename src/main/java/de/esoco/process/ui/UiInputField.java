@@ -18,7 +18,10 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.InteractionEventType;
 
-import de.esoco.process.ValueEventHandler;
+import de.esoco.process.ui.event.UiHasActionEvents;
+import de.esoco.process.ui.event.UiHasUpdateEvents;
+
+import java.util.function.Consumer;
 
 import static de.esoco.lib.property.ContentProperties.PLACEHOLDER;
 
@@ -29,7 +32,8 @@ import static de.esoco.lib.property.ContentProperties.PLACEHOLDER;
  * @author eso
  */
 public abstract class UiInputField<T, C extends UiInputField<T, C>>
-	extends UiControl<T, C>
+	extends UiControl<T, C> implements UiHasUpdateEvents<T, C>,
+									   UiHasActionEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -50,6 +54,15 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public C onAction(Consumer<T> rEventHandler)
+	{
+		return onEnter(rEventHandler);
+	}
+
+	/***************************************
 	 * Sets the event handler for input confirmation events (enter key) of this
 	 * input field.
 	 *
@@ -57,7 +70,7 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public C onEnter(ValueEventHandler<T> rEventHandler)
+	public C onEnter(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										rEventHandler);
@@ -70,10 +83,19 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public C onInput(ValueEventHandler<T> rEventHandler)
+	public C onInput(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
 										rEventHandler);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public C onUpdate(Consumer<T> rEventHandler)
+	{
+		return onInput(rEventHandler);
 	}
 
 	/***************************************

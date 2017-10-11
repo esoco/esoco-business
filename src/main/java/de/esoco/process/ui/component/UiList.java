@@ -19,9 +19,11 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiSingleSelectionList;
+import de.esoco.process.ui.event.UiHasActionEvents;
+
+import java.util.function.Consumer;
 
 
 /********************************************************************
@@ -31,6 +33,7 @@ import de.esoco.process.ui.UiSingleSelectionList;
  * @author eso
  */
 public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
+	implements UiHasActionEvents<T, UiList<T>>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -51,6 +54,15 @@ public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UiList<T> onAction(Consumer<T> rEventHandler)
+	{
+		return onSelectionConfirmed(rEventHandler);
+	}
+
+	/***************************************
 	 * Sets the event handler for selection confirmed events (e.g. by double
 	 * click) of this list.
 	 *
@@ -58,8 +70,7 @@ public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final UiList<T> onSelectionConfirmed(
-		ValueEventHandler<T> rEventHandler)
+	public final UiList<T> onSelectionConfirmed(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										rEventHandler);
