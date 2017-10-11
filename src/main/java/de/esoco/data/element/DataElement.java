@@ -347,6 +347,16 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * Returns the name of this element without a preceding package.
+	 *
+	 * @return The simple data element name
+	 */
+	public final String getSimpleName()
+	{
+		return TextConvert.lastElementOf(sName);
+	}
+
+	/***************************************
 	 * Returns the validator of this element.
 	 *
 	 * @return The validator or NULL if this element is read-only
