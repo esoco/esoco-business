@@ -44,7 +44,7 @@ public interface ValueEventHandler<T> extends Consumer<T>
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
