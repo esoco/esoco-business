@@ -1592,7 +1592,7 @@ public class Entity extends SerializableRelatedObject
 		{
 			String sMessage =
 				String.format("%s attribute %s != %s",
-							  this.getClass().getSimpleName(),
+							  this,
 							  rCurrentValue,
 							  rValue);
 
