@@ -582,7 +582,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * The function must return a new component that has been created in the
 		 * container of the given UI builder. If a display factory is set it
 		 * will be used to create the display components for this column in each
-		 * row. Otherwise default display components will be created.
+		 * row. Otherwise default display components will be created. If the
+		 * components created by the factory need special update values the
+		 * method {@link #updateWith(BiConsumer)} also needs to be invoked to
+		 * set an update function.
 		 *
 		 * @param  fDisplayFactory The display component factory function
 		 *
