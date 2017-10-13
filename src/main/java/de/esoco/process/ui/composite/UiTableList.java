@@ -39,6 +39,8 @@ import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.event.UiHasActionEvents;
+import de.esoco.process.ui.event.UiHasUpdateEvents;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.graphics.UiImageResource;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
@@ -513,6 +515,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 		private UiStyle aComponentStyle = new UiStyle();
 
+		private Consumer<V> fActionHandler;
+		private Consumer<V> fUpdateHandler;
+
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
@@ -618,6 +623,48 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public V getColumnValue(T rDataObject)
 		{
 			return fGetColumnData.apply(rDataObject);
+		}
+
+		/***************************************
+		 * Adds an event handler that should be invoked if the column component
+		 * receives an action event as defined by {@link UiHasActionEvents}. The
+		 * handler will receive the value of the column in the respective row.
+		 * This must be used in conjunction with {@link #displayWith(Function)}
+		 * because the default column components don't produce events.
+		 *
+		 * @param  fHandler The event handler
+		 *
+		 * @return This instance
+		 *
+		 * @see    #displayWith(Function)
+		 * @see    #onUpdate(Consumer)
+		 */
+		public Column<V> onAction(Consumer<V> fHandler)
+		{
+			fActionHandler = fHandler;
+
+			return this;
+		}
+
+		/***************************************
+		 * Adds an event handler that should be invoked if the column component
+		 * receives an action event as defined by {@link UiHasUpdateEvents}. The
+		 * handler will receive the value of the column in the respective row.
+		 * This must be used in conjunction with {@link #displayWith(Function)}
+		 * because the default column components don't produce events.
+		 *
+		 * @param  fHandler The event handler
+		 *
+		 * @return This instance
+		 *
+		 * @see    #displayWith(Function)
+		 * @see    #onAction(Consumer)
+		 */
+		public Column<V> onUpdate(Consumer<V> fHandler)
+		{
+			fUpdateHandler = fHandler;
+
+			return this;
 		}
 
 		/***************************************
@@ -765,6 +812,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				{
 					aComponent = rBuilder.addLabel("");
 				}
+			}
+
+			if (fActionHandler != null &&
+				aComponent instanceof UiHasActionEvents)
+			{
+				((UiHasActionEvents<?, ?>) aComponent).onAction(v ->
+																fActionHandler
+																.accept(getColumnValue(rDataObject)));
+			}
+
+			if (fUpdateHandler != null &&
+				aComponent instanceof UiHasUpdateEvents)
+			{
+				((UiHasUpdateEvents<?, ?>) aComponent).onUpdate(v ->
+																fUpdateHandler
+																.accept(getColumnValue(rDataObject)));
 			}
 
 			updateDisplay(aComponent, rDataObject);
