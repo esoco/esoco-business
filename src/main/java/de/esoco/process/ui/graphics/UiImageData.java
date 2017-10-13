@@ -18,6 +18,7 @@ package de.esoco.process.ui.graphics;
 
 import de.esoco.data.MimeType;
 
+import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiImageDefinition;
 
 import java.io.UnsupportedEncodingException;
@@ -27,17 +28,26 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import java.util.Base64;
+import java.util.function.Supplier;
 
 import static de.esoco.lib.property.ContentProperties.IMAGE;
 
 
 /********************************************************************
- * An image that is defined from the actual image data.
+ * An image that is defined from the actual image data. The main constructor
+ * {@link #UiImageData(MimeType, Supplier)} accepts a supplier function for the
+ * image data that is only evaluated just before application to a component.
+ * That allows it to be used for lazy image initialization.
  *
  * @author eso
  */
 public class UiImageData extends UiImageDefinition<UiImageData>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private MimeType		 eMimeType;
+	private Supplier<String> fImageData;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -53,6 +63,21 @@ public class UiImageData extends UiImageDefinition<UiImageData>
 	}
 
 	/***************************************
+	 * Creates a new instance that receives the image data from a function. The
+	 * function will be evaluated only just before the image needs to be
+	 * displayed. That allows this constructor to be used for lazy
+	 * initialization of images.
+	 *
+	 * @param eMimeType  The MIME type of the image
+	 * @param fImageData The function that provides the image data
+	 */
+	public UiImageData(MimeType eMimeType, Supplier<String> fImageData)
+	{
+		this.eMimeType  = eMimeType;
+		this.fImageData = fImageData;
+	}
+
+	/***************************************
 	 * Creates a new instance from an image data string. The image data can
 	 * either be Base64 encoded data for binary images or an SVG image
 	 * description. In the latter case the MIME type must be {@link
@@ -63,22 +88,7 @@ public class UiImageData extends UiImageDefinition<UiImageData>
 	 */
 	public UiImageData(MimeType eMimeType, String sImageData)
 	{
-		StringBuilder aDataUri = new StringBuilder("d:data:");
-
-		aDataUri.append(eMimeType.getDefinition());
-
-		if (eMimeType == MimeType.IMAGE_SVG)
-		{
-			sImageData = encodeSvg(sImageData);
-		}
-		else
-		{
-			aDataUri.append(";base64");
-		}
-
-		aDataUri.append(',').append(sImageData);
-
-		set(IMAGE, aDataUri.toString());
+		this(eMimeType, () -> sImageData);
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -132,6 +142,42 @@ public class UiImageData extends UiImageDefinition<UiImageData>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * @see UiImageDefinition#applyPropertiesTo(UiComponent)
+	 */
+	@Override
+	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	{
+		StringBuilder aDataUri   = new StringBuilder("d:data:");
+		String		  sImageData = fImageData.get();
+
+		aDataUri.append(eMimeType.getDefinition());
+
+		if (eMimeType == MimeType.IMAGE_SVG)
+		{
+			sImageData = encodeSvg(sImageData);
+		}
+		else
+		{
+			aDataUri.append(";base64");
+		}
+
+		aDataUri.append(',').append(sImageData);
+
+		set(IMAGE, aDataUri.toString());
+		super.applyPropertiesTo(rComponent);
+	}
+
+	/***************************************
+	 * Returns the MIME type of this image.
+	 *
+	 * @return The MIME type
+	 */
+	protected final MimeType getMimeType()
+	{
+		return eMimeType;
+	}
 
 	/***************************************
 	 * Encodes an SVG image data string for use in a data URI.
