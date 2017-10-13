@@ -22,7 +22,7 @@ import static de.esoco.lib.property.ContentProperties.IMAGE;
 
 
 /********************************************************************
- * An image that is reference by a URL.
+ * An image that is referenced by a URL.
  *
  * @author eso
  */
