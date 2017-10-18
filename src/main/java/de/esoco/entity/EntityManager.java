@@ -34,9 +34,7 @@ import de.esoco.lib.manage.MultiLevelCache;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
 import de.esoco.lib.reflect.ReflectUtil;
-
-import de.esoco.service.ModificationSyncEndpoint.SyncData;
-
+import de.esoco.lib.service.ModificationSyncEndpoint.SyncData;
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.QueryResult;
@@ -96,11 +94,9 @@ import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.ifRelation;
 import static de.esoco.lib.expression.Predicates.isNull;
-
-import static de.esoco.service.ModificationSyncEndpoint.releaseLock;
-import static de.esoco.service.ModificationSyncEndpoint.requestLock;
-import static de.esoco.service.ModificationSyncEndpoint.syncRequest;
-
+import static de.esoco.lib.service.ModificationSyncEndpoint.releaseLock;
+import static de.esoco.lib.service.ModificationSyncEndpoint.requestLock;
+import static de.esoco.lib.service.ModificationSyncEndpoint.syncRequest;
 import static de.esoco.storage.StoragePredicates.like;
 import static de.esoco.storage.StorageRelationTypes.PERSISTENT;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
