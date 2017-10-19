@@ -192,8 +192,8 @@ public class DialogFragment extends ViewFragment
 	 * Global configuration method to disable the addition of a fill parameter
 	 * to the button panel.
 	 *
-	 * <p>TODO This is just a workaround until a complete rework of the view
-	 * fragment has been done (JIRA issue Framework-191).</p>
+	 * <p>TODO This is just a workaround until the dialog fragment has been
+	 * adapted to layout-bayed UI (instead of table-based).</p>
 	 */
 	public static void disableButtonFillParameter()
 	{
