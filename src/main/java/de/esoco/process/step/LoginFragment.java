@@ -29,8 +29,8 @@ import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.ProcessRelationTypes;
+import de.esoco.process.ValueEventHandler;
 
 import static de.esoco.lib.property.StateProperties.DISABLE_ON_INTERACTION;
 import static de.esoco.lib.property.StateProperties.FOCUSED;
@@ -171,7 +171,8 @@ public class LoginFragment extends InteractionFragment
 	protected void addInputFields()
 	{
 		aLoginName =
-			inputText("LoginName").ensureNotEmpty().set(FOCUSED)
+			inputText("LoginName").ensureNotEmpty()
+								  .set(FOCUSED)
 								  .onAction(new ValueEventHandler<String>()
 				{
 					@Override
@@ -182,7 +183,8 @@ public class LoginFragment extends InteractionFragment
 					}
 				});
 		aPassword  =
-			inputText("Password").content(ContentType.PASSWORD).ensureNotEmpty()
+			inputText("Password").content(ContentType.PASSWORD)
+								 .ensureNotEmpty()
 								 .onAction(new ValueEventHandler<String>()
 				{
 					@Override
@@ -208,18 +210,19 @@ public class LoginFragment extends InteractionFragment
 	 * Will be invoked after the user has been successfully authenticated to
 	 * check whether she is authorized to use the application. Can be overridden
 	 * by subclasses that need to check additional constraints. Only if this
-	 * method returns TRUE the process will be initialized with the
-	 * authentication data.
-	 *
-	 * <p>The default implementation always returns TRUE.</p>
+	 * method returns TRUE will the process be initialized with the
+	 * authentication data. The default implementation always returns TRUE.
 	 *
 	 * @param  rUser The user that has been authenticated
 	 *
-	 * @return TRUE if the user is authorized to use the application
+	 * @return TRUE if the user is authorized to use the application, FALSE if
+	 *         not
 	 *
-	 * @throws Exception If the authorization fails
+	 * @throws Exception Implementations may alternatively throw any kind of
+	 *                   exception if the authorization fails. This has the same
+	 *                   effect as returning FALSE.
 	 */
-	protected boolean userAuthorized(Entity rUser) throws Exception
+	protected boolean isUserAuthorized(Entity rUser) throws Exception
 	{
 		return true;
 	}
@@ -287,20 +290,23 @@ public class LoginFragment extends InteractionFragment
 
 			rSessionManager.loginUser(aLoginData, getParameter(CLIENT_INFO));
 
-			nErrorCount    = 0;
-			nErrorWaitTime = 0;
-
 			Entity rUser =
 				rSessionManager.getSessionData().get(SessionData.SESSION_USER);
 
-			if (userAuthorized(rUser))
+			if (!isUserAuthorized(rUser))
 			{
-				aPassword.value("");
-
-				// update the process user to the authenticated person
-				setParameter(PROCESS_USER, rUser);
-				setParameter(AUTHENTICATED, true);
+				// handle in catch block
+				throw new Exception();
 			}
+
+			nErrorCount    = 0;
+			nErrorWaitTime = 0;
+
+			aPassword.value("");
+
+			// update the process user to the authenticated person
+			setParameter(PROCESS_USER, rUser);
+			setParameter(AUTHENTICATED, true);
 
 			continueOnInteraction(getInteractiveInputParameter());
 		}
