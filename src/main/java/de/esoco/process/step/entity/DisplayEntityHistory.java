@@ -909,23 +909,30 @@ public class DisplayEntityHistory extends InteractionFragment
 		{
 			checkAddHistoryTypeOptions();
 
-			param(ENTITY_HISTORY_DATE).input()
-									  .colSpan(2)
-									  .set(LIST_STYLE, ListStyle.DROP_DOWN)
-									  .value(StandardDateRange.NONE)
-									  .allow(StandardDateRange.NONE,
-											 StandardDateRange.TODAY,
-											 StandardDateRange.YESTERDAY,
-											 StandardDateRange.BEFORE_YESTERDAY,
-											 StandardDateRange.CURRENT_WEEK,
-											 StandardDateRange.LAST_WEEK,
-											 StandardDateRange.CURRENT_MONTH,
-											 StandardDateRange.LAST_MONTH,
-											 StandardDateRange.CURRENT_QUARTER,
-											 StandardDateRange.LAST_QUARTER,
-											 StandardDateRange.CURRENT_YEAR,
-											 StandardDateRange.LAST_YEAR)
-									  .onUpdate(v -> rChangeListener.update());
+			Parameter<StandardDateRange> rDateRange =
+				param(ENTITY_HISTORY_DATE);
+
+			rDateRange.input()
+					  .colSpan(2)
+					  .set(LIST_STYLE, ListStyle.DROP_DOWN)
+					  .allow(StandardDateRange.NONE,
+							 StandardDateRange.TODAY,
+							 StandardDateRange.YESTERDAY,
+							 StandardDateRange.BEFORE_YESTERDAY,
+							 StandardDateRange.CURRENT_WEEK,
+							 StandardDateRange.LAST_WEEK,
+							 StandardDateRange.CURRENT_MONTH,
+							 StandardDateRange.LAST_MONTH,
+							 StandardDateRange.CURRENT_QUARTER,
+							 StandardDateRange.LAST_QUARTER,
+							 StandardDateRange.CURRENT_YEAR,
+							 StandardDateRange.LAST_YEAR)
+					  .onUpdate(v -> rChangeListener.update());
+
+			if (rDateRange.value() == null)
+			{
+				rDateRange.value(StandardDateRange.NONE);
+			}
 
 			checkAddOriginFilter();
 
