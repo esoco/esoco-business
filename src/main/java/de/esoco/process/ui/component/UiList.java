@@ -73,6 +73,6 @@ public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
 	public final UiList<T> onSelectionConfirmed(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 }

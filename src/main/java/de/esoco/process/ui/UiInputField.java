@@ -73,7 +73,7 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	public C onEnter(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************
@@ -86,7 +86,7 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	public C onInput(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************

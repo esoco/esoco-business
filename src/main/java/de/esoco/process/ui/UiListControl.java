@@ -79,7 +79,7 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	public final C onSelection(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************

@@ -16,37 +16,15 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import java.util.function.Consumer;
-
-
 /********************************************************************
  * An event handler interface for value updates.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface ValueEventHandler<T> extends Consumer<T>
+public interface ValueEventHandler<T>
 {
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Implemented to invoke {@link #handleValueUpdate(Object)}. Converts any
-	 * occuring exceptions into runtime exceptions.
-	 *
-	 * @see Consumer#accept(T)
-	 */
-	@Override
-	default public void accept(T rValue)
-	{
-		try
-		{
-			handleValueUpdate(rValue);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
 
 	/***************************************
 	 * Will be invoked if a value update has been performed.
