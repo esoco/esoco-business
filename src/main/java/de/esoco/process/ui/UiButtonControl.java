@@ -68,7 +68,7 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	public final C onClick(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************

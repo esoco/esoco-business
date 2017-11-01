@@ -112,7 +112,7 @@ public class UiQueryTable<E extends Entity>
 	public final UiQueryTable<E> onSelection(Consumer<E> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************
@@ -126,7 +126,7 @@ public class UiQueryTable<E extends Entity>
 	public final UiQueryTable<E> onSelectionConfirmed(Consumer<E> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************

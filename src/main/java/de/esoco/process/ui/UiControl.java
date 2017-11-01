@@ -63,7 +63,7 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	public final C onFocusLost(Consumer<T> rEventHandler)
 	{
 		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
-										rEventHandler);
+										v -> rEventHandler.accept(v));
 	}
 
 	/***************************************
