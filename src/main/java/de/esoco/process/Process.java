@@ -30,6 +30,7 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
+import de.esoco.lib.thread.JobQueue;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -270,6 +271,8 @@ public class Process extends SerializableRelatedObject
 	private transient ProcessStep				   rCurrentStep;
 
 	private ProcessInteractionHandler rInteractionHandler = null;
+
+	private JobQueue aBackgroundJobs;
 
 	private Map<String, Consumer<Process>> aCleanupActions =
 		new LinkedHashMap<>();
@@ -762,6 +765,21 @@ public class Process extends SerializableRelatedObject
 		{
 			super.deleteRelation(rParamType);
 		}
+	}
+
+	/***************************************
+	 * Runs a runnable in a background thread.
+	 *
+	 * @param rOperation The operation to perform in the background
+	 */
+	public void runInBackground(Runnable rOperation)
+	{
+		if (aBackgroundJobs == null)
+		{
+			aBackgroundJobs = new JobQueue(100, 1);
+		}
+
+		aBackgroundJobs.add(rOperation);
 	}
 
 	/***************************************
