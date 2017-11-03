@@ -272,7 +272,7 @@ public class Process extends SerializableRelatedObject
 
 	private ProcessInteractionHandler rInteractionHandler = null;
 
-	private JobQueue aBackgroundJobs;
+	private JobQueue aBackgroundJobs = null;
 
 	private Map<String, Consumer<Process>> aCleanupActions =
 		new LinkedHashMap<>();
@@ -724,6 +724,19 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Suspends the processing of background jobs for this process. It can be
+	 * continued by calling {@link #resumeBackgroundJobs()}. This call will only
+	 * return after the background processing has fully stopped.
+	 */
+	public void pauseBackgroundJobs()
+	{
+		if (aBackgroundJobs != null)
+		{
+			aBackgroundJobs.pause();
+		}
+	}
+
+	/***************************************
 	 * Removes a cleanup action that has previously been registered through the
 	 * method {@link #addCleanupAction(String, Action)}.
 	 *
@@ -768,7 +781,21 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Runs a runnable in a background thread.
+	 * Resumes the processing of background jobs for this process if it has
+	 * previously been suspended by invoking {@link #pauseBackgroundJobs()}.
+	 */
+	public void resumeBackgroundJobs()
+	{
+		if (aBackgroundJobs != null)
+		{
+			aBackgroundJobs.resume();
+		}
+	}
+
+	/***************************************
+	 * Runs an job that is implemented in a {@link Runnable} in a background
+	 * thread. The background processing can be controlled through the methods
+	 * {@link #pauseBackgroundJobs()} and {@link #resumeBackgroundJobs()}.
 	 *
 	 * @param rOperation The operation to perform in the background
 	 */
@@ -1278,6 +1305,11 @@ public class Process extends SerializableRelatedObject
 	{
 		try
 		{
+			if (aBackgroundJobs != null)
+			{
+				aBackgroundJobs.stop();
+			}
+
 			for (ProcessStep rStep : aProcessSteps.values())
 			{
 				if (aExecutionStack.contains(rStep))
