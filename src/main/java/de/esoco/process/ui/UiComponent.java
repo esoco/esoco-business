@@ -370,11 +370,17 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * intended to be used by subclasses only which should provide a
 	 * type-specific public method (like setText(String)).
 	 *
-	 * @param rValue The new value
+	 * @param  rValue The new value
+	 *
+	 * @return This instance so that this method can be used for fluent
+	 *         implementations
 	 */
-	protected final void setValueImpl(T rValue)
+	@SuppressWarnings("unchecked")
+	protected final C setValueImpl(T rValue)
 	{
 		fragment().setParameter(type(), rValue);
+
+		return (C) this;
 	}
 
 	/***************************************

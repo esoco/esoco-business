@@ -94,10 +94,22 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	/***************************************
 	 * Sets the selected value.
 	 *
+	 * @param  rValue The new selection or NULL for none
+	 *
+	 * @return TODO: DOCUMENT ME!
+	 */
+	public C select(T rValue)
+	{
+		return setValueImpl(rValue);
+	}
+
+	/***************************************
+	 * Sets the selected value.
+	 *
 	 * @param rValue The new selection or NULL for none
 	 */
 	public void setSelection(T rValue)
 	{
-		setValueImpl(rValue);
+		select(rValue);
 	}
 }
