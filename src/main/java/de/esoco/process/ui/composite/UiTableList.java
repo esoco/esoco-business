@@ -122,7 +122,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public UiTableList(UiContainer<?> rParent)
 	{
-		this(rParent, null);
+		this(rParent, ExpandableTableStyle.EXPAND);
 	}
 
 	/***************************************
