@@ -20,10 +20,10 @@ import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ui.component.UiPushButtons;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -104,10 +104,9 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private UiLayoutPanel		  aContentPanel;
+	private Collection<Button>    rButtons		  = Button.OK_CANCEL;
 	private UiPushButtons<Button> aDialogButtons;
-
-	private Consumer<Button> fDialogListener;
+	private Consumer<Button>	  fDialogListener;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -129,46 +128,9 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 			  bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 
 		setTitle(sTitle);
-
-		aContentPanel = builder().addPanel(rLayout);
-
-		UiLayoutPanel aButtonPanel = builder().addPanel(new UiFlowLayout());
-
-		aButtonPanel.style().addStyleName("UiDialogButtonPanel");
-
-		aDialogButtons = aButtonPanel.builder().addPushButtons(Button.class);
-
-		aDialogButtons.resid("UiDialogButton")
-					  .setButtons(Button.OK_CANCEL)
-					  .onClick(this::handleButton);
 	}
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Adds the dialog builder through a function.
-	 *
-	 * @param  fAddContent The function to be invoked with the content builder.
-	 *
-	 * @return This instance
-	 */
-	@SuppressWarnings("unchecked")
-	public V addContent(Consumer<UiBuilder<?>> fAddContent)
-	{
-		fAddContent.accept(contentBuilder());
-
-		return (V) this;
-	}
-
-	/***************************************
-	 * Returns the UI builder for the dialog content.
-	 *
-	 * @return The content UI builder
-	 */
-	public UiBuilder<?> contentBuilder()
-	{
-		return aContentPanel.builder();
-	}
 
 	/***************************************
 	 * Sets the listener to be notified if a dialog button is pressed. The
@@ -202,7 +164,12 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	@SuppressWarnings("unchecked")
 	public V setButtons(Collection<Button> rButtons)
 	{
-		aDialogButtons.setButtons(rButtons);
+		this.rButtons = rButtons;
+
+		if (aDialogButtons != null)
+		{
+			aDialogButtons.setButtons(rButtons);
+		}
 
 		return (V) this;
 	}
@@ -217,9 +184,28 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	@SuppressWarnings("unchecked")
 	public V setButtons(Button... rButtons)
 	{
-		aDialogButtons.setButtons(rButtons);
+		return setButtons(Arrays.asList(rButtons));
+	}
 
-		return (V) this;
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void build()
+	{
+		if (aDialogButtons == null)
+		{
+			UiLayoutPanel aButtonPanel = builder().addPanel(new UiFlowLayout());
+
+			aButtonPanel.style().addStyleName("UiDialogButtonPanel");
+
+			aDialogButtons =
+				aButtonPanel.builder().addPushButtons(Button.class);
+
+			aDialogButtons.resid("UiDialogButton")
+						  .setButtons(rButtons)
+						  .onClick(this::handleButton);
+		}
 	}
 
 	/***************************************

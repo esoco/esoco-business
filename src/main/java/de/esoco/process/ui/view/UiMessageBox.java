@@ -22,7 +22,6 @@ import de.esoco.process.ui.UiView;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.graphics.UiImageResource;
 import de.esoco.process.ui.layout.UiFlowLayout;
-import de.esoco.process.ui.layout.UiTableLayout;
 
 
 /********************************************************************
@@ -52,10 +51,12 @@ public class UiMessageBox extends UiDialogView<UiMessageBox>
 		super(rParent, sTitle, new UiFlowLayout(), true);
 
 		UiBuilder<?> aMessageBuilder =
-			contentBuilder().addPanel(new UiTableLayout(2)).builder();
+			builder().addPanel(new UiFlowLayout()).builder();
 
-		aMessageBuilder.addImage(rImage);
-		aMessageBuilder.addLabel(sMessage);
+		aMessageBuilder.addImage(rImage).style().styleName("UiMessageBoxIcon");
+		aMessageBuilder.addLabel(sMessage)
+					   .style()
+					   .styleName("UiMessageBoxMessage");
 	}
 
 	//~ Static methods ---------------------------------------------------------
