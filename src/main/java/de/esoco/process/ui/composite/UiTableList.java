@@ -58,6 +58,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
@@ -782,14 +783,14 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * Adds a display component for this column and the corresponding value
 		 * in a certain data object.
 		 *
-		 * @param  rBuilder    The builder to create the component with
-		 * @param  rDataObject The column value
+		 * @param  rBuilder The builder to create the component with
+		 * @param  fData    A function that provides access to the data object
 		 *
 		 * @return The new component
 		 */
 		protected UiComponent<?, ?> addDisplayComponent(
 			UiBuilder<?> rBuilder,
-			T			 rDataObject)
+			Supplier<T>  fData)
 		{
 			UiComponent<?, ?> aComponent = null;
 
@@ -822,7 +823,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				((UiHasActionEvents<?, ?>) aComponent).onAction(v ->
 																fActionHandler
-																.accept(getColumnValue(rDataObject)));
+																.accept(getColumnValue(fData
+																					   .get())));
 			}
 
 			if (fUpdateHandler != null &&
@@ -830,10 +832,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				((UiHasUpdateEvents<?, ?>) aComponent).onUpdate(v ->
 																fUpdateHandler
-																.accept(getColumnValue(rDataObject)));
+																.accept(getColumnValue(fData
+																					   .get())));
 			}
 
-			updateDisplay(aComponent, rDataObject);
+			updateDisplay(aComponent, fData.get());
 
 			return aComponent;
 		}
@@ -1223,7 +1226,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected void addColumnComponent(Column<?> rColumn)
 		{
-			rColumn.addDisplayComponent(builder(), rRowData);
+			rColumn.addDisplayComponent(builder(), this::getData);
 		}
 
 		/***************************************
