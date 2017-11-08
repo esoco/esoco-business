@@ -69,7 +69,9 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	@Override
 	public boolean isSelected()
 	{
-		return fragment().getParameter(type()).booleanValue();
+		Boolean rState = fragment().getParameter(type());
+
+		return rState != null ? rState.booleanValue() : false;
 	}
 
 	/***************************************
