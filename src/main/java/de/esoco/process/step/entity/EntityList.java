@@ -109,6 +109,7 @@ public class EntityList<E extends Entity,
 
 	private InteractionFragment rHeader;
 	private ParameterList	    aItemListPanel;
+	private ParameterList	    aNavigationPanel;
 
 	private RelationType<String>[] rGlobalFilterAttributes;
 
@@ -181,6 +182,7 @@ public class EntityList<E extends Entity,
 		aVisibleEntities.clear();
 		aItemList.update();
 		aNavigation.update();
+		aNavigationPanel.hide();
 	}
 
 	/***************************************
@@ -282,9 +284,10 @@ public class EntityList<E extends Entity,
 		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
 
 		panel(this::initHeaderPanel);
-		aItemListPanel =
-			panel(aItemList).inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
-		panel(aNavigation);
+		aItemListPanel   = panel(aItemList);
+		aNavigationPanel = panel(aNavigation).hide();
+
+		aItemListPanel.inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
 	}
 
 	/***************************************
@@ -515,6 +518,7 @@ public class EntityList<E extends Entity,
 
 		aItemList.update();
 		aNavigation.update();
+		aNavigationPanel.show();
 	}
 
 	/***************************************
@@ -796,6 +800,12 @@ public class EntityList<E extends Entity,
 		void changePageSize(String sNewSize) throws StorageException
 		{
 			nPageSize = Integer.parseInt(sNewSize);
+
+			if (nFirstEntity + nPageSize > nEntityCount)
+			{
+				nFirstEntity = Math.max(0, nEntityCount - nPageSize);
+			}
+
 			queryEntities();
 		}
 
