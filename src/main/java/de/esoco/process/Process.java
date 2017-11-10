@@ -18,6 +18,7 @@ package de.esoco.process;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
 
+import de.esoco.entity.ConcurrentEntityModificationException;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 
@@ -1522,7 +1523,8 @@ public class Process extends SerializableRelatedObject
 	private void handleException(ProcessExecutionMode eMode, Exception e)
 		throws ProcessException
 	{
-		if (!(e instanceof InvalidParametersException))
+		if (!(e instanceof InvalidParametersException ||
+			  e instanceof ConcurrentEntityModificationException))
 		{
 			try
 			{

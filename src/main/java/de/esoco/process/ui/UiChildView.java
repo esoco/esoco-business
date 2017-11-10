@@ -57,7 +57,7 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	{
 		super(rParent, rLayout);
 
-		rParent.fragment().addSubFragment(type(), fragment());
+		getParent().fragment().addSubFragment(type(), fragment());
 		setViewType(eViewType);
 	}
 
