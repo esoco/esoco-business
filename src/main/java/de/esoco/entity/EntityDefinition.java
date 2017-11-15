@@ -692,7 +692,14 @@ public class EntityDefinition<E extends Entity>
 					handleEntityModification(rEntity, (Boolean) rUpdateValue);
 				}
 			}
-			else if (aAttributes.contains(rRelationType))
+
+			// exclude ID attribute as it will typically be set after automatic
+			// generation by the database (causing an update event for a newly
+			// persisted entity). Cases where ONLY the ID is set manually on a
+			// persistent object would therefore be excluded from modification
+			// detection and need to be handled explicitly (by setting MODIFIED).
+			else if (rRelationType != rIdAttribute &&
+					 aAttributes.contains(rRelationType))
 			{
 				EventType   eEventType = rEvent.getType();
 				Relation<?> rRelation  = rEvent.getElement();
