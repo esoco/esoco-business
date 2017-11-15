@@ -227,11 +227,11 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 			}
 		}
 
-		hide();
-
 		if (fDialogListener != null)
 		{
 			fDialogListener.accept(eButton);
 		}
+
+		hide();
 	}
 }
