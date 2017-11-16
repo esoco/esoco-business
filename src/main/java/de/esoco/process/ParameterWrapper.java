@@ -165,6 +165,26 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
+	 * Checks the enabled/disabled state.
+	 *
+	 * @see #setEnabled(boolean)
+	 */
+	public boolean isEnabled()
+	{
+		return !has(DISABLED);
+	}
+
+	/***************************************
+	 * Checks the visibility.
+	 *
+	 * @see #setVisible(boolean)
+	 */
+	public boolean isVisible()
+	{
+		return !has(HIDDEN);
+	}
+
+	/***************************************
 	 * Removes certain properties from the wrapped parameter.
 	 *
 	 * @param  rProperties The names of the properties to remove
