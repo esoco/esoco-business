@@ -72,18 +72,22 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * to is finished. All registered validations will be executed together and
 	 * any errors that are detected will be signaled to the user.
 	 *
-	 * @param fValidation The validation function
+	 * @param  fValidation The validation function
 	 *
-	 * @see   #validateNow(Function)
-	 * @see   #validateInteractive(Function)
+	 * @return This instance
+	 *
+	 * @see    #validateNow(Function)
+	 * @see    #validateInteractive(Function)
 	 */
-	public void validateFinally(
-		Function<? super T, ValidationResult> fValidation)
+	@SuppressWarnings("unchecked")
+	public C validateFinally(Function<? super T, ValidationResult> fValidation)
 	{
 		fragment().setParameterValidation(type(),
 										  false,
 										  v -> fValidation.apply(v)
 										  .getMessage());
+
+		return (C) this;
 	}
 
 	/***************************************
@@ -98,18 +102,23 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * needed. Otherwise a continuous signaling of errors can become annoying
 	 * for the user.</p>
 	 *
-	 * @param fValidation The validation function
+	 * @param  fValidation The validation function
 	 *
-	 * @see   #validateNow(Function)
-	 * @see   #validateFinally(Function)
+	 * @return This instance
+	 *
+	 * @see    #validateNow(Function)
+	 * @see    #validateFinally(Function)
 	 */
-	public void validateInteractive(
+	@SuppressWarnings("unchecked")
+	public C validateInteractive(
 		Function<? super T, ValidationResult> fValidation)
 	{
 		fragment().setParameterValidation(type(),
 										  true,
 										  v -> fValidation.apply(v)
 										  .getMessage());
+
+		return (C) this;
 	}
 
 	/***************************************
