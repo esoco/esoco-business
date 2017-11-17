@@ -78,6 +78,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2067,10 +2068,28 @@ public abstract class InteractionFragment extends ProcessFragment
 		Map<RelationType<?>, String> aFragmentErrors =
 			validateParameters(bOnInteraction);
 
-		Map<RelationType<?>, Function<?, String>> rValidations =
-			getParameterValidations(bOnInteraction);
+		Map<RelationType<?>, Function<?, String>> aValidations =
+			new LinkedHashMap<>();
 
-		aFragmentErrors.putAll(performParameterValidations(rValidations));
+		if (bOnInteraction)
+		{
+			RelationType<?> rInteractionParam = getInteractiveInputParameter();
+
+			Function<?, String> fValidation =
+				getParameterValidations(true).get(rInteractionParam);
+
+			if (fValidation != null)
+			{
+				aValidations.put(rInteractionParam, fValidation);
+			}
+		}
+		else
+		{
+			aValidations.putAll(getParameterValidations(true));
+			aValidations.putAll(getParameterValidations(false));
+		}
+
+		aFragmentErrors.putAll(performParameterValidations(aValidations));
 
 		if (!aFragmentErrors.isEmpty())
 		{
