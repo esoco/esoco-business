@@ -35,6 +35,8 @@ import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import static de.esoco.entity.ExtraAttributes.newExtraAttribute;
 import static de.esoco.entity.ExtraAttributes.newOrderedSetExtraAttribute;
@@ -132,10 +134,22 @@ public class EntityRelationTypes
 	 * skip the creation of history.
 	 */
 	public static final RelationType<Boolean> SKIP_NEXT_CHANGE_LOGGING =
-		newFlagType();
+		newType();
 
 	/**
-	 * A flag to display entity references as IDs instead of describing strings.
+	 * A flag that prevents the locking of an entity by {@link EntityManager} if
+	 * it is set on the entity. This is intended to be used for bulk processing
+	 * of entities. Applying code must ensure that the flag is removed
+	 * afterwards, especially for cached entities. If necessary it must also
+	 * ensure that the affected entities are not modified concurrently while the
+	 * locking is disabled (e.g. through {@link
+	 * EntityManager#setEntityModificationLock(String, Predicate)}).
+	 */
+	public static final RelationType<Boolean> NO_ENTITY_LOCKING = newType();
+
+	/**
+	 * A flag to display entity references in annotated entities as IDs instead
+	 * of describing strings.
 	 */
 	public static final RelationType<Boolean> DISPLAY_ENTITY_IDS =
 		newFlagType();

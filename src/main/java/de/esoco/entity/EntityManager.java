@@ -35,6 +35,7 @@ import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.service.ModificationSyncEndpoint.SyncData;
+
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.QueryResult;
@@ -86,6 +87,7 @@ import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTES_READ;
 import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTE_MAP;
 import static de.esoco.entity.EntityRelationTypes.LAST_CHANGE;
 import static de.esoco.entity.EntityRelationTypes.MASTER_ENTITY_ID;
+import static de.esoco.entity.EntityRelationTypes.NO_ENTITY_LOCKING;
 import static de.esoco.entity.EntityRelationTypes.PARENT_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
 
@@ -97,6 +99,7 @@ import static de.esoco.lib.expression.Predicates.isNull;
 import static de.esoco.lib.service.ModificationSyncEndpoint.releaseLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.requestLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.syncRequest;
+
 import static de.esoco.storage.StoragePredicates.like;
 import static de.esoco.storage.StorageRelationTypes.PERSISTENT;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
@@ -2035,7 +2038,7 @@ public class EntityManager
 	 */
 	static synchronized void beginEntityModification(Entity rEntity)
 	{
-		if (rEntity.isPersistent())
+		if (rEntity.isPersistent() && !rEntity.hasFlag(NO_ENTITY_LOCKING))
 		{
 			String sContextId = getEntityModificationContextId();
 			String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);

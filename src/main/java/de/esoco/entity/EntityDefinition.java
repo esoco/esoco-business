@@ -722,7 +722,8 @@ public class EntityDefinition<E extends Entity>
 					rRelation.annotate(PREVIOUS_VALUE, rPrevValue);
 				}
 
-				if (bModified || eEventType != EventType.UPDATE)
+				if ((bModified || eEventType != EventType.UPDATE) &&
+					!rEntity.isModified())
 				{
 					// this will invoke the == MODIFIED branch above
 					rEntity.set(MODIFIED);
