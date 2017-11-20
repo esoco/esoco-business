@@ -18,6 +18,7 @@ package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
 
+import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -452,6 +453,42 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * Sets the modified state of this element.
+	 *
+	 * @param bModified The new modified state
+	 */
+	public void setModified(boolean bModified)
+	{
+		this.bModified = bModified;
+	}
+
+	/***************************************
+	 * Sets multiple properties of this data element.
+	 *
+	 * @param rOther   The properties to set
+	 * @param bReplace TRUE to replace existing properties, FALSE to keep them
+	 */
+	@Override
+	public void setProperties(HasProperties rOther, boolean bReplace)
+	{
+		super.setProperties(rOther, bReplace);
+		setModified(true);
+	}
+
+	/***************************************
+	 * Sets a certain property of this data element.
+	 *
+	 * @param rName  The name of the property
+	 * @param rValue The property value
+	 */
+	@Override
+	public <P> void setProperty(PropertyName<P> rName, P rValue)
+	{
+		super.setProperty(rName, rValue);
+		setModified(true);
+	}
+
+	/***************************************
 	 * Sets the selected state of this element.
 	 *
 	 * @param bSelected The new selected state
@@ -459,6 +496,7 @@ public abstract class DataElement<T> extends StringProperties
 	public void setSelected(boolean bSelected)
 	{
 		this.bSelected = bSelected;
+		setModified(true);
 	}
 
 	/***************************************
@@ -628,16 +666,6 @@ public abstract class DataElement<T> extends StringProperties
 	protected boolean isValueEqual(final DataElement<?> rOther)
 	{
 		return isEqual(getValue(), rOther.getValue());
-	}
-
-	/***************************************
-	 * Sets the modified state of this element.
-	 *
-	 * @param bModified The new modified state
-	 */
-	protected void setModified(boolean bModified)
-	{
-		this.bModified = bModified;
 	}
 
 	/***************************************
