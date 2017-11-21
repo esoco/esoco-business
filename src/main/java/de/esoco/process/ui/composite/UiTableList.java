@@ -888,6 +888,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 					// that will be used subsequently
 					fValueFormat =
 						v -> v != null ? rDateFormat.format(v) : null;
+
+					sValue = fValueFormat.apply(rValue);
 				}
 				else
 				{
