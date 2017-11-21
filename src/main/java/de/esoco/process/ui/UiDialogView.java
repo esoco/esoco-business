@@ -181,7 +181,6 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	 *
 	 * @return This instance
 	 */
-	@SuppressWarnings("unchecked")
 	public V setButtons(Button... rButtons)
 	{
 		return setButtons(Arrays.asList(rButtons));
