@@ -109,6 +109,22 @@ public class ProcessState extends ProcessDescription
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
+	 * Creates an instance for process interactions.
+	 *
+	 * @param rOther             The original process state
+	 * @param rInteractionParams The interaction parameters
+	 */
+	public ProcessState(
+		ProcessState		 rOther,
+		List<DataElement<?>> rInteractionParams)
+	{
+		super(rOther.getName(), null, rOther.getDescriptionId(), false);
+
+		this.nProcessId		    = rOther.nProcessId;
+		this.rInteractionParams = rInteractionParams;
+	}
+
+	/***************************************
 	 * Creates a new instance for a finished process without any further
 	 * interaction.
 	 *
