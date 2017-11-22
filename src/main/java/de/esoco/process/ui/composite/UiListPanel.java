@@ -28,6 +28,7 @@ import de.esoco.process.ui.layout.UiHeaderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.esoco.lib.property.StateProperties.ACTION_EVENT_ON_ACTIVATION_ONLY;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 
 
@@ -169,7 +170,9 @@ public class UiListPanel extends UiComposite<UiListPanel>
 
 			if (eExpandStyle != null)
 			{
-				aItemHeader = builder().addPanel(new UiHeaderLayout());
+				aItemHeader =
+					builder().addPanel(new UiHeaderLayout())
+							 .set(ACTION_EVENT_ON_ACTIVATION_ONLY);
 			}
 		}
 

@@ -25,6 +25,7 @@ import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
 
+import static de.esoco.lib.property.StateProperties.ACTION_EVENT_ON_ACTIVATION_ONLY;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 
 
@@ -183,7 +184,9 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	protected void createHeaderPanel(InteractionFragment rHeader)
 	{
-		rHeader.layout(LayoutType.HEADER).onAction(v -> handleItemSelection());
+		rHeader.layout(LayoutType.HEADER)
+			   .set(ACTION_EVENT_ON_ACTIVATION_ONLY)
+			   .onAction(v -> handleItemSelection());
 		rHeader.panel(p -> initHeaderPanel(p));
 	}
 
