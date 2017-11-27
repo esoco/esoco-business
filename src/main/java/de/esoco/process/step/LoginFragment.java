@@ -37,6 +37,7 @@ import static de.esoco.lib.property.StateProperties.FOCUSED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.CLIENT_INFO;
+import static de.esoco.process.ProcessRelationTypes.PROCESS_SESSION_EXPIRED;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 
 import static org.obrel.type.MetaTypes.AUTHENTICATED;
@@ -130,6 +131,8 @@ public class LoginFragment extends InteractionFragment
 	@SuppressWarnings("boxing")
 	public void prepareInteraction() throws Exception
 	{
+		aErrorMessage.hide();
+
 		if (nErrorWaitTime > 0)
 		{
 			int nWaitSeconds =
@@ -139,20 +142,26 @@ public class LoginFragment extends InteractionFragment
 			{
 				if (hasFlag(AUTO_UPDATE))
 				{
-					aErrorMessage.hide();
 					set(AUTO_UPDATE, false);
 					fragmentParam().enableEdit(true);
 				}
 			}
 			else
 			{
-				aErrorMessage.value(createErrorWaitMessage(nErrorWaitTime -
+				aErrorMessage.show()
+							 .value(createErrorWaitMessage(nErrorWaitTime -
 														   nWaitSeconds));
 				Thread.sleep(1000);
 			}
 		}
 		else
 		{
+			if (hasFlagParameter(PROCESS_SESSION_EXPIRED))
+			{
+				deleteParameters(PROCESS_SESSION_EXPIRED);
+				aErrorMessage.show().value("$msgProcessSessionExpired");
+			}
+
 			fragmentParam().enableEdit(true);
 		}
 	}
@@ -162,7 +171,7 @@ public class LoginFragment extends InteractionFragment
 	 */
 	protected void addErrorLabel()
 	{
-		aErrorMessage = label("").style("AuthenticationError").hide();
+		aErrorMessage = label("").style("ErrorMessage").hide();
 	}
 
 	/***************************************
@@ -333,9 +342,8 @@ public class LoginFragment extends InteractionFragment
 
 				fragmentParam().enableEdit(false);
 				set(ProcessRelationTypes.AUTO_UPDATE);
+				aErrorMessage.show().value(sMessage);
 			}
-
-			aErrorMessage.show().value(sMessage);
 		}
 	}
 }

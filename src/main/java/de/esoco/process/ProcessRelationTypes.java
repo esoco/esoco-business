@@ -50,7 +50,6 @@ import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityRelationTypes.newEntityAttribute;
 
-import static org.obrel.core.RelationTypes.newFlagType;
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newListType;
@@ -259,20 +258,12 @@ public class ProcessRelationTypes
 		newType();
 
 	/**
-	 * If this flag is set on a process it should not be executed again if an
-	 * error (i.e. an exception) occurred. This is mainly intended to be used on
-	 * automatically executed background processes.
-	 */
-	public static final RelationType<Boolean> STOP_PROCESS_ON_ERROR =
-		newFlagType();
-
-	/**
 	 * If this flag is set on a process it should gracefully end its execution
 	 * as soon as possible. This flag should be queried and responded to in
 	 * reasonable intervals.
 	 */
 	public static final RelationType<Boolean> STOP_PROCESS_EXECUTION =
-		newFlagType();
+		newType();
 
 	/**
 	 * Signals that a process should automatically continue to run after a
@@ -282,7 +273,7 @@ public class ProcessRelationTypes
 	 * progress of an operation. The re-execution of the process must be handled
 	 * by the code which handles the interaction.
 	 */
-	public static final RelationType<Boolean> AUTO_CONTINUE = newFlagType();
+	public static final RelationType<Boolean> AUTO_CONTINUE = newType();
 
 	/**
 	 * Similar to {@link #AUTO_CONTINUE} but stays in the same interaction when
@@ -294,22 +285,21 @@ public class ProcessRelationTypes
 	 * take appropriate measures to reduce the processing load on the client and
 	 * server (e.g. by invoking {@link Thread#sleep(long)} between invocations.
 	 */
-	public static final RelationType<Boolean> AUTO_UPDATE = newFlagType();
+	public static final RelationType<Boolean> AUTO_UPDATE = newType();
 
 	/**
 	 * A flag to indicate that a certain process step is the final interactive
 	 * step. This can be evaluated by the user interface code to show a hint
 	 * that the process will be finished afterwards.
 	 */
-	public static final RelationType<Boolean> FINAL_STEP = newFlagType();
+	public static final RelationType<Boolean> FINAL_STEP = newType();
 
 	/**
-	 * A flag to indicate that a certain interactive process step performs some
-	 * kind of detail handling in the enclosing context. This can be evaluated
-	 * by the user interface code to show a hint that the process will return to
-	 * the main branch when the interaction ends.
+	 * If the process is associated with a session (e.g. in an application
+	 * server) this flag can be used to indicate if a session has expired.
 	 */
-	public static final RelationType<Boolean> DETAIL_STEP = newFlagType();
+	public static final RelationType<Boolean> PROCESS_SESSION_EXPIRED =
+		newType();
 
 	/**
 	 * A flag that can be set to mark a process step that has one or more
@@ -317,8 +307,7 @@ public class ProcessRelationTypes
 	 * process. This can be used by the user interface as a hint that no extra
 	 * execution control ('next button') needs to be displayed.
 	 */
-	public static final RelationType<Boolean> IMMEDIATE_INTERACTION =
-		newFlagType();
+	public static final RelationType<Boolean> IMMEDIATE_INTERACTION = newType();
 
 	/**
 	 * This relation type serves as an indicator that the current step should be
@@ -326,8 +315,7 @@ public class ProcessRelationTypes
 	 * be set as a parameter but should instead only be set in the relation with
 	 * the type {@link #INTERACTIVE_INPUT_PARAM}.
 	 */
-	public static final RelationType<Boolean> RELOAD_CURRENT_STEP =
-		newFlagType();
+	public static final RelationType<Boolean> RELOAD_CURRENT_STEP = newType();
 
 	/**
 	 * Indicates that the process step on which this flag is set should be the
@@ -337,7 +325,7 @@ public class ProcessRelationTypes
 	 * single flag {@link MetaTypes#TRANSACTIONAL} which should therefore be
 	 * preferred.
 	 */
-	public static final RelationType<Boolean> TRANSACTION_START = newFlagType();
+	public static final RelationType<Boolean> TRANSACTION_START = newType();
 
 	/**
 	 * Indicates that the process step on which this flag is set should be the
@@ -346,7 +334,7 @@ public class ProcessRelationTypes
 	 * committed. If the numbers of start and end points of transactions don't
 	 * match an exception will occur.
 	 */
-	public static final RelationType<Boolean> TRANSACTION_END = newFlagType();
+	public static final RelationType<Boolean> TRANSACTION_END = newType();
 
 	/**
 	 * Indicates that the process step on which this flag is set should be the
@@ -360,7 +348,7 @@ public class ProcessRelationTypes
 	 * transactional code of the process steps in a transaction. It would be
 	 * redundant to set these flags too and it should therefore be avoided.</p>
 	 */
-	public static final RelationType<Boolean> HISTORY_START = newFlagType();
+	public static final RelationType<Boolean> HISTORY_START = newType();
 
 	/**
 	 * Indicates that the process step on which this flag is set should be the
@@ -369,7 +357,7 @@ public class ProcessRelationTypes
 	 * numbers of start and end points of history groups don't match an
 	 * exception will occur.
 	 */
-	public static final RelationType<Boolean> HISTORY_END = newFlagType();
+	public static final RelationType<Boolean> HISTORY_END = newType();
 
 	/**
 	 * A reference to another parameter that contains the target entity for a

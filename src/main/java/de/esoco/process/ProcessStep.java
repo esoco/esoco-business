@@ -41,6 +41,7 @@ import static de.esoco.process.ProcessRelationTypes.HISTORY_START;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.STOP_PROCESS_EXECUTION;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_END;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_START;
 
@@ -220,7 +221,7 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	protected boolean checkStopProcessExecution()
 	{
-		return Boolean.TRUE.equals(getParameter(ProcessRelationTypes.STOP_PROCESS_EXECUTION));
+		return hasFlagParameter(STOP_PROCESS_EXECUTION);
 	}
 
 	/***************************************

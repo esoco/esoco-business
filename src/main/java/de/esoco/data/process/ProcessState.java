@@ -60,8 +60,6 @@ public class ProcessState extends ProcessDescription
 	 *     automatic re-execution of the process.</li>
 	 *   <li>{@link #FINAL_STEP}: The step is the last interaction and the
 	 *     process will be finished after the next re-execution.</li>
-	 *   <li>{@link #DETAIL_STEP}: The step performs detail handling in an
-	 *     enclosing context which may be visualized by a client.</li>
 	 *   <li>{@link #HAS_IMMEDIATE_INTERACTION}: The step contains parameters
 	 *     that will cause an immediate re-execution of the process. This can be
 	 *     used as a hint to the user interface that no separate execution
@@ -70,8 +68,7 @@ public class ProcessState extends ProcessDescription
 	 */
 	public static enum ProcessStateFlag
 	{
-		ROLLBACK, AUTO_CONTINUE, FINAL_STEP, DETAIL_STEP,
-		HAS_IMMEDIATE_INTERACTION
+		ROLLBACK, AUTO_CONTINUE, FINAL_STEP, HAS_IMMEDIATE_INTERACTION
 	}
 
 	//~ Static fields/initializers ---------------------------------------------
@@ -323,17 +320,6 @@ public class ProcessState extends ProcessDescription
 	public final boolean isAutoContinue()
 	{
 		return rCurrentStepFlags.contains(ProcessStateFlag.AUTO_CONTINUE);
-	}
-
-	/***************************************
-	 * Returns TRUE if the current step performs some kind of detail handling in
-	 * an enclosing context.
-	 *
-	 * @return TRUE if the current step performs detail handling
-	 */
-	public final boolean isDetailStep()
-	{
-		return rCurrentStepFlags.contains(ProcessStateFlag.DETAIL_STEP);
 	}
 
 	/***************************************
