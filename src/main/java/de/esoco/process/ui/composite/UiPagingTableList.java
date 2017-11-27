@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.Alignment;
 
 import de.esoco.process.ui.UiContainer;
@@ -83,6 +84,19 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	public String getEmptyPagelLabel()
 	{
 		return sEmptyPageLabel;
+	}
+
+	/***************************************
+	 * Overridden to reset the navigation start position to zero.
+	 *
+	 * @see UiTableList#setData(DataProvider)
+	 */
+	@Override
+	public void setData(DataProvider<T> rRowDataProvider)
+	{
+		aNavigation.setPageStart(0);
+
+		super.setData(rRowDataProvider);
 	}
 
 	/***************************************
