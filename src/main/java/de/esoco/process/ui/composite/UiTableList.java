@@ -469,19 +469,19 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	void handleRowSelection(Row rRow, boolean bFireEvent)
 	{
-		boolean bHasSelection = !rRow.isSelected();
+		if (rSelectedRow != rRow)
+		{
+			if (rSelectedRow != null)
+			{
+				rSelectedRow.setSelected(false);
+			}
+		}
+
+		rSelectedRow = rRow;
 
 		if (rSelectedRow != null)
 		{
-			rSelectedRow.setSelected(false);
-			rSelectedRow = null;
-		}
-
-		rRow.setSelected(bHasSelection);
-
-		if (bHasSelection)
-		{
-			rSelectedRow = rRow;
+			rSelectedRow.setSelected(true);
 			rSelectedRow.updateExpandedContent();
 		}
 
