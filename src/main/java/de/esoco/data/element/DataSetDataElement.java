@@ -141,12 +141,31 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataSetDataElement copy(CopyMode eMode)
+	{
+		return (DataSetDataElement) super.copy(eMode);
+	}
+
+	/***************************************
 	 * @see DataElement#getValue()
 	 */
 	@Override
 	public DataSet<?> getValue()
 	{
 		return rDataSet;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected DataSetDataElement newInstance()
+	{
+		return new DataSetDataElement();
 	}
 
 	/***************************************

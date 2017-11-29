@@ -221,23 +221,21 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	}
 
 	/***************************************
+	 * Returns the list of values of this data element. Must be implemented by
+	 * subclasses to return the type-specific value list.
+	 *
+	 * @return The list of values for this instance (must not be NULL)
+	 */
+	protected abstract List<E> getList();
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void trim()
+	protected void copyValue(DataElement<E> aCopy)
 	{
-		if (!isModified())
-		{
-			getList().clear();
-		}
+		((ListDataElement<E>) aCopy).getList().addAll(getList());
 	}
-
-	/***************************************
-	 * Must be implemented by subclasses to return the type-specific value list.
-	 *
-	 * @return The list of values for this instance
-	 */
-	protected abstract List<E> getList();
 
 	/***************************************
 	 * @see DataElement#getValueHashCode()

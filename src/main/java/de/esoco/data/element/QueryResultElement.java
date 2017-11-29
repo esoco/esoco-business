@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -66,9 +67,19 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	 */
 	QueryResultElement()
 	{
+		rRows = new ArrayList<>();
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public QueryResultElement<T> copy(CopyMode eMode)
+	{
+		return (QueryResultElement<T>) super.copy(eMode);
+	}
 
 	/***************************************
 	 * Returns the full query size for the query represented by this result.
@@ -89,5 +100,15 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	protected List<T> getList()
 	{
 		return rRows;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected QueryResultElement<T> newInstance()
+	{
+		return new QueryResultElement<>();
 	}
 }

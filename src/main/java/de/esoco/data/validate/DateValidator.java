@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.validate;
 
-import de.esoco.data.element.DataElement;
-
 import java.util.Date;
+import java.util.Objects;
 
 
 /********************************************************************
@@ -80,8 +79,8 @@ public class DateValidator implements Validator<Date>
 
 		DateValidator rOther = (DateValidator) rObj;
 
-		return DataElement.isEqual(rStartDate, rOther.rStartDate) &&
-			   DataElement.isEqual(rEndDate, rOther.rEndDate);
+		return Objects.equals(rStartDate, rOther.rStartDate) &&
+			   Objects.equals(rEndDate, rOther.rEndDate);
 	}
 
 	/***************************************

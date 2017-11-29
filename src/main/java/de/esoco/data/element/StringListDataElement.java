@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -82,11 +82,30 @@ public class StringListDataElement extends ListDataElement<String>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public StringListDataElement copy(CopyMode eMode)
+	{
+		return (StringListDataElement) super.copy(eMode);
+	}
+
+	/***************************************
 	 * @see ListDataElement#getList()
 	 */
 	@Override
 	public final List<String> getList()
 	{
 		return rValues;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected StringListDataElement newInstance()
+	{
+		return new StringListDataElement();
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,16 @@ public class IntegerDataElement extends DataElement<Integer>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * @see DataElement#getValue()
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IntegerDataElement copy(CopyMode eMode)
+	{
+		return (IntegerDataElement) super.copy(eMode);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
 	 */
 	@Override
 	public final Integer getValue()
@@ -102,7 +111,7 @@ public class IntegerDataElement extends DataElement<Integer>
 	}
 
 	/***************************************
-	 * @see DataElement#setStringValue(String)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void setStringValue(String sValue)
@@ -118,7 +127,17 @@ public class IntegerDataElement extends DataElement<Integer>
 	}
 
 	/***************************************
-	 * @see DataElement#updateValue(Object)
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected IntegerDataElement newInstance()
+	{
+		return new IntegerDataElement();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected void updateValue(Integer rNewValue)

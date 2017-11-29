@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -110,7 +110,16 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * @see DataElement#getValue()
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BigDecimalDataElement copy(CopyMode eMode)
+	{
+		return (BigDecimalDataElement) super.copy(eMode);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
 	 */
 	@Override
 	public final BigDecimal getValue()
@@ -119,7 +128,7 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	}
 
 	/***************************************
-	 * @see DataElement#setStringValue(String)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void setStringValue(String sValue)
@@ -128,7 +137,17 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	}
 
 	/***************************************
-	 * @see DataElement#updateValue(Object)
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected BigDecimalDataElement newInstance()
+	{
+		return new BigDecimalDataElement();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected void updateValue(BigDecimal rNewValue)

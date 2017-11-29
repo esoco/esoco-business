@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,6 +90,15 @@ public class StringMapDataElement extends MapDataElement<String, String>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public StringMapDataElement copy(CopyMode eMode)
+	{
+		return (StringMapDataElement) super.copy(eMode);
+	}
+
+	/***************************************
 	 * Returns the internal map of this data element.
 	 *
 	 * @see MapDataElement#getMap()
@@ -98,5 +107,15 @@ public class StringMapDataElement extends MapDataElement<String, String>
 	public Map<String, String> getMap()
 	{
 		return aDataMap;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected StringMapDataElement newInstance()
+	{
+		return new StringMapDataElement();
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,6 +60,15 @@ public class BooleanDataElement extends DataElement<Boolean>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BooleanDataElement copy(CopyMode eMode)
+	{
+		return (BooleanDataElement) super.copy(eMode);
+	}
+
+	/***************************************
 	 * @see DataElement#getValue()
 	 */
 	@Override
@@ -77,6 +86,16 @@ public class BooleanDataElement extends DataElement<Boolean>
 	public void setStringValue(String sValue)
 	{
 		setValue(Boolean.valueOf(sValue));
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected BooleanDataElement newInstance()
+	{
+		return new BooleanDataElement();
 	}
 
 	/***************************************

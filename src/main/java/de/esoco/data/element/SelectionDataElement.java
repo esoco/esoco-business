@@ -108,13 +108,4 @@ public class SelectionDataElement extends StringDataElement
 	{
 		return !NO_SELECTION.equals(getValue());
 	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void trim()
-	{
-		// do not trim SelectionDataElement
-	}
 }

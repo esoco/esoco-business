@@ -18,6 +18,7 @@ package de.esoco.data.element;
 
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.StandardProperties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,7 +104,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private List<DateDataElement> aDataElements;
+	private List<DateDataElement> aDataElements = new ArrayList<>();
 
 	private InteractionType eInteractionType;
 	private HasProperties   rSelection;
@@ -123,7 +124,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	{
 		super(sName, null, null);
 
-		aDataElements = new ArrayList<>(rElements);
+		aDataElements.addAll(rElements);
 	}
 
 	/***************************************
@@ -144,6 +145,15 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DateListDataElement copy(CopyMode eMode)
+	{
+		return (DateListDataElement) super.copy(eMode);
+	}
 
 	/***************************************
 	 * Returns the properties containing the data resulting from an interaction.
@@ -223,5 +233,15 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	protected List<DateDataElement> getList()
 	{
 		return aDataElements;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected DateListDataElement newInstance()
+	{
+		return new DateListDataElement();
 	}
 }

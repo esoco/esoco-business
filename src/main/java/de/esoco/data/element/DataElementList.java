@@ -228,6 +228,15 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataElementList copy(CopyMode eMode)
+	{
+		return (DataElementList) super.copy(eMode);
+	}
+
+	/***************************************
 	 * Searches for a child data element in the full hierarchy of this instance
 	 * and returns it if found. Invokes {@link #findDataElement(String,
 	 * Collection)} to perform the search.
@@ -552,18 +561,6 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void trim()
-	{
-		for (DataElement<?> rDataElement : aDataElements)
-		{
-			rDataElement.trim();
-		}
-	}
-
-	/***************************************
 	 * Can be overridden by subclasses to return a resource id prefix for child
 	 * elements. This default implementation returns an empty string.
 	 *
@@ -581,6 +578,16 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	protected List<DataElement<?>> getList()
 	{
 		return aDataElements;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected DataElementList newInstance()
+	{
+		return new DataElementList();
 	}
 
 	/***************************************

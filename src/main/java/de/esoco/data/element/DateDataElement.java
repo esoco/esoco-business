@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,6 +113,15 @@ public class DateDataElement extends DataElement<Date>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DateDataElement copy(CopyMode eMode)
+	{
+		return (DateDataElement) super.copy(eMode);
+	}
+
+	/***************************************
 	 * Returns the date value.
 	 *
 	 * @see DataElement#getValue()
@@ -121,6 +130,16 @@ public class DateDataElement extends DataElement<Date>
 	public final Date getValue()
 	{
 		return rValue;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected DateDataElement newInstance()
+	{
+		return new DateDataElement();
 	}
 
 	/***************************************

@@ -25,6 +25,7 @@ import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
@@ -46,7 +47,13 @@ public abstract class DataElement<T> extends StringProperties
 	/********************************************************************
 	 * Flags that can be set on a data element.
 	 */
-	public enum Flag { IMMUTABLE, OPTIONAL }
+	public enum Flag { IMMUTABLE, OPTIONAL, SELECTED, MODIFIED }
+
+	/********************************************************************
+	 * The modes for copying data elements with {@link
+	 * DataElement#copy(CopyMode)}.
+	 */
+	public enum CopyMode { FULL, PROPERTIES, PLACEHOLDER }
 
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -91,8 +98,9 @@ public abstract class DataElement<T> extends StringProperties
 
 	private String				 sName;
 	private Validator<? super T> rValidator;
-	private DataElementList		 rParent     = null;
-	private String				 sResourceId = null;
+
+	private DataElementList rParent     = null;
+	private String		    sResourceId = null;
 
 	private boolean bImmutable = false;
 	private boolean bOptional  = false;
@@ -193,32 +201,66 @@ public abstract class DataElement<T> extends StringProperties
 	{
 	}
 
-	/***************************************
-	 * Helper method to compare two object references for equality. Any of the
-	 * references can be NULL.
-	 *
-	 * @param  rFirst  The first object reference
-	 * @param  rSecond The second object reference
-	 *
-	 * @return TRUE if both object references are equal
-	 */
-	public static boolean isEqual(Object rFirst, Object rSecond)
-	{
-		return (rFirst == null ? rSecond == null : rFirst.equals(rSecond));
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the value of this element. Each subclass must implement this
-	 * method separately because some environments (like GWT) require
-	 * serializable objects to use specific types for serializable fields.
-	 * Therefore it is not possible to store a generic Object value in the base
-	 * class.
+	 * //~ Methods
+	 * ----------------------------------------------------------------
+	 * /*************************************** Returns the value of this
+	 * element. Each subclass must implement this method separately because some
+	 * environments (like GWT) require serializable objects to use specific
+	 * types for serializable fields. Therefore it is not possible to store a
+	 * generic Object value in the base class.
 	 *
 	 * @return The element value
 	 */
 	public abstract T getValue();
+
+	/***************************************
+	 * Returns a copy of this data element that contains all or a subset of it's
+	 * current state. Always copied are the name and {@link Flag flags}. Never
+	 * copied is the parent reference because upon copying typically a reference
+	 * to a copied parent needs to be set. What else the copy contains depends
+	 * on the copy mode:
+	 *
+	 * <ul>
+	 *   <li>{@link CopyMode#FULL}: The copy contains all data (except the
+	 *     parent reference)</li>
+	 *   <li>{@link CopyMode#PROPERTIES}: The copy contains only the properties
+	 *     but not the element value</li>
+	 *   <li>{@link CopyMode#PLACEHOLDER}: The copy contains only the element
+	 *     name to serve as a placeholder</li>
+	 * </ul>
+	 *
+	 * <p>The copy instance is created by invoking {@link #newInstance()} which
+	 * has the recommendation to overwrite the return type to the concrete
+	 * subtype to prevent the need for casting by the invoking code. For the
+	 * same reason it is recommended that subclasses also override this method
+	 * with the concrete return type and cast the result of <code>
+	 * super.copy()</code> to that type.</p>
+	 *
+	 * @param  eMode The copy mode
+	 *
+	 * @return The copied instance
+	 */
+	public DataElement<T> copy(CopyMode eMode)
+	{
+		DataElement<T> aCopy = newInstance();
+
+		copyAttributes(aCopy, eMode);
+
+		if (eMode == CopyMode.FULL)
+		{
+			copyValue(aCopy);
+		}
+
+		if (eMode != CopyMode.PLACEHOLDER)
+		{
+			aCopy.internalSetProperties(this, true);
+		}
+
+		return aCopy;
+	}
 
 	/***************************************
 	 * @see Object#equals(Object)
@@ -238,13 +280,13 @@ public abstract class DataElement<T> extends StringProperties
 
 		DataElement<?> rOther = (DataElement<?>) rObj;
 
-		return isEqual(sName, rOther.sName) && isValueEqual(rOther) &&
+		return Objects.equals(sName, rOther.sName) && isValueEqual(rOther) &&
 			   bImmutable == rOther.bImmutable &&
 			   bModified == rOther.bModified && bOptional == rOther.bOptional &&
 			   bSelected == rOther.bSelected &&
-			   isEqual(sResourceId, rOther.sResourceId) &&
-			   isEqual(rValidator, rOther.rValidator) &&
-			   isEqual(rParent, rOther.rParent);
+			   Objects.equals(sResourceId, rOther.sResourceId) &&
+			   Objects.equals(rValidator, rOther.rValidator) &&
+			   Objects.equals(rParent, rOther.rParent);
 	}
 
 	/***************************************
@@ -471,7 +513,7 @@ public abstract class DataElement<T> extends StringProperties
 	@Override
 	public void setProperties(HasProperties rOther, boolean bReplace)
 	{
-		super.setProperties(rOther, bReplace);
+		internalSetProperties(rOther, bReplace);
 		setModified(true);
 	}
 
@@ -484,8 +526,11 @@ public abstract class DataElement<T> extends StringProperties
 	@Override
 	public <P> void setProperty(PropertyName<P> rName, P rValue)
 	{
-		super.setProperty(rName, rValue);
-		setModified(true);
+		if (!Objects.equals(getProperty(rName, null), rValue))
+		{
+			super.setProperty(rName, rValue);
+			setModified(true);
+		}
 	}
 
 	/***************************************
@@ -537,7 +582,7 @@ public abstract class DataElement<T> extends StringProperties
 		checkImmutable();
 		checkValidValue(rValue);
 
-		if (!isEqual(getValue(), rValue))
+		if (!Objects.equals(getValue(), rValue))
 		{
 			updateValue(rValue);
 			setModified(true);
@@ -556,19 +601,15 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Trims this data element for minimal (serialization) size. Afterwards the
-	 * attributes of this data element should no longer be accessed.
+	 * Returns a new instance of the respective data element sub-type on which
+	 * it is invoked. This is needed for GWT which doesn't support reflection.
+	 * Used by {@link #copy()} for cloning an instance. Implementations should
+	 * overwrite the return type with their concrete type to prevent the need
+	 * for casting by the invoking code.
+	 *
+	 * @return The new instance
 	 */
-	public void trim()
-	{
-		if (!bModified)
-		{
-			updateValue(null);
-			setValidator(null);
-			clearProperties();
-			sResourceId = null;
-		}
-	}
+	protected abstract DataElement<T> newInstance();
 
 	/***************************************
 	 * Updates the element value. Will be invoked by {@link #setValue(Object)}
@@ -618,6 +659,55 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * Copies the attributes of this instance into another data element of the
+	 * same type. Subclasses that have additional attributes beside their value
+	 * should override this method to copy their attributes after invoking
+	 * super.
+	 *
+	 * @param rTarget   The target to copy the attributes to
+	 * @param eCopyMode The copy mode
+	 */
+	protected void copyAttributes(DataElement<T> rTarget, CopyMode eCopyMode)
+	{
+		rTarget.sName = sName;
+
+		if (eCopyMode == CopyMode.PLACEHOLDER)
+		{
+			// make sure that a placeholder cannot be modified
+			rTarget.bImmutable = false;
+		}
+		else
+		{
+			rTarget.bImmutable = bImmutable;
+			rTarget.bOptional  = bOptional;
+			rTarget.bSelected  = bSelected;
+			rTarget.bModified  = bModified;
+		}
+
+		if (eCopyMode == CopyMode.FULL)
+		{
+			rTarget.rValidator  = rValidator;
+			rTarget.sResourceId = sResourceId;
+		}
+	}
+
+	/***************************************
+	 * Copies the value of this data element into another data element of the
+	 * same type. This is used by the {@link #copy()} method and by default uses
+	 * {@link #updateValue(Object)} to set the value in the target element.
+	 * Subclasses that don't support updating the value (e.g. because they
+	 * manage a collection) need to override this method and implement the
+	 * copying as needed. They can assume that the target object is of exactly
+	 * the same type as their own.
+	 *
+	 * @param aCopy The copied data element to copy the value into
+	 */
+	protected void copyValue(DataElement<T> aCopy)
+	{
+		aCopy.updateValue(getValue());
+	}
+
+	/***************************************
 	 * Creates a resource ID from this data element. This ID will only be
 	 * created once and is then cached in a transient instance field. See the
 	 * method {@link #getResourceId()} for details.
@@ -654,6 +744,18 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * An internal method to set multiple properties without marking this
+	 * instance as modified.
+	 *
+	 * @param rOther   The properties to set
+	 * @param bReplace TRUE to replace existing properties, FALSE to keep them
+	 */
+	protected void internalSetProperties(HasProperties rOther, boolean bReplace)
+	{
+		super.setProperties(rOther, bReplace);
+	}
+
+	/***************************************
 	 * Checks whether this element's value is equal to that of another element.
 	 * Can be overridden by subclasses that have a non-standard internal
 	 * structure.
@@ -665,7 +767,7 @@ public abstract class DataElement<T> extends StringProperties
 	 */
 	protected boolean isValueEqual(final DataElement<?> rOther)
 	{
-		return isEqual(getValue(), rOther.getValue());
+		return Objects.equals(getValue(), rOther.getValue());
 	}
 
 	/***************************************

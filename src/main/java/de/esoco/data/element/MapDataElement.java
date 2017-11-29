@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -235,6 +235,16 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	 * @return The internal map
 	 */
 	protected abstract Map<K, V> getMap();
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected void copyValue(DataElement<V> aCopy)
+	{
+		((MapDataElement<K, V>) aCopy).getMap().putAll(getMap());
+	}
 
 	/***************************************
 	 * @see DataElement#isValueEqual(DataElement)

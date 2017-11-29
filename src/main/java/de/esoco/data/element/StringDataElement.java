@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
+
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.UserInterfaceProperties;
 
@@ -25,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static de.esoco.lib.property.UserInterfaceProperties.LIST_STYLE;
+import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 
 /********************************************************************
@@ -141,6 +142,15 @@ public class StringDataElement extends DataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
+	public StringDataElement copy(CopyMode eMode)
+	{
+		return (StringDataElement) super.copy(eMode);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	public final String getValue()
 	{
 		return sValue;
@@ -167,6 +177,16 @@ public class StringDataElement extends DataElement<String>
 	public void setStringValue(String sValue)
 	{
 		setValue(sValue);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected StringDataElement newInstance()
+	{
+		return new StringDataElement();
 	}
 
 	/***************************************
