@@ -433,7 +433,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				aRows.add(aRow);
 				aRow.setIndex(nRowIndex);
 				aRow.initExpandedContent(aRow.rRowItem.builder()
-										 .addPanel(new UiFlowLayout())
+										 .addPanel(aRow.getContentLayout())
 										 .builder());
 			}
 
@@ -469,19 +469,19 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	void handleRowSelection(Row rRow, boolean bFireEvent)
 	{
-		boolean bHasSelection = !rRow.isSelected();
+		if (rSelectedRow != rRow)
+		{
+			if (rSelectedRow != null)
+			{
+				rSelectedRow.setSelected(false);
+			}
+		}
+
+		rSelectedRow = rRow;
 
 		if (rSelectedRow != null)
 		{
-			rSelectedRow.setSelected(false);
-			rSelectedRow = null;
-		}
-
-		rRow.setSelected(bHasSelection);
-
-		if (bHasSelection)
-		{
-			rSelectedRow = rRow;
+			rSelectedRow.setSelected(true);
 			rSelectedRow.updateExpandedContent();
 		}
 
@@ -1270,6 +1270,19 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			return UiTableList.this.getComponentStyleName() +
 				   super.getComponentStyleName();
+		}
+
+		/***************************************
+		 * Can be overridden to return a specific layout instance for the row
+		 * content. Will be invoked before the row content is initialized. The
+		 * default implementation returns a new instance of {@link
+		 * UiFlowLayout}.
+		 *
+		 * @return
+		 */
+		protected UiLayout getContentLayout()
+		{
+			return new UiFlowLayout();
 		}
 
 		/***************************************
