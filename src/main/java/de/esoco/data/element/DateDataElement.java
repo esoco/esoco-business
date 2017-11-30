@@ -136,7 +136,6 @@ public class DateDataElement extends DataElement<Date>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected DateDataElement newInstance()
 	{
 		return new DateDataElement();

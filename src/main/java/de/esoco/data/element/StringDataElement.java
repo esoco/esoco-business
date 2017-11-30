@@ -183,7 +183,6 @@ public class StringDataElement extends DataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected StringDataElement newInstance()
 	{
 		return new StringDataElement();

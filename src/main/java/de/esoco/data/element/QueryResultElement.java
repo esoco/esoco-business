@@ -106,7 +106,6 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected QueryResultElement<T> newInstance()
 	{
 		return new QueryResultElement<>();

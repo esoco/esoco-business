@@ -491,13 +491,13 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * Overridden to also mark the child hierarchy as modified.
 	 */
 	@Override
-	public void markAsChanged()
+	public void markAsValueChanged()
 	{
-		super.markAsChanged();
+		super.markAsValueChanged();
 
 		for (DataElement<?> rChildElement : aDataElements)
 		{
-			rChildElement.markAsChanged();
+			rChildElement.markAsValueChanged();
 		}
 	}
 
@@ -584,7 +584,6 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected DataElementList newInstance()
 	{
 		return new DataElementList();

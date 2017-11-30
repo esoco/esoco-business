@@ -103,7 +103,6 @@ public class StringListDataElement extends ListDataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected StringListDataElement newInstance()
 	{
 		return new StringListDataElement();

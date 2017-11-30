@@ -113,7 +113,6 @@ public class StringMapDataElement extends MapDataElement<String, String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected StringMapDataElement newInstance()
 	{
 		return new StringMapDataElement();

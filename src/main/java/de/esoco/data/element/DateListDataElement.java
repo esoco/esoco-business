@@ -239,7 +239,6 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected DateListDataElement newInstance()
 	{
 		return new DateListDataElement();

@@ -130,7 +130,6 @@ public class IntegerDataElement extends DataElement<Integer>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected IntegerDataElement newInstance()
 	{
 		return new IntegerDataElement();

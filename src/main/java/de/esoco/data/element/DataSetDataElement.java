@@ -162,7 +162,6 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected DataSetDataElement newInstance()
 	{
 		return new DataSetDataElement();

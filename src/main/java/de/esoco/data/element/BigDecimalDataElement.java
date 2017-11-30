@@ -140,7 +140,6 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected BigDecimalDataElement newInstance()
 	{
 		return new BigDecimalDataElement();

@@ -92,7 +92,6 @@ public class BooleanDataElement extends DataElement<Boolean>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected BooleanDataElement newInstance()
 	{
 		return new BooleanDataElement();

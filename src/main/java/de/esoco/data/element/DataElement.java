@@ -487,11 +487,27 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Marks this data element as modified.
+	 * Marks the data element value as changed.
 	 */
-	public void markAsChanged()
+	public void markAsValueChanged()
 	{
 		setFlag(UserInterfaceProperties.VALUE_CHANGED);
+
+		// setFlag will mark this instance as modified but only the value
+		// should be marked as changed
+		setModified(false);
+	}
+
+	/***************************************
+	 * Removes a property from this element.
+	 *
+	 * @param rName The property name
+	 */
+	@Override
+	public void removeProperty(PropertyName<?> rName)
+	{
+		super.removeProperty(rName);
+		setModified(true);
 	}
 
 	/***************************************

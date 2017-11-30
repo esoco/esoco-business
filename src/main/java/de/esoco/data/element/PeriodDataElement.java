@@ -145,7 +145,6 @@ public class PeriodDataElement extends DataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	protected PeriodDataElement newInstance()
 	{
 		return new PeriodDataElement();
