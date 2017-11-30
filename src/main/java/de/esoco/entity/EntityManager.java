@@ -176,6 +176,7 @@ public class EntityManager
 	private static String			  sEntitySyncClientId;
 	private static String			  sEntitySyncContext;
 	private static Optional<Endpoint> rEntitySyncEndpoint = Optional.empty();
+	private static boolean			  bSyncServiceEnabled = false;
 
 	private static final ThreadLocal<String> aEntityModificationContextId =
 		new ThreadLocal<>();
@@ -854,6 +855,20 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Returns the optional {@link Endpoint} of the remote entity sync service.
+	 * Such a service is available if it has previously been registered through
+	 * {@link #setEntitySyncService(String, String, Endpoint)}. Whether it is
+	 * actually used can be queried with {@link #isEntitySyncServiceEnabled()}
+	 * and controlled with {@link #setEntitySyncServiceEnabled(boolean)}.
+	 *
+	 * @return An optional containing the sync service endpoint if present
+	 */
+	public static final Optional<Endpoint> getEntitySyncEndpoint()
+	{
+		return rEntitySyncEndpoint;
+	}
+
+	/***************************************
 	 * Returns a global string identifier for a certain entity.
 	 *
 	 * @param  rEntity The entity to return the global ID for
@@ -1045,6 +1060,17 @@ public class EntityManager
 		Class<? extends Entity> rEntityClass)
 	{
 		return aDeleteEnabledEntities.contains(rEntityClass);
+	}
+
+	/***************************************
+	 * Checks whether usage of the remote sync service is enabled for entity
+	 * locking.
+	 *
+	 * @return TRUE if the entity sync service is enabled
+	 */
+	public static boolean isEntitySyncServiceEnabled()
+	{
+		return bSyncServiceEnabled;
 	}
 
 	/***************************************
@@ -1789,11 +1815,15 @@ public class EntityManager
 	/***************************************
 	 * Sets the endpoint of an entity sync service to be used for entity lock
 	 * synchronization. The context should be derived from the current
-	 * application's execution context, e.g. production, test, or development.
+	 * application's execution context, e.g. something like production, test, or
+	 * development. The usage of the service will be enabled by default which
+	 * can be queried with {@link #isEntitySyncServiceEnabled()} and controlled
+	 * with {@link #setEntitySyncServiceEnabled(boolean)}.
 	 *
 	 * @param sSyncClientId A unique identifier of the sync service client
 	 * @param sSyncContext  The application context to sync entities in
-	 * @param rSyncEndpoint The entity sync service endpoint
+	 * @param rSyncEndpoint The entity sync service endpoint (may be NULL to
+	 *                      deactivate)
 	 */
 	public static void setEntitySyncService(String   sSyncClientId,
 											String   sSyncContext,
@@ -1802,6 +1832,18 @@ public class EntityManager
 		sEntitySyncClientId = sSyncClientId;
 		sEntitySyncContext  = sSyncContext;
 		rEntitySyncEndpoint = Optional.ofNullable(rSyncEndpoint);
+		bSyncServiceEnabled = rEntitySyncEndpoint.isPresent();
+	}
+
+	/***************************************
+	 * Enables or disables the usage of the remote entity sync service for
+	 * entity locking.
+	 *
+	 * @param bEnabled TRUE to enabled usage of the entity sync service
+	 */
+	public static void setEntitySyncServiceEnabled(boolean bEnabled)
+	{
+		bSyncServiceEnabled = bEnabled;
 	}
 
 	/***************************************
@@ -2261,7 +2303,7 @@ public class EntityManager
 	 */
 	static void trySyncEndpointLock(Entity rEntity)
 	{
-		if (rEntitySyncEndpoint.isPresent())
+		if (bSyncServiceEnabled && rEntitySyncEndpoint.isPresent())
 		{
 			String sResponse = "";
 
@@ -2301,7 +2343,7 @@ public class EntityManager
 	 */
 	static void trySyncEndpointRelease(Entity rEntity)
 	{
-		if (rEntitySyncEndpoint.isPresent())
+		if (bSyncServiceEnabled && rEntitySyncEndpoint.isPresent())
 		{
 			try
 			{
