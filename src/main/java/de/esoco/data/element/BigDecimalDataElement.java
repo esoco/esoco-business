@@ -153,4 +153,13 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	{
 		aValue = rNewValue;
 	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean valuesEqual(BigDecimal a, BigDecimal b)
+	{
+		return a == b || (a != null && b != null && a.compareTo(b) == 0);
+	}
 }

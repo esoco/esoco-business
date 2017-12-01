@@ -589,18 +589,18 @@ public abstract class DataElement<T> extends StringProperties
 	 * Sets the value of this element. If this element is read only an exception
 	 * will be thrown. See the method {@link #isImmutable()} for details.
 	 *
-	 * @param  rValue The new element value
+	 * @param  rNewValue The new element value
 	 *
 	 * @throws UnsupportedOperationException If this element is read only
 	 */
-	public final void setValue(T rValue)
+	public final void setValue(T rNewValue)
 	{
 		checkImmutable();
-		checkValidValue(rValue);
+		checkValidValue(rNewValue);
 
-		if (!Objects.equals(getValue(), rValue))
+		if (!valuesEqual(getValue(), rNewValue))
 		{
-			updateValue(rValue);
+			updateValue(rNewValue);
 			setModified(true);
 		}
 	}
@@ -784,6 +784,21 @@ public abstract class DataElement<T> extends StringProperties
 	protected boolean isValueEqual(final DataElement<?> rOther)
 	{
 		return Objects.equals(getValue(), rOther.getValue());
+	}
+
+	/***************************************
+	 * Checks two values for equality. The default implementation invokes the
+	 * method {@link Object#equals(Object)} but subclasses can override this for
+	 * more specific comparisons (e.g. by using {@link Comparable}).
+	 *
+	 * @param  a The first value to compare (can be be NULL)
+	 * @param  b The second value to compare (can be be NULL)
+	 *
+	 * @return TRUE if the values are equal
+	 */
+	protected boolean valuesEqual(T a, T b)
+	{
+		return !Objects.equals(a, b);
 	}
 
 	/***************************************
