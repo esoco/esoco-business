@@ -18,7 +18,6 @@ package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
 
-import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -256,7 +255,7 @@ public abstract class DataElement<T> extends StringProperties
 
 		if (eMode != CopyMode.PLACEHOLDER)
 		{
-			aCopy.internalSetProperties(this, true);
+			aCopy.setProperties(this, true);
 		}
 
 		return aCopy;
@@ -506,8 +505,11 @@ public abstract class DataElement<T> extends StringProperties
 	@Override
 	public void removeProperty(PropertyName<?> rName)
 	{
-		super.removeProperty(rName);
-		setModified(true);
+		if (hasProperty(rName))
+		{
+			super.removeProperty(rName);
+			setModified(true);
+		}
 	}
 
 	/***************************************
@@ -521,30 +523,21 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Sets multiple properties of this data element.
+	 * Sets a certain property of this data element and mark it as modified if
+	 * the value has changed.
 	 *
-	 * @param rOther   The properties to set
-	 * @param bReplace TRUE to replace existing properties, FALSE to keep them
+	 * @param rName     The name of the property
+	 * @param rNewValue The property value
 	 */
 	@Override
-	public void setProperties(HasProperties rOther, boolean bReplace)
+	@SuppressWarnings("unchecked")
+	public <P> void setProperty(PropertyName<P> rName, P rNewValue)
 	{
-		internalSetProperties(rOther, bReplace);
-		setModified(true);
-	}
+		P rCurrentValue = getProperty(rName, null);
 
-	/***************************************
-	 * Sets a certain property of this data element.
-	 *
-	 * @param rName  The name of the property
-	 * @param rValue The property value
-	 */
-	@Override
-	public <P> void setProperty(PropertyName<P> rName, P rValue)
-	{
-		if (!Objects.equals(getProperty(rName, null), rValue))
+		if (!Objects.equals(rCurrentValue, rNewValue))
 		{
-			super.setProperty(rName, rValue);
+			super.setProperty(rName, rNewValue);
 			setModified(true);
 		}
 	}
@@ -760,18 +753,6 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * An internal method to set multiple properties without marking this
-	 * instance as modified.
-	 *
-	 * @param rOther   The properties to set
-	 * @param bReplace TRUE to replace existing properties, FALSE to keep them
-	 */
-	protected void internalSetProperties(HasProperties rOther, boolean bReplace)
-	{
-		super.setProperties(rOther, bReplace);
-	}
-
-	/***************************************
 	 * Checks whether this element's value is equal to that of another element.
 	 * Can be overridden by subclasses that have a non-standard internal
 	 * structure.
@@ -798,7 +779,7 @@ public abstract class DataElement<T> extends StringProperties
 	 */
 	protected boolean valuesEqual(T a, T b)
 	{
-		return !Objects.equals(a, b);
+		return Objects.equals(a, b);
 	}
 
 	/***************************************
