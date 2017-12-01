@@ -25,6 +25,7 @@ import de.esoco.lib.property.HasAttributeSorting;
 import de.esoco.lib.property.HasAttributeSorting.SortDirection;
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.RelativeSize;
+import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
 
@@ -64,6 +65,7 @@ import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
 
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 
@@ -545,7 +547,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				datatype(((RelationType<V>) fGetColumnData).getValueType());
 			}
 
-			aColumnTitle = new UiLink(this, deriveColumnTitle(fGetColumnData));
+			aColumnTitle = new UiLink(this, "");
 			aColumnTitle.onClick(v -> handleColumnSelection());
 		}
 
@@ -842,6 +844,18 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected void applyProperties()
+		{
+			super.applyProperties();
+
+			set(StyleProperties.HIDE_LABEL);
+			applyColumnTitle();
+		}
+
+		/***************************************
 		 * Will be notified when the table data is available.
 		 *
 		 * @param rDataProvider The table data provider
@@ -1073,36 +1087,43 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		}
 
 		/***************************************
-		 * Tries to derive a column title from a data access function.
-		 *
-		 * @param  fGetColumnData The data access function
-		 *
-		 * @return The column title
+		 * Creates the title string of this column by trying to derive it from
+		 * the resource ID or, if not availabe, the data access function.
 		 */
-		private String deriveColumnTitle(Function<? super T, ?> fGetColumnData)
+		private void applyColumnTitle()
 		{
-			String sTitle = null;
+			String sTitle = aColumnTitle.getText();
 
-			if (fGetColumnData instanceof RelationType)
+			if (sTitle == null || sTitle.isEmpty())
 			{
-				String sPrefix =
-					sColumnPrefix != null ? sColumnPrefix
-										  : ColumnDefinition.STD_COLUMN_PREFIX;
+				sTitle = get(RESOURCE_ID);
 
-				sTitle = ((RelationType<?>) fGetColumnData).getSimpleName();
-				sTitle = sPrefix + TextConvert.capitalizedIdentifier(sTitle);
-			}
-			else if (fGetColumnData instanceof Relatable)
-			{
-				sTitle = ((Relatable) fGetColumnData).get(StandardTypes.NAME);
-			}
+				if (sTitle != null)
+				{
+					sTitle = ColumnDefinition.STD_COLUMN_PREFIX + sTitle;
+				}
+				else if (fGetColumnData instanceof RelationType)
+				{
+					String sPrefix =
+						sColumnPrefix != null
+						? sColumnPrefix : ColumnDefinition.STD_COLUMN_PREFIX;
 
-			if (sTitle == null)
-			{
-				sTitle = fGetColumnData.toString();
-			}
+					sTitle = ((RelationType<?>) fGetColumnData).getSimpleName();
+					sTitle =
+						sPrefix + TextConvert.capitalizedIdentifier(sTitle);
+				}
+				else if (fGetColumnData instanceof Relatable)
+				{
+					sTitle =
+						((Relatable) fGetColumnData).get(StandardTypes.NAME);
+				}
+				else
+				{
+					sTitle = fGetColumnData.toString();
+				}
 
-			return sTitle;
+				aColumnTitle.setText(sTitle);
+			}
 		}
 	}
 

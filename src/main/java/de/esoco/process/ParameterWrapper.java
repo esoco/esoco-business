@@ -206,7 +206,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P resid(String sResourceId)
+	public P resid(String sResourceId)
 	{
 		return set(RESOURCE_ID, sResourceId);
 	}
