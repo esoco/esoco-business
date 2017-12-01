@@ -23,6 +23,7 @@ import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
+import de.esoco.lib.property.TitleAttribute;
 
 import de.esoco.process.ParameterWrapper;
 import de.esoco.process.ui.style.SizeUnit;
@@ -183,6 +184,27 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		rParent.placeComponentBefore(rBeforeComponent, this);
 
 		return (C) this;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public C resid(String sResourceId)
+	{
+		if (sResourceId != null)
+		{
+			if (this instanceof TitleAttribute)
+			{
+				((TitleAttribute) this).setTitle("$ti" + sResourceId);
+			}
+			else
+			{
+				set(LABEL, "$lbl" + sResourceId);
+			}
+		}
+
+		return super.resid(sResourceId);
 	}
 
 	/***************************************

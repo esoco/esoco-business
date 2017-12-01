@@ -60,6 +60,20 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public C resid(String sResourceId)
+	{
+		if (sResourceId != null)
+		{
+			label("$lbl" + sResourceId);
+		}
+
+		return super.resid(sResourceId);
+	}
+
+	/***************************************
 	 * Sets a text that will be formatted by inserting values into a template,
 	 * similar to {@link String#format(String, Object...)}. Depending on the
 	 * underlying client UI implementation the formatting options may be
