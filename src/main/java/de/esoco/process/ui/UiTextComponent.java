@@ -16,7 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.TextAttribute;
+
+import java.util.Arrays;
 
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
@@ -54,6 +57,23 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	public String getText()
 	{
 		return getValueImpl();
+	}
+
+	/***************************************
+	 * Sets a text that will be formatted by inserting values into a template,
+	 * similar to {@link String#format(String, Object...)}. Depending on the
+	 * underlying client UI implementation the formatting options may be
+	 * limited. Therefore the format arguments must already be in string format
+	 * and advanced features like argument reordering may not be available.
+	 *
+	 * @param sTemplate        The format template
+	 * @param rFormatArguments The format arguments
+	 */
+	public void setFormattedText(String sTemplate, String... rFormatArguments)
+	{
+		setValueImpl(sTemplate);
+		set(ContentProperties.FORMAT_ARGUMENTS,
+			Arrays.asList(rFormatArguments));
 	}
 
 	/***************************************
