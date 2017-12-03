@@ -247,10 +247,10 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	}
 
 	/***************************************
-	 * @see DataElement#isValueEqual(DataElement)
+	 * @see DataElement#hasEqualValueAs(DataElement)
 	 */
 	@Override
-	protected boolean isValueEqual(DataElement<?> rOther)
+	protected boolean hasEqualValueAs(DataElement<?> rOther)
 	{
 		return getList().equals(((ListDataElement<?>) rOther).getList());
 	}

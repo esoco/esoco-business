@@ -29,7 +29,6 @@ import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
 
-import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -68,6 +67,8 @@ import org.obrel.type.StandardTypes;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
+
+import static de.esoco.process.ProcessRelationTypes.CLIENT_LOCALE;
 
 
 /********************************************************************
@@ -891,8 +892,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				}
 				else if (rValue instanceof Date)
 				{
-					Locale rLocale =
-						fragment().getParameter(ProcessRelationTypes.CLIENT_LOCALE);
+					Locale rLocale = fragment().getParameter(CLIENT_LOCALE);
 
 					DateFormat rDateFormat =
 						SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT,

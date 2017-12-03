@@ -247,10 +247,10 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	}
 
 	/***************************************
-	 * @see DataElement#isValueEqual(DataElement)
+	 * @see DataElement#hasEqualValueAs(DataElement)
 	 */
 	@Override
-	protected boolean isValueEqual(DataElement<?> rOther)
+	protected boolean hasEqualValueAs(DataElement<?> rOther)
 	{
 		return getMap().equals(((MapDataElement<?, ?>) rOther).getMap());
 	}

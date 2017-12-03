@@ -279,7 +279,7 @@ public abstract class DataElement<T> extends StringProperties
 
 		DataElement<?> rOther = (DataElement<?>) rObj;
 
-		return Objects.equals(sName, rOther.sName) && isValueEqual(rOther) &&
+		return Objects.equals(sName, rOther.sName) && hasEqualValueAs(rOther) &&
 			   bImmutable == rOther.bImmutable &&
 			   bModified == rOther.bModified && bOptional == rOther.bOptional &&
 			   bSelected == rOther.bSelected &&
@@ -591,7 +591,9 @@ public abstract class DataElement<T> extends StringProperties
 		checkImmutable();
 		checkValidValue(rNewValue);
 
-		if (!valuesEqual(getValue(), rNewValue))
+		T rCurrentValue = getValue();
+
+		if (!valuesEqual(rCurrentValue, rNewValue))
 		{
 			updateValue(rNewValue);
 			setModified(true);
@@ -753,16 +755,16 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Checks whether this element's value is equal to that of another element.
-	 * Can be overridden by subclasses that have a non-standard internal
-	 * structure.
+	 * Checks whether this element has a value that is equal to that of another
+	 * element. Can be overridden by subclasses that have a non-standard
+	 * internal structure.
 	 *
 	 * @param  rOther The other data element which will always be of the same
 	 *                type as this instance
 	 *
 	 * @return TRUE if the value are equal
 	 */
-	protected boolean isValueEqual(final DataElement<?> rOther)
+	protected boolean hasEqualValueAs(final DataElement<?> rOther)
 	{
 		return Objects.equals(getValue(), rOther.getValue());
 	}
