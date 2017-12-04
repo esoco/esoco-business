@@ -16,11 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.TextAttribute;
 
 import java.util.Arrays;
 
+import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 
@@ -86,8 +86,7 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	public void setFormattedText(String sTemplate, String... rFormatArguments)
 	{
 		setValueImpl(sTemplate);
-		set(ContentProperties.FORMAT_ARGUMENTS,
-			Arrays.asList(rFormatArguments));
+		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
 	}
 
 	/***************************************

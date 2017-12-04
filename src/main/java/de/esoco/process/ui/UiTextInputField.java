@@ -18,6 +18,9 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.TextAttribute;
 
+import java.util.Arrays;
+
+import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.EDITABLE;
 
 
@@ -66,11 +69,27 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	}
 
 	/***************************************
+	 * Sets a text that will be formatted by inserting values into a template,
+	 * similar to {@link String#format(String, Object...)}. Depending on the
+	 * underlying client UI implementation the formatting options may be
+	 * limited. Therefore the format arguments must already be in string format
+	 * and advanced features like argument reordering may not be available.
+	 *
+	 * @param sTemplate        The format template
+	 * @param rFormatArguments The format arguments
+	 */
+	public void setFormattedText(String sTemplate, String... rFormatArguments)
+	{
+		setText(sTemplate);
+		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void setText(String sText)
 	{
-		fragment().setParameter(type(), sText);
+		setValueImpl(sText);
 	}
 }
