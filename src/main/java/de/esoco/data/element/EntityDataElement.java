@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,6 +71,19 @@ public class EntityDataElement extends DataElementList
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EntityDataElement copy(CopyMode eMode)
+	{
+		EntityDataElement aCopy = (EntityDataElement) super.copy(eMode);
+
+		aCopy.sChildPrefix = sChildPrefix;
+
+		return aCopy;
+	}
+
+	/***************************************
 	 * Overridden to return the simple name of the entity class.
 	 *
 	 * @see DataElementList#getChildResourceIdPrefix()
@@ -79,5 +92,14 @@ public class EntityDataElement extends DataElementList
 	protected String getChildResourceIdPrefix()
 	{
 		return sChildPrefix;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected EntityDataElement newInstance()
+	{
+		return new EntityDataElement();
 	}
 }

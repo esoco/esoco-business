@@ -22,6 +22,7 @@ import de.esoco.data.element.DataElementList;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.text.TextConvert;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -92,34 +93,18 @@ public class ProcessState extends ProcessDescription
 	private int					  nProcessId;
 	private String				  sProcessInfo;
 	private String				  sCurrentStep;
-	private List<DataElement<?>>  rInteractionParams;
 	private List<DataElementList> rViewParams;
 	private List<ProcessState>    rSpawnProcesses;
 
 	private ProcessExecutionMode eExecutionMode;
 	private InteractionEventType eInteractionEventType;
 	private DataElement<?>		 rInteractionElement;
+	private List<DataElement<?>> rInteractionParams;
 
 	private Set<ProcessStateFlag> rCurrentStepFlags =
 		Collections.<ProcessStateFlag>emptySet();
 
 	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates an instance for process interactions.
-	 *
-	 * @param rOther             The original process state
-	 * @param rInteractionParams The interaction parameters
-	 */
-	public ProcessState(
-		ProcessState		 rOther,
-		List<DataElement<?>> rInteractionParams)
-	{
-		super(rOther.getName(), null, rOther.getDescriptionId(), false);
-
-		this.nProcessId		    = rOther.nProcessId;
-		this.rInteractionParams = rInteractionParams;
-	}
 
 	/***************************************
 	 * Creates a new instance for a finished process without any further
@@ -140,6 +125,36 @@ public class ProcessState extends ProcessDescription
 			 null,
 			 null,
 			 Collections.<ProcessStateFlag>emptySet());
+	}
+
+	/***************************************
+	 * Creates an copy instance for process interactions.
+	 *
+	 * @param rOriginalState      The original process state
+	 * @param eEventType          The interaction event type
+	 * @param rInteractionElement The data element that caused the interaction
+	 * @param rModifiedParams     The parameters that have been modified since
+	 *                            the last interaction
+	 */
+	public ProcessState(ProcessState		 rOriginalState,
+						InteractionEventType eEventType,
+						DataElement<?>		 rInteractionElement,
+						List<DataElement<?>> rModifiedParams)
+	{
+		super(rOriginalState.getName(),
+			  null,
+			  rOriginalState.getDescriptionId(),
+			  false);
+
+		this.nProcessId			   = rOriginalState.nProcessId;
+		this.eInteractionEventType = eEventType;
+		this.rInteractionElement   = rInteractionElement.copy(CopyMode.FULL);
+		this.rInteractionParams    = new ArrayList<>(rModifiedParams.size());
+
+		for (DataElement<?> rElement : rModifiedParams)
+		{
+			rInteractionParams.add(rElement.copy(CopyMode.FULL));
+		}
 	}
 
 	/***************************************
@@ -354,23 +369,6 @@ public class ProcessState extends ProcessDescription
 	public final void setExecutionMode(ProcessExecutionMode rExecutionMode)
 	{
 		this.eExecutionMode = rExecutionMode;
-	}
-
-	/***************************************
-	 * Will be set by the client side if an interactive input event occurred
-	 * during an interaction. The parameter is the data element for which the
-	 * event occurred.
-	 *
-	 * @param rElement   The data element that caused the interactive input
-	 *                   event or NULL to reset
-	 * @param eEventType bActionEvent The interaction event type
-	 */
-	public final void setInteractionElement(
-		DataElement<?>		 rElement,
-		InteractionEventType eEventType)
-	{
-		rInteractionElement   = rElement;
-		eInteractionEventType = eEventType;
 	}
 
 	/***************************************

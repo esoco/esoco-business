@@ -685,7 +685,7 @@ public abstract class DataElement<T> extends StringProperties
 		if (eCopyMode == CopyMode.PLACEHOLDER)
 		{
 			// make sure that a placeholder cannot be modified
-			rTarget.bImmutable = false;
+			rTarget.bImmutable = true;
 		}
 		else
 		{

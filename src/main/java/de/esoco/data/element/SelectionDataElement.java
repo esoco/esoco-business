@@ -89,6 +89,15 @@ public class SelectionDataElement extends StringDataElement
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SelectionDataElement copy(CopyMode eMode)
+	{
+		return (SelectionDataElement) super.copy(eMode);
+	}
+
+	/***************************************
 	 * Returns the integer index of the current selection.
 	 *
 	 * @return The selection index (-1 for no selection)
@@ -107,5 +116,14 @@ public class SelectionDataElement extends StringDataElement
 	public boolean hasSelection()
 	{
 		return !NO_SELECTION.equals(getValue());
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected SelectionDataElement newInstance()
+	{
+		return new SelectionDataElement();
 	}
 }

@@ -233,7 +233,20 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	@Override
 	public DataElementList copy(CopyMode eMode)
 	{
-		return (DataElementList) super.copy(eMode);
+		DataElementList aCopy = (DataElementList) super.copy(eMode);
+
+		if (eMode == CopyMode.FULL)
+		{
+			for (DataElement<?> rChild : this)
+			{
+				DataElement<?> aChildCopy = rChild.copy(eMode);
+
+				aChildCopy.setParent(aCopy);
+				aCopy.aDataElements.add(aChildCopy);
+			}
+		}
+
+		return aCopy;
 	}
 
 	/***************************************
@@ -558,6 +571,17 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	public String toHierarchyString()
 	{
 		return toHierarchyString("");
+	}
+
+	/***************************************
+	 * Overridden to to nothing as the copying of the child data elements is
+	 * handled in {@link #copy(CopyMode)}.
+	 *
+	 * @see ListDataElement#copyValue(DataElement)
+	 */
+	@Override
+	protected void copyValue(DataElement<DataElement<?>> aCopy)
+	{
 	}
 
 	/***************************************
