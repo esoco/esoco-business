@@ -52,7 +52,7 @@ public abstract class DataElement<T> extends StringProperties
 	 * The modes for copying data elements with {@link
 	 * DataElement#copy(CopyMode)}.
 	 */
-	public enum CopyMode { FULL, PROPERTIES, PLACEHOLDER }
+	public enum CopyMode { FULL, FLAT, PROPERTIES, PLACEHOLDER }
 
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -225,6 +225,8 @@ public abstract class DataElement<T> extends StringProperties
 	 * <ul>
 	 *   <li>{@link CopyMode#FULL}: The copy contains all data (except the
 	 *     parent reference)</li>
+	 *   <li>{@link CopyMode#FLAT}: like {@link CopyMode#FULL} but without
+	 *     sub-ordinate data elements</li>
 	 *   <li>{@link CopyMode#PROPERTIES}: The copy contains only the properties
 	 *     but not the element value</li>
 	 *   <li>{@link CopyMode#PLACEHOLDER}: The copy contains only the element
@@ -248,7 +250,7 @@ public abstract class DataElement<T> extends StringProperties
 
 		copyAttributes(aCopy, eMode);
 
-		if (eMode == CopyMode.FULL)
+		if (eMode == CopyMode.FULL || eMode == CopyMode.FLAT)
 		{
 			copyValue(aCopy);
 		}
@@ -695,7 +697,7 @@ public abstract class DataElement<T> extends StringProperties
 			rTarget.bModified  = bModified;
 		}
 
-		if (eCopyMode == CopyMode.FULL)
+		if (eCopyMode == CopyMode.FULL || eCopyMode == CopyMode.FLAT)
 		{
 			rTarget.rValidator  = rValidator;
 			rTarget.sResourceId = sResourceId;
