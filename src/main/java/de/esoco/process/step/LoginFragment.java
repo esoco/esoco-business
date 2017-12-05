@@ -131,8 +131,6 @@ public class LoginFragment extends InteractionFragment
 	@SuppressWarnings("boxing")
 	public void prepareInteraction() throws Exception
 	{
-		aErrorMessage.hide();
-
 		if (nErrorWaitTime > 0)
 		{
 			int nWaitSeconds =
@@ -142,6 +140,7 @@ public class LoginFragment extends InteractionFragment
 			{
 				if (hasFlag(AUTO_UPDATE))
 				{
+					aErrorMessage.hide();
 					set(AUTO_UPDATE, false);
 					fragmentParam().enableEdit(true);
 				}
@@ -342,8 +341,9 @@ public class LoginFragment extends InteractionFragment
 
 				fragmentParam().enableEdit(false);
 				set(ProcessRelationTypes.AUTO_UPDATE);
-				aErrorMessage.show().value(sMessage);
 			}
+
+			aErrorMessage.show().value(sMessage);
 		}
 	}
 }
