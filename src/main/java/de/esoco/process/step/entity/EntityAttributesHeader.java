@@ -20,7 +20,7 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.property.ContentType;
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.MutableProperties;
@@ -30,7 +30,6 @@ import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.Parameter;
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StoragePredicates;
@@ -47,6 +46,8 @@ import java.util.Map.Entry;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
+
 
 /********************************************************************
  * A {@link EntityList} header implementation that displays the names of entity
@@ -55,16 +56,18 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public class EntityAttributesHeader<E extends Entity>
-	extends AbstractEntityListHeader<E>
+	extends EntityListHeader<E>
 {
 	//~ Enums ------------------------------------------------------------------
 
 	/********************************************************************
-	 * Enumeration of the availalbe actions in the header.
+	 * Enumeration of the available actions in the header.
 	 */
 	enum HeaderDataAction { CLEAR_FILTER }
 
 	//~ Static fields/initializers ---------------------------------------------
+
+	private static final String COLUMN_BASE_STYLE = "EntityListColumn";
 
 	private static final long serialVersionUID = 1L;
 
@@ -115,6 +118,75 @@ public class EntityAttributesHeader<E extends Entity>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void initDataPanel(InteractionFragment p)
+	{
+//		if (aFilterParams == null)
+//		{
+//			aFilterParams = new ArrayList<>(aColumnProperties.size());
+//
+//			p.fragmentParam().alignVertical(Alignment.END);
+//
+//			for (Entry<RelationType<?>, MutableProperties> rColumn :
+//				 aColumnProperties.entrySet())
+//			{
+//				RelationType<?> rAttr		 = rColumn.getKey();
+//				HasProperties	rProperties	 = rColumn.getValue();
+//				Parameter<?>	aFilterParam = createAttributeFilter(p, rAttr);
+//
+//				if (aFilterParam == null)
+//				{
+//					aFilterParam = p.label("");
+//				}
+//				else
+//				{
+//					aFilterParam.onUpdate(v -> handleFilterInput(rAttr, v));
+//				}
+//
+//				aFilterParam.sameRow().hideLabel();
+//				applyColumnProperties(aFilterParam, rProperties);
+//				aFilterParams.add(aFilterParam);
+//
+//				iconButtons(HeaderDataAction.class).alignHorizontal(Alignment.END)
+//												   .onAction(this::handleHeaderDataAction);
+//			}
+//		}
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void initTitlePanel(InteractionFragment p)
+	{
+		aColumnParams = new HashMap<>(aColumnProperties.size());
+
+		// set the style name of the parent fragment (the actual header)
+		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
+
+		for (Entry<RelationType<?>, MutableProperties> rColumn :
+			 aColumnProperties.entrySet())
+		{
+			RelationType<?>   rAttr		  = rColumn.getKey();
+			HasProperties     rProperties = rColumn.getValue();
+			Parameter<String> aTitleLabel = createColumnTitle(p, rAttr);
+
+			aTitleLabel.sameRow();
+			applyColumnProperties(aTitleLabel, rProperties);
+			aColumnParams.put(rAttr, aTitleLabel);
+		}
+
+		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
+
+		if (pSortColumn != null)
+		{
+			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
+		}
+	}
 
 	/***************************************
 	 * Sets a column property for an attribute.
@@ -211,13 +283,13 @@ public class EntityAttributesHeader<E extends Entity>
 	/***************************************
 	 * Creates a parameter for a column title.
 	 *
-	 * @param  rTitlePanel The fragment of the title panel
-	 * @param  rAttr       The attribute to create the column title for
+	 * @param  rPanel The fragment of the title panel
+	 * @param  rAttr  The attribute to create the column title for
 	 *
 	 * @return A parameter instance for the column title
 	 */
 	protected Parameter<String> createColumnTitle(
-		InteractionFragment   rTitlePanel,
+		InteractionFragment   rPanel,
 		final RelationType<?> rAttr)
 	{
 		String sAttrName = rAttr.getSimpleName();
@@ -227,18 +299,11 @@ public class EntityAttributesHeader<E extends Entity>
 			TextConvert.capitalizedIdentifier(sAttrName);
 
 		Parameter<String> aTitleLabel =
-			rTitlePanel.label("")
-					   .buttons(sColumnTitle)
-					   .content(ContentType.HYPERLINK)
-					   .onAction(new ValueEventHandler<String>()
-				{
-					@Override
-					public void handleValueUpdate(String sValue)
-						throws Exception
-					{
-						changeSortColumn(rAttr);
-					}
-				});
+			rPanel.label(sColumnTitle)
+				  .style(COLUMN_BASE_STYLE)
+				  .buttonStyle(ButtonStyle.LINK)
+				  .set(NO_EVENT_PROPAGATION)
+				  .onAction(v -> changeSortColumn(rAttr));
 
 		return aTitleLabel;
 	}
@@ -280,75 +345,6 @@ public class EntityAttributesHeader<E extends Entity>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void initDataPanel(InteractionFragment p)
-	{
-//		if (aFilterParams == null)
-//		{
-//			aFilterParams = new ArrayList<>(aColumnProperties.size());
-//
-//			p.fragmentParam().alignVertical(Alignment.END);
-//
-//			for (Entry<RelationType<?>, MutableProperties> rColumn :
-//				 aColumnProperties.entrySet())
-//			{
-//				RelationType<?> rAttr		 = rColumn.getKey();
-//				HasProperties	rProperties	 = rColumn.getValue();
-//				Parameter<?>	aFilterParam = createAttributeFilter(p, rAttr);
-//
-//				if (aFilterParam == null)
-//				{
-//					aFilterParam = p.label("");
-//				}
-//				else
-//				{
-//					aFilterParam.onUpdate(v -> handleFilterInput(rAttr, v));
-//				}
-//
-//				aFilterParam.sameRow().hideLabel();
-//				applyColumnProperties(aFilterParam, rProperties);
-//				aFilterParams.add(aFilterParam);
-//
-//				iconButtons(HeaderDataAction.class).alignHorizontal(Alignment.END)
-//												   .onAction(this::handleHeaderDataAction);
-//			}
-//		}
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void initTitlePanel(InteractionFragment p)
-	{
-		aColumnParams = new HashMap<>(aColumnProperties.size());
-
-		// set the style name of the parent fragment (the actual header)
-		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
-
-		for (Entry<RelationType<?>, MutableProperties> rColumn :
-			 aColumnProperties.entrySet())
-		{
-			RelationType<?>   rAttr		  = rColumn.getKey();
-			HasProperties     rProperties = rColumn.getValue();
-			Parameter<String> aTitleLabel = createColumnTitle(p, rAttr);
-
-			aTitleLabel.sameRow();
-			applyColumnProperties(aTitleLabel, rProperties);
-			aColumnParams.put(rAttr, aTitleLabel);
-		}
-
-		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
-
-		if (pSortColumn != null)
-		{
-			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
-		}
-	}
-
-	/***************************************
 	 * Applies the properties for a certain colum to the respective parameter.
 	 *
 	 * @param rColumnParam The column parameter
@@ -376,7 +372,7 @@ public class EntityAttributesHeader<E extends Entity>
 		String			 sSortStyle = toggleSorting(rSortColumn);
 		SortPredicate<E> pSort	    = null;
 
-		if (sSortStyle != null)
+		if (!COLUMN_BASE_STYLE.equals(sSortStyle))
 		{
 			pSort =
 				StoragePredicates.sortBy(rCurrentSortColumn,
@@ -427,17 +423,17 @@ public class EntityAttributesHeader<E extends Entity>
 		Parameter<String> rColumnParam = aColumnParams.get(rCurrentSortColumn);
 		String			  sStyle	   = rColumnParam.style();
 
-		if (sStyle == null)
+		if (COLUMN_BASE_STYLE.equals(sStyle))
 		{
-			sStyle = "sort ascending";
+			sStyle = COLUMN_BASE_STYLE + " sort ascending";
 		}
-		else if (sStyle.contains("ascending"))
+		else if (sStyle.endsWith("ascending"))
 		{
-			sStyle = "sort descending";
+			sStyle = COLUMN_BASE_STYLE + " sort descending";
 		}
 		else
 		{
-			sStyle = null;
+			sStyle = COLUMN_BASE_STYLE;
 		}
 
 		rColumnParam.style(sStyle);

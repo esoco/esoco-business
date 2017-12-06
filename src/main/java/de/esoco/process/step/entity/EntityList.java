@@ -24,7 +24,6 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
-import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.reflect.ReflectUtil;
 
@@ -107,7 +106,7 @@ public class EntityList<E extends Entity,
 	private EntityListItemList   aItemList;
 	private I					 rSelectedItem = null;
 
-	private InteractionFragment rHeader;
+	private EntityListHeader<E> rHeader;
 	private ParameterList	    aItemListPanel;
 	private ParameterList	    aNavigationPanel;
 
@@ -283,7 +282,11 @@ public class EntityList<E extends Entity,
 	{
 		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
 
-		panel(this::initHeaderPanel);
+		if (rHeader != null)
+		{
+			panel(this::initHeaderPanel);
+		}
+
 		aItemListPanel   = panel(aItemList);
 		aNavigationPanel = panel(aNavigation).hide();
 
@@ -381,7 +384,7 @@ public class EntityList<E extends Entity,
 	 *
 	 * @param rHeader The new list header
 	 */
-	public void setListHeader(InteractionFragment rHeader)
+	public void setListHeader(EntityListHeader<E> rHeader)
 	{
 		this.rHeader = rHeader;
 	}
@@ -420,6 +423,10 @@ public class EntityList<E extends Entity,
 			{
 				rSelectedItem.setSelected(true);
 			}
+
+			aItemListPanel.set(rSelectedItem != null
+							   ? aItemList.aItems.indexOf(rSelectedItem) : -1,
+							   CURRENT_SELECTION);
 		}
 
 		for (EntitySelectionListener<E> rListener : aSelectionListeners)
@@ -471,14 +478,11 @@ public class EntityList<E extends Entity,
 	 */
 	protected void initHeaderPanel(InteractionFragment rHeaderPanel)
 	{
-		if (rHeader != null)
-		{
-			rHeaderPanel.layout(LayoutType.LIST)
-						.resid("EntityListHeaderPanel")
-						.set(LIST_LAYOUT_STYLE, ListLayoutStyle.SIMPLE);
+		rHeaderPanel.layout(LayoutType.LIST)
+					.resid("EntityListHeaderPanel")
+					.set(LIST_LAYOUT_STYLE, rHeader.getHeaderType());
 
-			rHeaderPanel.panel(rHeader);
-		}
+		rHeaderPanel.panel(rHeader);
 	}
 
 	/***************************************
@@ -516,6 +520,7 @@ public class EntityList<E extends Entity,
 			}
 		}
 
+		setSelection(null);
 		aItemList.update();
 		aNavigation.update();
 		aNavigationPanel.show();
@@ -840,7 +845,6 @@ public class EntityList<E extends Entity,
 			}
 
 			setSelection(null);
-			aItemListPanel.set(-1, CURRENT_SELECTION);
 			queryEntities();
 		}
 

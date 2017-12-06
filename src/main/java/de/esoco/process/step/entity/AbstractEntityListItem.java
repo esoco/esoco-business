@@ -143,6 +143,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	public void updateEntity(E rEntity)
 	{
 		this.rEntity = rEntity;
+		bSelected    = false;
 
 		try
 		{

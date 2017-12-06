@@ -116,6 +116,7 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	@Override
 	protected void update()
 	{
+		setSelection(null);
 		displayRows(aNavigation.getPageStart(), aNavigation.getPageSize());
 		aNavigation.setEmptyPageLabel(getEmptyPagelLabel());
 		aNavigation.setTotalSize(getData().size());

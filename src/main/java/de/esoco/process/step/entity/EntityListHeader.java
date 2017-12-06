@@ -19,16 +19,17 @@ package de.esoco.process.step.entity;
 import de.esoco.entity.Entity;
 
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.ListLayoutStyle;
 
 import de.esoco.process.step.InteractionFragment;
 
 
 /********************************************************************
- * A single item in the list of assets.
+ * The base class for a header in a {@link EntityList}.
  *
  * @author eso
  */
-public abstract class AbstractEntityListHeader<E extends Entity>
+public abstract class EntityListHeader<E extends Entity>
 	extends InteractionFragment
 {
 	//~ Static fields/initializers ---------------------------------------------
@@ -46,12 +47,35 @@ public abstract class AbstractEntityListHeader<E extends Entity>
 	 *
 	 * @param rEntityList The entity list this header belongs to
 	 */
-	public AbstractEntityListHeader(EntityList<E, ?> rEntityList)
+	public EntityListHeader(EntityList<E, ?> rEntityList)
 	{
 		this.rEntityList = rEntityList;
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	public final EntityList<E, ?> getEntityList()
+	{
+		return rEntityList;
+	}
+
+	/***************************************
+	 * Returns the expand style of this header. The default implementation
+	 * returns {@link ListLayoutStyle#SIMPLE} which will display a
+	 * non-expandable header and the method {@link
+	 * #initDataPanel(InteractionFragment)} will not be invoked. Subclasses that
+	 * want to use an expandable header panel must override this method and
+	 * return a different style.
+	 *
+	 * @return The header layout style
+	 */
+	public ListLayoutStyle getHeaderType()
+	{
+		return ListLayoutStyle.SIMPLE;
+	}
 
 	/***************************************
 	 * {@inheritDoc}
@@ -62,34 +86,30 @@ public abstract class AbstractEntityListHeader<E extends Entity>
 		layout(LayoutType.LIST_ITEM);
 
 		panel(p -> initTitlePanel(p));
-		panel(p -> initDataPanel(p));
+
+		if (getHeaderType() != ListLayoutStyle.SIMPLE)
+		{
+			panel(p -> initDataPanel(p));
+		}
 	}
 
 	/***************************************
-	 * Must be implemented to initialize the fragment containing the data panel
-	 * of this instance. The panel layout is set to {@link LayoutType#GRID} which
-	 * can be overridden.
-	 *
-	 * @param rContentPanel rHeaderPanel The content panel fragment
-	 */
-	protected abstract void initDataPanel(InteractionFragment rContentPanel);
-
-	/***************************************
 	 * Must be implemented to initialize the fragment containing the title panel
-	 * of this instance. The panel layout is set to {@link LayoutType#GRID} which
-	 * can be overridden.
+	 * of this instance. The panel layout is set to {@link LayoutType#GRID}
+	 * which can be overridden.
 	 *
 	 * @param rHeaderPanel The header panel fragment
 	 */
 	protected abstract void initTitlePanel(InteractionFragment rHeaderPanel);
 
 	/***************************************
-	 * Returns the entity list this header belongs to.
+	 * Must be overridden to initialize the the expanded header content if the
+	 * method {@link #getHeaderType()} returns an expanding header style. The
+	 * data panel layout is pre-set to {@link LayoutType#GRID}.
 	 *
-	 * @return The header's entity list
+	 * @param rContentPanel rHeaderPanel The content panel fragment
 	 */
-	protected final EntityList<E, ?> getEntityList()
+	protected void initDataPanel(InteractionFragment rContentPanel)
 	{
-		return rEntityList;
 	}
 }

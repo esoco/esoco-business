@@ -67,6 +67,8 @@ import org.obrel.type.StandardTypes;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
 
 import static de.esoco.process.ProcessRelationTypes.CLIENT_LOCALE;
 
@@ -147,9 +149,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			eExpandStyle != null
 			? ExpandableListStyle.valueOf(eExpandStyle.name()) : null;
 
-		aHeaderPanel    = new UiListPanel(this);
-		aTableHeader    =
-			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
+			aHeaderPanel    = new UiListPanel(this);
+			aTableHeader    =
+				aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
 		aDataList	    = new UiListPanel(this, eListStyle);
 		aEmptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
 
@@ -478,17 +480,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			{
 				rSelectedRow.setSelected(false);
 			}
+
+			rSelectedRow = rRow;
+
+			if (rSelectedRow != null)
+			{
+				rSelectedRow.setSelected(true);
+				rSelectedRow.updateExpandedContent();
+			}
+
+			aDataList.set(rSelectedRow != null ? rSelectedRow.getIndex() : -1,
+						  CURRENT_SELECTION);
 		}
 
-		rSelectedRow = rRow;
-
-		if (rSelectedRow != null)
-		{
-			rSelectedRow.setSelected(true);
-			rSelectedRow.updateExpandedContent();
-		}
-
-		if (fHandleRowSelection != null)
+		if (bFireEvent && fHandleRowSelection != null)
 		{
 			fHandleRowSelection.accept(rRow);
 		}
@@ -548,8 +553,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				datatype(((RelationType<V>) fGetColumnData).getValueType());
 			}
 
-			aColumnTitle = new UiLink(this, "");
-			aColumnTitle.onClick(v -> handleColumnSelection());
+			aColumnTitle =
+				new UiLink(this, "").set(NO_EVENT_PROPAGATION)
+									.onClick(v -> handleColumnSelection());
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -1176,6 +1182,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		public final T getData()
 		{
 			return rRowData;
+		}
+
+		/***************************************
+		 * Returns the index of the row in it's list.
+		 *
+		 * @return The row index
+		 */
+		public final int getIndex()
+		{
+			return nRowIndex;
 		}
 
 		/***************************************
