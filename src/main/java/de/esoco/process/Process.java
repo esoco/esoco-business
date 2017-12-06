@@ -963,13 +963,20 @@ public class Process extends SerializableRelatedObject
 	{
 		try
 		{
+			if (rCurrentStep != null)
+			{
+				rCurrentStep.cancel();
+				rCurrentStep.executeCleanupActions();
+				rCurrentStep.cleanup();
+				rCurrentStep = null;
+			}
+
 			for (int i = aExecutionStack.size() - 1; i >= 0; i--)
 			{
 				aExecutionStack.get(i).cancel();
 			}
 
-			rCurrentStep = null;
-			bSuspended   = false;
+			bSuspended = false;
 
 			notifyListeners(ProcessEventType.CANCELED);
 			cleanup();

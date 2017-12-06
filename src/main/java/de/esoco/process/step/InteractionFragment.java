@@ -702,6 +702,20 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * @see ProcessFragment#executeCleanupActions()
+	 */
+	@Override
+	public void executeCleanupActions()
+	{
+		super.executeCleanupActions();
+
+		for (InteractionFragment rFragment : getSubFragments())
+		{
+			rFragment.executeCleanupActions();
+		}
+	}
+
+	/***************************************
 	 * Can be overridden by a fragment to execute actions when the process flow
 	 * leaves this fragment.
 	 *
