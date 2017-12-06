@@ -2158,30 +2158,11 @@ public abstract class ProcessFragment extends ProcessElement
 		boolean								  bReverseState,
 		Collection<? extends RelationType<?>> rDependentParams)
 	{
+		removeUIProperties(rParam, SELECTION_DEPENDENCY);
+
 		if (rDependentParams.size() > 0)
 		{
-			StringBuilder aDependencies = new StringBuilder();
-
-			for (RelationType<?> rDependentParam : rDependentParams)
-			{
-				if (bReverseState)
-				{
-					aDependencies.append(SELECTION_DEPENDENCY_REVERSE_PREFIX);
-				}
-
-				aDependencies.append(rDependentParam.getName());
-				aDependencies.append(',');
-			}
-
-			aDependencies.setLength(aDependencies.length() - 1);
-
-			setUIProperty(SELECTION_DEPENDENCY,
-						  aDependencies.toString(),
-						  rParam);
-		}
-		else
-		{
-			removeUIProperties(rParam, SELECTION_DEPENDENCY);
+			addSelectionDependency(rParam, bReverseState, rDependentParams);
 		}
 	}
 
