@@ -30,7 +30,8 @@ public class UiElement<E extends UiElement<E>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private boolean bModified = false;
+	// initially true to make sure it is applied on the first time
+	private boolean bModified = true;
 
 	private MutableProperties aProperties = new StringProperties();
 
