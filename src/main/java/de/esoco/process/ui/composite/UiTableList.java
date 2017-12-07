@@ -110,8 +110,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 	private String sColumnPrefix = null;
 
+	private Column<?> rSortColumn = null;
+
 	private List<Column<?>> aColumns = new ArrayList<>();
-	private List<Row>	    aRows    = new ArrayList<>();
+
+	private List<Row> aRows = new ArrayList<>();
 
 	private BiConsumer<UiBuilder<?>, T> fRowContentBuilder;
 	private Consumer<Column<?>>		    fHandleColumnSelection;
@@ -149,9 +152,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			eExpandStyle != null
 			? ExpandableListStyle.valueOf(eExpandStyle.name()) : null;
 
-			aHeaderPanel    = new UiListPanel(this);
-			aTableHeader    =
-				aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
+		aHeaderPanel    = new UiListPanel(this);
+		aTableHeader    =
+			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
 		aDataList	    = new UiListPanel(this, eListStyle);
 		aEmptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
 
@@ -1083,11 +1086,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 					sColumnStyle = "sort descending";
 				}
 
+				if (rSortColumn != null && rSortColumn != this)
+				{
+					Column rPrevCol = rSortColumn;
+
+					rSortColumn = null;
+					rPrevCol.setSorting(null);
+				}
+
 				((HasAttributeSorting<T>) rDataProvider).applySorting((Function<T, Comparable>)
 																	  fGetColumnData,
 																	  eDirection);
 
 				aColumnTitle.style().styleName(sColumnStyle);
+				rSortColumn = this;
 				update();
 			}
 		}
