@@ -34,7 +34,7 @@ public abstract class UiImageDefinition<E extends UiImageDefinition<E>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
 		// remove properties related to image-data to prevent conflict when
 		// the image type has changed

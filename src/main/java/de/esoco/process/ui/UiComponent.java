@@ -298,17 +298,17 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 */
 	protected void applyProperties()
 	{
-		aStyle.applyPropertiesTo(this);
+		aStyle.applyTo(this);
 
 		// is NULL in the root view
 		if (rLayoutCell != null)
 		{
-			rLayoutCell.applyPropertiesTo(this);
+			rLayoutCell.applyTo(this);
 		}
 
 		if (rImage != null)
 		{
-			rImage.applyPropertiesTo(this);
+			rImage.applyTo(this);
 		}
 	}
 

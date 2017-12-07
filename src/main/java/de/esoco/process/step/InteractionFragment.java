@@ -1324,22 +1324,6 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Overridden to mark also the fragment parameter as modified.
-	 *
-	 * @see ProcessFragment#markParameterAsModified(RelationType)
-	 */
-	@Override
-	public <T> void markParameterAsModified(RelationType<T> rParam)
-	{
-		super.markParameterAsModified(rParam);
-
-		if (rParent != null)
-		{
-			rParent.markParameterAsModified(getFragmentParameter());
-		}
-	}
-
-	/***************************************
 	 * Marks a hierarchy of parameters as modified.
 	 *
 	 * @param rParams The list of root parameters

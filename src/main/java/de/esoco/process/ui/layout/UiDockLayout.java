@@ -80,9 +80,9 @@ public class UiDockLayout extends UiLayout
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void applyTo(UiContainer<?> rContainer)
+	protected void applyToContainer(UiContainer<?> rContainer)
 	{
-		super.applyTo(rContainer);
+		super.applyToContainer(rContainer);
 
 		if (eOrientation == Orientation.VERTICAL)
 		{

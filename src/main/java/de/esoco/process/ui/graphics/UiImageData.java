@@ -147,7 +147,7 @@ public class UiImageData extends UiImageDefinition<UiImageData>
 	 * @see UiImageDefinition#applyPropertiesTo(UiComponent)
 	 */
 	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
 	{
 		StringBuilder aDataUri   = new StringBuilder("d:data:");
 		String		  sImageData = fImageData.get();

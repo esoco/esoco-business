@@ -221,9 +221,9 @@ public class UiGridLayout extends UiLayout
 	 * @see UiLayout#applyTo(UiContainer)
 	 */
 	@Override
-	protected void applyTo(UiContainer<?> rContainer)
+	protected void applyToContainer(UiContainer<?> rContainer)
 	{
-		super.applyTo(rContainer);
+		super.applyToContainer(rContainer);
 
 		UiStyle rStyle = rContainer.style();
 

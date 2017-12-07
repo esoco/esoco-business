@@ -30,6 +30,8 @@ public class UiElement<E extends UiElement<E>>
 {
 	//~ Instance fields --------------------------------------------------------
 
+	private boolean bModified = false;
+
 	private MutableProperties aProperties = new StringProperties();
 
 	//~ Constructors -----------------------------------------------------------
@@ -54,13 +56,17 @@ public class UiElement<E extends UiElement<E>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Applies the properties of this element to the given component.
+	 * Applies this element to the given component.
 	 *
 	 * @param rComponent The target component
 	 */
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	public void applyTo(UiComponent<?, ?> rComponent)
 	{
-		rComponent.setProperties(aProperties, true);
+		if (bModified)
+		{
+			applyPropertiesTo(rComponent);
+			bModified = false;
+		}
 	}
 
 	/***************************************
@@ -104,6 +110,28 @@ public class UiElement<E extends UiElement<E>>
 	}
 
 	/***************************************
+	 * Checks the modification state of this element.
+	 *
+	 * @return TRUE if the element has been modified since it has last been
+	 *         applied to the component
+	 */
+	public final boolean isModified()
+	{
+		return bModified;
+	}
+
+	/***************************************
+	 * Set this element's modified state. If TRUE it will be applied to the
+	 * component on the next call to {@link #applyTo(UiComponent)}.
+	 *
+	 * @param bModified The new modified state
+	 */
+	public final void setModified(boolean bModified)
+	{
+		this.bModified = bModified;
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -113,11 +141,23 @@ public class UiElement<E extends UiElement<E>>
 	}
 
 	/***************************************
+	 * Applies the properties of this element to the given component. Will only
+	 * be invoked if the properties have changed.
+	 *
+	 * @param rComponent The target component
+	 */
+	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	{
+		rComponent.setProperties(aProperties, true);
+	}
+
+	/***************************************
 	 * Clears all properties in this element.
 	 */
 	protected void clearProperties()
 	{
 		aProperties.clearProperties();
+		setModified(true);
 	}
 
 	/***************************************
@@ -129,6 +169,7 @@ public class UiElement<E extends UiElement<E>>
 	protected void copyPropertiesFrom(UiElement<?> rOther, boolean bReplace)
 	{
 		aProperties.setProperties(rOther.aProperties, bReplace);
+		setModified(true);
 	}
 
 	/***************************************
@@ -155,6 +196,7 @@ public class UiElement<E extends UiElement<E>>
 	protected <V> E set(PropertyName<V> rProperty, V rValue)
 	{
 		aProperties.setProperty(rProperty, rValue);
+		setModified(true);
 
 		return (E) this;
 	}
@@ -187,5 +229,6 @@ public class UiElement<E extends UiElement<E>>
 	final void setProperties(MutableProperties rNewProperties)
 	{
 		aProperties = rNewProperties;
+		bModified   = true;
 	}
 }

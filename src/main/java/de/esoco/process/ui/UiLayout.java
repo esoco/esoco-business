@@ -54,10 +54,9 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 
 	private final LayoutType eLayoutType;
 
-	private boolean bLayoutPerformed = false;
-	private boolean bNextRow		 = false;
-	private int     nCurrentRow		 = 0;
-	private int     nNextColumn		 = 0;
+	private boolean bNextRow    = false;
+	private int     nCurrentRow = 0;
+	private int     nNextColumn = 0;
 
 	private List<Row>    aRows    = new ArrayList<>();
 	private List<Column> aColumns = new ArrayList<>();
@@ -105,6 +104,20 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Applies this layout to the given container.
+	 *
+	 * @param rContainer The container
+	 */
+	public final void applyTo(UiContainer<?> rContainer)
+	{
+		if (isModified())
+		{
+			applyToContainer(rContainer);
+			setModified(false);
+		}
+	}
 
 	/***************************************
 	 * Returns the cells in this layout. Their order will follow the layout
@@ -235,34 +248,29 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 *
 	 * @param rContainer The container
 	 */
-	protected void applyTo(UiContainer<?> rContainer)
+	protected void applyToContainer(UiContainer<?> rContainer)
 	{
-		rContainer.set(LAYOUT, eLayoutType);
+		nNextColumn = 0;
+		nCurrentRow = 0;
 
-		if (!bLayoutPerformed)
+		for (UiComponent<?, ?> rComponent : rContainer.getComponents())
 		{
-			nNextColumn = 0;
-			nCurrentRow = 0;
-
-			for (UiComponent<?, ?> rComponent : rContainer.getComponents())
-			{
-				layoutComponent(rComponent);
-			}
-
-			for (Cell rCell : aCells)
-			{
-				rCell.checkRepositioning();
-			}
-
-			// remove trailing empty rows that may have been created due to
-			// cell repositioning
-			while (nCurrentRow > 0 && aRows.get(nCurrentRow).isEmpty())
-			{
-				aRows.remove(nCurrentRow--);
-			}
-
-			bLayoutPerformed = true;
+			layoutComponent(rComponent);
 		}
+
+		for (Cell rCell : aCells)
+		{
+			rCell.checkRepositioning();
+		}
+
+		// remove trailing empty rows that may have been created due to
+		// cell repositioning
+		while (nCurrentRow > 0 && aRows.get(nCurrentRow).isEmpty())
+		{
+			aRows.remove(nCurrentRow--);
+		}
+
+		rContainer.set(LAYOUT, eLayoutType);
 	}
 
 	/***************************************
@@ -426,7 +434,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 	 */
 	protected void reset(int nRows, int nColumns)
 	{
-		bLayoutPerformed = false;
+		setModified(true);
 		aColumns.clear();
 		aRows.clear();
 		aCells.clear();
