@@ -20,6 +20,9 @@ import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /********************************************************************
  * A common base class for elements in the process UI framework.
@@ -34,6 +37,8 @@ public class UiElement<E extends UiElement<E>>
 	private boolean bModified = true;
 
 	private MutableProperties aProperties = new StringProperties();
+
+	private Set<UiComponent<?, ?>> aComponentsAppliedTo = new HashSet<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -63,9 +68,10 @@ public class UiElement<E extends UiElement<E>>
 	 */
 	public void applyTo(UiComponent<?, ?> rComponent)
 	{
-		if (bModified)
+		if (bModified || !aComponentsAppliedTo.contains(rComponent))
 		{
 			applyPropertiesTo(rComponent);
+			aComponentsAppliedTo.add(rComponent);
 			bModified = false;
 		}
 	}

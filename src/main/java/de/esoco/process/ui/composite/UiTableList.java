@@ -102,6 +102,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	private DataProvider<T> rDataProvider;
 
 	private UiListPanel    aHeaderPanel;
+	private Item		   aHeaderItem;
 	private UiLayoutPanel  aTableHeader;
 	private UiListPanel    aDataList;
 	private UiContainer<?> aEmptyTableInfo;
@@ -153,8 +154,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			? ExpandableListStyle.valueOf(eExpandStyle.name()) : null;
 
 		aHeaderPanel    = new UiListPanel(this);
+		aHeaderItem     = aHeaderPanel.addItem();
 		aTableHeader    =
-			aHeaderPanel.addItem().createHeaderPanel(new UiColumnGridLayout());
+			aHeaderItem.createHeaderPanel(new UiColumnGridLayout());
 		aDataList	    = new UiListPanel(this, eListStyle);
 		aEmptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
 
@@ -222,6 +224,25 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	public void addEmptyTableInfo(Consumer<UiBuilder<?>> fCreateEmtpyTableInfo)
 	{
 		fCreateEmtpyTableInfo.accept(aEmptyTableInfo.builder());
+	}
+
+	/***************************************
+	 * Creates and returns a container that allows to add expanded content to
+	 * the header of this list. The content will be displayed if the header is
+	 * expanded by clicking on it. This method must be invoked before the list
+	 * is rendered for the first time because it needs to modify the styles of
+	 * the header components to support expansion.
+	 *
+	 * @param  rLayout The layout of the expanded header content panel the
+	 *                 builder is created for
+	 *
+	 * @return TODO: The container for the expanded header content
+	 */
+	public UiContainer<?> addExpandedHeader(UiLayout rLayout)
+	{
+		aHeaderPanel.setExpandStyle(ExpandableListStyle.EXPAND);
+
+		return aHeaderItem.builder().addPanel(rLayout);
 	}
 
 	/***************************************

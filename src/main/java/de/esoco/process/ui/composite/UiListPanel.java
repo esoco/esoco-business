@@ -55,7 +55,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private final ExpandableListStyle eExpandStyle;
+	private ExpandableListStyle eExpandStyle;
 
 	private List<Item> aItems = new ArrayList<>();
 
@@ -84,15 +84,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	{
 		super(rParent, new ListLayout());
 
-		this.eExpandStyle = eExpandStyle;
-
-		ListLayoutStyle eListStyle =
-			eExpandStyle == ExpandableListStyle.EXPAND
-			? ListLayoutStyle.EXPAND
-			: eExpandStyle == ExpandableListStyle.POPOUT
-			? ListLayoutStyle.POPOUT : null;
-
-		set(LIST_LAYOUT_STYLE, eListStyle);
+		setExpandStyle(eExpandStyle);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -140,6 +132,33 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	{
 		aItems.remove(rItem);
 		removeComponent(rItem);
+	}
+
+	/***************************************
+	 * Sets the expand style of this list. This can typically only be changed
+	 * before the list ist first rendered.
+	 *
+	 * @param eExpandStyle The new expandable list style
+	 */
+	public void setExpandStyle(ExpandableListStyle eExpandStyle)
+	{
+		this.eExpandStyle = eExpandStyle;
+
+		if (eExpandStyle != null)
+		{
+			set(LIST_LAYOUT_STYLE,
+				ListLayoutStyle.valueOf(eExpandStyle.name()));
+		}
+	}
+
+	/***************************************
+	 * Returns the expand style of this instance.
+	 *
+	 * @return The expandable list style (NULL for none)
+	 */
+	protected final ExpandableListStyle getExpandStyle()
+	{
+		return eExpandStyle;
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
