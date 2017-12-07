@@ -20,7 +20,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.model.AbstractDataProvider;
 import de.esoco.lib.model.DataProvider;
-
+import de.esoco.lib.property.SortDirection;
 import de.esoco.storage.QueryPredicate;
 
 import java.util.ArrayList;

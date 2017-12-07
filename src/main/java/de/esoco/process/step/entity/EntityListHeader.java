@@ -18,10 +18,24 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
+import de.esoco.lib.property.SortDirection;
+import de.esoco.lib.text.TextConvert;
 
+import de.esoco.process.Parameter;
 import de.esoco.process.step.InteractionFragment;
+
+import de.esoco.storage.StoragePredicates;
+import de.esoco.storage.StoragePredicates.SortPredicate;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.obrel.core.RelationType;
+
+import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
 
 
 /********************************************************************
@@ -36,9 +50,16 @@ public abstract class EntityListHeader<E extends Entity>
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String COLUMN_BASE_STYLE = "EntityListColumn";
+
 	//~ Instance fields --------------------------------------------------------
 
 	private final EntityList<E, ?> rEntityList;
+
+	private RelationType<?> rCurrentSortColumn = null;
+
+	private Map<RelationType<?>, Parameter<String>> aColumnParams =
+		new HashMap<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -91,6 +112,13 @@ public abstract class EntityListHeader<E extends Entity>
 		{
 			panel(p -> initDataPanel(p));
 		}
+
+		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
+
+		if (pSortColumn != null)
+		{
+			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
+		}
 	}
 
 	/***************************************
@@ -103,6 +131,36 @@ public abstract class EntityListHeader<E extends Entity>
 	protected abstract void initTitlePanel(InteractionFragment rHeaderPanel);
 
 	/***************************************
+	 * Creates a parameter for a column title from a relation type.
+	 *
+	 * @param  rPanel The fragment of the title panel
+	 * @param  rAttr  The relation type to create the column title for
+	 *
+	 * @return A parameter instance for the column title
+	 */
+	protected Parameter<String> createColumnTitle(
+		InteractionFragment   rPanel,
+		final RelationType<?> rAttr)
+	{
+		String sAttrName = rAttr.getSimpleName();
+
+		String sColumnTitle =
+			"$lbl" + getEntityList().getEntityType().getSimpleName() +
+			TextConvert.capitalizedIdentifier(sAttrName);
+
+		Parameter<String> aColumnTitle =
+			rPanel.label(sColumnTitle)
+				  .style(COLUMN_BASE_STYLE)
+				  .buttonStyle(ButtonStyle.LINK)
+				  .set(NO_EVENT_PROPAGATION)
+				  .onAction(v -> changeSortColumn(rAttr));
+
+		aColumnParams.put(rAttr, aColumnTitle);
+
+		return aColumnTitle;
+	}
+
+	/***************************************
 	 * Must be overridden to initialize the the expanded header content if the
 	 * method {@link #getHeaderType()} returns an expanding header style. The
 	 * data panel layout is pre-set to {@link LayoutType#GRID}.
@@ -111,5 +169,67 @@ public abstract class EntityListHeader<E extends Entity>
 	 */
 	protected void initDataPanel(InteractionFragment rContentPanel)
 	{
+	}
+
+	/***************************************
+	 * Toggles the sorting of a certain column attribute by switching through
+	 * the states ascending, descending, and no sorting. This will change the
+	 * style of the sort column header accordingly.
+	 *
+	 * @param  rSortColumn The new sort column or NULL for no sorting
+	 *
+	 * @return The current style of the sorted column (NULL for not sorted)
+	 */
+	protected SortDirection toggleSorting(RelationType<?> rSortColumn)
+	{
+		if (rCurrentSortColumn != null && rCurrentSortColumn != rSortColumn)
+		{
+			aColumnParams.get(rCurrentSortColumn).style(null);
+		}
+
+		rCurrentSortColumn = rSortColumn;
+
+		Parameter<String> rColumnParam = aColumnParams.get(rCurrentSortColumn);
+		String			  sStyle	   = rColumnParam.style();
+		SortDirection     eDirection   = null;
+
+		if (COLUMN_BASE_STYLE.equals(sStyle))
+		{
+			eDirection = SortDirection.ASCENDING;
+			sStyle     = COLUMN_BASE_STYLE + " sort ascending";
+		}
+		else if (sStyle.endsWith("ascending"))
+		{
+			eDirection = SortDirection.DESCENDING;
+			sStyle     = COLUMN_BASE_STYLE + " sort descending";
+		}
+		else
+		{
+			sStyle = COLUMN_BASE_STYLE;
+		}
+
+		rColumnParam.style(sStyle);
+
+		return eDirection;
+	}
+
+	/***************************************
+	 * Changes the active sorting column.
+	 *
+	 * @param rSortColumn The column attribute relation type to sort on
+	 */
+	private void changeSortColumn(RelationType<?> rSortColumn)
+	{
+		SortDirection    eDirection = toggleSorting(rSortColumn);
+		SortPredicate<E> pSort	    = null;
+
+		if (eDirection != null)
+		{
+			pSort =
+				StoragePredicates.sortBy(rCurrentSortColumn,
+										 eDirection == SortDirection.ASCENDING);
+		}
+
+		rEntityList.setSortColumn(pSort);
 	}
 }

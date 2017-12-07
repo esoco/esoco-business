@@ -20,20 +20,17 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.StringProperties;
-import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.Parameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StoragePredicates;
-import de.esoco.storage.StoragePredicates.SortPredicate;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,8 +42,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.obrel.core.RelationType;
-
-import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
 
 
 /********************************************************************
@@ -67,19 +62,14 @@ public class EntityAttributesHeader<E extends Entity>
 
 	//~ Static fields/initializers ---------------------------------------------
 
-	private static final String COLUMN_BASE_STYLE = "EntityListColumn";
-
 	private static final long serialVersionUID = 1L;
 
 	//~ Instance fields --------------------------------------------------------
 
-	private RelationType<?> rCurrentSortColumn = null;
-
 	private Map<RelationType<?>, MutableProperties> aColumnProperties =
 		new LinkedHashMap<>();
 
-	private Map<RelationType<?>, Parameter<String>> aColumnParams;
-	private List<Parameter<?>>					    aFilterParams;
+	private List<Parameter<?>> aFilterParams;
 
 	private Map<RelationType<?>, Predicate<? super E>> aColumnFilters =
 		new HashMap<>();
@@ -163,8 +153,6 @@ public class EntityAttributesHeader<E extends Entity>
 	@Override
 	public void initTitlePanel(InteractionFragment p)
 	{
-		aColumnParams = new HashMap<>(aColumnProperties.size());
-
 		// set the style name of the parent fragment (the actual header)
 		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
 
@@ -177,14 +165,6 @@ public class EntityAttributesHeader<E extends Entity>
 
 			aTitleLabel.sameRow();
 			applyColumnProperties(aTitleLabel, rProperties);
-			aColumnParams.put(rAttr, aTitleLabel);
-		}
-
-		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
-
-		if (pSortColumn != null)
-		{
-			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
 		}
 	}
 
@@ -281,34 +261,6 @@ public class EntityAttributesHeader<E extends Entity>
 	}
 
 	/***************************************
-	 * Creates a parameter for a column title.
-	 *
-	 * @param  rPanel The fragment of the title panel
-	 * @param  rAttr  The attribute to create the column title for
-	 *
-	 * @return A parameter instance for the column title
-	 */
-	protected Parameter<String> createColumnTitle(
-		InteractionFragment   rPanel,
-		final RelationType<?> rAttr)
-	{
-		String sAttrName = rAttr.getSimpleName();
-
-		String sColumnTitle =
-			"$lbl" + getEntityList().getEntityType().getSimpleName() +
-			TextConvert.capitalizedIdentifier(sAttrName);
-
-		Parameter<String> aTitleLabel =
-			rPanel.label(sColumnTitle)
-				  .style(COLUMN_BASE_STYLE)
-				  .buttonStyle(ButtonStyle.LINK)
-				  .set(NO_EVENT_PROPAGATION)
-				  .onAction(v -> changeSortColumn(rAttr));
-
-		return aTitleLabel;
-	}
-
-	/***************************************
 	 * Handle the input in the filter parameter of a column.
 	 *
 	 * @param rAttribute   The column attribute
@@ -363,26 +315,6 @@ public class EntityAttributesHeader<E extends Entity>
 	}
 
 	/***************************************
-	 * Changes the active sorting column.
-	 *
-	 * @param rSortColumn The column attribute relation type to sort on
-	 */
-	private void changeSortColumn(RelationType<?> rSortColumn)
-	{
-		String			 sSortStyle = toggleSorting(rSortColumn);
-		SortPredicate<E> pSort	    = null;
-
-		if (!COLUMN_BASE_STYLE.equals(sSortStyle))
-		{
-			pSort =
-				StoragePredicates.sortBy(rCurrentSortColumn,
-										 sSortStyle.contains("ascending"));
-		}
-
-		getEntityList().setSortColumn(pSort);
-	}
-
-	/***************************************
 	 * Handles the actions for the header's data section.
 	 *
 	 * @param eAction The action
@@ -400,44 +332,5 @@ public class EntityAttributesHeader<E extends Entity>
 			aColumnFilters.clear();
 			applyColumnFilters();
 		}
-	}
-
-	/***************************************
-	 * Toggles the sorting of a certain column attribute by switching through
-	 * the states ascending, descending, and no sorting. This will change the
-	 * style of the sort column header accordingly.
-	 *
-	 * @param  rSortColumn The new sort column or NULL for no sorting
-	 *
-	 * @return The current style of the sorted column (NULL for not sorted)
-	 */
-	private String toggleSorting(RelationType<?> rSortColumn)
-	{
-		if (rCurrentSortColumn != null && rCurrentSortColumn != rSortColumn)
-		{
-			aColumnParams.get(rCurrentSortColumn).style(null);
-		}
-
-		rCurrentSortColumn = rSortColumn;
-
-		Parameter<String> rColumnParam = aColumnParams.get(rCurrentSortColumn);
-		String			  sStyle	   = rColumnParam.style();
-
-		if (COLUMN_BASE_STYLE.equals(sStyle))
-		{
-			sStyle = COLUMN_BASE_STYLE + " sort ascending";
-		}
-		else if (sStyle.endsWith("ascending"))
-		{
-			sStyle = COLUMN_BASE_STYLE + " sort descending";
-		}
-		else
-		{
-			sStyle = COLUMN_BASE_STYLE;
-		}
-
-		rColumnParam.style(sStyle);
-
-		return sStyle;
 	}
 }

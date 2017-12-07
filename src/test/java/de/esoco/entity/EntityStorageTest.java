@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package de.esoco.entity;
 
 import de.esoco.lib.expression.predicate.ElementPredicate;
 import de.esoco.lib.manage.TransactionException;
+import de.esoco.lib.property.SortDirection;
 
 import de.esoco.storage.StorageException;
 
@@ -38,8 +39,8 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 
-import static de.esoco.entity.EntityPredicates.ifAttribute;
 import static de.esoco.entity.EntityPredicates.hasExtraAttribute;
+import static de.esoco.entity.EntityPredicates.ifAttribute;
 import static de.esoco.entity.ExtraAttributes.newExtraAttribute;
 import static de.esoco.entity.TestContact.CONTACT_VALUE;
 import static de.esoco.entity.TestPerson.AGE;
@@ -266,11 +267,10 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 		List<TestPerson> rEntities =
 			EntityManager.queryEntities(TestPerson.class,
 										hasExtraAttribute(TestPerson.class,
-															ExtraAttribute.KEY
-															.is(equalTo(XA1))
-															.and(ExtraAttribute
-																 .VALUE.is(elementOf("XA1-Test",
-																					 "XA2-Test")))),
+														  ExtraAttribute.KEY.is(equalTo(XA1))
+														  .and(ExtraAttribute
+															   .VALUE.is(elementOf("XA1-Test",
+																				   "XA2-Test")))),
 										10);
 
 		assertEquals(2, rEntities.size());
@@ -278,16 +278,16 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 		rEntities =
 			EntityManager.queryEntities(TestPerson.class,
 										hasExtraAttribute(TestPerson.class,
-															ExtraAttribute.VALUE
-															.is(like("%-Test"))),
+														  ExtraAttribute.VALUE
+														  .is(like("%-Test"))),
 										10);
 		assertEquals(2, rEntities.size());
 
 		rEntities =
 			EntityManager.queryEntities(TestPerson.class,
 										hasExtraAttribute(TestPerson.class,
-															ExtraAttribute.VALUE
-															.is(equalTo("42"))),
+														  ExtraAttribute.VALUE
+														  .is(equalTo("42"))),
 										10);
 		assertEquals(1, rEntities.size());
 	}
@@ -399,16 +399,17 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 		ElementPredicate<Entity, String> aSortPredicate =
 			ifAttribute(FORENAME, alwaysTrue());
 
-		aSortPredicate.set(MetaTypes.SORT_ASCENDING, true);
+		aSortPredicate.set(MetaTypes.SORT_DIRECTION, SortDirection.ASCENDING);
 
 		List<TestPerson> aEntities = executePersonQuery(aSortPredicate);
 
 		assertTrue(aEntities.get(0).get(FORENAME).equals("First1"));
 
-		aSortPredicate.set(MetaTypes.SORT_ASCENDING, false);
+		aSortPredicate.set(MetaTypes.SORT_DIRECTION, SortDirection.DESCENDING);
 
 		aEntities = executePersonQuery(aSortPredicate);
-		assertTrue(aEntities.get(0).get(FORENAME)
+		assertTrue(aEntities.get(0)
+				   .get(FORENAME)
 				   .equals("First" + TEST_DATA_SIZE));
 	}
 
@@ -425,23 +426,33 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 
 		addContacts(rPerson.get(CONTACTS).get(0), "sub@test.net", "12345");
 		assertEquals(2,
-					 rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN)
+					 rPerson.get(CONTACTS)
+					 .get(0)
+					 .get(TestContact.CHILDREN)
 					 .size());
 		EntityManager.storeEntity(rPerson, null);
 		assertEquals(2,
-					 rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN)
+					 rPerson.get(CONTACTS)
+					 .get(0)
+					 .get(TestContact.CHILDREN)
 					 .size());
 
 		rPerson = queryPersonByLastName("Test1");
 		assertEquals(2,
-					 rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN)
+					 rPerson.get(CONTACTS)
+					 .get(0)
+					 .get(TestContact.CHILDREN)
 					 .size());
 		assertEquals("sub@test.net",
-					 rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN)
+					 rPerson.get(CONTACTS)
+					 .get(0)
+					 .get(TestContact.CHILDREN)
 					 .get(0)
 					 .get(CONTACT_VALUE));
 		assertEquals("12345",
-					 rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN)
+					 rPerson.get(CONTACTS)
+					 .get(0)
+					 .get(TestContact.CHILDREN)
 					 .get(1)
 					 .get(CONTACT_VALUE));
 	}
