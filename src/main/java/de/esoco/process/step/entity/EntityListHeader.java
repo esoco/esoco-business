@@ -106,18 +106,23 @@ public abstract class EntityListHeader<E extends Entity>
 	{
 		layout(LayoutType.LIST_ITEM);
 
-		panel(p -> initTitlePanel(p));
+		panel(p ->
+  			{
+  				initTitlePanel(p);
+
+  				SortPredicate<? super E> pSortColumn =
+  					getEntityList().getSortColumn();
+
+  				if (pSortColumn != null)
+  				{
+  					toggleSorting((RelationType<?>) pSortColumn
+  								  .getElementDescriptor());
+  				}
+			  });
 
 		if (getHeaderType() != ListLayoutStyle.SIMPLE)
 		{
 			panel(p -> initDataPanel(p));
-		}
-
-		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
-
-		if (pSortColumn != null)
-		{
-			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
 		}
 	}
 
@@ -184,7 +189,7 @@ public abstract class EntityListHeader<E extends Entity>
 	{
 		if (rCurrentSortColumn != null && rCurrentSortColumn != rSortColumn)
 		{
-			aColumnParams.get(rCurrentSortColumn).style(null);
+			aColumnParams.get(rCurrentSortColumn).style(COLUMN_BASE_STYLE);
 		}
 
 		rCurrentSortColumn = rSortColumn;
