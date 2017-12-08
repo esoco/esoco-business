@@ -34,6 +34,7 @@ import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiIcon;
+import de.esoco.process.ui.component.UiIconButton;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
@@ -43,6 +44,7 @@ import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.event.UiHasUpdateEvents;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.graphics.UiImageResource;
+import de.esoco.process.ui.graphics.UiMaterialIcon;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.style.UiStyle;
@@ -241,6 +243,14 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	public UiContainer<?> addExpandedHeader(UiLayout rLayout)
 	{
 		aHeaderPanel.setExpandStyle(ExpandableListStyle.EXPAND);
+
+		UiIconButton aIndicator =
+			aTableHeader.builder()
+						.addIconButton(UiMaterialIcon.MORE_VERT)
+						.tooltip("ttExpandedListHeader");
+
+		aIndicator.style().styleName("ExpandableHeaderIndicator");
+		aIndicator.cell().colSpan(1);
 
 		return aHeaderItem.builder().addPanel(rLayout);
 	}

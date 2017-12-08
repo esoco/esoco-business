@@ -26,6 +26,7 @@ import de.esoco.lib.text.TextConvert;
 
 import de.esoco.process.Parameter;
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.graphics.UiMaterialIcon;
 
 import de.esoco.storage.StoragePredicates;
 import de.esoco.storage.StoragePredicates.SortPredicate;
@@ -35,7 +36,9 @@ import java.util.Map;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
+import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 
 
 /********************************************************************
@@ -134,6 +137,25 @@ public abstract class EntityListHeader<E extends Entity>
 	 * @param rHeaderPanel The header panel fragment
 	 */
 	protected abstract void initTitlePanel(InteractionFragment rHeaderPanel);
+
+	/***************************************
+	 * Adds a component that indicates that this header is expandable.
+	 *
+	 * @param  rHeaderPanel The header panel
+	 *
+	 * @return The parameter representing the indicator
+	 */
+	protected Parameter<String> addExpandableHeaderIndicator(
+		InteractionFragment rHeaderPanel)
+	{
+		return rHeaderPanel.label("")
+						   .input()
+						   .sameRow(1)
+						   .tooltip("$ttExpandedListHeader")
+						   .style("ExpandableHeaderIndicator")
+						   .set(ICON, UiMaterialIcon.MORE_VERT.name())
+						   .set(BUTTON_STYLE, ButtonStyle.ICON);
+	}
 
 	/***************************************
 	 * Creates a parameter for a column title from a relation type.
