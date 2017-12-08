@@ -94,7 +94,7 @@ public class EnumParameter<E extends Enum<E>>
 	/***************************************
 	 * Prepares a download that is associated with an event on this enum
 	 * parameter. This method can be invoked during the handling of the event
-	 * and the download will then be executed as the result of the even.
+	 * and the download will then be executed as the result of the event.
 	 *
 	 * @param  sFileName          The file name of the download
 	 * @param  eFileType          The file type of the download
