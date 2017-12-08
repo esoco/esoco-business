@@ -60,6 +60,7 @@ import org.obrel.type.StandardTypes;
 import static de.esoco.history.HistoryManager.HISTORIZED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_CLEANUP_ACTIONS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_INITIALIZATIONS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_USAGE_COUNT;
 import static de.esoco.process.ProcessRelationTypes.PROCESS;
@@ -331,6 +332,20 @@ public class Process extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Adds an action that will be performed once before the next process
+	 * execution after an interaction. After execution it will be removed from
+	 * the list of cleanup actions.
+	 *
+	 * @param fAction A function performing the cleanup action
+	 *
+	 * @see   #executeInteractionCleanupActions()
+	 */
+	public void addInteractionCleanupAction(Runnable fAction)
+	{
+		getParameter(INTERACTION_CLEANUP_ACTIONS).add(fAction);
+	}
+
+	/***************************************
 	 * Checks whether this process can be rolled back to a certain step. An
 	 * application should invoke the method {@link #rollbackTo(ProcessStep)} for
 	 * a certain step only if this method returns TRUE for that step. Else the
@@ -461,6 +476,19 @@ public class Process extends SerializableRelatedObject
 															  true);
 			}
 		}
+	}
+
+	/***************************************
+	 * Evaluates all cleanup action predicates and then removes them.
+	 *
+	 * @see #addInteractionCleanupAction(Predicate)
+	 */
+	public void executeInteractionCleanupActions()
+	{
+		List<Runnable> rActions = getParameter(INTERACTION_CLEANUP_ACTIONS);
+
+		rActions.forEach(rAction -> rAction.run());
+		rActions.clear();
 	}
 
 	/***************************************

@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.FileType;
+
+import de.esoco.lib.expression.Function;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.PropertyName;
@@ -32,6 +35,9 @@ import java.util.Set;
 
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
+
+import static de.esoco.data.element.DataElement.HIDDEN_URL;
+import static de.esoco.data.element.DataElement.INTERACTION_URL;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.DISABLED;
@@ -78,6 +84,54 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	{
 		this.rFragment  = rFragment;
 		this.rParamType = rParamType;
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Initiates a download for a parameter. This method must be invoked during
+	 * the handling of an event and the download will then be executed as the
+	 * result of the event. After being processed by the process interaction the
+	 * generated download URL will be removed from the process parameter.
+	 *
+	 * <p>This method is protected because it's functionality should only be
+	 * exposed by the API of certain parameter wrappers (e.g. buttons).</p>
+	 *
+	 * @param  rParam             The parameter to initiate the download for
+	 * @param  sFileName          The file name of the download
+	 * @param  eFileType          The file type of the download
+	 * @param  fDownloadGenerator The function that generated the download data
+	 *
+	 * @throws RuntimeProcessException If the download preparation fails
+	 */
+	@SuppressWarnings("unchecked")
+	protected static void initiateDownload(
+		ParameterWrapper<?, ?> rParam,
+		String				   sFileName,
+		FileType			   eFileType,
+		Function<FileType, ?>  fDownloadGenerator)
+	{
+		InteractionFragment rFragment    = rParam.fragment();
+		String			    sDownloadUrl;
+
+		try
+		{
+			sDownloadUrl =
+				rFragment.prepareDownload(sFileName,
+										  eFileType,
+										  fDownloadGenerator);
+
+			rParam.set(HIDDEN_URL);
+			rParam.set(INTERACTION_URL, sDownloadUrl);
+			rFragment.getProcess()
+					 .addInteractionCleanupAction(() ->
+												  rParam.remove(INTERACTION_URL)
+												  .remove(HIDDEN_URL));
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeProcessException(rFragment, e);
+		}
 	}
 
 	//~ Methods ----------------------------------------------------------------

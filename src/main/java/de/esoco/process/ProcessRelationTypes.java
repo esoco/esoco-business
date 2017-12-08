@@ -233,6 +233,13 @@ public class ProcessRelationTypes
 		newType();
 
 	/**
+	 * A list of actions that will be performed once before the next process
+	 * execution after an interaction.
+	 */
+	public static final RelationType<List<Runnable>> INTERACTION_CLEANUP_ACTIONS =
+		newListType();
+
+	/**
 	 * A set of the interaction parameters that will continue the process if
 	 * they cause an interaction. This are typically enumerated interaction
 	 * parameters with the style {@link ListStyle#IMMEDIATE}. This relation must

@@ -17,7 +17,6 @@
 package de.esoco.process.ui;
 
 import de.esoco.data.FileType;
-import de.esoco.data.element.DataElement;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.property.InteractionEventType;
@@ -71,33 +70,13 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	 * @param  eFileType          The file type of the download
 	 * @param  fDownloadGenerator The function that generated the download data
 	 *
-	 * @return This parameter instance
-	 *
 	 * @throws RuntimeProcessException If the download preparation fails
 	 */
-	@SuppressWarnings("unchecked")
-	public C initiateDownload(String				sFileName,
-							  FileType				eFileType,
-							  Function<FileType, ?> fDownloadGenerator)
+	public void initiateDownload(String				   sFileName,
+								 FileType			   eFileType,
+								 Function<FileType, ?> fDownloadGenerator)
 	{
-		String sDownloadUrl;
-
-		try
-		{
-			sDownloadUrl =
-				fragment().prepareDownload(sFileName,
-										   eFileType,
-										   fDownloadGenerator);
-
-			set(DataElement.HIDDEN_URL);
-			set(DataElement.INTERACTION_URL, sDownloadUrl);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeProcessException(fragment(), e);
-		}
-
-		return (C) this;
+		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
 	}
 
 	/***************************************

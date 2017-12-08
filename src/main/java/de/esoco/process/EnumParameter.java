@@ -17,7 +17,6 @@
 package de.esoco.process;
 
 import de.esoco.data.FileType;
-import de.esoco.data.element.DataElement;
 
 import de.esoco.lib.expression.Function;
 
@@ -102,32 +101,13 @@ public class EnumParameter<E extends Enum<E>>
 	 * @param  eFileType          The file type of the download
 	 * @param  fDownloadGenerator The function that generated the download data
 	 *
-	 * @return This parameter instance
-	 *
 	 * @throws Exception If the download preparation fails
 	 */
-	public EnumParameter<E> prepareDownload(
-		String				  sFileName,
-		FileType			  eFileType,
-		Function<FileType, ?> fDownloadGenerator) throws Exception
+	public void prepareDownload(String				  sFileName,
+								FileType			  eFileType,
+								Function<FileType, ?> fDownloadGenerator)
+		throws Exception
 	{
-		String sDownloadUrl =
-			fragment().prepareDownload(sFileName,
-									   eFileType,
-									   fDownloadGenerator);
-
-		set(DataElement.HIDDEN_URL);
-		set(DataElement.INTERACTION_URL, sDownloadUrl);
-
-		return this;
-	}
-
-	/***************************************
-	 * Reset the download properties for this parameter.
-	 */
-	public void resetDownload()
-	{
-		remove(DataElement.HIDDEN_URL);
-		remove(DataElement.INTERACTION_URL);
+		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
 	}
 }
