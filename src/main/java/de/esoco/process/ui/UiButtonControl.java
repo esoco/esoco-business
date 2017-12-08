@@ -16,8 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.data.FileType;
+import de.esoco.data.element.DataElement;
+
+import de.esoco.lib.expression.Function;
 import de.esoco.lib.property.InteractionEventType;
 
+import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ui.event.UiHasActionEvents;
 
 import java.util.Collection;
@@ -48,6 +53,52 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Initiates a download from this button. This method must be invoked during
+	 * the handling of an event and the download will then be executed as the
+	 * result of the event. After being processed by the process interaction the
+	 * generated download URL will be removed from the button's process
+	 * parameter. A typical usage would look like this:
+	 *
+	 * <pre>
+	    aButton.onClick(v -> initiateDownload(sFileName,
+	                                          eFileType,
+	                                          fDownloadGenerator));
+	 * </pre>
+	 *
+	 * @param  sFileName          The file name of the download
+	 * @param  eFileType          The file type of the download
+	 * @param  fDownloadGenerator The function that generated the download data
+	 *
+	 * @return This parameter instance
+	 *
+	 * @throws RuntimeProcessException If the download preparation fails
+	 */
+	@SuppressWarnings("unchecked")
+	public C initiateDownload(String				sFileName,
+							  FileType				eFileType,
+							  Function<FileType, ?> fDownloadGenerator)
+	{
+		String sDownloadUrl;
+
+		try
+		{
+			sDownloadUrl =
+				fragment().prepareDownload(sFileName,
+										   eFileType,
+										   fDownloadGenerator);
+
+			set(DataElement.HIDDEN_URL);
+			set(DataElement.INTERACTION_URL, sDownloadUrl);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeProcessException(fragment(), e);
+		}
+
+		return (C) this;
+	}
 
 	/***************************************
 	 * {@inheritDoc}
