@@ -107,23 +107,23 @@ public abstract class EntityListHeader<E extends Entity>
 	@Override
 	public void init() throws Exception
 	{
+		boolean bExpandable = getHeaderType() != ListLayoutStyle.SIMPLE;
+
 		layout(LayoutType.LIST_ITEM);
 
-		panel(p ->
+		panel(rHeader ->
   			{
-  				initTitlePanel(p);
-
-  				SortPredicate<? super E> pSortColumn =
-  					getEntityList().getSortColumn();
-
-  				if (pSortColumn != null)
+  				if (bExpandable)
   				{
-  					toggleSorting((RelationType<?>) pSortColumn
-  								  .getElementDescriptor());
+  					initExpandableHeaderPanel(rHeader);
+  				}
+  				else
+  				{
+  					buildTitlePanel(rHeader);
   				}
 			  });
 
-		if (getHeaderType() != ListLayoutStyle.SIMPLE)
+		if (bExpandable)
 		{
 			panel(p -> initDataPanel(p));
 		}
@@ -139,7 +139,9 @@ public abstract class EntityListHeader<E extends Entity>
 	protected abstract void initTitlePanel(InteractionFragment rHeaderPanel);
 
 	/***************************************
-	 * Adds a component that indicates that this header is expandable.
+	 * Adds a component that indicates that this header is expandable. The panel
+	 * is expected to have a column grid layout and should typically be the same
+	 * as the argument to {@link #initTitlePanel(InteractionFragment)}.
 	 *
 	 * @param  rHeaderPanel The header panel
 	 *
@@ -199,6 +201,18 @@ public abstract class EntityListHeader<E extends Entity>
 	}
 
 	/***************************************
+	 * Will be invoked to init the wrapping header panel if this header is
+	 * expandable.
+	 *
+	 * @param rHeader The header panel
+	 */
+	protected void initExpandableHeaderPanel(InteractionFragment rHeader)
+	{
+		rHeader.layout(LayoutType.HEADER);
+		rHeader.panel(p -> buildTitlePanel(p));
+	}
+
+	/***************************************
 	 * Toggles the sorting of a certain column attribute by switching through
 	 * the states ascending, descending, and no sorting. This will change the
 	 * style of the sort column header accordingly.
@@ -238,6 +252,23 @@ public abstract class EntityListHeader<E extends Entity>
 		rColumnParam.style(sStyle);
 
 		return eDirection;
+	}
+
+	/***************************************
+	 * Builds and initializes the title panel of this header.
+	 *
+	 * @param rPanel TODO: DOCUMENT ME!
+	 */
+	private void buildTitlePanel(InteractionFragment rPanel)
+	{
+		initTitlePanel(rPanel);
+
+		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
+
+		if (pSortColumn != null)
+		{
+			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor());
+		}
 	}
 
 	/***************************************

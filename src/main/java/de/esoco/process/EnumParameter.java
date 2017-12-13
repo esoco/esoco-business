@@ -106,7 +106,6 @@ public class EnumParameter<E extends Enum<E>>
 	public void prepareDownload(String				  sFileName,
 								FileType			  eFileType,
 								Function<FileType, ?> fDownloadGenerator)
-		throws Exception
 	{
 		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
 	}

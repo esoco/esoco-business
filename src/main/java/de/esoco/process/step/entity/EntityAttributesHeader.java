@@ -110,65 +110,6 @@ public class EntityAttributesHeader<E extends Entity>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void initDataPanel(InteractionFragment p)
-	{
-//		if (aFilterParams == null)
-//		{
-//			aFilterParams = new ArrayList<>(aColumnProperties.size());
-//
-//			p.fragmentParam().alignVertical(Alignment.END);
-//
-//			for (Entry<RelationType<?>, MutableProperties> rColumn :
-//				 aColumnProperties.entrySet())
-//			{
-//				RelationType<?> rAttr		 = rColumn.getKey();
-//				HasProperties	rProperties	 = rColumn.getValue();
-//				Parameter<?>	aFilterParam = createAttributeFilter(p, rAttr);
-//
-//				if (aFilterParam == null)
-//				{
-//					aFilterParam = p.label("");
-//				}
-//				else
-//				{
-//					aFilterParam.onUpdate(v -> handleFilterInput(rAttr, v));
-//				}
-//
-//				aFilterParam.sameRow().hideLabel();
-//				applyColumnProperties(aFilterParam, rProperties);
-//				aFilterParams.add(aFilterParam);
-//
-//				iconButtons(HeaderDataAction.class).alignHorizontal(Alignment.END)
-//												   .onAction(this::handleHeaderDataAction);
-//			}
-//		}
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void initTitlePanel(InteractionFragment p)
-	{
-		// set the style name of the parent fragment (the actual header)
-		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
-
-		for (Entry<RelationType<?>, MutableProperties> rColumn :
-			 aColumnProperties.entrySet())
-		{
-			RelationType<?>   rAttr		  = rColumn.getKey();
-			HasProperties     rProperties = rColumn.getValue();
-			Parameter<String> aTitleLabel = createColumnTitle(p, rAttr);
-
-			aTitleLabel.sameRow();
-			applyColumnProperties(aTitleLabel, rProperties);
-		}
-	}
-
-	/***************************************
 	 * Sets a column property for an attribute.
 	 *
 	 * @param rAttribute The attribute to set the property for
@@ -294,6 +235,65 @@ public class EntityAttributesHeader<E extends Entity>
 		}
 
 		applyColumnFilters();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void initDataPanel(InteractionFragment p)
+	{
+//		if (aFilterParams == null)
+//		{
+//			aFilterParams = new ArrayList<>(aColumnProperties.size());
+//
+//			p.fragmentParam().alignVertical(Alignment.END);
+//
+//			for (Entry<RelationType<?>, MutableProperties> rColumn :
+//				 aColumnProperties.entrySet())
+//			{
+//				RelationType<?> rAttr		 = rColumn.getKey();
+//				HasProperties	rProperties	 = rColumn.getValue();
+//				Parameter<?>	aFilterParam = createAttributeFilter(p, rAttr);
+//
+//				if (aFilterParam == null)
+//				{
+//					aFilterParam = p.label("");
+//				}
+//				else
+//				{
+//					aFilterParam.onUpdate(v -> handleFilterInput(rAttr, v));
+//				}
+//
+//				aFilterParam.sameRow().hideLabel();
+//				applyColumnProperties(aFilterParam, rProperties);
+//				aFilterParams.add(aFilterParam);
+//
+//				iconButtons(HeaderDataAction.class).alignHorizontal(Alignment.END)
+//												   .onAction(this::handleHeaderDataAction);
+//			}
+//		}
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void initTitlePanel(InteractionFragment p)
+	{
+		// set the style name of the parent fragment (the actual header)
+		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
+
+		for (Entry<RelationType<?>, MutableProperties> rColumn :
+			 aColumnProperties.entrySet())
+		{
+			RelationType<?>   rAttr		  = rColumn.getKey();
+			HasProperties     rProperties = rColumn.getValue();
+			Parameter<String> aTitleLabel = createColumnTitle(p, rAttr);
+
+			aTitleLabel.sameRow();
+			applyColumnProperties(aTitleLabel, rProperties);
+		}
 	}
 
 	/***************************************
