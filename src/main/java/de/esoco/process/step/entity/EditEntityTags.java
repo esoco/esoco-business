@@ -25,8 +25,8 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.CollectionParameter.SetParameter;
-import de.esoco.process.ValueEventHandler;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;
@@ -188,7 +188,11 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 		try
 		{
 			updateEntityTags();
-			aTagInput.allowedElements().addAll(rCurrentEntityTags);
+
+			if (rCurrentEntityTags != null)
+			{
+				aTagInput.allowedElements().addAll(rCurrentEntityTags);
+			}
 		}
 		catch (Exception e)
 		{
