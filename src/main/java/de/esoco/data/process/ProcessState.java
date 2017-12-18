@@ -90,18 +90,19 @@ public class ProcessState extends ProcessDescription
 
 	//~ Instance fields --------------------------------------------------------
 
-	private int					  nProcessId;
-	private String				  sProcessInfo;
-	private String				  sCurrentStep;
-	private List<DataElementList> rViewParams;
-	private List<ProcessState>    rSpawnProcesses;
+	// fields are package protected to be accessible by custom field serializer
+	int					  nProcessId;
+	String				  sProcessInfo;
+	String				  sCurrentStep;
+	List<DataElementList> rViewParams;
+	List<ProcessState>    rSpawnProcesses;
 
-	private ProcessExecutionMode eExecutionMode;
-	private InteractionEventType eInteractionEventType;
-	private DataElement<?>		 rInteractionElement;
-	private List<DataElement<?>> rInteractionParams;
+	ProcessExecutionMode eExecutionMode;
+	InteractionEventType eInteractionEventType;
+	DataElement<?>		 rInteractionElement;
+	List<DataElement<?>> rInteractionParams;
 
-	private Set<ProcessStateFlag> rCurrentStepFlags =
+	Set<ProcessStateFlag> rCurrentStepFlags =
 		Collections.<ProcessStateFlag>emptySet();
 
 	//~ Constructors -----------------------------------------------------------

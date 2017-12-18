@@ -228,6 +228,13 @@ public abstract class ProcessFragment extends ProcessElement
 	public abstract Process getProcess();
 
 	/***************************************
+	 * Returns the process step this fragment represents or belongs to.
+	 *
+	 * @return The process step of this fragment
+	 */
+	public abstract ProcessStep getProcessStep();
+
+	/***************************************
 	 * Registers an cleanup action that will be executed when this process
 	 * fragment is finished, i.e. the fragment is removed, the process continues
 	 * to the next step, or terminates (regularly or with an error). If a
@@ -2360,13 +2367,6 @@ public abstract class ProcessFragment extends ProcessElement
 							rEntity.getGlobalId());
 		rEntity.unlock();
 	}
-
-	/***************************************
-	 * Returns the process step this fragment represents or belongs to.
-	 *
-	 * @return The process step of this fragment
-	 */
-	protected abstract ProcessStep getProcessStep();
 
 	/***************************************
 	 * Marks a parameter as an element of a subordinate panel in this fragment.

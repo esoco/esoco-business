@@ -21,6 +21,7 @@ import de.esoco.entity.Entity;
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -102,6 +103,18 @@ public abstract class ProcessStep extends ProcessFragment
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Returns the parameters that have been modified since the last user
+	 * interaction. The returned collection is not copied so that modifications
+	 * will directly modify the process execution.
+	 *
+	 * @return The collection of modified parameter
+	 */
+	public final Collection<RelationType<?>> getModifiedParams()
+	{
+		return aModifiedParams;
+	}
+
+	/***************************************
 	 * Returns the step's name.
 	 *
 	 * @return The step's name
@@ -118,6 +131,17 @@ public abstract class ProcessStep extends ProcessFragment
 	public final Process getProcess()
 	{
 		return rProcess;
+	}
+
+	/***************************************
+	 * Implemented to return this instance.
+	 *
+	 * @see ProcessFragment#getProcessStep()
+	 */
+	@Override
+	public ProcessStep getProcessStep()
+	{
+		return this;
 	}
 
 	/***************************************
@@ -257,17 +281,6 @@ public abstract class ProcessStep extends ProcessFragment
 		}
 
 		return sNextStep;
-	}
-
-	/***************************************
-	 * Implemented to return this instance.
-	 *
-	 * @see ProcessFragment#getProcessStep()
-	 */
-	@Override
-	protected ProcessStep getProcessStep()
-	{
-		return this;
 	}
 
 	/***************************************

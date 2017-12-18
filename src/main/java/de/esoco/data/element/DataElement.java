@@ -203,6 +203,24 @@ public abstract class DataElement<T> extends StringProperties
 	{
 	}
 
+	/***************************************
+	 * Reads the attributes of this data element from the given data reader.
+	 *
+	 * @param rReader The data reader
+	 */
+	public static void readFrom(DataReader rReader)
+	{
+	}
+
+	/***************************************
+	 * Reads the attributes of this data element from the given data reader.
+	 *
+	 * @param rWriter rReader The data reader
+	 */
+	public static void writeTo(DataWriter rWriter)
+	{
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
