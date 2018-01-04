@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,13 +101,17 @@ public abstract class DataElement<T> extends StringProperties
 	private String				 sName;
 	private Validator<? super T> rValidator;
 
-	private DataElementList rParent     = null;
-	private String		    sResourceId = null;
+	private String sUpdatePath = null;
+
+	// these fields are not included in serialization because they are only used
+	// locally on the client and/or server
+	private transient DataElementList rParent     = null;
+	private transient String		  sResourceId = null;
+	private transient boolean		  bModified   = false;
 
 	private boolean bImmutable = false;
 	private boolean bOptional  = false;
 	private boolean bSelected  = false;
-	private boolean bModified  = false;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -323,7 +327,8 @@ public abstract class DataElement<T> extends StringProperties
 
 	/***************************************
 	 * Returns the parent data element list of this element or NULL if it
-	 * doesn't have a parent.
+	 * doesn't have a parent. Attention: the parent attribute is transient and
+	 * will therefore not be restored on deserialization.
 	 *
 	 * @return The parent element or NULL for none
 	 */
@@ -392,7 +397,10 @@ public abstract class DataElement<T> extends StringProperties
 
 	/***************************************
 	 * Returns the root data element list of this element's hierarchy or NULL if
-	 * this element doesn't have a parent at all.
+	 * this element doesn't have a parent at all. Attention: the parent
+	 * attribute is transient and will therefore not be restored on
+	 * deserialization so that this method will also not return a valid root for
+	 * deserialized elements.
 	 *
 	 * @return The root element or NULL for none
 	 */
@@ -419,6 +427,19 @@ public abstract class DataElement<T> extends StringProperties
 	public final String getSimpleName()
 	{
 		return TextConvert.lastElementOf(sName);
+	}
+
+	/***************************************
+	 * Returns the path of this element's hierarchy to be used to update the
+	 * data element UI on the client side. Because the parent reference is
+	 * transient the path cannot be queried with {@link #getPath()} after
+	 * deserialization.
+	 *
+	 * @return The update path
+	 */
+	public final String getUpdatePath()
+	{
+		return sUpdatePath;
 	}
 
 	/***************************************
@@ -514,10 +535,6 @@ public abstract class DataElement<T> extends StringProperties
 	public void markAsValueChanged()
 	{
 		setFlag(UserInterfaceProperties.VALUE_CHANGED);
-
-		// setFlag will mark this instance as modified but only the value
-		// should be marked as changed
-		setModified(false);
 	}
 
 	/***************************************
@@ -589,6 +606,18 @@ public abstract class DataElement<T> extends StringProperties
 	{
 		throw new UnsupportedOperationException("Cannot convert " + sValue +
 												" for " + this);
+	}
+
+	/***************************************
+	 * Sets the path of this element's hierarchy to be used to update the data
+	 * element UI on the client side. Because the parent reference is transient
+	 * the path cannot be queried with {@link #getPath()} after deserialization.
+	 *
+	 * @param sUpdatePath The update path for this element
+	 */
+	public final void setUpdatePath(String sUpdatePath)
+	{
+		this.sUpdatePath = sUpdatePath;
 	}
 
 	/***************************************
