@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -524,6 +524,32 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	{
 		super.removeElement(rElement);
 		rElement.setParent(null);
+	}
+
+	/***************************************
+	 * Replaces the first data element in this list with a new element with the
+	 * same name.
+	 *
+	 * @param  rNewElement The element to replace another with the same name
+	 *
+	 * @return TRUE if an element has been replaced
+	 */
+	public boolean replaceElement(DataElement<?> rNewElement)
+	{
+		int nCount = aDataElements.size();
+
+		for (int i = 0; i < nCount; i++)
+		{
+			if (aDataElements.get(i).getName().equals(rNewElement.getName()))
+			{
+				updateParent(rNewElement);
+				aDataElements.set(i, rNewElement);
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/***************************************
