@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -151,9 +151,6 @@ public abstract class ProcessFragment extends ProcessElement
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
-
-	private static final Set<PropertyName<?>> NON_MODIFYING_PROPERTIES =
-		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -2273,11 +2270,8 @@ public abstract class ProcessFragment extends ProcessElement
 								  DISPLAY_PROPERTIES,
 								  rDisplayProperties);
 			}
-			else if (!NON_MODIFYING_PROPERTIES.contains(rProperty))
-			{
-				markParameterAsModified(rParam);
-			}
 
+			markParameterAsModified(rParam);
 			rDisplayProperties.setProperty(rProperty, rValue);
 		}
 	}
