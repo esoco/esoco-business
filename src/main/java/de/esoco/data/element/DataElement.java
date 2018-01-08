@@ -58,9 +58,6 @@ public abstract class DataElement<T> extends StringProperties
 
 	private static final long serialVersionUID = 1L;
 
-	/** TODO: DOCUMENT ME */
-	public static UnchangedElement UNCHANGED_ELEMENT = new UnchangedElement();
-
 	/** The prefix for item resource IDs */
 	public static final String ITEM_RESOURCE_PREFIX = "$itm";
 
@@ -854,78 +851,5 @@ public abstract class DataElement<T> extends StringProperties
 	final void setResourceId(String sResourceId)
 	{
 		this.sResourceId = sResourceId;
-	}
-
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
-	 * An empty data element as a placeholder for unchanged values.
-	 *
-	 * @author eso
-	 */
-	private static class UnchangedElement extends DataElement<String>
-	{
-		//~ Static fields/initializers -----------------------------------------
-
-		private static final long serialVersionUID = 1L;
-
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
-		 * TODO: `Description`
-		 */
-		UnchangedElement()
-		{
-			super("UNCHANGED", null, DISPLAY_FLAGS);
-		}
-
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String getValue()
-		{
-			return null;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void setModified(boolean bModified)
-		{
-			// ignore
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected void copyAttributes(
-			DataElement<String> rTarget,
-			CopyMode			eCopyMode)
-		{
-			// ignore
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected UnchangedElement newInstance()
-		{
-			return UNCHANGED_ELEMENT;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected void updateValue(String sNewValue)
-		{
-			// ignore
-		}
 	}
 }
