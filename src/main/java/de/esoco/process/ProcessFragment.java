@@ -496,7 +496,6 @@ public abstract class ProcessFragment extends ProcessElement
 
 		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
 
-		// fragment parameters must be marked as input for fragments that
 		get(INPUT_PARAMS).add(rFragmentParam);
 		rSubFragment.markFragmentInputParams();
 	}

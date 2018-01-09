@@ -41,6 +41,7 @@ import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LabelStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
+import de.esoco.lib.property.StateProperties;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
@@ -99,12 +100,14 @@ import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_UPDATE_LISTENERS;
+import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
 import static org.obrel.type.StandardTypes.ERROR_MESSAGE;
 
@@ -219,6 +222,7 @@ public abstract class InteractionFragment extends ProcessFragment
 				!rInteractionParams.contains(rParam))
 			{
 				rInteractionParams.add(rParam);
+				structureModified();
 			}
 		}
 	}
@@ -305,25 +309,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<List<RelationType<?>>> rFragmentParam,
 		InteractionFragment					rSubFragment)
 	{
-		rSubFragment.setParent(this);
-
-		super.addSubFragment(rFragmentParam, rSubFragment);
-
-		fragmentParam().modified();
-
-		if (bInitialized)
-		{
-			// if a fragment is added after initialization of the parent has
-			// already completed it's init() method needs to be invoked too
-			try
-			{
-				rSubFragment.initFragment();
-			}
-			catch (Exception e)
-			{
-				throw new RuntimeProcessException(rSubFragment, e);
-			}
-		}
+		addSubFragment(rFragmentParam, rSubFragment, true);
 	}
 
 	/***************************************
@@ -373,6 +359,29 @@ public abstract class InteractionFragment extends ProcessFragment
 		addSubFragment(rSubFragmentParam.type(), rSubFragment);
 
 		return rSubFragmentParam;
+	}
+
+	/***************************************
+	 * Adds a child fragment that shall be displayed as a view.
+	 *
+	 * @see #addSubFragment(RelationType, InteractionFragment)
+	 */
+	public void addViewFragment(
+		RelationType<List<RelationType<?>>> rViewFragmentParamType,
+		InteractionFragment					rSubFragment)
+	{
+		boolean bModified =
+			getProcessStep().isParameterModified(fragmentParam().type());
+
+		addSubFragment(rViewFragmentParamType, rSubFragment, false);
+		get(VIEW_PARAMS).add(rViewFragmentParamType);
+
+		if (!bModified)
+		{
+			fragmentParam().remove(STRUCTURE_CHANGED);
+			getProcessStep().removeParameterModification(fragmentParam()
+														 .type());
+		}
 	}
 
 	/***************************************
@@ -1608,6 +1617,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		getInteractionParameters().removeAll(rParams);
 		getInputParameters().removeAll(rParams);
+		structureModified();
 	}
 
 	/***************************************
@@ -1615,18 +1625,31 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	public InteractionFragment removeSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam)
+		RelationType<List<RelationType<?>>> rSubFragmentParamType)
 	{
-		InteractionFragment rSubFragment =
-			super.removeSubFragment(rFragmentParam);
+		return removeSubFragment(rSubFragmentParamType, true);
+	}
 
-		if (rSubFragment != null)
+	/***************************************
+	 * Removes the fragment of a child view from this fragment.
+	 *
+	 * @param rViewFragmentParamType The parameter type of the view fragment
+	 */
+	public void removeViewFragment(
+		RelationType<List<RelationType<?>>> rViewFragmentParamType)
+	{
+		boolean bModified =
+			getProcessStep().isParameterModified(fragmentParam().type());
+
+		removeSubFragment(rViewFragmentParamType, false);
+		get(VIEW_PARAMS).remove(rViewFragmentParamType);
+
+		if (!bModified)
 		{
-			rSubFragment.setProcessStep(null);
-			rSubFragment.setParent(null);
+			fragmentParam().remove(STRUCTURE_CHANGED);
+			getProcessStep().removeParameterModification(fragmentParam()
+														 .type());
 		}
-
-		return rSubFragment;
 	}
 
 	/***************************************
@@ -1984,6 +2007,17 @@ public abstract class InteractionFragment extends ProcessFragment
 							  MESSAGE_BOX_WARNING_ICON,
 							  null,
 							  DialogAction.OK);
+	}
+
+	/***************************************
+	 * Marks the parameter of this fragment to indicate a structure modification
+	 * by marking it as modified and with {@link
+	 * StateProperties#STRUCTURE_CHANGED}.
+	 */
+	public void structureModified()
+	{
+		fragmentParam().modified();
+		fragmentParam().set(STRUCTURE_CHANGED);
 	}
 
 	/***************************************
@@ -2644,6 +2678,45 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Adds a new sub-fragment through {@link
+	 * ProcessFragment#addSubFragment(RelationType, InteractionFragment)}.
+	 *
+	 * @param rSubFragmentParamType The type of the parameter containing the
+	 *                              child fragment parameters
+	 * @param rSubFragment          The child fragment
+	 * @param bMarkAsModified       TRUE to mark the parameter of this fragment
+	 *                              and it's structure as modified
+	 */
+	private void addSubFragment(
+		RelationType<List<RelationType<?>>> rSubFragmentParamType,
+		InteractionFragment					rSubFragment,
+		boolean								bMarkAsModified)
+	{
+		rSubFragment.setParent(this);
+
+		super.addSubFragment(rSubFragmentParamType, rSubFragment);
+
+		if (bMarkAsModified)
+		{
+			structureModified();
+		}
+
+		if (bInitialized)
+		{
+			// if a fragment is added after initialization of the parent has
+			// already completed it's init() method needs to be invoked too
+			try
+			{
+				rSubFragment.initFragment();
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeProcessException(rSubFragment, e);
+			}
+		}
+	}
+
+	/***************************************
 	 * Internal method that tries to lock an entity during the execution of
 	 * either the current step or the remaining process execution. It displays
 	 * an information message if the entity is already locked by some other
@@ -2675,6 +2748,38 @@ public abstract class InteractionFragment extends ProcessFragment
 		}
 
 		return bLocked;
+	}
+
+	/***************************************
+	 * Removes a child fragment from this parent by invoking {@link
+	 * ProcessFragment#removeSubFragment(InteractionFragment)}.
+	 *
+	 * @param  rSubFragmentParamType The type of the parameter containing the
+	 *                               fragment parameters
+	 * @param  bMarkAsModified       TRUE to mark the parameter of this fragment
+	 *                               and it's structure as modified
+	 *
+	 * @return TODO: DOCUMENT ME!
+	 */
+	private InteractionFragment removeSubFragment(
+		RelationType<List<RelationType<?>>> rSubFragmentParamType,
+		boolean								bMarkAsModified)
+	{
+		InteractionFragment rSubFragment =
+			super.removeSubFragment(rSubFragmentParamType);
+
+		if (rSubFragment != null)
+		{
+			rSubFragment.setProcessStep(null);
+			rSubFragment.setParent(null);
+
+			if (bMarkAsModified)
+			{
+				structureModified();
+			}
+		}
+
+		return rSubFragment;
 	}
 
 	/***************************************

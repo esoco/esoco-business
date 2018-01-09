@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,8 +33,6 @@ import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VIEW_DISPLAY_TYPE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.STYLE;
-
-import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
 
 /********************************************************************
@@ -143,11 +141,7 @@ public class ViewFragment extends InteractionFragment
 	 */
 	public void hide()
 	{
-		InteractionFragment rParent = getParent();
-
-		get(VIEW_PARAMS).remove(aViewFragmentParam);
-		rParent.removeInteractionParameters(aViewFragmentParam);
-		rParent.removeSubFragment(aViewFragmentParam);
+		getParent().removeViewFragment(aViewFragmentParam);
 	}
 
 	/***************************************
@@ -197,8 +191,7 @@ public class ViewFragment extends InteractionFragment
 		aInteractionParams.add(aViewContentParam);
 		addExtraViewInteractionParams(sParamBaseName);
 
-		get(VIEW_PARAMS).add(aViewFragmentParam);
-		rParent.addSubFragment(aViewFragmentParam, this);
+		rParent.addViewFragment(aViewFragmentParam, this);
 	}
 
 	/***************************************

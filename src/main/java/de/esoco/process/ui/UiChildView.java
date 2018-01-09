@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,15 +22,11 @@ import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
-import de.esoco.process.step.InteractionFragment;
-
 import java.util.List;
 
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.StyleProperties.AUTO_HIDE;
-
-import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
 
 /********************************************************************
@@ -57,7 +53,6 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	{
 		super(rParent, rLayout);
 
-		getParent().fragment().addSubFragment(type(), fragment());
 		setViewType(eViewType);
 	}
 
@@ -114,16 +109,12 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 
 		if (bVisible)
 		{
-			fragment().get(VIEW_PARAMS).add(rViewParam);
+			getParent().fragment().addViewFragment(rViewParam, fragment());
 			applyProperties();
 		}
 		else
 		{
-			InteractionFragment rParentFragment = getParent().fragment();
-
-			fragment().get(VIEW_PARAMS).remove(rViewParam);
-			rParentFragment.removeInteractionParameters(rViewParam);
-			rParentFragment.removeSubFragment(rViewParam);
+			getParent().fragment().removeViewFragment(rViewParam);
 		}
 
 		return (V) this;
