@@ -28,6 +28,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.FILTER_CRITERIA;
+import static de.esoco.lib.property.StateProperties.FOCUSED;
+import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_DATA;
 
 
 /********************************************************************
@@ -57,6 +61,16 @@ public abstract class DataElement<T> extends StringProperties
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * An array of the names of properties that should be applied from the
+	 * client to the server.
+	 */
+	public static final PropertyName<?>[] COPY_PROPERTIES =
+		new PropertyName<?>[]
+		{
+			CURRENT_SELECTION, FOCUSED, INTERACTION_EVENT_DATA, FILTER_CRITERIA
+		};
 
 	/** The prefix for item resource IDs */
 	public static final String ITEM_RESOURCE_PREFIX = "$itm";
@@ -241,8 +255,9 @@ public abstract class DataElement<T> extends StringProperties
 	 * Returns a copy of this data element that contains all or a subset of it's
 	 * current state. Always copied are the name and {@link Flag flags}. Never
 	 * copied is the parent reference because upon copying typically a reference
-	 * to a copied parent needs to be set. What else the copy contains depends
-	 * on the copy mode:
+	 * to a copied parent needs to be set. From the properties only that defined
+	 * in {@link #COPY_PROPERTIES} are copied. What else the copy contains
+	 * depends on the copy mode:
 	 *
 	 * <ul>
 	 *   <li>{@link CopyMode#FULL}: The copy contains all data (except the
@@ -266,6 +281,7 @@ public abstract class DataElement<T> extends StringProperties
 	 *
 	 * @return The copied instance
 	 */
+	@SuppressWarnings("unchecked")
 	public DataElement<T> copy(CopyMode eMode)
 	{
 		DataElement<T> aCopy = newInstance();
@@ -279,7 +295,11 @@ public abstract class DataElement<T> extends StringProperties
 
 		if (eMode != CopyMode.PLACEHOLDER)
 		{
-			aCopy.setProperties(this, true);
+			for (PropertyName<?> rProperty : COPY_PROPERTIES)
+			{
+				aCopy.setProperty((PropertyName<Object>) rProperty,
+								  (Object) getProperty(rProperty, null));
+			}
 		}
 
 		return aCopy;
