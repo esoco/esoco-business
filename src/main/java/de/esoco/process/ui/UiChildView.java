@@ -22,11 +22,15 @@ import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
+import de.esoco.process.step.InteractionFragment;
+
 import java.util.List;
 
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.StyleProperties.AUTO_HIDE;
+
+import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
 
 /********************************************************************
@@ -52,6 +56,9 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 					   ViewDisplayType eViewType)
 	{
 		super(rParent, rLayout);
+
+		getParent().fragment().addViewFragment(type(), fragment());
+		fragment().get(VIEW_PARAMS).remove(type());
 
 		setViewType(eViewType);
 	}
@@ -109,12 +116,16 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 
 		if (bVisible)
 		{
-			getParent().fragment().addViewFragment(rViewParam, fragment());
+			fragment().get(VIEW_PARAMS).add(rViewParam);
 			applyProperties();
 		}
 		else
 		{
-			getParent().fragment().removeViewFragment(rViewParam);
+			InteractionFragment rParentFragment = getParent().fragment();
+
+			fragment().get(VIEW_PARAMS).remove(rViewParam);
+			rParentFragment.removeInteractionParameters(rViewParam);
+			rParentFragment.removeSubFragment(rViewParam);
 		}
 
 		return (V) this;
