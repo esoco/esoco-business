@@ -116,9 +116,9 @@ public class DateDataElement extends DataElement<Date>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateDataElement copy(CopyMode eMode)
+	public DateDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (DateDataElement) super.copy(eMode);
+		return (DateDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

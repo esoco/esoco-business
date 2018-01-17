@@ -112,6 +112,7 @@ import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_TYPES;
 import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
 import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY;
 import static de.esoco.lib.property.StateProperties.SELECTION_DEPENDENCY_REVERSE_PREFIX;
+import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
@@ -303,6 +304,7 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		setParameter(rPanelParam, rPanelContentParams);
 		setLayout(eLayout, rPanelParam);
+		setUIFlag(STRUCTURE_CHANGED, rPanelParam);
 
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
@@ -2026,9 +2028,17 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public <T, R> Relation<T> setParameter(RelationType<T> rParam, T rValue)
 	{
+		Relation<T> rParamRelation = getProcess().setParameter(rParam, rValue);
+
 		markParameterAsModified(rParam);
 
-		return getProcess().setParameter(rParam, rValue);
+		if (rParam.getValueType() == List.class &&
+			rParam.get(MetaTypes.ELEMENT_DATATYPE) == RelationType.class)
+		{
+			setUIFlag(STRUCTURE_CHANGED, rParam);
+		}
+
+		return rParamRelation;
 	}
 
 	/***************************************

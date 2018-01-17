@@ -149,8 +149,10 @@ public class ProcessState extends ProcessDescription
 
 		this.nProcessId			   = rOriginalState.nProcessId;
 		this.eInteractionEventType = eEventType;
-		this.rInteractionElement   = rInteractionElement.copy(CopyMode.FLAT);
 		this.rInteractionParams    = new ArrayList<>(rModifiedParams.size());
+		this.rInteractionElement   =
+			rInteractionElement != null
+			? rInteractionElement.copy(CopyMode.FLAT) : null;
 
 		for (DataElement<?> rElement : rModifiedParams)
 		{

@@ -150,9 +150,9 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateListDataElement copy(CopyMode eMode)
+	public DateListDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (DateListDataElement) super.copy(eMode);
+		return (DateListDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

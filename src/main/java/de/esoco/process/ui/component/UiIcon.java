@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,6 +49,11 @@ public class UiIcon extends UiComponent<String, UiIcon>
 		setIcon(rIconSupplier);
 		set(HIDE_LABEL);
 		set(LABEL_STYLE, LabelStyle.ICON);
+
+		// set value to empty string (instead of NULL default) to prevent an
+		// unnecessary change detection when an empty string is returned from
+		// the UI (because text components use no NULL values)
+		setValueImpl("");
 	}
 
 	//~ Methods ----------------------------------------------------------------

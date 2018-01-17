@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.StateProperties;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -231,10 +234,14 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DataElementList copy(CopyMode eMode)
+	public DataElementList copy(
+		CopyMode		   eMode,
+		PropertyName<?>... rCopyProperties)
 	{
-		DataElementList aCopy = (DataElementList) super.copy(eMode);
+		DataElementList aCopy =
+			(DataElementList) super.copy(eMode, rCopyProperties);
 
+		// copyValue() is overridden to do nothing, so the child list is empty
 		if (eMode == CopyMode.FULL)
 		{
 			for (DataElement<?> rChild : this)
@@ -247,6 +254,26 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 		}
 
 		return aCopy;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toDebugString(String sIndent, boolean bIncludeProperties)
+	{
+		StringBuilder aHierarchy =
+			new StringBuilder(super.toDebugString(sIndent, bIncludeProperties));
+
+		sIndent += "  ";
+
+		for (DataElement<?> rChild : aDataElements)
+		{
+			aHierarchy.append('\n');
+			aHierarchy.append(rChild.toDebugString(sIndent, bIncludeProperties));
+		}
+
+		return aHierarchy.toString();
 	}
 
 	/***************************************
@@ -504,13 +531,14 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * Overridden to also mark the child hierarchy as modified.
 	 */
 	@Override
-	public void markAsValueChanged()
+	public void markAsChanged()
 	{
-		super.markAsValueChanged();
+		super.markAsChanged();
+		setFlag(StateProperties.STRUCTURE_CHANGED);
 
 		for (DataElement<?> rChildElement : aDataElements)
 		{
-			rChildElement.markAsValueChanged();
+			rChildElement.markAsChanged();
 		}
 	}
 
@@ -601,7 +629,7 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 
 	/***************************************
 	 * Overridden to to nothing as the copying of the child data elements is
-	 * handled in {@link #copy(CopyMode)}.
+	 * handled in {@link #copy(CopyMode, PropertyName...)}.
 	 *
 	 * @see ListDataElement#copyValue(DataElement)
 	 */

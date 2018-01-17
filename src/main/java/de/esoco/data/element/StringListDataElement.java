@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
+import de.esoco.lib.property.PropertyName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +86,9 @@ public class StringListDataElement extends ListDataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringListDataElement copy(CopyMode eMode)
+	public StringListDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (StringListDataElement) super.copy(eMode);
+		return (StringListDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

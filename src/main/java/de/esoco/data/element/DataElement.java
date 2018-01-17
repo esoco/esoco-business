@@ -54,7 +54,7 @@ public abstract class DataElement<T> extends StringProperties
 
 	/********************************************************************
 	 * The modes for copying data elements with {@link
-	 * DataElement#copy(CopyMode)}.
+	 * DataElement#copy(CopyMode, PropertyName...)}.
 	 */
 	public enum CopyMode { FULL, FLAT, PROPERTIES, PLACEHOLDER }
 
@@ -66,7 +66,7 @@ public abstract class DataElement<T> extends StringProperties
 	 * An array of the names of properties that should be applied from the
 	 * client to the server.
 	 */
-	public static final PropertyName<?>[] COPY_PROPERTIES =
+	public static final PropertyName<?>[] SERVER_PROPERTIES =
 		new PropertyName<?>[]
 		{
 			CURRENT_SELECTION, FOCUSED, INTERACTION_EVENT_DATA, FILTER_CRITERIA
@@ -111,8 +111,6 @@ public abstract class DataElement<T> extends StringProperties
 
 	private String				 sName;
 	private Validator<? super T> rValidator;
-
-	private String sUpdatePath = null;
 
 	// these fields are not included in serialization because they are only used
 	// locally on the client and/or server
@@ -255,19 +253,18 @@ public abstract class DataElement<T> extends StringProperties
 	 * Returns a copy of this data element that contains all or a subset of it's
 	 * current state. Always copied are the name and {@link Flag flags}. Never
 	 * copied is the parent reference because upon copying typically a reference
-	 * to a copied parent needs to be set. From the properties only that defined
-	 * in {@link #COPY_PROPERTIES} are copied. What else the copy contains
+	 * to a copied parent needs to be set. The further data the copy contains
 	 * depends on the copy mode:
 	 *
 	 * <ul>
 	 *   <li>{@link CopyMode#FULL}: The copy contains all data (except the
-	 *     parent reference)</li>
+	 *     parent reference).</li>
 	 *   <li>{@link CopyMode#FLAT}: like {@link CopyMode#FULL} but without
-	 *     sub-ordinate data elements</li>
+	 *     sub-ordinate data elements.</li>
 	 *   <li>{@link CopyMode#PROPERTIES}: The copy contains only the properties
-	 *     but not the element value</li>
+	 *     but not the element value and attributes.</li>
 	 *   <li>{@link CopyMode#PLACEHOLDER}: The copy contains only the element
-	 *     name to serve as a placeholder</li>
+	 *     name to serve as a placeholder.</li>
 	 * </ul>
 	 *
 	 * <p>The copy instance is created by invoking {@link #newInstance()} which
@@ -277,12 +274,17 @@ public abstract class DataElement<T> extends StringProperties
 	 * with the concrete return type and cast the result of <code>
 	 * super.copy()</code> to that type.</p>
 	 *
-	 * @param  eMode The copy mode
+	 * @param  eMode           The copy mode
+	 * @param  rCopyProperties An optional list of properties to copy. If not
+	 *                         provided all properties will be copied (unless
+	 *                         the mode is {@link CopyMode#PLACEHOLDER})
 	 *
 	 * @return The copied instance
 	 */
 	@SuppressWarnings("unchecked")
-	public DataElement<T> copy(CopyMode eMode)
+	public DataElement<T> copy(
+		CopyMode		   eMode,
+		PropertyName<?>... rCopyProperties)
 	{
 		DataElement<T> aCopy = newInstance();
 
@@ -295,10 +297,17 @@ public abstract class DataElement<T> extends StringProperties
 
 		if (eMode != CopyMode.PLACEHOLDER)
 		{
-			for (PropertyName<?> rProperty : COPY_PROPERTIES)
+			if (rCopyProperties.length == 0)
 			{
-				aCopy.setProperty((PropertyName<Object>) rProperty,
-								  (Object) getProperty(rProperty, null));
+				aCopy.setProperties(this, true);
+			}
+			else
+			{
+				for (PropertyName<?> rProperty : rCopyProperties)
+				{
+					aCopy.setProperty((PropertyName<Object>) rProperty,
+									  (Object) getProperty(rProperty, null));
+				}
 			}
 		}
 
@@ -447,19 +456,6 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Returns the path of this element's hierarchy to be used to update the
-	 * data element UI on the client side. Because the parent reference is
-	 * transient the path cannot be queried with {@link #getPath()} after
-	 * deserialization.
-	 *
-	 * @return The update path
-	 */
-	public final String getUpdatePath()
-	{
-		return sUpdatePath;
-	}
-
-	/***************************************
 	 * Returns the validator of this element.
 	 *
 	 * @return The validator or NULL if this element is read-only
@@ -547,9 +543,9 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Marks the data element value as changed.
+	 * Marks this data element as changed.
 	 */
-	public void markAsValueChanged()
+	public void markAsChanged()
 	{
 		setFlag(UserInterfaceProperties.VALUE_CHANGED);
 	}
@@ -626,18 +622,6 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Sets the path of this element's hierarchy to be used to update the data
-	 * element UI on the client side. Because the parent reference is transient
-	 * the path cannot be queried with {@link #getPath()} after deserialization.
-	 *
-	 * @param sUpdatePath The update path for this element
-	 */
-	public final void setUpdatePath(String sUpdatePath)
-	{
-		this.sUpdatePath = sUpdatePath;
-	}
-
-	/***************************************
 	 * Sets the validator of this element.
 	 *
 	 * @param rValidator The new validator
@@ -667,6 +651,34 @@ public abstract class DataElement<T> extends StringProperties
 			updateValue(rNewValue);
 			setModified(true);
 		}
+	}
+
+	/***************************************
+	 * Creates a string that describes this element for debugging purposes.
+	 *
+	 * @param  sIndent            The indentation of the returned string
+	 * @param  bIncludeProperties TRUE to include the properties, FALSE to omit
+	 *
+	 * @return The debug description
+	 */
+	public String toDebugString(String sIndent, boolean bIncludeProperties)
+	{
+		StringBuilder aDebugString = new StringBuilder(sIndent);
+
+		aDebugString.append(getSimpleName());
+		aDebugString.append('(');
+		aDebugString.append(bImmutable ? 'I' : '_');
+		aDebugString.append(bModified ? 'M' : '_');
+		aDebugString.append(bOptional ? 'O' : '_');
+		aDebugString.append(bSelected ? 'S' : '_');
+		aDebugString.append(')');
+
+		if (bIncludeProperties)
+		{
+			aDebugString.append(getPropertyMap());
+		}
+
+		return aDebugString.toString();
 	}
 
 	/***************************************

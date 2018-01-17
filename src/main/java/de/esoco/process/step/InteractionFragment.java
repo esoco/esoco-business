@@ -267,6 +267,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		super.addPanelParameters(rPanelParams);
 
 		getInteractionParameters().removeAll(rPanelParams);
+		structureModified();
 	}
 
 	/***************************************
@@ -378,9 +379,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		if (!bModified)
 		{
-			fragmentParam().remove(STRUCTURE_CHANGED);
-			getProcessStep().removeParameterModification(fragmentParam()
-														 .type());
+			getProcessStep().removeParameterModification(fragmentParam());
 		}
 	}
 
@@ -1646,9 +1645,7 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		if (!bModified)
 		{
-			fragmentParam().remove(STRUCTURE_CHANGED);
-			getProcessStep().removeParameterModification(fragmentParam()
-														 .type());
+			getProcessStep().removeParameterModification(fragmentParam());
 		}
 	}
 
@@ -1713,9 +1710,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Sets the interaction handler for a certain parameter.
-	 *
-	 * @see Interaction#setParameterInteractionHandler(RelationType, InteractionHandler)
+	 * {@inheritDoc}
 	 */
 	public void setParameterInteractionHandler(
 		RelationType<?>    rParam,

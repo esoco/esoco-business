@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
+import de.esoco.lib.property.PropertyName;
 
 import java.math.BigDecimal;
 
@@ -113,9 +114,9 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigDecimalDataElement copy(CopyMode eMode)
+	public BigDecimalDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (BigDecimalDataElement) super.copy(eMode);
+		return (BigDecimalDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

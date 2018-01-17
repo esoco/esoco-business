@@ -981,7 +981,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + "[" + rParamType + "]";
+		return String.format("%s(%s)", rParamType.getSimpleName(), value());
 	}
 
 	/***************************************

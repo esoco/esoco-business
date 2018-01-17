@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
+import de.esoco.lib.property.PropertyName;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -93,9 +94,9 @@ public class StringMapDataElement extends MapDataElement<String, String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringMapDataElement copy(CopyMode eMode)
+	public StringMapDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (StringMapDataElement) super.copy(eMode);
+		return (StringMapDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

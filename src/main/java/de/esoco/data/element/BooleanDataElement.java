@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.lib.property.PropertyName;
+
 import java.util.Set;
 
 
@@ -63,9 +65,9 @@ public class BooleanDataElement extends DataElement<Boolean>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BooleanDataElement copy(CopyMode eMode)
+	public BooleanDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (BooleanDataElement) super.copy(eMode);
+		return (BooleanDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

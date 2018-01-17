@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.StringListValidator;
+import de.esoco.lib.property.PropertyName;
 
 import java.util.Set;
 
@@ -76,9 +77,9 @@ public class PeriodDataElement extends DataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PeriodDataElement copy(CopyMode eMode)
+	public PeriodDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (PeriodDataElement) super.copy(eMode);
+		return (PeriodDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

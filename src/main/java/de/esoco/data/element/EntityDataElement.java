@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.lib.property.PropertyName;
+
 import java.util.List;
 import java.util.Set;
 
@@ -74,9 +76,9 @@ public class EntityDataElement extends DataElementList
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EntityDataElement copy(CopyMode eMode)
+	public EntityDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		EntityDataElement aCopy = (EntityDataElement) super.copy(eMode);
+		EntityDataElement aCopy = (EntityDataElement) super.copy(eMode, rCopyProperties);
 
 		aCopy.sChildPrefix = sChildPrefix;
 

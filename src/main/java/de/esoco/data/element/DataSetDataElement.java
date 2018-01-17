@@ -144,9 +144,9 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DataSetDataElement copy(CopyMode eMode)
+	public DataSetDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (DataSetDataElement) super.copy(eMode);
+		return (DataSetDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

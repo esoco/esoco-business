@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.lib.property.PropertyName;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,9 +78,9 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public QueryResultElement<T> copy(CopyMode eMode)
+	public QueryResultElement<T> copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (QueryResultElement<T>) super.copy(eMode);
+		return (QueryResultElement<T>) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

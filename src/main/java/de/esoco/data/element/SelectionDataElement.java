@@ -20,6 +20,7 @@ import de.esoco.data.validate.SelectionValidator;
 import de.esoco.data.validate.Validator;
 
 import de.esoco.lib.model.ColumnDefinition;
+import de.esoco.lib.property.PropertyName;
 
 import java.util.List;
 import java.util.Set;
@@ -92,9 +93,9 @@ public class SelectionDataElement extends StringDataElement
 	 * {@inheritDoc}
 	 */
 	@Override
-	public SelectionDataElement copy(CopyMode eMode)
+	public SelectionDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (SelectionDataElement) super.copy(eMode);
+		return (SelectionDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

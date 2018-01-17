@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
+import de.esoco.lib.property.PropertyName;
 
 import java.util.Set;
 
@@ -96,9 +97,9 @@ public class IntegerDataElement extends DataElement<Integer>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntegerDataElement copy(CopyMode eMode)
+	public IntegerDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
 	{
-		return (IntegerDataElement) super.copy(eMode);
+		return (IntegerDataElement) super.copy(eMode, rCopyProperties);
 	}
 
 	/***************************************

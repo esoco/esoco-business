@@ -21,8 +21,14 @@ import de.esoco.entity.Entity;
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 
+import de.esoco.lib.property.MutableProperties;
+import de.esoco.lib.property.StateProperties;
+
+import de.esoco.process.step.InteractionFragment;
+
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +39,8 @@ import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
 import static de.esoco.history.HistoryManager.HISTORIZED;
+
+import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
@@ -103,6 +111,50 @@ public abstract class ProcessStep extends ProcessFragment
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Overridden to mark structure changes for legacy process interactions.
+	 *
+	 * @see ProcessFragment#addDisplayParameters(Collection)
+	 */
+	@Override
+	public void addDisplayParameters(
+		Collection<? extends RelationType<?>> rParams)
+	{
+		super.addDisplayParameters(rParams);
+
+		if (rProcess != null)
+		{
+			for (RelationType<?> rParam : rParams)
+			{
+				if (rParam.getValueType() == List.class &&
+					rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
+					RelationType.class)
+				{
+					// necessary for legacy process step based interactions that do not
+					// use InteractionFragment
+					setUIFlag(STRUCTURE_CHANGED, rParam);
+				}
+			}
+		}
+	}
+
+	/***************************************
+	 * Overridden to mark structure changes for legacy process interactions.
+	 *
+	 * @see ProcessFragment#addSubFragment(RelationType, InteractionFragment)
+	 */
+	@Override
+	public void addSubFragment(
+		RelationType<List<RelationType<?>>> rFragmentParam,
+		InteractionFragment					rSubFragment)
+	{
+		super.addSubFragment(rFragmentParam, rSubFragment);
+
+		// necessary for legacy process step based interactions that do not
+		// use InteractionFragment
+		setUIFlag(STRUCTURE_CHANGED, get(INTERACTION_PARAMS));
+	}
+
+	/***************************************
 	 * Returns the parameters that have been modified since the last user
 	 * interaction. The returned collection is not copied so that modifications
 	 * will directly modify the process execution.
@@ -158,13 +210,14 @@ public abstract class ProcessStep extends ProcessFragment
 	}
 
 	/***************************************
-	 * TODO: DOCUMENT ME!
+	 * Removes the modification marker for a certain parameter relation type.
 	 *
-	 * @param rParam TODO: DOCUMENT ME!
+	 * @param rParam The parameter relation type
 	 */
-	public void removeParameterModification(RelationType<?> rParam)
+	public void removeParameterModification(ParameterBase<?, ?> rParam)
 	{
-		aModifiedParams.remove(rParam);
+		rParam.remove(STRUCTURE_CHANGED);
+		aModifiedParams.remove(rParam.type());
 	}
 
 	/***************************************
@@ -172,6 +225,16 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	public void resetParameterModifications()
 	{
+		for (RelationType<?> rParam : aModifiedParams)
+		{
+			MutableProperties rUiProperties = getUIProperties(rParam);
+
+			if (rUiProperties != null)
+			{
+				rUiProperties.removeProperty(StateProperties.STRUCTURE_CHANGED);
+			}
+		}
+
 		aModifiedParams.clear();
 	}
 
