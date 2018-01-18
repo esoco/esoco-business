@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
@@ -546,10 +547,21 @@ public class EntityList<E extends Entity,
 	 */
 	private void updateQuery()
 	{
-		// will be NULL if no global filter is set
-		Predicate<? super E> pGlobalFilter =
-			EntityPredicates.createWildcardFilter(sGlobalFilter,
-												  rGlobalFilterAttributes);
+		Predicate<? super E> pGlobalFilter;
+
+		if (sGlobalFilter != null &&
+			sGlobalFilter.startsWith("=") &&
+			rGlobalFilterAttributes.length == 1)
+		{
+			pGlobalFilter =
+				rGlobalFilterAttributes[0].is(equalTo(sGlobalFilter.substring(1)));
+		}
+		else
+		{
+			pGlobalFilter =
+				EntityPredicates.createWildcardFilter(sGlobalFilter,
+													  rGlobalFilterAttributes);
+		}
 
 		pAllCriteria = Predicates.and(pDefaultCriteria, pExtraCriteria);
 		pAllCriteria = Predicates.and(pAllCriteria, pGlobalFilter);
