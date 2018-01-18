@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,6 +91,18 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Clears this container by removing all child components.
+	 */
+	public void clear()
+	{
+		List<RelationType<?>> rParamTypes =
+			CollectionUtil.map(aComponents, c -> c.type());
+
+		fragment().removeInteractionParameters(rParamTypes);
+		aComponents.clear();
+	}
+
+	/***************************************
 	 * Returns the components of this container in the order in which they have
 	 * been added.
 	 *
@@ -124,6 +136,17 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										v -> rEventHandler.accept((C) this));
+	}
+
+	/***************************************
+	 * Removes a component from this container.
+	 *
+	 * @param rComponent The component to remove
+	 */
+	public void removeComponent(UiComponent<?, ?> rComponent)
+	{
+		fragment().removeInteractionParameters(rComponent.type());
+		aComponents.remove(rComponent);
 	}
 
 	/***************************************
@@ -203,18 +226,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Clears this container by removing all child components.
-	 */
-	protected void clear()
-	{
-		List<RelationType<?>> rParamTypes =
-			CollectionUtil.map(aComponents, c -> c.type());
-
-		fragment().removeInteractionParameters(rParamTypes);
-		aComponents.clear();
-	}
-
-	/***************************************
 	 * Will be invoked if a new component has been added to this container. Can
 	 * be overridden by subclasses to handle component additions. The complete
 	 * list of child components (including the new one at the end) can be
@@ -262,17 +273,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	protected final boolean isBuilt()
 	{
 		return bBuilt;
-	}
-
-	/***************************************
-	 * Removes a component from this container.
-	 *
-	 * @param rComponent The component to remove
-	 */
-	protected void removeComponent(UiComponent<?, ?> rComponent)
-	{
-		fragment().removeInteractionParameters(rComponent.type());
-		aComponents.remove(rComponent);
 	}
 
 	/***************************************

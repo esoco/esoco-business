@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -463,7 +463,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		{
 			if (nRowIndex < aRows.size())
 			{
-				aRows.get(nRowIndex).update(rRowData);
+				Row rRow = aRows.get(nRowIndex);
+
+				rRow.update(rRowData);
+
+				if (fRowContentBuilder != null)
+				{
+					// rebuild content if now row subclass with a method
+					// updateExpandedContent is used
+					rRow.rRowItem.removeComponent(rRow.aContentPanel);
+					rRow.initContent();
+				}
 			}
 			else
 			{
@@ -471,9 +481,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 				aRows.add(aRow);
 				aRow.setIndex(nRowIndex);
-				aRow.initExpandedContent(aRow.rRowItem.builder()
-										 .addPanel(aRow.getContentLayout())
-										 .builder());
+				aRow.initContent();
 			}
 
 			nRowIndex++;
@@ -890,9 +898,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		@Override
 		protected void applyProperties()
 		{
+			if (!isBuilt())
+			{
+				set(StyleProperties.HIDE_LABEL);
+			}
+
 			super.applyProperties();
 
-			set(StyleProperties.HIDE_LABEL);
 			applyColumnTitle();
 		}
 
@@ -1191,6 +1203,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		private int     nRowIndex;
 		private boolean bSelected = false;
 
+		private UiLayoutPanel aContentPanel;
+
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
@@ -1394,6 +1408,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected void updateExpandedContent()
 		{
+		}
+
+		/***************************************
+		 * Internal method to init the expanded content of a row. Invokes the
+		 * method {@link #initExpandedContent(UiBuilder)} which may be
+		 * overridden by subclasses.
+		 */
+		final void initContent()
+		{
+			aContentPanel = rRowItem.builder().addPanel(getContentLayout());
+			initExpandedContent(aContentPanel.builder());
 		}
 
 		/***************************************

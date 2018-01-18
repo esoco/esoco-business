@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package de.esoco.process.ui.composite;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 
+import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -196,6 +197,23 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Removes the content components from this item.
+		 */
+		public void clearContent()
+		{
+			List<UiComponent<?, ?>> rComponents =
+				new ArrayList<>(getComponents());
+
+			for (UiComponent<?, ?> rComponent : rComponents)
+			{
+				if (rComponent != aItemHeader)
+				{
+					removeComponent(rComponent);
+				}
+			}
+		}
 
 		/***************************************
 		 * Helper method to create a new header panel with a certain layout in
