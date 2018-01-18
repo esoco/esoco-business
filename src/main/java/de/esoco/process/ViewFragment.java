@@ -137,6 +137,20 @@ public class ViewFragment extends InteractionFragment
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void handleInteraction(RelationType<?> rInteractionParam)
+		throws Exception
+	{
+		if (rInteractionParam == fragmentParam().type())
+		{
+			// will happen on update event if AUTO_HIDE flag is present
+			hide();
+		}
+	}
+
+	/***************************************
 	 * Hides this view.
 	 */
 	public void hide()
@@ -183,6 +197,7 @@ public class ViewFragment extends InteractionFragment
 			rParent.getTemporaryListType(sParamBaseName, RelationType.class);
 
 		attach(rParent.getProcessStep(), aViewFragmentParam);
+		markInputParams(true, aViewFragmentParam);
 
 		aViewContentParam =
 			getTemporaryListType(sParamBaseName + "_CONTENT",
