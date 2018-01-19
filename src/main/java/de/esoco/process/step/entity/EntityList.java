@@ -81,7 +81,7 @@ public class EntityList<E extends Entity,
 	private static final long serialVersionUID = 1L;
 
 	private static final Collection<String> DEFAULT_ALLOWED_LIST_SIZES =
-		Arrays.asList("5", "10", "20", "25", "50", "100");
+		Arrays.asList("5", "10", "20", "25", "50");
 
 	//~ Instance fields --------------------------------------------------------
 
