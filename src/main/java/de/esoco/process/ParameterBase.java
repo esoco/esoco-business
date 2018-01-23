@@ -67,11 +67,13 @@ import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ICON_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
+import static de.esoco.lib.property.LayoutProperties.MEDIUM_COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
 import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.LayoutProperties.SMALL_COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.TEXT_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
@@ -910,6 +912,20 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P sameRow(RelativeSize eColumnWidth)
 	{
 		return sameRow().width(eColumnWidth);
+	}
+
+	/***************************************
+	 * Sets the UI properties {@link LayoutProperties#SMALL_COLUMN_SPAN} and
+	 * {@link LayoutProperties#MEDIUM_COLUMN_SPAN}.
+	 *
+	 * @param  nSmall  the number of columns to span in small-size layouts
+	 * @param  nMedium the number of columns to span in medium-size layouts
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P setResponsiveColSpans(int nSmall, int nMedium)
+	{
+		return set(nSmall, SMALL_COLUMN_SPAN).set(nMedium, MEDIUM_COLUMN_SPAN);
 	}
 
 	/***************************************
