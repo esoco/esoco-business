@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.HasProperties;
+import de.esoco.lib.property.LayoutVisibility;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
@@ -35,6 +36,7 @@ import org.obrel.core.RelationType;
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.LAYOUT_VISIBILITY;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.SHOW_LABEL;
 
@@ -277,6 +279,18 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		return String.format("%s(%s)",
 							 getClass().getSimpleName(),
 							 fragment().getParameter(type()));
+	}
+
+	/***************************************
+	 * Sets the visibility in responsive layouts.
+	 *
+	 * @param  eVisibilty The visibility
+	 *
+	 * @return This instance for concatenation
+	 */
+	public C visibleOn(LayoutVisibility eVisibilty)
+	{
+		return set(LAYOUT_VISIBILITY, eVisibilty);
 	}
 
 	/***************************************
