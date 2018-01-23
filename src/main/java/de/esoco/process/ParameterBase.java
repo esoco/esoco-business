@@ -923,7 +923,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @return This instance for concatenation
 	 */
-	public final P setResponsiveColSpans(int nSmall, int nMedium)
+	public final P responsiveColSpans(int nSmall, int nMedium)
 	{
 		return set(nSmall, SMALL_COLUMN_SPAN).set(nMedium, MEDIUM_COLUMN_SPAN);
 	}

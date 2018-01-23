@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,8 +34,10 @@ import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
+import static de.esoco.lib.property.LayoutProperties.MEDIUM_COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 import static de.esoco.lib.property.LayoutProperties.ROW_SPAN;
+import static de.esoco.lib.property.LayoutProperties.SMALL_COLUMN_SPAN;
 
 
 /********************************************************************
@@ -641,6 +643,21 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 			nRepositionColumn = nColumn;
 
 			return this;
+		}
+
+		/***************************************
+		 * Sets the UI properties {@link LayoutProperties#SMALL_COLUMN_SPAN} and
+		 * {@link LayoutProperties#MEDIUM_COLUMN_SPAN}.
+		 *
+		 * @param  nSmall  the number of columns to span in small-size layouts
+		 * @param  nMedium the number of columns to span in medium-size layouts
+		 *
+		 * @return This instance for concatenation
+		 */
+		public final Cell responsiveColSpans(int nSmall, int nMedium)
+		{
+			return set(SMALL_COLUMN_SPAN, nSmall).set(MEDIUM_COLUMN_SPAN,
+													  nMedium);
 		}
 
 		/***************************************
