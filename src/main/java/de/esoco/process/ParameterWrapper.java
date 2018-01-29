@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -100,12 +100,12 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @param  rParam             The parameter to initiate the download for
 	 * @param  sFileName          The file name of the download
 	 * @param  eFileType          The file type of the download
-	 * @param  fDownloadGenerator The function that generated the download data
+	 * @param  fDownloadGenerator The function that generates the download data
 	 *
 	 * @throws RuntimeProcessException If the download preparation fails
 	 */
 	@SuppressWarnings("unchecked")
-	protected static void initiateDownload(
+	public static void initiateDownload(
 		ParameterWrapper<?, ?> rParam,
 		String				   sFileName,
 		FileType			   eFileType,

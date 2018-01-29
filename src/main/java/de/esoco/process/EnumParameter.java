@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,6 @@
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
-
-import de.esoco.data.FileType;
-
-import de.esoco.lib.expression.Function;
 
 import de.esoco.process.step.InteractionFragment;
 
@@ -88,25 +84,5 @@ public class EnumParameter<E extends Enum<E>>
 		fragment().enableAllElements(type());
 
 		return this;
-	}
-
-	/***************************************
-	 * Prepares a download that is associated with an event on this enum
-	 * parameter. This method must be invoked during the handling of the event
-	 * and the download will then be executed as the result of the event. After
-	 * the being processed by the process interaction the generated download URL
-	 * will be removed from the parameter.
-	 *
-	 * @param  sFileName          The file name of the download
-	 * @param  eFileType          The file type of the download
-	 * @param  fDownloadGenerator The function that generated the download data
-	 *
-	 * @throws Exception If the download preparation fails
-	 */
-	public void prepareDownload(String				  sFileName,
-								FileType			  eFileType,
-								Function<FileType, ?> fDownloadGenerator)
-	{
-		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
 	}
 }

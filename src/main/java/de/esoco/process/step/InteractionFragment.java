@@ -102,6 +102,7 @@ import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -418,6 +419,20 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
+	 * Returns a parameter that represents a single UI button with a text label.
+	 *
+	 * @param  sText The button text
+	 *
+	 * @return The new parameter
+	 */
+	public Parameter<String> button(String sText)
+	{
+		return param(String.class).value(sText)
+								  .set(HIDE_LABEL)
+								  .buttonStyle(ButtonStyle.DEFAULT);
+	}
+
+	/***************************************
 	 * Creates a parameter that displays interactive buttons from an enum.
 	 *
 	 * @param  rEnumClass The enum class to create the buttons from
@@ -426,7 +441,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> EnumParameter<E> buttons(Class<E> rEnumClass)
 	{
-		return param(rEnumClass).buttons();
+		return enumParam(rEnumClass).buttons();
 	}
 
 	/***************************************
@@ -442,7 +457,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	public final <E extends Enum<E>> EnumParameter<E> buttons(
 		E... rAllowedValues)
 	{
-		return param(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
+		return enumParam(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
 	}
 
 	/***************************************
@@ -709,6 +724,21 @@ public abstract class InteractionFragment extends ProcessFragment
 			getTemporaryParameterType(sName, rEntityType);
 
 		return new EntityParameter<>(this, rParamType);
+	}
+
+	/***************************************
+	 * Convenience method to create a new temporary parameter relation type with
+	 * an enum datatype. The parameter will be named with the simple name of the
+	 * enum class.
+	 *
+	 * @see #param(String, Class)
+	 */
+	public <E extends Enum<E>> EnumParameter<E> enumParam(Class<E> rEnumClass)
+	{
+		return new EnumParameter<>(this,
+								   getTemporaryParameterType(rEnumClass
+															 .getSimpleName(),
+															 rEnumClass));
 	}
 
 	/***************************************
@@ -1498,18 +1528,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * Convenience method to create a new temporary parameter relation type with
-	 * an enum datatype. The parameter will be named with the simple name of the
-	 * enum class.
+	 * Returns a new anonymous parameter for a certain datatype.
 	 *
-	 * @see #param(String, Class)
+	 * @param  rDatatype The datatype class
+	 *
+	 * @return The new parameter wrapper
 	 */
-	public <E extends Enum<E>> EnumParameter<E> param(Class<E> rEnumClass)
+	public <T> Parameter<T> param(Class<? super T> rDatatype)
 	{
-		return new EnumParameter<>(this,
-								   getTemporaryParameterType(rEnumClass
-															 .getSimpleName(),
-															 rEnumClass));
+		return param(null, rDatatype);
 	}
 
 	/***************************************
@@ -1518,7 +1545,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * will be created.
 	 *
 	 * @param  sName     The name of the parameter relation type
-	 * @param  rDatatype The parameter datatype
+	 * @param  rDatatype The datatype class
 	 *
 	 * @return the parameter wrapper
 	 */
@@ -1566,11 +1593,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	public <E extends Enum<E>> EnumParameter<E> radioButtons(
 		Class<E> rEnumClass)
 	{
-		return param(rEnumClass).input()
-								.set(LIST_STYLE, ListStyle.DISCRETE)
-								.hideLabel()
-								.layout(LayoutType.TABLE)
-								.columns(1);
+		return enumParam(rEnumClass).input()
+									.set(LIST_STYLE, ListStyle.DISCRETE)
+									.hideLabel()
+									.layout(LayoutType.TABLE)
+									.columns(1);
 	}
 
 	/***************************************

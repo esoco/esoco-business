@@ -16,9 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import de.esoco.data.FileType;
 import de.esoco.data.element.DataElementList;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.RelationAccessor;
 import de.esoco.lib.property.Alignment;
@@ -852,6 +854,40 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	}
 
 	/***************************************
+	 * Prepares a download that is associated with an event on this parameter.
+	 * This method must be invoked during the handling of the event and the
+	 * download will then be executed as the result of the event. After being
+	 * processed by the process interaction the generated download URL will be
+	 * removed from the parameter.
+	 *
+	 * @param  sFileName          The file name of the download
+	 * @param  eFileType          The file type of the download
+	 * @param  fDownloadGenerator The function that generates the download data
+	 *
+	 * @throws Exception If the download preparation fails
+	 */
+	public void prepareDownload(String				  sFileName,
+								FileType			  eFileType,
+								Function<FileType, ?> fDownloadGenerator)
+	{
+		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
+	}
+
+	/***************************************
+	 * Sets the UI properties {@link LayoutProperties#SMALL_COLUMN_SPAN} and
+	 * {@link LayoutProperties#MEDIUM_COLUMN_SPAN}.
+	 *
+	 * @param  nSmall  the number of columns to span in small-size layouts
+	 * @param  nMedium the number of columns to span in medium-size layouts
+	 *
+	 * @return This instance for concatenation
+	 */
+	public final P responsiveColSpans(int nSmall, int nMedium)
+	{
+		return set(nSmall, SMALL_COLUMN_SPAN).set(nMedium, MEDIUM_COLUMN_SPAN);
+	}
+
+	/***************************************
 	 * Sets the UI property {@link UserInterfaceProperties#ROWS}.
 	 *
 	 * @param  nRows the number of rows.
@@ -912,20 +948,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	public final P sameRow(RelativeSize eColumnWidth)
 	{
 		return sameRow().width(eColumnWidth);
-	}
-
-	/***************************************
-	 * Sets the UI properties {@link LayoutProperties#SMALL_COLUMN_SPAN} and
-	 * {@link LayoutProperties#MEDIUM_COLUMN_SPAN}.
-	 *
-	 * @param  nSmall  the number of columns to span in small-size layouts
-	 * @param  nMedium the number of columns to span in medium-size layouts
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P responsiveColSpans(int nSmall, int nMedium)
-	{
-		return set(nSmall, SMALL_COLUMN_SPAN).set(nMedium, MEDIUM_COLUMN_SPAN);
 	}
 
 	/***************************************
