@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import de.esoco.lib.model.ListDataModel;
 import de.esoco.lib.property.Editable;
 import de.esoco.lib.property.Flags;
 import de.esoco.lib.property.HasId;
+import de.esoco.lib.property.Indexed;
 
 import java.io.Serializable;
 
@@ -42,7 +43,7 @@ import java.util.List;
  */
 public class HierarchicalDataObject implements HierarchicalDataModel<String>,
 											   HasId<String>, Flags<String>,
-											   Editable, Serializable
+											   Indexed, Editable, Serializable
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -51,25 +52,26 @@ public class HierarchicalDataObject implements HierarchicalDataModel<String>,
 	//~ Instance fields --------------------------------------------------------
 
 	// the fields must be package accessible for the custom field serializer
-	String			   sId;
-	List<String>	   rValues;
-	boolean			   bEditable = false;
-	Collection<String> rFlags    = null;
+	String		 sId;
+	int			 nIndex;
+	boolean		 bEditable;
+	List<String> rValues;
 
-	DataModel<DataModel<String>> aChildren = null;
+	Collection<String>			 rFlags;
+	DataModel<DataModel<String>> aChildren;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new readonly instance without children or flags.
+	 * Creates a new readonly instance without children or flags and an index of
+	 * zero.
 	 *
 	 * @param sId     This object's ID
 	 * @param rValues The attribute values
 	 */
 	public HierarchicalDataObject(String sId, List<String> rValues)
 	{
-		this.sId     = sId;
-		this.rValues = rValues;
+		this(sId, 0, rValues, false, null);
 	}
 
 	/***************************************
@@ -77,18 +79,21 @@ public class HierarchicalDataObject implements HierarchicalDataModel<String>,
 	 * be copied but will be used directly.
 	 *
 	 * @param sId       The object's ID
+	 * @param nIndex    The index of this object
 	 * @param rValues   The attribute values
 	 * @param bEditable FALSE to mark the instance as readonly
 	 * @param rFlags    The string flags for the object or NULL for none
 	 */
 	public HierarchicalDataObject(String			 sId,
+								  int				 nIndex,
 								  List<String>		 rValues,
 								  boolean			 bEditable,
 								  Collection<String> rFlags)
 	{
-		this(sId, rValues);
-
+		this.sId	   = sId;
+		this.nIndex    = nIndex;
 		this.bEditable = bEditable;
+		this.rValues   = rValues;
 		this.rFlags    = rFlags;
 	}
 
@@ -97,18 +102,20 @@ public class HierarchicalDataObject implements HierarchicalDataModel<String>,
 	 * will be used directly.
 	 *
 	 * @param sId       The object's ID
+	 * @param nIndex    The index of this object
 	 * @param rValues   The attribute values
 	 * @param bEditable FALSE to mark the instance as readonly
 	 * @param rFlags    The string flags for the object or NULL for none
 	 * @param rChildren The list of child objects (NULL or empty for none)
 	 */
 	public HierarchicalDataObject(String				  sId,
+								  int					  nIndex,
 								  List<String>			  rValues,
 								  boolean				  bEditable,
 								  Collection<String>	  rFlags,
 								  List<DataModel<String>> rChildren)
 	{
-		this(sId, rValues, bEditable, rFlags);
+		this(sId, nIndex, rValues, bEditable, rFlags);
 
 		if (rChildren != null)
 		{
@@ -122,18 +129,20 @@ public class HierarchicalDataObject implements HierarchicalDataModel<String>,
 	 * will be used directly.
 	 *
 	 * @param sId       The object's ID
+	 * @param nIndex    The index of this object
 	 * @param rValues   The attribute values
 	 * @param bEditable FALSE to mark the instance as readonly
 	 * @param rFlags    The string flags for the object or NULL for none
 	 * @param rChildren The child data model (NULL or empty for none)
 	 */
 	public HierarchicalDataObject(String					   sId,
+								  int						   nIndex,
 								  List<String>				   rValues,
 								  boolean					   bEditable,
 								  Collection<String>		   rFlags,
 								  DataModel<DataModel<String>> rChildren)
 	{
-		this(sId, rValues, bEditable, rFlags);
+		this(sId, nIndex, rValues, bEditable, rFlags);
 
 		this.aChildren = rChildren;
 	}
@@ -221,6 +230,15 @@ public class HierarchicalDataObject implements HierarchicalDataModel<String>,
 	public final String getId()
 	{
 		return sId;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getIndex()
+	{
+		return nIndex;
 	}
 
 	/***************************************
