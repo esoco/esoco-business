@@ -217,6 +217,8 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		for (RelationType<?> rParam : rParams)
 		{
+			markParameterAsModified(rParam);
+
 			// do not add parameters that are displayed in panels because they
 			// are stored in the parameter list of the panel parameter
 			if (!isPanelParameter(rParam) &&

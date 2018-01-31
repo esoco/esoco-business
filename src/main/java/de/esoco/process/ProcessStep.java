@@ -97,7 +97,8 @@ public abstract class ProcessStep extends ProcessFragment
 	/** Will be restored by the parent process on deserialization */
 	private transient Process rProcess;
 
-	private Set<RelationType<?>> aModifiedParams = new HashSet<>();
+	private Set<RelationType<?>> aModifiedParams	   = new HashSet<>();
+	private Set<RelationType<?>> aNewInteractionParams = null;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -120,21 +121,7 @@ public abstract class ProcessStep extends ProcessFragment
 		Collection<? extends RelationType<?>> rParams)
 	{
 		super.addDisplayParameters(rParams);
-
-		if (rProcess != null)
-		{
-			for (RelationType<?> rParam : rParams)
-			{
-				if (rParam.getValueType() == List.class &&
-					rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
-					RelationType.class)
-				{
-					// necessary for legacy process step based interactions that do not
-					// use InteractionFragment
-					setUIFlag(STRUCTURE_CHANGED, rParam);
-				}
-			}
-		}
+		prepareNewInteractionParameters(rParams);
 	}
 
 	/***************************************
@@ -424,6 +411,41 @@ public abstract class ProcessStep extends ProcessFragment
 	{
 		prepareValues();
 		setParameter(INTERACTIVE_INPUT_PARAM, null);
+	}
+
+	/***************************************
+	 * Prepares new interaction parameters for rendering.
+	 *
+	 * @param rParams
+	 */
+	protected void prepareNewInteractionParameters(
+		Collection<? extends RelationType<?>> rParams)
+	{
+		if (rProcess != null)
+		{
+			for (RelationType<?> rParam : rParams)
+			{
+				markParameterAsModified(rParam);
+
+				if (rParam.getValueType() == List.class &&
+					rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
+					RelationType.class)
+				{
+					// necessary for legacy process step based interactions that do not
+					// use InteractionFragment
+					setUIFlag(STRUCTURE_CHANGED, rParam);
+				}
+			}
+		}
+		else
+		{
+			if (aNewInteractionParams == null)
+			{
+				aNewInteractionParams = new HashSet<>(rParams);
+			}
+
+			aNewInteractionParams.addAll(rParams);
+		}
 	}
 
 	/***************************************
@@ -787,6 +809,12 @@ public abstract class ProcessStep extends ProcessFragment
 	void setProcess(Process rProcess)
 	{
 		this.rProcess = rProcess;
+
+		if (aNewInteractionParams != null)
+		{
+			prepareNewInteractionParameters(aNewInteractionParams);
+			aNewInteractionParams = null;
+		}
 	}
 
 	/***************************************
