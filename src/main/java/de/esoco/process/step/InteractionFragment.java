@@ -429,7 +429,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public Parameter<String> button(String sText)
 	{
-		return param(String.class).value(sText)
+		return param(String.class).input()
+								  .value(sText)
 								  .set(HIDE_LABEL)
 								  .buttonStyle(ButtonStyle.DEFAULT);
 	}
