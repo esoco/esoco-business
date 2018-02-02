@@ -24,6 +24,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.reflect.ReflectUtil;
 
@@ -89,9 +90,10 @@ public class EntityList<E extends Entity,
 	private final Class<I> rItemType;
 
 	private Predicate<? super E> pDefaultCriteria;
-	private Predicate<? super E> pExtraCriteria = null;
-	private Predicate<? super E> pAllCriteria   = null;
-	private String				 sGlobalFilter  = null;
+	private Predicate<? super E> pExtraCriteria   = null;
+	private Predicate<? super E> pAllCriteria     = null;
+	private String				 sGlobalFilter    = null;
+	private ListLayoutStyle		 eListLayoutStyle = null;
 
 	private SortPredicate<? super E> pSortColumn;
 
@@ -236,6 +238,17 @@ public class EntityList<E extends Entity,
 	}
 
 	/***************************************
+	 * Returns the list layout style.
+	 *
+	 * @return The list layout style
+	 */
+	public final ListLayoutStyle getListLayoutStyle()
+	{
+		return eListLayoutStyle != null
+			   ? eListLayoutStyle : fragmentParam().get(LIST_LAYOUT_STYLE);
+	}
+
+	/***************************************
 	 * Returns the current number of entities that are displayed in a list page.
 	 *
 	 * @return The current page size
@@ -282,6 +295,11 @@ public class EntityList<E extends Entity,
 	public void init()
 	{
 		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
+
+		if (eListLayoutStyle != null)
+		{
+			fragmentParam().set(LIST_LAYOUT_STYLE, eListLayoutStyle);
+		}
 
 		if (rHeader != null)
 		{
@@ -388,6 +406,16 @@ public class EntityList<E extends Entity,
 	public void setListHeader(EntityListHeader<E> rHeader)
 	{
 		this.rHeader = rHeader;
+	}
+
+	/***************************************
+	 * Sets the list layout style.
+	 *
+	 * @param eListLayoutStyle The style
+	 */
+	public final void setListLayoutStyle(ListLayoutStyle eListLayoutStyle)
+	{
+		this.eListLayoutStyle = eListLayoutStyle;
 	}
 
 	/***************************************
