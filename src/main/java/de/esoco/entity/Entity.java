@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1641,7 +1641,8 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @throws StorageException If retrieving the attributes fails
 	 */
-	Map<String, ExtraAttribute> getExtraAttributeMap() throws StorageException
+	synchronized Map<String, ExtraAttribute> getExtraAttributeMap()
+		throws StorageException
 	{
 		if (isPersistent() && !hasRelation(EXTRA_ATTRIBUTES_READ))
 		{
@@ -2054,7 +2055,7 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @throws StorageException If querying the extra attributes fails
 	 */
-	private synchronized void readExtraAttributes() throws StorageException
+	private void readExtraAttributes() throws StorageException
 	{
 		assert !hasFlag(EXTRA_ATTRIBUTES_MODIFIED) : "Invalid state: extra attributes have been modified";
 
