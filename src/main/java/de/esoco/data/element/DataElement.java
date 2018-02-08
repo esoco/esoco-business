@@ -72,6 +72,9 @@ public abstract class DataElement<T> extends StringProperties
 			CURRENT_SELECTION, FOCUSED, INTERACTION_EVENT_DATA, FILTER_CRITERIA
 		};
 
+	/** The prefix for the name of anonymous data elements. */
+	public static final String ANONYMOUS_ELEMENT_PREFIX = "_";
+
 	/** The prefix for item resource IDs */
 	public static final String ITEM_RESOURCE_PREFIX = "$itm";
 
@@ -810,7 +813,7 @@ public abstract class DataElement<T> extends StringProperties
 	{
 		String sResId = TextConvert.lastElementOf(sName);
 
-		if (sResId.startsWith("__"))
+		if (sResId.startsWith(ANONYMOUS_ELEMENT_PREFIX))
 		{
 			sResId = "";
 		}

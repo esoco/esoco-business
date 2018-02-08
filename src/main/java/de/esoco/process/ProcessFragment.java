@@ -2577,20 +2577,18 @@ public abstract class ProcessFragment extends ProcessElement
 
 		if (sBaseName == null)
 		{
-			aParamName.append("__")
-					  .append(getClass().getSimpleName())
-					  .append('P')
+			aParamName.append(DataElement.ANONYMOUS_ELEMENT_PREFIX)
 					  .append(getTemporaryParameterId());
 		}
 		else
 		{
 			aParamName.append(TextConvert.uppercaseIdentifier(sBaseName)
 							  .replaceAll("[.-]", "_"));
-		}
 
-		if (Character.isDigit(aParamName.charAt(0)))
-		{
-			aParamName.insert(0, '_');
+			if (Character.isDigit(aParamName.charAt(0)))
+			{
+				aParamName.insert(0, '_');
+			}
 		}
 
 		return aParamName.toString();
@@ -2606,32 +2604,13 @@ public abstract class ProcessFragment extends ProcessElement
 	 *
 	 * @return The package name for temporary parameter types
 	 */
+	@SuppressWarnings("boxing")
 	protected String getTemporaryParameterPackage()
 	{
 		if (sFragmentParamPackage == null)
 		{
-			Class<?> rClass		   = getClass();
-			String   sFragmentName = rClass.getSimpleName().toLowerCase();
-
-			StringBuilder aPackageBuilder =
-				new StringBuilder(getProcess().getName());
-
-			aPackageBuilder.append(getProcess().getId());
-			aPackageBuilder.append('.');
-
-			if (sFragmentName.length() == 0)
-			{
-				// anonymous inner classes don't have a name, create from parent
-				aPackageBuilder.append(rClass.getSuperclass().getSimpleName());
-				aPackageBuilder.append(".__F");
-			}
-			else
-			{
-				aPackageBuilder.append(sFragmentName);
-			}
-
-			aPackageBuilder.append(getFragmentId());
-			sFragmentParamPackage = aPackageBuilder.toString();
+			sFragmentParamPackage =
+				String.format("P%d.F%d", getProcess().getId(), getFragmentId());
 		}
 
 		return sFragmentParamPackage;
