@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
-import org.obrel.type.StandardTypes;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_FRAGMENT_CLASS;
@@ -184,7 +183,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 	@Override
 	public String toString()
 	{
-		return get(StandardTypes.NAME);
+		return get(NAME);
 	}
 
 	/***************************************
@@ -336,7 +335,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 	@Override
 	protected Process createProcess() throws ProcessException
 	{
-		Process aProcess = new Process(get(StandardTypes.NAME));
+		Process aProcess = new Process(get(NAME));
 		int     nMax     = aSteps.size() - 1;
 
 		assert nMax >= 0 : "Empty process definition";
