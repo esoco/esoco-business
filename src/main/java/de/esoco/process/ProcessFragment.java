@@ -54,6 +54,7 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
+import de.esoco.lib.property.StateProperties;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -152,6 +153,9 @@ public abstract class ProcessFragment extends ProcessElement
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+
+	private static final Set<PropertyName<?>> NON_MODIFYING_PROPERTIES =
+		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -1297,7 +1301,7 @@ public abstract class ProcessFragment extends ProcessElement
 	}
 
 	/***************************************
-	 * Returns the UI properties for a certain parameter.
+	 * Returns the UI properties for a certain parameter if they exist.
 	 *
 	 * @param  rParam The parameter relation type
 	 *
@@ -1305,14 +1309,38 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public MutableProperties getUIProperties(RelationType<?> rParam)
 	{
-		MutableProperties rProperties = null;
+		return getUIProperties(rParam, false);
+	}
+
+	/***************************************
+	 * Returns the UI properties for a certain parameter. If the boolean
+	 * parameter is TRUE and the properties don't exist empty properties will be
+	 * created and set for the parameter.
+	 *
+	 * @param  rParam  The parameter relation type
+	 * @param  bCreate TRUE to create non-existing properties
+	 *
+	 * @return The UI properties or NULL for none if bCreate is FALSE
+	 */
+	public MutableProperties getUIProperties(
+		RelationType<?> rParam,
+		boolean			bCreate)
+	{
+		MutableProperties rUiProperties = null;
 
 		if (hasParameter(rParam))
 		{
-			rProperties = getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
+			rUiProperties =
+				getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
 		}
 
-		return rProperties;
+		if (rUiProperties == null && bCreate)
+		{
+			rUiProperties = new StringProperties();
+			annotateParameter(rParam, null, DISPLAY_PROPERTIES, rUiProperties);
+		}
+
+		return rUiProperties;
 	}
 
 	/***************************************
@@ -1734,13 +1762,13 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<?>    rParam,
 		PropertyName<?>... rProperties)
 	{
-		MutableProperties rDisplayProperties = getUIProperties(rParam);
+		MutableProperties rUiProperties = getUIProperties(rParam);
 
-		if (rDisplayProperties != null)
+		if (rUiProperties != null)
 		{
 			for (PropertyName<?> rProperty : rProperties)
 			{
-				rDisplayProperties.removeProperty(rProperty);
+				rUiProperties.removeProperty(rProperty);
 			}
 
 			markParameterAsModified(rParam);
@@ -2269,19 +2297,18 @@ public abstract class ProcessFragment extends ProcessElement
 
 		for (RelationType<?> rParam : rParams)
 		{
-			MutableProperties rDisplayProperties = getUIProperties(rParam);
+			MutableProperties rUiProperties = getUIProperties(rParam, true);
 
-			if (rDisplayProperties == null)
+			rUiProperties.setProperty(rProperty, rValue);
+
+			if (NON_MODIFYING_PROPERTIES.contains(rProperty))
 			{
-				rDisplayProperties = new StringProperties();
-				annotateParameter(rParam,
-								  null,
-								  DISPLAY_PROPERTIES,
-								  rDisplayProperties);
+				rUiProperties.setFlag(StateProperties.PROPERTIES_CHANGED);
 			}
-
-			markParameterAsModified(rParam);
-			rDisplayProperties.setProperty(rProperty, rValue);
+			else
+			{
+				markParameterAsModified(rParam);
+			}
 		}
 	}
 
