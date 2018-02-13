@@ -22,10 +22,10 @@ import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 
 import de.esoco.lib.property.MutableProperties;
-import de.esoco.lib.property.StateProperties;
 
 import de.esoco.process.step.InteractionFragment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +40,9 @@ import org.obrel.type.StandardTypes;
 
 import static de.esoco.history.HistoryManager.HISTORIZED;
 
+import static de.esoco.lib.property.StateProperties.PROPERTIES_CHANGED;
 import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
+import static de.esoco.lib.property.StateProperties.VALUE_CHANGED;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
@@ -97,8 +99,12 @@ public abstract class ProcessStep extends ProcessFragment
 	/** Will be restored by the parent process on deserialization */
 	private transient Process rProcess;
 
-	private Set<RelationType<?>> aModifiedParams	   = new HashSet<>();
+	private boolean bMarkingAsModified;
+
 	private Set<RelationType<?>> aNewInteractionParams = null;
+
+	// collects modifications of parameters in the full fragment hierarchy
+	private Set<RelationType<?>> aModifiedParams = new HashSet<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -142,18 +148,6 @@ public abstract class ProcessStep extends ProcessFragment
 	}
 
 	/***************************************
-	 * Returns the parameters that have been modified since the last user
-	 * interaction. The returned collection is not copied so that modifications
-	 * will directly modify the process execution.
-	 *
-	 * @return The collection of modified parameter
-	 */
-	public final Collection<RelationType<?>> getModifiedParams()
-	{
-		return aModifiedParams;
-	}
-
-	/***************************************
 	 * Returns the step's name.
 	 *
 	 * @return The step's name
@@ -193,18 +187,37 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	public boolean isParameterModified(RelationType<?> rParam)
 	{
-		return aModifiedParams.contains(rParam);
+		return aModifiedParams.contains(rParam) ||
+			   hasUIFlag(PROPERTIES_CHANGED, rParam);
 	}
 
 	/***************************************
-	 * Removes the modification marker for a certain parameter relation type.
+	 * Removes the modification markers for a certain process parameter.
 	 *
-	 * @param rParam The parameter relation type
+	 * @param rParam The process parameter
 	 */
 	public void removeParameterModification(ParameterBase<?, ?> rParam)
 	{
-		rParam.remove(STRUCTURE_CHANGED);
-		aModifiedParams.remove(rParam.type());
+		removeParameterModification(rParam.type());
+	}
+
+	/***************************************
+	 * Removes the modification markers for a certain parameter relation type.
+	 *
+	 * @param rParamType The parameter relation type
+	 */
+	public void removeParameterModification(RelationType<?> rParamType)
+	{
+		MutableProperties rUiProperties = getUIProperties(rParamType);
+
+		if (rUiProperties != null)
+		{
+			rUiProperties.removeProperty(VALUE_CHANGED);
+			rUiProperties.removeProperty(PROPERTIES_CHANGED);
+			rUiProperties.removeProperty(STRUCTURE_CHANGED);
+		}
+
+		aModifiedParams.remove(rParamType);
 	}
 
 	/***************************************
@@ -212,17 +225,11 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	public void resetParameterModifications()
 	{
-		for (RelationType<?> rParam : aModifiedParams)
+		// iterate over a copy because aModifiedParams is modified
+		for (RelationType<?> rParamType : new ArrayList<>(aModifiedParams))
 		{
-			MutableProperties rUiProperties = getUIProperties(rParam);
-
-			if (rUiProperties != null)
-			{
-				rUiProperties.removeProperty(StateProperties.STRUCTURE_CHANGED);
-			}
+			removeParameterModification(rParamType);
 		}
-
-		aModifiedParams.clear();
 	}
 
 	/***************************************
@@ -672,15 +679,21 @@ public abstract class ProcessStep extends ProcessFragment
 	}
 
 	/***************************************
-	 * Records a parameter modification that can then later be queried with
-	 * {@link #isParameterModified(RelationType)}. Parameter modifications can
-	 * be value or property changes.
+	 * Records a parameter modification that can later be queried with {@link
+	 * #isParameterModified(RelationType)}. Modifications are changes to
+	 * parameter values or properties.
 	 *
-	 * @param rParam The relation type of the modified parameter
+	 * @param rParamType The relation type of the modified parameter
 	 */
-	void parameterModified(RelationType<?> rParam)
+	void parameterModified(RelationType<?> rParamType)
 	{
-		aModifiedParams.add(rParam);
+		if (!bMarkingAsModified)
+		{
+			bMarkingAsModified = true;
+			setUIFlag(VALUE_CHANGED, rParamType);
+			aModifiedParams.add(rParamType);
+			bMarkingAsModified = false;
+		}
 	}
 
 	/***************************************

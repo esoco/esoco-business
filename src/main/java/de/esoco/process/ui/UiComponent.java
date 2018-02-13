@@ -16,14 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-import de.esoco.entity.EntityRelationTypes;
-
 import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutVisibility;
-import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
-import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.TitleAttribute;
 
 import de.esoco.process.ParameterWrapper;
@@ -438,24 +434,14 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @param bReplace       TRUE to replace existing properties, FALSE to only
 	 *                       set new properties
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	void setProperties(HasProperties rNewProperties, boolean bReplace)
 	{
 		if (rNewProperties.getPropertyCount() > 0)
 		{
-			MutableProperties rProperties = fragment().getUIProperties(type());
-
-			if (rProperties == null)
+			for (PropertyName rProperty : rNewProperties.getPropertyNames())
 			{
-				rProperties = new StringProperties(rNewProperties);
-				fragment().annotateParameter(type(),
-											 null,
-											 EntityRelationTypes.DISPLAY_PROPERTIES,
-											 rProperties);
-			}
-			else
-			{
-				rProperties.setProperties(rNewProperties, bReplace);
-				fragment().markParameterAsModified(type());
+				set(rProperty, rNewProperties.getProperty(rProperty, null));
 			}
 		}
 	}
