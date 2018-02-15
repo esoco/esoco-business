@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -215,6 +215,51 @@ public class LoginFragment extends InteractionFragment
 	}
 
 	/***************************************
+	 * Creates the waiting message after successive login failures.
+	 *
+	 * @param  nRemainingSeconds The number of seconds the user has to wait
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("boxing")
+	protected String createErrorWaitMessage(int nRemainingSeconds)
+	{
+		return String.format("$${$msgSuccessiveLoginErrorStart} %d " +
+							 "{$msgSuccessiveLoginErrorEnd}",
+							 nRemainingSeconds);
+	}
+
+	/***************************************
+	 * Handles login name input.
+	 *
+	 * @param sLoginName The login name
+	 */
+	protected void handleLoginNameInput(String sLoginName)
+	{
+		if (aPassword.value().length() > 5)
+		{
+			performLogin();
+		}
+		else
+		{
+			aPassword.set(FOCUSED);
+		}
+	}
+
+	/***************************************
+	 * Handles password input.
+	 *
+	 * @param sPassword The password
+	 */
+	protected void handlePasswordInput(String sPassword)
+	{
+		if (aLoginName.value().length() > 2)
+		{
+			performLogin();
+		}
+	}
+
+	/***************************************
 	 * Will be invoked after the user has been successfully authenticated to
 	 * check whether she is authorized to use the application. Can be overridden
 	 * by subclasses that need to check additional constraints. Only if this
@@ -236,54 +281,9 @@ public class LoginFragment extends InteractionFragment
 	}
 
 	/***************************************
-	 * Creates the waiting message after successive login failures.
-	 *
-	 * @param  nRemainingSeconds The number of seconds the user has to wait
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("boxing")
-	private String createErrorWaitMessage(int nRemainingSeconds)
-	{
-		return String.format("$${$msgSuccessiveLoginErrorStart} %d " +
-							 "{$msgSuccessiveLoginErrorEnd}",
-							 nRemainingSeconds);
-	}
-
-	/***************************************
-	 * Handles login name input.
-	 *
-	 * @param sLoginName The login name value
-	 */
-	private void handleLoginNameInput(String sLoginName)
-	{
-		if (aPassword.value().length() > 5)
-		{
-			performLogin();
-		}
-		else
-		{
-			aPassword.set(FOCUSED);
-		}
-	}
-
-	/***************************************
-	 * Handles password input.
-	 *
-	 * @param sPassword The password
-	 */
-	private void handlePasswordInput(String sPassword)
-	{
-		if (aLoginName.value().length() > 2)
-		{
-			performLogin();
-		}
-	}
-
-	/***************************************
 	 * Handles the login action that occurred.
 	 */
-	private void performLogin()
+	protected void performLogin()
 	{
 		String sLoginName = aLoginName.value();
 		String sPassword  = aPassword.value();
