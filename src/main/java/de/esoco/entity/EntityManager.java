@@ -23,7 +23,7 @@ import de.esoco.history.HistoryRecord.HistoryType;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.comm.Endpoint;
-import de.esoco.lib.comm.EndpointChain;
+import de.esoco.lib.comm.EndpointFunction;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.CollectionFunctions;
 import de.esoco.lib.expression.Conversions;
@@ -2309,7 +2309,7 @@ public class EntityManager
 
 			try
 			{
-				EndpointChain<SyncData, String> fRequestLock =
+				EndpointFunction<SyncData, String> fRequestLock =
 					requestLock().from(rEntitySyncEndpoint.get());
 
 				sResponse =
@@ -2347,7 +2347,7 @@ public class EntityManager
 		{
 			try
 			{
-				EndpointChain<SyncData, String> fReleaseLock =
+				EndpointFunction<SyncData, String> fReleaseLock =
 					releaseLock().from(rEntitySyncEndpoint.get());
 
 				String sResponse =
