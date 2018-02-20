@@ -22,8 +22,6 @@ import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
 
-import de.esoco.process.step.InteractionFragment;
-
 import java.util.List;
 
 import org.obrel.core.RelationType;
@@ -121,11 +119,7 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 		}
 		else
 		{
-			InteractionFragment rParentFragment = getParent().fragment();
-
-			fragment().get(VIEW_PARAMS).remove(rViewParam);
-			rParentFragment.removeInteractionParameters(rViewParam);
-			rParentFragment.removeSubFragment(rViewParam);
+			getParent().fragment().removeViewFragment(rViewParam);
 		}
 
 		return (V) this;
