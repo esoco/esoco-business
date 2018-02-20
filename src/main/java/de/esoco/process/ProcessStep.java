@@ -99,6 +99,8 @@ public abstract class ProcessStep extends ProcessFragment
 	/** Will be restored by the parent process on deserialization */
 	private transient Process rProcess;
 
+	private boolean bMarkingAsModified;
+
 	private Set<RelationType<?>> aNewInteractionParams = null;
 
 	// collects modifications of parameters in the full fragment hierarchy
@@ -430,6 +432,9 @@ public abstract class ProcessStep extends ProcessFragment
 		{
 			for (RelationType<?> rParam : rParams)
 			{
+				// do not use paramModified() to prevent setting of the (empty)
+				// parameter because the VALUE_CHANGED property is set; this
+				// can cause problems with some legacy processes
 				markParameterAsModified(rParam);
 
 				if (rParam.getValueType() == List.class &&
@@ -685,7 +690,13 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	void parameterModified(RelationType<?> rParamType)
 	{
-		aModifiedParams.add(rParamType);
+		if (!bMarkingAsModified)
+		{
+			bMarkingAsModified = true;
+			setUIFlag(VALUE_CHANGED, rParamType);
+			aModifiedParams.add(rParamType);
+			bMarkingAsModified = false;
+		}
 	}
 
 	/***************************************
