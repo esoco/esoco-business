@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.storage;
 
-import de.esoco.data.element.DataElementList;
 import de.esoco.data.element.QueryResultElement;
+import de.esoco.data.element.StringDataElement;
 
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataModel;
+import de.esoco.lib.property.StorageProperties;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public interface StorageAdapter
 	/***************************************
 	 * An optional operation that returns the current query criteria of this
 	 * instance. The result of this method may only be valid after a call to
-	 * {@link #performQuery(DataElementList)}. What kind of object is returned
+	 * {@link #performQuery(StringDataElement)}. What kind of object is returned
 	 * depends on the implementation.
 	 *
 	 * @return The current query predicate or NULL if no query has been executed
@@ -54,14 +55,16 @@ public interface StorageAdapter
 	public Object getCurrentQueryCriteria();
 
 	/***************************************
-	 * Must be implemented by subclasses to perform a query.
+	 * Must be implemented by subclasses to perform a query. The query
+	 * parameters data element must contain the mandatory query properties from
+	 * {@link StorageProperties}.
 	 *
-	 * @param  rQueryParams The query parameters
+	 * @param  rQueryParams A data element containing the query parameters
 	 *
 	 * @return A query result data element
 	 *
 	 * @throws Exception If executing the query fails
 	 */
 	public QueryResultElement<DataModel<String>> performQuery(
-		DataElementList rQueryParams) throws Exception;
+		StringDataElement rQueryParams) throws Exception;
 }
