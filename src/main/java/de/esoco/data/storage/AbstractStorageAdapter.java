@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.storage;
 
-import de.esoco.lib.model.SearchableDataModel;
+import de.esoco.lib.model.FilterableDataModel;
 
 import java.text.SimpleDateFormat;
 
@@ -40,7 +40,7 @@ public abstract class AbstractStorageAdapter extends SerializableRelatedObject
 	//~ Instance fields --------------------------------------------------------
 
 	private final SimpleDateFormat aConstraintDateFormat =
-		new SimpleDateFormat(SearchableDataModel.CONSTRAINT_DATE_FORMAT_PATTERN);
+		new SimpleDateFormat(FilterableDataModel.CONSTRAINT_DATE_FORMAT_PATTERN);
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -92,7 +92,7 @@ public abstract class AbstractStorageAdapter extends SerializableRelatedObject
 
 		try
 		{
-			if (!SearchableDataModel.NULL_CONSTRAINT_VALUE.equals(rValue))
+			if (!FilterableDataModel.NULL_CONSTRAINT_VALUE.equals(rValue))
 			{
 				if (rDataType.isEnum())
 				{
