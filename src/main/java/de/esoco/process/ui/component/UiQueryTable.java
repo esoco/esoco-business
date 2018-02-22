@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -139,6 +139,45 @@ public class UiQueryTable<E extends Entity>
 	}
 
 	/***************************************
+	 * Sets the default query order for a single attribute. For complex order
+	 * criteria see {@link #setOrderBy(Predicate)}.
+	 *
+	 * @param  rOrderAttribute The entity attribute to order the query by
+	 * @param  bAscending      TRUE for ascending, FALSE for descending ordering
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiQueryTable<E> orderBy(
+		RelationType<?> rOrderAttribute,
+		boolean			bAscending)
+	{
+		setOrderBy(StoragePredicates.sortBy(rOrderAttribute, bAscending));
+
+		return this;
+	}
+
+	/***************************************
+	 * Sets the storage query criteria of this table.
+	 *
+	 * @param  pCriteria The query criteria to apply (NULL for none)
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiQueryTable<E> query(Predicate<? super E> pCriteria)
+	{
+		@SuppressWarnings("unchecked")
+		QueryPredicate<E> pQuery =
+			new QueryPredicate<E>((Class<E>) type().getValueType(), pCriteria);
+
+		fragment().annotateParameter(type(),
+									 null,
+									 ENTITY_QUERY_PREDICATE,
+									 pQuery);
+
+		return this;
+	}
+
+	/***************************************
 	 * Sets the attributes to be displayed for entity queries.
 	 *
 	 * @see #setColumns(Collection)
@@ -206,7 +245,7 @@ public class UiQueryTable<E extends Entity>
 	 */
 	public void setOrderBy(RelationType<?> rOrderAttribute, boolean bAscending)
 	{
-		setOrderBy(StoragePredicates.sortBy(rOrderAttribute, bAscending));
+		orderBy(rOrderAttribute, bAscending);
 	}
 
 	/***************************************
@@ -216,14 +255,7 @@ public class UiQueryTable<E extends Entity>
 	 */
 	public void setQuery(Predicate<? super E> pCriteria)
 	{
-		@SuppressWarnings("unchecked")
-		QueryPredicate<E> pQuery =
-			new QueryPredicate<E>((Class<E>) type().getValueType(), pCriteria);
-
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_QUERY_PREDICATE,
-									 pQuery);
+		query(pCriteria);
 	}
 
 	/***************************************
