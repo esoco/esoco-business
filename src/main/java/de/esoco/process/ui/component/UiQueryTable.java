@@ -67,6 +67,7 @@ public class UiQueryTable<E extends Entity>
 	{
 		super(rContainer, rEntityType);
 
+		// the existence of a query predicate initiates the table rendering
 		setQuery(null);
 	}
 
