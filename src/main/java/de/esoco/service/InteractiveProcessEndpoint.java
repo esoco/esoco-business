@@ -19,7 +19,7 @@ package de.esoco.service;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.HttpEndpoint;
 import de.esoco.lib.comm.http.HttpRequestMethod;
-import de.esoco.lib.json.JsonObject;
+import de.esoco.lib.json.JsonRelatedObject;
 import de.esoco.lib.reflect.ReflectUtil;
 
 
@@ -69,7 +69,7 @@ public class InteractiveProcessEndpoint extends HttpEndpoint
 	 * @author eso
 	 */
 	public static abstract class RequestData<T extends RequestData<T>>
-		extends JsonObject<T>
+		extends JsonRelatedObject<T>
 	{
 	}
 

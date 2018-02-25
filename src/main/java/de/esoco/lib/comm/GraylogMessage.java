@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.comm;
 
-import de.esoco.lib.json.JsonUtil;
+import de.esoco.lib.json.Json;
 import de.esoco.lib.text.TextConvert;
 
 import java.net.InetAddress;
@@ -204,7 +204,7 @@ public class GraylogMessage extends RelatedObject
 			else
 			{
 				rJsonMessage.append('\"');
-				rJsonMessage.append(JsonUtil.escape(rValue.toString()));
+				rJsonMessage.append(Json.escape(rValue.toString()));
 				rJsonMessage.append('\"');
 			}
 		}
