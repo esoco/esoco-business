@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
+
+import de.esoco.lib.property.TableStyle;
+
+import static de.esoco.lib.property.StyleProperties.TABLE_STYLE;
+
 
 /********************************************************************
  * The base class for UI tables.
@@ -35,5 +40,29 @@ public abstract class UiTableControl<T, C extends UiTableControl<T, C>>
 	public UiTableControl(UiContainer<?> rParent, Class<T> rDatatype)
 	{
 		super(rParent, rDatatype);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the table style.
+	 *
+	 * @param eStyle The new table style
+	 */
+	public void setTableStyle(TableStyle eStyle)
+	{
+		tableStyle(eStyle);
+	}
+
+	/***************************************
+	 * Sets the table style.
+	 *
+	 * @param  eStyle The table style
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public C tableStyle(TableStyle eStyle)
+	{
+		return set(TABLE_STYLE, eStyle);
 	}
 }
