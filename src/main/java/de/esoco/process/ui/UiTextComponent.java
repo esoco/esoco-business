@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
+import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.TextAttribute;
 
 import java.util.Arrays;
 
+import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
@@ -74,6 +76,18 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	}
 
 	/***************************************
+	 * Sets an HTML text value, formatted with arguments.
+	 *
+	 * @see #setHtml(String)
+	 * @see #setFormattedText(String, String...)
+	 */
+	public void setFormattedHtml(String sTemplate, String... rFormatArguments)
+	{
+		setHtml(sTemplate);
+		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	}
+
+	/***************************************
 	 * Sets a text that will be formatted by inserting values into a template,
 	 * similar to {@link String#format(String, Object...)}. Depending on the
 	 * underlying client UI implementation the formatting options may be
@@ -85,8 +99,20 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	 */
 	public void setFormattedText(String sTemplate, String... rFormatArguments)
 	{
-		setValueImpl(sTemplate);
+		setText(sTemplate);
 		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	}
+
+	/***************************************
+	 * Sets the text value of this component so that it will be rendered as
+	 * HTML. The value can be queried with {@link #getText()}.
+	 *
+	 * @param sHtml The HTML text
+	 */
+	public void setHtml(String sHtml)
+	{
+		set(CONTENT_TYPE, ContentType.HTML);
+		setValueImpl(sHtml);
 	}
 
 	/***************************************
@@ -95,6 +121,7 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	@Override
 	public void setText(String sText)
 	{
+		remove(CONTENT_TYPE);
 		setValueImpl(sText);
 	}
 }
