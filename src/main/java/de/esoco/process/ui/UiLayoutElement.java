@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Sets the horizontal alignment of layout cells.
+	 * Sets the horizontal alignment of this element.
 	 *
 	 * @param  eAlignment The horizontal alignment
 	 *
@@ -45,7 +45,7 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	}
 
 	/***************************************
-	 * Sets the vertical alignment value of layout cells.
+	 * Sets the vertical alignment value of this element.
 	 *
 	 * @param  eAlignment The vertical alignment
 	 *

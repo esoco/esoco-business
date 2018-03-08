@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 
+import java.util.Arrays;
+
+import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
@@ -103,6 +106,20 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	public UiButton image(UiImageDefinition<?> rImage)
 	{
 		return super.image(rImage);
+	}
+
+	/***************************************
+	 * Sets a text that will be formatted by inserting values into a template,
+	 * similar to {@link String#format(String, Object...)} but only with strings
+	 * allowed as format arguments.
+	 *
+	 * @param sTemplate        The format template
+	 * @param rFormatArguments The format arguments
+	 */
+	public void setFormattedText(String sTemplate, String... rFormatArguments)
+	{
+		setText(sTemplate);
+		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
 	}
 
 	/***************************************

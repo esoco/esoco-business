@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
 
 
 /********************************************************************
- * Places components in a two-dimensional grid structure.
+ * Places components in a two-dimensional grid structure based on the CSS grid
+ * layout type.
  *
  * @author eso
  */
@@ -82,9 +83,9 @@ public class UiGridLayout extends UiLayout
 	}
 
 	/***************************************
-	 * Sets the horizontal alignment of layout cells. Overridden to store this
-	 * value locally, not in the properties because they must be applied to the
-	 * container instead of the child components.
+	 * Sets the general horizontal alignment of elements in this layout.
+	 * Overridden to store this value in an attribute instead of a property
+	 * because it must be mapped to a CSS property.
 	 *
 	 * @param  eAlignment The horizontal alignment
 	 *
@@ -99,9 +100,9 @@ public class UiGridLayout extends UiLayout
 	}
 
 	/***************************************
-	 * Sets the vertical alignment value of layout cells. Overridden to store
-	 * this value locally, not in the properties because they must be applied to
-	 * the container instead of the child components.
+	 * Sets the general vertical alignment of elements in this layout.
+	 * Overridden to store this value in an attribute instead of a property
+	 * because it must be mapped to a CSS property.
 	 *
 	 * @param  eAlignment The vertical alignment
 	 *
@@ -141,78 +142,6 @@ public class UiGridLayout extends UiLayout
 		this.sRowGap    = sRowGap;
 
 		return this;
-	}
-
-	/***************************************
-	 * Derives the cell-specific CSS grid properties from the layout components
-	 * and applies them to the components.
-	 */
-	protected void applyCellStyles()
-	{
-		for (Cell rCell : getCells())
-		{
-			if (!rCell.isEmpty())
-			{
-				UiStyle rStyle = rCell.getComponent().style();
-
-				applyCellPosition("gridColumn",
-								  rCell.getColumn().getIndex(),
-								  rCell.get(COLUMN_SPAN, 1),
-								  rStyle);
-				applyCellPosition("gridRow",
-								  rCell.getRow().getIndex(),
-								  rCell.get(ROW_SPAN, 1),
-								  rStyle);
-
-				applyAlignment("justifySelf",
-							   rCell.get(HORIZONTAL_ALIGN, null),
-							   rStyle);
-				applyAlignment("alignSelf",
-							   rCell.get(VERTICAL_ALIGN, null),
-							   rStyle);
-			}
-		}
-	}
-
-	/***************************************
-	 * Derives the grid structure from the columns and rows of this instance and
-	 * applies it to the given style object
-	 *
-	 * @param rStyle The style object
-	 */
-	protected void applyGridStructure(UiStyle rStyle)
-	{
-		StringBuilder sRowsTemplate    = new StringBuilder();
-		StringBuilder sColumnsTemplate = new StringBuilder();
-
-		for (Row rRow : getRows())
-		{
-			sRowsTemplate.append(rRow.get(HTML_HEIGHT, "1fr"));
-			sRowsTemplate.append(' ');
-		}
-
-		for (Column rColumn : getColumns())
-		{
-			sColumnsTemplate.append(rColumn.get(HTML_WIDTH, "1fr"));
-			sColumnsTemplate.append(' ');
-		}
-
-		rStyle.css("display", "grid")
-			  .css("gridTemplateRows", sRowsTemplate.toString().trim())
-			  .css("gridTemplateColumns", sColumnsTemplate.toString().trim());
-	}
-
-	/***************************************
-	 * Applies the grid style properties to the given style object.
-	 *
-	 * @param rStyle The style object
-	 */
-	protected void applyGridStyle(UiStyle rStyle)
-	{
-		applyStyle("gridColumnGap", sColumnGap, rStyle);
-		applyStyle("gridRowGap", sRowGap, rStyle);
-		applyAlignment("justifyItems", eHorizontalAlignment, rStyle);
-		applyAlignment("alignItems", eVerticalAlignment, rStyle);
 	}
 
 	/***************************************
@@ -301,6 +230,78 @@ public class UiGridLayout extends UiLayout
 				rStyle.css(sStyleName, Integer.toString(nGridPos));
 			}
 		}
+	}
+
+	/***************************************
+	 * Derives the cell-specific CSS grid properties from the layout components
+	 * and applies them to the components.
+	 */
+	private void applyCellStyles()
+	{
+		for (Cell rCell : getCells())
+		{
+			if (!rCell.isEmpty())
+			{
+				UiStyle rStyle = rCell.getComponent().style();
+
+				applyCellPosition("gridColumn",
+								  rCell.getColumn().getIndex(),
+								  rCell.get(COLUMN_SPAN, 1),
+								  rStyle);
+				applyCellPosition("gridRow",
+								  rCell.getRow().getIndex(),
+								  rCell.get(ROW_SPAN, 1),
+								  rStyle);
+
+				applyAlignment("justifySelf",
+							   rCell.get(HORIZONTAL_ALIGN, null),
+							   rStyle);
+				applyAlignment("alignSelf",
+							   rCell.get(VERTICAL_ALIGN, null),
+							   rStyle);
+			}
+		}
+	}
+
+	/***************************************
+	 * Derives the grid structure from the columns and rows of this instance and
+	 * applies it to the given style object
+	 *
+	 * @param rStyle The style object
+	 */
+	private void applyGridStructure(UiStyle rStyle)
+	{
+		StringBuilder sRowsTemplate    = new StringBuilder();
+		StringBuilder sColumnsTemplate = new StringBuilder();
+
+		for (Row rRow : getRows())
+		{
+			sRowsTemplate.append(rRow.get(HTML_HEIGHT, "1fr"));
+			sRowsTemplate.append(' ');
+		}
+
+		for (Column rColumn : getColumns())
+		{
+			sColumnsTemplate.append(rColumn.get(HTML_WIDTH, "1fr"));
+			sColumnsTemplate.append(' ');
+		}
+
+		rStyle.css("display", "grid")
+			  .css("gridTemplateRows", sRowsTemplate.toString().trim())
+			  .css("gridTemplateColumns", sColumnsTemplate.toString().trim());
+	}
+
+	/***************************************
+	 * Applies the grid style properties to the given style object.
+	 *
+	 * @param rStyle The style object
+	 */
+	private void applyGridStyle(UiStyle rStyle)
+	{
+		applyStyle("gridColumnGap", sColumnGap, rStyle);
+		applyStyle("gridRowGap", sRowGap, rStyle);
+		applyAlignment("justifyItems", eHorizontalAlignment, rStyle);
+		applyAlignment("alignItems", eVerticalAlignment, rStyle);
 	}
 
 	/***************************************

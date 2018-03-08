@@ -399,8 +399,8 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 	/***************************************
 	 * Internal method to set the value of this component's parameter. This is
-	 * intended to be used by subclasses only which should provide a
-	 * type-specific public method (like setText(String)).
+	 * intended to be used by subclasses which should provide a type-specific
+	 * public method (like setText(String)).
 	 *
 	 * @param  rValue The new value
 	 *

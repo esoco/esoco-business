@@ -89,10 +89,8 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 
 	/***************************************
 	 * Sets a text that will be formatted by inserting values into a template,
-	 * similar to {@link String#format(String, Object...)}. Depending on the
-	 * underlying client UI implementation the formatting options may be
-	 * limited. Therefore the format arguments must already be in string format
-	 * and advanced features like argument reordering may not be available.
+	 * similar to {@link String#format(String, Object...)} but only with strings
+	 * allowed as format arguments.
 	 *
 	 * @param sTemplate        The format template
 	 * @param rFormatArguments The format arguments

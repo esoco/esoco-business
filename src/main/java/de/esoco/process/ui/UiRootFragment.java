@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,17 +17,24 @@
 package de.esoco.process.ui;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.layout.UiFillLayout;
 import de.esoco.process.ui.view.UiRootView;
+
+import java.util.function.Consumer;
 
 
 /********************************************************************
  * An interactive process fragment that renders UI components (subclasses of
- * {@link UiComponent}).
+ * {@link UiComponent}). This class can be used either as a base class by
+ * overriding {@link #buildUserInterface(UiRootView)} and {@link
+ * #getRootViewLayout()} or {@link #createRootView()}. Or it can be used by
+ * providing the root view layout and a builder function through the constructor
+ * {@link #UiRootFragment(UiLayout, Consumer)}.
  *
  * @author eso
  */
-public abstract class UiRootFragment extends InteractionFragment
+public class UiRootFragment extends InteractionFragment
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -35,15 +42,42 @@ public abstract class UiRootFragment extends InteractionFragment
 
 	//~ Instance fields --------------------------------------------------------
 
-	private UiRootView aRootView;
+	private UiLayout			   rRootViewLayout;
+	private Consumer<UiBuilder<?>> fRootViewBuilder;
+	private UiRootView			   aRootView;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance with a fill layout for the root view.
 	 */
 	public UiRootFragment()
 	{
+		this(new UiFillLayout());
+	}
+
+	/***************************************
+	 * Creates a new instance with a specific root view layout.
+	 *
+	 * @param rLayout The root view layout
+	 */
+	public UiRootFragment(UiLayout rLayout)
+	{
+		rRootViewLayout = rLayout;
+	}
+
+	/***************************************
+	 * Creates a new instance with a specific root view layout and a root view
+	 * builder function. The builder function will be invoked from the method
+	 * {@link #buildUserInterface(UiRootView)}.
+	 *
+	 * @param rLayout  The root view layout
+	 * @param fBuilder The function that builds the root view
+	 */
+	public UiRootFragment(UiLayout rLayout, Consumer<UiBuilder<?>> fBuilder)
+	{
+		rRootViewLayout  = rLayout;
+		fRootViewBuilder = fBuilder;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -67,13 +101,19 @@ public abstract class UiRootFragment extends InteractionFragment
 	}
 
 	/***************************************
-	 * Can be implemented by subclasses to build the application UI in the given
-	 * root view after it has been created by {@link #createRootView()}.
+	 * Can be overridden by subclasses to build the application UI in the given
+	 * root view after it has been created by {@link #createRootView()}. The
+	 * default application invokes the root view builder function if it has been
+	 * set with {@link #UiRootFragment(UiLayout, Consumer)}.
 	 *
 	 * @param rRootView The root view
 	 */
 	protected void buildUserInterface(UiRootView rRootView)
 	{
+		if (fRootViewBuilder != null)
+		{
+			fRootViewBuilder.accept(rRootView.builder());
+		}
 	}
 
 	/***************************************
@@ -96,9 +136,6 @@ public abstract class UiRootFragment extends InteractionFragment
 				}
 			};
 
-		// set explcit style name for anoymous inner class
-		aRootView.style().styleName(getClass().getSimpleName() + "RootView");
-
 		return aRootView;
 	}
 
@@ -111,7 +148,7 @@ public abstract class UiRootFragment extends InteractionFragment
 	 */
 	protected UiLayout getRootViewLayout()
 	{
-		return new UiFillLayout();
+		return rRootViewLayout;
 	}
 
 	/***************************************

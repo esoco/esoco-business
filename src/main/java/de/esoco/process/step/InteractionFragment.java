@@ -65,6 +65,9 @@ import de.esoco.process.ViewFragment;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
+import de.esoco.process.ui.UiLayout;
+import de.esoco.process.ui.UiRootFragment;
+import de.esoco.process.ui.container.UiBuilder;
 
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
@@ -83,6 +86,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import org.obrel.core.Relation;
@@ -1470,6 +1474,25 @@ public abstract class InteractionFragment extends ProcessFragment
 		Initializer<InteractionFragment> rInitializer)
 	{
 		return panel(sName, LayoutType.GRID, rInitializer);
+	}
+
+	/***************************************
+	 * Adds a panel that contains components from the process UI API.
+	 *
+	 * @param  rLayout     The UI layout of the panel
+	 * @param  fBuildPanel A builder function that creates the panel components
+	 *
+	 * @return the parameter wrapper for the panel parameter
+	 */
+	public ParameterList panel(
+		UiLayout			   rLayout,
+		Consumer<UiBuilder<?>> fBuildPanel)
+	{
+		@SuppressWarnings("serial")
+		ParameterList aPanel =
+			addSubFragment(new UiRootFragment(rLayout, fBuildPanel));
+
+		return aPanel;
 	}
 
 	/***************************************
