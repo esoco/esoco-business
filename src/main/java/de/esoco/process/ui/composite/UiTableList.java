@@ -965,7 +965,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			if (sValue == null)
 			{
-				sValue = "&nbsp;";
+				sValue = " ";
 			}
 
 			return sValue;
