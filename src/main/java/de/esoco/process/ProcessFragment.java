@@ -1541,7 +1541,7 @@ public abstract class ProcessFragment extends ProcessElement
 			addInputParameters(rParam);
 		}
 
-		if (!hasParameter(rParam))
+		if (getParameter(rParam) == null)
 		{
 			setParameter(rParam, rDate);
 		}
