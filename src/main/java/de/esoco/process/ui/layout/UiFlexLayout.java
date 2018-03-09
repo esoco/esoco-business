@@ -22,6 +22,7 @@ import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
+import de.esoco.process.ui.layout.UiFlexLayout.FlexWrap;
 import de.esoco.process.ui.style.UiStyle;
 
 
@@ -111,7 +112,7 @@ public class UiFlexLayout extends UiLayout
 	 */
 	public enum FlexWrap
 	{
-		OFF("nowrap"), ON("wrap"), REVERSE("wrap-reverse");
+		NONE("nowrap"), WRAP("wrap"), REVERSE("wrap-reverse");
 
 		//~ Instance fields ----------------------------------------------------
 
@@ -150,7 +151,7 @@ public class UiFlexLayout extends UiLayout
 	private FlexAlign eJustifyContent = FlexAlign.START;
 	private FlexAlign eAlignContent   = FlexAlign.STRETCH;
 	private FlexAlign eAlignItems     = FlexAlign.STRETCH;
-	private FlexWrap  eWrap;
+	private FlexWrap  eWrap			  = FlexWrap.NONE;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -277,15 +278,37 @@ public class UiFlexLayout extends UiLayout
 	}
 
 	/***************************************
-	 * Sets the wrapping style of this layout.
-	 *
-	 * @param  eWrap The wrapping option
+	 * Enables wrapping for this layout.
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout wrapping(FlexWrap eWrap)
+	public UiFlexLayout noWrap()
 	{
-		this.eWrap = eWrap;
+		this.eWrap = FlexWrap.NONE;
+
+		return this;
+	}
+
+	/***************************************
+	 * Enables wrapping for this layout.
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiFlexLayout wrap()
+	{
+		this.eWrap = FlexWrap.WRAP;
+
+		return this;
+	}
+
+	/***************************************
+	 * Enables wrapping for this layout.
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiFlexLayout wrapReverve()
+	{
+		this.eWrap = FlexWrap.REVERSE;
 
 		return this;
 	}
@@ -324,7 +347,7 @@ public class UiFlexLayout extends UiLayout
 			rStyle.css("alignItems", eAlignItems.getCssName());
 		}
 
-		if (eWrap != FlexWrap.OFF)
+		if (eWrap != FlexWrap.NONE)
 		{
 			rStyle.css("flexWrap", eWrap.getCssName());
 		}
