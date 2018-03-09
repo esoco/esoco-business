@@ -38,7 +38,7 @@ public class UiFlexLayout extends UiLayout
 	/********************************************************************
 	 * Enumeration of the component alignments in a CSS Flexbox layout.
 	 */
-	public enum FlexboxAlignment
+	public enum FlexAlign
 	{
 		START("flex-start"), CENTER("center"), END("flex-end"),
 		STRETCH("stretch"), SPACE_BETWEEN("space-between"),
@@ -55,7 +55,7 @@ public class UiFlexLayout extends UiLayout
 		 *
 		 * @param sCssName The CSS name of this alignment
 		 */
-		private FlexboxAlignment(String sCssName)
+		private FlexAlign(String sCssName)
 		{
 			this.sCssName = sCssName;
 		}
@@ -70,7 +70,7 @@ public class UiFlexLayout extends UiLayout
 		 *
 		 * @return The matching instance
 		 */
-		public static FlexboxAlignment valueOf(
+		public static FlexAlign valueOf(
 			Alignment eAlignment,
 			boolean   bCrossAxis)
 		{
@@ -106,14 +106,51 @@ public class UiFlexLayout extends UiLayout
 		}
 	}
 
+	/********************************************************************
+	 * Enumeration of the wrapping options in a CSS Flexbox layout.
+	 */
+	public enum FlexWrap
+	{
+		OFF("nowrap"), ON("wrap"), REVERSE("wrap-reverse");
+
+		//~ Instance fields ----------------------------------------------------
+
+		private String sCssName;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param sCssName The CSS name
+		 */
+		private FlexWrap(String sCssName)
+		{
+			this.sCssName = sCssName;
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Returns the CSS name of this alignment.
+		 *
+		 * @return The CSS name of this option
+		 */
+		public String getCssName()
+		{
+			return sCssName;
+		}
+	}
+
 	//~ Instance fields --------------------------------------------------------
 
 	private Orientation eDirection;
 	private boolean     bReverse;
 
-	private FlexboxAlignment eJustifyContent = FlexboxAlignment.START;
-	private FlexboxAlignment eAlignContent   = FlexboxAlignment.STRETCH;
-	private FlexboxAlignment eAlignItems     = FlexboxAlignment.STRETCH;
+	private FlexAlign eJustifyContent = FlexAlign.START;
+	private FlexAlign eAlignContent   = FlexAlign.STRETCH;
+	private FlexAlign eAlignItems     = FlexAlign.STRETCH;
+	private FlexWrap  eWrap;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -153,15 +190,15 @@ public class UiFlexLayout extends UiLayout
 
 	/***************************************
 	 * Sets the alignment of the layout elements along the axis perpendicular to
-	 * the layout flow. The alignment {@link FlexboxAlignment#BASELINE BASELINE}
-	 * is not supported for the content, only for {@link
-	 * #alignItems(FlexboxAlignment)}.
+	 * the layout flow. The default value if not set is {@link
+	 * FlexAlign#STRETCH}. The alignment {@link FlexAlign#BASELINE BASELINE} is
+	 * not supported for the content, only for {@link #alignItems(FlexAlign)}.
 	 *
 	 * @param  eAlignment The cross-axis alignment
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout alignContent(FlexboxAlignment eAlignment)
+	public UiFlexLayout alignContent(FlexAlign eAlignment)
 	{
 		eAlignContent = eAlignment;
 
@@ -170,10 +207,10 @@ public class UiFlexLayout extends UiLayout
 
 	/***************************************
 	 * Sets the horizontal alignment of elements. Overridden to map on either
-	 * {@link #justifyContent(FlexboxAlignment)} or {@link
-	 * #alignContent(FlexboxAlignment)} depending on the layout direction. This
-	 * methods should be preferred for better readability and because they
-	 * support additional Flexbox alignments.
+	 * {@link #justifyContent(FlexAlign)} or {@link #alignContent(FlexAlign)}
+	 * depending on the layout direction. This methods should be preferred for
+	 * better readability and because they support additional Flexbox
+	 * alignments.
 	 *
 	 * @param  eAlignment The horizontal alignment
 	 *
@@ -187,13 +224,18 @@ public class UiFlexLayout extends UiLayout
 
 	/***************************************
 	 * Sets the alignment of layout elements in their respective layout cell
-	 * along the axis perpendicular to the layout flow.
+	 * along the axis perpendicular to the layout flow. The default value if not
+	 * set is {@link FlexAlign#STRETCH}. This value only has an effect that
+	 * differs from the value set on {@link #alignContent(FlexAlign)} if
+	 * wrapping is enabled through {@link #wrapping(FlexWrap)}. If not this
+	 * value takes precedence over the content alignment although that should
+	 * not be relied upon.
 	 *
 	 * @param  eAlignment The cross-axis alignment
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout alignItems(FlexboxAlignment eAlignment)
+	public UiFlexLayout alignItems(FlexAlign eAlignment)
 	{
 		eAlignItems = eAlignment;
 
@@ -202,10 +244,10 @@ public class UiFlexLayout extends UiLayout
 
 	/***************************************
 	 * Sets the vertical alignment of elements. Overridden to map on either
-	 * {@link #justifyContent(FlexboxAlignment)} or {@link
-	 * #alignContent(FlexboxAlignment)} depending on the layout direction. This
-	 * methods should be preferred for better readability and because they
-	 * support additional Flexbox alignments.
+	 * {@link #justifyContent(FlexAlign)} or {@link #alignContent(FlexAlign)}
+	 * depending on the layout direction. This methods should be preferred for
+	 * better readability and because they support additional Flexbox
+	 * alignments.
 	 *
 	 * @param  eAlignment The horizontal alignment
 	 *
@@ -218,18 +260,32 @@ public class UiFlexLayout extends UiLayout
 	}
 
 	/***************************************
-	 * Sets the alignment of the layout elements along the axis of the layout
-	 * flow. The alignment values{@link FlexboxAlignment#STRETCH STRETCH} and
-	 * {@link FlexboxAlignment#BASELINE BASELINE} are not supported for the main
-	 * layout axis.
+	 * Sets the positioning of all layout elements along the axis of the layout
+	 * flow. The default value if not set is {@link FlexAlign#START}. The
+	 * alignment values {@link FlexAlign#STRETCH STRETCH} and {@link
+	 * FlexAlign#BASELINE BASELINE} are not supported for the main layout axis.
 	 *
 	 * @param  eAlignment The element alignment
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout justifyContent(FlexboxAlignment eAlignment)
+	public UiFlexLayout justifyContent(FlexAlign eAlignment)
 	{
 		eJustifyContent = eAlignment;
+
+		return this;
+	}
+
+	/***************************************
+	 * Sets the wrapping style of this layout.
+	 *
+	 * @param  eWrap The wrapping option
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiFlexLayout wrapping(FlexWrap eWrap)
+	{
+		this.eWrap = eWrap;
 
 		return this;
 	}
@@ -253,19 +309,24 @@ public class UiFlexLayout extends UiLayout
 			rStyle.css("flexDirection", "row-reverse");
 		}
 
-		if (eJustifyContent != FlexboxAlignment.START)
+		if (eJustifyContent != FlexAlign.START)
 		{
 			rStyle.css("justifyContent", eJustifyContent.getCssName());
 		}
 
-		if (eAlignContent != FlexboxAlignment.STRETCH)
+		if (eAlignContent != FlexAlign.STRETCH)
 		{
 			rStyle.css("alignContent", eAlignContent.getCssName());
 		}
 
-		if (eAlignItems != FlexboxAlignment.STRETCH)
+		if (eAlignItems != FlexAlign.STRETCH)
 		{
 			rStyle.css("alignItems", eAlignItems.getCssName());
+		}
+
+		if (eWrap != FlexWrap.OFF)
+		{
+			rStyle.css("flexWrap", eWrap.getCssName());
 		}
 	}
 
@@ -284,11 +345,11 @@ public class UiFlexLayout extends UiLayout
 	{
 		if (eDirection == eAlignDirection)
 		{
-			justifyContent(FlexboxAlignment.valueOf(eAlignment, false));
+			justifyContent(FlexAlign.valueOf(eAlignment, false));
 		}
 		else
 		{
-			alignItems(FlexboxAlignment.valueOf(eAlignment, true));
+			alignItems(FlexAlign.valueOf(eAlignment, true));
 		}
 
 		return this;
