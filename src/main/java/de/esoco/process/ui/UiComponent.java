@@ -23,6 +23,7 @@ import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.TitleAttribute;
 
 import de.esoco.process.ParameterWrapper;
+import de.esoco.process.ui.UiLayout.Cell;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
 import de.esoco.process.ui.view.UiRootView;
@@ -85,13 +86,33 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns the layout cell in which this component has been placed.
+	 * Returns the {@link UiLayout} cell in which this component has been
+	 * placed. If the parent container has a layout that creates subclasses of
+	 * the {@link Cell} class which provide layout-specific methods the sub-type
+	 * cells can be queried with {@link #cell(Class)}.
 	 *
-	 * @return The cell
+	 * @return The layout cell
 	 */
-	public final UiLayout.Cell cell()
+	public final Cell cell()
 	{
 		return rLayoutCell;
+	}
+
+	/***************************************
+	 * Returns the layout cell in which this component has been placed, cast to
+	 * a specific sub-type of the {@link Cell} class. The application must make
+	 * sure that the given type is actually used by the parent container's
+	 * layout or else an exception will occur.
+	 *
+	 * @param  rCellType A sub-type of {@link Cell} that must match the actual
+	 *                   cell type
+	 *
+	 * @return The layout cell, cast to the given type
+	 */
+	@SuppressWarnings("hiding")
+	public final <C extends Cell> C cell(Class<C> rCellType)
+	{
+		return rCellType.cast(rLayoutCell);
 	}
 
 	/***************************************

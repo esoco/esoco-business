@@ -17,6 +17,7 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.Alignment;
+import de.esoco.lib.property.PropertyName;
 
 import static de.esoco.lib.property.LayoutProperties.HORIZONTAL_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
@@ -54,5 +55,37 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	public E alignVertical(Alignment eAlignment)
 	{
 		return set(VERTICAL_ALIGN, eAlignment);
+	}
+
+	/***************************************
+	 * Overridden to skip properties that are already set.
+	 *
+	 * @see UiElement#applyPropertiesTo(UiComponent)
+	 * @see UiLayout#ignoreProperties(PropertyName...)
+	 */
+	@Override
+	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
+	{
+		for (PropertyName<?> rProperty : getProperties().getPropertyNames())
+		{
+			applyProperty(rComponent, rProperty);
+		}
+	}
+
+	/***************************************
+	 * Applies a single property to a component if it doesn't exist already.
+	 * This is in a separate method to allow type-safe invocation.
+	 *
+	 * @param rComponent The component to apply the property to
+	 * @param rProperty  The name of the property to apply
+	 */
+	protected <T> void applyProperty(
+		UiComponent<?, ?> rComponent,
+		PropertyName<T>   rProperty)
+	{
+		if (!rComponent.has(rProperty))
+		{
+			rComponent.set(rProperty, get(rProperty, null));
+		}
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package de.esoco.process.ui.style;
 
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.Color;
+import de.esoco.lib.property.HasCssName;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.ui.UiComponent;
@@ -94,7 +95,7 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sAdditionalName The style name to add
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
 	public final UiStyle addStyleName(String sAdditionalName)
 	{
@@ -122,9 +123,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  rColor The HTML color string
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle backgroundColor(Color rColor)
+	public final UiStyle backgroundColor(Color rColor)
 	{
 		return css("backgroundColor", rColor.toHtml());
 	}
@@ -134,9 +135,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sBorder The HTML border definition string
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle border(String sBorder)
+	public final UiStyle border(String sBorder)
 	{
 		return css("border", sBorder);
 	}
@@ -146,24 +147,53 @@ public class UiStyle extends UiElement<UiStyle>
 	 * properties must be given in CamelCase form without hyphens, starting with
 	 * a lower case letter (e.g. 'font-size' must be set as 'fontSize').
 	 *
-	 * @param  sCssProperty The name of the CSS property
-	 * @param  sValue       The value of the CSS property or NULL to clear
+	 * <p>This method is optimized to ignore NULL values if the property doesn't
+	 * exist already. Therefore invoking code doesn't need to perform null
+	 * checks to prevent adding empty CSS values (e.g. from NULL-initialized
+	 * variables).</p>
 	 *
-	 * @return This instance for concatenation
+	 * @param  sPropertyName The name of the CSS property
+	 * @param  sValue        The value of the CSS property or NULL to clear
+	 *
+	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle css(String sCssProperty, String sValue)
+	public final UiStyle css(String sPropertyName, String sValue)
 	{
 		Map<String, String> rCssStyles = get(StyleProperties.CSS_STYLES, null);
 
-		if (rCssStyles == null)
+		if (rCssStyles != null)
+		{
+			// prevent adding unnecessary empty values
+			if (sValue == null && !rCssStyles.containsKey(sPropertyName))
+			{
+				return this;
+			}
+		}
+		else
 		{
 			rCssStyles = new HashMap<>();
 		}
 
-		rCssStyles.put(sCssProperty, sValue != null ? sValue : "");
+		// if value is NULL (= clear property) put an empty string instead
+		// of removing or else existing values will not be overwritten on
+		// the client side
+		rCssStyles.put(sPropertyName, sValue != null ? sValue : "");
 		set(StyleProperties.CSS_STYLES, rCssStyles);
 
 		return this;
+	}
+
+	/***************************************
+	 * Applies a CSS property.
+	 *
+	 * @param  sPropertyName The name of the CSS property to apply
+	 * @param  rValue        The property value to apply or NULL to clear
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public final UiStyle css(String sPropertyName, HasCssName rValue)
+	{
+		return css(sPropertyName, rValue != null ? rValue.getCssName() : null);
 	}
 
 	/***************************************
@@ -172,7 +202,7 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sStyleName The new default style name
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
 	public final UiStyle defaultStyleName(String sStyleName)
 	{
@@ -187,9 +217,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 * @param  nSize The size value
 	 * @param  eUnit The size unit
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle fontSize(int nSize, SizeUnit eUnit)
+	public final UiStyle fontSize(int nSize, SizeUnit eUnit)
 	{
 		return css("fontSize", eUnit.getHtmlSize(nSize));
 	}
@@ -199,9 +229,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sWeight The font weight HTML value
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle fontWeight(String sWeight)
+	public final UiStyle fontWeight(String sWeight)
 	{
 		return css("fontWeight", sWeight);
 	}
@@ -211,7 +241,7 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  rColor The HTML color string
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
 	public UiStyle foregroundColor(Color rColor)
 	{
@@ -236,9 +266,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 * @param  nHeight The height value
 	 * @param  eUnit   The height unit
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle lineHeight(int nHeight, SizeUnit eUnit)
+	public final UiStyle lineHeight(int nHeight, SizeUnit eUnit)
 	{
 		return css("lineHeight", eUnit.getHtmlSize(nHeight));
 	}
@@ -248,9 +278,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sMargin sPadding The HTML margin definition string
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle margin(String sMargin)
+	public final UiStyle margin(String sMargin)
 	{
 		return css("margin", sMargin);
 	}
@@ -260,9 +290,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sPadding The HTML padding definition string
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle padding(String sPadding)
+	public final UiStyle padding(String sPadding)
 	{
 		return css("padding", sPadding);
 	}
@@ -273,7 +303,7 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  sStyleName The style name
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
 	public final UiStyle styleName(String sStyleName)
 	{
@@ -285,9 +315,9 @@ public class UiStyle extends UiElement<UiStyle>
 	 *
 	 * @param  eTextAlignment The horizontal text alignment
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
-	public UiStyle textAlign(Alignment eTextAlignment)
+	public final UiStyle textAlign(Alignment eTextAlignment)
 	{
 		return css("textAlign", mapTextAlignment(eTextAlignment));
 	}

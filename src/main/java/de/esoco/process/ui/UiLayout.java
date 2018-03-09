@@ -528,18 +528,18 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Overridden to also apply the parent properties if no set in the cell.
+		 * Overridden to also apply all properties from the hierarchy.
 		 *
 		 * @see ChildElement#applyPropertiesTo(UiComponent)
 		 */
 		@Override
 		public void applyPropertiesTo(UiComponent<?, ?> rComponent)
 		{
-			getLayout().applyPropertiesTo(rComponent);
-			rColumn.applyPropertiesTo(rComponent);
-			rRow.applyPropertiesTo(rComponent);
-
 			super.applyPropertiesTo(rComponent);
+
+			rRow.applyPropertiesTo(rComponent);
+			rColumn.applyPropertiesTo(rComponent);
+			getLayout().applyPropertiesTo(rComponent);
 		}
 
 		/***************************************
@@ -547,7 +547,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 *
 		 * @param  nColumns The number of columns
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell colSpan(int nColumns)
 		{
@@ -559,7 +559,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 *
 		 * @param  eRelativeWidth The relative column span
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell colSpan(RelativeSize eRelativeWidth)
 		{
@@ -612,7 +612,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @param  nHeight The height value
 		 * @param  eUnit   The height unit
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell height(int nHeight, SizeUnit eUnit)
 		{
@@ -635,7 +635,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @param  nRow    The row index
 		 * @param  nColumn The column index
 		 *
-		 * @return TODO: DOCUMENT ME!
+		 * @return This instance for fluent invocation
 		 */
 		public Cell position(int nRow, int nColumn)
 		{
@@ -652,7 +652,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @param  nSmall  the number of columns to span in small-size layouts
 		 * @param  nMedium the number of columns to span in medium-size layouts
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public final Cell responsiveColSpans(int nSmall, int nMedium)
 		{
@@ -665,7 +665,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 *
 		 * @param  eRelativeHeight eRelativeWidth The relative column span
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell rowSpan(RelativeSize eRelativeHeight)
 		{
@@ -677,7 +677,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 *
 		 * @param  nRows The number of rows
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell rowSpan(int nRows)
 		{
@@ -689,7 +689,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * alternative to {@link UiLayout#nextRow()}, for example when moving
 		 * components with {@link UiComponent#placeBefore(UiComponent)}.
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell startNewRow()
 		{
@@ -716,7 +716,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 *
 		 * @param  eWidth The relative size constant for the cell width
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public final Cell width(RelativeSize eWidth)
 		{
@@ -729,11 +729,35 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @param  nWidth The width value
 		 * @param  eUnit  The width unit
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Cell width(int nWidth, SizeUnit eUnit)
 		{
 			return size(HTML_WIDTH, nWidth, eUnit);
+		}
+
+		/***************************************
+		 * Updates this cell with the data from a certain component's (initial)
+		 * layout cell and also sets the component reference.
+		 *
+		 * @param rComponent The component
+		 */
+		protected void updateFrom(UiComponent<?, ?> rComponent)
+		{
+			Cell rComponentCell = rComponent.cell();
+
+			this.rComponent   = rComponent;
+			bStartNewRow	  = rComponentCell.bStartNewRow;
+			nRepositionRow    = rComponentCell.nRepositionRow;
+			nRepositionColumn = rComponentCell.nRepositionColumn;
+
+			// replace cell properties with the combination of component cell and
+			// layout cell, with precedence for component cell styles
+			MutableProperties rComponentCellProperties =
+				rComponentCell.getProperties();
+
+			rComponentCellProperties.setProperties(getProperties(), false);
+			setProperties(rComponentCellProperties);
 		}
 
 		/***************************************
@@ -768,30 +792,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 				}
 			}
 		}
-
-		/***************************************
-		 * Updates this cell with the data from a certain component's (initial)
-		 * layout cell and also sets the component reference.
-		 *
-		 * @param rComponent The component
-		 */
-		void updateFrom(UiComponent<?, ?> rComponent)
-		{
-			Cell rComponentCell = rComponent.cell();
-
-			this.rComponent   = rComponent;
-			bStartNewRow	  = rComponentCell.bStartNewRow;
-			nRepositionRow    = rComponentCell.nRepositionRow;
-			nRepositionColumn = rComponentCell.nRepositionColumn;
-
-			// replace cell properties with the combination of component cell and
-			// layout cell, with precedence for component cell styles
-			MutableProperties rComponentCellProperties =
-				rComponentCell.getProperties();
-
-			rComponentCellProperties.setProperties(getProperties(), false);
-			setProperties(rComponentCellProperties);
-		}
 	}
 
 	/********************************************************************
@@ -820,7 +820,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 *
 		 * @param  eWidth The relative size constant for the column width
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public final Column width(RelativeSize eWidth)
 		{
@@ -834,7 +834,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @param  nWidth The width value
 		 * @param  eUnit  The width unit
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Column width(int nWidth, SizeUnit eUnit)
 		{
@@ -870,7 +870,7 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		 * @param  nHeight The height value
 		 * @param  eUnit   The height unit
 		 *
-		 * @return This instance for concatenation
+		 * @return This instance for fluent invocation
 		 */
 		public Row height(int nHeight, SizeUnit eUnit)
 		{
@@ -907,21 +907,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Overridden to skip ignored properties.
-		 *
-		 * @see UiElement#applyPropertiesTo(UiComponent)
-		 * @see UiLayout#ignoreProperties(PropertyName...)
-		 */
-		@Override
-		public void applyPropertiesTo(UiComponent<?, ?> rComponent)
-		{
-			for (PropertyName<?> rProperty : getProperties().getPropertyNames())
-			{
-				applyProperty(rComponent, rProperty);
-			}
-		}
-
-		/***************************************
 		 * Returns the layout this element belongs to.
 		 *
 		 * @return The parent layout
@@ -929,6 +914,23 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		public final UiLayout getLayout()
 		{
 			return UiLayout.this;
+		}
+
+		/***************************************
+		 * Overridden to also check if the given property is marked to be
+		 * ignored by the layout.
+		 *
+		 * @see UiLayoutElement#applyProperty(UiComponent, PropertyName)
+		 */
+		@Override
+		protected <T> void applyProperty(
+			UiComponent<?, ?> rComponent,
+			PropertyName<T>   rProperty)
+		{
+			if (!getLayout().isIgnored(rProperty))
+			{
+				super.applyProperty(rComponent, rProperty);
+			}
 		}
 
 		/***************************************
@@ -943,22 +945,6 @@ public abstract class UiLayout extends UiLayoutElement<UiLayout>
 		E size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit)
 		{
 			return set(rSizeProperty, eUnit.getHtmlSize(nSize));
-		}
-
-		/***************************************
-		 * Applies a single property to a component if it is not to be ignored.
-		 *
-		 * @param rComponent The component
-		 * @param rProperty  The property
-		 */
-		private <T> void applyProperty(
-			UiComponent<?, ?> rComponent,
-			PropertyName<T>   rProperty)
-		{
-			if (!rComponent.has(rProperty) && !getLayout().isIgnored(rProperty))
-			{
-				rComponent.set(rProperty, get(rProperty, null));
-			}
 		}
 	}
 
