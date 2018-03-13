@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package de.esoco.process.step.entity;
 import de.esoco.entity.Entity;
 
 import de.esoco.lib.property.ButtonStyle;
+import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.SortDirection;
@@ -37,6 +38,7 @@ import java.util.Map;
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.ContentProperties.ICON;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 
@@ -162,20 +164,28 @@ public abstract class EntityListHeader<E extends Entity>
 	/***************************************
 	 * Creates a parameter for a column title from a relation type.
 	 *
-	 * @param  rPanel The fragment of the title panel
-	 * @param  rAttr  The relation type to create the column title for
+	 * @param  rPanel            The fragment of the title panel
+	 * @param  rAttr             The relation type to create the column title
+	 *                           for
+	 * @param  rColumnProperties The column properties
 	 *
 	 * @return A parameter instance for the column title
 	 */
 	protected Parameter<String> createColumnTitle(
 		InteractionFragment   rPanel,
-		final RelationType<?> rAttr)
+		final RelationType<?> rAttr,
+		HasProperties		  rColumnProperties)
 	{
-		String sAttrName = rAttr.getSimpleName();
+		String sColumnTitle = rColumnProperties.getProperty(RESOURCE_ID, null);
 
-		String sColumnTitle =
-			"$lbl" + getEntityList().getEntityType().getSimpleName() +
-			TextConvert.capitalizedIdentifier(sAttrName);
+		if (sColumnTitle == null)
+		{
+			sColumnTitle =
+				getEntityList().getEntityType().getSimpleName() +
+				TextConvert.capitalizedIdentifier(rAttr.getSimpleName());
+		}
+
+		sColumnTitle = "$lbl" + sColumnTitle;
 
 		Parameter<String> aColumnTitle =
 			rPanel.label(sColumnTitle)
