@@ -50,7 +50,7 @@ import static de.esoco.lib.property.LayoutProperties.SMALL_COLUMN_SPAN;
  *
  * @author eso
  */
-public abstract class UiLayout extends UiLayoutElement<UiLayout>
+public class UiLayout extends UiLayoutElement<UiLayout>
 {
 	//~ Instance fields --------------------------------------------------------
 
