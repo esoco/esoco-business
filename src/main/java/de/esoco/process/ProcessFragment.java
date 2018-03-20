@@ -2609,13 +2609,13 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
+			if (Character.isDigit(sBaseName.charAt(0)))
+			{
+				aParamName.append('_');
+			}
+
 			aParamName.append(TextConvert.uppercaseIdentifier(sBaseName)
 							  .replaceAll("[.-]", "_"));
-
-			if (Character.isDigit(aParamName.charAt(0)))
-			{
-				aParamName.insert(0, '_');
-			}
 		}
 
 		return aParamName.toString();
