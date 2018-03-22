@@ -2132,6 +2132,7 @@ public abstract class ProcessFragment extends ProcessElement
 			setUIFlag(HIDE_LABEL, PROCESS_STEP_INFO);
 			setUIFlag(WRAP, PROCESS_STEP_INFO);
 			setUIProperty(nRows, ROWS, PROCESS_STEP_INFO);
+			setUIProperty(CONTENT_TYPE, ContentType.HTML, PROCESS_STEP_INFO);
 		}
 		else
 		{
@@ -2160,6 +2161,7 @@ public abstract class ProcessFragment extends ProcessElement
 			setParameter(PROCESS_STEP_MESSAGE, sMessage);
 			setUIFlag(HIDE_LABEL, PROCESS_STEP_MESSAGE);
 			setUIFlag(WRAP, PROCESS_STEP_MESSAGE);
+			setUIProperty(CONTENT_TYPE, ContentType.HTML, PROCESS_STEP_MESSAGE);
 		}
 		else
 		{
