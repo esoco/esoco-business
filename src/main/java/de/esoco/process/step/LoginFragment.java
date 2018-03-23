@@ -285,7 +285,7 @@ public class LoginFragment extends InteractionFragment
 	 */
 	protected void performLogin()
 	{
-		String sLoginName = aLoginName.value();
+		String sLoginName = aLoginName.value().toLowerCase();
 		String sPassword  = aPassword.value();
 
 		StringDataElement aLoginData =
