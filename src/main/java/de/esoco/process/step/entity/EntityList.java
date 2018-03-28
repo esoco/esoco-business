@@ -350,7 +350,6 @@ public class EntityList<E extends Entity,
 	 * @throws StorageException If updating the list fails
 	 */
 	public void setDefaultCriteria(Predicate<? super E> pDefaultCriteria)
-		throws StorageException
 	{
 		this.pDefaultCriteria = pDefaultCriteria;
 
