@@ -195,9 +195,11 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
-	 * Returns the value of a certain property for the wrapped parameter.
+	 * Checks whether a certain property has been set for the wrapped parameter.
 	 *
-	 * @see ProcessFragment#getUIProperty(PropertyName, RelationType)
+	 * @param  rProperty The property name
+	 *
+	 * @return TRUE if the property exists (with any value)
 	 */
 	public final boolean has(PropertyName<?> rProperty)
 	{
@@ -225,7 +227,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 */
 	public boolean isEnabled()
 	{
-		return !has(DISABLED);
+		return !rFragment.hasUIFlag(DISABLED, rParamType);
 	}
 
 	/***************************************
@@ -235,7 +237,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 */
 	public boolean isVisible()
 	{
-		return !has(HIDDEN);
+		return !rFragment.hasUIFlag(HIDDEN, rParamType);
 	}
 
 	/***************************************
