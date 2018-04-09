@@ -381,7 +381,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		boolean bModified =
 			getProcessStep().isParameterModified(fragmentParam().type());
 
-		addSubFragment(rViewFragmentParamType, rSubFragment, false);
+		getRoot().addSubFragment(rViewFragmentParamType, rSubFragment, false);
 		get(VIEW_PARAMS).add(rViewFragmentParamType);
 
 		if (!bModified)
@@ -1693,7 +1693,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		boolean bModified =
 			getProcessStep().isParameterModified(fragmentParam().type());
 
-		removeSubFragment(rViewFragmentParamType, false);
+		getRoot().removeSubFragment(rViewFragmentParamType, false);
 		get(VIEW_PARAMS).remove(rViewFragmentParamType);
 
 		if (!bModified)
@@ -2288,6 +2288,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		return bOnInteraction ? aParamInteractionValidations
 							  : aParamValidations;
+	}
+
+	/***************************************
+	 * Returns the root fragment of this fragment's hierarchy.
+	 *
+	 * @return The root fragment
+	 */
+	protected InteractionFragment getRoot()
+	{
+		return rParent != null ? rParent.getRoot() : this;
 	}
 
 	/***************************************
