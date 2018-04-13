@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 *
 	 * @param  rValue The new selection or NULL for none
 	 *
-	 * @return TODO: DOCUMENT ME!
+	 * @return This instance
 	 */
 	public C select(T rValue)
 	{
