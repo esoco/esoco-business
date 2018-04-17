@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -882,7 +882,7 @@ public class EntityManager
 	{
 		int nEntityId = rEntity.getId();
 
-		if (nEntityId <= 0)
+		if (nEntityId < 0)
 		{
 			throw new IllegalArgumentException("Entity ID not defined: " +
 											   rEntity);
@@ -914,7 +914,8 @@ public class EntityManager
 	 *
 	 * @return A mapping from context IDs to rule predicates
 	 */
-	public static Map<String, Predicate<? super Entity>> getModificationLockRules()
+	public static Map<String, Predicate<? super Entity>>
+	getModificationLockRules()
 	{
 		return aModificationLockRules;
 	}
@@ -1249,10 +1250,10 @@ public class EntityManager
 	 *
 	 * @throws StorageException If the storage access fails
 	 */
-	public static <E extends Entity, T> Collection<E> queryEntitiesByExtraAttribute(
-		Class<E>		rEntityClass,
-		RelationType<T> rExtraAttributeKey,
-		int				nMax) throws StorageException
+	public static <E extends Entity, T> Collection<E>
+	queryEntitiesByExtraAttribute(Class<E>		  rEntityClass,
+								  RelationType<T> rExtraAttributeKey,
+								  int			  nMax) throws StorageException
 	{
 		Predicate<Relatable> pExtraAttr =
 			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)));
@@ -1281,11 +1282,11 @@ public class EntityManager
 	 *
 	 * @throws StorageException If the storage access fails
 	 */
-	public static <E extends Entity, T> Collection<E> queryEntitiesByExtraAttribute(
-		Class<E>		rEntityClass,
-		RelationType<T> rExtraAttributeKey,
-		T				rExtraAttributeValue,
-		int				nMax) throws StorageException
+	public static <E extends Entity, T> Collection<E>
+	queryEntitiesByExtraAttribute(Class<E>		  rEntityClass,
+								  RelationType<T> rExtraAttributeKey,
+								  T				  rExtraAttributeValue,
+								  int			  nMax) throws StorageException
 	{
 		String sValue = Conversions.asString(rExtraAttributeValue);
 
@@ -2004,6 +2005,7 @@ public class EntityManager
 			if (bHistoryGroup)
 			{
 				HistoryManager.commit(false);
+				bHistoryGroup = false;
 			}
 
 			TransactionManager.commit();
@@ -2014,11 +2016,14 @@ public class EntityManager
 		}
 		catch (Exception e)
 		{
-			TransactionManager.rollback();
-
 			if (bHistoryGroup)
 			{
 				HistoryManager.rollback();
+			}
+
+			if (TransactionManager.isInTransaction())
+			{
+				TransactionManager.rollback();
 			}
 
 			if (e instanceof TransactionException)
@@ -2380,7 +2385,8 @@ public class EntityManager
 	 *
 	 * @return The extended {@link Predicate}
 	 */
-	private static <E extends Entity> Predicate<Relatable> addEntityPrefixPredicate(
+	private static <E extends Entity> Predicate<Relatable>
+	addEntityPrefixPredicate(
 		Class<E>			 rEntityClass,
 		Predicate<Relatable> pExtraAttr)
 	{
@@ -2582,11 +2588,11 @@ public class EntityManager
 	 * @return The list of children found
 	 */
 	@SuppressWarnings({ "unchecked", "boxing" })
-	private static <P extends Entity, C extends Entity> List<C> findDirectChildren(
-		P					  rParent,
-		List<C>				  rAllChildren,
-		RelationType<P>		  rParentAttribute,
-		RelationType<List<C>> rChildAttribute)
+	private static <P extends Entity, C extends Entity> List<C>
+	findDirectChildren(P					 rParent,
+					   List<C>				 rAllChildren,
+					   RelationType<P>		 rParentAttribute,
+					   RelationType<List<C>> rChildAttribute)
 	{
 		EntityDefinition<P> rParentDef =
 			(EntityDefinition<P>) rParent.getDefinition();

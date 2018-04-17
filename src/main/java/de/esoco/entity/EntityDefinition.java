@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -251,8 +251,8 @@ public class EntityDefinition<E extends Entity>
 	 * @return The mapping from attributes to display properties
 	 */
 	@SuppressWarnings("unchecked")
-	static Map<RelationType<?>, MutableProperties> getAttributeDisplayProperties(
-		Class<? extends Entity> rEntityClass)
+	static Map<RelationType<?>, MutableProperties>
+	getAttributeDisplayProperties(Class<? extends Entity> rEntityClass)
 	{
 		return (Map<RelationType<?>, MutableProperties>) getStaticFieldValue(rEntityClass,
 																			 ATTRIBUTE_DISPLAY_PROPERTIES_FIELD);
@@ -1031,7 +1031,8 @@ public class EntityDefinition<E extends Entity>
 			{
 				Class<?> rTargetType = rAttribute.getValueType();
 
-				if (rAttribute.hasFlag(OBJECT_ID_ATTRIBUTE))
+				if (rAttribute.hasFlag(OBJECT_ID_ATTRIBUTE) &&
+					rAttribute.getValueType() == Integer.class)
 				{
 					rIdAttribute = (RelationType<Integer>) rAttribute;
 				}
