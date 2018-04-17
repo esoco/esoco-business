@@ -753,7 +753,7 @@ public class EntityList<E extends Entity,
 
 					aItems.add(aItem);
 					aItem.setDefaultStyle(i % 2 == 1 ? "odd" : "even");
-					addSubFragment("Entity" + i, aItem).resid("Entity");
+					addSubFragment("Entity" + i, aItem);
 					aItem.fragmentParam().hide();
 				}
 			}
