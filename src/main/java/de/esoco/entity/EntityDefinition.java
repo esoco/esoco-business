@@ -43,6 +43,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
@@ -116,6 +117,12 @@ public class EntityDefinition<E extends Entity>
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The name of the optional static field in an entity class that contains a
+	 * collection of the entity attribute relation types.
+	 */
+	public static final String ENTITY_ATTRIBUTES_FIELD = "ENTITY_ATTRIBUTES";
 
 	/**
 	 * The name of the optional static entity field that contains a string
@@ -223,20 +230,12 @@ public class EntityDefinition<E extends Entity>
 	{
 		RelationTypes.init(rEntityClass);
 
-		List<RelationType<?>> rAttributes =
-			ReflectUtil.collectConstants(rEntityClass,
-										 RelationType.class,
-										 null,
-										 true,
-										 true,
-										 true);
-
 		ObjectRelations.getRelatable(rEntityClass).set(STORAGE_MAPPING, this);
 
 		init(rEntityClass.getSimpleName(),
 			 sIdPrefix,
 			 rEntityClass,
-			 rAttributes);
+			 getAttributeTypes(rEntityClass));
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -274,7 +273,14 @@ public class EntityDefinition<E extends Entity>
 
 		try
 		{
-			rValue = rEntityClass.getField(sFieldName).get(null);
+			Field rField = rEntityClass.getDeclaredField(sFieldName);
+
+			if (!Modifier.isPublic(rField.getModifiers()))
+			{
+				rField.setAccessible(true);
+			}
+
+			rValue = rField.get(null);
 		}
 		catch (NoSuchFieldException e)
 		{
@@ -1466,6 +1472,37 @@ public class EntityDefinition<E extends Entity>
 		aEntity.deleteRelation(INITIALIZING);
 
 		return aEntity;
+	}
+
+	/***************************************
+	 * Returns the attribute relation types of the given entity. First checks
+	 * for a static field with the name {@link #ENTITY_ATTRIBUTES_FIELD}. If
+	 * that doesn't exist it collections all static final fields with the
+	 * datatype {@link RelationType}.
+	 *
+	 * @param  rEntityClass The entity class to query the relation types from
+	 *
+	 * @return The list of attribute relation types
+	 */
+	private List<RelationType<?>> getAttributeTypes(Class<E> rEntityClass)
+	{
+		@SuppressWarnings("unchecked")
+		List<RelationType<?>> rAttributes =
+			(List<RelationType<?>>) getStaticFieldValue(rEntityClass,
+														ENTITY_ATTRIBUTES_FIELD);
+
+		if (rAttributes == null)
+		{
+			rAttributes =
+				ReflectUtil.collectConstants(rEntityClass,
+											 RelationType.class,
+											 null,
+											 true,
+											 true,
+											 true);
+		}
+
+		return rAttributes;
 	}
 
 	/***************************************
