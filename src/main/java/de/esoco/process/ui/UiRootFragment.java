@@ -126,8 +126,14 @@ public class UiRootFragment extends InteractionFragment
 	 */
 	protected UiRootView createRootView()
 	{
+		UiLayout rViewLayout = getRootViewLayout();
+
+		// make sure that the layout will be applied. This needed for fragments
+		// that invoked directly as process steps if process navigation occurs
+		rViewLayout.setModified(true);
+
 		UiRootView aRootView =
-			new UiRootView(this, getRootViewLayout())
+			new UiRootView(this, rViewLayout)
 			{
 				@Override
 				protected void build()
