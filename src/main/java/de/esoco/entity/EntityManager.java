@@ -1869,6 +1869,16 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Stores an entity without a change origin.
+	 *
+	 * @see #storeEntity(Entity, Entity, boolean)
+	 */
+	public static void store(Entity rEntity) throws TransactionException
+	{
+		storeEntity(rEntity, null);
+	}
+
+	/***************************************
 	 * Stores an entity without a history group.
 	 *
 	 * @see #storeEntity(Entity, Entity, boolean)
