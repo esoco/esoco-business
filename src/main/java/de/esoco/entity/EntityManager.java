@@ -169,7 +169,8 @@ public class EntityManager
 
 	private static SessionManager rSessionManager = null;
 
-	private static boolean bAutomaticChangeLogging = true;
+	private static boolean bEntityModificationTracking = true;
+	private static boolean bAutomaticChangeLogging     = true;
 
 	private static Lock aCacheLock = new ReentrantLock();
 
@@ -1814,6 +1815,16 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Enables or disables the automatic entity modification tracking.
+	 *
+	 * @param bEnabled The new modification tracking state
+	 */
+	public static void setEntityModificationTracking(boolean bEnabled)
+	{
+		bEntityModificationTracking = bEnabled;
+	}
+
+	/***************************************
 	 * Sets the endpoint of an entity sync service to be used for entity lock
 	 * synchronization. The context should be derived from the current
 	 * application's execution context, e.g. something like production, test, or
@@ -2095,7 +2106,9 @@ public class EntityManager
 	 */
 	static synchronized void beginEntityModification(Entity rEntity)
 	{
-		if (rEntity.isPersistent() && !rEntity.hasFlag(NO_ENTITY_LOCKING))
+		if (bEntityModificationTracking &&
+			rEntity.isPersistent() &&
+			!rEntity.hasFlag(NO_ENTITY_LOCKING))
 		{
 			String sContextId = getEntityModificationContextId();
 			String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
@@ -2222,7 +2235,8 @@ public class EntityManager
 	 */
 	static synchronized void endEntityModification(Entity rEntity)
 	{
-		if (rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
+		if (bEntityModificationTracking &&
+			rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE))
 		{
 			String sContextId = getEntityModificationContextId();
 			String sHandle    = rEntity.get(ENTITY_MODIFICATION_HANDLE);
