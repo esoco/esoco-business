@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
+import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.FunctionException;
@@ -23,7 +24,6 @@ import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
-import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.function.ExceptionMappingFunction;
 import de.esoco.lib.expression.function.GetElement;
@@ -71,40 +71,14 @@ public class EntityFunctions
 	private static final Function<Entity, String> FORMAT_ENTITY =
 		formatEntity(null);
 
-	private static final Function<Entity, Entity> STORE_ENTITY =
-		new ExceptionMappingFunction<Entity, Entity>("storeEntity()")
-		{
-			@Override
-			public Entity evaluateWithException(Entity rEntity) throws Exception
-			{
-				EntityManager.storeEntity(rEntity, null);
-
-				return rEntity;
-			}
-		};
+	private static final Action<Entity> STORE_ENTITY =
+		e -> EntityManager.store(e);
 
 	private static final Function<Entity, String> GET_GLOBAL_ENTITY_ID =
-		new AbstractFunction<Entity, String>("getGlobalEntityId")
-		{
-			@Override
-			public String evaluate(Entity rEntity)
-			{
-				return rEntity != null
-					   ? EntityManager.getGlobalEntityId(rEntity) : "";
-			}
-		};
+		e -> e != null ? EntityManager.getGlobalEntityId(e) : "";
 
-	private static final Function<Entity, Integer> GET_ENTITY_ID =
-		new AbstractFunction<Entity, Integer>("getEntityId")
-		{
-			@Override
-			public Integer evaluate(Entity rEntity)
-			{
-				return rEntity != null
-					   ? rEntity.get(rEntity.getDefinition().getIdAttribute())
-					   : null;
-			}
-		};
+	private static final Function<Entity, Number> GET_ENTITY_ID =
+		e -> e != null ? e.get(e.getDefinition().getIdAttribute()) : null;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -190,9 +164,9 @@ public class EntityFunctions
 	 * @return A static function instance
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E extends Entity> Function<E, Integer> getEntityId()
+	public static <E extends Entity> Function<E, Number> getEntityId()
 	{
-		return (Function<E, Integer>) GET_ENTITY_ID;
+		return (Function<E, Number>) GET_ENTITY_ID;
 	}
 
 	/***************************************
@@ -204,9 +178,8 @@ public class EntityFunctions
 	 *
 	 * @return A new binary function instance
 	 */
-	public static <E extends Entity, V> GetExtraAttribute<E, V> getExtraAttribute(
-		RelationType<V> rKey,
-		V				rDefaultValue)
+	public static <E extends Entity, V> GetExtraAttribute<E, V>
+	getExtraAttribute(RelationType<V> rKey, V rDefaultValue)
 	{
 		return new GetExtraAttribute<E, V>(rKey, rDefaultValue);
 	}
@@ -221,8 +194,8 @@ public class EntityFunctions
 	 *
 	 * @return A new binary function instance
 	 */
-	public static <T> BinaryFunction<ExtraAttribute, RelationType<T>, T> getExtraAttributeValue(
-		RelationType<T> rExtraAttributeKey)
+	public static <T> BinaryFunction<ExtraAttribute, RelationType<T>, T>
+	getExtraAttributeValue(RelationType<T> rExtraAttributeKey)
 	{
 		return new AbstractBinaryFunction<ExtraAttribute, RelationType<T>, T>(rExtraAttributeKey,
 																			  "getExtraAttributeValue")
@@ -267,8 +240,8 @@ public class EntityFunctions
 	 *
 	 * @see Entity#getUpwards(RelationType)
 	 */
-	public static <E extends Entity, T> BinaryFunction<E, RelationType<T>, T> getUpwards(
-		RelationType<T> rAttribute)
+	public static <E extends Entity, T> BinaryFunction<E, RelationType<T>, T>
+	getUpwards(RelationType<T> rAttribute)
 	{
 		return new AbstractBinaryFunction<E, RelationType<T>, T>(rAttribute,
 																 "getUpwards(%s)")
@@ -379,9 +352,9 @@ public class EntityFunctions
 	 * @return A static function instance that stores an entity
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E extends Entity> Function<E, E> storeEntity()
+	public static <E extends Entity> Action<E> storeEntity()
 	{
-		return (Function<E, E>) STORE_ENTITY;
+		return (Action<E>) STORE_ENTITY;
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

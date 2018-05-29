@@ -176,7 +176,7 @@ public class EntityDefinition<E extends Entity>
 
 	private transient String						 sEntityName;
 	private transient String						 sIdPrefix;
-	private transient RelationType<Integer>			 rIdAttribute;
+	private transient RelationType<? extends Number> rIdAttribute;
 	private transient RelationType<Enum<?>>			 rTypeAttribute;
 	private transient RelationType<String>			 rNameAttribute;
 	private transient RelationType<? extends Entity> rMasterAttribute;
@@ -543,16 +543,20 @@ public class EntityDefinition<E extends Entity>
 	}
 
 	/***************************************
-	 * Returns the relation type of the ID attribute in this definition. If a
-	 * definition subclass does not define it's own ID attribute the default ID
-	 * type {@link EntityRelationTypes#ENTITY_ID} will be returned.
+	 * Returns the relation type of the numeric ID attribute in this definition.
+	 * The exact datatype depends on the actual ID attribute relation type.
+	 * Typically this will be either {@link Integer} or {@link Long}.
+	 *
+	 * <p>If an entity does not define it's own ID attribute the default ID type
+	 * {@link EntityRelationTypes#ENTITY_ID} will be returned.</p>
 	 *
 	 * @see AbstractStorageMapping#getIdAttribute()
 	 */
 	@Override
-	public RelationType<Integer> getIdAttribute()
+	@SuppressWarnings("unchecked")
+	public RelationType<Number> getIdAttribute()
 	{
-		return rIdAttribute;
+		return (RelationType<Number>) rIdAttribute;
 	}
 
 	/***************************************
@@ -1038,9 +1042,9 @@ public class EntityDefinition<E extends Entity>
 				Class<?> rTargetType = rAttribute.getValueType();
 
 				if (rAttribute.hasFlag(OBJECT_ID_ATTRIBUTE) &&
-					rAttribute.getValueType() == Integer.class)
+					Number.class.isAssignableFrom(rAttribute.getValueType()))
 				{
-					rIdAttribute = (RelationType<Integer>) rAttribute;
+					rIdAttribute = (RelationType<Number>) rAttribute;
 				}
 				else if (rAttribute.hasFlag(OBJECT_TYPE_ATTRIBUTE))
 				{
@@ -1513,7 +1517,7 @@ public class EntityDefinition<E extends Entity>
 	 *
 	 * @return The corresponding child entity or NULL if none could be found
 	 */
-	private E getChild(Entity rParent, Integer rId)
+	private E getChild(Entity rParent, Number rId)
 	{
 		@SuppressWarnings("unchecked")
 		EntityDefinition<Entity> rParentDef =
@@ -1967,8 +1971,8 @@ public class EntityDefinition<E extends Entity>
 
 			if (rParent != null)
 			{
-				int     nIdIndex = aAttributes.indexOf(rIdAttribute);
-				Integer rId		 = (Integer) rAttributeValues.get(nIdIndex);
+				int    nIdIndex = aAttributes.indexOf(rIdAttribute);
+				Number rId	    = (Number) rAttributeValues.get(nIdIndex);
 
 				rEntity = getChild(rParent, rId);
 			}

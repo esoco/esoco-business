@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	private TagFilterListener<E> rTagFilterListener;
 	private Runnable			 rHelpAction;
 	private String				 sLabel;
-	private LayoutType				 eLayout;
+	private LayoutType			 eLayout;
 	private boolean				 bSingleRow;
 
 	private boolean     bUseHeaderLabel = false;
@@ -125,10 +125,10 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 *                    the help button; if NULL no help button will be
 	 *                    displayed
 	 */
-	public FilterEntityTags(Class<E> rEntityType,
-							Entity   rTagOwner,
-							LayoutType   eLayout,
-							Runnable rHelpAction)
+	public FilterEntityTags(Class<E>   rEntityType,
+							Entity	   rTagOwner,
+							LayoutType eLayout,
+							Runnable   rHelpAction)
 	{
 		this(rEntityType, rTagOwner, null, rHelpAction, null, eLayout, true);
 	}
@@ -177,7 +177,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 							TagFilterListener<E> rTagFilterListener,
 							Runnable			 rHelpAction,
 							String				 sLabel,
-							LayoutType				 eLayout,
+							LayoutType			 eLayout,
 							boolean				 bSingleRow)
 	{
 		this.rEntityType	    = rEntityType;
@@ -295,17 +295,17 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 *
 	 * @throws StorageException
 	 */
-	public Set<Integer> getFilteredEntityIds() throws StorageException
+	public Set<Number> getFilteredEntityIds() throws StorageException
 	{
 		Set<String> rFilterTags =
 			aTagInput != null ? aTagInput.value()
 							  : Collections.<String>emptySet();
 
-		Set<Integer> aFilteredIds = null;
+		Set<Number> aFilteredIds = null;
 
 		if (rFilterTags.size() > 0)
 		{
-			aFilteredIds = new HashSet<Integer>();
+			aFilteredIds = new HashSet<>();
 
 			Predicate<Relatable> pHasFilterTags = null;
 
@@ -360,7 +360,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 		RelationType<?> rTagFilterAttr) throws StorageException
 	{
 		Predicate<Entity> pTagFilter   = null;
-		Set<Integer>	  rFilteredIds = getFilteredEntityIds();
+		Set<Number>		  rFilteredIds = getFilteredEntityIds();
 
 		if (rFilteredIds != null)
 		{
@@ -602,16 +602,19 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	{
 		rPanel.layout(LayoutType.TABLE);
 		aFilterJoin =
-			rPanel.dropDown(TagFilterJoin.class).resid("TagFilterJoin")
+			rPanel.dropDown(TagFilterJoin.class)
+				  .resid("TagFilterJoin")
 				  .hideLabel()
 				  .onUpdate(a -> rTagFilterListener.filterTagsChanged(this));
 
 		aFilterNegate =
-			rPanel.checkBox("TagFilterNegate").sameRow()
+			rPanel.checkBox("TagFilterNegate")
+				  .sameRow()
 				  .onAction(a -> rTagFilterListener.filterTagsChanged(this));
 
 		aFilterAction =
-			rPanel.imageButtons(TagFilterAction.class).buttonStyle(eButtonStyle)
+			rPanel.imageButtons(TagFilterAction.class)
+				  .buttonStyle(eButtonStyle)
 				  .layout(LayoutType.TABLE)
 				  .sameRow()
 				  .columns(3)

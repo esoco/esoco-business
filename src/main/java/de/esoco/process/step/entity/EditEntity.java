@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -326,7 +326,7 @@ public class EditEntity extends InteractionFragment
 		EntityDefinition<?> rEntityDef)
 	{
 		Collection<RelationType<?>> rAttributes = rEntityDef.getAttributes();
-		RelationType<Integer>	    rIdAttr     = rEntityDef.getIdAttribute();
+		RelationType<Number>	    rIdAttr     = rEntityDef.getIdAttribute();
 
 		List<RelationType<?>> aAttrTabParams =
 			new ArrayList<RelationType<?>>(rAttributes.size());
@@ -444,14 +444,14 @@ public class EditEntity extends InteractionFragment
 	 *
 	 * @return The temporary detail parameter
 	 */
-	private <E extends Entity> RelationType<List<RelationType<?>>> createDetailTabParameter(
-		String						 sBaseName,
-		Class<E>					 rDetailType,
-		QueryPredicate<E>			 qDetail,
-		Predicate<? super Entity>    pSortOrder,
-		List<Function<? super E, ?>> aColumns,
-		int							 nTableRows,
-		DetailAction... 			 rAllowedActions)
+	private <E extends Entity> RelationType<List<RelationType<?>>>
+	createDetailTabParameter(String						  sBaseName,
+							 Class<E>					  rDetailType,
+							 QueryPredicate<E>			  qDetail,
+							 Predicate<? super Entity>    pSortOrder,
+							 List<Function<? super E, ?>> aColumns,
+							 int						  nTableRows,
+							 DetailAction... 			  rAllowedActions)
 	{
 		RelationType<List<RelationType<?>>> aTabParam =
 			getTemporarySubPanelParameter(sBaseName + "_TAB", false);

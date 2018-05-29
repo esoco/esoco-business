@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDefinition;
 import de.esoco.entity.EntityDefinition.DisplayMode;
 import de.esoco.entity.EntityManager;
-import de.esoco.entity.EntityRelationTypes;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
@@ -32,6 +31,7 @@ import de.esoco.lib.text.TextConvert;
 import de.esoco.process.ProcessRelationTypes.ListAction;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
+
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 
@@ -51,16 +51,16 @@ import static de.esoco.entity.EntityPredicates.ifAttribute;
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.not;
-import static de.esoco.lib.property.UserInterfaceProperties.COLUMN_SPAN;
-import static de.esoco.lib.property.UserInterfaceProperties.CURRENT_SELECTION;
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_HEIGHT;
-import static de.esoco.lib.property.UserInterfaceProperties.HTML_WIDTH;
-import static de.esoco.lib.property.UserInterfaceProperties.INTERACTIVE_INPUT_MODE;
-import static de.esoco.lib.property.UserInterfaceProperties.LABEL;
-import static de.esoco.lib.property.UserInterfaceProperties.RESOURCE_ID;
-import static de.esoco.lib.property.UserInterfaceProperties.ROWS;
-import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
+import static de.esoco.lib.property.ContentProperties.LABEL;
+import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
+import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
+import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
+import static de.esoco.lib.property.LayoutProperties.HTML_WIDTH;
+import static de.esoco.lib.property.LayoutProperties.ROWS;
+import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
+import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
+import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
+import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
 import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_ACTION_EVENT;
 
@@ -93,7 +93,7 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 
 	private boolean bUpdate;
 
-	private Set<Integer> aSelectedEntityIds = new LinkedHashSet<Integer>();
+	private Set<Long> aSelectedEntityIds = new LinkedHashSet<>();
 
 	private RelationType<String>     aUnselectedHeaderParam;
 	private RelationType<String>     aSelectedHeaderParam;
@@ -166,7 +166,7 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 		Class<E>	  rEntityClass,
 		Collection<E> rEntities)
 	{
-		RelationType<Integer> rIdAttr =
+		RelationType<Number> rIdAttr =
 			EntityManager.getEntityDefinition(rEntityClass).getIdAttribute();
 
 		// use a dummy predicate that will find nothing as the default
@@ -175,7 +175,7 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 
 		if (rEntities != null)
 		{
-			Collection<Integer> rIds = CollectionUtil.map(rEntities, rIdAttr);
+			Collection<Number> rIds = CollectionUtil.map(rEntities, rIdAttr);
 
 			if (rIds.size() > 0)
 			{
@@ -225,9 +225,9 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 	 *
 	 * @return A new set containing the selected entity IDs
 	 */
-	public final Set<Integer> getSelectedEntityIds()
+	public final Set<Long> getSelectedEntityIds()
 	{
-		return new LinkedHashSet<Integer>(aSelectedEntityIds);
+		return new LinkedHashSet<>(aSelectedEntityIds);
 	}
 
 	/***************************************
@@ -437,7 +437,7 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 	 *
 	 * @param rIds A collection containing the IDs of the entities to select
 	 */
-	public final void setSelectedEntityIds(Collection<Integer> rIds)
+	public final void setSelectedEntityIds(Collection<Long> rIds)
 	{
 		aSelectedEntityIds.clear();
 		aSelectedEntityIds.addAll(rIds);
@@ -469,12 +469,12 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 		Predicate<? super E> pCriteria   = pQueryCriteria;
 		Predicate<Object>    pIsSelected;
 
-		RelationType<Integer> rIdAttr =
+		RelationType<Number> rIdAttr =
 			EntityManager.getEntityDefinition(rEntityClass).getIdAttribute();
 
 		if (aSelectedEntityIds.size() > 0)
 		{
-			pIsSelected = elementOf(new HashSet<Integer>(aSelectedEntityIds));
+			pIsSelected = elementOf(new HashSet<>(aSelectedEntityIds));
 			pCriteria   =
 				Predicates.and(pCriteria,
 							   ifAttribute(rIdAttr, not(pIsSelected)));
@@ -616,7 +616,7 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 	private void setSelected(Entity rEntity, boolean bSelected)
 	{
 		@SuppressWarnings("boxing")
-		Integer rId = rEntity.getId();
+		Long rId = rEntity.getId();
 
 		if (bSelected)
 		{
@@ -632,19 +632,18 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 	 * Executes the given {@link QueryPredicate} and stored the Ids of the
 	 * queried entities in {@link #aSelectedEntityIds}
 	 *
-	 * @param  pSelectedEntities
+	 * @param  qSelectedEntities
 	 *
 	 * @throws StorageException
 	 */
-	private void updateSelectedEntityIds(QueryPredicate<E> pSelectedEntities)
+	private void updateSelectedEntityIds(QueryPredicate<E> qSelectedEntities)
 		throws StorageException
 	{
 		List<E> rSelectedEntities =
-			EntityManager.queryEntities(pSelectedEntities, Integer.MAX_VALUE);
+			EntityManager.queryEntities(qSelectedEntities, Short.MAX_VALUE);
 
-		Collection<Integer> rSelectedEntityIds =
-			CollectionUtil.transform(rSelectedEntities,
-									 EntityRelationTypes.ENTITY_ID);
+		Collection<Long> rSelectedEntityIds =
+			CollectionUtil.transform(rSelectedEntities, e -> e.getId());
 
 		aSelectedEntityIds.clear();
 		aSelectedEntityIds.addAll(rSelectedEntityIds);

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -131,6 +131,8 @@ public class EntityPredicates
 		EntityDefinition<? extends Entity> rDef =
 			EntityManager.getEntityDefinition(rEntityType);
 
+		RelationType<Number> rIdAttr = rDef.getIdAttribute();
+
 		String sIdPrefix = rDef.getIdPrefix();
 		int    nIdStart  = sIdPrefix.length() + 1;
 
@@ -138,17 +140,15 @@ public class EntityPredicates
 		// this and the subsequent functions can only be used for storage parsing
 		Function<Relatable, String> fAttr = coerce(ExtraAttribute.ENTITY);
 
-		Function<Relatable, Integer> fExtraAttributeEntityId =
-			cast(Integer.class).from(substring(nIdStart, -1).from(fAttr));
+		Function<Relatable, ? super Number> fExtraAttributeEntityId =
+			cast(rIdAttr.getValueType()).from(substring(nIdStart, -1).from(fAttr));
 
 		pCriteria =
 			Predicates.and(pCriteria,
 						   ifAttribute(ExtraAttribute.ENTITY,
 									   like(sIdPrefix + "%")));
 
-		RelationType<Integer> rIdAttr = rDef.getIdAttribute();
-
-		Predicate<Integer> pHasExtraAttr =
+		Predicate<? super Number> pHasExtraAttr =
 			refersTo(ExtraAttribute.class, fExtraAttributeEntityId, pCriteria);
 
 		return ifAttribute(rIdAttr, pHasExtraAttr);

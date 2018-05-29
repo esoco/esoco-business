@@ -101,7 +101,6 @@ import static de.esoco.lib.service.ModificationSyncEndpoint.requestLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.syncRequest;
 
 import static de.esoco.storage.StoragePredicates.like;
-import static de.esoco.storage.StorageRelationTypes.PERSISTENT;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
 
 import static org.obrel.type.MetaTypes.MODIFIED;
@@ -142,7 +141,7 @@ public class EntityManager
 		new EntityCache<Entity>()
 		{
 			@Override
-			public Entity getEntity(int nId)
+			public Entity getEntity(long nId)
 			{
 				return null;
 			}
@@ -736,7 +735,7 @@ public class EntityManager
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity> E getCachedEntity(
 		Class<E> rEntityClass,
-		int		 nEntityId)
+		long	 nEntityId)
 	{
 		EntityCache<?> rCache  = aEntityCacheMap.get(rEntityClass);
 		Entity		   rResult = null;
@@ -881,7 +880,7 @@ public class EntityManager
 	 */
 	public static String getGlobalEntityId(Entity rEntity)
 	{
-		int nEntityId = rEntity.getId();
+		long nEntityId = rEntity.getId();
 
 		if (nEntityId < 0)
 		{
@@ -903,7 +902,7 @@ public class EntityManager
 	 */
 	public static String getGlobalEntityId(
 		Class<? extends Entity> rEntityClass,
-		int						nEntityId)
+		long					nEntityId)
 	{
 		return getEntityDefinition(rEntityClass).getIdPrefix() +
 			   GLOBAL_ID_PREFIX_SEPARATOR + nEntityId;
@@ -1368,7 +1367,7 @@ public class EntityManager
 	@SuppressWarnings("boxing")
 	public static <E extends Entity> E queryEntity(
 		Class<E> rEntityClass,
-		int		 nEntityId) throws StorageException
+		long	 nEntityId) throws StorageException
 	{
 		E rEntity = getCachedEntity(rEntityClass, nEntityId);
 
@@ -1377,7 +1376,7 @@ public class EntityManager
 			rEntity =
 				queryEntity(rEntityClass,
 							getEntityDefinition(rEntityClass).getIdAttribute(),
-							nEntityId,
+							Long.valueOf(nEntityId),
 							true);
 		}
 
@@ -2140,53 +2139,6 @@ public class EntityManager
 												  sHandle);
 			}
 		}
-	}
-
-	/***************************************
-	 * Changes the ID of a certain entity. The entity will be reset to a
-	 * non-persistent state so that it can be stored as a new entity. All
-	 * children will be modified so that they reference the parent with the new
-	 * ID but this state will not be persistent until the parent entity is
-	 * stored. The original entity will remain unchanged and can be deleted
-	 * afterwards if desired.
-	 *
-	 * @param  rEntity The entity to change the ID of
-	 * @param  nNewId  The new entity ID
-	 *
-	 * @throws StorageException If accessing extra attributes fails
-	 */
-	@SuppressWarnings("boxing")
-	static void changeEntityId(Entity rEntity, int nNewId)
-		throws StorageException
-	{
-		// TODO: work in progress, currently not working reliably
-		EntityDefinition<?> rDef = rEntity.getDefinition();
-
-		// first access all XA and children to resolve all on-demand references
-		for (ExtraAttribute rXA : rEntity.getExtraAttributeMap().values())
-		{
-			// mark XA as modified to store the new parent reference
-			rXA.set(MODIFIED);
-		}
-
-		rEntity.set(EntityRelationTypes.EXTRA_ATTRIBUTES_MODIFIED);
-
-		for (RelationType<List<Entity>> rChildAttr : rDef.getChildAttributes())
-		{
-			List<Entity> rChildren = rEntity.get(rChildAttr);
-
-			for (Entity rChild : rChildren)
-			{
-				// mark children as modified to store the new parent reference
-				rChild.set(MODIFIED);
-			}
-		}
-
-		// finally mark entity as not persistent to store it as new instead of
-		// updating an existing entity; all XA and children will then be stored
-		// with the new parent reference.
-		rEntity.set(PERSISTENT, false);
-		rEntity.set(rDef.getIdAttribute(), nNewId);
 	}
 
 	/***************************************

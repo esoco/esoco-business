@@ -506,7 +506,7 @@ public class Entity extends SerializableRelatedObject
 		}
 
 		Entity rOther = (Entity) rObject;
-		int    nId    = getId();
+		long   nId    = getId();
 
 		boolean bModified	   = hasFlag(MODIFIED);
 		boolean bOtherModified = rOther.hasFlag(MODIFIED);
@@ -796,10 +796,9 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @return The entity ID
 	 */
-	@SuppressWarnings("boxing")
-	public int getId()
+	public long getId()
 	{
-		return get(getIdAttribute());
+		return get(getIdAttribute()).longValue();
 	}
 
 	/***************************************
@@ -807,7 +806,7 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @return The ID attribute
 	 */
-	public RelationType<Integer> getIdAttribute()
+	public RelationType<? extends Number> getIdAttribute()
 	{
 		return getDefinition().getIdAttribute();
 	}
@@ -967,7 +966,9 @@ public class Entity extends SerializableRelatedObject
 		}
 		else
 		{
-			nHashCode = 37 * nHashCode + getId();
+			long nId = getId();
+
+			nHashCode = 37 * nHashCode + (int) (nId ^ (nId >>> 32));
 		}
 
 		return nHashCode;
