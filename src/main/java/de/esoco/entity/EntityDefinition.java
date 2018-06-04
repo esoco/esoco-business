@@ -42,7 +42,6 @@ import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -1109,9 +1108,6 @@ public class EntityDefinition<E extends Entity>
 
 		aAttributes = Collections.unmodifiableList(aAttributes);
 
-		// verify that the definition parameters are correct
-		assert assertCorrectParameters();
-
 		aAttributeDisplayProperties =
 			getAttributeDisplayProperties(rEntityClass);
 
@@ -1329,32 +1325,6 @@ public class EntityDefinition<E extends Entity>
 		{
 			rProperties.setProperties(rAdditionalProperties, true);
 		}
-	}
-
-	/***************************************
-	 * Internal assertion method to check the parameters of this entity
-	 * definition.
-	 *
-	 * @return TRUE if no assertion failed
-	 */
-	private boolean assertCorrectParameters()
-	{
-		try
-		{
-			Constructor<?> c = rEntityClass.getConstructor((Class[]) null);
-
-			assert c != null;
-			assert (c.getModifiers() & Modifier.PUBLIC) != 0;
-		}
-		catch (Exception e)
-		{
-			throw new AssertionError("Invalid entity class: " + rEntityClass +
-									 '/' + e);
-		}
-
-		assert aAttributes.size() != 0;
-
-		return true;
 	}
 
 	/***************************************
