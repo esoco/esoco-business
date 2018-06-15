@@ -846,6 +846,12 @@ public class EntityManager
 
 		if (rDefinition == null)
 		{
+			if (StorageManager.getMappingFactory(Entity.class) == null)
+			{
+				// if not yet initialized do now to register the mapping factory
+				init();
+			}
+
 			rDefinition =
 				(EntityDefinition<E>) StorageManager.getMapping(rEntityClass);
 			aEntityDefinitions.put(rEntityClass, rDefinition);
