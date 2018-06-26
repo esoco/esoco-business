@@ -14,28 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui;
+package de.esoco.process.ui.app;
+
+import de.esoco.process.ui.UiComposite;
+import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.layout.UiFooterLayout;
+
 
 /********************************************************************
- * A base class for components that are build from the combination of other
- * components. A composite is always a container with a certain layout in which
- * it's
+ * A composite that represents the header of a web page.
  *
  * @author eso
  */
-public abstract class UiComposite<C extends UiComposite<C>>
-	extends UiContainer<C>
+public class UiWebPageFooter extends UiComposite<UiWebPageFooter>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rLayout The layout of this panel
+	 * @param rParent the parent container
 	 */
-	public UiComposite(UiContainer<?> rParent, UiLayout rLayout)
+	public UiWebPageFooter(UiContainer<?> rParent)
 	{
-		super(rParent, rLayout);
+		super(rParent, new UiFooterLayout());
 	}
 }

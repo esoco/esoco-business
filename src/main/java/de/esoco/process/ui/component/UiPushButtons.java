@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.StyleProperties;
 
 import de.esoco.process.ui.UiButtonGroup;
 import de.esoco.process.ui.UiContainer;
+
+import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 
 
 /********************************************************************
@@ -47,6 +50,18 @@ public class UiPushButtons<T> extends UiButtonGroup<T, UiPushButtons<T>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the button style.
+	 *
+	 * @param  eStyle The new style
+	 *
+	 * @return This instance
+	 */
+	public UiPushButtons<T> buttonStyle(ButtonStyle eStyle)
+	{
+		return set(BUTTON_STYLE, eStyle);
+	}
 
 	/***************************************
 	 * Marks this button group as having images for the button faces. The images

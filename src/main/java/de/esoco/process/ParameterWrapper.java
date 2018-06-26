@@ -19,10 +19,10 @@ package de.esoco.process;
 import de.esoco.data.FileType;
 
 import de.esoco.lib.expression.Function;
+import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.PropertyName;
-import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionEvent;
@@ -39,6 +39,7 @@ import org.obrel.core.RelationType;
 import static de.esoco.data.element.DataElement.HIDDEN_URL;
 import static de.esoco.data.element.DataElement.INTERACTION_URL;
 
+import static de.esoco.lib.property.ContentProperties.ELEMENT_ID;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
@@ -221,6 +222,19 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
+	 * Sets a string ID for this instance by setting the UI property {@link
+	 * ContentProperties#ELEMENT_ID}.
+	 *
+	 * @param  sId The ID string
+	 *
+	 * @return This instance for concatenation
+	 */
+	public P id(String sId)
+	{
+		return set(ELEMENT_ID, sId);
+	}
+
+	/***************************************
 	 * Checks the enabled/disabled state.
 	 *
 	 * @see #setEnabled(boolean)
@@ -256,9 +270,10 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	}
 
 	/***************************************
-	 * Sets the UI property {@link UserInterfaceProperties#RESOURCE_ID}.
+	 * Sets a resource ID for this instance by setting the UI property {@link
+	 * ContentProperties#RESOURCE_ID}.
 	 *
-	 * @param  sResourceId sWidth The resource ID string
+	 * @param  sResourceId The resource ID string
 	 *
 	 * @return This instance for concatenation
 	 */

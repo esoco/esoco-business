@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -157,7 +157,19 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	@Override
 	public T getSelection()
 	{
-		return fragment().getParameter(type());
+		return getValueImpl();
+	}
+
+	/***************************************
+	 * Selects a certain button.
+	 *
+	 * @param  rValue The enum value of the button to select
+	 *
+	 * @return This instance
+	 */
+	public C select(T rValue)
+	{
+		return setValueImpl(rValue);
 	}
 
 	/***************************************
@@ -201,6 +213,6 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	@Override
 	public void setSelection(T rNewSelection)
 	{
-		fragment().setParameter(type(), rNewSelection);
+		select(rNewSelection);
 	}
 }

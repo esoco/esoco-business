@@ -215,9 +215,9 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	/***************************************
 	 * Can be overridden by subclasses to build the contents of this container.
 	 * Alternatively the contents can also be built by adding components to it
-	 * after creation. This may also be used in combination. In that case this
-	 * {@link #build()} method has already been invoked because that happens
-	 * upon initialization.
+	 * after creation. If both methods are used in combination the call to
+	 * {@link #build()} will occur afterwards because it is invoked just before
+	 * the container is made visible (from {@link #applyProperties()}.
 	 *
 	 * <p>The default implementation of this method does nothing.</p>
 	 */
