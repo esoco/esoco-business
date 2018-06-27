@@ -1394,15 +1394,18 @@ public class EntityDefinition<E extends Entity>
 			if (isHierarchyAttribute(rAttr) &&
 				EntityManager.isCachingEnabledFor(getMappedType()))
 			{
-				Integer rId = (Integer) rValue;
+				if (rValue != null)
+				{
+					Number rId = (Number) rValue;
 
-				if (rAttr == rMasterAttribute)
-				{
-					aEntity.set(MASTER_ENTITY_ID, rId);
-				}
-				else if (rAttr == rParentAttribute)
-				{
-					aEntity.set(PARENT_ENTITY_ID, rId);
+					if (rAttr == rMasterAttribute)
+					{
+						aEntity.set(MASTER_ENTITY_ID, rId.longValue());
+					}
+					else if (rAttr == rParentAttribute)
+					{
+						aEntity.set(PARENT_ENTITY_ID, rId.longValue());
+					}
 				}
 			}
 			else if (rValue != null)

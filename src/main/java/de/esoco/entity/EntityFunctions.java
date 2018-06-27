@@ -278,14 +278,14 @@ public class EntityFunctions
 	 *
 	 * @see EntityManager#queryEntity(Class, int)
 	 */
-	public static <E extends Entity> Function<Integer, E> queryEntity(
+	public static <E extends Entity> Function<Long, E> queryEntity(
 		final Class<E> rEntityClass)
 	{
-		return new ExceptionMappingFunction<Integer, E>("queryEntity(ID)")
+		return new ExceptionMappingFunction<Long, E>("queryEntity(ID)")
 		{
 			@Override
 			@SuppressWarnings("boxing")
-			public E evaluateWithException(Integer rId) throws StorageException
+			public E evaluateWithException(Long rId) throws StorageException
 			{
 				return EntityManager.queryEntity(rEntityClass, rId);
 			}

@@ -47,8 +47,8 @@ import static de.esoco.storage.StorageRelationTypes.STORAGE_NAME;
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newFlagType;
 import static org.obrel.core.RelationTypes.newInitialValueType;
-import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newListType;
+import static org.obrel.core.RelationTypes.newLongType;
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newSetType;
 import static org.obrel.core.RelationTypes.newType;
@@ -98,10 +98,10 @@ public class EntityRelationTypes
 	public static final RelationType<Boolean> CACHE_ENTITY = newFlagType();
 
 	/** The entity ID of an entity's parent entity. */
-	public static final RelationType<Integer> PARENT_ENTITY_ID = newIntType();
+	public static final RelationType<Long> PARENT_ENTITY_ID = newLongType();
 
 	/** The entity ID of an entity's master entity. */
-	public static final RelationType<Integer> MASTER_ENTITY_ID = newIntType();
+	public static final RelationType<Long> MASTER_ENTITY_ID = newLongType();
 
 	/** A generic reference to a single entity, */
 	public static final RelationType<Entity> ENTITY = newEntityAttribute();
@@ -273,13 +273,13 @@ public class EntityRelationTypes
 	//- Standard entity attributes ---------------------------------------------
 
 	/**
-	 * The default attribute for an auto-incremented integer entity ID. This
-	 * attribute will be added automatically to all entities that do not have a
-	 * specific ID attribute. Only used internally by the package. Applications
-	 * should always query the actual ID attribute from the entity definition
-	 * with the method {@link EntityDefinition#getIdAttribute()}.
+	 * The default attribute for an auto-incremented long integer entity ID.
+	 * This attribute will be added automatically to all entities that do not
+	 * have a specific ID attribute. Only used internally by the package.
+	 * Applications should always query the actual ID attribute from the entity
+	 * definition with the method {@link EntityDefinition#getIdAttribute()}.
 	 */
-	public static final RelationType<Integer> ENTITY_ID = newAutoIdAttribute();
+	public static final RelationType<Long> ENTITY_ID = newLongAutoIdAttribute();
 
 	/** An entity that is targeted by another entity for a certain purpose. */
 	public static final RelationType<Entity> TARGET =
@@ -390,7 +390,7 @@ public class EntityRelationTypes
 		RelationTypeModifier... rFlags)
 	{
 		return RelationTypes.<T>newType(rFlags)
-							.annotate(STORAGE_DATATYPE, int.class);
+							.annotate(STORAGE_DATATYPE, long.class);
 	}
 
 	/***************************************
@@ -405,7 +405,9 @@ public class EntityRelationTypes
 	public static RelationType<Integer> newIdAttribute(
 		RelationTypeModifier... rFlags)
 	{
-		return RelationTypes.newIntType(rFlags).annotate(OBJECT_ID_ATTRIBUTE);
+		return RelationTypes.newIntType(rFlags)
+							.annotate(OBJECT_ID_ATTRIBUTE)
+							.annotate(STORAGE_DATATYPE, Integer.class);
 	}
 
 	/***************************************
@@ -435,7 +437,9 @@ public class EntityRelationTypes
 	public static RelationType<Long> newLongIdAttribute(
 		RelationTypeModifier... rFlags)
 	{
-		return RelationTypes.newLongType(rFlags).annotate(OBJECT_ID_ATTRIBUTE);
+		return RelationTypes.newLongType(rFlags)
+							.annotate(OBJECT_ID_ATTRIBUTE)
+							.annotate(STORAGE_DATATYPE, Long.class);
 	}
 
 	/***************************************
