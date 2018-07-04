@@ -25,8 +25,8 @@ import de.esoco.entity.Entity;
 
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.property.Alignment;
-import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.TextFieldStyle;
 
 import de.esoco.process.Parameter;
 import de.esoco.process.ProcessRelationTypes;
@@ -34,6 +34,7 @@ import de.esoco.process.ValueEventHandler;
 
 import static de.esoco.lib.property.StateProperties.DISABLE_ON_INTERACTION;
 import static de.esoco.lib.property.StateProperties.FOCUSED;
+import static de.esoco.lib.property.StyleProperties.TEXT_FIELD_STYLE;
 
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.CLIENT_INFO;
@@ -191,7 +192,7 @@ public class LoginFragment extends InteractionFragment
 					}
 				});
 		aPassword  =
-			inputText("Password").content(ContentType.PASSWORD)
+			inputText("Password").set(TEXT_FIELD_STYLE, TextFieldStyle.PASSWORD)
 								 .ensureNotEmpty()
 								 .onAction(new ValueEventHandler<String>()
 				{

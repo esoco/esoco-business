@@ -24,11 +24,12 @@ import de.esoco.process.ui.UiTextInputField;
 
 
 /********************************************************************
- * A single-line text input field that hides the input value.
+ * A single-line text input field for the input of search terms that allows to
+ * execute the query with a button.
  *
  * @author eso
  */
-public class UiPasswordField extends UiTextInputField<UiPasswordField>
+public class UiSearchField extends UiTextInputField<UiSearchField>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -37,10 +38,10 @@ public class UiPasswordField extends UiTextInputField<UiPasswordField>
 	 *
 	 * @see UiTextInputField#TextInput(UiContainer, String)
 	 */
-	public UiPasswordField(UiContainer<?> rContainer, String sText)
+	public UiSearchField(UiContainer<?> rContainer, String sText)
 	{
 		super(rContainer, sText);
 
-		set(StyleProperties.TEXT_FIELD_STYLE, TextFieldStyle.PASSWORD);
+		set(StyleProperties.TEXT_FIELD_STYLE, TextFieldStyle.SEARCH);
 	}
 }

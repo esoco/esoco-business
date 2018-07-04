@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,7 +122,6 @@ public class GraylogLogging extends BusinessLogAspect<GraylogMessage>
 			new GraylogMessage(eGraylogLevel, rLogRecord.getMessage(), null);
 
 		aMessage.set(GraylogMessage.TIMESTAMP, rLogRecord.getTime());
-
 		aMessage.set(GraylogMessage._FILE_NAME, rLogRecord.getSourceFileName());
 		aMessage.set(GraylogMessage._LINE_NUMBER, rLogRecord.getLineNumber());
 

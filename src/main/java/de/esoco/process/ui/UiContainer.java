@@ -44,7 +44,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 
 	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
 
-	private UiBuilder<C> aContainerBuilder = null;
+	@SuppressWarnings("unchecked")
+	private UiBuilder<C> aContainerBuilder = new UiBuilder<>((C) this);
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -79,14 +80,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @return A UI builder instance for this container
 	 */
-	@SuppressWarnings("unchecked")
 	public final UiBuilder<C> builder()
 	{
-		if (aContainerBuilder == null)
-		{
-			aContainerBuilder = new UiBuilder<>((C) this);
-		}
-
 		return aContainerBuilder;
 	}
 
@@ -170,8 +165,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		if (!bBuilt)
 		{
 			build();
-			bBuilt			  = true;
-			aContainerBuilder = null;
+			bBuilt = true;
 		}
 
 		// apply layout first so it can add styles to the container before

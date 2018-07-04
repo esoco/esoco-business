@@ -276,13 +276,13 @@ public class UiGridLayout extends UiLayout
 
 		for (Row rRow : getRows())
 		{
-			sRowsTemplate.append(rRow.get(HTML_HEIGHT, "1fr"));
+			sRowsTemplate.append(rRow.get(HTML_HEIGHT, "auto"));
 			sRowsTemplate.append(' ');
 		}
 
 		for (Column rColumn : getColumns())
 		{
-			sColumnsTemplate.append(rColumn.get(HTML_WIDTH, "1fr"));
+			sColumnsTemplate.append(rColumn.get(HTML_WIDTH, "auto"));
 			sColumnsTemplate.append(' ');
 		}
 

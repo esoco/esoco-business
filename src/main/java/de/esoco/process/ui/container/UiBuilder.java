@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.component.UiWebPage;
+import de.esoco.process.ui.composite.UiCard;
 import de.esoco.process.ui.composite.UiThumbnail;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 
@@ -112,6 +113,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiCalendar addCalendar(Date rDate)
 	{
 		return new UiCalendar(rContainer, rDate);
+	}
+
+	/***************************************
+	 * Adds a card panel.
+	 *
+	 * @param  sTitle The card title
+	 *
+	 * @return The new card
+	 */
+	public UiCard addCard(String sTitle)
+	{
+		return new UiCard(rContainer, sTitle);
 	}
 
 	/***************************************
