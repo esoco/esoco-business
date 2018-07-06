@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -172,6 +172,7 @@ public class GraylogEndpoint extends Endpoint
 		 */
 		@Override
 		public Void doOn(Connection rConnection, GraylogMessage rMessage)
+			throws Exception
 		{
 			rConnection.get(GRAYLOG_SERVER_METHOD)
 					   .doOn(rConnection.get(GRAYLOG_SERVER_CONNECTION),
