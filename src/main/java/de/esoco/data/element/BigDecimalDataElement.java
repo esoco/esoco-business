@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
+
 import de.esoco.lib.property.PropertyName;
 
 import java.math.BigDecimal;
@@ -34,6 +35,10 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+
+	/** A style flag to render the value as an interactive calculator. */
+	public static final PropertyName<Boolean> CALCULATOR =
+		PropertyName.newBooleanName("CALCULATOR");
 
 	/** The placeholder string for the decimal grouping character. */
 	public static final String DECIMAL_GROUP_CHAR = "<dec:grp>";
@@ -114,7 +119,9 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigDecimalDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
+	public BigDecimalDataElement copy(
+		CopyMode		   eMode,
+		PropertyName<?>... rCopyProperties)
 	{
 		return (BigDecimalDataElement) super.copy(eMode, rCopyProperties);
 	}

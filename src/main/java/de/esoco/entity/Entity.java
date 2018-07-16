@@ -825,6 +825,22 @@ public class Entity extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Returns the previous value of a modified attribute.
+	 *
+	 * @param  rAttribute The attribute to get the previous value of
+	 *
+	 * @return The previous value (may be NULL)
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getPrevious(RelationType<T> rAttribute)
+	{
+		Relation<T> rAttrRelation = getRelation(rAttribute);
+
+		return rAttrRelation != null ? (T) rAttrRelation.get(PREVIOUS_VALUE)
+									 : null;
+	}
+
+	/***************************************
 	 * Returns the root parent of this entity's hierarchy. This will either be
 	 * the topmost parent of the same entity type or, if a master attribute is
 	 * present, the master entity.
