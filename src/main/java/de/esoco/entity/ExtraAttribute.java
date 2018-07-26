@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class ExtraAttribute extends Entity
 	 * Overridden to always return FALSE because the change logging of entities
 	 * includes their extra attributes.
 	 *
-	 * @see Entity#isChangeLoggingEnabled()
+	 * @see Entity#hasChangeLogging()
 	 */
 	@Override
 	public boolean hasChangeLogging()

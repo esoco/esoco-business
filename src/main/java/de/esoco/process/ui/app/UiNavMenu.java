@@ -169,9 +169,9 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 
 	/***************************************
 	 * Adds components to this menu that should appear before the the menu items
-	 * which are added later with {@link #addMenuItems(InteractionFragment)}.
-	 * Can be overridden by subclasses to add additional components like an logo
-	 * image and/or a search field.
+	 * which are added later with {@link #addMenuItems(UiBuilder)}. Can be
+	 * overridden by subclasses to add additional components like a logo image
+	 * and/or a search field.
 	 *
 	 * @param rBuilder The builder to add the menu components with
 	 */

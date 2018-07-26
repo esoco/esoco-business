@@ -1763,7 +1763,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Sets the interaction event handler for a certain process parameter.
+	 *
+	 * @param rParam              The parameter relation type
+	 * @param rInteractionHandler The interaction handler
 	 */
 	public void setParameterInteractionHandler(
 		RelationType<?>    rParam,
@@ -1825,7 +1828,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Adds a sub-fragment to be displayed as a modal dialog.
 	 *
-	 * @see #showDialog(String, InteractionFragment, boolean,
+	 * @see #showDialog(String, InteractionFragment, boolean, String,
 	 *      DialogActionListener, Collection)
 	 */
 	public DialogFragment showDialog(String				  sParamNameTemplate,
@@ -1999,7 +2002,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Displays a modal dialog with a name prefix that is derived from the name
 	 * of the content fragment.
 	 *
-	 * @see #showDialog(String, InteractionFragment, boolean,
+	 * @see #showDialog(String, InteractionFragment, boolean, String,
 	 *      DialogActionListener, Collection)
 	 */
 	public DialogFragment showModalDialog(

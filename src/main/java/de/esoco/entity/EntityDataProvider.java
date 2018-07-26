@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.model.AbstractDataProvider;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.SortDirection;
+
 import de.esoco.storage.QueryPredicate;
 
 import java.util.ArrayList;
@@ -224,7 +225,7 @@ public class EntityDataProvider<E extends Entity>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Updates the query of the visible entities.
 	 */
 	protected void updateVisibleEntities()
 	{

@@ -698,9 +698,9 @@ public abstract class DataElement<T> extends StringProperties
 	/***************************************
 	 * Returns a new instance of the respective data element sub-type on which
 	 * it is invoked. This is needed for GWT which doesn't support reflection.
-	 * Used by {@link #copy()} for cloning an instance. Implementations should
-	 * overwrite the return type with their concrete type to prevent the need
-	 * for casting by the invoking code.
+	 * Used by {@link #copy(CopyMode, PropertyName...)} for cloning an instance.
+	 * Implementations should overwrite the return type with their concrete type
+	 * to prevent the need for casting by the invoking code.
 	 *
 	 * @return The new instance
 	 */
@@ -788,12 +788,12 @@ public abstract class DataElement<T> extends StringProperties
 
 	/***************************************
 	 * Copies the value of this data element into another data element of the
-	 * same type. This is used by the {@link #copy()} method and by default uses
-	 * {@link #updateValue(Object)} to set the value in the target element.
-	 * Subclasses that don't support updating the value (e.g. because they
-	 * manage a collection) need to override this method and implement the
-	 * copying as needed. They can assume that the target object is of exactly
-	 * the same type as their own.
+	 * same type. This is used by the {@link #copy(CopyMode, PropertyName...)}
+	 * method and by default uses {@link #updateValue(Object)} to set the value
+	 * in the target element. Subclasses that don't support updating the value
+	 * (e.g. because they manage a collection) need to override this method and
+	 * implement the copying as needed. They can assume that the target object
+	 * is of exactly the same type as their own.
 	 *
 	 * @param aCopy The copied data element to copy the value into
 	 */

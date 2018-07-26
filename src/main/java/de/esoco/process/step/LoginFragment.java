@@ -220,7 +220,7 @@ public class LoginFragment extends InteractionFragment
 	 *
 	 * @param  nRemainingSeconds The number of seconds the user has to wait
 	 *
-	 * @return
+	 * @return The error message
 	 */
 	@SuppressWarnings("boxing")
 	protected String createErrorWaitMessage(int nRemainingSeconds)

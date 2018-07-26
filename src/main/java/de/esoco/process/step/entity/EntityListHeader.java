@@ -83,7 +83,9 @@ public abstract class EntityListHeader<E extends Entity>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Returns the entity list this header belongs to.
+	 *
+	 * @return The parent entity list
 	 */
 	public final EntityList<E, ?> getEntityList()
 	{

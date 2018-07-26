@@ -276,7 +276,7 @@ public class EntityFunctions
 	 * Returns a new function that queries an entity of a certain type with a
 	 * particular ID.
 	 *
-	 * @see EntityManager#queryEntity(Class, int)
+	 * @see EntityManager#queryEntity(Class, long)
 	 */
 	public static <E extends Entity> Function<Number, E> queryEntity(
 		final Class<E> rEntityClass)

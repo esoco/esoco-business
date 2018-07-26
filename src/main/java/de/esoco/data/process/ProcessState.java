@@ -112,7 +112,7 @@ public class ProcessState extends ProcessDescription
 	 * interaction.
 	 *
 	 * @see #ProcessState(ProcessDescription, int, String, String, List, List,
-	 *      Set)
+	 *      List, Set)
 	 */
 	public ProcessState(ProcessDescription rDescription,
 						int				   nProcessId,

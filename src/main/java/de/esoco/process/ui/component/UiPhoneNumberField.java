@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import de.esoco.process.ui.UiTextInputField;
 
 /********************************************************************
  * A single-line text input field that provides special validations for
- * internation phone numbers.
+ * international phone numbers.
  *
  * @author eso
  */
@@ -36,7 +36,7 @@ public class UiPhoneNumberField extends UiTextInputField<UiPhoneNumberField>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiTextInputField#TextInput(UiContainer, String)
+	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
 	public UiPhoneNumberField(UiContainer<?> rContainer, String sText)
 	{

@@ -53,7 +53,7 @@ import de.esoco.process.ui.component.UiTextArea;
 import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.component.UiToggleButtons;
-import de.esoco.process.ui.component.UiWebPage;
+import de.esoco.process.ui.component.UiWebView;
 import de.esoco.process.ui.composite.UiCard;
 import de.esoco.process.ui.composite.UiThumbnail;
 import de.esoco.process.ui.graphics.UiIconSupplier;
@@ -638,9 +638,9 @@ public class UiBuilder<C extends UiContainer<C>>
 	 *
 	 * @return The new component
 	 */
-	public UiWebPage addWebPage(String sUrl)
+	public UiWebView addWebView(String sUrl)
 	{
-		return new UiWebPage(rContainer, sUrl);
+		return new UiWebView(rContainer, sUrl);
 	}
 
 	/***************************************

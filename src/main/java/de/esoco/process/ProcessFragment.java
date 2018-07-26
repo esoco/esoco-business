@@ -886,7 +886,8 @@ public abstract class ProcessFragment extends ProcessElement
 	 *                             enable all)
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>, C extends Collection<E>> void disableMultiSelectionElements(
+	public <E extends Enum<E>, C extends Collection<E>> void
+	disableMultiSelectionElements(
 		RelationType<C> rEnumCollectionParam,
 		Collection<E>   rDisabledElements)
 	{
@@ -1669,7 +1670,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Removes a cleanup action that has previously been registered through the
-	 * method {@link #addCleanupAction(String, Action)}.
+	 * method {@link #addCleanupAction(String, Consumer)}.
 	 *
 	 * @param  sKey The key that identifies the action to remove
 	 *
@@ -1785,9 +1786,8 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rParam  The parameter to annotate
 	 * @param rValues The list of allowed values for the parameter
 	 */
-	public <T, C extends Collection<T>, V extends Collection<T>> void setAllowedElements(
-		RelationType<C> rParam,
-		V				rValues)
+	public <T, C extends Collection<T>, V extends Collection<T>> void
+	setAllowedElements(RelationType<C> rParam, V rValues)
 	{
 		annotateParameter(rParam, null, ALLOWED_VALUES, rValues);
 	}
@@ -2449,7 +2449,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 	/***************************************
 	 * Executes all actions that have previously been registered through the
-	 * method {@link #addCleanupAction(String, Action)}.
+	 * method {@link #addCleanupAction(String, Consumer)}.
 	 */
 	protected void executeCleanupActions()
 	{

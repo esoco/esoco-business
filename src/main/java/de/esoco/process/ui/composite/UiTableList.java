@@ -384,8 +384,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * simple row content where the full content can be build at once. For
 	 * complex cases where the expanded row content should be updated only upon
 	 * row selection a {@link Row} subclass should be used instead with
-	 * overridden methods {@link Row#initExpandedContent(UiContainer)} and
-	 * {@link Row#updateExpandedContent()}.
+	 * overridden methods {@link Row#initExpandedContent(UiBuilder)} and {@link
+	 * Row#updateExpandedContent()}.
 	 *
 	 * <p>The argument is a binary consumer that will be invoked with the
 	 * builder for the row content container and the data object of the row.</p>
@@ -997,7 +997,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/***************************************
 		 * Updates the display of column data from a certain data object. The
 		 * argument component must be one that has been created by the method
-		 * {@link #addDisplayComponent(UiBuilder, Object)}.
+		 * {@link #addDisplayComponent(UiBuilder, Supplier)}.
 		 *
 		 * @param rComponent  The component to update
 		 * @param rDataObject The data object to read the update value from
@@ -1372,7 +1372,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * default implementation returns a new instance of {@link
 		 * UiFlowLayout}.
 		 *
-		 * @return
+		 * @return The content layout
 		 */
 		protected UiLayout getContentLayout()
 		{
@@ -1388,7 +1388,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 *
 		 * <p>The default implementation invokes the expanded row content
 		 * builder if one has been set through the method {@link
-		 * UiTableList#setExpandedRowBuilder(Consumer)}.</p>
+		 * UiTableList#setExpandedRowBuilder(BiConsumer)}.</p>
 		 *
 		 * @param rBuilder The builder to build the content with
 		 */
@@ -1403,7 +1403,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/***************************************
 		 * Can be overridden by subclasses that need to update the content of
 		 * expandable rows on selection or if a new row data is set. The content
-		 * must be created in {@link #initExpandedContent(UiContainer)}. The row
+		 * must be created in {@link #initExpandedContent(UiBuilder)}. The row
 		 * data is available through {@link #getData()}.
 		 */
 		protected void updateExpandedContent()

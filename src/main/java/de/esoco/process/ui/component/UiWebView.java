@@ -30,7 +30,7 @@ import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
  *
  * @author eso
  */
-public class UiWebPage extends UiComponent<String, UiWebPage>
+public class UiWebView extends UiComponent<String, UiWebView>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -40,7 +40,7 @@ public class UiWebPage extends UiComponent<String, UiWebPage>
 	 * @param rParent The parent container
 	 * @param sUrl    sText The label text
 	 */
-	public UiWebPage(UiContainer<?> rParent, String sUrl)
+	public UiWebView(UiContainer<?> rParent, String sUrl)
 	{
 		super(rParent, String.class);
 

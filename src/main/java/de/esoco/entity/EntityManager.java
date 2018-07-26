@@ -259,7 +259,7 @@ public class EntityManager
 	/***************************************
 	 * Checks whether all modified entities in an entity modification context
 	 * have been stored. See {@link #setEntityModificationContext(String,
-	 * Relatable)} for details.
+	 * Relatable, boolean)} for details.
 	 *
 	 * <p>This method is intended to be used internally by the framework only.
 	 * </p>
@@ -1603,7 +1603,7 @@ public class EntityManager
 
 	/***************************************
 	 * Removes an entity modification context that has been set previously with
-	 * {@link #setEntityModificationContext(String, Relatable)}.
+	 * {@link #setEntityModificationContext(String, Relatable, boolean)}.
 	 *
 	 * @param sContextId      The ID of the entity modification context
 	 * @param bIgnoreExisting TRUE to ignore any different existing context
@@ -1754,7 +1754,7 @@ public class EntityManager
 	 * must be an instance of {@link Relatable} so that relations for the
 	 * modification tracking can be added to it. After the entity modifications
 	 * have been performed the method {@link
-	 * #removeEntityModificationContext(String)} must be invoked.
+	 * #removeEntityModificationContext(String, boolean)} must be invoked.
 	 *
 	 * <p>This method is intended to be used internally by the framework only.
 	 * </p>
@@ -1796,7 +1796,7 @@ public class EntityManager
 	 * modification contexts but the current one. The rule is a predicate that
 	 * must evaluate to TRUE for entities that should be locked against
 	 * modification by other contexts. The context ID must be the same as in the
-	 * method {@link #setEntityModificationContext(String, Relatable)}.
+	 * method {@link #setEntityModificationContext(String, Relatable, boolean)}.
 	 *
 	 * <p>All registered modification lock rules will be evaluated by the method
 	 * {@link #beginEntityModification(Entity)}. If the rule evaluates to TRUE

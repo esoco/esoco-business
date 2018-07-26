@@ -94,7 +94,11 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Fluent method to set the text of this field.
+	 *
+	 * @param  sText The new text
+	 *
+	 * @return This instance
 	 */
 	public T text(String sText)
 	{

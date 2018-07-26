@@ -61,7 +61,7 @@ public class UiQueryTable<E extends Entity>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiTextInputField#TextInput(UiContainer, String)
+	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
 	public UiQueryTable(UiContainer<?> rContainer, Class<E> rEntityType)
 	{

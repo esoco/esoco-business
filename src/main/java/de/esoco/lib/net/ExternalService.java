@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,10 +88,10 @@ public abstract class ExternalService extends RelatedObject
 	 * types:
 	 *
 	 * <ul>
-	 *   <li>An {@link URL}: if the user needs to verify the request before the
-	 *     service access can be authorized. In that case the callback URL in
-	 *     the corresponding parameter will be invoked after the user has
-	 *     confirmed the request.</li>
+	 *   <li>A {@link java.net.URL URL}: if the user needs to verify the request
+	 *     before the service access can be authorized. In that case the
+	 *     callback URL in the corresponding parameter will be invoked after the
+	 *     user has confirmed the request.</li>
 	 *   <li>A string: The access token that authorizes the access to the
 	 *     service in subsequent requests.</li>
 	 * </ul>

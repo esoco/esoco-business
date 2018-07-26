@@ -35,7 +35,7 @@ public class UiPasswordField extends UiTextInputField<UiPasswordField>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiTextInputField#TextInput(UiContainer, String)
+	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
 	public UiPasswordField(UiContainer<?> rContainer, String sText)
 	{

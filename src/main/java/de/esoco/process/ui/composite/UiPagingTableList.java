@@ -79,7 +79,7 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	 * But subclasses can also choose to override this method to return a label
 	 * that has been generated from the current state.
 	 *
-	 * @return
+	 * @return The empty page label
 	 */
 	public String getEmptyPagelLabel()
 	{

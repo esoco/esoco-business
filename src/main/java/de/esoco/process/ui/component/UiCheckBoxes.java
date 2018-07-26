@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 
 /********************************************************************
  * A group of checkboxes that have a selection state that can be toggled
- * independent from each other (other than {@link RadioButtonGroup} where the
+ * independent from each other (other than {@link UiRadioButtons} where the
  * selection is mutually exclusive). The datatype defines the type of the button
  * labels. Typically string and enum values are supported.
  *

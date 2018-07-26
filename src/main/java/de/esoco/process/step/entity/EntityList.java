@@ -500,7 +500,7 @@ public class EntityList<E extends Entity,
 
 	/***************************************
 	 * Initializes the header panel of this list if a header has been set with
-	 * {@link #setListHeader(InteractionFragment)}.
+	 * {@link #setListHeader(EntityListHeader)}.
 	 *
 	 * @param rHeaderPanel The header panel fragment
 	 */

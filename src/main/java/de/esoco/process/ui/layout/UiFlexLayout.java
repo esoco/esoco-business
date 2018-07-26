@@ -24,7 +24,6 @@ import de.esoco.lib.property.Orientation;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.layout.UiFlexLayout.FlexWrap;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
 
@@ -233,9 +232,9 @@ public class UiFlexLayout extends UiLayout
 	 * along the axis perpendicular to the layout flow. The default value if not
 	 * set is {@link FlexAlign#STRETCH}. This value only has an effect that
 	 * differs from the value set on {@link #alignContent(FlexAlign)} if
-	 * wrapping is enabled through {@link #wrapping(FlexWrap)}. If not this
-	 * value takes precedence over the content alignment although that should
-	 * not be relied upon.
+	 * wrapping is enabled through {@link #wrap()}. If not this value takes
+	 * precedence over the content alignment although that should not be relied
+	 * upon.
 	 *
 	 * @param  eAlign The cross-axis alignment
 	 *
@@ -382,8 +381,8 @@ public class UiFlexLayout extends UiLayout
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
-	 * A {@link Cell} subclass that provides additional access methods for
-	 * single Flexbox layout elements.
+	 * A {@link UiLayout#Cell} subclass that provides additional access methods
+	 * for single Flexbox layout elements.
 	 *
 	 * @author eso
 	 */

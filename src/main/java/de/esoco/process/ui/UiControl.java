@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiComponent#Component(UiContainer, Class)
+	 * @see UiComponent#UiComponent(UiContainer, Class)
 	 */
 	public UiControl(UiContainer<?> rParent, Class<? super T> rDatatype)
 	{

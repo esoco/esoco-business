@@ -36,7 +36,7 @@ public class UiSearchField extends UiTextInputField<UiSearchField>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @see UiTextInputField#TextInput(UiContainer, String)
+	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
 	public UiSearchField(UiContainer<?> rContainer, String sText)
 	{

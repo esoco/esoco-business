@@ -32,8 +32,8 @@ import static de.esoco.lib.property.StateProperties.TARGET_ID;
  * A UI composite that provides the framework to render and manage a web page.
  * The page will typically consist of header, footer, content, and optionally
  * navigation menus which are added by this class in the required order. Menus
- * are added by overriding the methods {@link #addTopMenu(UiContainer)} and
- * {@link #addSideMenu(UiContainer)}.
+ * are added by overriding the methods {@link #addTopMenu(Collection)} and
+ * {@link #addSideMenu(Collection)}.
  *
  * <p>By default the component itself is rendered with an inline layout, i.e. it
  * doesn't have a DOM representation and only the mentioned child components are
@@ -173,8 +173,7 @@ public class UiWebPage extends UiComposite<UiWebPage>
 
 	/***************************************
 	 * Returns the side menu of this page. If no menu has been created by
-	 * overriding {@link #addSideMenu(UiContainer)} this method will return
-	 * NULL.
+	 * overriding {@link #addSideMenu(Collection)} this method will return NULL.
 	 *
 	 * @return The side menu or NULL for none
 	 */
@@ -185,7 +184,7 @@ public class UiWebPage extends UiComposite<UiWebPage>
 
 	/***************************************
 	 * Returns the top menu of this page. If no menu has been created by
-	 * overriding {@link #addTopMenu(UiContainer)} this method will return NULL.
+	 * overriding {@link #addTopMenu(Collection)} this method will return NULL.
 	 *
 	 * @return The top menu or NULL for none
 	 */
