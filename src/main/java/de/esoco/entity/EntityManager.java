@@ -1875,13 +1875,17 @@ public class EntityManager
 	}
 
 	/***************************************
-	 * Performs a shutdown by freeing all allocated resources.
+	 * Performs a shutdown by freeing all allocated resources. This will also
+	 * invoke the methods {@link StorageManager#shutdown()} and {@link
+	 * TransactionManager#shutdown()}.
 	 */
 	public static void shutdown()
 	{
 		getStoreListeners().clear();
 		aEntityCache.clear();
 		aIdPrefixRegistry.clear();
+		TransactionManager.shutdown();
+		StorageManager.shutdown();
 	}
 
 	/***************************************
@@ -1951,12 +1955,12 @@ public class EntityManager
 		rEntity = rEntity.checkForHierarchyUpdate();
 
 		boolean bNewEntity = !rEntity.isPersistent();
+		Storage rStorage   = StorageManager.getStorage(rEntity.getClass());
 
 		TransactionManager.begin();
 
 		try
 		{
-			Storage rStorage    = StorageManager.getStorage(rEntity.getClass());
 			String  sChange     = null;
 			boolean bHasChanges = false;
 
@@ -2060,6 +2064,10 @@ public class EntityManager
 			{
 				throw new TransactionException("Could not store entity", e);
 			}
+		}
+		finally
+		{
+			rStorage.release();
 		}
 	}
 
