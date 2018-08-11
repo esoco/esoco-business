@@ -394,7 +394,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Applies all coupled parameters by setting their value onto their coupled
 	 * targets.
 	 *
-	 * @see de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 * @see RelationCoupling#setAll(org.obrel.core.Relatable, Collection)
 	 */
 	public void applyAllCoupledParameters()
 	{
