@@ -22,7 +22,7 @@ import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 
 import de.esoco.lib.property.MutableProperties;
-
+import de.esoco.process.param.ParameterBase;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.ArrayList;

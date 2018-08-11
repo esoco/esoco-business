@@ -26,8 +26,7 @@ import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.StringProperties;
-
-import de.esoco.process.Parameter;
+import de.esoco.process.param.Parameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StoragePredicates;

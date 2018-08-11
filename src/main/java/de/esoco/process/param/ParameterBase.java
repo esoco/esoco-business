@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.param;
 
 import de.esoco.data.FileType;
 import de.esoco.data.element.DataElementList;
@@ -39,6 +39,9 @@ import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
+import de.esoco.process.InvalidParametersException;
+import de.esoco.process.ProcessFragment;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;

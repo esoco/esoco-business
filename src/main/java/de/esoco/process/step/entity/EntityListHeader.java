@@ -24,8 +24,7 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.SortDirection;
 import de.esoco.lib.text.TextConvert;
-
-import de.esoco.process.Parameter;
+import de.esoco.process.param.Parameter;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.graphics.UiMaterialIcon;
 

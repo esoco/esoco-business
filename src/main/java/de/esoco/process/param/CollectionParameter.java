@@ -14,8 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.param;
 
+import de.esoco.process.ProcessFragment;
+import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;

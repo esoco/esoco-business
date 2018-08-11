@@ -21,8 +21,7 @@ import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutVisibility;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.TitleAttribute;
-
-import de.esoco.process.ParameterWrapper;
+import de.esoco.process.param.ParameterWrapper;
 import de.esoco.process.ui.UiLayout.Cell;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;

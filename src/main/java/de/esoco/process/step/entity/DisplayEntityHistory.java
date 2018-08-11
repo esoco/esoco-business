@@ -36,11 +36,10 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
-
-import de.esoco.process.CollectionParameter.SetParameter;
-import de.esoco.process.Parameter;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.param.Parameter;
+import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.step.EditText;
 import de.esoco.process.step.InteractionFragment;
 

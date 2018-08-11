@@ -27,10 +27,9 @@ import de.esoco.lib.logging.Log;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.TextFieldStyle;
-
-import de.esoco.process.Parameter;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ValueEventHandler;
+import de.esoco.process.param.Parameter;
 
 import static de.esoco.lib.property.StateProperties.DISABLE_ON_INTERACTION;
 import static de.esoco.lib.property.StateProperties.FOCUSED;

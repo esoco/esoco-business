@@ -28,12 +28,11 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
-
-import de.esoco.process.CollectionParameter.SetParameter;
-import de.esoco.process.EnumParameter;
-import de.esoco.process.Parameter;
-import de.esoco.process.ParameterList;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.param.EnumParameter;
+import de.esoco.process.param.Parameter;
+import de.esoco.process.param.ParameterList;
+import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EditEntityTags.TagEditListener;
 

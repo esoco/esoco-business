@@ -45,15 +45,6 @@ import de.esoco.lib.property.StateProperties;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
-
-import de.esoco.process.CollectionParameter.ListParameter;
-import de.esoco.process.CollectionParameter.SetParameter;
-import de.esoco.process.DataSetParameter;
-import de.esoco.process.EntityAttributeParameter;
-import de.esoco.process.EntityParameter;
-import de.esoco.process.EnumParameter;
-import de.esoco.process.Parameter;
-import de.esoco.process.ParameterList;
 import de.esoco.process.Process;
 import de.esoco.process.ProcessElement;
 import de.esoco.process.ProcessException;
@@ -62,6 +53,14 @@ import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ViewFragment;
+import de.esoco.process.param.DataSetParameter;
+import de.esoco.process.param.EntityAttributeParameter;
+import de.esoco.process.param.EntityParameter;
+import de.esoco.process.param.EnumParameter;
+import de.esoco.process.param.Parameter;
+import de.esoco.process.param.ParameterList;
+import de.esoco.process.param.CollectionParameter.ListParameter;
+import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.Interaction.InteractionHandler;
@@ -2102,7 +2101,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @param bMarkParamsAsModified If TRUE all interaction parameters of this
 	 *                              fragment will be marked as modified
 	 *
-	 * @see   de.esoco.process.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
+	 * @see   de.esoco.process.param.ParameterBase#couple(java.util.function.Consumer, java.util.function.Supplier)
 	 */
 	public void updateAllCoupledParameters(boolean bMarkParamsAsModified)
 	{

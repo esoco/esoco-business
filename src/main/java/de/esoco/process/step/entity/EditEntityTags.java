@@ -23,10 +23,9 @@ import de.esoco.entity.EntityRelationTypes;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
-
-import de.esoco.process.CollectionParameter.SetParameter;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ValueEventHandler;
+import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 
 import de.esoco.storage.StorageException;

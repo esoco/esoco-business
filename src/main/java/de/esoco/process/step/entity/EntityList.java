@@ -27,11 +27,10 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.reflect.ReflectUtil;
-
-import de.esoco.process.Parameter;
-import de.esoco.process.ParameterList;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ValueEventHandler;
+import de.esoco.process.param.Parameter;
+import de.esoco.process.param.ParameterList;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
 

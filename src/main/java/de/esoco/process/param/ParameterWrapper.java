@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process;
+package de.esoco.process.param;
 
 import de.esoco.data.FileType;
 
@@ -25,6 +25,9 @@ import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.PropertyName;
 
 import de.esoco.process.step.Interaction.InteractionHandler;
+import de.esoco.process.ProcessFragment;
+import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
 
