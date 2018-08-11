@@ -270,14 +270,19 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Creates the interaction fragment this container is rendered in and the
-	 * corresponding list parameter type.
+	 * If no fragment has been set yet creates the interaction fragment this
+	 * container is rendered in and then initializes the list parameter type for
+	 * the container fragment.
 	 *
 	 * @param rParent The parent container
 	 */
 	protected void setupContainerFragment(UiContainer<?> rParent)
 	{
-		setFragment(new UiContainerFragment());
+		if (fragment() == null)
+		{
+			setFragment(new UiContainerFragment());
+		}
+
 		setParameterType(rParent.fragment()
 						 .getTemporaryListType(null, RelationType.class));
 	}

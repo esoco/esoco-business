@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,17 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS;
 
 /********************************************************************
  * An interaction fragment that executes a sub-process in the current process
- * and renders it's interactions
+ * and renders it's interactions. This allows to use arbitrary interactive
+ * processes inside of other interactions. If the fragment's process consists of
+ * multiple steps it needs to handle the transitions between steps by itself
+ * because there is no standard process navigation UI for sub-process
+ * interactions.
+ *
+ * <p>This fragment set's it's layout to {@link LayoutType#INLINE INLINE} so
+ * that it's interaction parameters will be inserted directly into the parent
+ * fragment. If that is not appropriate, e.g. if a single component is required
+ * for the parent content, this fragment should be wrapped in another fragment
+ * with the corresponding layout.</p>
  *
  * @author eso
  */
@@ -171,7 +181,8 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	@Override
 	public void init() throws ProcessException
 	{
-		layout(LayoutType.FILL);
+		// simply render the process inline to it's parent fragment
+		layout(LayoutType.INLINE);
 
 		if (rProcessClass != null)
 		{

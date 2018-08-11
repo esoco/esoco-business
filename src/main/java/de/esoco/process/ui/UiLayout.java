@@ -828,6 +828,18 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		/***************************************
+		 * Sets the width of this column to a certain HTML size value.
+		 *
+		 * @param  sHtmlWidth The HTML width value
+		 *
+		 * @return This instance for fluent invocation
+		 */
+		public Column width(String sHtmlWidth)
+		{
+			return set(HTML_WIDTH, sHtmlWidth);
+		}
+
+		/***************************************
 		 * Sets the width of this column to a certain value and unit. Which
 		 * units are supported depends on the actual layout type used.
 		 *
@@ -862,6 +874,18 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		}
 
 		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Sets the height of this row to a certain HTML size value.
+		 *
+		 * @param  sHtmlHeigth The HTML height value
+		 *
+		 * @return This instance for fluent invocation
+		 */
+		public Row height(String sHtmlHeigth)
+		{
+			return set(HTML_HEIGHT, sHtmlHeigth);
+		}
 
 		/***************************************
 		 * Sets the height of this row to a certain value and unit. Which units
