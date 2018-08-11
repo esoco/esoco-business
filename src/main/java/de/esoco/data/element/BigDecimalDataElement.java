@@ -32,13 +32,23 @@ import java.util.Set;
  */
 public class BigDecimalDataElement extends DataElement<BigDecimal>
 {
+	//~ Enums ------------------------------------------------------------------
+
+	/********************************************************************
+	 * Enumeration of the available display styles.
+	 */
+	public enum DisplayStyle
+	{
+		DECIMAL, MULTI_FORMAT, CALCULATOR;
+	}
+
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
 
-	/** A style flag to render the value as an interactive calculator. */
-	public static final PropertyName<Boolean> CALCULATOR =
-		PropertyName.newBooleanName("CALCULATOR");
+	/** A style property that defines the rendering of big decimal values. */
+	public static final PropertyName<DisplayStyle> DISPLAY_STYLE =
+		PropertyName.newEnumName("CALCULATOR", DisplayStyle.class);
 
 	/** The placeholder string for the decimal grouping character. */
 	public static final String DECIMAL_GROUP_CHAR = "<dec:grp>";
