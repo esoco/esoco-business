@@ -54,7 +54,7 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS;
  *
  * @author eso
  */
-public class SubProcessInteractionFragment extends InteractionFragment
+public class SubProcessFragment extends InteractionFragment
 	implements ProcessExecutionHandler
 {
 	//~ Static fields/initializers ---------------------------------------------
@@ -75,7 +75,7 @@ public class SubProcessInteractionFragment extends InteractionFragment
 	 * @param rSubProcessClass The class of the sub-process to execute in this
 	 *                         fragment
 	 */
-	public SubProcessInteractionFragment(
+	public SubProcessFragment(
 		Class<? extends ProcessDefinition> rSubProcessClass)
 	{
 		displayProcess(rSubProcessClass);

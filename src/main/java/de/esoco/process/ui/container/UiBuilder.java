@@ -23,6 +23,9 @@ import de.esoco.entity.Entity;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.property.Orientation;
 
+import de.esoco.process.ProcessDefinition;
+import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.step.SubProcessFragment;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
 import de.esoco.process.ui.UiLayout;
@@ -256,6 +259,19 @@ public class UiBuilder<C extends UiContainer<C>>
 	public <T> UiDropDown<T> addDropDown(Class<T> rDatatype)
 	{
 		return new UiDropDown<>(rContainer, rDatatype);
+	}
+
+	/***************************************
+	 * Adds an arbitrary process interaction fragment to this container. This
+	 * allows to use fragments in conjunction with process UIs.
+	 *
+	 * @param  rFragment rIconSupplier The icon supplier
+	 *
+	 * @return The new component
+	 */
+	public UiSubFragment addFragment(InteractionFragment rFragment)
+	{
+		return new UiSubFragment(rContainer, rFragment);
 	}
 
 	/***************************************
@@ -523,6 +539,20 @@ public class UiBuilder<C extends UiContainer<C>>
 	public UiStackPanel addStackPanel()
 	{
 		return new UiStackPanel(rContainer);
+	}
+
+	/***************************************
+	 * Adds an interactive sub-process to be rendered in a sub-fragment of this
+	 * container.
+	 *
+	 * @param  rSubProcessClass The sub-process definition class
+	 *
+	 * @return The new component
+	 */
+	public UiSubFragment addSubProcess(
+		Class<? extends ProcessDefinition> rSubProcessClass)
+	{
+		return addFragment(new SubProcessFragment(rSubProcessClass));
 	}
 
 	/***************************************

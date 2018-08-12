@@ -126,15 +126,14 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 	}
 
 	/***************************************
-	 * Overridden to setup the container fragment and to attach it to the parent
-	 * fragment.
+	 * Overridden to do nothing because child views are managed separately from
+	 * components.
 	 *
-	 * @see UiComponent#attachTo(UiContainer)
+	 * @see UiContainer#attachTo(UiContainer)
 	 */
 	@Override
 	protected void attachTo(UiContainer<?> rParent)
 	{
-		setupContainerFragment(rParent);
 	}
 
 	/***************************************

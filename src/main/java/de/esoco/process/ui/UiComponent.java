@@ -21,7 +21,9 @@ import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutVisibility;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.TitleAttribute;
+
 import de.esoco.process.param.ParameterWrapper;
+import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiLayout.Cell;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
@@ -56,20 +58,34 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance for a certain datatype.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the component value
 	 */
-	public UiComponent(UiContainer<?> rParent, Class<? super T> rDatatype)
+	protected UiComponent(UiContainer<?> rParent, Class<? super T> rDatatype)
 	{
-		super(rParent != null ? rParent.fragment() : null,
-			  rDatatype != null
-			  ? rParent.fragment().getTemporaryParameterType(rDatatype) : null);
+		this(rParent,
+			 rParent.fragment(),
+			 rParent.fragment().getTemporaryParameterType(rDatatype));
+	}
+
+	/***************************************
+	 * Creates a new instance for a certain parameter relation type.
+	 *
+	 * @param rParent    The parent container
+	 * @param rFragment  The fragment this component belongs to
+	 * @param rParamType The parameter relation type
+	 */
+	protected UiComponent(UiContainer<?>	  rParent,
+						  InteractionFragment rFragment,
+						  RelationType<T>	  rParamType)
+	{
+		super(rFragment, rParamType);
 
 		this.rParent = rParent;
 
-		if (rParent != null && rDatatype != null)
+		if (rParent != null)
 		{
 			attachTo(rParent);
 		}

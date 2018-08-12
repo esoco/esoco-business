@@ -21,9 +21,11 @@ import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.container.UiBuilder;
+import de.esoco.process.ui.layout.UiInlineLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.obrel.core.RelationType;
@@ -50,25 +52,53 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance that wraps an interaction fragment.
+	 *
+	 * @param rParent   The parent container or NULL for a root container
+	 * @param rFragment The fragment to wrap
+	 */
+	protected UiContainer(UiContainer<?>	  rParent,
+						  InteractionFragment rFragment)
+	{
+		super(rParent, rFragment, getContainerParamType(rParent));
+
+		// although the layout is defined by the fragment the container needs a
+		// non-null layout to work
+		rLayout = new UiInlineLayout();
+	}
+
+	/***************************************
+	 * Creates a new instance with a certain layout.
 	 *
 	 * @param rParent The parent container or NULL for a root container
 	 * @param rLayout The layout of the container
 	 */
-	public UiContainer(UiContainer<?> rParent, UiLayout rLayout)
+	protected UiContainer(UiContainer<?> rParent, UiLayout rLayout)
 	{
-		// NULL for datatype to prevent component attachTo() as a special list
-		// parameter type needs to be created in the container implementation
-		super(rParent, null);
+		super(rParent,
+			  new UiContainerFragment(),
+			  getContainerParamType(rParent));
 
-		assert rLayout != null : "Container layout must not be NULL";
+		Objects.requireNonNull(rLayout, "Container layout must not be NULL");
 
 		this.rLayout = rLayout;
+	}
 
-		if (rParent != null)
-		{
-			attachTo(rParent);
-		}
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns the parameter type for a container if the parent is not null.
+	 *
+	 * @param  rParent The parent container
+	 *
+	 * @return The container parameter type or NULL if the parent is NULL
+	 */
+	private static RelationType<List<RelationType<?>>> getContainerParamType(
+		UiContainer<?> rParent)
+	{
+		return rParent != null
+			   ? rParent.fragment()
+						.getTemporaryListType(null, RelationType.class) : null;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -189,21 +219,12 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	@Override
 	protected void attachTo(UiContainer<?> rParent)
 	{
-		setupContainerFragment(rParent);
-		attachToParentFragment(rParent.fragment());
+		InteractionFragment rParentFragment = rParent.fragment();
 
-		rParent.addComponent(this);
-	}
-
-	/***************************************
-	 * Attaches this container to it's parent fragment.
-	 *
-	 * @param rParentFragment The parent fragment
-	 */
-	protected void attachToParentFragment(InteractionFragment rParentFragment)
-	{
 		rParentFragment.addInputParameters(type());
 		rParentFragment.addSubFragment(type(), fragment());
+
+		rParent.addComponent(this);
 	}
 
 	/***************************************
@@ -267,24 +288,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	protected final boolean isBuilt()
 	{
 		return bBuilt;
-	}
-
-	/***************************************
-	 * If no fragment has been set yet creates the interaction fragment this
-	 * container is rendered in and then initializes the list parameter type for
-	 * the container fragment.
-	 *
-	 * @param rParent The parent container
-	 */
-	protected void setupContainerFragment(UiContainer<?> rParent)
-	{
-		if (fragment() == null)
-		{
-			setFragment(new UiContainerFragment());
-		}
-
-		setParameterType(rParent.fragment()
-						 .getTemporaryListType(null, RelationType.class));
 	}
 
 	/***************************************

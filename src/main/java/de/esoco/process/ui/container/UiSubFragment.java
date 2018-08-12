@@ -19,7 +19,6 @@ package de.esoco.process.ui.container;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiRootFragment;
-import de.esoco.process.ui.layout.UiInlineLayout;
 
 
 /********************************************************************
@@ -42,10 +41,17 @@ public class UiSubFragment extends UiContainer<UiSubFragment>
 	 */
 	public UiSubFragment(UiContainer<?> rParent, InteractionFragment rFragment)
 	{
-		// UiContainer requires a layout; this is typically overwritten by the
-		// fragment during it's initialization, so we use just an inline layout
-		super(rParent, new UiInlineLayout());
+		super(rParent, rFragment);
+	}
 
-		setFragment(rFragment);
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * @see de.esoco.process.ui.UiContainer#attachTo(de.esoco.process.ui.UiContainer)
+	 */
+	@Override
+	protected void attachTo(UiContainer<?> rParent)
+	{
+		super.attachTo(rParent);
 	}
 }
