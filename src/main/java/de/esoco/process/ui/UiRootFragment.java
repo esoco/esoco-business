@@ -49,14 +49,6 @@ public class UiRootFragment extends InteractionFragment
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with a fill layout for the root view.
-	 */
-	public UiRootFragment()
-	{
-		this(new UiFillLayout());
-	}
-
-	/***************************************
 	 * Creates a new instance with a specific root view layout.
 	 *
 	 * @param rLayout The root view layout

@@ -20,6 +20,7 @@ import de.esoco.data.process.ProcessState.ProcessExecutionMode;
 
 import de.esoco.lib.property.LayoutType;
 
+import de.esoco.process.FragmentInteraction;
 import de.esoco.process.Process;
 import de.esoco.process.ProcessDefinition;
 import de.esoco.process.ProcessException;
@@ -33,8 +34,11 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
+import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
+
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
+import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.PROCESS;
 
 
@@ -148,7 +152,6 @@ public class SubProcessFragment extends InteractionFragment
 
 			rInteractionParams.clear();
 			rInputParams.clear();
-			fragmentParam().modified();
 
 			if (rProcess.isFinished())
 			{
@@ -157,6 +160,15 @@ public class SubProcessFragment extends InteractionFragment
 			else
 			{
 				ProcessStep rInteractionStep = rProcess.getInteractionStep();
+
+				if (rInteractionStep instanceof FragmentInteraction)
+				{
+					if (((FragmentInteraction) rInteractionStep)
+						.getRootFragmentParam().has(STRUCTURE_CHANGED))
+					{
+						structureModified();
+					}
+				}
 
 				rInteractionParams.addAll(rInteractionStep.get(INTERACTION_PARAMS));
 				rInputParams.addAll(rInteractionStep.get(INPUT_PARAMS));
@@ -179,6 +191,26 @@ public class SubProcessFragment extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void handleInteraction(RelationType<?> rInteractionParam)
+		throws Exception
+	{
+		rProcess.setParameter(INTERACTIVE_INPUT_PARAM, rInteractionParam);
+		executeProcess(ProcessExecutionMode.EXECUTE);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasInteraction(RelationType<?> rInteractionParam)
+	{
+		return true;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void init() throws ProcessException
 	{
 		// simply render the process inline to it's parent fragment
@@ -195,7 +227,7 @@ public class SubProcessFragment extends InteractionFragment
 			getInteractionParameters().clear();
 			getInputParameters().clear();
 
-			label("No Process");
+			label("lblNoProcessSet");
 		}
 	}
 

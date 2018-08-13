@@ -25,7 +25,6 @@ import de.esoco.process.ProcessStep;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.obrel.core.RelationType;
@@ -71,20 +70,6 @@ public class Interaction extends RollbackStep
 	private Map<RelationType<?>, InteractionHandler> aParamInteractionHandlers;
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Replaced by {@link #addSubFragment(RelationType, InteractionFragment)}.
-	 *
-	 * @see        #addSubFragment(RelationType, InteractionFragment)
-	 * @deprecated
-	 */
-	@Deprecated
-	public <F extends InteractionFragment> void addFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam,
-		F									rFragment)
-	{
-		addSubFragment(rFragmentParam, rFragment);
-	}
 
 	/***************************************
 	 * Returns the currently registered interaction handler for a certain

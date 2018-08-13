@@ -139,15 +139,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only work
-	 * for layouts that support multiple rows of components.
-	 */
-	public void nextRow()
-	{
-		getLayout().nextRow();
-	}
-
-	/***************************************
 	 * Sets the event handler for click events on this container's visible area
 	 * that is not occupied by components. The handler will receive this
 	 * container instance as it's argument.

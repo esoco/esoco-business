@@ -18,6 +18,7 @@ package de.esoco.process;
 
 import de.esoco.lib.property.LayoutType;
 
+import de.esoco.process.param.ParameterList;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
 
@@ -42,7 +43,8 @@ public class FragmentInteraction extends Interaction
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String FRAGMENT_PARAM_NAME = "ProcessStepFragment";
+	private static final String FRAGMENT_PARAM_NAME =
+		FragmentInteraction.class.getSimpleName();
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -92,6 +94,17 @@ public class FragmentInteraction extends Interaction
 	public final InteractionFragment getRootFragment()
 	{
 		return rRootFragment;
+	}
+
+	/***************************************
+	 * Returns the parameter wrapper for the root fragment's parameter relation
+	 * type.
+	 *
+	 * @return The root fragment parameter
+	 */
+	public final ParameterList getRootFragmentParam()
+	{
+		return rRootFragment.fragmentParam();
 	}
 
 	/***************************************

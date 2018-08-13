@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,11 +70,9 @@ public enum UiStandardIcon implements UiIconSupplier
 				rIcon = rIconSupplier.getIcon();
 			}
 		}
-
-		if (rIcon == null)
+		else
 		{
-			// if no mapping available try the standard value
-			rIcon = getIcon();
+			assert false : "No standard icon mapping available. Icon mapping registered?";
 		}
 
 		return rIcon;

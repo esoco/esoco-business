@@ -682,12 +682,4 @@ public class UiBuilder<C extends UiContainer<C>>
 	{
 		return rContainer;
 	}
-
-	/***************************************
-	 * Invokes {@link UiContainer#nextRow()} on this builder's container.
-	 */
-	public void nextRow()
-	{
-		rContainer.nextRow();
-	}
 }

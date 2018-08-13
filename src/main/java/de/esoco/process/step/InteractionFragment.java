@@ -1337,11 +1337,6 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		for (InteractionFragment rSubFragment : getSubFragments())
 		{
-			if (rSubFragment == this)
-			{
-				throw new IllegalStateException("Cycle");
-			}
-
 			rSubFragment.markFragmentInputParams();
 		}
 	}

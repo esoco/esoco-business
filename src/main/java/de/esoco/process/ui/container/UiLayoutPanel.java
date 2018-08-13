@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,5 +40,16 @@ public class UiLayoutPanel extends UiLayoutContainer<UiLayoutPanel>
 	public UiLayoutPanel(UiContainer<?> rParent, UiLayout rLayout)
 	{
 		super(rParent, rLayout);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only have
+	 * an effect for layouts that support multiple rows of components.
+	 */
+	public void nextRow()
+	{
+		getLayout().nextRow();
 	}
 }
