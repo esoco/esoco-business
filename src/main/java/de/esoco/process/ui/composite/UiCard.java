@@ -27,14 +27,18 @@ import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.graphics.UiStandardIcon;
+import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
 
 
 /********************************************************************
- * A composite that is rendered with a card style, i.e. a rectangle with a title
- * and some content. Optionally the "back side" of the card can also contain a
- * component, e.g. to display help or options for the main card content.
+ * A composite that is rendered with a card style, i.e. as a shadowed rectangle
+ * with a title and some content. The content should be added through the
+ * builder returned from {@link #contentBuilder()}. The standard container
+ * {@link #builder()} should be avoided as it may have side effects. Optionally
+ * the "back side" of the card can also contain a component, e.g. to display
+ * help or options for the main card content.
  *
  * @author eso
  */
@@ -43,8 +47,10 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	//~ Instance fields --------------------------------------------------------
 
 	private UiCardTitle   aCardTitle;
+	private UiLayoutPanel aCardContent;
 	private UiLayoutPanel aBackSide;
 	private UiLayoutPanel aCardActions;
+	private Runnable	  fBackSideCloseHandler = () ->{};
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -72,7 +78,7 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	{
 		backSideBuilder().addIconButton(UiStandardIcon.CLOSE.getIcon()
 										.alignRight())
-						 .onClick(v -> handleBackSideClose());
+						 .onClick(v -> fBackSideCloseHandler.run());
 	}
 
 	/***************************************
@@ -116,6 +122,32 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	}
 
 	/***************************************
+	 * Returns the container of the card content. This should be used as the
+	 * root parent of content components.
+	 *
+	 * @return The card content container
+	 */
+	public UiContainer<?> content()
+	{
+		if (aCardContent == null)
+		{
+			aCardContent = builder().addPanel(new UiFlowLayout());
+		}
+
+		return aCardContent;
+	}
+
+	/***************************************
+	 * Returns the builder for the card content.
+	 *
+	 * @return The panel content builder
+	 */
+	public UiBuilder<?> contentBuilder()
+	{
+		return content().builder();
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -139,21 +171,24 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	}
 
 	/***************************************
+	 * The argument function will be invoked when the card's back side has been
+	 * closed by the user through the button added with {@link
+	 * #addBackSideCloser()}.
+	 *
+	 * @param fCloseHandler The back side close handler function
+	 */
+	public void onBackSideClose(Runnable fCloseHandler)
+	{
+		fBackSideCloseHandler = fCloseHandler;
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void setTitle(String sTitle)
 	{
 		aCardTitle.setText(sTitle);
-	}
-
-	/***************************************
-	 * Will be invoked if the card's back side has been opened and is closed by
-	 * the user through the button added with {@link #addBackSideCloser()}. The
-	 * default implementation does nothing.
-	 */
-	protected void handleBackSideClose()
-	{
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

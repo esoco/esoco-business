@@ -123,7 +123,7 @@ import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_EXECUTOR;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
@@ -1079,7 +1079,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public RelationType<?> getInteractiveInputParameter()
 	{
-		return getParameter(INTERACTIVE_INPUT_PARAM);
+		return getParameter(INTERACTION_EVENT_PARAM);
 	}
 
 	/***************************************
@@ -1481,7 +1481,7 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public boolean isInteractiveInput()
 	{
-		return getParameter(INTERACTIVE_INPUT_PARAM) != null;
+		return getParameter(INTERACTION_EVENT_PARAM) != null;
 	}
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,15 +31,17 @@ import de.esoco.lib.event.EditListener;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
+
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
-import de.esoco.process.param.Parameter;
 import de.esoco.process.param.CollectionParameter.SetParameter;
+import de.esoco.process.param.Parameter;
 import de.esoco.process.step.EditText;
 import de.esoco.process.step.InteractionFragment;
 
@@ -77,7 +79,7 @@ import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_ACTION_EVENT;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
 
 import static de.esoco.storage.StoragePredicates.sortBy;
 
@@ -235,7 +237,8 @@ public class DisplayEntityHistory extends InteractionFragment
 	 *
 	 * @return The list of history attributes
 	 */
-	public static List<Function<? super HistoryRecord, ?>> getHistoryQueryAttributes(
+	public static List<Function<? super HistoryRecord, ?>>
+	getHistoryQueryAttributes(
 		boolean bIncludeRootTarget,
 		boolean bIncludeTarget)
 	{
@@ -348,7 +351,8 @@ public class DisplayEntityHistory extends InteractionFragment
 		{
 			HistoryRecord rHistoryRecord = getParameter(ENTITY_HISTORY);
 
-			if (hasFlagParameter(INTERACTIVE_INPUT_ACTION_EVENT))
+			if (getParameter(INTERACTION_EVENT_TYPE) ==
+				InteractionEventType.ACTION)
 			{
 				performHistoryRecordAction(rHistoryRecord);
 			}

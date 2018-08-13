@@ -25,6 +25,7 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.text.TextConvert;
 
@@ -62,7 +63,7 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_ACTION_EVENT;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
 
 
 /********************************************************************
@@ -242,9 +243,9 @@ public class SelectEntities<E extends Entity> extends InteractionFragment
 		if (rInteractionParam == aUnselectedEntitiesParam ||
 			rInteractionParam == aSelectedEntitiesParam)
 		{
-			boolean bAction = hasFlagParameter(INTERACTIVE_INPUT_ACTION_EVENT);
-
-			if (fCreateEntityInfo != null && !bAction)
+			if (fCreateEntityInfo != null &&
+				getParameter(INTERACTION_EVENT_TYPE) !=
+				InteractionEventType.ACTION)
 			{
 				@SuppressWarnings("unchecked")
 				E rEntity = (E) getParameter(rInteractionParam);

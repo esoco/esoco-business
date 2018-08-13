@@ -38,7 +38,7 @@ import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.PROCESS;
 
 
@@ -194,7 +194,7 @@ public class SubProcessFragment extends InteractionFragment
 	public void handleInteraction(RelationType<?> rInteractionParam)
 		throws Exception
 	{
-		rProcess.setParameter(INTERACTIVE_INPUT_PARAM, rInteractionParam);
+		rProcess.setParameter(INTERACTION_EVENT_PARAM, rInteractionParam);
 		executeProcess(ProcessExecutionMode.EXECUTE);
 	}
 

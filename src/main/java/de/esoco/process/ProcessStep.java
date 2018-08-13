@@ -51,7 +51,7 @@ import static de.esoco.process.ProcessRelationTypes.HISTORY_END;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_START;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.STOP_PROCESS_EXECUTION;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_END;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_START;
@@ -417,7 +417,7 @@ public abstract class ProcessStep extends ProcessFragment
 	protected void prepareInteraction() throws Exception
 	{
 		prepareValues();
-		setParameter(INTERACTIVE_INPUT_PARAM, null);
+		setParameter(INTERACTION_EVENT_PARAM, null);
 	}
 
 	/***************************************
@@ -606,7 +606,7 @@ public abstract class ProcessStep extends ProcessFragment
 		handleParamValidation(true);
 
 		RelationType<?> rInteractionParam =
-			getParameter(INTERACTIVE_INPUT_PARAM);
+			getParameter(INTERACTION_EVENT_PARAM);
 
 		if (!isContinuedInteraction() || isContinuationParam(rInteractionParam))
 		{
@@ -677,7 +677,7 @@ public abstract class ProcessStep extends ProcessFragment
 	 */
 	final boolean isContinuedInteraction()
 	{
-		return getParameter(INTERACTIVE_INPUT_PARAM) != null ||
+		return getParameter(INTERACTION_EVENT_PARAM) != null ||
 			   hasFlag(AUTO_UPDATE);
 	}
 
@@ -744,7 +744,7 @@ public abstract class ProcessStep extends ProcessFragment
 		internalExecute();
 
 		RelationType<?> rInteractionParam =
-			getParameter(INTERACTIVE_INPUT_PARAM);
+			getParameter(INTERACTION_EVENT_PARAM);
 
 		if (!isContinuedInteraction())
 		{
@@ -754,7 +754,7 @@ public abstract class ProcessStep extends ProcessFragment
 		else if (isContinuationParam(rInteractionParam))
 		{
 			setParameter(CONTINUATION_PARAM, rInteractionParam);
-			setParameter(INTERACTIVE_INPUT_PARAM, null);
+			setParameter(INTERACTION_EVENT_PARAM, null);
 			prepareContinuation();
 		}
 

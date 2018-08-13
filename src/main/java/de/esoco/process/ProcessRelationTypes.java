@@ -218,18 +218,11 @@ public class ProcessRelationTypes
 	 * parameter should preferably be queried by steps through the method {@link
 	 * ProcessFragment#getInteractiveInputParameter()}.
 	 */
-	public static final RelationType<RelationType<?>> INTERACTIVE_INPUT_PARAM =
+	public static final RelationType<RelationType<?>> INTERACTION_EVENT_PARAM =
 		newType();
 
 	/** The event type of an interaction. */
-	public static final RelationType<InteractionEventType> INTERACTIVE_INPUT_EVENT_TYPE =
-		newType();
-
-	/**
-	 * During an interactive input event this parameter is TRUE for an action
-	 * event or FALSE for a continuous selection event.
-	 */
-	public static final RelationType<Boolean> INTERACTIVE_INPUT_ACTION_EVENT =
+	public static final RelationType<InteractionEventType> INTERACTION_EVENT_TYPE =
 		newType();
 
 	/**
@@ -320,7 +313,7 @@ public class ProcessRelationTypes
 	 * This relation type serves as an indicator that the current step should be
 	 * reloaded (i.e. prepared again) during an interaction. It doesn't need to
 	 * be set as a parameter but should instead only be set in the relation with
-	 * the type {@link #INTERACTIVE_INPUT_PARAM}.
+	 * the type {@link #INTERACTION_EVENT_PARAM}.
 	 */
 	public static final RelationType<Boolean> RELOAD_CURRENT_STEP = newType();
 

@@ -35,7 +35,7 @@ import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTIVE_INPUT_EVENT_TYPE;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
 
 import static org.obrel.type.MetaTypes.INTERACTIVE;
 
@@ -255,7 +255,7 @@ public class Interaction extends RollbackStep
 		if (rInteractionHandler != null)
 		{
 			InteractionEventType eEventType =
-				getParameter(INTERACTIVE_INPUT_EVENT_TYPE);
+				getParameter(INTERACTION_EVENT_TYPE);
 
 			InteractionEvent aEvent =
 				new InteractionEvent(this, rInteractionParam, eEventType);
