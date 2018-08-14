@@ -21,6 +21,7 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiImageDefinition;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.container.UiBuilder;
@@ -28,6 +29,7 @@ import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.graphics.UiStandardIcon;
+import de.esoco.process.ui.layout.UiContentLayout;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
 
@@ -64,11 +66,11 @@ public class UiCard extends UiComposite<UiCard>
 	 */
 	public UiCard(UiContainer<?> rParent)
 	{
-		this(rParent, null);
+		this(rParent, (String) null);
 	}
 
 	/***************************************
-	 * Creates a new instance with a title.
+	 * Creates a new instance with a title text but no icon.
 	 *
 	 * @param rParent The parent container
 	 * @param sTitle  The card title
@@ -76,6 +78,43 @@ public class UiCard extends UiComposite<UiCard>
 	public UiCard(UiContainer<?> rParent, String sTitle)
 	{
 		this(rParent, sTitle, null);
+	}
+
+	/***************************************
+	 * Creates a new instance with a title image. If a title is set later with
+	 * {@link #setTitle(String, UiIconSupplier)} it will be placed in the card's
+	 * content area. To place it inside the image use the constructor {@link
+	 * #UiCard(UiContainer, UiImageDefinition, String)} instead.
+	 *
+	 * @param rParent     The parent container
+	 * @param rTitleImage The image to display as the card title
+	 */
+	public UiCard(UiContainer<?> rParent, UiImageDefinition<?> rTitleImage)
+	{
+		super(rParent, new CardLayout());
+
+		builder().addImage(rTitleImage);
+
+		// explicitly add card content panel so that a subsequently added title
+		// is placed in the content
+		builder().addPanel(new UiContentLayout());
+	}
+
+	/***************************************
+	 * Creates a new instance with a title image and text.
+	 *
+	 * @param rParent     The parent container
+	 * @param rTitleImage The image to display as the card title
+	 * @param sTitle      The card title to be displayed inside the title image
+	 */
+	public UiCard(UiContainer<?>	   rParent,
+				  UiImageDefinition<?> rTitleImage,
+				  String			   sTitle)
+	{
+		super(rParent, new CardLayout());
+
+		builder().addImage(rTitleImage);
+		setTitle(sTitle, null);
 	}
 
 	/***************************************
@@ -112,6 +151,15 @@ public class UiCard extends UiComposite<UiCard>
 		if (aBackSide == null)
 		{
 			aBackSide = builder().addPanel(new UiSecondaryContentLayout());
+		}
+
+		if (aBackSideTitle == null)
+		{
+			// add empty title and close button
+			aBackSideTitle =
+				new UiCardTitle(aBackSide, "", UiStandardIcon.CLOSE).onAction(v ->
+																			  fBackSideCloseHandler
+																			  .run());
 		}
 
 		return aBackSide.builder();
@@ -210,14 +258,11 @@ public class UiCard extends UiComposite<UiCard>
 	{
 		if (aBackSideTitle == null)
 		{
-			aBackSideTitle =
-				new UiCardTitle(backSideBuilder().getContainer(), sTitle, rIcon)
-				.onAction(v -> fBackSideCloseHandler.run());
+			// also creates the back side title
+			backSideBuilder();
 		}
-		else
-		{
-			aBackSideTitle.icon(rIcon).text(sTitle);
-		}
+
+		aBackSideTitle.icon(rIcon).text(sTitle);
 
 		return this;
 	}

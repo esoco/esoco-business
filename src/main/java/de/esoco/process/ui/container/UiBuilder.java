@@ -119,6 +119,31 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	/***************************************
+	 * Adds a card panel with a title image.
+	 *
+	 * @param  rTitleImage The card title image
+	 *
+	 * @return The new card
+	 */
+	public UiCard addCard(UiImageDefinition<?> rTitleImage)
+	{
+		return new UiCard(rContainer, rTitleImage);
+	}
+
+	/***************************************
+	 * Adds a card panel with a title image and title text inside the image.
+	 *
+	 * @param  rTitleImage The title image
+	 * @param  sTitle      The title text
+	 *
+	 * @return The new card
+	 */
+	public UiCard addCard(UiImageDefinition<?> rTitleImage, String sTitle)
+	{
+		return new UiCard(rContainer, rTitleImage, sTitle);
+	}
+
+	/***************************************
 	 * Adds a card panel.
 	 *
 	 * @param  sTitle The card title (NULL for none)
