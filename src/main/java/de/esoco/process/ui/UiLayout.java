@@ -197,7 +197,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			UiComponent<?, ?> rComponent = rCell.getComponent();
 
-			rComponent.getParent().removeComponent(rComponent);
+			rComponent.getParent().remove(rComponent);
 			rCell.getRow().getCells().remove(rCell);
 		}
 
@@ -216,7 +216,7 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		{
 			UiComponent<?, ?> rComponent = rCell.getComponent();
 
-			rComponent.getParent().removeComponent(rComponent);
+			rComponent.getParent().remove(rComponent);
 			rCell.getColumn().getCells().remove(rCell);
 		}
 

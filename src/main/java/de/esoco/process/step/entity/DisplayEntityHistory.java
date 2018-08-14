@@ -35,6 +35,7 @@ import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
+import de.esoco.lib.property.Orientation;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 
@@ -77,7 +78,7 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
+import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
 
@@ -374,7 +375,7 @@ public class DisplayEntityHistory extends InteractionFragment
 		RelationType<List<RelationType<?>>> rFragmentParam =
 			getFragmentParameter();
 
-		setUIFlag(VERTICAL, rFragmentParam);
+		setUIProperty(ORIENTATION, Orientation.VERTICAL, rFragmentParam);
 		setUIProperty(UserInterfaceProperties.LAYOUT,
 					  LayoutType.SPLIT,
 					  rFragmentParam);

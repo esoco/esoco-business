@@ -132,7 +132,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	public void removeItem(Item rItem)
 	{
 		aItems.remove(rItem);
-		removeComponent(rItem);
+		remove(rItem);
 	}
 
 	/***************************************
@@ -210,7 +210,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 			{
 				if (rComponent != aItemHeader)
 				{
-					removeComponent(rComponent);
+					remove(rComponent);
 				}
 			}
 		}
@@ -245,6 +245,17 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		public final UiContainer<?> getHeader()
 		{
 			return aItemHeader != null ? aItemHeader : this;
+		}
+
+		/***************************************
+		 * Overridden to be public
+		 *
+		 * @see UiComposite#remove(UiComponent)
+		 */
+		@Override
+		public void remove(UiComponent<?, ?> rComponent)
+		{
+			super.remove(rComponent);
 		}
 
 		/***************************************

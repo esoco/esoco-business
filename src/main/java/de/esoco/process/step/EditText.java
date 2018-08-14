@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import de.esoco.lib.event.EditListener.EditAction;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
+import de.esoco.lib.property.Orientation;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,8 +37,8 @@ import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.StyleProperties.EDITABLE;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 import static de.esoco.lib.property.StyleProperties.STYLE;
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
@@ -252,7 +253,9 @@ public class EditText extends InteractionFragment
 		addPanel(aActionPanelParam, LayoutType.TABLE, aActionPanelParams);
 
 		setUIProperty(34, HEIGHT, aActionPanelParam);
-		setUIFlag(VERTICAL, getFragmentParameter());
+		setUIProperty(ORIENTATION,
+					  Orientation.VERTICAL,
+					  getFragmentParameter());
 		setLayout(LayoutType.DOCK, getFragmentParameter());
 
 		setEditInfo("");

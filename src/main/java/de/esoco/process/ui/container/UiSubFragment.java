@@ -18,14 +18,14 @@ package de.esoco.process.ui.container;
 
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiRootFragment;
 
 
 /********************************************************************
- * A UI container that wraps an existing process interaction fragment. This
- * allows UI components to be combined with fragments similar to the way that
- * {@link UiRootFragment} integrates Ui component hierarchies into process
- * interactions.
+ * A UI container that wraps a process interaction fragment. This allows UI
+ * components to be combined with fragments similar to {@link UiRootFragment}
+ * which integrates Ui component hierarchies into process interactions.
  *
  * @author eso
  */
@@ -38,20 +38,12 @@ public class UiSubFragment extends UiContainer<UiSubFragment>
 	 *
 	 * @param rParent   The parent container
 	 * @param rFragment The fragment to wrap
+	 * @param rLayout   The layout to embed the sub-fragment in
 	 */
-	public UiSubFragment(UiContainer<?> rParent, InteractionFragment rFragment)
+	public UiSubFragment(UiContainer<?>		 rParent,
+						 InteractionFragment rFragment,
+						 UiLayout			 rLayout)
 	{
-		super(rParent, rFragment);
-	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * @see de.esoco.process.ui.UiContainer#attachTo(de.esoco.process.ui.UiContainer)
-	 */
-	@Override
-	protected void attachTo(UiContainer<?> rParent)
-	{
-		super.attachTo(rParent);
+		super(rParent, rFragment, rLayout);
 	}
 }

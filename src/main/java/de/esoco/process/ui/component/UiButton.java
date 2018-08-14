@@ -89,9 +89,10 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	 *
 	 * @return This instance
 	 */
+	@Override
 	public UiButton icon(UiIconSupplier rIconSupplier)
 	{
-		return image(rIconSupplier.getIcon());
+		return super.icon(rIconSupplier);
 	}
 
 	/***************************************

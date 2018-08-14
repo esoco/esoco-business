@@ -37,8 +37,8 @@ import org.obrel.core.RelationType;
 import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.PROCESS;
 
 
@@ -159,19 +159,17 @@ public class SubProcessFragment extends InteractionFragment
 			}
 			else
 			{
-				ProcessStep rInteractionStep = rProcess.getInteractionStep();
+				ProcessStep rStep = rProcess.getInteractionStep();
 
-				if (rInteractionStep instanceof FragmentInteraction)
+				if (!(rStep instanceof FragmentInteraction) ||
+					(((FragmentInteraction) rStep).getRootFragmentParam()
+					 .has(STRUCTURE_CHANGED)))
 				{
-					if (((FragmentInteraction) rInteractionStep)
-						.getRootFragmentParam().has(STRUCTURE_CHANGED))
-					{
-						structureModified();
-					}
+					structureModified();
 				}
 
-				rInteractionParams.addAll(rInteractionStep.get(INTERACTION_PARAMS));
-				rInputParams.addAll(rInteractionStep.get(INPUT_PARAMS));
+				rInteractionParams.addAll(rStep.get(INTERACTION_PARAMS));
+				rInputParams.addAll(rStep.get(INPUT_PARAMS));
 			}
 		}
 	}

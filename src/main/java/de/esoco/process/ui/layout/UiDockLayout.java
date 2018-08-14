@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import de.esoco.process.ui.style.SizeUnit;
 
 import static de.esoco.lib.property.LayoutProperties.HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
+import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 
 
 /********************************************************************
@@ -86,7 +86,7 @@ public class UiDockLayout extends UiLayout
 
 		if (eOrientation == Orientation.VERTICAL)
 		{
-			rContainer.set(VERTICAL);
+			rContainer.set(ORIENTATION, eOrientation);
 		}
 	}
 

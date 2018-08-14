@@ -25,6 +25,7 @@ import de.esoco.lib.property.TitleAttribute;
 import de.esoco.process.param.ParameterWrapper;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiLayout.Cell;
+import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
 import de.esoco.process.ui.view.UiRootView;
@@ -413,6 +414,22 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	protected final T getValueImpl()
 	{
 		return fragment().getParameter(type());
+	}
+
+	/***************************************
+	 * Sets an icon for this component. This method is protected to provide the
+	 * icon handling functionality for all subclasses. Subclasses that support
+	 * the setting of icon should override this method as public.
+	 *
+	 * @param  rIconSupplier The component icon (NULL for none)
+	 *
+	 * @return This instance so that this method can be used for fluent
+	 *         implementations
+	 */
+	protected C icon(UiIconSupplier rIconSupplier)
+	{
+		return image(rIconSupplier != null
+					 ? rIconSupplier.getIcon().alignRight() : null);
 	}
 
 	/***************************************

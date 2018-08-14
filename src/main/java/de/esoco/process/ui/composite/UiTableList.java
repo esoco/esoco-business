@@ -471,7 +471,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				{
 					// rebuild content if now row subclass with a method
 					// updateExpandedContent is used
-					rRow.rRowItem.removeComponent(rRow.aContentPanel);
+					rRow.rRowItem.remove(rRow.aContentPanel);
 					rRow.initContent();
 				}
 			}

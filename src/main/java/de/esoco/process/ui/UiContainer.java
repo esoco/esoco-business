@@ -21,7 +21,6 @@ import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.container.UiBuilder;
-import de.esoco.process.ui.layout.UiInlineLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,32 +51,28 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance that wraps an interaction fragment.
-	 *
-	 * @param rParent   The parent container or NULL for a root container
-	 * @param rFragment The fragment to wrap
-	 */
-	protected UiContainer(UiContainer<?>	  rParent,
-						  InteractionFragment rFragment)
-	{
-		super(rParent, rFragment, getContainerParamType(rParent));
-
-		// although the layout is defined by the fragment the container needs a
-		// non-null layout to work
-		rLayout = new UiInlineLayout();
-	}
-
-	/***************************************
 	 * Creates a new instance with a certain layout.
 	 *
 	 * @param rParent The parent container or NULL for a root container
-	 * @param rLayout The layout of the container
+	 * @param rLayout The layout of this container
 	 */
 	protected UiContainer(UiContainer<?> rParent, UiLayout rLayout)
 	{
-		super(rParent,
-			  new UiContainerFragment(),
-			  getContainerParamType(rParent));
+		this(rParent, new UiContainerFragment(), rLayout);
+	}
+
+	/***************************************
+	 * Creates a new instance that wraps a specific fragment.
+	 *
+	 * @param rParent   The parent container or NULL for a root container
+	 * @param rFragment The fragment to wrap
+	 * @param rLayout   The layout of this container
+	 */
+	protected UiContainer(UiContainer<?>	  rParent,
+						  InteractionFragment rFragment,
+						  UiLayout			  rLayout)
+	{
+		super(rParent, rFragment, getContainerParamType(rParent));
 
 		Objects.requireNonNull(rLayout, "Container layout must not be NULL");
 
@@ -152,17 +147,6 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	{
 		return setParameterEventHandler(InteractionEventType.ACTION,
 										v -> rEventHandler.accept((C) this));
-	}
-
-	/***************************************
-	 * Removes a component from this container.
-	 *
-	 * @param rComponent The component to remove
-	 */
-	public void removeComponent(UiComponent<?, ?> rComponent)
-	{
-		fragment().removeInteractionParameters(rComponent.type());
-		aComponents.remove(rComponent);
 	}
 
 	/***************************************
@@ -279,6 +263,17 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	protected final boolean isBuilt()
 	{
 		return bBuilt;
+	}
+
+	/***************************************
+	 * Removes a component from this container.
+	 *
+	 * @param rComponent The component to remove
+	 */
+	protected void remove(UiComponent<?, ?> rComponent)
+	{
+		fragment().removeInteractionParameters(rComponent.type());
+		aComponents.remove(rComponent);
 	}
 
 	/***************************************

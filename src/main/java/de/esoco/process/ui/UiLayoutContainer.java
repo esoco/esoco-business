@@ -57,8 +57,8 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	 * @param rComponent The component to remove
 	 */
 	@Override
-	public void removeComponent(UiComponent<?, ?> rComponent)
+	public void remove(UiComponent<?, ?> rComponent)
 	{
-		super.removeComponent(rComponent);
+		super.remove(rComponent);
 	}
 }

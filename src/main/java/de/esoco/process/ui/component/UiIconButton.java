@@ -45,7 +45,7 @@ public class UiIconButton extends UiButtonControl<String, UiIconButton>
 	{
 		super(rParent, String.class);
 
-		setIcon(rIcon);
+		icon(rIcon);
 		set(HIDE_LABEL);
 		set(BUTTON_STYLE, ButtonStyle.ICON);
 
@@ -60,10 +60,13 @@ public class UiIconButton extends UiButtonControl<String, UiIconButton>
 	/***************************************
 	 * Sets the icon of this button.
 	 *
-	 * @param rIconSupplier The button icon
+	 * @param  rIconSupplier The button icon
+	 *
+	 * @return This instance for fluent invocation
 	 */
-	public void setIcon(UiIconSupplier rIconSupplier)
+	@Override
+	public UiIconButton icon(UiIconSupplier rIconSupplier)
 	{
-		image(rIconSupplier.getIcon());
+		return super.icon(rIconSupplier);
 	}
 }

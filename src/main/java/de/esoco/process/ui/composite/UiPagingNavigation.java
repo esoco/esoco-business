@@ -193,7 +193,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 		}
 		else if (aPageSizeSelector != null)
 		{
-			removeComponent(aPageSizeSelector);
+			remove(aPageSizeSelector);
 			aPageSizeSelector = null;
 		}
 	}

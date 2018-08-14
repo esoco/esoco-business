@@ -16,8 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LayoutType;
-import de.esoco.lib.property.TitleAttribute;
 
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -25,11 +25,13 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.graphics.UiStandardIcon;
-import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.layout.UiFooterLayout;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
+
+import java.util.function.Consumer;
 
 
 /********************************************************************
@@ -42,44 +44,55 @@ import de.esoco.process.ui.layout.UiSecondaryContentLayout;
  *
  * @author eso
  */
-public class UiCard extends UiComposite<UiCard> implements TitleAttribute
+public class UiCard extends UiComposite<UiCard>
 {
 	//~ Instance fields --------------------------------------------------------
 
 	private UiCardTitle   aCardTitle;
-	private UiLayoutPanel aCardContent;
+	private UiCardTitle   aBackSideTitle;
 	private UiLayoutPanel aBackSide;
 	private UiLayoutPanel aCardActions;
+	private Runnable	  fBackSideOpenHandler  = () ->{};
 	private Runnable	  fBackSideCloseHandler = () ->{};
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance without a title.
+	 *
+	 * @param rParent The parent container
+	 */
+	public UiCard(UiContainer<?> rParent)
+	{
+		this(rParent, null);
+	}
+
+	/***************************************
+	 * Creates a new instance with a title.
 	 *
 	 * @param rParent The parent container
 	 * @param sTitle  The card title
 	 */
 	public UiCard(UiContainer<?> rParent, String sTitle)
 	{
+		this(rParent, sTitle, null);
+	}
+
+	/***************************************
+	 * Creates a new instance with a title and an icon.
+	 *
+	 * @param rParent The parent container
+	 * @param sTitle  The card title
+	 * @param rIcon   The card icon
+	 */
+	public UiCard(UiContainer<?> rParent, String sTitle, UiIconSupplier rIcon)
+	{
 		super(rParent, new CardLayout());
 
-		aCardTitle = new UiCardTitle(this, sTitle);
+		setTitle(sTitle, rIcon);
 	}
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Adds a close icon button to the back side of this card. If the back side
-	 * has not been added yet it will be by this call. If the back side is
-	 * closed the method {@link #handleBackSideClose()} will be invoked.
-	 */
-	public void addBackSideCloser()
-	{
-		backSideBuilder().addIconButton(UiStandardIcon.CLOSE.getIcon()
-										.alignRight())
-						 .onClick(v -> fBackSideCloseHandler.run());
-	}
 
 	/***************************************
 	 * Returns a builder for the optional back side of a card. If set the back
@@ -122,73 +135,118 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	}
 
 	/***************************************
-	 * Returns the container of the card content. This should be used as the
-	 * root parent of content components.
-	 *
-	 * @return The card content container
-	 */
-	public UiContainer<?> content()
-	{
-		if (aCardContent == null)
-		{
-			aCardContent = builder().addPanel(new UiFlowLayout());
-		}
-
-		return aCardContent;
-	}
-
-	/***************************************
-	 * Returns the builder for the card content.
-	 *
-	 * @return The panel content builder
-	 */
-	public UiBuilder<?> contentBuilder()
-	{
-		return content().builder();
-	}
-
-	/***************************************
 	 * {@inheritDoc}
 	 */
-	@Override
 	public String getTitle()
 	{
 		return aCardTitle.getText();
 	}
 
 	/***************************************
-	 * Sets the icon to be displayed in the upper right corner of the card.
+	 * The argument function will be invoked when the card's back side has been
+	 * closed. This will only have an effect after a back side title has been
+	 * set with {@link #setBackSideTitle(String)} because the title contains the
+	 * close button. Only one handler function can be active. Invoking this
+	 * method again overrides any previous close handler.
 	 *
-	 * @param  rIconSupplier A icon supplier that returns the card icon
+	 * @param  fCloseHandler The back side close handler function
 	 *
-	 * @return This instance
+	 * @return This instance for fluent invocations
 	 */
-	public UiCard icon(UiIconSupplier rIconSupplier)
+	public UiCard onBackSideClose(Runnable fCloseHandler)
 	{
-		aCardTitle.icon(rIconSupplier);
+		fBackSideCloseHandler = fCloseHandler;
 
 		return this;
 	}
 
 	/***************************************
-	 * The argument function will be invoked when the card's back side has been
-	 * closed by the user through the button added with {@link
-	 * #addBackSideCloser()}.
+	 * The argument function will be invoked when the card's back side is
+	 * opened. This will only have an effect if a back side has been created
+	 * with the {@link #backSideBuilder()} or by setting the back side title
+	 * with {@link #setBackSideTitle(String)}. Invoking this method again
+	 * overrides any previous open handler.
 	 *
-	 * @param fCloseHandler The back side close handler function
+	 * @param  fOpenHandler The back side open handler function
+	 *
+	 * @return This instance for fluent invocations
 	 */
-	public void onBackSideClose(Runnable fCloseHandler)
+	public UiCard onBackSideOpen(Runnable fOpenHandler)
 	{
-		fBackSideCloseHandler = fCloseHandler;
+		fBackSideOpenHandler = fOpenHandler;
+
+		return this;
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Sets the back side title with the standard close icon.
+	 *
+	 * @param  sTitle The new back side title
+	 *
+	 * @return This instance for fluent invocations
 	 */
-	@Override
-	public void setTitle(String sTitle)
+	public UiCard setBackSideTitle(String sTitle)
 	{
-		aCardTitle.setText(sTitle);
+		return setBackSideTitle(sTitle, UiStandardIcon.CLOSE);
+	}
+
+	/***************************************
+	 * Adds the title and icon of the back side of this card. If the back side
+	 * has not been added yet it will be by this call. If the user closes the
+	 * back side a hander that has been registered by invoking the method {@link
+	 * #onBackSideClose(Runnable)} will be invoked.
+	 *
+	 * <p>The back side icon will also serve to close the back side of the card.
+	 * Therefore it should by a symbol like {@link UiStandardIcon#CLOSE} that is
+	 * recognizable by the user. That icon is preset when using the method
+	 * {@link #setBackSideTitle(String)}.</p>
+	 *
+	 * @param  sTitle The back side title text
+	 * @param  rIcon  The back side title icon (used to close the back side)
+	 *
+	 * @return This instance for fluent invocations
+	 */
+	public UiCard setBackSideTitle(String sTitle, UiIconSupplier rIcon)
+	{
+		if (aBackSideTitle == null)
+		{
+			aBackSideTitle =
+				new UiCardTitle(backSideBuilder().getContainer(), sTitle, rIcon)
+				.onAction(v -> fBackSideCloseHandler.run());
+		}
+		else
+		{
+			aBackSideTitle.icon(rIcon).text(sTitle);
+		}
+
+		return this;
+	}
+
+	/***************************************
+	 * Sets or removes the card title. If the title string is NULL the title
+	 * will be removed completely and the icon argument will be ignored.
+	 *
+	 * @param sTitle The card title string or NULL to remove
+	 * @param rIcon  The title icon
+	 */
+	public void setTitle(String sTitle, UiIconSupplier rIcon)
+	{
+		if (sTitle != null)
+		{
+			if (aCardTitle == null)
+			{
+				aCardTitle =
+					new UiCardTitle(this, sTitle, rIcon).onAction(v ->
+																  fBackSideOpenHandler
+																  .run());
+			}
+
+			aCardTitle.setText(sTitle);
+		}
+		else if (aCardTitle != null)
+		{
+			remove(aCardTitle);
+		}
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -199,6 +257,7 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 	 * @author eso
 	 */
 	public static class UiCardTitle extends UiTitle
+		implements UiHasActionEvents<String, UiCardTitle>
 	{
 		//~ Constructors -------------------------------------------------------
 
@@ -207,10 +266,15 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 		 *
 		 * @param rParent The parent container
 		 * @param sText   The title text
+		 * @param rIcon   The title icon
 		 */
-		public UiCardTitle(UiContainer<?> rParent, String sText)
+		public UiCardTitle(UiContainer<?> rParent,
+						   String		  sText,
+						   UiIconSupplier rIcon)
 		{
 			super(rParent, sText);
+
+			icon(rIcon);
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -222,9 +286,21 @@ public class UiCard extends UiComposite<UiCard> implements TitleAttribute
 		 *
 		 * @return This instance
 		 */
+		@Override
 		public UiCardTitle icon(UiIconSupplier rIconSupplier)
 		{
-			return (UiCardTitle) image(rIconSupplier.getIcon().alignRight());
+			return (UiCardTitle) super.icon(rIconSupplier);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public UiCardTitle onAction(Consumer<String> rEventHandler)
+		{
+			return (UiCardTitle) setParameterEventHandler(InteractionEventType.ACTION,
+														  v -> rEventHandler
+														  .accept(v));
 		}
 	}
 

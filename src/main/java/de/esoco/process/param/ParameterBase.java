@@ -38,10 +38,10 @@ import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 
-import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.ValueEventHandler;
+import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionFragment;
 
 import java.util.Collection;
@@ -87,7 +87,6 @@ import static de.esoco.lib.property.StyleProperties.CSS_STYLES;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.STYLE;
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
 
 
 /********************************************************************
@@ -1104,17 +1103,6 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 		rFragment.setParameter(rParamType, rValue);
 
 		return (P) this;
-	}
-
-	/***************************************
-	 * Marks this parameter to have a vertical orientation (instead if the
-	 * horizontal default).
-	 *
-	 * @return This instance for concatenation
-	 */
-	public final P vertical()
-	{
-		return set(VERTICAL);
 	}
 
 	/***************************************

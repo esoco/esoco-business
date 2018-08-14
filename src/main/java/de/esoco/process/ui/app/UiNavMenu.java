@@ -20,6 +20,7 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
+import de.esoco.lib.property.Orientation;
 
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -38,7 +39,7 @@ import static de.esoco.lib.property.ContentProperties.PLACEHOLDER;
 import static de.esoco.lib.property.LayoutProperties.FLOAT;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
 import static de.esoco.lib.property.StateProperties.EVENT_HANDLING_DELAY;
-import static de.esoco.lib.property.StyleProperties.VERTICAL;
+import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 
 
 /********************************************************************
@@ -82,7 +83,7 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 
 		if (eType == NavMenuType.SIDE)
 		{
-			set(VERTICAL);
+			set(ORIENTATION, Orientation.VERTICAL);
 		}
 
 		setMenuItems(Arrays.asList(rMenuItems));
@@ -200,7 +201,7 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 				  .buttonStyle(ButtonStyle.LINK)
 				  .onAction(eItem -> fMenuSelectionHandler.accept(eItem));
 
-		if (has(VERTICAL))
+		if (get(ORIENTATION) == Orientation.VERTICAL)
 		{
 			aMenuLinks.set(LAYOUT, LayoutType.INLINE);
 		}

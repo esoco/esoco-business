@@ -62,6 +62,21 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	}
 
 	/***************************************
+	 * Sets the text value of this component so that it will be rendered as
+	 * HTML. The value can be queried with {@link #getText()}.
+	 *
+	 * @param  sHtml The HTML text
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public C html(String sHtml)
+	{
+		set(CONTENT_TYPE, ContentType.HTML);
+
+		return setValueImpl(sHtml);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -109,8 +124,7 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	 */
 	public void setHtml(String sHtml)
 	{
-		set(CONTENT_TYPE, ContentType.HTML);
-		setValueImpl(sHtml);
+		html(sHtml);
 	}
 
 	/***************************************
@@ -119,7 +133,20 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	@Override
 	public void setText(String sText)
 	{
+		text(sText);
+	}
+
+	/***************************************
+	 * Sets the text of this component.
+	 *
+	 * @param  sText The new text
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public C text(String sText)
+	{
 		remove(CONTENT_TYPE);
-		setValueImpl(sText);
+
+		return setValueImpl(sText);
 	}
 }

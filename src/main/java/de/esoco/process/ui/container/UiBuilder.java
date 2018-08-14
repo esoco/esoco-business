@@ -121,13 +121,14 @@ public class UiBuilder<C extends UiContainer<C>>
 	/***************************************
 	 * Adds a card panel.
 	 *
-	 * @param  sTitle The card title
+	 * @param  sTitle The card title (NULL for none)
+	 * @param  rIcon  The title icon (NULL for none)
 	 *
 	 * @return The new card
 	 */
-	public UiCard addCard(String sTitle)
+	public UiCard addCard(String sTitle, UiIconSupplier rIcon)
 	{
-		return new UiCard(rContainer, sTitle);
+		return new UiCard(rContainer, sTitle, rIcon);
 	}
 
 	/***************************************
@@ -266,12 +267,15 @@ public class UiBuilder<C extends UiContainer<C>>
 	 * allows to use fragments in conjunction with process UIs.
 	 *
 	 * @param  rFragment rIconSupplier The icon supplier
+	 * @param  rLayout   The layout to embed the fragment in
 	 *
 	 * @return The new component
 	 */
-	public UiSubFragment addFragment(InteractionFragment rFragment)
+	public UiSubFragment addFragment(
+		InteractionFragment rFragment,
+		UiLayout			rLayout)
 	{
-		return new UiSubFragment(rContainer, rFragment);
+		return new UiSubFragment(rContainer, rFragment, rLayout);
 	}
 
 	/***************************************
@@ -546,13 +550,15 @@ public class UiBuilder<C extends UiContainer<C>>
 	 * container.
 	 *
 	 * @param  rSubProcessClass The sub-process definition class
+	 * @param  rLayout          The layout of the sub-process fragment
 	 *
 	 * @return The new component
 	 */
 	public UiSubFragment addSubProcess(
-		Class<? extends ProcessDefinition> rSubProcessClass)
+		Class<? extends ProcessDefinition> rSubProcessClass,
+		UiLayout						   rLayout)
 	{
-		return addFragment(new SubProcessFragment(rSubProcessClass));
+		return addFragment(new SubProcessFragment(rSubProcessClass), rLayout);
 	}
 
 	/***************************************
