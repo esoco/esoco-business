@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.component;
 
+import de.esoco.data.element.BigDecimalDataElement;
+import de.esoco.data.element.BigDecimalDataElement.DisplayStyle;
+
 import de.esoco.lib.property.HasValue;
 
+import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiNumberInputField;
 
@@ -46,6 +50,23 @@ public class UiDecimalField
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets the display style for the big decimal value.
+	 *
+	 * @param  eDisplayStyle The display style
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiDecimalField displayAs(DisplayStyle eDisplayStyle)
+	{
+		if (eDisplayStyle == DisplayStyle.MULTI_FORMAT)
+		{
+			fragment().get(ProcessRelationTypes.INPUT_PARAMS).remove(type());
+		}
+
+		return set(BigDecimalDataElement.DISPLAY_STYLE, eDisplayStyle);
+	}
 
 	/***************************************
 	 * {@inheritDoc}
