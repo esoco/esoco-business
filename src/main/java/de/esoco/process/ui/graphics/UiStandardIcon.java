@@ -57,9 +57,9 @@ public enum UiStandardIcon implements UiIconSupplier
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiIconDefinition getIcon()
+	public UiIconName getIcon()
 	{
-		UiIconDefinition rIcon = null;
+		UiIconName rIcon = null;
 
 		if (fIconMapping != null)
 		{

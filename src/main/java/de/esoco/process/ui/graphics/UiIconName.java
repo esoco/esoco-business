@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,23 +29,23 @@ import static de.esoco.lib.property.StyleProperties.ICON_COLOR;
 
 
 /********************************************************************
- * An icon that is identified by it's name.
+ * An icon image that is identified by the icon's name.
  *
  * @author eso
  */
-public class UiIconDefinition extends UiImageDefinition<UiIconDefinition>
+public class UiIconName extends UiImageDefinition<UiIconName>
 	implements UiIconSupplier
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance. The argument must be an object of which the
-	 * string representation can be used to identify the icon. This is typically
+	 * Creates a new instance. The argument must be an object with a string
+	 * representation that can be used to identify the icon. This is typically
 	 * an enum constant or a string.
 	 *
 	 * @param rIconIdentifier The icon identifier
 	 */
-	public UiIconDefinition(Object rIconIdentifier)
+	public UiIconName(Object rIconIdentifier)
 	{
 		set(ICON, rIconIdentifier.toString());
 	}
@@ -58,7 +58,7 @@ public class UiIconDefinition extends UiImageDefinition<UiIconDefinition>
 	 *
 	 * @return This instance
 	 */
-	public UiIconDefinition alignRight()
+	public UiIconName alignRight()
 	{
 		set(ICON_ALIGN, Alignment.END);
 
@@ -72,7 +72,7 @@ public class UiIconDefinition extends UiImageDefinition<UiIconDefinition>
 	 *
 	 * @return This instance
 	 */
-	public UiIconDefinition color(Color rIconColor)
+	public UiIconName color(Color rIconColor)
 	{
 		set(ICON_COLOR, rIconColor);
 
@@ -85,7 +85,7 @@ public class UiIconDefinition extends UiImageDefinition<UiIconDefinition>
 	 * @see UiIconSupplier#getIcon()
 	 */
 	@Override
-	public UiIconDefinition getIcon()
+	public UiIconName getIcon()
 	{
 		return this;
 	}
@@ -97,7 +97,7 @@ public class UiIconDefinition extends UiImageDefinition<UiIconDefinition>
 	 *
 	 * @return This instance
 	 */
-	public UiIconDefinition size(RelativeScale eScale)
+	public UiIconName size(RelativeScale eScale)
 	{
 		set(ICON_SIZE, eScale);
 

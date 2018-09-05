@@ -17,7 +17,7 @@
 package de.esoco.process.ui.graphics;
 
 /********************************************************************
- * An interface that provides access to an {@link UiIconDefinition}. This can be
+ * An interface that provides access to an {@link UiIconName}. This can be
  * implemented by enumerations of icon names to provide access to an icon
  * instance initialized with the respective name.
  *
@@ -32,5 +32,5 @@ public interface UiIconSupplier
 	 *
 	 * @return The icon
 	 */
-	public UiIconDefinition getIcon();
+	public UiIconName getIcon();
 }

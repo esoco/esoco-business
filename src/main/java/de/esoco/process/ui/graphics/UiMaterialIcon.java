@@ -226,15 +226,15 @@ public enum UiMaterialIcon implements UiIconSupplier
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns a new {@link UiIconDefinition} initialized from this enumeration
+	 * Returns a new {@link UiIconName} initialized from this enumeration
 	 * constant.
 	 *
 	 * @return The new icon
 	 */
 	@Override
-	public UiIconDefinition getIcon()
+	public UiIconName getIcon()
 	{
-		return new UiIconDefinition(this);
+		return new UiIconName(this);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
