@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,58 +16,71 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.storage;
 
+import org.obrel.core.RelatedObject;
+
+
 /********************************************************************
  * Instances of this class that identify storage adapters that are registered
  * with a {@link StorageAdapterRegistry}.
  *
  * @author eso
  */
-public class StorageAdapterId
+public class StorageAdapterId extends RelatedObject
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private int nId;
+	private String sId;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance from a string ID.
 	 *
-	 * @param nId The numerical ID of the storage adapter
+	 * @param sId The identifier string
 	 */
-	public StorageAdapterId(int nId)
+	public StorageAdapterId(String sId)
 	{
-		this.nId = nId;
+		this.sId = sId;
+	}
+
+	/***************************************
+	 * Creates a new instance from a numeric ID.
+	 *
+	 * @param nId The ID
+	 */
+	public StorageAdapterId(long nId)
+	{
+		this(Long.toString(nId));
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * @see Object#equals(Object)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean equals(Object rObj)
 	{
 		return rObj == this ||
-			   rObj != null && rObj.getClass() == StorageAdapterId.class &&
-			   nId == ((StorageAdapterId) rObj).nId;
+			   rObj != null && rObj.getClass() == getClass() &&
+			   sId.equals(((StorageAdapterId) rObj).sId);
 	}
 
 	/***************************************
-	 * @see Object#hashCode()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode()
 	{
-		return nId;
+		return sId.hashCode();
 	}
 
 	/***************************************
-	 * @see Object#toString()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString()
 	{
-		return Integer.toString(nId);
+		return sId;
 	}
 }

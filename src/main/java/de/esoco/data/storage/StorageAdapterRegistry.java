@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,28 +42,6 @@ public interface StorageAdapterRegistry
 		throws StorageException;
 
 	/***************************************
-	 * Returns the registered storage adapter for the string representation of a
-	 * storage adapter ID as created by {@link StorageAdapterId#toString()}.
-	 *
-	 * @param  sId The adapter ID
-	 *
-	 * @return The storage adapter that has been registered for the given ID or
-	 *         NULL for none
-	 *
-	 * @throws StorageException If retrieving the storage adapter fails
-	 */
-	public StorageAdapter getStorageAdapter(String sId) throws StorageException;
-
-	/***************************************
-	 * Returns the number of currently registered storage adapter.
-	 *
-	 * @return The storage adapter count
-	 *
-	 * @throws StorageException If counting the storage adapters fails
-	 */
-	public int getStorageAdapterCount() throws StorageException;
-
-	/***************************************
 	 * Registers a certain {@link StorageAdapter} instance in the current user's
 	 * session and associates it with a unique string ID. Either a reference to
 	 * the returned ID or to the adapter must be kept by the invoking party
@@ -78,4 +56,20 @@ public interface StorageAdapterRegistry
 	 */
 	public StorageAdapterId registerStorageAdapter(StorageAdapter rAdapter)
 		throws StorageException;
+
+	/***************************************
+	 * Returns the registered storage adapter for the string representation of a
+	 * storage adapter ID as created by {@link StorageAdapterId#toString()}.
+	 *
+	 * @param  sId The adapter ID
+	 *
+	 * @return The storage adapter that has been registered for the given ID or
+	 *         NULL for none
+	 *
+	 * @throws StorageException If retrieving the storage adapter fails
+	 */
+	default StorageAdapter getStorageAdapter(String sId) throws StorageException
+	{
+		return getStorageAdapter(new StorageAdapterId(sId));
+	}
 }
