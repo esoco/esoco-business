@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.obrel.core.RelatedObject;
@@ -52,7 +53,6 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 import org.obrel.core.SerializableRelatedObject;
-import org.obrel.type.ListenerType.NotificationHandler;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
@@ -164,15 +164,12 @@ public class Process extends SerializableRelatedObject
 	/********************************************************************
 	 * Internal enumeration for the distribution of process events.
 	 */
-	enum ProcessEventType
-		implements NotificationHandler<ProcessListener, Process>
+	enum ProcessEventType implements BiConsumer<ProcessListener, Process>
 	{
 		CANCELED
 		{
 			@Override
-			public void notifyListener(
-				ProcessListener rListener,
-				Process			rProcess)
+			public void accept(ProcessListener rListener, Process rProcess)
 			{
 				rListener.processCanceled(rProcess);
 			}
@@ -180,9 +177,7 @@ public class Process extends SerializableRelatedObject
 		FAILED
 		{
 			@Override
-			public void notifyListener(
-				ProcessListener rListener,
-				Process			rProcess)
+			public void accept(ProcessListener rListener, Process rProcess)
 			{
 				rListener.processFailed(rProcess);
 			}
@@ -190,9 +185,7 @@ public class Process extends SerializableRelatedObject
 		FINISHED
 		{
 			@Override
-			public void notifyListener(
-				ProcessListener rListener,
-				Process			rProcess)
+			public void accept(ProcessListener rListener, Process rProcess)
 			{
 				rListener.processFinished(rProcess);
 			}
@@ -200,9 +193,7 @@ public class Process extends SerializableRelatedObject
 		RESUMED
 		{
 			@Override
-			public void notifyListener(
-				ProcessListener rListener,
-				Process			rProcess)
+			public void accept(ProcessListener rListener, Process rProcess)
 			{
 				rListener.processResumed(rProcess);
 			}
@@ -210,9 +201,7 @@ public class Process extends SerializableRelatedObject
 		STARTED
 		{
 			@Override
-			public void notifyListener(
-				ProcessListener rListener,
-				Process			rProcess)
+			public void accept(ProcessListener rListener, Process rProcess)
 			{
 				rListener.processStarted(rProcess);
 			}
@@ -220,9 +209,7 @@ public class Process extends SerializableRelatedObject
 		SUSPENDED
 		{
 			@Override
-			public void notifyListener(
-				ProcessListener rListener,
-				Process			rProcess)
+			public void accept(ProcessListener rListener, Process rProcess)
 			{
 				rListener.processSuspended(rProcess);
 			}
@@ -440,9 +427,10 @@ public class Process extends SerializableRelatedObject
 			// not override the context of the starting process. On the next
 			// interaction (on a separate thread) the context will be set to
 			// the new process.
-			EntityManager.setEntityModificationContext(sUniqueProcessName,
-													   this,
-													   true);
+			EntityManager.setEntityModificationContext(
+				sUniqueProcessName,
+				this,
+				true);
 		}
 
 		try
@@ -469,8 +457,9 @@ public class Process extends SerializableRelatedObject
 			if (rContext == null)
 			{
 				// remove but ignore error of newly spawned process
-				EntityManager.removeEntityModificationContext(sUniqueProcessName,
-															  true);
+				EntityManager.removeEntityModificationContext(
+					sUniqueProcessName,
+					true);
 			}
 		}
 	}
@@ -742,8 +731,9 @@ public class Process extends SerializableRelatedObject
 
 		if (bSuccess)
 		{
-			addCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId(),
-							 p -> rEntity.unlock());
+			addCleanupAction(
+				CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId(),
+				p -> rEntity.unlock());
 		}
 
 		return bSuccess;
@@ -771,8 +761,8 @@ public class Process extends SerializableRelatedObject
 	 */
 	public Predicate<? super Entity> removeEntityModificationLock()
 	{
-		return EntityManager.removeEntityModificationLock(getContext()
-														  .getUniqueProcessName());
+		return EntityManager.removeEntityModificationLock(
+			getContext().getUniqueProcessName());
 	}
 
 	/***************************************
@@ -860,9 +850,10 @@ public class Process extends SerializableRelatedObject
 	@Override
 	public String toString()
 	{
-		return String.format("Process %s (current step: %s)",
-							 getName(),
-							 rCurrentStep);
+		return String.format(
+			"Process %s (current step: %s)",
+			getName(),
+			rCurrentStep);
 	}
 
 	/***************************************
@@ -896,8 +887,9 @@ public class Process extends SerializableRelatedObject
 	{
 		if (aProcessSteps.containsKey(rStep.getName()))
 		{
-			throw new IllegalArgumentException("Duplicate process step name: " +
-											   rStep.getName());
+			throw new IllegalArgumentException(
+				"Duplicate process step name: " +
+				rStep.getName());
 		}
 
 		aProcessSteps.put(rStep.getName(), rStep);
@@ -995,8 +987,9 @@ public class Process extends SerializableRelatedObject
 				}
 				else
 				{
-					throw new ProcessException(rCurrentStep,
-											   "No open history group");
+					throw new ProcessException(
+						rCurrentStep,
+						"No open history group");
 				}
 			}
 
@@ -1114,8 +1107,9 @@ public class Process extends SerializableRelatedObject
 			// ensure that usage count update is atomic
 			synchronized (rTempParam)
 			{
-				rTempParam.set(PARAM_USAGE_COUNT,
-							   rTempParam.get(PARAM_USAGE_COUNT) + 1);
+				rTempParam.set(
+					PARAM_USAGE_COUNT,
+					rTempParam.get(PARAM_USAGE_COUNT) + 1);
 			}
 		}
 	}
@@ -1213,8 +1207,9 @@ public class Process extends SerializableRelatedObject
 			}
 			else
 			{
-				throw new ProcessException(rCurrentStep,
-										   "No previous interactive step");
+				throw new ProcessException(
+					rCurrentStep,
+					"No previous interactive step");
 			}
 		}
 	}
@@ -1332,8 +1327,9 @@ public class Process extends SerializableRelatedObject
 			if (rContext == null)
 			{
 				EntityManager.removeEntityModificationLock(sUniqueProcessName);
-				EntityManager.checkUnsavedEntityModifications(sUniqueProcessName,
-															  this);
+				EntityManager.checkUnsavedEntityModifications(
+					sUniqueProcessName,
+					this);
 			}
 		}
 	}
@@ -1462,9 +1458,10 @@ public class Process extends SerializableRelatedObject
 		{
 			@SuppressWarnings("boxing")
 			String sMessage =
-				String.format("Uncommitted history levels(%d) in process %s",
-							  nHistoryLevel,
-							  this);
+				String.format(
+					"Uncommitted history levels(%d) in process %s",
+					nHistoryLevel,
+					this);
 
 			throw new ProcessException(rCurrentStep, sMessage);
 		}
@@ -1473,9 +1470,10 @@ public class Process extends SerializableRelatedObject
 		{
 			@SuppressWarnings("boxing")
 			String sMessage =
-				String.format("Uncommitted transaction levels (%d) in process %s",
-							  nTransactionLevel,
-							  this);
+				String.format(
+					"Uncommitted transaction levels (%d) in process %s",
+					nTransactionLevel,
+					this);
 
 			throw new ProcessException(rCurrentStep, sMessage);
 		}
@@ -1538,9 +1536,10 @@ public class Process extends SerializableRelatedObject
 
 		if (bHistory || hasFlag(TRANSACTIONAL))
 		{
-			beginTransaction(bHistory,
-							 getParameter(HistoryRecord.TARGET),
-							 getName());
+			beginTransaction(
+				bHistory,
+				getParameter(HistoryRecord.TARGET),
+				getName());
 		}
 	}
 
@@ -1684,8 +1683,9 @@ public class Process extends SerializableRelatedObject
 		}
 		else
 		{
-			throw new IllegalArgumentException("Starting step not found: " +
-											   rStartStep);
+			throw new IllegalArgumentException(
+				"Starting step not found: " +
+				rStartStep);
 		}
 	}
 
@@ -1714,17 +1714,18 @@ public class Process extends SerializableRelatedObject
 		else if (e instanceof RuntimeProcessException)
 		{
 			eResult =
-				new ProcessException(((RuntimeProcessException) e)
-									 .getProcessStep(),
-									 String.format(sMessage, rMessageArgs),
-									 e);
+				new ProcessException(
+					((RuntimeProcessException) e).getProcessStep(),
+					String.format(sMessage, rMessageArgs),
+					e);
 		}
 		else
 		{
 			eResult =
-				new ProcessException(rCurrentStep,
-									 String.format(sMessage, rMessageArgs),
-									 e);
+				new ProcessException(
+					rCurrentStep,
+					String.format(sMessage, rMessageArgs),
+					e);
 		}
 
 		setParameter(PROCESS_EXCEPTION, eResult);

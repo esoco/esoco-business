@@ -46,6 +46,7 @@ import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
+import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityRelationTypes.newEntityAttribute;
@@ -165,7 +166,7 @@ public class ProcessRelationTypes
 
 	/** The relation type for the registration of process listeners. */
 	public static final ListenerType<ProcessListener, Process> PROCESS_LISTENERS =
-		new ListenerType<ProcessListener, Process>();
+		ListenerTypes.newListenerType();
 
 	/**
 	 * Contains a mapping from process parameter types to functions that
@@ -577,12 +578,11 @@ public class ProcessRelationTypes
 		aName.append(rRelationType.getSimpleName());
 
 		RelationType<T> aDerivedType =
-			RelationTypes.<T>newRelationType(aName.toString(),
-											 rRelationType.getValueType(),
-											 rRelationType
-											 .getDefaultValueFunction(),
-											 rRelationType
-											 .getInitialValueFunction());
+			RelationTypes.<T>newRelationType(
+				aName.toString(),
+				rRelationType.getValueType(),
+				rRelationType.getDefaultValueFunction(),
+				rRelationType.getInitialValueFunction());
 
 		aDerivedType.set(ORIGINAL_RELATION_TYPE, rRelationType);
 

@@ -45,6 +45,7 @@ import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.SerializableRelatedObject;
+import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
@@ -67,7 +68,6 @@ import static org.obrel.type.MetaTypes.INITIALIZING;
 import static org.obrel.type.MetaTypes.LOCKED;
 import static org.obrel.type.MetaTypes.MODIFIED;
 import static org.obrel.type.StandardTypes.PREVIOUS_VALUE;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 
 
 /********************************************************************
@@ -136,8 +136,9 @@ public class Entity extends SerializableRelatedObject
 
 	static
 	{
-		Conversions.registerStringConversion(Entity.class,
-											 EntityFunctions.entityToString());
+		Conversions.registerStringConversion(
+			Entity.class,
+			EntityFunctions.entityToString());
 	}
 
 	//~ Constructors -----------------------------------------------------------
@@ -150,7 +151,7 @@ public class Entity extends SerializableRelatedObject
 		// modified flag must exist to indicate the modification tracking
 		// support to the storage framework, therefore set to FALSE
 		set(MODIFIED, Boolean.FALSE);
-		get(RELATION_LISTENERS).add(getDefinition());
+		get(ListenerTypes.RELATION_LISTENERS).add(getDefinition());
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -183,10 +184,11 @@ public class Entity extends SerializableRelatedObject
 		PropertyName<Integer>   rProperty,
 		RelationType<?>... 		rAttributes)
 	{
-		setAttributeDisplayProperty(rEntityClass,
-									rProperty,
-									nValue,
-									rAttributes);
+		setAttributeDisplayProperty(
+			rEntityClass,
+			rProperty,
+			nValue,
+			rAttributes);
 	}
 
 	/***************************************
@@ -292,7 +294,8 @@ public class Entity extends SerializableRelatedObject
 	{
 		if (rChildAttr == null || rChildren == null || rChildren.size() == 0)
 		{
-			throw new IllegalArgumentException("Arguments must not be NULL or empty");
+			throw new IllegalArgumentException(
+				"Arguments must not be NULL or empty");
 		}
 
 		boolean bInitializing = hasFlag(INITIALIZING);
@@ -368,9 +371,9 @@ public class Entity extends SerializableRelatedObject
 		if (bIncludeNull || rValue != null)
 		{
 			String sName =
-				TextConvert.capitalize(TextConvert.lastElementOf(rAttribute
-																 .getName()),
-									   " ");
+				TextConvert.capitalize(
+					TextConvert.lastElementOf(rAttribute.getName()),
+					" ");
 
 			if (rValue == null)
 			{
@@ -391,8 +394,9 @@ public class Entity extends SerializableRelatedObject
 	 */
 	public String attributeString(DisplayMode eDisplayMode, String sSeparator)
 	{
-		return attributeString(getDefinition().getDisplayAttributes(eDisplayMode),
-							   sSeparator);
+		return attributeString(
+			getDefinition().getDisplayAttributes(eDisplayMode),
+			sSeparator);
 	}
 
 	/***************************************
@@ -470,9 +474,10 @@ public class Entity extends SerializableRelatedObject
 		RelationType<List<E>> rChildAttribute,
 		Predicate<? super E>  pCriteria)
 	{
-		return EntityManager.collectDownwards(get(rChildAttribute),
-											  rChildAttribute,
-											  pCriteria);
+		return EntityManager.collectDownwards(
+			get(rChildAttribute),
+			rChildAttribute,
+			pCriteria);
 	}
 
 	/***************************************
@@ -542,9 +547,10 @@ public class Entity extends SerializableRelatedObject
 		RelationType<List<E>> rChildAttribute,
 		Predicate<? super E>  pCriteria)
 	{
-		return EntityManager.findDownwards(get(rChildAttribute),
-										   rChildAttribute,
-										   pCriteria);
+		return EntityManager.findDownwards(
+			get(rChildAttribute),
+			rChildAttribute,
+			pCriteria);
 	}
 
 	/***************************************
@@ -602,10 +608,11 @@ public class Entity extends SerializableRelatedObject
 				if (rParent != null)
 				{
 					rResult =
-						rParent.getChild(rChildAttr,
-										 rDate,
-										 pExtraCriteria,
-										 bUpwards);
+						rParent.getChild(
+							rChildAttr,
+							rDate,
+							pExtraCriteria,
+							bUpwards);
 				}
 			}
 		}
@@ -644,8 +651,8 @@ public class Entity extends SerializableRelatedObject
 				aHierarchy.add(rChild);
 			}
 
-			aHierarchy.addAll(rChild.getChildHierarchy(rChildAttribute,
-													   pCriteria));
+			aHierarchy.addAll(
+				rChild.getChildHierarchy(rChildAttribute, pCriteria));
 		}
 
 		return aHierarchy;
@@ -745,8 +752,9 @@ public class Entity extends SerializableRelatedObject
 	public Collection<RelationType<?>> getExtraAttributes()
 		throws StorageException
 	{
-		return CollectionUtil.map(getExtraAttributeMap().values(),
-								  ExtraAttribute.KEY);
+		return CollectionUtil.map(
+			getExtraAttributeMap().values(),
+			ExtraAttribute.KEY);
 	}
 
 	/***************************************
@@ -1177,7 +1185,8 @@ public class Entity extends SerializableRelatedObject
 	{
 		if (rChildAttr == null || rChildren == null || rChildren.size() == 0)
 		{
-			throw new IllegalArgumentException("Arguments must not be NULL or empty");
+			throw new IllegalArgumentException(
+				"Arguments must not be NULL or empty");
 		}
 
 		// mark as modified to perform child count update in storage framework
@@ -1447,8 +1456,9 @@ public class Entity extends SerializableRelatedObject
 
 		rAttributes.remove(EntityRelationTypes.ENTITY_ID);
 
-		return toPredicate(bIgnoreNullValues,
-						   rAttributes.toArray(new RelationType<?>[0]));
+		return toPredicate(
+			bIgnoreNullValues,
+			rAttributes.toArray(new RelationType<?>[0]));
 	}
 
 	/***************************************
@@ -1497,10 +1507,11 @@ public class Entity extends SerializableRelatedObject
 		if (sThis.length() > 0)
 		{
 			sResult =
-				String.format("%s[%s(%s)]",
-							  getDefinition().getEntityName(),
-							  sThis,
-							  rId);
+				String.format(
+					"%s[%s(%s)]",
+					getDefinition().getEntityName(),
+					sThis,
+					rId);
 		}
 		else
 		{
@@ -1556,8 +1567,9 @@ public class Entity extends SerializableRelatedObject
 	 */
 	public final String toString(DisplayMode eDisplayMode, String sSeparator)
 	{
-		return toString(getDefinition().getDisplayAttributes(eDisplayMode),
-						sSeparator);
+		return toString(
+			getDefinition().getDisplayAttributes(eDisplayMode),
+			sSeparator);
 	}
 
 	/***************************************
@@ -1608,10 +1620,11 @@ public class Entity extends SerializableRelatedObject
 		if (rCurrentValue != null && !rCurrentValue.equals(rValue))
 		{
 			String sMessage =
-				String.format("%s attribute %s != %s",
-							  this,
-							  rCurrentValue,
-							  rValue);
+				String.format(
+					"%s attribute %s != %s",
+					this,
+					rCurrentValue,
+					rValue);
 
 			throw new IllegalStateException(sMessage);
 		}
@@ -1760,11 +1773,12 @@ public class Entity extends SerializableRelatedObject
 			if (rRelation != null &&
 				(!bChangesOnly || rRelation.hasRelation(PREVIOUS_VALUE)))
 			{
-				appendJsonAttribute(aChanges,
-									sIndent,
-									rAttribute.getSimpleName(),
-									rRelation,
-									bChangesOnly);
+				appendJsonAttribute(
+					aChanges,
+					sIndent,
+					rAttribute.getSimpleName(),
+					rRelation,
+					bChangesOnly);
 			}
 		}
 	}
@@ -1864,11 +1878,12 @@ public class Entity extends SerializableRelatedObject
 				String sName =
 					rExtraAttribute.get(ExtraAttribute.KEY).getName();
 
-				appendJsonAttribute(aChanges,
-									sIndent,
-									sName,
-									rExtraAttrRelation,
-									bChangesOnly);
+				appendJsonAttribute(
+					aChanges,
+					sIndent,
+					sName,
+					rExtraAttrRelation,
+					bChangesOnly);
 			}
 		}
 	}
@@ -2053,13 +2068,16 @@ public class Entity extends SerializableRelatedObject
 		{
 			Predicate<Relatable> pExtraAttr =
 				ExtraAttribute.ENTITY.is(equalTo(this))
-									 .and(ExtraAttribute.OWNER.is(equalTo(rOwner)))
+									 .and(
+					 					ExtraAttribute.OWNER.is(
+					 						equalTo(rOwner)))
 									 .and(ExtraAttribute.KEY.is(equalTo(rKey)));
 
 			rExtraAttribute =
-				EntityManager.queryEntity(ExtraAttribute.class,
-										  pExtraAttr,
-										  true);
+				EntityManager.queryEntity(
+					ExtraAttribute.class,
+					pExtraAttr,
+					true);
 		}
 
 		return rExtraAttribute;
@@ -2081,9 +2099,10 @@ public class Entity extends SerializableRelatedObject
 								 .and(ExtraAttribute.HAS_NO_OWNER);
 
 		List<ExtraAttribute> rExtraAttributes =
-			EntityManager.queryEntities(ExtraAttribute.class,
-										pExtraAttr,
-										Integer.MAX_VALUE);
+			EntityManager.queryEntities(
+				ExtraAttribute.class,
+				pExtraAttr,
+				Integer.MAX_VALUE);
 
 		Map<String, ExtraAttribute> rExtraAttributeMap =
 			get(EXTRA_ATTRIBUTE_MAP);
@@ -2165,10 +2184,11 @@ public class Entity extends SerializableRelatedObject
 
 		if (!bChangesOnly || hasFlag(MODIFIED))
 		{
-			appendJsonAttributes(aChanges,
-								 rDefinition,
-								 sSubIndent,
-								 bChangesOnly);
+			appendJsonAttributes(
+				aChanges,
+				rDefinition,
+				sSubIndent,
+				bChangesOnly);
 		}
 
 		if (hasFlag(EXTRA_ATTRIBUTES_MODIFIED))
@@ -2183,10 +2203,11 @@ public class Entity extends SerializableRelatedObject
 		{
 			for (RelationType<List<Entity>> rChildAttr : rChildAttributes)
 			{
-				appendJsonChildren(aChanges,
-								   sSubIndent,
-								   rChildAttr,
-								   bChangesOnly);
+				appendJsonChildren(
+					aChanges,
+					sSubIndent,
+					rChildAttr,
+					bChangesOnly);
 			}
 		}
 
@@ -2205,30 +2226,33 @@ public class Entity extends SerializableRelatedObject
 
 			String sDescription = getDescription();
 			String sEntity	    =
-				String.format("%s{\n%s\"%s\": %s,\n",
-							  sIndent,
-							  sSubIndent,
-							  JSON_ID_FIELD,
-							  rId);
+				String.format(
+					"%s{\n%s\"%s\": %s,\n",
+					sIndent,
+					sSubIndent,
+					JSON_ID_FIELD,
+					rId);
 
 			if (bIncludeEntityName)
 			{
 				sEntity =
-					String.format("%s%s\"%s\": \"%s\",\n",
-								  sEntity,
-								  sSubIndent,
-								  JSON_TYPE_FIELD,
-								  rDefinition.getEntityName());
+					String.format(
+						"%s%s\"%s\": \"%s\",\n",
+						sEntity,
+						sSubIndent,
+						JSON_TYPE_FIELD,
+						rDefinition.getEntityName());
 			}
 
 			if (sDescription.length() > 0)
 			{
 				sEntity =
-					String.format("%s%s\"%s\": \"%s\",\n",
-								  sEntity,
-								  sSubIndent,
-								  JSON_NAME_FIELD,
-								  sDescription);
+					String.format(
+						"%s%s\"%s\": \"%s\",\n",
+						sEntity,
+						sSubIndent,
+						JSON_NAME_FIELD,
+						sDescription);
 			}
 
 			aChanges.insert(0, sEntity);

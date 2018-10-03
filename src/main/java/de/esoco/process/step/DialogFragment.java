@@ -32,6 +32,7 @@ import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
+import org.obrel.type.ListenerTypes;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.ContentProperties.TOOLTIP;
@@ -119,18 +120,7 @@ public class DialogFragment extends ViewFragment
 	 * A listener relation type for the {@link DialogActionListener} interface.
 	 */
 	public static final ListenerType<DialogActionListener, DialogAction> DIALOG_ACTION_LISTENERS =
-		new ListenerType<DialogActionListener, DialogAction>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void notifyListener(
-				DialogActionListener rListener,
-				DialogAction		 eAction)
-			{
-				rListener.onDialogAction(eAction);
-			}
-		};
+		ListenerTypes.newListenerType((l, e) -> l.onDialogAction(e));
 
 	static
 	{
@@ -173,9 +163,10 @@ public class DialogFragment extends ViewFragment
 						  String				   sQuestion,
 						  Collection<DialogAction> rDialogActions)
 	{
-		super(sParamNameTemplate,
-			  rContentFragment,
-			  bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
+		super(
+			sParamNameTemplate,
+			rContentFragment,
+			bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 
 		this.sQuestion	    = sQuestion;
 		this.rDialogActions = rDialogActions;
@@ -229,8 +220,9 @@ public class DialogFragment extends ViewFragment
 
 			if (!rInvalidParams.isEmpty())
 			{
-				throw new InvalidParametersException(getProcessStep(),
-													 rInvalidParams);
+				throw new InvalidParametersException(
+					getProcessStep(),
+					rInvalidParams);
 			}
 
 			finishFragment();
@@ -272,10 +264,11 @@ public class DialogFragment extends ViewFragment
 
 		setImmediateAction(aDialogActionParam, rDialogActions);
 
-		setUIFlag(HIDE_LABEL,
-				  aDialogActionFillParam,
-				  aDialogActionParam,
-				  aDialogActionQuestionParam);
+		setUIFlag(
+			HIDE_LABEL,
+			aDialogActionFillParam,
+			aDialogActionParam,
+			aDialogActionQuestionParam);
 
 		if (bUseFillParam)
 		{
@@ -284,17 +277,19 @@ public class DialogFragment extends ViewFragment
 
 		setUIFlag(SAME_ROW, aDialogActionParam);
 		setUIProperty(3, COLUMN_SPAN, getViewContentParam());
-		setUIProperty(TOOLTIP,
-					  "",
-					  aDialogActionFillParam,
-					  aDialogActionQuestionParam);
+		setUIProperty(
+			TOOLTIP,
+			"",
+			aDialogActionFillParam,
+			aDialogActionQuestionParam);
 		setUIProperty(HTML_WIDTH, "100%", aDialogActionFillParam);
 
 		setUIProperty(rDialogActions.size(), COLUMNS, aDialogActionParam);
 		setUIProperty(RESOURCE_ID, "DialogActionFill", aDialogActionFillParam);
-		setUIProperty(RESOURCE_ID,
-					  "DialogActionQuestion",
-					  aDialogActionQuestionParam);
+		setUIProperty(
+			RESOURCE_ID,
+			"DialogActionQuestion",
+			aDialogActionQuestionParam);
 		setUIProperty(RESOURCE_ID, "DialogAction", aDialogActionParam);
 		setParameter(aDialogActionQuestionParam, sQuestion);
 	}
@@ -326,15 +321,18 @@ public class DialogFragment extends ViewFragment
 	protected void addExtraViewInteractionParams(String sParamBaseName)
 	{
 		aDialogActionFillParam =
-			getTemporaryParameterType(sParamBaseName + "_ACTION_FILL",
-									  String.class);
+			getTemporaryParameterType(
+				sParamBaseName + "_ACTION_FILL",
+				String.class);
 
 		aDialogActionQuestionParam =
-			getTemporaryParameterType(sParamBaseName + "_ACTION_QUESTION",
-									  String.class);
+			getTemporaryParameterType(
+				sParamBaseName + "_ACTION_QUESTION",
+				String.class);
 		aDialogActionParam		   =
-			getTemporaryParameterType(sParamBaseName + "_ACTION",
-									  DialogAction.class);
+			getTemporaryParameterType(
+				sParamBaseName + "_ACTION",
+				DialogAction.class);
 
 		if (bUseFillParam)
 		{

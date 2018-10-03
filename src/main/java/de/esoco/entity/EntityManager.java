@@ -73,6 +73,7 @@ import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.ListenerType;
+import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
 
 import static de.esoco.entity.EntityPredicates.forEntity;
@@ -155,16 +156,7 @@ public class EntityManager
 	/** A listener relation type for the storing of entities */
 	@SuppressWarnings("serial")
 	private static final ListenerType<StoreListener, Entity> STORE_LISTENERS =
-		new ListenerType<StoreListener, Entity>()
-		{
-			@Override
-			protected void notifyListener(
-				StoreListener rListener,
-				Entity		  rEntity)
-			{
-				rListener.entityStored(rEntity);
-			}
-		};
+		ListenerTypes.newListenerType((l, e) -> l.entityStored(e));
 
 	private static SessionManager rSessionManager = null;
 
@@ -282,9 +274,10 @@ public class EntityManager
 			{
 				try
 				{
-					Log.infof("Entity %s modified by %s but not stored, reverting",
-							  rEntity,
-							  rEntity.get(ENTITY_MODIFICATION_HANDLE));
+					Log.infof(
+						"Entity %s modified by %s but not stored, reverting",
+						rEntity,
+						rEntity.get(ENTITY_MODIFICATION_HANDLE));
 					resetEntity(rEntity);
 				}
 				catch (Exception e)
@@ -294,9 +287,10 @@ public class EntityManager
 			}
 			else
 			{
-				Log.errorf("Entity %s not removed from context %s",
-						   rEntity,
-						   sContextId);
+				Log.errorf(
+					"Entity %s not removed from context %s",
+					rEntity,
+					sContextId);
 			}
 
 			aModifiedEntities.remove(rEntity.getGlobalId());
@@ -325,9 +319,11 @@ public class EntityManager
 
 		for (E rEntity : rEntities)
 		{
-			aResult.addAll(collectDownwards(rEntity.get(rChildAttribute),
-											rChildAttribute,
-											rPredicate));
+			aResult.addAll(
+				collectDownwards(
+					rEntity.get(rChildAttribute),
+					rChildAttribute,
+					rPredicate));
 		}
 
 		return aResult;
@@ -542,12 +538,14 @@ public class EntityManager
 		Collection<? extends Entity> rEntities) throws StorageException
 	{
 		QueryPredicate<ExtraAttribute> qExtraAttributes =
-			forEntity(ExtraAttribute.class,
-					  ExtraAttribute.OWNER.is(equalTo(null))
-					  .and(ExtraAttribute.ENTITY.is(elementOf(rEntities))));
+			forEntity(
+				ExtraAttribute.class,
+				ExtraAttribute.OWNER.is(equalTo(null))
+				.and(ExtraAttribute.ENTITY.is(elementOf(rEntities))));
 
-		forEach(qExtraAttributes,
-				rXA ->
+		forEach(
+			qExtraAttributes,
+			rXA ->
 				rXA.get(ExtraAttribute.ENTITY)
 				.get(EXTRA_ATTRIBUTE_MAP)
 				.put(rXA.get(ExtraAttribute.KEY).toString(), rXA));
@@ -583,9 +581,10 @@ public class EntityManager
 
 		if (rChildMasterAttribute == null)
 		{
-			throw new UnsupportedOperationException("fetchHierarchy() is only " +
-													"possible for master-detail " +
-													"relations");
+			throw new UnsupportedOperationException(
+				"fetchHierarchy() is only " +
+				"possible for master-detail " +
+				"relations");
 		}
 
 		// remove from cache to prevent inconsistencies
@@ -596,8 +595,9 @@ public class EntityManager
 		List<C>  rAllChildren = new ArrayList<>();
 
 		QueryPredicate<C> qChildren =
-			forEntity(rChildType,
-					  ifAttribute(rChildMasterAttribute, equalTo(rParent)));
+			forEntity(
+				rChildType,
+				ifAttribute(rChildMasterAttribute, equalTo(rParent)));
 
 		try (Query<C> rQuery = rStorage.query(qChildren))
 		{
@@ -614,17 +614,19 @@ public class EntityManager
 		}
 
 		List<C> rChildren =
-			findDirectChildren(rParent,
-							   rAllChildren,
-							   rChildMasterAttribute,
-							   rChildAttribute);
+			findDirectChildren(
+				rParent,
+				rAllChildren,
+				rChildMasterAttribute,
+				rChildAttribute);
 
 		for (C rChild : rChildren)
 		{
-			assignChildren(rChild,
-						   rAllChildren,
-						   rChildParentAttribute,
-						   rChildAttribute);
+			assignChildren(
+				rChild,
+				rAllChildren,
+				rChildParentAttribute,
+				rChildAttribute);
 		}
 
 		cacheEntity(rParent);
@@ -890,8 +892,9 @@ public class EntityManager
 
 		if (nEntityId < 0)
 		{
-			throw new IllegalArgumentException("Entity ID not defined: " +
-											   rEntity);
+			throw new IllegalArgumentException(
+				"Entity ID not defined: " +
+				rEntity);
 		}
 
 		return getGlobalEntityId(rEntity.getClass(), nEntityId);
@@ -1002,8 +1005,9 @@ public class EntityManager
 	public static void init(Collection<Class<? extends Entity>> rEntityClasses)
 	{
 		EntityRelationTypes.init();
-		StorageManager.registerMappingFactory(Entity.class,
-											  new EntityDefinitionFactory());
+		StorageManager.registerMappingFactory(
+			Entity.class,
+			new EntityDefinitionFactory());
 
 		if (rEntityClasses != null)
 		{
@@ -1098,9 +1102,10 @@ public class EntityManager
 	{
 		List<E> aEntities = new ArrayList<E>();
 
-		evaluateEntities(qEntities,
-						 Predicates.countDown(nMax),
-						 CollectionFunctions.collectInto(aEntities));
+		evaluateEntities(
+			qEntities,
+			Predicates.countDown(nMax),
+			CollectionFunctions.collectInto(aEntities));
 
 		return aEntities;
 	}
@@ -1155,9 +1160,10 @@ public class EntityManager
 		int								   nMax,
 		boolean							   bAnd) throws StorageException
 	{
-		return queryEntities(rEntityClass,
-							 createQueryPredicate(rCriteraMap, bAnd),
-							 nMax);
+		return queryEntities(
+			rEntityClass,
+			createQueryPredicate(rCriteraMap, bAnd),
+			nMax);
 	}
 
 	/***************************************
@@ -1181,9 +1187,10 @@ public class EntityManager
 		T				rValue,
 		int				nMax) throws StorageException
 	{
-		return queryEntities(rEntityClass,
-							 ifAttribute(rAttribute, equalTo(rValue)),
-							 nMax);
+		return queryEntities(
+			rEntityClass,
+			ifAttribute(rAttribute, equalTo(rValue)),
+			nMax);
 	}
 
 	/***************************************
@@ -1237,10 +1244,11 @@ public class EntityManager
 		T				rExtraAttributeValue,
 		int				nMax) throws StorageException
 	{
-		return queryEntitiesByExtraAttribute(null,
-											 rExtraAttributeKey,
-											 rExtraAttributeValue,
-											 nMax);
+		return queryEntitiesByExtraAttribute(
+			null,
+			rExtraAttributeKey,
+			rExtraAttributeValue,
+			nMax);
 	}
 
 	/***************************************
@@ -1262,7 +1270,8 @@ public class EntityManager
 								  int			  nMax) throws StorageException
 	{
 		Predicate<Relatable> pExtraAttr =
-			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)));
+			ExtraAttribute.HAS_NO_OWNER.and(
+				ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)));
 
 		pExtraAttr = addEntityPrefixPredicate(rEntityClass, pExtraAttr);
 
@@ -1297,8 +1306,12 @@ public class EntityManager
 		String sValue = Conversions.asString(rExtraAttributeValue);
 
 		Predicate<Relatable> pExtraAttr =
-			ExtraAttribute.HAS_NO_OWNER.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)))
-									   .and(ExtraAttribute.VALUE.is(equalTo(sValue)));
+			ExtraAttribute.HAS_NO_OWNER.and(
+						   				ExtraAttribute.KEY.is(
+						   					equalTo(rExtraAttributeKey)))
+									   .and(
+						   				ExtraAttribute.VALUE.is(
+						   					equalTo(sValue)));
 
 		pExtraAttr = addEntityPrefixPredicate(rEntityClass, pExtraAttr);
 
@@ -1336,8 +1349,9 @@ public class EntityManager
 			aIdElements[0].length() == 0 ||
 			aIdElements[1].length() == 0)
 		{
-			throw new IllegalArgumentException("Invalid entity ID: " +
-											   sGlobalEntityId);
+			throw new IllegalArgumentException(
+				"Invalid entity ID: " +
+				sGlobalEntityId);
 		}
 
 		String				    sIdPrefix    = aIdElements[0];
@@ -1346,8 +1360,9 @@ public class EntityManager
 
 		if (rEntityClass == null)
 		{
-			throw new IllegalStateException("No entity registered for ID prefix " +
-											sIdPrefix);
+			throw new IllegalStateException(
+				"No entity registered for ID prefix " +
+				sIdPrefix);
 		}
 
 		rEntity = queryEntity(rEntityClass, Integer.parseInt(sEntityId));
@@ -1380,10 +1395,11 @@ public class EntityManager
 		if (rEntity == null)
 		{
 			rEntity =
-				queryEntity(rEntityClass,
-							getEntityDefinition(rEntityClass).getIdAttribute(),
-							Long.valueOf(nEntityId),
-							true);
+				queryEntity(
+					rEntityClass,
+					getEntityDefinition(rEntityClass).getIdAttribute(),
+					Long.valueOf(nEntityId),
+					true);
 		}
 
 		return rEntity;
@@ -1418,8 +1434,9 @@ public class EntityManager
 
 		if (nSize > 1)
 		{
-			throw new IllegalStateException("Multiple entities for " +
-											pCriteria);
+			throw new IllegalStateException(
+				"Multiple entities for " +
+				pCriteria);
 		}
 
 		E rEntity = nSize > 0 ? rEntities.get(0) : null;
@@ -1451,9 +1468,10 @@ public class EntityManager
 		T				rValue,
 		boolean			bFailOnMultiple) throws StorageException
 	{
-		return queryEntity(rEntityClass,
-						   ifAttribute(rAttribute, equalTo(rValue)),
-						   bFailOnMultiple);
+		return queryEntity(
+			rEntityClass,
+			ifAttribute(rAttribute, equalTo(rValue)),
+			bFailOnMultiple);
 	}
 
 	/***************************************
@@ -1483,9 +1501,10 @@ public class EntityManager
 		boolean							   bFailOnMultiple)
 		throws StorageException
 	{
-		return queryEntity(rEntityClass,
-						   createQueryPredicate(rCriteraMap, bAnd),
-						   bFailOnMultiple);
+		return queryEntity(
+			rEntityClass,
+			createQueryPredicate(rCriteraMap, bAnd),
+			bFailOnMultiple);
 	}
 
 	/***************************************
@@ -1498,10 +1517,11 @@ public class EntityManager
 		T				rExtraAttributeValue,
 		boolean			bFailOnMultiple) throws StorageException
 	{
-		return queryEntityByExtraAttribute(null,
-										   rExtraAttributeKey,
-										   rExtraAttributeValue,
-										   bFailOnMultiple);
+		return queryEntityByExtraAttribute(
+			null,
+			rExtraAttributeKey,
+			rExtraAttributeValue,
+			bFailOnMultiple);
 	}
 
 	/***************************************
@@ -1534,19 +1554,22 @@ public class EntityManager
 		boolean			bFailOnMultiple) throws StorageException
 	{
 		Collection<E> rEntities =
-			queryEntitiesByExtraAttribute(rEntityClass,
-										  rExtraAttributeKey,
-										  rExtraAttributeValue,
-										  bFailOnMultiple ? 2 : 1);
+			queryEntitiesByExtraAttribute(
+				rEntityClass,
+				rExtraAttributeKey,
+				rExtraAttributeValue,
+				bFailOnMultiple ? 2 : 1);
 
 		int nSize = rEntities.size();
 
 		if (bFailOnMultiple && nSize > 1)
 		{
-			throw new IllegalStateException(String.format("Multiple entities for " +
-														  "extra attribute %s with value %s",
-														  rExtraAttributeKey,
-														  rExtraAttributeValue));
+			throw new IllegalStateException(
+				String.format(
+					"Multiple entities for " +
+					"extra attribute %s with value %s",
+					rExtraAttributeKey,
+					rExtraAttributeValue));
 		}
 
 		return nSize > 0 ? rEntities.iterator().next() : null;
@@ -1619,9 +1642,10 @@ public class EntityManager
 		}
 		else if (!bIgnoreExisting)
 		{
-			assert false : String.format("Modification context mismatch: %s != %s",
-										 sContextId,
-										 aEntityModificationContextId);
+			assert false : String.format(
+				"Modification context mismatch: %s != %s",
+				sContextId,
+				aEntityModificationContextId);
 		}
 	}
 
@@ -1782,10 +1806,11 @@ public class EntityManager
 		else if (!bKeepExisting)
 		{
 			String sMessage =
-				String.format("Modification context already set to %s " +
-							  "(tried to set to %s)",
-							  sExistingContext,
-							  sContextId);
+				String.format(
+					"Modification context already set to %s " +
+					"(tried to set to %s)",
+					sExistingContext,
+					sContextId);
 
 			throw new ConcurrentModificationException(sMessage);
 		}
@@ -2018,10 +2043,11 @@ public class EntityManager
 					sChange = sChange.replaceFirst("<NEW>", sNewId);
 				}
 
-				HistoryManager.record(HistoryType.CHANGE,
-									  rChangeOrigin,
-									  rEntity,
-									  sChange);
+				HistoryManager.record(
+					HistoryType.CHANGE,
+					rChangeOrigin,
+					rEntity,
+					sChange);
 			}
 
 			if (rDependentEntities != null)
@@ -2089,7 +2115,8 @@ public class EntityManager
 			Spliterators.spliterator(aIterator, (long) aIterator.size(), 0);
 
 		return StreamSupport.stream(aSpliterator, false)
-							.onClose(() -> aIterator.close());
+							.onClose(() ->
+									aIterator.close());
 	}
 
 	/***************************************
@@ -2146,11 +2173,12 @@ public class EntityManager
 			}
 			else if (sHandle == null || !sHandle.equals(sContextId))
 			{
-				throwConcurrentEntityModification(rEntity,
-												  MSG_CONCURRENT_MODIFICATION,
-												  rEntity,
-												  sContextId,
-												  sHandle);
+				throwConcurrentEntityModification(
+					rEntity,
+					MSG_CONCURRENT_MODIFICATION,
+					rEntity,
+					sContextId,
+					sHandle);
 			}
 		}
 	}
@@ -2209,11 +2237,12 @@ public class EntityManager
 
 			if (!sHandle.equals(sContextId))
 			{
-				throwConcurrentEntityModification(rEntity,
-												  MSG_CONCURRENT_MODIFICATION,
-												  rEntity,
-												  sContextId,
-												  sHandle);
+				throwConcurrentEntityModification(
+					rEntity,
+					MSG_CONCURRENT_MODIFICATION,
+					rEntity,
+					sContextId,
+					sHandle);
 			}
 
 			trySyncEndpointRelease(rEntity);
@@ -2267,8 +2296,9 @@ public class EntityManager
 	{
 		if (aIdPrefixRegistry.containsValue(rEntityClass))
 		{
-			throw new IllegalArgumentException("Duplicate entity registration: " +
-											   rEntityClass);
+			throw new IllegalArgumentException(
+				"Duplicate entity registration: " +
+				rEntityClass);
 		}
 
 		String sIdPrefix = rDefinition.getIdPrefix();
@@ -2282,11 +2312,12 @@ public class EntityManager
 		}
 		else if (!rExistingClass.isAssignableFrom(rEntityClass))
 		{
-			throw new IllegalArgumentException(String.format("Duplicate entity ID prefix %s; " +
-															 "already defined in %s",
-															 sIdPrefix,
-															 aIdPrefixRegistry
-															 .get(sIdPrefix)));
+			throw new IllegalArgumentException(
+				String.format(
+					"Duplicate entity ID prefix %s; " +
+					"already defined in %s",
+					sIdPrefix,
+					aIdPrefixRegistry.get(sIdPrefix)));
 		}
 	}
 
@@ -2308,24 +2339,28 @@ public class EntityManager
 					requestLock().from(rEntitySyncEndpoint.get());
 
 				sResponse =
-					fRequestLock.send(syncRequest(sEntitySyncClientId,
-												  sEntitySyncContext,
-												  rEntity.getGlobalId()));
+					fRequestLock.send(
+						syncRequest(
+							sEntitySyncClientId,
+							sEntitySyncContext,
+							rEntity.getGlobalId()));
 			}
 			catch (Exception e)
 			{
 				// just log but continue with local lock mechanism
-				Log.errorf(e,
-						   "Error communicating with sync endpoint at %s",
-						   rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
+				Log.errorf(
+					e,
+					"Error communicating with sync endpoint at %s",
+					rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
 			}
 
 			if (!"".equals(sResponse))
 			{
-				throwConcurrentEntityModification(rEntity,
-												  MSG_ENTITY_LOCKED,
-												  rEntity,
-												  sResponse);
+				throwConcurrentEntityModification(
+					rEntity,
+					MSG_ENTITY_LOCKED,
+					rEntity,
+					sResponse);
 			}
 		}
 	}
@@ -2346,22 +2381,26 @@ public class EntityManager
 					releaseLock().from(rEntitySyncEndpoint.get());
 
 				String sResponse =
-					fReleaseLock.send(syncRequest(sEntitySyncClientId,
-												  sEntitySyncContext,
-												  rEntity.getGlobalId()));
+					fReleaseLock.send(
+						syncRequest(
+							sEntitySyncClientId,
+							sEntitySyncContext,
+							rEntity.getGlobalId()));
 
 				if (!"".equals(sResponse))
 				{
-					Log.warnf("Releasing entity lock for %s failed: %s",
-							  rEntity.getGlobalId(),
-							  sResponse);
+					Log.warnf(
+						"Releasing entity lock for %s failed: %s",
+						rEntity.getGlobalId(),
+						sResponse);
 				}
 			}
 			catch (Exception e)
 			{
-				Log.warnf(e,
-						  "Error communicating with sync endpoint at %s",
-						  rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
+				Log.warnf(
+					e,
+					"Error communicating with sync endpoint at %s",
+					rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
 			}
 		}
 	}
@@ -2407,17 +2446,19 @@ public class EntityManager
 		RelationType<List<C>> rChildAttribute)
 	{
 		List<C> rChildren =
-			findDirectChildren(rParent,
-							   rAllChildren,
-							   rParentAttribute,
-							   rChildAttribute);
+			findDirectChildren(
+				rParent,
+				rAllChildren,
+				rParentAttribute,
+				rChildAttribute);
 
 		for (C rChild : rChildren)
 		{
-			assignChildren(rChild,
-						   rAllChildren,
-						   rParentAttribute,
-						   rChildAttribute);
+			assignChildren(
+				rChild,
+				rAllChildren,
+				rParentAttribute,
+				rChildAttribute);
 		}
 	}
 
@@ -2442,11 +2483,12 @@ public class EntityManager
 			if (!sContextId.equals(sLockContextID) &&
 				rLockRule.getValue().evaluate(rEntity))
 			{
-				throwConcurrentEntityModification(rEntity,
-												  MSG_ENTITY_MODFICATION_LOCKED,
-												  rEntity,
-												  sContextId,
-												  sLockContextID);
+				throwConcurrentEntityModification(
+					rEntity,
+					MSG_ENTITY_MODFICATION_LOCKED,
+					rEntity,
+					sContextId,
+					sLockContextID);
 			}
 		}
 	}
@@ -2475,21 +2517,24 @@ public class EntityManager
 				nSecondLevel = Integer.parseInt(aSizes[1]);
 				nThirdLevel  = Integer.parseInt(aSizes[2]);
 
-				Log.infof("Entity cache levels: %d, %d, %d",
-						  nFirstLevel,
-						  nSecondLevel,
-						  nThirdLevel);
+				Log.infof(
+					"Entity cache levels: %d, %d, %d",
+					nFirstLevel,
+					nSecondLevel,
+					nThirdLevel);
 			}
 			catch (Exception e)
 			{
-				Log.warn("Invalid entity cache size definition: " +
-						 sCacheSizes);
+				Log.warn(
+					"Invalid entity cache size definition: " +
+					sCacheSizes);
 			}
 		}
 
-		return new MultiLevelCache<String, Entity>(nFirstLevel,
-												   nSecondLevel,
-												   nThirdLevel);
+		return new MultiLevelCache<String, Entity>(
+			nFirstLevel,
+			nSecondLevel,
+			nThirdLevel);
 	}
 
 	/***************************************
@@ -2522,14 +2567,16 @@ public class EntityManager
 			if (bAnd)
 			{
 				pCriteria =
-					Predicates.and(pCriteria,
-								   ifAttribute(rAttribute, pCriterion));
+					Predicates.and(
+						pCriteria,
+						ifAttribute(rAttribute, pCriterion));
 			}
 			else
 			{
 				pCriteria =
-					Predicates.or(pCriteria,
-								  ifAttribute(rAttribute, pCriterion));
+					Predicates.or(
+						pCriteria,
+						ifAttribute(rAttribute, pCriterion));
 			}
 		}
 
@@ -2598,8 +2645,8 @@ public class EntityManager
 		else
 		{
 			pChildren =
-				ifRelation(MASTER_ENTITY_ID, equalTo(rParent.getId())).and(ifRelation(PARENT_ENTITY_ID,
-																					  isNull()));
+				ifRelation(MASTER_ENTITY_ID, equalTo(rParent.getId())).and(
+					ifRelation(PARENT_ENTITY_ID, isNull()));
 		}
 
 		List<C> rChildren = CollectionUtil.collect(rAllChildren, pChildren);
@@ -2671,8 +2718,9 @@ public class EntityManager
 	{
 		sMessageFormat = String.format(sMessageFormat, rMessageArgs);
 
-		throw new ConcurrentEntityModificationException(rEntity,
-														sMessageFormat);
+		throw new ConcurrentEntityModificationException(
+			rEntity,
+			sMessageFormat);
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------
@@ -2732,7 +2780,8 @@ public class EntityManager
 											  "$Definition";
 
 					Class<EntityDefinition<Entity>> rTypeDefinitionClass =
-						(Class<EntityDefinition<Entity>>) Class.forName(sDefinitionClass);
+						(Class<EntityDefinition<Entity>>) Class.forName(
+							sDefinitionClass);
 
 					aResult = ReflectUtil.newInstance(rTypeDefinitionClass);
 				}

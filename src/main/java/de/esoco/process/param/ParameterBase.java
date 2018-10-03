@@ -56,7 +56,7 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.filter.RelationCoupling;
-import org.obrel.type.StandardTypes;
+import org.obrel.type.ListenerTypes;
 
 import static de.esoco.lib.expression.Predicates.not;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
@@ -1160,7 +1160,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 
 		if (rRelation != null)
 		{
-			rRelation.get(StandardTypes.RELATION_UPDATE_LISTENERS)
+			rRelation.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
 					 .remove(rEventHandler);
 		}
 
