@@ -338,7 +338,7 @@ public class EditEntity extends InteractionFragment
 		for (RelationType<?> rAttr : rAttributes)
 		{
 			String		  sAttrName   = rAttr.getSimpleName();
-			Class<Object> rTargetType = (Class<Object>) rAttr.getValueType();
+			Class<Object> rTargetType = (Class<Object>) rAttr.getTargetType();
 
 			RelationType<Object> aAttrParam =
 				getTemporaryParameterType(sPrefix + sAttrName, rTargetType);
@@ -686,7 +686,7 @@ public class EditEntity extends InteractionFragment
 
 			case NEW:
 
-				Class<?> rChildType = rListParam.getValueType();
+				Class<?> rChildType = rListParam.getTargetType();
 
 				showEditChildDialog((Entity) ReflectUtil.newInstance(rChildType));
 				break;
@@ -704,7 +704,7 @@ public class EditEntity extends InteractionFragment
 	private void handleDetailSelection(RelationType<?> rInteractionParam)
 	{
 		Object   rParamValue    = getParameter(rInteractionParam);
-		Class<?> rParamDatatype = rInteractionParam.getValueType();
+		Class<?> rParamDatatype = rInteractionParam.getTargetType();
 
 		RelationType<DetailAction> rTabActionParam =
 			rInteractionParam.get(TAB_ACTION_PARAM);
@@ -756,7 +756,7 @@ public class EditEntity extends InteractionFragment
 	private void handleInteractionParam(RelationType<?> rInteractionParam)
 		throws Exception
 	{
-		Class<?> rParamDatatype = rInteractionParam.getValueType();
+		Class<?> rParamDatatype = rInteractionParam.getTargetType();
 
 		if (rInteractionParam == aAttrActionParam)
 		{
@@ -792,7 +792,7 @@ public class EditEntity extends InteractionFragment
 										RelationType<?> rAttrParam,
 										String			sAttrName)
 	{
-		Class<?> rDatatype = rAttrParam.getValueType();
+		Class<?> rDatatype = rAttrParam.getTargetType();
 
 		setUIProperty(RESOURCE_ID,
 					  rEntity.getClass().getSimpleName() +

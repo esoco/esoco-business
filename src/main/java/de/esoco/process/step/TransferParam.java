@@ -99,7 +99,7 @@ public class TransferParam extends ProcessStep
 		Object  rValue = getParameter(rSource);
 		boolean bMove  = getParameter(TRANSFER_PARAM_MOVE);
 
-		if (!rTarget.getValueType().isAssignableFrom(rSource.getValueType()))
+		if (!rTarget.getTargetType().isAssignableFrom(rSource.getTargetType()))
 		{
 			throw new ProcessException(this,
 									   "Incompatible source and target parameter datatypes");

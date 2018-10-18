@@ -1141,7 +1141,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 				throw new IllegalArgumentException("No relation type: " + rKey);
 			}
 
-			Class<?> rTargetType = rParamType.getValueType();
+			Class<?> rTargetType = rParamType.getTargetType();
 
 			if (Collection.class.isAssignableFrom(rTargetType))
 			{
@@ -1153,7 +1153,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 			}
 			else
 			{
-				rValue = convertParamValue(rParamType.getValueType(), rValue);
+				rValue = convertParamValue(rParamType.getTargetType(), rValue);
 				set((RelationType<Object>) rParamType, rValue);
 			}
 		}

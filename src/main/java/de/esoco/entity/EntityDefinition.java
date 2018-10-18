@@ -304,7 +304,7 @@ public class EntityDefinition<E extends Entity>
 		throws StorageException
 	{
 		if (rValue != null &&
-			Entity.class.isAssignableFrom(rAttribute.getValueType()))
+			Entity.class.isAssignableFrom(rAttribute.getTargetType()))
 		{
 			if (rValue instanceof String)
 			{
@@ -316,7 +316,7 @@ public class EntityDefinition<E extends Entity>
 
 				@SuppressWarnings("unchecked")
 				Class<? extends Entity> rEntityType =
-					(Class<Entity>) rAttribute.getValueType();
+					(Class<Entity>) rAttribute.getTargetType();
 
 				rValue = EntityManager.queryEntity(rEntityType, nId);
 			}
@@ -394,7 +394,7 @@ public class EntityDefinition<E extends Entity>
 	@Override
 	public Class<?> getAttributeDatatype(RelationType<?> rAttribute)
 	{
-		return rAttribute.getValueType();
+		return rAttribute.getTargetType();
 	}
 
 	/***************************************
@@ -872,7 +872,7 @@ public class EntityDefinition<E extends Entity>
 			// subclass as the attribute type) only the entity ID will be
 			// returned; arbitrary entity references will be mapped to their
 			// global ID
-			if (rAttribute.getValueType() != Entity.class)
+			if (rAttribute.getTargetType() != Entity.class)
 			{
 				rValue = rReferencedEntity.getId();
 			}
@@ -1038,10 +1038,10 @@ public class EntityDefinition<E extends Entity>
 			}
 			else if (!rAttribute.hasFlag(EXTRA_ATTRIBUTE_FLAG))
 			{
-				Class<?> rTargetType = rAttribute.getValueType();
+				Class<?> rTargetType = rAttribute.getTargetType();
 
 				if (rAttribute.hasFlag(OBJECT_ID_ATTRIBUTE) &&
-					Number.class.isAssignableFrom(rAttribute.getValueType()))
+					Number.class.isAssignableFrom(rAttribute.getTargetType()))
 				{
 					rIdAttribute = (RelationType<Number>) rAttribute;
 				}
@@ -1077,7 +1077,7 @@ public class EntityDefinition<E extends Entity>
 						// entity reference
 						StorageMapping<?, ?, ?> rMapping =
 							StorageManager.getMapping(rAttribute
-													  .getValueType());
+													  .getTargetType());
 
 						assert rMapping instanceof EntityDefinition;
 
@@ -1087,7 +1087,7 @@ public class EntityDefinition<E extends Entity>
 
 				if (!rAttribute.hasRelation(STORAGE_DATATYPE))
 				{
-					rAttribute.set(STORAGE_DATATYPE, rAttribute.getValueType());
+					rAttribute.set(STORAGE_DATATYPE, rAttribute.getTargetType());
 				}
 
 				if (!rAttribute.hasRelation(STORAGE_NAME))
@@ -1130,7 +1130,7 @@ public class EntityDefinition<E extends Entity>
 									   RelationType<Entity> rEntityRefAttr,
 									   Object				rReferenceId)
 	{
-		Class<?>		    rAttrType    = rEntityRefAttr.getValueType();
+		Class<?>		    rAttrType    = rEntityRefAttr.getTargetType();
 		Function<?, Entity> fQueryEntity;
 
 		if (rAttrType == Entity.class)
@@ -1410,7 +1410,7 @@ public class EntityDefinition<E extends Entity>
 			}
 			else if (rValue != null)
 			{
-				Class<?> rAttrType = rAttr.getValueType();
+				Class<?> rAttrType = rAttr.getTargetType();
 
 				if (Entity.class.isAssignableFrom(rAttrType))
 				{
@@ -1648,7 +1648,7 @@ public class EntityDefinition<E extends Entity>
 
 			for (RelationType<?> rAttribute : aAttributes)
 			{
-				if (!Entity.class.isAssignableFrom(rAttribute.getValueType()))
+				if (!Entity.class.isAssignableFrom(rAttribute.getTargetType()))
 				{
 					aSimpleAttributes.add(rAttribute);
 				}
@@ -1667,7 +1667,7 @@ public class EntityDefinition<E extends Entity>
 	private void initHierarchyAttribute(
 		RelationType<? extends Entity> rAttribute)
 	{
-		if (rAttribute.getValueType() == rEntityClass)
+		if (rAttribute.getTargetType() == rEntityClass)
 		{
 			rParentAttribute =
 				initParentAttribute(rParentAttribute, rAttribute);
@@ -1676,7 +1676,7 @@ public class EntityDefinition<E extends Entity>
 		{
 			@SuppressWarnings("unchecked")
 			Class<? extends Entity> rMasterClass =
-				(Class<? extends Entity>) rAttribute.getValueType();
+				(Class<? extends Entity>) rAttribute.getTargetType();
 
 			checkParentAttribute(rMasterAttribute, rAttribute);
 
@@ -1723,7 +1723,7 @@ public class EntityDefinition<E extends Entity>
 	private void registerSubTypes()
 	{
 		Enum<?>[] rEntityTypes =
-			(Enum<?>[]) rTypeAttribute.getValueType().getEnumConstants();
+			(Enum<?>[]) rTypeAttribute.getTargetType().getEnumConstants();
 
 		for (Enum<?> eType : rEntityTypes)
 		{
@@ -1937,7 +1937,7 @@ public class EntityDefinition<E extends Entity>
 		{
 			@SuppressWarnings("unchecked")
 			Class<Entity> rParentClass =
-				(Class<Entity>) rParentAttr.getValueType();
+				(Class<Entity>) rParentAttr.getTargetType();
 
 			rParent =
 				EntityManager.queryEntity(rParentClass, rParentId.intValue());

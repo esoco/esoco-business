@@ -141,7 +141,7 @@ public class EntityPredicates
 		Function<Relatable, String> fAttr = coerce(ExtraAttribute.ENTITY);
 
 		Function<Relatable, ? super Number> fExtraAttributeEntityId =
-			cast(rIdAttr.getValueType()).from(substring(nIdStart, -1).from(fAttr));
+			cast(rIdAttr.getTargetType()).from(substring(nIdStart, -1).from(fAttr));
 
 		pCriteria =
 			Predicates.and(pCriteria,

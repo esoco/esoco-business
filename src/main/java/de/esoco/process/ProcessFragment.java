@@ -821,7 +821,7 @@ public abstract class ProcessFragment extends ProcessElement
 		Collection<E>   rDisabledElements)
 	{
 		disableElements(rEnumParam,
-						(Class<E>) rEnumParam.getValueType(),
+						(Class<E>) rEnumParam.getTargetType(),
 						getAllowedValues(rEnumParam),
 						rDisabledElements);
 	}
@@ -1212,7 +1212,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
-			assert rParam.getValueType() == List.class &&
+			assert rParam.getTargetType() == List.class &&
 				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
 
@@ -1265,7 +1265,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
-			assert rParam.getValueType() == rDatatype;
+			assert rParam.getTargetType() == rDatatype;
 		}
 
 		getProcess().registerTemporaryParameterType(rParam);
@@ -1294,7 +1294,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 
 		RelationType<T> aDerivedType =
-			getTemporaryParameterType(sName, rOriginalType.getValueType());
+			getTemporaryParameterType(sName, rOriginalType.getTargetType());
 
 		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
 
@@ -2060,7 +2060,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 		markParameterAsModified(rParam);
 
-		if (rParam.getValueType() == List.class &&
+		if (rParam.getTargetType() == List.class &&
 			rParam.get(MetaTypes.ELEMENT_DATATYPE) == RelationType.class)
 		{
 			setUIFlag(STRUCTURE_CHANGED, rParam);
@@ -2677,7 +2677,7 @@ public abstract class ProcessFragment extends ProcessElement
 		}
 		else
 		{
-			assert rParam.getValueType() == Set.class &&
+			assert rParam.getTargetType() == Set.class &&
 				   rParam.get(ELEMENT_DATATYPE) == rElementType;
 		}
 
@@ -3001,7 +3001,7 @@ public abstract class ProcessFragment extends ProcessElement
 
 			if (rExistingValues == null || rExistingValues.size() == 0)
 			{
-				Class<?> rDatatype = rParam.getValueType();
+				Class<?> rDatatype = rParam.getTargetType();
 
 				if (Collection.class.isAssignableFrom(rDatatype))
 				{

@@ -592,7 +592,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			if (fGetColumnData instanceof RelationType)
 			{
-				datatype(((RelationType<V>) fGetColumnData).getValueType());
+				datatype(((RelationType<V>) fGetColumnData).getTargetType());
 			}
 
 			aColumnTitle =

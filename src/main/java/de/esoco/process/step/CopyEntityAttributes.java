@@ -137,7 +137,7 @@ public class CopyEntityAttributes extends RollbackStep
 		}
 
 		Class<? extends Entity> rEntityClass =
-			(Class<? extends Entity>) rEntityParam.getValueType();
+			(Class<? extends Entity>) rEntityParam.getTargetType();
 
 		Relatable rSource;
 		Relatable rTarget;

@@ -174,7 +174,7 @@ public class GraylogMessage extends RelatedObject
 		if (bHasValue)
 		{
 			RelationType<?> rRelationType = rRelation.getType();
-			Class<?>	    rDatatype     = rRelationType.getValueType();
+			Class<?>	    rDatatype     = rRelationType.getTargetType();
 
 			rJsonMessage.append('\"');
 			rJsonMessage.append(rRelationType.getSimpleName().toLowerCase());

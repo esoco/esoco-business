@@ -168,7 +168,7 @@ public class UiQueryTable<E extends Entity>
 	{
 		@SuppressWarnings("unchecked")
 		QueryPredicate<E> pQuery =
-			new QueryPredicate<E>((Class<E>) type().getValueType(), pCriteria);
+			new QueryPredicate<E>((Class<E>) type().getTargetType(), pCriteria);
 
 		fragment().annotateParameter(type(),
 									 null,

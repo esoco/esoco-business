@@ -568,7 +568,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		Object  rParamValue     = getParameter(rParam);
 		boolean bClearSelection = (rParamValue != null);
 
-		if (SelectionDataElement.class.isAssignableFrom(rParam.getValueType()))
+		if (SelectionDataElement.class.isAssignableFrom(rParam.getTargetType()))
 		{
 			SelectionDataElement rElement = (SelectionDataElement) rParamValue;
 
@@ -1382,7 +1382,7 @@ public abstract class InteractionFragment extends ProcessFragment
 		{
 			markParameterAsModified(rParam);
 
-			if (Collection.class.isAssignableFrom(rParam.getValueType()))
+			if (Collection.class.isAssignableFrom(rParam.getTargetType()))
 			{
 				if (rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
 					RelationType.class)

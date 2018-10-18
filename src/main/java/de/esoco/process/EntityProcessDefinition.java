@@ -252,7 +252,7 @@ public abstract class EntityProcessDefinition extends StepListProcessDefinition
 		RelationType<E> rTargetParam)
 	{
 		@SuppressWarnings("unchecked")
-		Class<E> rTargetType = (Class<E>) rTargetParam.getValueType();
+		Class<E> rTargetType = (Class<E>) rTargetParam.getTargetType();
 
 		StepListEntry aStep =
 			invokeFunction(sName,

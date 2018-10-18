@@ -580,7 +580,7 @@ public class ProcessRelationTypes
 		RelationType<T> aDerivedType =
 			RelationTypes.<T>newRelationType(
 				aName.toString(),
-				rRelationType.getValueType(),
+				rRelationType.getTargetType(),
 				rRelationType.getDefaultValueFunction(),
 				rRelationType.getInitialValueFunction());
 

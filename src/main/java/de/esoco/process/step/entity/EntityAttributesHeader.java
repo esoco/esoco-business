@@ -177,7 +177,7 @@ public class EntityAttributesHeader<E extends Entity>
 		InteractionFragment rFilterPanel,
 		RelationType<?>		rAttr)
 	{
-		Class<?>     rDatatype   = rAttr.getValueType();
+		Class<?>     rDatatype   = rAttr.getTargetType();
 		String		 sAttrName   = rAttr.getSimpleName();
 		Parameter<?> aAttrFilter = null;
 
@@ -214,7 +214,7 @@ public class EntityAttributesHeader<E extends Entity>
 		{
 			Predicate<? super E> pAttrCriterion;
 
-			if (rAttribute.getValueType() == String.class)
+			if (rAttribute.getTargetType() == String.class)
 			{
 				pAttrCriterion =
 					rAttribute.is(StoragePredicates.createWildcardFilter(rFilterValue

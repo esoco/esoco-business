@@ -437,7 +437,7 @@ public abstract class ProcessStep extends ProcessFragment
 				// can cause problems with some legacy processes
 				markParameterAsModified(rParam);
 
-				if (rParam.getValueType() == List.class &&
+				if (rParam.getTargetType() == List.class &&
 					rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
 					RelationType.class)
 				{
