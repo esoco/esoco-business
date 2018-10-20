@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -359,9 +359,10 @@ public abstract class ProcessElement extends SerializableRelatedObject
 				RelationType<CharSequence> rStringParam =
 					(RelationType<CharSequence>) rParam;
 
-				setParameterValidation(rStringParam,
-									   MSG_PARAM_NOT_SET,
-									   StringFunctions.isEmpty());
+				setParameterValidation(
+					rStringParam,
+					MSG_PARAM_NOT_SET,
+					StringFunctions.isEmpty());
 			}
 			else if (Collection.class.isAssignableFrom(rDatatype))
 			{
@@ -369,9 +370,10 @@ public abstract class ProcessElement extends SerializableRelatedObject
 				RelationType<Collection<?>> rCollectionParam =
 					(RelationType<Collection<?>>) rParam;
 
-				setParameterValidation(rCollectionParam,
-									   MSG_PARAM_NOT_SET,
-									   CollectionPredicates.isEmpty());
+				setParameterValidation(
+					rCollectionParam,
+					MSG_PARAM_NOT_SET,
+					CollectionPredicates.isEmpty());
 			}
 			else
 			{
@@ -440,10 +442,10 @@ public abstract class ProcessElement extends SerializableRelatedObject
 										   String				sInvalidInfo,
 										   Predicate<? super T> pIsInvalid)
 	{
-		setParameterValidation(rParam,
-							   false,
-							   Functions.<T, String>doIf(pIsInvalid,
-														 value(sInvalidInfo)));
+		setParameterValidation(
+			rParam,
+			false,
+			Functions.doIf(pIsInvalid, value(sInvalidInfo)));
 	}
 
 	/***************************************
