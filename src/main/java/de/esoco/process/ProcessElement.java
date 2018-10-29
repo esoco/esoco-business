@@ -454,7 +454,7 @@ public abstract class ProcessElement extends SerializableRelatedObject
 	 * @param  bOnInteraction TRUE for interaction validations, FALSE for
 	 *                        finishing validations
 	 *
-	 * @return
+	 * @return The mapping from parameter types to validation functions
 	 */
 	protected Map<RelationType<?>, Function<?, String>> getParameterValidations(
 		boolean bOnInteraction)

@@ -464,7 +464,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public final <E extends Enum<E>> EnumParameter<E> buttons(
 		E... rAllowedValues)
 	{
-		return enumParam(getValueDatatype(rAllowedValues[0])).buttons(rAllowedValues);
+		return enumParam(getValueDatatype(rAllowedValues[0])).buttons(
+			rAllowedValues);
 	}
 
 	/***************************************
@@ -486,7 +487,8 @@ public abstract class InteractionFragment extends ProcessFragment
 			getTemporaryParameterType(sName, (Class<D>) rDataSet.getClass());
 
 		return new DataSetParameter<T, D>(this, rParamType).value(rDataSet)
-														   .chartType(eChartType);
+														   .chartType(
+												   			eChartType);
 	}
 
 	/***************************************
@@ -742,10 +744,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public <E extends Enum<E>> EnumParameter<E> enumParam(Class<E> rEnumClass)
 	{
-		return new EnumParameter<>(this,
-								   getTemporaryParameterType(rEnumClass
-															 .getSimpleName(),
-															 rEnumClass));
+		return new EnumParameter<>(
+			this,
+			getTemporaryParameterType(rEnumClass.getSimpleName(), rEnumClass));
 	}
 
 	/***************************************
@@ -1121,8 +1122,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public Parameter<Date> inputDate(String sName)
 	{
-		return input(sName, Date.class).set(DATE_INPUT_TYPE,
-											DateInputType.INPUT_FIELD);
+		return input(sName, Date.class).set(
+			DATE_INPUT_TYPE,
+			DateInputType.INPUT_FIELD);
 	}
 
 	/***************************************
@@ -1187,9 +1189,10 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<?>				rBeforeParam,
 		Collection<RelationType<?>> rParams)
 	{
-		CollectionUtil.insert(getInteractionParameters(),
-							  rBeforeParam,
-							  rParams);
+		CollectionUtil.insert(
+			getInteractionParameters(),
+			rBeforeParam,
+			rParams);
 		getInputParameters().addAll(rParams);
 	}
 
@@ -1279,8 +1282,9 @@ public abstract class InteractionFragment extends ProcessFragment
 		String			 sName,
 		Class<? super T> rElementType)
 	{
-		return new ListParameter<>(this,
-								   getTemporaryListType(sName, rElementType));
+		return new ListParameter<>(
+			this,
+			getTemporaryListType(sName, rElementType));
 	}
 
 	/***************************************
@@ -1520,7 +1524,8 @@ public abstract class InteractionFragment extends ProcessFragment
 		final Initializer<InteractionFragment> rInitializer)
 	{
 		ParameterList aPanel =
-			addSubFragment(sName,
+			addSubFragment(
+				sName,
 				new InteractionFragment()
 				{
 					@Override
@@ -1643,8 +1648,9 @@ public abstract class InteractionFragment extends ProcessFragment
 			try
 			{
 				rEntity =
-					(E) EntityManager.queryEntity(rEntity.getClass(),
-												  rEntity.getId());
+					(E) EntityManager.queryEntity(
+						rEntity.getClass(),
+						rEntity.getId());
 				setParameter(rEntityParam, rEntity);
 			}
 			catch (StorageException e)
@@ -1756,10 +1762,9 @@ public abstract class InteractionFragment extends ProcessFragment
 										Class<? super T> rElementType,
 										boolean			 bOrdered)
 	{
-		return new SetParameter<>(this,
-								  getTemporarySetType(sName,
-													  rElementType,
-													  bOrdered));
+		return new SetParameter<>(
+			this,
+			getTemporarySetType(sName, rElementType, bOrdered));
 	}
 
 	/***************************************
@@ -1772,8 +1777,9 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<?>    rParam,
 		InteractionHandler rInteractionHandler)
 	{
-		getProcessStep().setParameterInteractionHandler(rParam,
-														rInteractionHandler);
+		getProcessStep().setParameterInteractionHandler(
+			rParam,
+			rInteractionHandler);
 	}
 
 	/***************************************
@@ -1804,11 +1810,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	{
 		if (rRunOnComfirmation == null)
 		{
-			throw new IllegalArgumentException("Runnable parameter must not be NULL");
+			throw new IllegalArgumentException(
+				"Runnable parameter must not be NULL");
 		}
 
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_QUESTION_ICON,
+		return showMessageBox(
+			sMessage,
+			MESSAGE_BOX_QUESTION_ICON,
 			new DialogActionListener()
 			{
 				@Override
@@ -1821,33 +1829,33 @@ public abstract class InteractionFragment extends ProcessFragment
 					}
 				}
 			},
-							  bYesNoQuestion ? DialogAction.YES_NO
-											 : DialogAction.OK_CANCEL);
+			bYesNoQuestion ? DialogAction.YES_NO : DialogAction.OK_CANCEL);
 	}
 
 	/***************************************
 	 * Adds a sub-fragment to be displayed as a modal dialog.
 	 *
-	 * @see #showDialog(String, InteractionFragment, boolean, String,
-	 *      DialogActionListener, Collection)
+	 * @see InteractionFragment#showDialog(String, InteractionFragment, boolean,
+	 *      String, DialogActionListener, Collection)
 	 */
 	public DialogFragment showDialog(String				  sParamNameTemplate,
 									 InteractionFragment  rContentFragment,
 									 DialogActionListener rDialogListener,
 									 DialogAction... 	  rDialogActions)
 	{
-		return showDialog(sParamNameTemplate,
-						  rContentFragment,
-						  true,
-						  rDialogListener,
-						  Arrays.asList(rDialogActions));
+		return showDialog(
+			sParamNameTemplate,
+			rContentFragment,
+			true,
+			rDialogListener,
+			Arrays.asList(rDialogActions));
 	}
 
 	/***************************************
 	 * Adds a sub-fragment to be displayed as a modal dialog.
 	 *
-	 * @see #showDialog(String, InteractionFragment, boolean, String,
-	 *      DialogActionListener, Collection)
+	 * @see InteractionFragment#showDialog(String, InteractionFragment, boolean,
+	 *      String, DialogActionListener, Collection)
 	 */
 	public DialogFragment showDialog(
 		String					 sParamNameTemplate,
@@ -1856,12 +1864,13 @@ public abstract class InteractionFragment extends ProcessFragment
 		DialogActionListener	 rDialogListener,
 		Collection<DialogAction> rDialogActions)
 	{
-		return showDialog(sParamNameTemplate,
-						  rContentFragment,
-						  bModal,
-						  null,
-						  rDialogListener,
-						  rDialogActions);
+		return showDialog(
+			sParamNameTemplate,
+			rContentFragment,
+			bModal,
+			null,
+			rDialogListener,
+			rDialogActions);
 	}
 
 	/***************************************
@@ -1898,11 +1907,12 @@ public abstract class InteractionFragment extends ProcessFragment
 		Collection<DialogAction> rDialogActions)
 	{
 		DialogFragment aDialog =
-			new DialogFragment(sParamNameTemplate,
-							   rContentFragment,
-							   bModal,
-							   sQuestion,
-							   rDialogActions);
+			new DialogFragment(
+				sParamNameTemplate,
+				rContentFragment,
+				bModal,
+				sQuestion,
+				rDialogActions);
 
 		showDialogImpl(aDialog, rDialogListener);
 
@@ -1912,29 +1922,31 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Displays a message with an error icon and a single OK button.
 	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
+	 * @see InteractionFragment#showMessageBox(String, String,
+	 *      DialogActionListener, Collection, RelationType...)
 	 */
 	public MessageBoxFragment showErrorMessage(String sMessage)
 	{
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_ERROR_ICON,
-							  null,
-							  DialogAction.OK);
+		return showMessageBox(
+			sMessage,
+			MESSAGE_BOX_ERROR_ICON,
+			null,
+			DialogAction.OK);
 	}
 
 	/***************************************
 	 * Displays a message with an info icon and a single OK button.
 	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
+	 * @see InteractionFragment#showMessageBox(String, String,
+	 *      DialogActionListener, Collection, RelationType...)
 	 */
 	public MessageBoxFragment showInfoMessage(String sMessage)
 	{
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_INFO_ICON,
-							  null,
-							  DialogAction.OK);
+		return showMessageBox(
+			sMessage,
+			MESSAGE_BOX_INFO_ICON,
+			null,
+			DialogAction.OK);
 	}
 
 	/***************************************
@@ -1943,8 +1955,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * this instance. Therefore the parameter lists of this instance MUST be
 	 * mutable!
 	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
+	 * @see InteractionFragment#showMessageBox(String, String,
+	 *      DialogActionListener, Collection, RelationType...)
 	 */
 	public MessageBoxFragment showMessageBox(
 		String				 sMessage,
@@ -1952,10 +1964,11 @@ public abstract class InteractionFragment extends ProcessFragment
 		DialogActionListener rDialogListener,
 		DialogAction... 	 rDialogActions)
 	{
-		return showMessageBox(sMessage,
-							  sIcon,
-							  rDialogListener,
-							  Arrays.asList(rDialogActions));
+		return showMessageBox(
+			sMessage,
+			sIcon,
+			rDialogListener,
+			Arrays.asList(rDialogActions));
 	}
 
 	/***************************************
@@ -1988,10 +2001,11 @@ public abstract class InteractionFragment extends ProcessFragment
 		RelationType<?>... 		 rExtraParams)
 	{
 		MessageBoxFragment aMessageBox =
-			new MessageBoxFragment(sMessage,
-								   sIcon,
-								   rDialogActions,
-								   rExtraParams);
+			new MessageBoxFragment(
+				sMessage,
+				sIcon,
+				rDialogActions,
+				rExtraParams);
 
 		showDialogImpl(aMessageBox, rDialogListener);
 
@@ -2002,8 +2016,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Displays a modal dialog with a name prefix that is derived from the name
 	 * of the content fragment.
 	 *
-	 * @see #showDialog(String, InteractionFragment, boolean, String,
-	 *      DialogActionListener, Collection)
+	 * @see InteractionFragment#showDialog(String, InteractionFragment, boolean,
+	 *      String, DialogActionListener, Collection)
 	 */
 	public DialogFragment showModalDialog(
 		InteractionFragment		 rContentFragment,
@@ -2036,10 +2050,10 @@ public abstract class InteractionFragment extends ProcessFragment
 								 boolean			 bModal)
 	{
 		ViewFragment aViewFragment =
-			new ViewFragment(sParamNameTemplate,
-							 rContentFragment,
-							 bModal ? ViewDisplayType.MODAL_VIEW
-									: ViewDisplayType.VIEW);
+			new ViewFragment(
+				sParamNameTemplate,
+				rContentFragment,
+				bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
 
 		aViewFragment.show(this);
 
@@ -2049,15 +2063,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	/***************************************
 	 * Displays a message with an warning icon and a single OK button.
 	 *
-	 * @see #showMessageBox(String, String, DialogActionListener, Collection,
-	 *      RelationType...)
+	 * @see InteractionFragment#showMessageBox(String, String,
+	 *      DialogActionListener, Collection, RelationType...)
 	 */
 	public MessageBoxFragment showWarningMessage(String sMessage)
 	{
-		return showMessageBox(sMessage,
-							  MESSAGE_BOX_WARNING_ICON,
-							  null,
-							  DialogAction.OK);
+		return showMessageBox(
+			sMessage,
+			MESSAGE_BOX_WARNING_ICON,
+			null,
+			DialogAction.OK);
 	}
 
 	/***************************************
@@ -2148,7 +2163,8 @@ public abstract class InteractionFragment extends ProcessFragment
 
 		for (InteractionFragment rSubFragment : getSubFragments())
 		{
-			aValidationErrors.putAll(rSubFragment.validateFragmentParameters(bOnInteraction));
+			aValidationErrors.putAll(
+				rSubFragment.validateFragmentParameters(bOnInteraction));
 		}
 
 		Map<RelationType<?>, String> aFragmentErrors =
@@ -2398,8 +2414,9 @@ public abstract class InteractionFragment extends ProcessFragment
 		setUIProperty(URL, sUploadUrl, rFileSelectParam);
 		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
 
-		addCleanupAction(sUploadUrl,
-						 f -> rSessionManager.removeUpload(sUploadUrl));
+		addCleanupAction(
+			sUploadUrl,
+			f -> rSessionManager.removeUpload(sUploadUrl));
 	}
 
 	/***************************************
@@ -2425,9 +2442,10 @@ public abstract class InteractionFragment extends ProcessFragment
 								 int				  nMaxSize) throws Exception
 	{
 		ProcessParamUploadHandler aUploadHandler =
-			new ProcessParamUploadHandler(rTargetParam,
-										  rContentTypePattern,
-										  nMaxSize);
+			new ProcessParamUploadHandler(
+				rTargetParam,
+				rContentTypePattern,
+				nMaxSize);
 
 		prepareUpload(rFileSelectParam, aUploadHandler);
 	}
@@ -2477,8 +2495,9 @@ public abstract class InteractionFragment extends ProcessFragment
 			}
 			else if (rParam.hasFlag(ExtraAttributes.EXTRA_ATTRIBUTE_FLAG))
 			{
-				setParameter((RelationType) rParam,
-							 rEntity.getExtraAttribute(rParam, null));
+				setParameter(
+					(RelationType) rParam,
+					rEntity.getExtraAttribute(rParam, null));
 			}
 		}
 	}
@@ -2532,8 +2551,9 @@ public abstract class InteractionFragment extends ProcessFragment
 				}
 				else if (rParam.hasFlag(ExtraAttributes.EXTRA_ATTRIBUTE_FLAG))
 				{
-					rEntity.setExtraAttribute((RelationType) rParam,
-											  getParameter(rParam));
+					rEntity.setExtraAttribute(
+						(RelationType) rParam,
+						getParameter(rParam));
 				}
 			}
 		}

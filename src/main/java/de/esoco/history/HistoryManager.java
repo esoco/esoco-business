@@ -204,7 +204,8 @@ public class HistoryManager
 	 * @throws StorageException         If querying the history storage fails
 	 * @throws IllegalArgumentException If the target entity is NULL
 	 *
-	 * @see    #getHistoryFor(Entity, HistoryType, Date, Date, Entity)
+	 * @see    HistoryManager#getHistoryFor(Entity, HistoryType, Date, Date,
+	 *         Entity)
 	 */
 	public static List<HistoryRecord> getHistoryFor(
 		Entity		rTarget,
@@ -385,23 +386,25 @@ public class HistoryManager
 		if (rGroup == null)
 		{
 			HistoryRecord aRecord =
-				createRecord(rType,
-							 rOrigin,
-							 rTarget,
-							 rRootTarget,
-							 sValue,
-							 rReferenceType,
-							 sReferenceValue);
+				createRecord(
+					rType,
+					rOrigin,
+					rTarget,
+					rRootTarget,
+					sValue,
+					rReferenceType,
+					sReferenceValue);
 
 			EntityManager.storeEntity(aRecord, null);
 		}
 		else
 		{
-			rGroup.addDetail(rType,
-							 rTarget,
-							 sValue,
-							 rReferenceType,
-							 sReferenceValue);
+			rGroup.addDetail(
+				rType,
+				rTarget,
+				sValue,
+				rReferenceType,
+				sReferenceValue);
 		}
 	}
 
@@ -459,8 +462,9 @@ public class HistoryManager
 
 		if (rReferenceType != null && sReferenceValue != null)
 		{
-			aRecord.set(REFERENCE,
-						rReferenceType.name() + ":" + sReferenceValue);
+			aRecord.set(
+				REFERENCE,
+				rReferenceType.name() + ":" + sReferenceValue);
 		}
 
 		return aRecord;
@@ -487,8 +491,9 @@ public class HistoryManager
 		if (rCompareValue != null)
 		{
 			aQuery =
-				Predicates.and(aQuery,
-							   ifProperty(rProperty, equalTo(rCompareValue)));
+				Predicates.and(
+					aQuery,
+					ifProperty(rProperty, equalTo(rCompareValue)));
 		}
 
 		return aQuery;

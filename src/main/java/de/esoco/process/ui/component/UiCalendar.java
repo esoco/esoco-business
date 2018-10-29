@@ -46,7 +46,8 @@ public class UiCalendar extends UiDateInputField<UiCalendar>
 	/***************************************
 	 * Creates a new instance for a particular date.
 	 *
-	 * @see UiDateInputField#UiDateInputField(UiContainer, Date, DateInputType)
+	 * @param rContainer The parent container
+	 * @param rDate      The initial date to display
 	 */
 	public UiCalendar(UiContainer<?> rContainer, Date rDate)
 	{

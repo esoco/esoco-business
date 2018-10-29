@@ -39,10 +39,9 @@ import java.util.function.Consumer;
 /********************************************************************
  * A composite that is rendered with a card style, i.e. as a shadowed rectangle
  * with a title and some content. The content should be added through the
- * builder returned from {@link #contentBuilder()}. The standard container
- * {@link #builder()} should be avoided as it may have side effects. Optionally
- * the "back side" of the card can also contain a component, e.g. to display
- * help or options for the main card content.
+ * builder returned from {@link #builder()}. The back side and card action area
+ * can be built with {@link #backSideBuilder()} and {@link
+ * #cardActionBuilder()}.
  *
  * @author eso
  */
@@ -136,13 +135,9 @@ public class UiCard extends UiComposite<UiCard>
 	/***************************************
 	 * Returns a builder for the optional back side of a card. If set the back
 	 * side will be displayed when the user clicks on the card icon (which must
-	 * therefore be set). Furthermore the back side must contain an interactive
-	 * component (typically a button) with a registered action listener so that
-	 * it can be closed and the display switched back to the front side. This is
-	 * not done by the framework to not impose a fixed layout. But a standard
-	 * close button can be added by invoking {@link #addBackSideCloser()}. To
-	 * achieve a standard layout this should then be the first call before
-	 * adding further back side content.
+	 * therefore be set). If invoked it also adds a back side title and close
+	 * button. Back-side events can be handled by registering listeners with
+	 * {@link #onBackSideOpen(Runnable)} and {@link #onBackSideClose(Runnable)}.
 	 *
 	 * @return The back side builder
 	 */
@@ -157,9 +152,8 @@ public class UiCard extends UiComposite<UiCard>
 		{
 			// add empty title and close button
 			aBackSideTitle =
-				new UiCardTitle(aBackSide, "", UiStandardIcon.CLOSE).onAction(v ->
-																			  fBackSideCloseHandler
-																			  .run());
+				new UiCardTitle(aBackSide, "", UiStandardIcon.CLOSE).onAction(
+					v -> fBackSideCloseHandler.run());
 		}
 
 		return aBackSide.builder();
@@ -183,7 +177,9 @@ public class UiCard extends UiComposite<UiCard>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Returns the card title text.
+	 *
+	 * @return The title text
 	 */
 	public String getTitle()
 	{
@@ -281,9 +277,8 @@ public class UiCard extends UiComposite<UiCard>
 			if (aCardTitle == null)
 			{
 				aCardTitle =
-					new UiCardTitle(this, sTitle, rIcon).onAction(v ->
-																  fBackSideOpenHandler
-																  .run());
+					new UiCardTitle(this, sTitle, rIcon).onAction(
+						v -> fBackSideOpenHandler.run());
 			}
 
 			aCardTitle.setText(sTitle);
@@ -343,9 +338,9 @@ public class UiCard extends UiComposite<UiCard>
 		@Override
 		public UiCardTitle onAction(Consumer<String> rEventHandler)
 		{
-			return (UiCardTitle) setParameterEventHandler(InteractionEventType.ACTION,
-														  v -> rEventHandler
-														  .accept(v));
+			return (UiCardTitle) setParameterEventHandler(
+				InteractionEventType.ACTION,
+				v -> rEventHandler.accept(v));
 		}
 	}
 

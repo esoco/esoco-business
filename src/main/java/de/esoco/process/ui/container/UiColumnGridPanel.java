@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 
@@ -24,7 +25,7 @@ import de.esoco.process.ui.layout.UiColumnGridLayout;
 /********************************************************************
  * A panel that layouts it's children with a {@link UiColumnGridLayout} in a
  * vertically aligned grid. Components are added to the same grid row until
- * {@link #nextRow()} is called.
+ * {@link UiLayout#nextRow() nextRow()} is called on the layout.
  *
  * @author eso
  */

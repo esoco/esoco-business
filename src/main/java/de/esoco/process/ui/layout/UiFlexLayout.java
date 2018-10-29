@@ -381,8 +381,8 @@ public class UiFlexLayout extends UiLayout
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
-	 * A {@link UiLayout#Cell} subclass that provides additional access methods
-	 * for single Flexbox layout elements.
+	 * A {@link Cell} subclass that provides additional access methods for
+	 * single Flexbox layout elements.
 	 *
 	 * @author eso
 	 */

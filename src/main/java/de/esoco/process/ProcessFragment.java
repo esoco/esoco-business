@@ -53,6 +53,7 @@ import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.MutableProperties;
+import de.esoco.lib.property.Orientation;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StateProperties;
 import de.esoco.lib.property.StringProperties;
@@ -121,9 +122,9 @@ import static de.esoco.lib.property.StyleProperties.WRAP;
 
 import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_FILL;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.ORIGINAL_RELATION_TYPE;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_EXECUTOR;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
@@ -319,8 +320,8 @@ public abstract class ProcessFragment extends ProcessElement
 	 * Configures a parameter to be displayed in a panel with 2 or 3 segments.
 	 * Either the first or the last parameter may be NULL but not both and not
 	 * the center parameter. For a vertical orientation of the panel the UI
-	 * property {@link UserInterfaceProperties#VERTICAL} should be given as a
-	 * flag.
+	 * property {@link StyleProperties#ORIENTATION} should be set to {@link
+	 * Orientation#VERTICAL VERTICAL}.
 	 *
 	 * @param rPanelParam  The data element list parameter to be displayed as a
 	 *                     panel
@@ -329,7 +330,6 @@ public abstract class ProcessFragment extends ProcessElement
 	 * @param rLastParam   The last parameter in the panel or NULL for none
 	 * @param bResizable   TRUE to make the panel resizable as a split panel
 	 * @param rUIFlags     Boolean properties to be set on the panel parameter
-	 *                     (e.g. {@link UserInterfaceProperties#VERTICAL})
 	 */
 	@SafeVarargs
 	public final void addPanel(RelationType<List<RelationType<?>>> rPanelParam,
@@ -353,9 +353,10 @@ public abstract class ProcessFragment extends ProcessElement
 			rPanelContentParams.add(rLastParam);
 		}
 
-		addPanel(rPanelParam,
-				 bResizable ? LayoutType.SPLIT : LayoutType.DOCK,
-				 rPanelContentParams);
+		addPanel(
+			rPanelParam,
+			bResizable ? LayoutType.SPLIT : LayoutType.DOCK,
+			rPanelContentParams);
 
 		for (PropertyName<Boolean> rFlag : rUIFlags)
 		{
@@ -402,9 +403,10 @@ public abstract class ProcessFragment extends ProcessElement
 		boolean			   bReverseState,
 		RelationType<?>... rDependentParams)
 	{
-		addSelectionDependency(rParam,
-							   bReverseState,
-							   Arrays.asList(rDependentParams));
+		addSelectionDependency(
+			rParam,
+			bReverseState,
+			Arrays.asList(rDependentParams));
 	}
 
 	/***************************************
@@ -447,9 +449,10 @@ public abstract class ProcessFragment extends ProcessElement
 
 			aDependencies.setLength(aDependencies.length() - 1);
 
-			setUIProperty(SELECTION_DEPENDENCY,
-						  aDependencies.toString(),
-						  rParam);
+			setUIProperty(
+				SELECTION_DEPENDENCY,
+				aDependencies.toString(),
+				rParam);
 		}
 	}
 
@@ -464,9 +467,10 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam,
-				 LayoutType.STACK,
-				 Arrays.asList(rPanelContentParams));
+		addPanel(
+			rPanelParam,
+			LayoutType.STACK,
+			Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -517,9 +521,10 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rPanelParam,
 		RelationType<?>... 					rPanelContentParams)
 	{
-		addPanel(rPanelParam,
-				 LayoutType.TABS,
-				 Arrays.asList(rPanelContentParams));
+		addPanel(
+			rPanelParam,
+			LayoutType.TABS,
+			Arrays.asList(rPanelContentParams));
 	}
 
 	/***************************************
@@ -548,10 +553,11 @@ public abstract class ProcessFragment extends ProcessElement
 			markParameterAsModified(rParam);
 		}
 
-		EntityProcessDefinition.annotateForEntityQuery(rRelation,
-													   pQuery,
-													   pSortOrder,
-													   rAttributes);
+		EntityProcessDefinition.annotateForEntityQuery(
+			rRelation,
+			pQuery,
+			pSortOrder,
+			rAttributes);
 	}
 
 	/***************************************
@@ -569,10 +575,11 @@ public abstract class ProcessFragment extends ProcessElement
 		Predicate<? super Entity> pSortOrder,
 		RelationType<?>... 		  rAttributes)
 	{
-		annotateForEntityQuery(rParam,
-							   pQuery,
-							   pSortOrder,
-							   Arrays.<Function<? super E, ?>>asList(rAttributes));
+		annotateForEntityQuery(
+			rParam,
+			pQuery,
+			pSortOrder,
+			Arrays.<Function<? super E, ?>>asList(rAttributes));
 	}
 
 	/***************************************
@@ -649,8 +656,9 @@ public abstract class ProcessFragment extends ProcessElement
 		{
 			try
 			{
-				((Entity) rTarget).setExtraAttribute(rOriginalType,
-													 rParamValue);
+				((Entity) rTarget).setExtraAttribute(
+					rOriginalType,
+					rParamValue);
 			}
 			catch (StorageException e)
 			{
@@ -752,8 +760,9 @@ public abstract class ProcessFragment extends ProcessElement
 	{
 		if (!bSkipExisting || !hasParameter(rDerivedParam))
 		{
-			setParameter(rDerivedParam,
-						 getDerivedParameterValue(rSource, rDerivedParam));
+			setParameter(
+				rDerivedParam,
+				getDerivedParameterValue(rSource, rDerivedParam));
 		}
 	}
 
@@ -820,10 +829,11 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<E> rEnumParam,
 		Collection<E>   rDisabledElements)
 	{
-		disableElements(rEnumParam,
-						(Class<E>) rEnumParam.getTargetType(),
-						getAllowedValues(rEnumParam),
-						rDisabledElements);
+		disableElements(
+			rEnumParam,
+			(Class<E>) rEnumParam.getTargetType(),
+			getAllowedValues(rEnumParam),
+			rDisabledElements);
 	}
 
 	/***************************************
@@ -866,9 +876,10 @@ public abstract class ProcessFragment extends ProcessElement
 				}
 			}
 
-			setUIProperty(DISABLED_ELEMENTS,
-						  aDisabledElements.toString(),
-						  rParam);
+			setUIProperty(
+				DISABLED_ELEMENTS,
+				aDisabledElements.toString(),
+				rParam);
 		}
 		else
 		{
@@ -891,10 +902,11 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<C> rEnumCollectionParam,
 		Collection<E>   rDisabledElements)
 	{
-		disableElements(rEnumCollectionParam,
-						(Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
-						getAllowedElements(rEnumCollectionParam),
-						rDisabledElements);
+		disableElements(
+			rEnumCollectionParam,
+			(Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
+			getAllowedElements(rEnumCollectionParam),
+			rDisabledElements);
 	}
 
 	/***************************************
@@ -946,8 +958,8 @@ public abstract class ProcessFragment extends ProcessElement
 
 		Relation<C> rRelation = getParameterRelation(rParam);
 
-		return rRelation != null ? (Collection<T>) rRelation.get(ALLOWED_VALUES)
-								 : null;
+		return rRelation != null ? (Collection<T>) rRelation.get(
+			ALLOWED_VALUES) : null;
 	}
 
 	/***************************************
@@ -966,8 +978,8 @@ public abstract class ProcessFragment extends ProcessElement
 
 		Relation<T> rRelation = getParameterRelation(rParam);
 
-		return rRelation != null ? (Collection<T>) rRelation.get(ALLOWED_VALUES)
-								 : null;
+		return rRelation != null ? (Collection<T>) rRelation.get(
+			ALLOWED_VALUES) : null;
 	}
 
 	/***************************************
@@ -1383,9 +1395,10 @@ public abstract class ProcessFragment extends ProcessElement
 	public <T> T getUserSetting(RelationType<T> rSettingsExtraAttr)
 		throws StorageException
 	{
-		return Configuration.getSettingsValue(getProcessUser(),
-											  rSettingsExtraAttr,
-											  null);
+		return Configuration.getSettingsValue(
+			getProcessUser(),
+			rSettingsExtraAttr,
+			null);
 	}
 
 	/***************************************
@@ -1465,9 +1478,10 @@ public abstract class ProcessFragment extends ProcessElement
 		throws StorageException
 	{
 		Boolean rFlag =
-			Configuration.getSettingsValue(getProcessUser(),
-										   rSettingsFlag,
-										   null);
+			Configuration.getSettingsValue(
+				getProcessUser(),
+				rSettingsFlag,
+				null);
 
 		return Boolean.TRUE.equals(rFlag);
 	}
@@ -1503,9 +1517,9 @@ public abstract class ProcessFragment extends ProcessElement
 
 		if (bSuccess)
 		{
-			addCleanupAction(Process.CLEANUP_KEY_UNLOCK_ENTITY +
-							 rEntity.getGlobalId(),
-							 f -> rEntity.unlock());
+			addCleanupAction(
+				Process.CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId(),
+				f -> rEntity.unlock());
 		}
 
 		return bSuccess;
@@ -1549,12 +1563,13 @@ public abstract class ProcessFragment extends ProcessElement
 
 		if (rEarliestDate != null)
 		{
-			setParameterValidation(rParam,
-								   false,
-								   doIfElse(isNull(),
-											value(MSG_PARAM_NOT_SET),
-											doIf(lessThan(rEarliestDate),
-												 value("DateIsBeforeToday"))));
+			setParameterValidation(
+				rParam,
+				false,
+				doIfElse(
+					isNull(),
+					value(MSG_PARAM_NOT_SET),
+					doIf(lessThan(rEarliestDate), value("DateIsBeforeToday"))));
 		}
 	}
 
@@ -1618,8 +1633,9 @@ public abstract class ProcessFragment extends ProcessElement
 			setParameter(rUrlParam, sDownloadUrl);
 		}
 
-		addCleanupAction(sDownloadUrl,
-						 f -> rSessionManager.removeDownload(sDownloadUrl));
+		addCleanupAction(
+			sDownloadUrl,
+			f -> rSessionManager.removeDownload(sDownloadUrl));
 
 		return sDownloadUrl;
 	}
@@ -1961,10 +1977,11 @@ public abstract class ProcessFragment extends ProcessElement
 										 ListStyle		 rListStyle,
 										 T... 			 rAllowedValues)
 	{
-		setInteractive(rParam,
-					   rInitialValue,
-					   rListStyle,
-					   Arrays.asList(rAllowedValues));
+		setInteractive(
+			rParam,
+			rInitialValue,
+			rListStyle,
+			Arrays.asList(rAllowedValues));
 	}
 
 	/***************************************
@@ -2004,10 +2021,11 @@ public abstract class ProcessFragment extends ProcessElement
 		ListStyle		rListStyle,
 		T... 			rAllowedValues)
 	{
-		setInteractive(rParam,
-					   rDefaultValues,
-					   rListStyle,
-					   Arrays.asList(rAllowedValues));
+		setInteractive(
+			rParam,
+			rDefaultValues,
+			rListStyle,
+			Arrays.asList(rAllowedValues));
 	}
 
 	/***************************************
@@ -2182,9 +2200,10 @@ public abstract class ProcessFragment extends ProcessElement
 		boolean			   bReverseState,
 		RelationType<?>... rDependentParams)
 	{
-		setSelectionDependency(rParam,
-							   bReverseState,
-							   Arrays.asList(rDependentParams));
+		setSelectionDependency(
+			rParam,
+			bReverseState,
+			Arrays.asList(rDependentParams));
 	}
 
 	/***************************************
@@ -2364,8 +2383,9 @@ public abstract class ProcessFragment extends ProcessElement
 		Relatable		   rInitParams) throws Exception
 	{
 		ProcessState rProcessState =
-			getParameter(PROCESS_EXECUTOR).executeProcess(rDescription,
-														  rInitParams);
+			getParameter(PROCESS_EXECUTOR).executeProcess(
+				rDescription,
+				rInitParams);
 
 		if (rProcessState != null)
 		{
@@ -2395,8 +2415,8 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	public final void unlockEntity(Entity rEntity)
 	{
-		removeCleanupAction(Process.CLEANUP_KEY_UNLOCK_ENTITY +
-							rEntity.getGlobalId());
+		removeCleanupAction(
+			Process.CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId());
 		rEntity.unlock();
 	}
 
@@ -2616,8 +2636,9 @@ public abstract class ProcessFragment extends ProcessElement
 				aParamName.append('_');
 			}
 
-			aParamName.append(TextConvert.uppercaseIdentifier(sBaseName)
-							  .replaceAll("[.-]", "_"));
+			aParamName.append(
+				TextConvert.uppercaseIdentifier(sBaseName)
+				.replaceAll("[.-]", "_"));
 		}
 
 		return aParamName.toString();
@@ -2706,12 +2727,13 @@ public abstract class ProcessFragment extends ProcessElement
 		boolean							 b3D)
 	{
 		DataSetDataElement aChartElement =
-			new DataSetDataElement(rTargetParam.getName(),
-								   aDataSet,
-								   eChartType,
-								   eLegendPosition,
-								   sBackgroundColor,
-								   b3D);
+			new DataSetDataElement(
+				rTargetParam.getName(),
+				aDataSet,
+				eChartType,
+				eLegendPosition,
+				sBackgroundColor,
+				b3D);
 
 		setParameter(rTargetParam, aChartElement);
 	}
@@ -2750,12 +2772,13 @@ public abstract class ProcessFragment extends ProcessElement
 			aDataSet.addRow(rRow.getKey(), rRow.getValue());
 		}
 
-		initChartParameter(rTargetParam,
-						   aDataSet,
-						   eChartType,
-						   eLegendPosition,
-						   sBackgroundColor,
-						   b3D);
+		initChartParameter(
+			rTargetParam,
+			aDataSet,
+			eChartType,
+			eLegendPosition,
+			sBackgroundColor,
+			b3D);
 	}
 
 	/***************************************
@@ -2768,10 +2791,11 @@ public abstract class ProcessFragment extends ProcessElement
 	protected void initProgressParameter()
 	{
 		annotateParameter(PROGRESS, null, MINIMUM, 0);
-		annotateParameter(PROGRESS,
-						  null,
-						  MAXIMUM,
-						  checkParameter(PROGRESS_MAXIMUM));
+		annotateParameter(
+			PROGRESS,
+			null,
+			MAXIMUM,
+			checkParameter(PROGRESS_MAXIMUM));
 
 		setUIProperty(CONTENT_TYPE, ContentType.PROGRESS, PROGRESS);
 	}
@@ -2928,10 +2952,12 @@ public abstract class ProcessFragment extends ProcessElement
 	 */
 	protected void setProgressIndicator()
 	{
-		setParameter(PROGRESS_INDICATOR,
-					 String.format(getParameter(PROGRESS_INDICATOR_TEMPLATE),
-								   getParameter(PROGRESS),
-								   getParameter(PROGRESS_MAXIMUM)));
+		setParameter(
+			PROGRESS_INDICATOR,
+			String.format(
+				getParameter(PROGRESS_INDICATOR_TEMPLATE),
+				getParameter(PROGRESS),
+				getParameter(PROGRESS_MAXIMUM)));
 	}
 
 	/***************************************
@@ -2942,8 +2968,8 @@ public abstract class ProcessFragment extends ProcessElement
 	protected <T> void throwMissingParameterException(
 		RelationType<T> rParamType)
 	{
-		throw new IllegalStateException(String.format("Parameter %s not set",
-													  rParamType));
+		throw new IllegalStateException(
+			String.format("Parameter %s not set", rParamType));
 	}
 
 	/***************************************
