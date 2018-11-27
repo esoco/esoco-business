@@ -308,8 +308,9 @@ public abstract class DataElement<T> extends StringProperties
 			{
 				for (PropertyName<?> rProperty : rCopyProperties)
 				{
-					aCopy.setProperty((PropertyName<Object>) rProperty,
-									  (Object) getProperty(rProperty, null));
+					aCopy.setProperty(
+						(PropertyName<Object>) rProperty,
+						(Object) getProperty(rProperty, null));
 				}
 			}
 		}
@@ -535,11 +536,12 @@ public abstract class DataElement<T> extends StringProperties
 	 * invalid. Therefore applications can use this method to verify values
 	 * before setting them (e.g. when performing input validation).
 	 *
-	 * @param  rValue The value to check
+	 * @param  rValidator The validator to check the value with or NULL for none
+	 * @param  rValue     The value to check
 	 *
 	 * @return TRUE if the value is valid for this data element
 	 */
-	public boolean isValidValue(T rValue)
+	public <V> boolean isValidValue(Validator<? super V> rValidator, V rValue)
 	{
 		return rValidator == null || (rValue == null && isOptional()) ||
 			   rValidator.isValid(rValue);
@@ -620,8 +622,9 @@ public abstract class DataElement<T> extends StringProperties
 	 */
 	public void setStringValue(String sValue)
 	{
-		throw new UnsupportedOperationException("Cannot convert " + sValue +
-												" for " + this);
+		throw new UnsupportedOperationException(
+			"Cannot convert " + sValue +
+			" for " + this);
 	}
 
 	/***************************************
@@ -645,7 +648,7 @@ public abstract class DataElement<T> extends StringProperties
 	public final void setValue(T rNewValue)
 	{
 		checkImmutable();
-		checkValidValue(rNewValue);
+		checkValidValue(rValidator, rNewValue);
 
 		T rCurrentValue = getValue();
 
@@ -729,8 +732,9 @@ public abstract class DataElement<T> extends StringProperties
 	{
 		if (isImmutable())
 		{
-			throw new UnsupportedOperationException("Element " + this +
-													" is readonly");
+			throw new UnsupportedOperationException(
+				"Element " + this +
+				" is readonly");
 		}
 	}
 
@@ -739,17 +743,21 @@ public abstract class DataElement<T> extends StringProperties
 	 * exception if not. Invokes {@link #isValidValue(Object)} to validate the
 	 * given value.
 	 *
-	 * @param  rValue The value to check
+	 * @param  rValidator The validator to check the value with or NULL for none
+	 * @param  rValue     The value to check
 	 *
 	 * @throws IllegalArgumentException If the given value is not valid for this
 	 *                                  element
 	 */
-	protected final void checkValidValue(T rValue)
+	protected final <V> void checkValidValue(
+		Validator<? super V> rValidator,
+		V					 rValue)
 	{
-		if (!isValidValue(rValue))
+		if (!isValidValue(rValidator, rValue))
 		{
-			throw new IllegalArgumentException("Invalid value for " +
-											   this + ": " + rValue);
+			throw new IllegalArgumentException(
+				"Invalid value for " +
+				this + ": " + rValue);
 		}
 	}
 

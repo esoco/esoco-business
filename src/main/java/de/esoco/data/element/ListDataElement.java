@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,12 +37,16 @@ import java.util.Set;
  *
  * @author eso
  */
-public abstract class ListDataElement<E> extends DataElement<E>
+public abstract class ListDataElement<E> extends DataElement<List<E>>
 	implements DataModel<E>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1;
+
+	//~ Instance fields --------------------------------------------------------
+
+	private Validator<? super E> rElementValidator;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -50,10 +54,12 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	 * @see DataElement#DataElement(String, Validator, Set)
 	 */
 	public ListDataElement(String				sName,
-						   Validator<? super E> rValidator,
+						   Validator<? super E> rElementValidator,
 						   Set<Flag>			rFlags)
 	{
-		super(sName, rValidator, rFlags);
+		super(sName, null, rFlags);
+
+		this.rElementValidator = rElementValidator;
 	}
 
 	/***************************************
@@ -78,7 +84,7 @@ public abstract class ListDataElement<E> extends DataElement<E>
 
 		for (E rElement : rNewElements)
 		{
-			checkValidValue(rElement);
+			checkValidValue(rElementValidator, rElement);
 			rList.add(rElement);
 		}
 
@@ -104,7 +110,7 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	public void addElement(int nIndex, E rElement)
 	{
 		checkImmutable();
-		checkValidValue(rElement);
+		checkValidValue(rElementValidator, rElement);
 		getList().add(nIndex, rElement);
 		setModified(true);
 	}
@@ -179,15 +185,22 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	}
 
 	/***************************************
-	 * Always throws a runtime exception. Access to the data of a list data
-	 * element must always happen through it's element access methods.
+	 * Returns the validator for the list elements.
 	 *
-	 * @return Always throws an {@link UnsupportedOperationException}
+	 * @return The list element validator or NULL for none
+	 */
+	public Validator<? super E> getElementValidator()
+	{
+		return rElementValidator;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
 	 */
 	@Override
-	public final E getValue()
+	public final List<E> getValue()
 	{
-		throw new UnsupportedOperationException("Use element access methods instead");
+		return getList();
 	}
 
 	/***************************************
@@ -232,7 +245,7 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void copyValue(DataElement<E> aCopy)
+	protected void copyValue(DataElement<List<E>> aCopy)
 	{
 		((ListDataElement<E>) aCopy).getList().addAll(getList());
 	}
@@ -256,14 +269,15 @@ public abstract class ListDataElement<E> extends DataElement<E>
 	}
 
 	/***************************************
-	 * Always throws a runtime exception. Manipulations of a list data element
-	 * must always be done through the list manipulation methods.
+	 * Overridden to always throw a runtime exception. Manipulations of a list
+	 * data element must always be done through the list manipulation methods.
 	 *
-	 * @see DataElement#updateValue(Object)
+	 * @param rNewValue Ignored
 	 */
 	@Override
-	protected final void updateValue(E rNewValue)
+	protected final void updateValue(List<E> rNewValue)
 	{
-		throw new UnsupportedOperationException("Use element manipulation methods instead");
+		throw new UnsupportedOperationException(
+			"Use element manipulation methods instead");
 	}
 }

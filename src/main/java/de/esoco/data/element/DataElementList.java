@@ -144,9 +144,9 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 			else if (rElement instanceof DataElementList)
 			{
 				rResult =
-					findDataElement(sName,
-									((DataElementList) rElement)
-									.getDataElements());
+					findDataElement(
+						sName,
+						((DataElementList) rElement).getDataElements());
 			}
 
 			if (rResult != null)
@@ -254,26 +254,6 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 		}
 
 		return aCopy;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toDebugString(String sIndent, boolean bIncludeProperties)
-	{
-		StringBuilder aHierarchy =
-			new StringBuilder(super.toDebugString(sIndent, bIncludeProperties));
-
-		sIndent += "  ";
-
-		for (DataElement<?> rChild : aDataElements)
-		{
-			aHierarchy.append('\n');
-			aHierarchy.append(rChild.toDebugString(sIndent, bIncludeProperties));
-		}
-
-		return aHierarchy.toString();
 	}
 
 	/***************************************
@@ -427,8 +407,9 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 			}
 			else
 			{
-				throw new IllegalArgumentException("Absolute path must start with " +
-												   getName());
+				throw new IllegalArgumentException(
+					"Absolute path must start with " +
+					getName());
 			}
 		}
 
@@ -449,8 +430,9 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 				}
 				else
 				{
-					throw new IllegalArgumentException("Not an element list: " +
-													   sElementName);
+					throw new IllegalArgumentException(
+						"Not an element list: " +
+						sElementName);
 				}
 			}
 		}
@@ -479,7 +461,8 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 
 			if (e instanceof DataElementList)
 			{
-				aBuilder.append(((DataElementList) e).getElementHierarchy(sIndent));
+				aBuilder.append(
+					((DataElementList) e).getElementHierarchy(sIndent));
 			}
 			else
 			{
@@ -618,6 +601,27 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toDebugString(String sIndent, boolean bIncludeProperties)
+	{
+		StringBuilder aHierarchy =
+			new StringBuilder(super.toDebugString(sIndent, bIncludeProperties));
+
+		sIndent += "  ";
+
+		for (DataElement<?> rChild : aDataElements)
+		{
+			aHierarchy.append('\n');
+			aHierarchy.append(
+				rChild.toDebugString(sIndent, bIncludeProperties));
+		}
+
+		return aHierarchy.toString();
+	}
+
+	/***************************************
 	 * Returns the full hierarchy of this data element list as a string.
 	 *
 	 * @return The hierarchy string
@@ -634,7 +638,7 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 	 * @see ListDataElement#copyValue(DataElement)
 	 */
 	@Override
-	protected void copyValue(DataElement<DataElement<?>> aCopy)
+	protected void copyValue(DataElement<List<DataElement<?>>> aCopy)
 	{
 	}
 
@@ -690,7 +694,8 @@ public class DataElementList extends ListDataElement<DataElement<?>>
 		{
 			if (rChild instanceof DataElementList)
 			{
-				aHierarchy.append(((DataElementList) rChild).toHierarchyString(sIndent));
+				aHierarchy.append(
+					((DataElementList) rChild).toHierarchyString(sIndent));
 			}
 			else
 			{

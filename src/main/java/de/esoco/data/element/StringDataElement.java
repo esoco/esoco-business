@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -120,8 +120,9 @@ public class StringDataElement extends DataElement<String>
 
 			while (aNumberParts.size() > 4)
 			{
-				aNumberParts.set(2,
-								 aNumberParts.get(2) + aNumberParts.remove(3));
+				aNumberParts.set(
+					2,
+					aNumberParts.get(2) + aNumberParts.remove(3));
 			}
 		}
 		else
@@ -143,7 +144,9 @@ public class StringDataElement extends DataElement<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
+	public StringDataElement copy(
+		CopyMode		   eMode,
+		PropertyName<?>... rCopyProperties)
 	{
 		return (StringDataElement) super.copy(eMode, rCopyProperties);
 	}
@@ -162,13 +165,14 @@ public class StringDataElement extends DataElement<String>
 	 * property {@link UserInterfaceProperties#LIST_STYLE LIST_STYLE} with a
 	 * value of {@link ListStyle#EDITABLE EDITABLE}.
 	 *
-	 * @see DataElement#isValidValue(Object)
+	 * @see DataElement#isValidValue(Validator, Object)
 	 */
 	@Override
-	public boolean isValidValue(String rValue)
+	public <T> boolean isValidValue(Validator<? super T> rValidator, T rValue)
 	{
-		return getProperty(LIST_STYLE, null) == ListStyle.EDITABLE ||
-			   super.isValidValue(rValue);
+		return super.isValidValue(rValidator, rValue) ||
+			   (rValidator != null &&
+				getProperty(LIST_STYLE, null) == ListStyle.EDITABLE);
 	}
 
 	/***************************************

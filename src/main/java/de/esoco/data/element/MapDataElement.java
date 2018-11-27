@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,11 +41,15 @@ import java.util.Set;
  *
  * @author eso
  */
-public abstract class MapDataElement<K, V> extends DataElement<V>
+public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
+
+	//~ Instance fields --------------------------------------------------------
+
+	private Validator<? super V> rValueValidator;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -53,10 +57,12 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	 * @see MapDataElement#MapDataElement(String, Validator, Set)
 	 */
 	public MapDataElement(String			   sName,
-						  Validator<? super V> rValidator,
+						  Validator<? super V> rValueValidator,
 						  Set<Flag>			   rFlags)
 	{
-		super(sName, rValidator, rFlags);
+		super(sName, null, rFlags);
+
+		this.rValueValidator = rValueValidator;
 	}
 
 	/***************************************
@@ -147,15 +153,12 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	}
 
 	/***************************************
-	 * Always throws a runtime exception. Access to the data of a map data
-	 * element must always happen through it's element access methods.
-	 *
-	 * @see DataElement#getValue()
+	 * {@inheritDoc}
 	 */
 	@Override
-	public final V getValue()
+	public final Map<K, V> getValue()
 	{
-		throw new UnsupportedOperationException("Use element access methods instead");
+		return getMap();
 	}
 
 	/***************************************
@@ -170,6 +173,16 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	}
 
 	/***************************************
+	 * Returns the validator for the map values.
+	 *
+	 * @return The map value validator or NULL for none
+	 */
+	public Validator<? super V> getValueValidator()
+	{
+		return rValueValidator;
+	}
+
+	/***************************************
 	 * Puts a new key-value mapping into the map.
 	 *
 	 * @param  rKey   The key to store the value under
@@ -180,7 +193,7 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	public V put(K rKey, V rValue)
 	{
 		checkImmutable();
-		checkValidValue(rValue);
+		checkValidValue(rValueValidator, rValue);
 
 		return getMap().put(rKey, rValue);
 	}
@@ -200,7 +213,7 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 		{
 			V rValue = rSourceMap.get(rKey);
 
-			checkValidValue(rValue);
+			checkValidValue(rValueValidator, rValue);
 			rMap.put(rKey, rValue);
 		}
 	}
@@ -241,7 +254,7 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void copyValue(DataElement<V> aCopy)
+	protected void copyValue(DataElement<Map<K, V>> aCopy)
 	{
 		((MapDataElement<K, V>) aCopy).getMap().putAll(getMap());
 	}
@@ -256,14 +269,15 @@ public abstract class MapDataElement<K, V> extends DataElement<V>
 	}
 
 	/***************************************
-	 * Always throws a runtime exception. Manipulations of a map data element
-	 * must always be done through the map manipulation methods.
+	 * Overridden to always throw a runtime exception. Manipulations of a map
+	 * data element must always be done through the map manipulation methods.
 	 *
-	 * @see DataElement#updateValue(Object)
+	 * @param rNewValue Ignored
 	 */
 	@Override
-	protected final void updateValue(V rNewValue)
+	protected final void updateValue(Map<K, V> rNewValue)
 	{
-		throw new UnsupportedOperationException("Use element manipulation methods instead");
+		throw new UnsupportedOperationException(
+			"Use element manipulation methods instead");
 	}
 }
