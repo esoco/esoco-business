@@ -264,7 +264,7 @@ public class EntityFunctions
 		return new ExceptionMappingFunction<String, Entity>("queryEntity(GlobalID)")
 		{
 			@Override
-			public Entity evaluateWithException(String sGlobalId)
+			public Entity tryApply(String sGlobalId)
 				throws StorageException
 			{
 				return EntityManager.queryEntity(sGlobalId);
@@ -285,7 +285,7 @@ public class EntityFunctions
 		{
 			@Override
 			@SuppressWarnings("boxing")
-			public E evaluateWithException(Number rId) throws StorageException
+			public E tryApply(Number rId) throws StorageException
 			{
 				return EntityManager.queryEntity(rEntityClass, rId.longValue());
 			}
@@ -310,7 +310,7 @@ public class EntityFunctions
 													   "]" + ")")
 		{
 			@Override
-			public E evaluateWithException(Object rIgnored)
+			public E tryApply(Object rIgnored)
 				throws StorageException
 			{
 				return EntityManager.queryEntity(rEntityClass,
@@ -449,10 +449,10 @@ public class EntityFunctions
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * @see ExceptionMappingFunction#evaluateWithException(Object)
+		 * @see ExceptionMappingFunction#tryApply(Object)
 		 */
 		@Override
-		public E evaluateWithException(T rValue) throws StorageException
+		public E tryApply(T rValue) throws StorageException
 		{
 			Predicate<E> pCriteria =
 				ifAttribute(rAttribute, Predicates.equalTo(rValue));
