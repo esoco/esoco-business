@@ -145,8 +145,9 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	@SuppressWarnings("unchecked")
 	public final C onClickInContainerArea(Consumer<C> rEventHandler)
 	{
-		return setParameterEventHandler(InteractionEventType.ACTION,
-										v -> rEventHandler.accept((C) this));
+		return setParameterEventHandler(
+			InteractionEventType.ACTION,
+			v -> rEventHandler.accept((C) this));
 	}
 
 	/***************************************
@@ -169,7 +170,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	{
 		if (!bBuilt)
 		{
-			build();
+			build(aContainerBuilder);
 			bBuilt = true;
 		}
 
@@ -203,15 +204,21 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Can be overridden by subclasses to build the contents of this container.
-	 * Alternatively the contents can also be built by adding components to it
-	 * after creation. If both methods are used in combination the call to
-	 * {@link #build()} will occur afterwards because it is invoked just before
-	 * the container is made visible (from {@link #applyProperties()}.
+	 * This method can be overridden by subclasses to build the contents of this
+	 * container. Alternatively, the contents can also be built by adding
+	 * components to it after creation. If both mechanisms are used in
+	 * combination the call to {@link #build(UiBuilder)} will occur afterwards
+	 * because it is invoked just before the container is made visible (from
+	 * {@link #applyProperties()}.
+	 *
+	 * <p>The {@link UiBuilder} argument is the same instance that is returned
+	 * by {@link #builder()}.</p>
 	 *
 	 * <p>The default implementation of this method does nothing.</p>
+	 *
+	 * @param rBuilder The builder to create the container UI with
 	 */
-	protected void build()
+	protected void build(UiBuilder<?> rBuilder)
 	{
 	}
 
@@ -239,8 +246,9 @@ public abstract class UiContainer<C extends UiContainer<C>>
 		{
 			// if components are added after the initial building the layout
 			// needs to be reprocessed
-			rLayout.reset(rLayout.getRows().size(),
-						  rLayout.getColumns().size());
+			rLayout.reset(
+				rLayout.getRows().size(),
+				rLayout.getColumns().size());
 		}
 	}
 
@@ -318,7 +326,8 @@ public abstract class UiContainer<C extends UiContainer<C>>
 
 		if (nIndex < 0)
 		{
-			throw new IllegalArgumentException("Component to place before must be in the same container");
+			throw new IllegalArgumentException(
+				"Component to place before must be in the same container");
 		}
 
 		aComponents.remove(rComponent);

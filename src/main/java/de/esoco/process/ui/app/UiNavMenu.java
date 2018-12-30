@@ -131,8 +131,8 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 	{
 		if (aMenuLinks != null)
 		{
-			aMenuLinks.select(rMenuItems.contains(eMenuItem) ? eMenuItem
-															 : null);
+			aMenuLinks.select(
+				rMenuItems.contains(eMenuItem) ? eMenuItem : null);
 		}
 	}
 
@@ -199,7 +199,8 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 				  .withImages()
 				  .select(rFirstAction)
 				  .buttonStyle(ButtonStyle.LINK)
-				  .onAction(eItem -> fMenuSelectionHandler.accept(eItem));
+				  .onAction(eItem ->
+		  				fMenuSelectionHandler.accept(eItem));
 
 		if (get(ORIENTATION) == Orientation.VERTICAL)
 		{
@@ -236,12 +237,12 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 	/***************************************
 	 * Builds this menu by first invoking {@link #addMenuComponents(UiBuilder)}
 	 * and then adds the menu items if such are available.
+	 *
+	 * @see UiComposite#build(UiBuilder)
 	 */
 	@Override
-	protected void build()
+	protected void build(UiBuilder<?> rBuilder)
 	{
-		UiBuilder<UiNavMenu<E>> rBuilder = builder();
-
 		addMenuComponents(rBuilder);
 
 		if (!rMenuItems.isEmpty())

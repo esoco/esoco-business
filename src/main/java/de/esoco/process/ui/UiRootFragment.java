@@ -128,7 +128,7 @@ public class UiRootFragment extends InteractionFragment
 			new UiRootView(this, rViewLayout)
 			{
 				@Override
-				protected void build()
+				protected void build(UiBuilder<?> rBuilder)
 				{
 					buildUserInterface(this);
 				}

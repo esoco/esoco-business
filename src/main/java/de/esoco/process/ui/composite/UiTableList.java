@@ -412,7 +412,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void build()
+	protected void build(UiBuilder<?> rBuilder)
 	{
 		if (rDataProvider != null)
 		{

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ui.component.UiPushButtons;
+import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
@@ -123,9 +124,10 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 						UiLayout  rLayout,
 						boolean   bModal)
 	{
-		super(rParent,
-			  new UiFlowLayout(),
-			  bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
+		super(
+			rParent,
+			new UiFlowLayout(),
+			bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 
 		setTitle(sTitle);
 	}
@@ -190,11 +192,11 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void build()
+	protected void build(UiBuilder<?> rBuilder)
 	{
 		if (aDialogButtons == null)
 		{
-			UiLayoutPanel aButtonPanel = builder().addPanel(new UiFlowLayout());
+			UiLayoutPanel aButtonPanel = rBuilder.addPanel(new UiFlowLayout());
 
 			aButtonPanel.style().addStyleName("UiDialogButtonPanel");
 
@@ -221,8 +223,9 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 
 			if (!rInvalidParams.isEmpty())
 			{
-				throw new InvalidParametersException(fragment(),
-													 rInvalidParams);
+				throw new InvalidParametersException(
+					fragment(),
+					rInvalidParams);
 			}
 		}
 

@@ -19,6 +19,7 @@ package de.esoco.process.ui.app;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.app.UiNavMenu.NavMenuType;
+import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.layout.UiInlineLayout;
 
 import java.util.Collection;
@@ -67,7 +68,7 @@ public class UiWebPage extends UiComposite<UiWebPage>
 
 	/***************************************
 	 * Creates a new instance for direct usage, i.e. without subclassing. The
-	 * argument function will be invoked from within the {@link #build()} method
+	 * argument function will be invoked from within the {@link #build(UiBuilder)} method
 	 * with this instance as the argument after the page structure has been
 	 * created.
 	 *
@@ -200,7 +201,7 @@ public class UiWebPage extends UiComposite<UiWebPage>
 	 * (after building) by overriding{@link #initPage()}.
 	 */
 	@Override
-	protected void build()
+	protected void build(UiBuilder<?> rBuilder)
 	{
 		buildStructure();
 		initPage();

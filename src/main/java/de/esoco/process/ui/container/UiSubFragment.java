@@ -17,15 +17,15 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.step.SubProcessFragment;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
-import de.esoco.process.ui.UiRootFragment;
 
 
 /********************************************************************
  * A UI container that wraps a process interaction fragment. This allows UI
- * components to be combined with fragments similar to {@link UiRootFragment}
- * which integrates Ui component hierarchies into process interactions.
+ * components to be combined with existing process fragments. including the
+ * execution of sub-processes (by means of {@link SubProcessFragment}).
  *
  * @author eso
  */

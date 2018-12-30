@@ -20,12 +20,13 @@ import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
+import de.esoco.process.ui.container.UiBuilder;
 
 
 /********************************************************************
  * The root view of an application UI. All other components or the UI must be
  * (direct or indirect) children of a root view. This class is abstract and must
- * be subclassed to provide an implementation of the {@link #build()} method.
+ * be subclassed to provide an implementation of the {@link #build(UiBuilder)} method.
  *
  * @author eso
  */
@@ -69,5 +70,5 @@ public abstract class UiRootView extends UiView<UiRootView>
 	 * Overridden to be abstract as it must be implemented.
 	 */
 	@Override
-	protected abstract void build();
+	protected abstract void build(UiBuilder<?> rBuilder);
 }
