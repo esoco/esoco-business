@@ -24,10 +24,10 @@ import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.PropertyName;
 
-import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ValueEventHandler;
+import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
 
@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obrel.core.RelatedObject;
+import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 
 import static de.esoco.data.element.DataElement.HIDDEN_URL;
@@ -121,16 +122,18 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 		try
 		{
 			sDownloadUrl =
-				rFragment.prepareDownload(sFileName,
-										  eFileType,
-										  fDownloadGenerator);
+				rFragment.prepareDownload(
+					sFileName,
+					eFileType,
+					fDownloadGenerator);
 
 			rParam.set(HIDDEN_URL);
 			rParam.set(INTERACTION_URL, sDownloadUrl);
 			rFragment.getProcess()
-					 .addInteractionCleanupAction(() ->
-												  rParam.remove(INTERACTION_URL)
-												  .remove(HIDDEN_URL));
+					 .addInteractionCleanupAction(
+		 				() ->
+		 					rParam.remove(INTERACTION_URL)
+		 					.remove(HIDDEN_URL));
 		}
 		catch (Exception e)
 		{
@@ -196,6 +199,16 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	public final <V> V get(PropertyName<V> rProperty)
 	{
 		return rFragment.getUIProperty(rProperty, rParamType);
+	}
+
+	/***************************************
+	 * Returns the value of a certain parameter in the current process.
+	 *
+	 * @see ProcessFragment#getParameter(RelationType)
+	 */
+	public final <V> V getParam(RelationType<V> rType)
+	{
+		return rFragment.getParameter(rType);
 	}
 
 	/***************************************
@@ -334,6 +347,16 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	public P setEnabled(boolean bEnabled)
 	{
 		return bEnabled ? clear(DISABLED) : set(DISABLED);
+	}
+
+	/***************************************
+	 * Sets the value of a certain parameter in the current process.
+	 *
+	 * @see ProcessFragment#setParameter(RelationType, Object)
+	 */
+	public final <V> Relation<V> setParam(RelationType<V> rType, V rValue)
+	{
+		return rFragment.setParameter(rType, rValue);
 	}
 
 	/***************************************
@@ -490,7 +513,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 
 			if (rEventHandler != null && rFragment.isAttached())
 			{
-				rEventHandler.handleValueUpdate(rFragment.getParameter(rParamType));
+				rEventHandler.handleValueUpdate(
+					rFragment.getParameter(rParamType));
 			}
 		}
 
