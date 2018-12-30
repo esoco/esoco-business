@@ -38,6 +38,7 @@ import de.esoco.process.ui.component.UiDataTable;
 import de.esoco.process.ui.component.UiDateField;
 import de.esoco.process.ui.component.UiDecimalField;
 import de.esoco.process.ui.component.UiDropDown;
+import de.esoco.process.ui.component.UiFileUpload;
 import de.esoco.process.ui.component.UiIcon;
 import de.esoco.process.ui.component.UiIconButton;
 import de.esoco.process.ui.component.UiImage;
@@ -285,6 +286,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public <T> UiDropDown<T> addDropDown(Class<T> rDatatype)
 	{
 		return new UiDropDown<>(rContainer, rDatatype);
+	}
+
+	/***************************************
+	 * Adds a file upload component.
+	 *
+	 * @param  sLabel The label text
+	 *
+	 * @return The new component
+	 */
+	public UiFileUpload addFileSelect(String sLabel)
+	{
+		return new UiFileUpload(rContainer, sLabel);
 	}
 
 	/***************************************
