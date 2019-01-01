@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class UiDateField extends UiDateInputField<UiDateField>
 	/***************************************
 	 * Creates a new instance with the current date as it's value.
 	 *
-	 * @param rParent rContainer The parent container
+	 * @param rParent The parent container
 	 */
 	public UiDateField(UiContainer<?> rParent)
 	{
@@ -46,10 +46,11 @@ public class UiDateField extends UiDateInputField<UiDateField>
 	/***************************************
 	 * Creates a new instance for a particular date.
 	 *
-	 * @see UiDateInputField#UiDateInputField(UiContainer, Date, DateInputType)
+	 * @param rParent The parent container
+	 * @param rDate   The date
 	 */
-	public UiDateField(UiContainer<?> rContainer, Date rDate)
+	public UiDateField(UiContainer<?> rParent, Date rDate)
 	{
-		super(rContainer, rDate, DateInputType.INPUT_FIELD);
+		super(rParent, rDate, DateInputType.INPUT_FIELD);
 	}
 }

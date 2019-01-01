@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -712,8 +712,8 @@ public abstract class DataElement<T> extends StringProperties
 	/***************************************
 	 * Updates the element value. Will be invoked by {@link #setValue(Object)}
 	 * to store a new value after validation. If a subclass wants to reject
-	 * certain values it should do so in the {@link #isValidValue(Object)}
-	 * method. Subclasses that are always immutable should implement an
+	 * certain values it should do so in the {@link #isValidValue(Validator,
+	 * Object)} method. Subclasses that are always immutable should implement an
 	 * assertion because if the element has been initialized correctly
 	 * (validator = NULL) this method should then be reached.
 	 *
@@ -740,8 +740,8 @@ public abstract class DataElement<T> extends StringProperties
 
 	/***************************************
 	 * Checks whether the given value is valid for this element and throws an
-	 * exception if not. Invokes {@link #isValidValue(Object)} to validate the
-	 * given value.
+	 * exception if not. Invokes {@link #isValidValue(Validator, Object)} to
+	 * validate the given value.
 	 *
 	 * @param  rValidator The validator to check the value with or NULL for none
 	 * @param  rValue     The value to check
