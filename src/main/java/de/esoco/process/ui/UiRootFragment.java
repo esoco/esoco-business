@@ -17,7 +17,6 @@
 package de.esoco.process.ui;
 
 import de.esoco.process.step.InteractionFragment;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.layout.UiFillLayout;
 import de.esoco.process.ui.view.UiRootView;
 

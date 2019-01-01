@@ -18,13 +18,12 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LayoutType;
-
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiTitle;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.graphics.UiIconSupplier;

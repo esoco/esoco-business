@@ -16,10 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.view;
 
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiDialogView;
 import de.esoco.process.ui.UiImageDefinition;
 import de.esoco.process.ui.UiView;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.graphics.UiImageResource;
 import de.esoco.process.ui.layout.UiFlowLayout;
 

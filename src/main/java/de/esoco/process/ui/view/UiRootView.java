@@ -17,10 +17,10 @@
 package de.esoco.process.ui.view;
 
 import de.esoco.process.step.InteractionFragment;
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
-import de.esoco.process.ui.container.UiBuilder;
 
 
 /********************************************************************

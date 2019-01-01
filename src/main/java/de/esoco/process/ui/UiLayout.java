@@ -176,7 +176,8 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 
 	/***************************************
 	 * Signals that the next component added to this layout should be placed at
-	 * the beginning of the next layout row.
+	 * the beginning of the next layout row. The actual effect of this call
+	 * depends on the respective layout implementation.
 	 */
 	public void nextRow()
 	{
@@ -656,8 +657,9 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		 */
 		public final Cell responsiveColSpans(int nSmall, int nMedium)
 		{
-			return set(SMALL_COLUMN_SPAN, nSmall).set(MEDIUM_COLUMN_SPAN,
-													  nMedium);
+			return set(SMALL_COLUMN_SPAN, nSmall).set(
+				MEDIUM_COLUMN_SPAN,
+				nMedium);
 		}
 
 		/***************************************
@@ -705,10 +707,11 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		@SuppressWarnings("boxing")
 		public String toString()
 		{
-			return String.format("%s(R%d,C%d)",
-								 getClass().getSimpleName(),
-								 rRow.getIndex(),
-								 rColumn.getIndex());
+			return String.format(
+				"%s(R%d,C%d)",
+				getClass().getSimpleName(),
+				rRow.getIndex(),
+				rColumn.getIndex());
 		}
 
 		/***************************************
@@ -777,8 +780,9 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 				{
 					if (rNewCell.rComponent != null)
 					{
-						throw new IllegalArgumentException("Cell already has component " +
-														   rNewCell.rComponent);
+						throw new IllegalArgumentException(
+							"Cell already has component " +
+							rNewCell.rComponent);
 					}
 
 					rNewCell.rComponent = rComponent;
@@ -1083,9 +1087,10 @@ public class UiLayout extends UiLayoutElement<UiLayout>
 		@SuppressWarnings("boxing")
 		public String toString()
 		{
-			return String.format("%s(%d)",
-								 getClass().getSimpleName(),
-								 getIndex());
+			return String.format(
+				"%s(%d)",
+				getClass().getSimpleName(),
+				getIndex());
 		}
 	}
 }

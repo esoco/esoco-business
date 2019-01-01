@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.container;
+package de.esoco.process.ui;
 
 import de.esoco.data.element.HierarchicalDataObject;
 
@@ -26,9 +26,6 @@ import de.esoco.lib.property.Orientation;
 import de.esoco.process.ProcessDefinition;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.SubProcessFragment;
-import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiImageDefinition;
-import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.component.UiButton;
 import de.esoco.process.ui.component.UiCalendar;
 import de.esoco.process.ui.component.UiCheckBox;
@@ -60,6 +57,13 @@ import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.component.UiWebView;
 import de.esoco.process.ui.composite.UiCard;
 import de.esoco.process.ui.composite.UiThumbnail;
+import de.esoco.process.ui.container.UiDeckPanel;
+import de.esoco.process.ui.container.UiDockPanel;
+import de.esoco.process.ui.container.UiLayoutPanel;
+import de.esoco.process.ui.container.UiSplitPanel;
+import de.esoco.process.ui.container.UiStackPanel;
+import de.esoco.process.ui.container.UiSubFragment;
+import de.esoco.process.ui.container.UiTabPanel;
 import de.esoco.process.ui.graphics.UiIconSupplier;
 
 import java.math.BigDecimal;
@@ -725,5 +729,18 @@ public class UiBuilder<C extends UiContainer<C>>
 	public final C getContainer()
 	{
 		return rContainer;
+	}
+
+	/***************************************
+	 * Invokes {@link UiLayout#nextRow()} and returns this instance to allow
+	 * fluent invocations like <code>nextRow().addButton(...)</code>.
+	 *
+	 * @return This instance for fluent invocations
+	 */
+	public UiBuilder<C> nextRow()
+	{
+		rContainer.getLayout().nextRow();
+
+		return this;
 	}
 }

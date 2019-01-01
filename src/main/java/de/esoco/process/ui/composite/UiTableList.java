@@ -28,7 +28,7 @@ import de.esoco.lib.property.SortDirection;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
-
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -38,7 +38,6 @@ import de.esoco.process.ui.component.UiIconButton;
 import de.esoco.process.ui.component.UiLink;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.composite.UiListPanel.Item;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.event.UiHasUpdateEvents;

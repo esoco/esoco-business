@@ -16,10 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.app;
 
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.app.UiNavMenu.NavMenuType;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.layout.UiInlineLayout;
 
 import java.util.Collection;

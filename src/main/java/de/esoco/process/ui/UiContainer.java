@@ -20,7 +20,6 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.InteractionEventType;
 
 import de.esoco.process.step.InteractionFragment;
-import de.esoco.process.ui.container.UiBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

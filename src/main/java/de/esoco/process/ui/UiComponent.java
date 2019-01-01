@@ -66,9 +66,10 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 */
 	protected UiComponent(UiContainer<?> rParent, Class<? super T> rDatatype)
 	{
-		this(rParent,
-			 rParent.fragment(),
-			 rParent.fragment().getTemporaryParameterType(rDatatype));
+		this(
+			rParent,
+			rParent.fragment(),
+			rParent.fragment().getTemporaryParameterType(rDatatype));
 	}
 
 	/***************************************
@@ -309,9 +310,10 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	@Override
 	public String toString()
 	{
-		return String.format("%s(%s)",
-							 getClass().getSimpleName(),
-							 fragment().getParameter(type()));
+		return String.format(
+			"%s(%s)",
+			getClass().getSimpleName(),
+			fragment().getParameter(type()));
 	}
 
 	/***************************************
@@ -428,8 +430,9 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 */
 	protected C icon(UiIconSupplier rIconSupplier)
 	{
-		return image(rIconSupplier != null
-					 ? rIconSupplier.getIcon().alignRight() : null);
+		return image(
+			rIconSupplier != null ? rIconSupplier.getIcon().alignRight()
+								  : null);
 	}
 
 	/***************************************

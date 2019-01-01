@@ -20,7 +20,6 @@ import de.esoco.lib.property.ViewDisplayType;
 
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ui.component.UiPushButtons;
-import de.esoco.process.ui.container.UiBuilder;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
