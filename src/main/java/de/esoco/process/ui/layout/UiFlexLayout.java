@@ -213,7 +213,7 @@ public class UiFlexLayout extends UiLayout
 	/***************************************
 	 * Sets the horizontal alignment of elements. Overridden to map on either
 	 * {@link #justifyContent(FlexAlign)} or {@link #alignContent(FlexAlign)}
-	 * depending on the layout direction. This methods should be preferred for
+	 * depending on the layout direction. These methods should be preferred for
 	 * better readability and because they support additional Flexbox
 	 * alignments.
 	 *

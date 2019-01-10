@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -290,6 +290,21 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		}
 
 		return aStyle;
+	}
+
+	/***************************************
+	 * Shortcut to set the style name in the {@link #style()} object.
+	 *
+	 * @param  sStyleName the new style name
+	 *
+	 * @return This instance
+	 */
+	@SuppressWarnings("unchecked")
+	public C styleName(String sStyleName)
+	{
+		style().styleName(sStyleName);
+
+		return (C) this;
 	}
 
 	/***************************************

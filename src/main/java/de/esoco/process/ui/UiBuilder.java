@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ import java.math.BigDecimal;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.function.Function;
 
 
 /********************************************************************
@@ -96,6 +97,26 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds an arbitrary component to this container by applying a factory
+	 * function to this builder's container. This allows to add components which
+	 * don't have an explicit factory method in the builder API.
+	 *
+	 * <p>It is recommended to create custom components as subclasses of generic
+	 * types like {@link UiComposite} because otherwise the Java type system may
+	 * not be able to resolve the correct generic type when using this method.
+	 * </p>
+	 *
+	 * @param  fCreate The factory function
+	 *
+	 * @return The new component
+	 */
+	public <T, V extends UiComponent<T, V>> V add(
+		Function<C, ? extends V> fCreate)
+	{
+		return fCreate.apply(rContainer);
+	}
 
 	/***************************************
 	 * Adds a clickable button.
