@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.LayoutType;
@@ -54,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
@@ -64,6 +61,7 @@ import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
 
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
+import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTE_FLAG;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.property.ContentProperties.LABEL;
@@ -289,22 +287,13 @@ public class EditEntity extends InteractionFragment
 	 */
 	private Collection<String> collectExtraAttributeKeys()
 	{
-		Predicate<Relatable> pIsExtraAttr =
-			Predicates.hasFlag(ExtraAttributes.EXTRA_ATTRIBUTE_FLAG);
-
 		List<RelationType<?>> aExtraAttrs =
-			new ArrayList<RelationType<?>>(RelationType.getRelationTypes(pIsExtraAttr));
+			new ArrayList<RelationType<?>>(
+				RelationType.getRelationTypes(
+					r -> r.hasFlag(EXTRA_ATTRIBUTE_FLAG)));
 
 		List<String> aKeys =
-			CollectionUtil.map(aExtraAttrs,
-				new AbstractFunction<RelationType<?>, String>("getSimpleName")
-				{
-					@Override
-					public String evaluate(RelationType<?> rType)
-					{
-						return rType.getSimpleName();
-					}
-				});
+			CollectionUtil.map(aExtraAttrs, RelationType::getSimpleName);
 
 		aKeys.add(StandardTypes.INFO.getSimpleName());
 		Collections.sort(aKeys);
@@ -332,8 +321,9 @@ public class EditEntity extends InteractionFragment
 			new ArrayList<RelationType<?>>(rAttributes.size());
 
 		aAttrActionParam =
-			getTemporaryParameterType(sPrefix + "ATTR_ACTION",
-									  AttributesAction.class);
+			getTemporaryParameterType(
+				sPrefix + "ATTR_ACTION",
+				AttributesAction.class);
 
 		for (RelationType<?> rAttr : rAttributes)
 		{
@@ -404,9 +394,11 @@ public class EditEntity extends InteractionFragment
 
 		@SuppressWarnings("boxing")
 		QueryPredicate<Entity> qChildren =
-			forEntity(rChildType,
-					  ifAttribute(rChildDef.getParentAttribute(rParentDef),
-								  equalTo(rEditedEntity.getId())));
+			forEntity(
+				rChildType,
+				ifAttribute(
+					rChildDef.getParentAttribute(rParentDef),
+					equalTo(rEditedEntity.getId())));
 
 		List<Function<? super Entity, ?>> aColumns =
 			new ArrayList<Function<? super Entity, ?>>();
@@ -418,12 +410,13 @@ public class EditEntity extends InteractionFragment
 		}
 
 		RelationType<List<RelationType<?>>> aChildTabParam =
-			createDetailTabParameter(sPrefix + sChildName,
-									 rChildType,
-									 qChildren,
-									 null,
-									 aColumns,
-									 CHILD_TABLE_ROWS);
+			createDetailTabParameter(
+				sPrefix + sChildName,
+				rChildType,
+				qChildren,
+				null,
+				aColumns,
+				CHILD_TABLE_ROWS);
 
 		setResourceId(sChildName, aChildTabParam);
 
@@ -460,8 +453,9 @@ public class EditEntity extends InteractionFragment
 			getTemporaryParameterType(sBaseName + "_LIST", rDetailType);
 
 		RelationType<DetailAction> aActionParam =
-			getTemporaryParameterType(sBaseName + "_ACTION",
-									  DetailAction.class);
+			getTemporaryParameterType(
+				sBaseName + "_ACTION",
+				DetailAction.class);
 
 		List<RelationType<?>> aChildParams = new ArrayList<RelationType<?>>();
 
@@ -482,12 +476,14 @@ public class EditEntity extends InteractionFragment
 		setUIProperty(-1, CURRENT_SELECTION, aListParam);
 		setUIProperty(HTML_HEIGHT, "100%", aListParam);
 
-		setUIProperty(RESOURCE_ID,
-					  TextConvert.toPlural(rDetailType.getSimpleName()),
-					  aListParam);
-		setUIProperty(RESOURCE_ID,
-					  DetailAction.class.getSimpleName(),
-					  aActionParam);
+		setUIProperty(
+			RESOURCE_ID,
+			TextConvert.toPlural(rDetailType.getSimpleName()),
+			aListParam);
+		setUIProperty(
+			RESOURCE_ID,
+			DetailAction.class.getSimpleName(),
+			aActionParam);
 
 		setImmediateAction(aActionParam, rAllowedActions);
 		setInteractive(InteractiveInputMode.CONTINUOUS, aListParam);
@@ -579,21 +575,24 @@ public class EditEntity extends InteractionFragment
 			new ArrayList<Function<? super ExtraAttribute, ?>>();
 
 		QueryPredicate<ExtraAttribute> qExtraAttr =
-			forEntity(ExtraAttribute.class,
-					  ifAttribute(ExtraAttribute.ENTITY,
-								  equalTo(rEditedEntity.getGlobalId())));
+			forEntity(
+				ExtraAttribute.class,
+				ifAttribute(
+					ExtraAttribute.ENTITY,
+					equalTo(rEditedEntity.getGlobalId())));
 
 		aColumns.add(ExtraAttribute.KEY);
 		aColumns.add(ExtraAttribute.VALUE);
 
 		RelationType<List<RelationType<?>>> aExtraAttrTabParam =
-			createDetailTabParameter(sBaseName,
-									 ExtraAttribute.class,
-									 qExtraAttr,
-									 sortBy(ExtraAttribute.KEY),
-									 aColumns,
-									 CHILD_TABLE_ROWS,
-									 DetailAction.DELETE);
+			createDetailTabParameter(
+				sBaseName,
+				ExtraAttribute.class,
+				qExtraAttr,
+				sortBy(ExtraAttribute.KEY),
+				aColumns,
+				CHILD_TABLE_ROWS,
+				DetailAction.DELETE);
 
 		setResourceId("ExtraAttributes", aExtraAttrTabParam);
 
@@ -603,9 +602,10 @@ public class EditEntity extends InteractionFragment
 		RelationType<?> rExtraAttrListParam = rExtraAttrParams.get(0);
 
 		List<RelationType<?>> rExtraAttrEditParams =
-			Arrays.<RelationType<?>>asList(EXTRA_ATTR_KEY,
-										   EXTRA_ATTR_ACTION,
-										   EXTRA_ATTR_VALUE);
+			Arrays.<RelationType<?>>asList(
+				EXTRA_ATTR_KEY,
+				EXTRA_ATTR_ACTION,
+				EXTRA_ATTR_VALUE);
 
 		rExtraAttrParams.addAll(rExtraAttrEditParams);
 		aInputParams.addAll(rExtraAttrEditParams);
@@ -621,8 +621,9 @@ public class EditEntity extends InteractionFragment
 		setUIProperty(HTML_WIDTH, "100%", EXTRA_ATTR_KEY);
 		setAllowedValues(EXTRA_ATTR_KEY, aExtraAttrKeys);
 
-		setParameter(EXTRA_ATTR_KEY,
-					 CollectionUtil.firstElementOf(aExtraAttrKeys));
+		setParameter(
+			EXTRA_ATTR_KEY,
+			CollectionUtil.firstElementOf(aExtraAttrKeys));
 		setParameter(EXTRA_ATTR_VALUE, "");
 
 		return aExtraAttrTabParam;
@@ -673,11 +674,12 @@ public class EditEntity extends InteractionFragment
 		switch (eDetailAction)
 		{
 			case DELETE:
-				showMessageBox("$msgDeleteEntityChild",
-							   "#imWarning",
-							   null,
-							   DialogAction.OK,
-							   DialogAction.CANCEL);
+				showMessageBox(
+					"$msgDeleteEntityChild",
+					"#imWarning",
+					null,
+					DialogAction.OK,
+					DialogAction.CANCEL);
 				break;
 
 			case EDIT:
@@ -688,7 +690,8 @@ public class EditEntity extends InteractionFragment
 
 				Class<?> rChildType = rListParam.getTargetType();
 
-				showEditChildDialog((Entity) ReflectUtil.newInstance(rChildType));
+				showEditChildDialog(
+					(Entity) ReflectUtil.newInstance(rChildType));
 				break;
 
 			default:
@@ -721,8 +724,9 @@ public class EditEntity extends InteractionFragment
 
 				Object rValue = rExtraAttr.get(ExtraAttribute.VALUE);
 
-				setParameter(EXTRA_ATTR_KEY,
-							 rCurrentExtraAttrKey.getSimpleName());
+				setParameter(
+					EXTRA_ATTR_KEY,
+					rCurrentExtraAttrKey.getSimpleName());
 				setParameter(EXTRA_ATTR_VALUE, Conversions.asString(rValue));
 
 				setUIFlag(DISABLED, EXTRA_ATTR_KEY);
@@ -730,9 +734,10 @@ public class EditEntity extends InteractionFragment
 		}
 		else
 		{
-			disableElements(rTabActionParam,
-							DetailAction.EDIT,
-							DetailAction.DELETE);
+			disableElements(
+				rTabActionParam,
+				DetailAction.EDIT,
+				DetailAction.DELETE);
 
 			if (rParamDatatype == ExtraAttribute.class)
 			{
@@ -771,8 +776,9 @@ public class EditEntity extends InteractionFragment
 		}
 		else if (rParamDatatype == DetailAction.class)
 		{
-			handleDetailAction((DetailAction) getParameter(rInteractionParam),
-							   rInteractionParam.get(TAB_LIST_PARAM));
+			handleDetailAction(
+				(DetailAction) getParameter(rInteractionParam),
+				rInteractionParam.get(TAB_LIST_PARAM));
 		}
 		else if (rParamDatatype == ExtraAttrAction.class)
 		{
@@ -794,10 +800,11 @@ public class EditEntity extends InteractionFragment
 	{
 		Class<?> rDatatype = rAttrParam.getTargetType();
 
-		setUIProperty(RESOURCE_ID,
-					  rEntity.getClass().getSimpleName() +
-					  TextConvert.capitalizedIdentifier(sAttrName),
-					  rAttrParam);
+		setUIProperty(
+			RESOURCE_ID,
+			rEntity.getClass().getSimpleName() +
+			TextConvert.capitalizedIdentifier(sAttrName),
+			rAttrParam);
 
 		if (Enum.class.isAssignableFrom(rDatatype))
 		{
@@ -806,9 +813,10 @@ public class EditEntity extends InteractionFragment
 		}
 		else if (Date.class.isAssignableFrom(rDatatype))
 		{
-			setUIProperty(DATE_INPUT_TYPE,
-						  DateInputType.INPUT_FIELD,
-						  rAttrParam);
+			setUIProperty(
+				DATE_INPUT_TYPE,
+				DateInputType.INPUT_FIELD,
+				rAttrParam);
 		}
 
 		if (!Entity.class.isAssignableFrom(rDatatype))
@@ -873,10 +881,11 @@ public class EditEntity extends InteractionFragment
 	{
 		EditEntity aEditChildFragment = new EditEntity(EDITED_ENTITY_CHILD);
 
-		showDialog(getParameterPrefix(rChild),
-				   aEditChildFragment,
-				   null,
-				   DialogAction.CLOSE);
+		showDialog(
+			getParameterPrefix(rChild),
+			aEditChildFragment,
+			null,
+			DialogAction.CLOSE);
 
 		aEditChildFragment.set(EDITED_ENTITY_CHILD, rChild);
 		aEditChildFragment.set(EDITED_ENTITY_PARENT, rEditedEntity);
@@ -952,8 +961,9 @@ public class EditEntity extends InteractionFragment
 		if (rKey == null)
 		{
 			rKey =
-				RelationType.valueOf(ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE +
-									 "." + getParameter(EXTRA_ATTR_KEY));
+				RelationType.valueOf(
+					ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE +
+					"." + getParameter(EXTRA_ATTR_KEY));
 		}
 
 		Object rValue = Conversions.parseValue(sRawValue, rKey);

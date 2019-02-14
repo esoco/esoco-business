@@ -416,7 +416,7 @@ public class UiBuilder<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * Adds a list of selectable string.
+	 * Adds a list of selectable strings.
 	 *
 	 * @return The new component
 	 */

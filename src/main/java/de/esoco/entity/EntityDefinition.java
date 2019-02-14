@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package de.esoco.entity;
 import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
-import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.logging.Log;
@@ -231,10 +230,11 @@ public class EntityDefinition<E extends Entity>
 
 		ObjectRelations.getRelatable(rEntityClass).set(STORAGE_MAPPING, this);
 
-		init(rEntityClass.getSimpleName(),
-			 sIdPrefix,
-			 rEntityClass,
-			 getAttributeTypes(rEntityClass));
+		init(
+			rEntityClass.getSimpleName(),
+			sIdPrefix,
+			rEntityClass,
+			getAttributeTypes(rEntityClass));
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -252,8 +252,9 @@ public class EntityDefinition<E extends Entity>
 	static Map<RelationType<?>, MutableProperties>
 	getAttributeDisplayProperties(Class<? extends Entity> rEntityClass)
 	{
-		return (Map<RelationType<?>, MutableProperties>) getStaticFieldValue(rEntityClass,
-																			 ATTRIBUTE_DISPLAY_PROPERTIES_FIELD);
+		return (Map<RelationType<?>, MutableProperties>) getStaticFieldValue(
+			rEntityClass,
+			ATTRIBUTE_DISPLAY_PROPERTIES_FIELD);
 	}
 
 	/***************************************
@@ -287,8 +288,9 @@ public class EntityDefinition<E extends Entity>
 		}
 		catch (Exception e)
 		{
-			throw new IllegalStateException("Could not access field " +
-											sFieldName);
+			throw new IllegalStateException(
+				"Could not access field " +
+				sFieldName);
 		}
 
 		return rValue;
@@ -354,10 +356,11 @@ public class EntityDefinition<E extends Entity>
 			}
 			catch (Exception e)
 			{
-				Log.errorf(e,
-						   "Error creating entity %s from data %s",
-						   rEntityClass.getSimpleName(),
-						   rAttributeValues);
+				Log.errorf(
+					e,
+					"Error creating entity %s from data %s",
+					rEntityClass.getSimpleName(),
+					rAttributeValues);
 
 				throw e;
 			}
@@ -513,8 +516,9 @@ public class EntityDefinition<E extends Entity>
 
 		if (aAttributeDisplayProperties != null)
 		{
-			addProperties(aDisplayProperties,
-						  aAttributeDisplayProperties.get(rAttribute));
+			addProperties(
+				aDisplayProperties,
+				aAttributeDisplayProperties.get(rAttribute));
 		}
 
 		return aDisplayProperties;
@@ -814,8 +818,9 @@ public class EntityDefinition<E extends Entity>
 
 			if (rChildParent != null && rChildParent.getId() != rParent.getId())
 			{
-				throw new IllegalArgumentException("Child already has other parent: " +
-												   rChildEntity.get(rChildParentAttr));
+				throw new IllegalArgumentException(
+					"Child already has other parent: " +
+					rChildEntity.get(rChildParentAttr));
 			}
 
 			if (bInitializing)
@@ -824,10 +829,11 @@ public class EntityDefinition<E extends Entity>
 			}
 
 			rChildEntity.set(rChildParentAttr, rParent);
-			rChildDef.setHierarchyReferences(rChildEntity,
-											 rChildChildAttr,
-											 rMaster,
-											 rRoot);
+			rChildDef.setHierarchyReferences(
+				rChildEntity,
+				rChildChildAttr,
+				rMaster,
+				rRoot);
 
 			rChildEntity.deleteRelation(INITIALIZING);
 		}
@@ -929,8 +935,9 @@ public class EntityDefinition<E extends Entity>
 	{
 		try
 		{
-			EntityManager.storeEntity(rReferencedEntity,
-									  rSourceObject.get(ENTITY_STORE_ORIGIN));
+			EntityManager.storeEntity(
+				rReferencedEntity,
+				rSourceObject.get(ENTITY_STORE_ORIGIN));
 		}
 		catch (TransactionException e)
 		{
@@ -1058,15 +1065,15 @@ public class EntityDefinition<E extends Entity>
 				}
 				else if (rAttribute.hasFlag(PARENT_ATTRIBUTE))
 				{
-					initHierarchyAttribute((RelationType<? extends Entity>)
-										   rAttribute);
+					initHierarchyAttribute(
+						(RelationType<? extends Entity>) rAttribute);
 				}
 				else if (rAttribute.hasFlag(ROOT_ATTRIBUTE))
 				{
 					rRootAttribute =
-						initParentAttribute(rRootAttribute,
-											(RelationType<? extends Entity>)
-											rAttribute);
+						initParentAttribute(
+							rRootAttribute,
+							(RelationType<? extends Entity>) rAttribute);
 				}
 				else if (Entity.class.isAssignableFrom(rTargetType) &&
 						 rTargetType != Entity.class)
@@ -1076,8 +1083,8 @@ public class EntityDefinition<E extends Entity>
 						// set entity reference but only if not an arbitrary
 						// entity reference
 						StorageMapping<?, ?, ?> rMapping =
-							StorageManager.getMapping(rAttribute
-													  .getTargetType());
+							StorageManager.getMapping(
+								rAttribute.getTargetType());
 
 						assert rMapping instanceof EntityDefinition;
 
@@ -1087,7 +1094,9 @@ public class EntityDefinition<E extends Entity>
 
 				if (!rAttribute.hasRelation(STORAGE_DATATYPE))
 				{
-					rAttribute.set(STORAGE_DATATYPE, rAttribute.getTargetType());
+					rAttribute.set(
+						STORAGE_DATATYPE,
+						rAttribute.getTargetType());
 				}
 
 				if (!rAttribute.hasRelation(STORAGE_NAME))
@@ -1144,9 +1153,10 @@ public class EntityDefinition<E extends Entity>
 				EntityFunctions.queryEntity((Class<Entity>) rAttrType);
 		}
 
-		aEntity.set(rEntityRefAttr,
-					(Function<Object, Entity>) fQueryEntity,
-					rReferenceId);
+		aEntity.set(
+			rEntityRefAttr,
+			(Function<Object, Entity>) fQueryEntity,
+			rReferenceId);
 	}
 
 	/***************************************
@@ -1172,9 +1182,7 @@ public class EntityDefinition<E extends Entity>
 		}
 		else
 		{
-			rEntity.set(rRelationTypeAttr,
-						Functions.getRelationType(),
-						sTypeName);
+			rEntity.set(rRelationTypeAttr, RelationType::valueOf, sTypeName);
 		}
 	}
 
@@ -1195,8 +1203,9 @@ public class EntityDefinition<E extends Entity>
 
 		if (rDef == null)
 		{
-			throw new InvalidObjectException("Undefined entity definition: " +
-											 rDef);
+			throw new InvalidObjectException(
+				"Undefined entity definition: " +
+				rDef);
 		}
 
 		return rDef;
@@ -1232,15 +1241,17 @@ public class EntityDefinition<E extends Entity>
 
 			if (rChildEntity.get(rChildParentAttr) == null)
 			{
-				throw new IllegalArgumentException("Child has no parent: " +
-												   rChildEntity);
+				throw new IllegalArgumentException(
+					"Child has no parent: " +
+					rChildEntity);
 			}
 
 			rChildEntity.set(rChildParentAttr, null);
-			rChildDef.setHierarchyReferences(rChildEntity,
-											 rChildChildAttr,
-											 null,
-											 null);
+			rChildDef.setHierarchyReferences(
+				rChildEntity,
+				rChildChildAttr,
+				null,
+				null);
 		}
 	}
 
@@ -1297,13 +1308,14 @@ public class EntityDefinition<E extends Entity>
 		}
 		else if (rMapping != rChildDef)
 		{
-			throw new IllegalStateException("Duplicate child attribute with " +
-											"different entity definition: " +
-											rAttribute);
+			throw new IllegalStateException(
+				"Duplicate child attribute with " +
+				"different entity definition: " + rAttribute);
 		}
 
-		aChildAttributes.put(rChildDef,
-							 (RelationType<List<Entity>>) rAttribute);
+		aChildAttributes.put(
+			rChildDef,
+			(RelationType<List<Entity>>) rAttribute);
 
 		if (rChildClass == rEntityClass)
 		{
@@ -1334,8 +1346,9 @@ public class EntityDefinition<E extends Entity>
 	private void checkDisableChildCounts()
 	{
 		Boolean rDisableChildCounts =
-			(Boolean) getStaticFieldValue(rEntityClass,
-										  DISABLE_SQL_CHILD_COUNT_FIELD);
+			(Boolean) getStaticFieldValue(
+				rEntityClass,
+				DISABLE_SQL_CHILD_COUNT_FIELD);
 
 		if ((rDisableChildCounts != null && rDisableChildCounts.booleanValue()))
 		{
@@ -1359,9 +1372,11 @@ public class EntityDefinition<E extends Entity>
 	{
 		if (rCurrentAttribute != null && rCurrentAttribute != rNewAttribute)
 		{
-			throw new IllegalStateException(String.format("Duplicate hierarchy attribute: %s and %s",
-														  rCurrentAttribute,
-														  rNewAttribute));
+			throw new IllegalStateException(
+				String.format(
+					"Duplicate hierarchy attribute: %s and %s",
+					rCurrentAttribute,
+					rNewAttribute));
 		}
 	}
 
@@ -1414,16 +1429,17 @@ public class EntityDefinition<E extends Entity>
 
 				if (Entity.class.isAssignableFrom(rAttrType))
 				{
-					initEntityReference(aEntity,
-										(RelationType<Entity>) rAttr,
-										rValue);
+					initEntityReference(
+						aEntity,
+						(RelationType<Entity>) rAttr,
+						rValue);
 				}
 				else if (RelationType.class.isAssignableFrom(rAttrType))
 				{
-					initRelationTypeAttribute(aEntity,
-											  (RelationType<RelationType<?>>)
-											  rAttr,
-											  rValue.toString());
+					initRelationTypeAttribute(
+						aEntity,
+						(RelationType<RelationType<?>>) rAttr,
+						rValue.toString());
 				}
 				else
 				{
@@ -1435,10 +1451,11 @@ public class EntityDefinition<E extends Entity>
 					catch (IllegalArgumentException e)
 					{
 						String sMessage =
-							String.format("Could not map attribute %s.%s: %s",
-										  getEntityName(),
-										  rAttr,
-										  e.getMessage());
+							String.format(
+								"Could not map attribute %s.%s: %s",
+								getEntityName(),
+								rAttr,
+								e.getMessage());
 
 						throw new StorageException(sMessage, e);
 					}
@@ -1465,18 +1482,20 @@ public class EntityDefinition<E extends Entity>
 	{
 		@SuppressWarnings("unchecked")
 		List<RelationType<?>> rAttributes =
-			(List<RelationType<?>>) getStaticFieldValue(rEntityClass,
-														ENTITY_ATTRIBUTES_FIELD);
+			(List<RelationType<?>>) getStaticFieldValue(
+				rEntityClass,
+				ENTITY_ATTRIBUTES_FIELD);
 
 		if (rAttributes == null)
 		{
 			rAttributes =
-				ReflectUtil.collectConstants(rEntityClass,
-											 RelationType.class,
-											 null,
-											 true,
-											 true,
-											 true);
+				ReflectUtil.collectConstants(
+					rEntityClass,
+					RelationType.class,
+					null,
+					true,
+					true,
+					true);
 		}
 
 		return rAttributes;
@@ -1531,9 +1550,11 @@ public class EntityDefinition<E extends Entity>
 
 		if (rChildParentAttr == null)
 		{
-			throw new IllegalArgumentException(String.format("No parent attribute in %s for %s",
-															 rChildDef,
-															 this));
+			throw new IllegalArgumentException(
+				String.format(
+					"No parent attribute in %s for %s",
+					rChildDef,
+					this));
 		}
 
 		return rChildParentAttr;
@@ -1620,16 +1641,17 @@ public class EntityDefinition<E extends Entity>
 		for (DisplayMode rDisplayMode : DisplayMode.values())
 		{
 			RelationType<?>[] rModeAttributes =
-				(RelationType<?>[]) getStaticFieldValue(rEntityClass,
-														DISPLAY_ATTRIBUTES_FIELD_PREFIX +
-														rDisplayMode);
+				(RelationType<?>[]) getStaticFieldValue(
+					rEntityClass,
+					DISPLAY_ATTRIBUTES_FIELD_PREFIX + rDisplayMode);
 
 			if (rModeAttributes != null)
 			{
 				assert rModeAttributes.length > 0;
 
 				List<RelationType<?>> rAttrList =
-					Collections.unmodifiableList(Arrays.asList(rModeAttributes));
+					Collections.unmodifiableList(
+						Arrays.asList(rModeAttributes));
 
 				aDisplayAttributes.put(rDisplayMode, rAttrList);
 			}
@@ -1684,8 +1706,9 @@ public class EntityDefinition<E extends Entity>
 			{
 				// update only if not set already
 				rMasterAttribute = rAttribute;
-				rMasterAttribute.set(STORAGE_MAPPING,
-									 EntityManager.getEntityDefinition(rMasterClass));
+				rMasterAttribute.set(
+					STORAGE_MAPPING,
+					EntityManager.getEntityDefinition(rMasterClass));
 			}
 		}
 	}
@@ -1796,7 +1819,8 @@ public class EntityDefinition<E extends Entity>
 		if (!aDisplayAttributes.containsKey(rDisplayMode))
 		{
 			List<RelationType<?>> aAttributeList =
-				new ArrayList<RelationType<?>>(Arrays.asList(rDisplayAttributes));
+				new ArrayList<RelationType<?>>(
+					Arrays.asList(rDisplayAttributes));
 
 			for (RelationType<?> rAttribute : rDisplayAttributes)
 			{
@@ -1856,10 +1880,11 @@ public class EntityDefinition<E extends Entity>
 			{
 				for (Entity rChild : rChildren)
 				{
-					setHierarchyReferences(rChild,
-										   rChildAttribute,
-										   rMaster,
-										   rRoot);
+					setHierarchyReferences(
+						rChild,
+						rChildAttribute,
+						rMaster,
+						rRoot);
 				}
 			}
 		}

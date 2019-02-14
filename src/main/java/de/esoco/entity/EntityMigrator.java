@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package de.esoco.entity;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.logging.LogLevel;
 import de.esoco.lib.manage.TransactionException;
@@ -51,7 +50,7 @@ import static de.esoco.entity.EntityPredicates.forEntity;
  * @author eso
  */
 public class EntityMigrator<S extends Entity, T extends Entity>
-	extends AbstractFunction<S, T>
+	implements Function<S, T>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -83,9 +82,6 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 */
 	public EntityMigrator(Class<S> rSourceType, Class<T> rTargetType)
 	{
-		super("Migrate " + rSourceType.getSimpleName() + " to " +
-			  rTargetType.getSimpleName());
-
 		this.rSourceType = rSourceType;
 		this.rTargetType = rTargetType;
 	}
@@ -157,10 +153,11 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 		{
 			init();
 
-			System.out.printf("Migrating %s to %s [%d]\n",
-							  rSourceType,
-							  rTargetType,
-							  nCount);
+			System.out.printf(
+				"Migrating %s to %s [%d]\n",
+				rSourceType,
+				rTargetType,
+				nCount);
 
 			while (aEntities.hasNext())
 			{
@@ -400,8 +397,8 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 		throws StorageException
 	{
 		Set<RelationType<?>> aAttributes =
-			new HashSet<RelationType<?>>(EntityManager.getEntityDefinition(rTargetType)
-										 .getAttributes());
+			new HashSet<RelationType<?>>(
+				EntityManager.getEntityDefinition(rTargetType).getAttributes());
 
 		for (Entry<RelationType<?>, Function<? super Entity, ?>> rEntry :
 			 aAttributeRules.entrySet())
@@ -423,9 +420,11 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 
 						if (rEntity == null)
 						{
-							throw new IllegalStateException(String.format("Could not find referenced entity %s with ID %s",
-																		  rAttrType,
-																		  rValue));
+							throw new IllegalStateException(
+								String.format(
+									"Could not find referenced entity %s with ID %s",
+									rAttrType,
+									rValue));
 						}
 
 						rValue = rEntity;
@@ -437,15 +436,17 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 						if (nId > 0)
 						{
 							rValue =
-								EntityManager.queryEntity((Class<Entity>)
-														  rAttrType,
-														  nId);
+								EntityManager.queryEntity(
+									(Class<Entity>) rAttrType,
+									nId);
 
 							if (rValue == null)
 							{
-								throw new IllegalStateException(String.format("Could not find referenced entity %s with ID %d",
-																			  rAttrType,
-																			  nId));
+								throw new IllegalStateException(
+									String.format(
+										"Could not find referenced entity %s with ID %d",
+										rAttrType,
+										nId));
 							}
 						}
 						else
@@ -481,8 +482,9 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 		throws StorageException, TransactionException
 	{
 		Set<RelationType<?>> aChildAttributes =
-			new HashSet<RelationType<?>>(EntityManager.getEntityDefinition(rTargetType)
-										 .getChildAttributes());
+			new HashSet<RelationType<?>>(
+				EntityManager.getEntityDefinition(rTargetType)
+				.getChildAttributes());
 
 		for (Entry<RelationType<? extends List<? extends Entity>>,
 				   EntityMigrator<?, ?>> rEntry : aChildMigrators.entrySet())
@@ -503,8 +505,10 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 					.getEntityDefinition(rSourceType);
 
 				Collection<Entity> rSourceChildren =
-					rSourceDef.getChildren(rSource,
-										   EntityManager.getEntityDefinition(rChildMigrator.rSourceType));
+					rSourceDef.getChildren(
+						rSource,
+						EntityManager.getEntityDefinition(
+							rChildMigrator.rSourceType));
 
 				List<Entity> aTargetChildren =
 					new ArrayList<Entity>(rSourceChildren.size());
@@ -524,8 +528,9 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 				{
 					Entity[] aEntities = new Entity[aTargetChildren.size()];
 
-					rTarget.addChildren(rTargetChildAttr,
-										aTargetChildren.toArray(aEntities));
+					rTarget.addChildren(
+						rTargetChildAttr,
+						aTargetChildren.toArray(aEntities));
 				}
 			}
 

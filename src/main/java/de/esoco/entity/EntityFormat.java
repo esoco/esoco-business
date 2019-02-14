@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
-import de.esoco.lib.expression.function.AbstractFunction;
+import de.esoco.lib.expression.Function;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ import org.obrel.type.StandardTypes;
  *
  * @author eso
  */
-public class EntityFormat<E extends Entity> extends AbstractFunction<E, String>
+public class EntityFormat<E extends Entity> implements Function<E, String>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -41,12 +41,9 @@ public class EntityFormat<E extends Entity> extends AbstractFunction<E, String>
 	 * Creates a new instance.
 	 *
 	 * @param sNullString The string to be displayed if the input entity is NULL
-	 * @param bImmutable  TRUE for an immutable right value
 	 */
-	public EntityFormat(String sNullString, boolean bImmutable)
+	public EntityFormat(String sNullString)
 	{
-		super("EntityFormat");
-
 		this.sNullString = sNullString;
 	}
 

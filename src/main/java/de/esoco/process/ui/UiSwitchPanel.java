@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import de.esoco.lib.property.SingleSelection;
 import de.esoco.process.ui.container.UiLayoutPanel;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
@@ -53,43 +54,42 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Adds a panel as a new page of this switch panel.
+	 * Adds a panel with a particular layout as a new page of this switch panel.
 	 *
 	 * @param  sTitle  The page title
 	 * @param  eLayout The panel layout
 	 *
-	 * @return The new panel
+	 * @return The page panel to allow further invocations
 	 */
 	public UiLayoutPanel addPage(String sTitle, UiLayout eLayout)
 	{
-		return addPage(sTitle, builder().addPanel(eLayout));
+		return addPage(sTitle, c -> c.builder().addPanel(eLayout));
 	}
 
 	/***************************************
-	 * Adds a certain component as a new page of this switch panel. The
-	 * component must be a child of this container or else an exception will be
-	 * thrown.
+	 * Adds a component that is created by a factory function as a new page of
+	 * this switch panel. The component must be a child of this container or
+	 * else an exception will be thrown.
 	 *
-	 * @param  sTitle         The page title
-	 * @param  rPageComponent The component to display on the page
+	 * @param  sTitle  The page title
+	 * @param  fCreate A factory function that receives this panel as it's input
+	 *                 and returns a child component for the new page
 	 *
 	 * @return The page component to allow further invocations
 	 *
 	 * @throws IllegalArgumentException If the given component has a different
 	 *                                  parent than this container
 	 */
-	public <C extends UiComponent<?, C>> C addPage(
-		String sTitle,
-		C	   rPageComponent)
+	public <T, V extends UiComponent<T, V>> V addPage(
+		String								  sTitle,
+		Function<UiContainer<?>, ? extends V> fCreate)
 	{
-		if (rPageComponent.getParent() != this)
-		{
-			throw new IllegalArgumentException("Component " + rPageComponent +
-											   " has other parent: " +
-											   rPageComponent.getParent());
-		}
+		V rPageComponent = fCreate.apply(this).set(LABEL, sTitle);
 
-		rPageComponent.set(LABEL, sTitle);
+		assert rPageComponent.getParent() == this : String.format(
+			"Component %s has other parent: ",
+			rPageComponent,
+			rPageComponent.getParent());
 
 		return rPageComponent;
 	}
@@ -127,8 +127,9 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	@SuppressWarnings("unchecked")
 	public final P onSelection(Consumer<P> rEventHandler)
 	{
-		return setParameterEventHandler(InteractionEventType.UPDATE,
-										v -> rEventHandler.accept((P) this));
+		return setParameterEventHandler(
+			InteractionEventType.UPDATE,
+			v -> rEventHandler.accept((P) this));
 	}
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Orientation;
+
 import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -30,7 +31,6 @@ import de.esoco.process.ui.component.UiTextField;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -46,7 +46,8 @@ import static de.esoco.lib.property.StyleProperties.ORIENTATION;
  *
  * @author eso
  */
-public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
+public abstract class UiNavMenu<E extends Enum<E>>
+	extends UiComposite<UiNavMenu<E>>
 {
 	//~ Enums ------------------------------------------------------------------
 
@@ -70,22 +71,13 @@ public class UiNavMenu<E extends Enum<E>> extends UiComposite<UiNavMenu<E>>
 	 * Creates a new instance.
 	 *
 	 * @param rParent    The parent container
-	 * @param eType      The menu type
-	 * @param rMenuItems The initial menu items to display
+	 * @param rMenuItems The initial menu items
 	 */
-	@SafeVarargs
-	protected UiNavMenu(UiContainer<?> rParent,
-						NavMenuType    eType,
-						E... 		   rMenuItems)
+	protected UiNavMenu(UiContainer<?> rParent, Collection<E> rMenuItems)
 	{
 		super(rParent, new UiLayout(LayoutType.MENU));
 
-		if (eType == NavMenuType.SIDE)
-		{
-			set(ORIENTATION, Orientation.VERTICAL);
-		}
-
-		setMenuItems(Arrays.asList(rMenuItems));
+		setMenuItems(rMenuItems);
 	}
 
 	//~ Methods ----------------------------------------------------------------

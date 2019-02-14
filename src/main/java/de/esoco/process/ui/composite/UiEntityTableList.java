@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDataProvider;
 
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.monad.Option;
 
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 
 import org.obrel.core.RelationType;
 
@@ -63,14 +65,14 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	 * @param rEntityType      The class of the entity type to display
 	 * @param pDefaultCriteria Default criteria that are always applied or NULL
 	 *                         for none
-	 * @param eExpandStyle     The expand style
+	 * @param oExpandStyle     The expand style
 	 */
-	public UiEntityTableList(UiContainer<?>		  rParent,
-							 Class<E>			  rEntityType,
-							 Predicate<? super E> pDefaultCriteria,
-							 ExpandableTableStyle eExpandStyle)
+	public UiEntityTableList(UiContainer<?>				 rParent,
+							 Class<E>					 rEntityType,
+							 Predicate<? super E>		 pDefaultCriteria,
+							 Option<ExpandableListStyle> oExpandStyle)
 	{
-		super(rParent, eExpandStyle);
+		super(rParent, oExpandStyle);
 
 		aEntityProvider =
 			new EntityDataProvider<>(rEntityType, pDefaultCriteria);
@@ -112,8 +114,9 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	{
 		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
 
-		aEntityProvider.setWildcardFilter(sGlobalFilter,
-										  aGlobalFilterAttributes);
+		aEntityProvider.setWildcardFilter(
+			sGlobalFilter,
+			aGlobalFilterAttributes);
 		update();
 	}
 
@@ -128,7 +131,8 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	{
 		this.aGlobalFilterAttributes = rAttributes;
 
-		aEntityProvider.setWildcardFilter(sGlobalFilter,
-										  aGlobalFilterAttributes);
+		aEntityProvider.setWildcardFilter(
+			sGlobalFilter,
+			aGlobalFilterAttributes);
 	}
 }

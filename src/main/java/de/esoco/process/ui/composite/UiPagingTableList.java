@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.Alignment;
 
 import de.esoco.process.ui.UiContainer;
+import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.container.UiColumnGridPanel;
 
 
@@ -46,20 +48,20 @@ public class UiPagingTableList<T> extends UiTableList<T>
 	 */
 	public UiPagingTableList(UiContainer<?> rParent)
 	{
-		this(rParent, null);
+		this(rParent, Option.none());
 	}
 
 	/***************************************
 	 * Creates a new instance.
 	 *
 	 * @param rParent      The parent container
-	 * @param eExpandStyle The expand style
+	 * @param oExpandStyle The expand style
 	 */
 	public UiPagingTableList(
-		UiContainer<?>		 rParent,
-		ExpandableTableStyle eExpandStyle)
+		UiContainer<?>				rParent,
+		Option<ExpandableListStyle> oExpandStyle)
 	{
-		super(rParent, eExpandStyle);
+		super(rParent, oExpandStyle);
 
 		aToolPanel  = new UiColumnGridPanel(this);
 		aNavigation = new UiPagingNavigation(aToolPanel, this::update, 10);

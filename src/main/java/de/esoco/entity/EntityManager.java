@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointFunction;
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.expression.CollectionFunctions;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
@@ -97,6 +96,7 @@ import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.ifRelation;
 import static de.esoco.lib.expression.Predicates.isNull;
+import static de.esoco.lib.expression.Predicates.untilCountDown;
 import static de.esoco.lib.service.ModificationSyncEndpoint.releaseLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.requestLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.syncRequest;
@@ -1104,8 +1104,8 @@ public class EntityManager
 
 		evaluateEntities(
 			qEntities,
-			Predicates.countDown(nMax),
-			CollectionFunctions.collectInto(aEntities));
+			untilCountDown(nMax),
+			e -> aEntities.add(e));
 
 		return aEntities;
 	}

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@ import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
-import de.esoco.lib.expression.function.AbstractInvertibleFunction;
-import de.esoco.lib.expression.function.ExceptionMappingFunction;
 import de.esoco.lib.expression.function.GetElement;
+import de.esoco.lib.expression.function.ThrowingFunction;
+import de.esoco.lib.expression.function.ThrowingSupplier;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.storage.StorageException;
+
+import java.util.function.Supplier;
 
 import org.obrel.core.RelationType;
 
@@ -46,27 +48,9 @@ public class EntityFunctions
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final InvertibleFunction<Entity, String> ENTITY_TO_STRING =
-		new AbstractInvertibleFunction<Entity, String>("EntityToString")
-		{
-			@Override
-			public String evaluate(Entity rEntity)
-			{
-				return EntityManager.getGlobalEntityId(rEntity);
-			}
-
-			@Override
-			public Entity invert(String sEntityId)
-			{
-				try
-				{
-					return EntityManager.queryEntity(sEntityId);
-				}
-				catch (StorageException e)
-				{
-					throw new FunctionException(this, e);
-				}
-			}
-		};
+		InvertibleFunction.of(
+			e -> EntityManager.getGlobalEntityId(e),
+			id -> EntityManager.queryEntity(id));
 
 	private static final Function<Entity, String> FORMAT_ENTITY =
 		formatEntity(null);
@@ -129,7 +113,7 @@ public class EntityFunctions
 	public static <E extends Entity> Function<E, String> formatEntity(
 		String sNullString)
 	{
-		return new EntityFormat<E>(sNullString, true);
+		return new EntityFormat<E>(sNullString);
 	}
 
 	/***************************************
@@ -197,8 +181,9 @@ public class EntityFunctions
 	public static <T> BinaryFunction<ExtraAttribute, RelationType<T>, T>
 	getExtraAttributeValue(RelationType<T> rExtraAttributeKey)
 	{
-		return new AbstractBinaryFunction<ExtraAttribute, RelationType<T>, T>(rExtraAttributeKey,
-																			  "getExtraAttributeValue")
+		return new AbstractBinaryFunction<ExtraAttribute, RelationType<T>, T>(
+			rExtraAttributeKey,
+			"getExtraAttributeValue")
 		{
 			@Override
 			@SuppressWarnings("unchecked")
@@ -213,9 +198,10 @@ public class EntityFunctions
 				else
 				{
 					String sMessage =
-						String.format("Invalid key %s for %s",
-									  rKey,
-									  rExtraAttribute);
+						String.format(
+							"Invalid key %s for %s",
+							rKey,
+							rExtraAttribute);
 
 					throw new IllegalArgumentException(sMessage);
 				}
@@ -243,8 +229,9 @@ public class EntityFunctions
 	public static <E extends Entity, T> BinaryFunction<E, RelationType<T>, T>
 	getUpwards(RelationType<T> rAttribute)
 	{
-		return new AbstractBinaryFunction<E, RelationType<T>, T>(rAttribute,
-																 "getUpwards(%s)")
+		return new AbstractBinaryFunction<E, RelationType<T>, T>(
+			rAttribute,
+			"getUpwards(%s)")
 		{
 			@Override
 			public T evaluate(E rEntity, RelationType<T> rAttribute)
@@ -261,15 +248,8 @@ public class EntityFunctions
 	 */
 	public static Function<String, Entity> queryEntity()
 	{
-		return new ExceptionMappingFunction<String, Entity>("queryEntity(GlobalID)")
-		{
-			@Override
-			public Entity tryApply(String sGlobalId)
-				throws StorageException
-			{
-				return EntityManager.queryEntity(sGlobalId);
-			}
-		};
+		return ThrowingFunction.of(
+			sGlobalId -> EntityManager.queryEntity(sGlobalId));
 	}
 
 	/***************************************
@@ -281,43 +261,26 @@ public class EntityFunctions
 	public static <E extends Entity> Function<Number, E> queryEntity(
 		final Class<E> rEntityClass)
 	{
-		return new ExceptionMappingFunction<Number, E>("queryEntity(ID)")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public E tryApply(Number rId) throws StorageException
-			{
-				return EntityManager.queryEntity(rEntityClass, rId.longValue());
-			}
-		};
+		return ThrowingFunction.of(
+			rId -> EntityManager.queryEntity(rEntityClass, rId.longValue()));
 	}
 
 	/***************************************
-	 * Returns a new function which queries an entity that matches certain
-	 * criteria. The input value of the function will be ignored.
+	 * Returns a supplier which queries an entity that matches certain criteria.
 	 *
 	 * @see EntityManager#queryEntity(Class, Predicate, boolean)
 	 */
-	public static <E extends Entity> Function<Object, E> queryEntity(
+	public static <E extends Entity> Supplier<E> queryEntity(
 		final Class<E>			   rEntityClass,
 		final Predicate<? super E> rCriteria,
 		final boolean			   bFailOnMultiple)
 	{
-		return new ExceptionMappingFunction<Object, E>("queryEntity(" +
-													   rEntityClass
-													   .getSimpleName() +
-													   "[" + rCriteria +
-													   "]" + ")")
-		{
-			@Override
-			public E tryApply(Object rIgnored)
-				throws StorageException
-			{
-				return EntityManager.queryEntity(rEntityClass,
-												 rCriteria,
-												 bFailOnMultiple);
-			}
-		};
+		return ThrowingSupplier.of(
+			() ->
+				EntityManager.queryEntity(
+					rEntityClass,
+					rCriteria,
+					bFailOnMultiple));
 	}
 
 	/***************************************
@@ -338,10 +301,11 @@ public class EntityFunctions
 		final Predicate<? super E> rAdditionalCriteria,
 		final boolean			   bFailOnMultiple)
 	{
-		return new AttributeQueryFunction<T, E>(rEntityClass,
-												rAttribute,
-												rAdditionalCriteria,
-												bFailOnMultiple);
+		return new AttributeQueryFunction<T, E>(
+			rEntityClass,
+			rAttribute,
+			rAdditionalCriteria,
+			bFailOnMultiple);
 	}
 
 	/***************************************
@@ -411,7 +375,7 @@ public class EntityFunctions
 	 * @author eso
 	 */
 	private static final class AttributeQueryFunction<T, E extends Entity>
-		extends ExceptionMappingFunction<T, E>
+		implements ThrowingFunction<T, E>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -437,9 +401,6 @@ public class EntityFunctions
 									   Predicate<? super E> pAdditionalCriteria,
 									   boolean				bFailOnMultiple)
 		{
-			super("queryEntity(" + rEntityClass.getSimpleName() +
-				  "[" + rAttribute.getSimpleName() + "])");
-
 			this.rEntityClass		 = rEntityClass;
 			this.rAttribute			 = rAttribute;
 			this.pAdditionalCriteria = pAdditionalCriteria;
@@ -449,7 +410,7 @@ public class EntityFunctions
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * @see ExceptionMappingFunction#tryApply(Object)
+		 * {@inheritDoc}
 		 */
 		@Override
 		public E tryApply(T rValue) throws StorageException
@@ -462,9 +423,10 @@ public class EntityFunctions
 				pCriteria = pCriteria.and(pAdditionalCriteria);
 			}
 
-			return EntityManager.queryEntity(rEntityClass,
-											 pCriteria,
-											 bFailOnMultiple);
+			return EntityManager.queryEntity(
+				rEntityClass,
+				pCriteria,
+				bFailOnMultiple);
 		}
 	}
 }

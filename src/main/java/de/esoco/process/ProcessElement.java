@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package de.esoco.process;
 
 import de.esoco.lib.collection.CollectionUtil;
-import de.esoco.lib.expression.CollectionPredicates;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
@@ -373,7 +372,7 @@ public abstract class ProcessElement extends SerializableRelatedObject
 				setParameterValidation(
 					rCollectionParam,
 					MSG_PARAM_NOT_SET,
-					CollectionPredicates.isEmpty());
+					Collection::isEmpty);
 			}
 			else
 			{

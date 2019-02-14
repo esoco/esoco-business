@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.composite;
 
+import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
 
+import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -56,7 +58,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private ExpandableListStyle eExpandStyle;
+	private Option<ExpandableListStyle> oExpandStyle;
 
 	private List<Item> aItems = new ArrayList<>();
 
@@ -69,7 +71,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	 */
 	public UiListPanel(UiContainer<?> rParent)
 	{
-		this(rParent, null);
+		this(rParent, Option.none());
 	}
 
 	/***************************************
@@ -78,14 +80,15 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	 * other previously expanded item content.
 	 *
 	 * @param rParent      The parent container
-	 * @param eExpandStyle The expand style
+	 * @param oExpandStyle The expand style
 	 */
-	public UiListPanel(UiContainer<?>	   rParent,
-					   ExpandableListStyle eExpandStyle)
+	public UiListPanel(
+		UiContainer<?>				rParent,
+		Option<ExpandableListStyle> oExpandStyle)
 	{
 		super(rParent, new ListLayout());
 
-		setExpandStyle(eExpandStyle);
+		setExpandStyle(oExpandStyle);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -105,7 +108,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	}
 
 	/***************************************
-	 * @see de.esoco.process.ui.UiContainer#clear()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void clear()
@@ -136,36 +139,41 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	}
 
 	/***************************************
-	 * Sets the expand style of this list. This can typically only be changed
-	 * before the list ist first rendered.
+	 * Sets the optional expand style of this list. This can typically only be
+	 * changed before the list is first rendered. Use {@link Option#none()} for
+	 * a non-expandable list.
 	 *
-	 * @param eExpandStyle The new expandable list style
+	 * @param oExpandStyle The optional new expandable list style
 	 */
-	public void setExpandStyle(ExpandableListStyle eExpandStyle)
+	public void setExpandStyle(Option<ExpandableListStyle> oExpandStyle)
 	{
-		this.eExpandStyle = eExpandStyle;
+		this.oExpandStyle = oExpandStyle;
 
-		if (eExpandStyle != null)
+		if (oExpandStyle.exists())
 		{
-			set(LIST_LAYOUT_STYLE,
-				ListLayoutStyle.valueOf(eExpandStyle.name()));
+			set(
+				LIST_LAYOUT_STYLE,
+				ListLayoutStyle.valueOf(oExpandStyle.orFail().name()));
 		}
 	}
 
 	/***************************************
-	 * Returns the expand style of this instance.
+	 * Returns the optional expand style of this instance.
 	 *
-	 * @return The expandable list style (NULL for none)
+	 * @return The optional expandable list style
 	 */
-	protected final ExpandableListStyle getExpandStyle()
+	protected final Option<ExpandableListStyle> getExpandStyle()
 	{
-		return eExpandStyle;
+		return oExpandStyle;
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
-	 * The container for a single list item.
+	 * The container for a single list item. The builder returned from the item
+	 * is used to create the item content. In the case of expandable lists the
+	 * item header can be created with the builder of the header panel returned
+	 * by {@link #getHeader()}.
 	 *
 	 * @author eso
 	 */
@@ -173,9 +181,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private UiLayoutPanel aItemHeader = null;
-
-		private String sDefaultStyle = null;
+		private Option<UiContainer<?>> oItemHeader = Option.none();
 
 		//~ Constructors -------------------------------------------------------
 
@@ -188,11 +194,12 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		{
 			super(rParent, new ListItemLayout());
 
-			if (eExpandStyle != null)
+			if (oExpandStyle.exists())
 			{
-				aItemHeader =
-					builder().addPanel(new UiHeaderLayout())
-							 .set(ACTION_EVENT_ON_ACTIVATION_ONLY);
+				oItemHeader =
+					Option.of(
+						builder().addPanel(new UiHeaderLayout())
+						.set(ACTION_EVENT_ON_ACTIVATION_ONLY));
 			}
 		}
 
@@ -206,13 +213,11 @@ public class UiListPanel extends UiComposite<UiListPanel>
 			List<UiComponent<?, ?>> rComponents =
 				new ArrayList<>(getComponents());
 
-			for (UiComponent<?, ?> rComponent : rComponents)
-			{
-				if (rComponent != aItemHeader)
-				{
-					remove(rComponent);
-				}
-			}
+			UiContainer<?> rHeader = oItemHeader.orUse(null);
+
+			rComponents.stream()
+					   .filter(c -> c != rHeader)
+					   .forEach(this::remove);
 		}
 
 		/***************************************
@@ -223,28 +228,29 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		 *
 		 * @param  rLayout The header panel layout
 		 *
-		 * @return The new panel with the given layout
+		 * @return The builder of the new header panel with the given layout
 		 */
-		public final UiLayoutPanel createHeaderPanel(UiLayout rLayout)
+		public final UiBuilder<?> createHeaderPanel(UiLayout rLayout)
 		{
-			return new UiLayoutPanel(getHeader(), rLayout);
+			return new UiLayoutPanel(getHeader().getContainer(), rLayout)
+				   .builder();
 		}
 
 		/***************************************
-		 * Returns the header container panel of this item. If the list has a
-		 * simple style this method returns the item itself so that it can be
+		 * Returns the builder of this item's header panel. If the list has a
+		 * simple style this method returns the item's builder so that it can be
 		 * used to build the content in it.
 		 *
-		 * <p>The item header uses a special layout and therefore it is
-		 * recommended to add only a single component with this builder
-		 * (typically some panel with it's own layout) or else the resulting
-		 * rendering can be unexpected.</p>
+		 * <p>Depending on the underlying implementation the item header may use
+		 * a special layout. Therefore it is recommended to add only a single
+		 * component with this builder (typically some panel with it's own
+		 * layout). Otherwise the resulting rendering can be unexpected.</p>
 		 *
 		 * @return The item header container
 		 */
-		public final UiContainer<?> getHeader()
+		public final UiBuilder<?> getHeader()
 		{
-			return aItemHeader != null ? aItemHeader : this;
+			return oItemHeader.orUse(this).builder();
 		}
 
 		/***************************************
@@ -266,27 +272,6 @@ public class UiListPanel extends UiComposite<UiListPanel>
 		{
 			return UiListPanel.this.getComponentStyleName() +
 				   super.getComponentStyleName();
-		}
-
-		/***************************************
-		 * Returns the default style of this item.
-		 *
-		 * @return The default style
-		 */
-		protected final String getDefaultStyle()
-		{
-			return sDefaultStyle;
-		}
-
-		/***************************************
-		 * Sets the default style that should always be applied to this item (in
-		 * additional to any style set in {@link #style()}).
-		 *
-		 * @param rDefaultStyle The defaultStyle value
-		 */
-		protected final void setDefaultStyle(String rDefaultStyle)
-		{
-			sDefaultStyle = rDefaultStyle;
 		}
 	}
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package de.esoco.entity;
 
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.expression.function.AbstractAction;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -58,18 +57,13 @@ public final class ExtraAttributes
 		newType(RelationTypeModifier.FINAL);
 
 	private static final Action<RelationType<?>> EXTRA_ATTR_INIT_ACTION =
-		new AbstractAction<RelationType<?>>("InitExtraAttribute")
+		xa ->
 		{
-			@Override
-			public void execute(RelationType<?> rExtraAttribute)
-			{
-				RelationType<?> rType =
-					RelationType.valueOf(rExtraAttribute.getSimpleName());
+			RelationType<?> rType = RelationType.valueOf(xa.getSimpleName());
 
-				assert rType == null ||
-					   rType == rExtraAttribute : "ExtraAttribute has same name as RelationType " +
-					   rExtraAttribute.getSimpleName();
-			}
+			assert rType == null ||
+				   rType == xa : "ExtraAttribute has same name as RelationType " +
+				   xa.getSimpleName();
 		};
 
 	static
@@ -148,8 +142,8 @@ public final class ExtraAttributes
 		String			 sName,
 		Class<? super T> rDatatype)
 	{
-		return annotateExtraAttribute(RelationTypes.newRelationType(sName,
-																	rDatatype));
+		return annotateExtraAttribute(
+			RelationTypes.newRelationType(sName, rDatatype));
 	}
 
 	/***************************************
@@ -178,8 +172,8 @@ public final class ExtraAttributes
 		String			 sName,
 		Class<? super E> rElementType)
 	{
-		return annotateExtraAttribute(RelationTypes.newListType(sName,
-																rElementType));
+		return annotateExtraAttribute(
+			RelationTypes.newListType(sName, rElementType));
 	}
 
 	/***************************************
@@ -197,11 +191,13 @@ public final class ExtraAttributes
 		Class<K> rKeyType,
 		Class<V> rValueType)
 	{
-		return annotateExtraAttribute(RelationTypes.newMapType(sName,
-															   rKeyType,
-															   rValueType,
-															   false,
-															   false));
+		return annotateExtraAttribute(
+			RelationTypes.newMapType(
+				sName,
+				rKeyType,
+				rValueType,
+				false,
+				false));
 	}
 
 	/***************************************
@@ -256,11 +252,13 @@ public final class ExtraAttributes
 	private static <T> RelationType<T> annotateExtraAttribute(
 		RelationType<T> rType)
 	{
-		return rType.annotate(RELATION_TYPE_NAMESPACE,
-							  EXTRA_ATTRIBUTES_NAMESPACE)
+		return rType.annotate(
+						RELATION_TYPE_NAMESPACE,
+						EXTRA_ATTRIBUTES_NAMESPACE)
 					.annotate(EXTRA_ATTRIBUTE_FLAG)
 					.annotate(SQL_OMIT_NAMESPACE)
-					.annotate(RELATION_TYPE_INIT_ACTION,
-							  EXTRA_ATTR_INIT_ACTION);
+					.annotate(
+						RELATION_TYPE_INIT_ACTION,
+						EXTRA_ATTR_INIT_ACTION);
 	}
 }

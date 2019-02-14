@@ -16,48 +16,34 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.app;
 
-import de.esoco.process.ui.UiComposite;
-import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.layout.UiFooterLayout;
-import de.esoco.process.ui.style.DefaultStyleNames;
+import de.esoco.lib.property.Orientation;
 
-import java.util.Date;
+import de.esoco.process.ui.UiContainer;
+
+import java.util.Collection;
+
+import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 
 
 /********************************************************************
- * A composite that represents the header of a web page.
+ * The side menu of a web page.
  *
  * @author eso
  */
-public class UiWebPageFooter extends UiComposite<UiWebPageFooter>
+public class UiSideMenu<E extends Enum<E>> extends UiNavMenu<E>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent the parent container
+	 * @param rParent    The parent container
+	 * @param rMenuItems The initial menu items
 	 */
-	public UiWebPageFooter(UiContainer<?> rParent)
+	public UiSideMenu(UiContainer<?> rParent, Collection<E> rMenuItems)
 	{
-		super(rParent, new UiFooterLayout());
-	}
+		super(rParent, rMenuItems);
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Adds a copyright message to the footer that includes the current year.
-	 * The label has the style name {@link DefaultStyleNames#FOOTER_COPYRIGHT}.
-	 *
-	 * @param sCopyrightHolder The display name of the copyright holder(s)
-	 */
-	public void addCopyrightMessage(String sCopyrightHolder)
-	{
-		builder().addLabel(
-		 			String.format(
-		 				"Copyright %tY %s",
-		 				new Date(),
-		 				sCopyrightHolder))
-				 .styleName(DefaultStyleNames.FOOTER_COPYRIGHT);
+		set(ORIENTATION, Orientation.VERTICAL);
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.data.element.DataElement;
 
+import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.HasAttributeFilter;
@@ -28,6 +29,7 @@ import de.esoco.lib.property.SortDirection;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
+
 import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
@@ -85,26 +87,13 @@ import static de.esoco.process.ProcessRelationTypes.CLIENT_LOCALE;
 public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	implements HasSelection<UiTableList<T>.Row>
 {
-	//~ Enums ------------------------------------------------------------------
-
-	/********************************************************************
-	 * The available styles for expandable tables:
-	 *
-	 * <ul>
-	 *   <li>{@link #EXPAND}: expands a row inside the table.</li>
-	 *   <li>{@link #POPOUT}: expands a row and separates it from the other
-	 *     table rows.</li>
-	 * </ul>
-	 */
-	public enum ExpandableTableStyle { EXPAND, POPOUT }
-
 	//~ Instance fields --------------------------------------------------------
 
 	private DataProvider<T> rDataProvider;
 
 	private UiListPanel    aHeaderPanel;
 	private Item		   aHeaderItem;
-	private UiLayoutPanel  aTableHeader;
+	private UiContainer<?> aTableHeader;
 	private UiListPanel    aDataList;
 	private UiContainer<?> aEmptyTableInfo;
 
@@ -142,23 +131,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * other previously expanded item content.
 	 *
 	 * @param rParent      The parent container
-	 * @param eExpandStyle The expand style
+	 * @param oExpandStyle The expand style
 	 */
 	public UiTableList(
-		UiContainer<?>		 rParent,
-		ExpandableTableStyle eExpandStyle)
+		UiContainer<?>				rParent,
+		Option<ExpandableListStyle> oExpandStyle)
 	{
 		super(rParent, new UiFlowLayout());
-
-		ExpandableListStyle eListStyle =
-			eExpandStyle != null
-			? ExpandableListStyle.valueOf(eExpandStyle.name()) : null;
 
 		aHeaderPanel    = new UiListPanel(this);
 		aHeaderItem     = aHeaderPanel.addItem();
 		aTableHeader    =
-			aHeaderItem.createHeaderPanel(new UiColumnGridLayout());
-		aDataList	    = new UiListPanel(this, eListStyle);
+			aHeaderItem.createHeaderPanel(new UiColumnGridLayout())
+					   .getContainer();
+		aDataList	    = new UiListPanel(this, oExpandStyle);
 		aEmptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
 
 		aEmptyTableInfo.hide();
@@ -237,11 +223,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * @param  rLayout The layout of the expanded header content panel the
 	 *                 builder is created for
 	 *
-	 * @return TODO: The container for the expanded header content
+	 * @return The container for the expanded header content
 	 */
 	public UiContainer<?> addExpandedHeader(UiLayout rLayout)
 	{
-		aHeaderPanel.setExpandStyle(ExpandableListStyle.EXPAND);
+		aHeaderPanel.setExpandStyle(Option.of(ExpandableListStyle.EXPAND));
 
 		UiIconButton aIndicator =
 			aTableHeader.builder()
@@ -491,8 +477,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			removeRow(aRows.get(nRowIndex));
 		}
 
-		aEmptyTableInfo.setVisible(aRows.size() == 0 &&
-								   aEmptyTableInfo.getComponents().size() > 0);
+		aEmptyTableInfo.setVisible(
+			aRows.size() == 0 && aEmptyTableInfo.getComponents().size() > 0);
 	}
 
 	/***************************************
@@ -530,8 +516,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				rSelectedRow.updateExpandedContent();
 			}
 
-			aDataList.set(rSelectedRow != null ? rSelectedRow.getIndex() : -1,
-						  CURRENT_SELECTION);
+			aDataList.set(
+				rSelectedRow != null ? rSelectedRow.getIndex() : -1,
+				CURRENT_SELECTION);
 		}
 
 		if (bFireEvent && fHandleRowSelection != null)
@@ -596,7 +583,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 			aColumnTitle =
 				new UiLink(this, "").set(NO_EVENT_PROPAGATION)
-									.onClick(v -> handleColumnSelection());
+									.onClick(v ->
+											handleColumnSelection());
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -856,7 +844,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				if (rComponentDatatype != null)
 				{
 					if (rComponentDatatype.isEnum() ||
-						UiIconSupplier.class.isAssignableFrom(rComponentDatatype))
+						UiIconSupplier.class.isAssignableFrom(
+							rComponentDatatype))
 					{
 						aComponent = rBuilder.addIcon(null);
 					}
@@ -871,19 +860,15 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			if (fActionHandler != null &&
 				aComponent instanceof UiHasActionEvents)
 			{
-				((UiHasActionEvents<?, ?>) aComponent).onAction(v ->
-																fActionHandler
-																.accept(getColumnValue(fData
-																					   .get())));
+				((UiHasActionEvents<?, ?>) aComponent).onAction(
+					v -> fActionHandler.accept(getColumnValue(fData.get())));
 			}
 
 			if (fUpdateHandler != null &&
 				aComponent instanceof UiHasUpdateEvents)
 			{
-				((UiHasUpdateEvents<?, ?>) aComponent).onUpdate(v ->
-																fUpdateHandler
-																.accept(getColumnValue(fData
-																					   .get())));
+				((UiHasUpdateEvents<?, ?>) aComponent).onUpdate(
+					v -> fUpdateHandler.accept(getColumnValue(fData.get())));
 			}
 
 			updateDisplay(aComponent, fData.get());
@@ -946,8 +931,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 					Locale rLocale = fragment().getParameter(CLIENT_LOCALE);
 
 					DateFormat rDateFormat =
-						SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT,
-														 rLocale);
+						SimpleDateFormat.getDateInstance(
+							SimpleDateFormat.SHORT,
+							rLocale);
 
 					// on first format of a data assign a formatting function
 					// that will be used subsequently
@@ -1019,7 +1005,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				}
 				else if (rComponent instanceof TextAttribute)
 				{
-					((TextAttribute) rComponent).setText(formatAsString(rValue));
+					((TextAttribute) rComponent).setText(
+						formatAsString(rValue));
 				}
 			}
 		}
@@ -1043,8 +1030,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 				if (rValue != null)
 				{
 					rIconResource =
-						new UiImageResource("$im" +
-											DataElement.createItemName(rValue));
+						new UiImageResource(
+							"$im" +
+							DataElement.createItemName(rValue));
 				}
 
 				rIcon.setIcon(rIconResource);
@@ -1088,7 +1076,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			if (allowsSorting())
 			{
 				eSortDirection =
-					((HasAttributeSorting<T>) rDataProvider).getSortDirection(fGetColumnData);
+					((HasAttributeSorting<T>) rDataProvider).getSortDirection(
+						fGetColumnData);
 
 				if (eSortDirection == null)
 				{
@@ -1136,9 +1125,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 					rPrevCol.setSorting(null);
 				}
 
-				((HasAttributeSorting<T>) rDataProvider).applySorting((Function<T, Comparable>)
-																	  fGetColumnData,
-																	  eDirection);
+				((HasAttributeSorting<T>) rDataProvider).applySorting(
+					(Function<T, Comparable>) fGetColumnData,
+					eDirection);
 
 				aColumnTitle.style().styleName(sColumnStyle);
 				rSortColumn = this;
@@ -1214,7 +1203,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		protected Row(Item rRowItem, T rRowData)
 		{
-			super(rRowItem.getHeader(), new UiColumnGridLayout());
+			super(
+				rRowItem.getHeader().getContainer(),
+				new UiColumnGridLayout());
 
 			this.rRowItem = rRowItem;
 			this.rRowData = rRowData;
@@ -1225,7 +1216,9 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 			}
 
 			rRowItem.getHeader()
-					.onClickInContainerArea(v -> handleRowSelection(this, true));
+					.getContainer()
+					.onClickInContainerArea(
+						v -> handleRowSelection(this, true));
 		}
 
 		//~ Methods ------------------------------------------------------------

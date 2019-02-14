@@ -14,82 +14,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.process.ui.component;
+package de.esoco.process.ui.app;
 
 import de.esoco.lib.property.LabelStyle;
 
 import de.esoco.process.ui.UiContainer;
-import de.esoco.process.ui.UiTextComponent;
+import de.esoco.process.ui.style.DefaultStyleNames;
 
-import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
+import java.util.Collection;
 
 
 /********************************************************************
- * A read-only UI text label.
+ * The top menu of a web page.
  *
  * @author eso
  */
-public class UiLabel extends UiTextComponent<UiLabel>
+public class UiTopMenu<E extends Enum<E>> extends UiNavMenu<E>
 {
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sText   The label text
+	 * @param rParent    The parent container
+	 * @param rMenuItems The initial menu items
 	 */
-	public UiLabel(UiContainer<?> rParent, String sText)
+	public UiTopMenu(UiContainer<?> rParent, Collection<E> rMenuItems)
 	{
-		super(rParent, sText);
+		super(rParent, rMenuItems);
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Fluent variant of {@link #setCaption(String)}.
+	 * Adds a label that is displayed prominently to identify the website. It
+	 * has the style name {@link DefaultStyleNames#TOP_MENU_BRAND_LABEL}.
 	 *
-	 * @param  sCaption The caption label
-	 *
-	 * @return This instance
+	 * @param sText The text to display as the site label
 	 */
-	public UiLabel caption(String sCaption)
+	public void addBrandLabel(String sText)
 	{
-		return label(sCaption);
-	}
-
-	/***************************************
-	 * Fluent variant of {@link #setLabelStyle(LabelStyle)}.
-	 *
-	 * @param  eStyle The label style
-	 *
-	 * @return This instance
-	 */
-	public UiLabel labelStyle(LabelStyle eStyle)
-	{
-		set(LABEL_STYLE, eStyle);
-
-		return this;
-	}
-
-	/***************************************
-	 * Sets a caption label to be displayed over the label text (if supported by
-	 * the container layout).
-	 *
-	 * @param sCaption The caption label
-	 */
-	public void setCaption(String sCaption)
-	{
-		caption(sCaption);
-	}
-
-	/***************************************
-	 * Sets the style of this label.
-	 *
-	 * @param eStyle The label style
-	 */
-	public void setLabelStyle(LabelStyle eStyle)
-	{
-		labelStyle(eStyle);
+		builder().addLabel(sText)
+				 .labelStyle(LabelStyle.BRAND)
+				 .styleName(DefaultStyleNames.TOP_MENU_BRAND_LABEL);
 	}
 }
