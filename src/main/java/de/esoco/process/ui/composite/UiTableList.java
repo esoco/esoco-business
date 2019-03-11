@@ -359,7 +359,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		// it to the build() method
 		if (isBuilt())
 		{
-			update();
+			updateData();
 		}
 	}
 
@@ -401,7 +401,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	{
 		if (rDataProvider != null)
 		{
-			update();
+			updateData();
 		}
 	}
 
@@ -488,7 +488,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * method if they need to display only part of the data, e.g. for a paging
 	 * table.
 	 */
-	protected void update()
+	protected void updateData()
 	{
 		displayRows(0, rDataProvider.size());
 	}
@@ -1131,7 +1131,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 
 				aColumnTitle.style().styleName(sColumnStyle);
 				rSortColumn = this;
-				update();
+				updateData();
 			}
 		}
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
+
+import static org.obrel.type.StandardTypes.MAXIMUM;
+import static org.obrel.type.StandardTypes.MINIMUM;
 
 
 /********************************************************************
@@ -69,6 +72,26 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	}
 
 	/***************************************
+	 * Returns the maximum value of the progress.
+	 *
+	 * @return The maximum value
+	 */
+	public int getMaximum()
+	{
+		return fragment().getParameterRelation(type()).getAnnotation(MAXIMUM);
+	}
+
+	/***************************************
+	 * Returns the minimum value of the progress.
+	 *
+	 * @return The minimum value
+	 */
+	public int getMinimum()
+	{
+		return fragment().getParameterRelation(type()).getAnnotation(MINIMUM);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -94,7 +117,19 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	@Override
 	public void setValue(int nValue)
 	{
-		setValueImpl(Integer.valueOf(nValue));
+		value(nValue);
+	}
+
+	/***************************************
+	 * Sets the value of this instance.
+	 *
+	 * @param  nValue The value
+	 *
+	 * @return This instance
+	 */
+	public UiProgressBar value(int nValue)
+	{
+		return setValueImpl(nValue);
 	}
 
 	/***************************************

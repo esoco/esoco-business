@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,6 +75,20 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	}
 
 	/***************************************
+	 * Fluent variant of {@link #setSelected(boolean)}.
+	 *
+	 * @param  bSelected The selection state
+	 *
+	 * @return This instance
+	 */
+	public UiCheckBox select(boolean bSelected)
+	{
+		setSelected(bSelected);
+
+		return this;
+	}
+
+	/***************************************
 	 * Sets the style of this check box.
 	 *
 	 * @param eStyle The new check box style
@@ -100,5 +114,17 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	public void setText(String sText)
 	{
 		set(LABEL, sText);
+	}
+
+	/***************************************
+	 * Sets the style of this check box.
+	 *
+	 * @param  eStyle The check box style
+	 *
+	 * @return This instance
+	 */
+	public UiCheckBox style(CheckBoxStyle eStyle)
+	{
+		return set(CHECK_BOX_STYLE, eStyle);
 	}
 }

@@ -374,6 +374,8 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		{
 			rImage.applyTo(this);
 		}
+
+		update();
 	}
 
 	/***************************************
@@ -484,6 +486,14 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 		fragment().setParameter(type(), rValue);
 
 		return (C) this;
+	}
+
+	/***************************************
+	 * Will be invoked by {@link #applyProperties()} on each UI update. The
+	 * default implementation does nothing:
+	 */
+	protected void update()
+	{
 	}
 
 	/***************************************
