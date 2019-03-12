@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,32 +42,31 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Class<T> rDatatype;
+	private Class<T> rElementType;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rDatatype  The datatype of the button labels
-	 * @param eListStyle The style for the rendering of the buttons
+	 * @param rParent      The parent container
+	 * @param rElementType The datatype of the button labels
+	 * @param eListStyle   The style for the button rendering
 	 */
 	public UiMultiSelectionButtonGroup(UiContainer<?> rParent,
-									   Class<T>		  rDatatype,
+									   Class<T>		  rElementType,
 									   ListStyle	  eListStyle)
 	{
-		super(rParent, null);
+		super(rParent, rParent.fragment().getTemporaryListType(rElementType));
 
-		this.rDatatype = rDatatype;
+		this.rElementType = rElementType;
 
-		initListParameterType(rDatatype);
 		set(LIST_STYLE, eListStyle);
 
-		if (rDatatype.isEnum())
+		if (rElementType.isEnum())
 		{
-			addButtons(rDatatype.getEnumConstants());
-			resid(rDatatype.getSimpleName());
+			addButtons(rElementType.getEnumConstants());
+			resid(rElementType.getSimpleName());
 		}
 	}
 
@@ -103,10 +102,11 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 		}
 		else
 		{
-			rFragment.annotateParameter(rParamType,
-										null,
-										ProcessRelationTypes.ALLOWED_VALUES,
-										rButtonLabels);
+			rFragment.annotateParameter(
+				rParamType,
+				null,
+				ProcessRelationTypes.ALLOWED_VALUES,
+				rButtonLabels);
 			checkSetColumns(rButtonLabels);
 		}
 	}
@@ -122,10 +122,11 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 		InteractionFragment   rFragment  = fragment();
 		RelationType<List<T>> rParamType = type();
 
-		rFragment.disableElements(rParamType,
-								  rDatatype,
-								  rFragment.getAllowedElements(rParamType),
-								  rDisabledButtons);
+		rFragment.disableElements(
+			rParamType,
+			rElementType,
+			rFragment.getAllowedElements(rParamType),
+			rDisabledButtons);
 	}
 
 	/***************************************
@@ -168,10 +169,11 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 	 */
 	public void setButtons(Collection<T> rNewLabels)
 	{
-		fragment().annotateParameter(type(),
-									 null,
-									 ProcessRelationTypes.ALLOWED_VALUES,
-									 rNewLabels);
+		fragment().annotateParameter(
+			type(),
+			null,
+			ProcessRelationTypes.ALLOWED_VALUES,
+			rNewLabels);
 		checkSetColumns(rNewLabels);
 	}
 

@@ -393,7 +393,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 
 		fragment().addDisplayParameters(rParamType);
 
-		if (rDatatype.isEnum())
+		if (rDatatype != null && rDatatype.isEnum())
 		{
 			resid(rDatatype.getSimpleName());
 		}

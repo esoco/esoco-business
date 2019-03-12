@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import de.esoco.process.ui.event.UiHasActionEvents;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.obrel.core.RelationType;
+
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 
 
@@ -41,10 +43,19 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
+	 * Creates a new instance with an existing parameter type.
+	 *
+	 * @see UiControl#UiControl(UiContainer, RelationType)
+	 */
+	public UiButtonControl(UiContainer<?> rParent, RelationType<T> rParamType)
+	{
+		super(rParent, rParamType);
+	}
+
+	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the component value
+	 * @see UiControl#UiControl(UiContainer, Class)
 	 */
 	public UiButtonControl(UiContainer<?> rParent, Class<? super T> rDatatype)
 	{
@@ -97,8 +108,9 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	 */
 	public final C onClick(Consumer<T> rEventHandler)
 	{
-		return setParameterEventHandler(InteractionEventType.ACTION,
-										v -> rEventHandler.accept(v));
+		return setParameterEventHandler(
+			InteractionEventType.ACTION,
+			v -> rEventHandler.accept(v));
 	}
 
 	/***************************************

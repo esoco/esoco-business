@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
-
 
 /********************************************************************
  * A list component that allows the selection of multiple values. The datatype
@@ -44,19 +42,19 @@ public class UiMultiSelectionList<T>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list elements
+	 * @param rParent      The parent container
+	 * @param rElementType The datatype of the list elements
 	 */
-	public UiMultiSelectionList(UiContainer<?> rParent, Class<T> rDatatype)
+	public UiMultiSelectionList(UiContainer<?> rParent, Class<T> rElementType)
 	{
-		super(rParent, null, null);
+		super(
+			rParent,
+			rParent.fragment().getTemporaryListType(rElementType),
+			ListStyle.LIST);
 
-		initListParameterType(rDatatype);
-		set(LIST_STYLE, ListStyle.LIST);
-
-		if (rDatatype.isEnum())
+		if (rElementType.isEnum())
 		{
-			resid(rDatatype.getSimpleName());
+			resid(rElementType.getSimpleName());
 		}
 	}
 
@@ -91,9 +89,10 @@ public class UiMultiSelectionList<T>
 	 */
 	public void setListValues(Collection<T> rValues)
 	{
-		fragment().annotateParameter(type(),
-									 null,
-									 ProcessRelationTypes.ALLOWED_VALUES,
-									 rValues);
+		fragment().annotateParameter(
+			type(),
+			null,
+			ProcessRelationTypes.ALLOWED_VALUES,
+			rValues);
 	}
 }

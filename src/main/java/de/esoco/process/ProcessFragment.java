@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1194,6 +1194,17 @@ public abstract class ProcessFragment extends ProcessElement
 		RelationType<List<RelationType<?>>> rFragmentParam)
 	{
 		return aSubFragments.get(rFragmentParam);
+	}
+
+	/***************************************
+	 * Returns a temporary parameter list relation type with a default name.
+	 *
+	 * @see #getTemporaryListType(String, Class)
+	 */
+	public <T> RelationType<List<T>> getTemporaryListType(
+		Class<? super T> rElementType)
+	{
+		return getTemporaryListType(null, rElementType);
 	}
 
 	/***************************************

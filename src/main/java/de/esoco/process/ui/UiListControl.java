@@ -18,10 +18,11 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
-
 import de.esoco.process.ui.event.UiHasUpdateEvents;
 
 import java.util.function.Consumer;
+
+import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -38,6 +39,22 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
+	 * Creates a new instance for an existing parameter type.
+	 *
+	 * @param rParent    The parent container
+	 * @param rParamType The parameter relation type 
+	 * @param eListStyle The list style
+	 */
+	public UiListControl(UiContainer<?>   rParent,
+						 RelationType<T>  rParamType,
+						 ListStyle		  eListStyle)
+	{
+		super(rParent, rParamType);
+
+		set(LIST_STYLE, eListStyle);
+	}
+	
+	/***************************************
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as the list values.
 	 *
@@ -46,15 +63,12 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	 * @param eListStyle The list style
 	 */
 	public UiListControl(UiContainer<?>   rParent,
-						 Class<? super T> rDatatype,
-						 ListStyle		  eListStyle)
+		Class<? super T> rDatatype,
+		ListStyle		  eListStyle)
 	{
 		super(rParent, rDatatype);
-
-		if (eListStyle != null)
-		{
-			set(LIST_STYLE, eListStyle);
-		}
+		
+		set(LIST_STYLE, eListStyle);
 	}
 
 	//~ Methods ----------------------------------------------------------------

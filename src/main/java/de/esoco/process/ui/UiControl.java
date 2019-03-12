@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.obrel.core.RelationType;
 
 
 /********************************************************************
- * The base class for interactive components.
+ * The base class for components that allow interactive input.
  *
  * @author eso
  */
@@ -38,6 +38,19 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	implements UiHasFocusEvents<T, C>
 {
 	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance with an existing parameter type.
+	 *
+	 * @see UiComponent#UiComponent(UiContainer,de.esoco.process.step.InteractionFragment,
+	 *      RelationType)
+	 */
+	public UiControl(UiContainer<?> rParent, RelationType<T> rParamType)
+	{
+		super(rParent, rParent.fragment(), rParamType);
+
+		fragment().addInputParameters(type());
+	}
 
 	/***************************************
 	 * Creates a new instance.
@@ -48,10 +61,7 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	{
 		super(rParent, rDatatype);
 
-		if (rDatatype != null)
-		{
-			fragment().addInputParameters(type());
-		}
+		fragment().addInputParameters(type());
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -62,8 +72,9 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	@Override
 	public final C onFocusLost(Consumer<T> rEventHandler)
 	{
-		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
-										v -> rEventHandler.accept(v));
+		return setParameterEventHandler(
+			InteractionEventType.FOCUS_LOST,
+			v -> rEventHandler.accept(v));
 	}
 
 	/***************************************
@@ -82,10 +93,10 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	@SuppressWarnings("unchecked")
 	public C validateFinally(Function<? super T, ValidationResult> fValidation)
 	{
-		fragment().setParameterValidation(type(),
-										  false,
-										  v -> fValidation.apply(v)
-										  .getMessage());
+		fragment().setParameterValidation(
+			type(),
+			false,
+			v -> fValidation.apply(v).getMessage());
 
 		return (C) this;
 	}
@@ -113,10 +124,10 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	public C validateInteractive(
 		Function<? super T, ValidationResult> fValidation)
 	{
-		fragment().setParameterValidation(type(),
-										  true,
-										  v -> fValidation.apply(v)
-										  .getMessage());
+		fragment().setParameterValidation(
+			type(),
+			true,
+			v -> fValidation.apply(v).getMessage());
 
 		return (C) this;
 	}
@@ -145,31 +156,10 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 			String		    sMessage = rResult.getMessage();
 			RelationType<T> rParam   = type();
 
-			fragment().validationError(Collections.singletonMap(rParam,
-																sMessage));
+			fragment().validationError(
+				Collections.singletonMap(rParam, sMessage));
 
 			throw new InvalidParametersException(fragment(), sMessage, rParam);
 		}
-	}
-
-	/***************************************
-	 * Initializes this control with a list parameter type. This is intended for
-	 * subclasses that have a list parameter type which must be initialized with
-	 * an additional element datatype. In that case the subclass should use NULL
-	 * for the datatype parameter to the superclass constructor and instead
-	 * invoke this method afterwards.
-	 *
-	 * @param rElementDatatype The element datatype of the list parameter type
-	 */
-	@SuppressWarnings("unchecked")
-	protected <D> void initListParameterType(Class<D> rElementDatatype)
-	{
-		@SuppressWarnings("rawtypes")
-		RelationType rListType =
-			fragment().getTemporaryListType(null, rElementDatatype);
-
-		setParameterType(rListType);
-		fragment().addInputParameters(rListType);
-		getParent().addComponent(this);
 	}
 }
