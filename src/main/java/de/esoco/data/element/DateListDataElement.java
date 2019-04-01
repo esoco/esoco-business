@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,8 +64,9 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 
 	/** UI property: the style in which to render a Timetable display. */
 	public static final PropertyName<TimetableDisplayStyle> TIMETABLE_DISPLAY_STYLE =
-		PropertyName.newEnumName("TIMETABLE_DISPLAY_STYLE",
-								 TimetableDisplayStyle.class);
+		PropertyName.newEnumName(
+			"TIMETABLE_DISPLAY_STYLE",
+			TimetableDisplayStyle.class);
 
 	/**
 	 * UI property: the number of days to display with {@link
@@ -150,7 +151,9 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateListDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
+	public DateListDataElement copy(
+		CopyMode		   eMode,
+		PropertyName<?>... rCopyProperties)
 	{
 		return (DateListDataElement) super.copy(eMode, rCopyProperties);
 	}
@@ -242,5 +245,14 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	protected DateListDataElement newInstance()
 	{
 		return new DateListDataElement();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void updateValue(List<DateDataElement> rNewElements)
+	{
+		aDataElements = rNewElements;
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -204,7 +204,7 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	}
 
 	/***************************************
-	 * @see Iterable#iterator()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Iterator<E> iterator()
@@ -225,7 +225,7 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	}
 
 	/***************************************
-	 * @see Object#toString()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString()
@@ -251,7 +251,7 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	}
 
 	/***************************************
-	 * @see DataElement#getValueHashCode()
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected int getValueHashCode()
@@ -260,24 +260,11 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	}
 
 	/***************************************
-	 * @see DataElement#hasEqualValueAs(DataElement)
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected boolean hasEqualValueAs(DataElement<?> rOther)
 	{
 		return getList().equals(((ListDataElement<?>) rOther).getList());
-	}
-
-	/***************************************
-	 * Overridden to always throw a runtime exception. Manipulations of a list
-	 * data element must always be done through the list manipulation methods.
-	 *
-	 * @param rNewValue Ignored
-	 */
-	@Override
-	protected final void updateValue(List<E> rNewValue)
-	{
-		throw new UnsupportedOperationException(
-			"Use element manipulation methods instead");
 	}
 }

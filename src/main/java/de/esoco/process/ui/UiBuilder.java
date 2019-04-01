@@ -197,7 +197,7 @@ public class UiBuilder<C extends UiContainer<C>>
 	/***************************************
 	 * Adds a group of check boxes with string labels.
 	 *
-	 * @param  rLabels rButtonLabels The initial check box labels (may be empty)
+	 * @param  rLabels The initial check box labels (may be empty)
 	 *
 	 * @return The new component
 	 */

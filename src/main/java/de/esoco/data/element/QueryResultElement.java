@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,9 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public QueryResultElement<T> copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
+	public QueryResultElement<T> copy(
+		CopyMode		   eMode,
+		PropertyName<?>... rCopyProperties)
 	{
 		return (QueryResultElement<T>) super.copy(eMode, rCopyProperties);
 	}
@@ -111,5 +113,14 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	protected QueryResultElement<T> newInstance()
 	{
 		return new QueryResultElement<>();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void updateValue(List<T> rNewRows)
+	{
+		rRows = rNewRows;
 	}
 }
