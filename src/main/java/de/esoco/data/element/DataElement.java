@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.data.validate.HasValueList;
 import de.esoco.data.validate.Validator;
 
 import de.esoco.lib.property.PropertyName;
@@ -24,6 +25,7 @@ import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -346,6 +348,31 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
+	 * Returns the allowed values for this data element or NULL if the value is
+	 * not constrained. The returned list has no specific generic type to allow
+	 * overloading by subclasses that wrap composite types like collections.
+	 *
+	 * @return The allowed values
+	 */
+	public List<?> getAllowedValues()
+	{
+		return rValidator instanceof HasValueList
+			   ? ((HasValueList<?>) rValidator).getValues() : null;
+	}
+
+	/***************************************
+	 * Returns the validator for single elements of subclasses with composite
+	 * values. The default implementation returns the same as {@link
+	 * #getValidator()}.
+	 *
+	 * @return The element validator
+	 */
+	public Validator<?> getElementValidator()
+	{
+		return rValidator;
+	}
+
+	/***************************************
 	 * Returns the name of this data element.
 	 *
 	 * @return The data element's name
@@ -460,7 +487,7 @@ public abstract class DataElement<T> extends StringProperties
 	}
 
 	/***************************************
-	 * Returns the validator of this element.
+	 * Returns the validator for values to be set on this element.
 	 *
 	 * @return The validator or NULL if this element is read-only
 	 */

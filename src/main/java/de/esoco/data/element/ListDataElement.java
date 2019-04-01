@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
+import de.esoco.data.validate.HasValueList;
 import de.esoco.data.validate.Validator;
 
 import de.esoco.lib.model.DataModel;
@@ -92,6 +93,17 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	}
 
 	/***************************************
+	 * Adds allowed values to the element validator.
+	 *
+	 * @param rValues The values to add
+	 */
+	@SuppressWarnings("unchecked")
+	public void addAllowedValues(Collection<E> rValues)
+	{
+		((List<E>) getAllowedValues()).addAll(rValues);
+	}
+
+	/***************************************
 	 * Adds a new element value to this instance.
 	 *
 	 * @param rElement The element value to add
@@ -135,6 +147,19 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	public boolean containsElement(E rElement)
 	{
 		return getList().contains(rElement);
+	}
+
+	/***************************************
+	 * Overridden to return the values from the element validator instead.
+	 *
+	 * @see DataElement#getAllowedValues()
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<?> getAllowedValues()
+	{
+		return rElementValidator instanceof HasValueList
+			   ? ((HasValueList<?>) rElementValidator).getValues() : null;
 	}
 
 	/***************************************
@@ -185,10 +210,9 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	}
 
 	/***************************************
-	 * Returns the validator for the list elements.
-	 *
-	 * @return The list element validator or NULL for none
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Validator<? super E> getElementValidator()
 	{
 		return rElementValidator;
