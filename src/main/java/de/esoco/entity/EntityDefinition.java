@@ -72,6 +72,7 @@ import static de.esoco.entity.EntityRelationTypes.REMOVED_CHILDREN;
 import static de.esoco.entity.EntityRelationTypes.ROOT_ATTRIBUTE;
 import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTE_FLAG;
 
+import static de.esoco.storage.StorageRelationTypes.REFERENCE_ATTRIBUTE;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_DATATYPE;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_NAME;
@@ -1078,17 +1079,17 @@ public class EntityDefinition<E extends Entity>
 				else if (Entity.class.isAssignableFrom(rTargetType) &&
 						 rTargetType != Entity.class)
 				{
+					// set entity mapping if not an arbitrary
+					// entity reference
 					if (rAttribute.get(STORAGE_MAPPING) == null)
 					{
-						// set entity reference but only if not an arbitrary
-						// entity reference
 						StorageMapping<?, ?, ?> rMapping =
-							StorageManager.getMapping(
-								rAttribute.getTargetType());
+							StorageManager.getMapping(rTargetType);
 
 						assert rMapping instanceof EntityDefinition;
 
 						rAttribute.set(STORAGE_MAPPING, rMapping);
+						rAttribute.set(REFERENCE_ATTRIBUTE);
 					}
 				}
 

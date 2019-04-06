@@ -2314,9 +2314,10 @@ public class EntityManager
 		{
 			throw new IllegalArgumentException(
 				String.format(
-					"Duplicate entity ID prefix %s; " +
+					"Duplicate entity ID prefix %s for class %s; " +
 					"already defined in %s",
 					sIdPrefix,
+					rEntityClass,
 					aIdPrefixRegistry.get(sIdPrefix)));
 		}
 	}
