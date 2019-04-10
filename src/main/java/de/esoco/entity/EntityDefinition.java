@@ -1089,7 +1089,12 @@ public class EntityDefinition<E extends Entity>
 						assert rMapping instanceof EntityDefinition;
 
 						rAttribute.set(STORAGE_MAPPING, rMapping);
-						rAttribute.set(REFERENCE_ATTRIBUTE);
+
+						// only set to TRUE if not explicitly set to FALSE
+						if (!rAttribute.hasRelation(REFERENCE_ATTRIBUTE))
+						{
+							rAttribute.set(REFERENCE_ATTRIBUTE);
+						}
 					}
 				}
 
