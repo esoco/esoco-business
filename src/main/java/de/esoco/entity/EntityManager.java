@@ -162,6 +162,7 @@ public class EntityManager
 
 	private static boolean bEntityModificationTracking = true;
 	private static boolean bAutomaticChangeLogging     = true;
+	private static boolean bUsePluralStorageNames	   = false;
 
 	private static Lock aCacheLock = new ReentrantLock();
 
@@ -1085,6 +1086,18 @@ public class EntityManager
 	}
 
 	/***************************************
+	 * Checks if storage names (e.g. JDBC table names) are be derived from
+	 * entity names as singular (default) or plural. Can be changed with {@link
+	 * #setUsePluralStorageNames(boolean)}.
+	 *
+	 * @return TRUE if storage names are derived as plural
+	 */
+	public static final boolean isUsePluralStorageNames()
+	{
+		return bUsePluralStorageNames;
+	}
+
+	/***************************************
 	 * Queries a list of entities that are identified by certain search
 	 * criteria.
 	 *
@@ -1897,6 +1910,17 @@ public class EntityManager
 	public static void setSessionManager(SessionManager rManager)
 	{
 		rSessionManager = rManager;
+	}
+
+	/***************************************
+	 * Globally defines whether storage names (e.g. JDBC table names) should be
+	 * derived from entity names as singular (default) or plural.
+	 *
+	 * @param bPlural TRUE to use plural storage names
+	 */
+	public static final void setUsePluralStorageNames(boolean bPlural)
+	{
+		bUsePluralStorageNames = bPlural;
 	}
 
 	/***************************************

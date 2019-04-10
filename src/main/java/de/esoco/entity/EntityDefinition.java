@@ -1580,7 +1580,9 @@ public class EntityDefinition<E extends Entity>
 
 		if (sStorageName == null)
 		{
-			sStorageName = TextUtil.toPlural(sEntityName);
+			sStorageName =
+				EntityManager.isUsePluralStorageNames()
+				? TextUtil.toPlural(sEntityName) : sEntityName;
 		}
 
 		return sStorageName;
