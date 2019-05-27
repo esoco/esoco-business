@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -169,7 +169,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	{
 		if (!bBuilt)
 		{
-			build(aContainerBuilder);
+			buildContent(aContainerBuilder);
 			bBuilt = true;
 		}
 
@@ -203,10 +203,10 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	}
 
 	/***************************************
-	 * This method can be overridden by subclasses to build the contents of this
-	 * container. Alternatively, the contents can also be built by adding
+	 * This method can be overridden by subclasses to build the content of this
+	 * container. Alternatively, the content can also be built by adding
 	 * components to it after creation. If both mechanisms are used in
-	 * combination the call to {@link #build(UiBuilder)} will occur afterwards
+	 * combination the call to {@link #buildContent(UiBuilder)} will occur afterwards
 	 * because it is invoked just before the container is made visible (from
 	 * {@link #applyProperties()}.
 	 *
@@ -217,7 +217,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * @param rBuilder The builder to create the container UI with
 	 */
-	protected void build(UiBuilder<?> rBuilder)
+	protected void buildContent(UiBuilder<?> rBuilder)
 	{
 	}
 

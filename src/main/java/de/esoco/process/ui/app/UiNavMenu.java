@@ -32,6 +32,7 @@ import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiSecondaryContentLayout;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 import static de.esoco.lib.property.ContentProperties.PLACEHOLDER;
@@ -46,8 +47,7 @@ import static de.esoco.lib.property.StyleProperties.ORIENTATION;
  *
  * @author eso
  */
-public abstract class UiNavMenu<E extends Enum<E>>
-	extends UiComposite<UiNavMenu<E>>
+public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>>
 {
 	//~ Enums ------------------------------------------------------------------
 
@@ -58,22 +58,32 @@ public abstract class UiNavMenu<E extends Enum<E>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Collection<E> rMenuItems;
+	private Collection<T> rMenuItems;
 
-	private UiPushButtons<E> aMenuLinks;
+	private UiPushButtons<?> aMenuLinks;
 	private UiTextField		 aSearchField;
 
-	private Consumer<E> fMenuSelectionHandler;
+	private Consumer<T> fMenuSelectionHandler;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance without preset menu items.
+	 *
+	 * @param rParent The parent container
+	 */
+	protected UiNavMenu(UiContainer<?> rParent)
+	{
+		this(rParent, null);
+	}
+
+	/***************************************
+	 * Creates a new instance with preset menu items.
 	 *
 	 * @param rParent    The parent container
 	 * @param rMenuItems The initial menu items
 	 */
-	protected UiNavMenu(UiContainer<?> rParent, Collection<E> rMenuItems)
+	protected UiNavMenu(UiContainer<?> rParent, Collection<T> rMenuItems)
 	{
 		super(rParent, new UiLayout(LayoutType.MENU));
 
@@ -87,7 +97,7 @@ public abstract class UiNavMenu<E extends Enum<E>>
 	 *
 	 * @return The collection of menu item enum values
 	 */
-	public final Collection<E> getMenuItems()
+	public final Collection<T> getMenuItems()
 	{
 		return rMenuItems;
 	}
@@ -97,7 +107,7 @@ public abstract class UiNavMenu<E extends Enum<E>>
 	 *
 	 * @return The menu links parameter
 	 */
-	public final UiPushButtons<E> getMenuLinks()
+	public final UiPushButtons<?> getMenuLinks()
 	{
 		return aMenuLinks;
 	}
@@ -108,7 +118,7 @@ public abstract class UiNavMenu<E extends Enum<E>>
 	 *
 	 * @param fHandler The handler to be invoked on menu selection
 	 */
-	public void onMenuSelection(Consumer<E> fHandler)
+	public void onMenuSelection(Consumer<T> fHandler)
 	{
 		fMenuSelectionHandler = fHandler;
 	}
@@ -116,25 +126,29 @@ public abstract class UiNavMenu<E extends Enum<E>>
 	/***************************************
 	 * Marks a certain menu item as active.
 	 *
-	 * @param eMenuItem The new active item or NULL for none
+	 * @param rMenuItem The new active item or NULL for none
 	 */
-	public void setActive(E eMenuItem)
+	@SuppressWarnings("unchecked")
+	public void setActive(T rMenuItem)
 	{
 		if (aMenuLinks != null)
 		{
-			aMenuLinks.select(
-				rMenuItems.contains(eMenuItem) ? eMenuItem : null);
+			rMenuItem = rMenuItems.contains(rMenuItem) ? rMenuItem : null;
+			((UiPushButtons<Object>) aMenuLinks).select(
+				rMenuItem instanceof Enum
+				? rMenuItem : rMenuItem != null ? rMenuItem.toString() : null);
 		}
 	}
 
 	/***************************************
 	 * Sets the menu items to be displayed.
 	 *
-	 * @param rMenuItems The new menu items
+	 * @param rMenuItems The new menu items (NULL or empty for none)
 	 */
-	public void setMenuItems(Collection<E> rMenuItems)
+	public void setMenuItems(Collection<T> rMenuItems)
 	{
-		this.rMenuItems = rMenuItems;
+		this.rMenuItems =
+			rMenuItems != null ? rMenuItems : Collections.emptyList();
 	}
 
 	/***************************************
@@ -179,23 +193,33 @@ public abstract class UiNavMenu<E extends Enum<E>>
 	 * @param rBuilder The builder to add the menu items with
 	 */
 	@SuppressWarnings("unchecked")
-	protected void addMenuItems(UiBuilder<?> rBuilder)
+	protected <E extends Enum<E>> void addMenuItems(UiBuilder<?> rBuilder)
 	{
-		E rFirstAction = CollectionUtil.firstElementOf(rMenuItems);
-
-		aMenuLinks =
-			rBuilder.addPushButtons((Class<E>) rFirstAction.getClass());
-
-		aMenuLinks.setButtons(rMenuItems)
-				  .withImages()
-				  .select(rFirstAction)
-				  .buttonStyle(ButtonStyle.LINK)
-				  .onAction(eItem ->
-		  				fMenuSelectionHandler.accept(eItem));
-
-		if (get(ORIENTATION) == Orientation.VERTICAL)
+		if (!rMenuItems.isEmpty())
 		{
-			aMenuLinks.set(LAYOUT, LayoutType.INLINE);
+			T rFirstItem = CollectionUtil.firstElementOf(rMenuItems);
+
+			if (rFirstItem instanceof Enum)
+			{
+				aMenuLinks = createEnumMenuLinks(rBuilder, rFirstItem);
+			}
+			else
+			{
+				UiPushButtons<String> aLinks = rBuilder.addPushButtons();
+
+				aLinks.setButtons(rMenuItems.stream().map(i -> i.toString()))
+					  .select(rFirstItem.toString());
+				aMenuLinks = aLinks;
+			}
+
+			aMenuLinks.withImages()
+					  .buttonStyle(ButtonStyle.LINK)
+					  .onAction(this::handleItemSelection);
+
+			if (get(ORIENTATION) == Orientation.VERTICAL)
+			{
+				aMenuLinks.set(LAYOUT, LayoutType.INLINE);
+			}
 		}
 	}
 
@@ -229,10 +253,10 @@ public abstract class UiNavMenu<E extends Enum<E>>
 	 * Builds this menu by first invoking {@link #addMenuComponents(UiBuilder)}
 	 * and then adds the menu items if such are available.
 	 *
-	 * @see UiComposite#build(UiBuilder)
+	 * @see UiComposite#buildContent(UiBuilder)
 	 */
 	@Override
-	protected void build(UiBuilder<?> rBuilder)
+	protected void buildContent(UiBuilder<?> rBuilder)
 	{
 		addMenuComponents(rBuilder);
 
@@ -244,5 +268,38 @@ public abstract class UiNavMenu<E extends Enum<E>>
 			aItemPanel.set(FLOAT, Alignment.END);
 			addMenuItems(aItemPanel.builder());
 		}
+	}
+
+	/***************************************
+	 * Handles the selection of a menu item by forwarding it to an event handler
+	 * registered through {@link #onMenuSelection(Consumer)}.
+	 *
+	 * @param rItem The selected menu item
+	 */
+	@SuppressWarnings("unchecked")
+	protected void handleItemSelection(Object rItem)
+	{
+		if (fMenuSelectionHandler != null)
+		{
+			fMenuSelectionHandler.accept((T) rItem);
+		}
+	}
+
+	/***************************************
+	 * Generically typed helper method to create the menu links component for an
+	 * enum datatype.
+	 *
+	 * @param  rBuilder   The container builder
+	 * @param  rFirstItem The first menu item
+	 *
+	 * @return The menu links component
+	 */
+	@SuppressWarnings("unchecked")
+	private <E extends Enum<E>> UiPushButtons<E> createEnumMenuLinks(
+		UiBuilder<?> rBuilder,
+		T			 rFirstItem)
+	{
+		return rBuilder.addPushButtons((Class<E>) rFirstItem.getClass())
+					   .select((E) rFirstItem);
 	}
 }

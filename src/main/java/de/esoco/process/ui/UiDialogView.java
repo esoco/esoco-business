@@ -191,7 +191,7 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void build(UiBuilder<?> rBuilder)
+	protected void buildContent(UiBuilder<?> rBuilder)
 	{
 		if (aDialogButtons == null)
 		{

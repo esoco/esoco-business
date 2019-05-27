@@ -55,7 +55,7 @@ public class UiWebPageFooter extends UiComposite<UiWebPageFooter>
 	{
 		builder().addLabel(
 		 			String.format(
-		 				"Copyright %tY %s",
+		 				"$$Copyright %tY {%s}",
 		 				new Date(),
 		 				sCopyrightHolder))
 				 .styleName(DefaultStyleNames.FOOTER_COPYRIGHT);

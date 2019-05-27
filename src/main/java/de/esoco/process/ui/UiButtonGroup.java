@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import de.esoco.lib.property.ListStyle;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.obrel.core.RelationType;
 
@@ -107,17 +109,18 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	 * @param  rDisabledButtons rDisabledElements A collection of the elements
 	 *                          to disable
 	 *
-	 * @return T{his instanc, "unchecked" }e
+	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
 	public C disableButtons(Collection<T> rDisabledButtons)
 	{
 		RelationType<T> rParamType = type();
 
-		fragment().disableElements(rParamType,
-								   (Class<T>) rParamType.getTargetType(),
-								   fragment().getAllowedValues(type()),
-								   rDisabledButtons);
+		fragment().disableElements(
+			rParamType,
+			(Class<T>) rParamType.getTargetType(),
+			fragment().getAllowedValues(type()),
+			rDisabledButtons);
 
 		return (C) this;
 	}
@@ -183,6 +186,19 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	public C setButtons(T... rButtonLabels)
 	{
 		return setButtons(Arrays.asList(rButtonLabels));
+	}
+
+	/***************************************
+	 * Sets the buttons to be displayed.
+	 *
+	 * @param  rButtonLabels A stream containing the labels of the displayed
+	 *                       buttons
+	 *
+	 * @return This instance
+	 */
+	public C setButtons(Stream<T> rButtonLabels)
+	{
+		return setButtons(rButtonLabels.collect(Collectors.toList()));
 	}
 
 	/***************************************

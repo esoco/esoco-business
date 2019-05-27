@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,17 +86,21 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 
 		aFirstPageButton =
 			builder().addIconButton(UiStandardIcon.FIRST_PAGE)
-					 .onClick(v -> handleNavigation(UiStandardIcon.FIRST_PAGE));
+					 .onClick(v ->
+		 					handleNavigation(UiStandardIcon.FIRST_PAGE));
 		aPreviousButton  =
 			builder().addIconButton(UiStandardIcon.PREVIOUS)
-					 .onClick(v -> handleNavigation(UiStandardIcon.PREVIOUS));
+					 .onClick(v ->
+		 					handleNavigation(UiStandardIcon.PREVIOUS));
 		aNavPosition     = builder().addLabel("");
 		aNextButton		 =
 			builder().addIconButton(UiStandardIcon.NEXT)
-					 .onClick(v -> handleNavigation(UiStandardIcon.NEXT));
+					 .onClick(v ->
+		 					handleNavigation(UiStandardIcon.NEXT));
 		aLastPageButton  =
 			builder().addIconButton(UiStandardIcon.LAST_PAGE)
-					 .onClick(v -> handleNavigation(UiStandardIcon.LAST_PAGE));
+					 .onClick(v ->
+		 					handleNavigation(UiStandardIcon.LAST_PAGE));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -225,6 +229,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 	 * Updates the navigation display according to the current navigation
 	 * position.
 	 */
+	@Override
 	@SuppressWarnings("boxing")
 	public void update()
 	{
@@ -236,10 +241,11 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation>
 			int nLast = Math.min(nPageStart + nPageSize, nTotalSize);
 
 			sPosition =
-				String.format("$$%d - %d {$lblPositionOfCount} %d",
-							  nPageStart + 1,
-							  nLast,
-							  nTotalSize);
+				String.format(
+					"$$%d - %d {$lblPositionOfCount} %d",
+					nPageStart + 1,
+					nLast,
+					nTotalSize);
 		}
 		else if (nTotalSize == 0)
 		{
