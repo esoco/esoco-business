@@ -227,7 +227,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public UiContainer<?> addExpandedHeader(UiLayout rLayout)
 	{
-		aHeaderPanel.setExpandStyle(Option.of(ExpandableListStyle.EXPAND));
+		aHeaderPanel.expandStyle(Option.of(ExpandableListStyle.EXPAND));
 
 		UiIconButton aIndicator =
 			aTableHeader.builder()

@@ -56,6 +56,7 @@ import de.esoco.process.ui.component.UiTitle;
 import de.esoco.process.ui.component.UiToggleButtons;
 import de.esoco.process.ui.component.UiWebView;
 import de.esoco.process.ui.composite.UiCard;
+import de.esoco.process.ui.composite.UiListPanel;
 import de.esoco.process.ui.composite.UiThumbnail;
 import de.esoco.process.ui.container.UiDeckPanel;
 import de.esoco.process.ui.container.UiDockPanel;
@@ -436,6 +437,16 @@ public class UiBuilder<C extends UiContainer<C>>
 	public <E extends Enum<E>> UiList<E> addList(Class<E> rEnumType)
 	{
 		return new UiList<>(rContainer, rEnumType);
+	}
+
+	/***************************************
+	 * Adds a list of selectable strings.
+	 *
+	 * @return The new component
+	 */
+	public UiListPanel addListPanel()
+	{
+		return new UiListPanel(rContainer);
 	}
 
 	/***************************************

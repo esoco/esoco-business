@@ -88,7 +88,7 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	{
 		super(rParent, new ListLayout());
 
-		setExpandStyle(oExpandStyle);
+		expandStyle(oExpandStyle);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -118,6 +118,29 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	}
 
 	/***************************************
+	 * Sets the optional expand style of this list. This can typically only be
+	 * changed before the list is first rendered. Use {@link Option#none()} for
+	 * a non-expandable list.
+	 *
+	 * @param  oExpandStyle The optional new expandable list style
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public UiListPanel expandStyle(Option<ExpandableListStyle> oExpandStyle)
+	{
+		this.oExpandStyle = oExpandStyle;
+
+		if (oExpandStyle.exists())
+		{
+			set(
+				LIST_LAYOUT_STYLE,
+				ListLayoutStyle.valueOf(oExpandStyle.orFail().name()));
+		}
+
+		return this;
+	}
+
+	/***************************************
 	 * Returns the items in this list.
 	 *
 	 * @return The list items
@@ -136,25 +159,6 @@ public class UiListPanel extends UiComposite<UiListPanel>
 	{
 		aItems.remove(rItem);
 		remove(rItem);
-	}
-
-	/***************************************
-	 * Sets the optional expand style of this list. This can typically only be
-	 * changed before the list is first rendered. Use {@link Option#none()} for
-	 * a non-expandable list.
-	 *
-	 * @param oExpandStyle The optional new expandable list style
-	 */
-	public void setExpandStyle(Option<ExpandableListStyle> oExpandStyle)
-	{
-		this.oExpandStyle = oExpandStyle;
-
-		if (oExpandStyle.exists())
-		{
-			set(
-				LIST_LAYOUT_STYLE,
-				ListLayoutStyle.valueOf(oExpandStyle.orFail().name()));
-		}
 	}
 
 	/***************************************
