@@ -31,10 +31,10 @@ import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ID;
-import static de.esoco.entity.EntityRelationTypes.newArbitraryEntityAttribute;
-import static de.esoco.entity.EntityRelationTypes.newChildAttribute;
-import static de.esoco.entity.EntityRelationTypes.newParentAttribute;
-import static de.esoco.entity.EntityRelationTypes.newRootAttribute;
+import static de.esoco.entity.EntityRelationTypes.arbitraryEntityAttribute;
+import static de.esoco.entity.EntityRelationTypes.childAttribute;
+import static de.esoco.entity.EntityRelationTypes.parentAttribute;
+import static de.esoco.entity.EntityRelationTypes.rootAttribute;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
@@ -84,14 +84,14 @@ public class HistoryRecord extends Entity
 
 	/** The parent record of the history record (NULL for the root) */
 	public static final RelationType<HistoryRecord> PARENT =
-		newParentAttribute();
+		parentAttribute();
 
 	/** The root history record in a hierarchy or NULL for the root itself */
-	public static final RelationType<HistoryRecord> ROOT = newRootAttribute();
+	public static final RelationType<HistoryRecord> ROOT = rootAttribute();
 
 	/** The child history records */
 	public static final RelationType<List<HistoryRecord>> DETAILS =
-		newChildAttribute();
+		childAttribute();
 
 	/** Type of the history record */
 	public static final RelationType<HistoryType> TYPE = newType(FINAL);
@@ -101,11 +101,11 @@ public class HistoryRecord extends Entity
 
 	/** The entity that is the origin of the history record */
 	public static final RelationType<Entity> ORIGIN =
-		newArbitraryEntityAttribute(FINAL);
+		arbitraryEntityAttribute(FINAL);
 
 	/** The root target in a hierarchy of history records */
 	public static final RelationType<Entity> ROOT_TARGET =
-		newArbitraryEntityAttribute();
+		arbitraryEntityAttribute();
 
 	/** The entity that is the target of the history record */
 	public static final RelationType<Entity> TARGET =

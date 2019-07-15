@@ -49,7 +49,7 @@ import org.obrel.type.ListenerType;
 import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
 
-import static de.esoco.entity.EntityRelationTypes.newEntityAttribute;
+import static de.esoco.entity.EntityRelationTypes.entityAttribute;
 
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newIntType;
@@ -130,7 +130,7 @@ public class ProcessRelationTypes
 
 	/** The (person) entity of the user that executes the process. */
 	public static final RelationType<Entity> PROCESS_USER =
-		newEntityAttribute();
+		entityAttribute();
 
 	/** The locale of a process instance. */
 	public static final RelationType<Locale> PROCESS_LOCALE = newType();

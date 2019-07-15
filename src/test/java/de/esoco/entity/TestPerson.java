@@ -21,8 +21,8 @@ import java.util.List;
 import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ID;
-import static de.esoco.entity.EntityRelationTypes.newChildAttribute;
-import static de.esoco.entity.EntityRelationTypes.newParentAttribute;
+import static de.esoco.entity.EntityRelationTypes.childAttribute;
+import static de.esoco.entity.EntityRelationTypes.parentAttribute;
 
 import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newType;
@@ -41,11 +41,11 @@ public class TestPerson extends Entity
 
 	//- Attributes ------------------------------
 	/** The parent person. */
-	public static final RelationType<TestPerson> PARENT = newParentAttribute();
+	public static final RelationType<TestPerson> PARENT = parentAttribute();
 
 	/** The child contacts */
 	public static final RelationType<List<TestPerson>> CHILDREN =
-		newChildAttribute();
+		childAttribute();
 
 	/** Last name */
 	public static final RelationType<String> LASTNAME = newType();
@@ -68,7 +68,7 @@ public class TestPerson extends Entity
 	//- Child entities --------------------------
 	/** Contact informations */
 	public static final RelationType<List<TestContact>> CONTACTS =
-		newChildAttribute();
+		childAttribute();
 
 	/** Minimal display attributes */
 	public static final RelationType<?>[] DISPLAY_ATTRIBUTES_MINIMAL =

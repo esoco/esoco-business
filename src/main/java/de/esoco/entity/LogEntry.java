@@ -28,7 +28,7 @@ import java.util.Map;
 import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.RelationType;
 
-import static de.esoco.entity.EntityRelationTypes.newArbitraryEntityAttribute;
+import static de.esoco.entity.EntityRelationTypes.arbitraryEntityAttribute;
 
 import static de.esoco.lib.property.UserInterfaceProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.UserInterfaceProperties.MAX_CHARS;
@@ -57,7 +57,7 @@ public class LogEntry extends Entity
 
 	/** The entity that is the source of the log entry (typically a person). */
 	public static final RelationType<Entity> SOURCE =
-		newArbitraryEntityAttribute(FINAL);
+		arbitraryEntityAttribute(FINAL);
 
 	/** The log message. */
 	public static final RelationType<String> MESSAGE = newType(FINAL);

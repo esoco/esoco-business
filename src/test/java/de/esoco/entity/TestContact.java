@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
-import static de.esoco.entity.EntityRelationTypes.newChildAttribute;
-import static de.esoco.entity.EntityRelationTypes.newParentAttribute;
+import static de.esoco.entity.EntityRelationTypes.childAttribute;
+import static de.esoco.entity.EntityRelationTypes.parentAttribute;
 
 import static org.obrel.core.RelationTypes.newType;
 
@@ -38,14 +38,14 @@ public class TestContact extends Entity
 	private static final long serialVersionUID = 1L;
 
 	/** The parent contact */
-	public static final RelationType<TestContact> PARENT = newParentAttribute();
+	public static final RelationType<TestContact> PARENT = parentAttribute();
 
 	/** The child contacts */
 	public static final RelationType<List<TestContact>> CHILDREN =
-		newChildAttribute();
+		childAttribute();
 
 	/** The parent person */
-	public static final RelationType<TestPerson> PERSON = newParentAttribute();
+	public static final RelationType<TestPerson> PERSON = parentAttribute();
 
 	/** Contact type */
 	public static final RelationType<String> CONTACT_TYPE = newType();

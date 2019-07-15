@@ -36,7 +36,7 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.type.MetaTypes;
 
-import static de.esoco.entity.EntityRelationTypes.newArbitraryEntityAttribute;
+import static de.esoco.entity.EntityRelationTypes.arbitraryEntityAttribute;
 import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
@@ -65,11 +65,11 @@ public class ExtraAttribute extends Entity
 
 	/** The entity an attribute belongs to */
 	public static final RelationType<Entity> ENTITY =
-		newArbitraryEntityAttribute(FINAL);
+		arbitraryEntityAttribute(FINAL);
 
 	/** The entity an attribute belongs to */
 	public static final RelationType<Entity> OWNER =
-		newArbitraryEntityAttribute(FINAL);
+		arbitraryEntityAttribute(FINAL);
 
 	/** The key string that identifies the attribute */
 	public static final RelationType<RelationType<?>> KEY = newType(FINAL);
