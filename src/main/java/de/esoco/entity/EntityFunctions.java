@@ -23,10 +23,10 @@ import de.esoco.lib.expression.FunctionException;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
+import de.esoco.lib.expression.ThrowingFunction;
+import de.esoco.lib.expression.ThrowingSupplier;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.GetElement;
-import de.esoco.lib.expression.function.ThrowingFunction;
-import de.esoco.lib.expression.function.ThrowingSupplier;
 import de.esoco.lib.text.TextConvert;
 
 import de.esoco.storage.StorageException;
@@ -49,14 +49,13 @@ public class EntityFunctions
 
 	private static final InvertibleFunction<Entity, String> ENTITY_TO_STRING =
 		InvertibleFunction.of(
-			e -> EntityManager.getGlobalEntityId(e),
-			id -> EntityManager.queryEntity(id));
+			EntityManager::getGlobalEntityId,
+			EntityManager::queryEntity);
 
 	private static final Function<Entity, String> FORMAT_ENTITY =
 		formatEntity(null);
 
-	private static final Action<Entity> STORE_ENTITY =
-		e -> EntityManager.store(e);
+	private static final Action<Entity> STORE_ENTITY = EntityManager::store;
 
 	private static final Function<Entity, String> GET_GLOBAL_ENTITY_ID =
 		e -> e != null ? EntityManager.getGlobalEntityId(e) : "";
@@ -113,7 +112,7 @@ public class EntityFunctions
 	public static <E extends Entity> Function<E, String> formatEntity(
 		String sNullString)
 	{
-		return new EntityFormat<E>(sNullString);
+		return new EntityFormat<>(sNullString);
 	}
 
 	/***************************************
@@ -126,7 +125,6 @@ public class EntityFunctions
 	 * @throws StorageException If accessing the extra attributes fails
 	 */
 	public static String formatExtraAttributes(Entity rEntity)
-		throws StorageException
 	{
 		StringBuilder aResult = new StringBuilder();
 
@@ -165,7 +163,7 @@ public class EntityFunctions
 	public static <E extends Entity, V> GetExtraAttribute<E, V>
 	getExtraAttribute(RelationType<V> rKey, V rDefaultValue)
 	{
-		return new GetExtraAttribute<E, V>(rKey, rDefaultValue);
+		return new GetExtraAttribute<>(rKey, rDefaultValue);
 	}
 
 	/***************************************
@@ -246,7 +244,7 @@ public class EntityFunctions
 	 *
 	 * @see EntityManager#queryEntity(String)
 	 */
-	public static Function<String, Entity> queryEntity()
+	public static java.util.function.Function<String, Entity> queryEntity()
 	{
 		return ThrowingFunction.of(
 			sGlobalId -> EntityManager.queryEntity(sGlobalId));
@@ -258,8 +256,8 @@ public class EntityFunctions
 	 *
 	 * @see EntityManager#queryEntity(Class, long)
 	 */
-	public static <E extends Entity> Function<Number, E> queryEntity(
-		final Class<E> rEntityClass)
+	public static <E extends Entity> java.util.function.Function<Number, E>
+	queryEntity(final Class<E> rEntityClass)
 	{
 		return ThrowingFunction.of(
 			rId -> EntityManager.queryEntity(rEntityClass, rId.longValue()));
@@ -295,11 +293,11 @@ public class EntityFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <T, E extends Entity> Function<T, E> queryEntity(
-		final Class<E>			   rEntityClass,
-		final RelationType<T>	   rAttribute,
-		final Predicate<? super E> rAdditionalCriteria,
-		final boolean			   bFailOnMultiple)
+	public static <T, E extends Entity> java.util.function.Function<T, E>
+	queryEntity(final Class<E>			   rEntityClass,
+				final RelationType<T>	   rAttribute,
+				final Predicate<? super E> rAdditionalCriteria,
+				final boolean			   bFailOnMultiple)
 	{
 		return new AttributeQueryFunction<T, E>(
 			rEntityClass,

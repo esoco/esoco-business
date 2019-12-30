@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'esoco-business' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,11 +90,10 @@ public class StepListProcessDefinition extends ProcessDefinition
 	//~ Instance fields --------------------------------------------------------
 
 	/** @serial The list of process steps */
-	private List<StepListEntry> aSteps = new ArrayList<StepListEntry>();
+	private List<StepListEntry> aSteps = new ArrayList<>();
 
 	/** @serial The set of unique process step names */
-	private Map<String, Integer> aStepNameCounts =
-		new HashMap<String, Integer>();
+	private Map<String, Integer> aStepNameCounts = new HashMap<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -129,7 +128,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 	{
 		this(sProcessName);
 
-		if ((rStepList == null) || (rStepList.size() == 0))
+		if (rStepList == null || rStepList.isEmpty())
 		{
 			throw new IllegalArgumentException("Empty process step list");
 		}
@@ -156,8 +155,10 @@ public class StepListProcessDefinition extends ProcessDefinition
 	 */
 	protected StepListProcessDefinition(String sProcessName)
 	{
-		set(NAME,
-			sProcessName != null ? sProcessName : getClass().getSimpleName());
+		set(
+			NAME,
+			sProcessName != null ? sProcessName : getClass()
+				.getSimpleName());
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -240,9 +241,10 @@ public class StepListProcessDefinition extends ProcessDefinition
 		RelationType<T>					 rBranchParam,
 		Predicate<? super T>			 pBranchCondition)
 	{
-		return branchTo(rTargetStepClass.getSimpleName(),
-						rBranchParam,
-						pBranchCondition);
+		return branchTo(
+			rTargetStepClass.getSimpleName(),
+			rBranchParam,
+			pBranchCondition);
 	}
 
 	/***************************************
@@ -254,10 +256,11 @@ public class StepListProcessDefinition extends ProcessDefinition
 										 RelationType<T>	  rBranchParam,
 										 Predicate<? super T> pBranchCondition)
 	{
-		return branchTo(sTargetStep,
-						rBranchParam,
-						pBranchCondition,
-						DEFAULT_BRANCH_PREFIX + sTargetStep);
+		return branchTo(
+			sTargetStep,
+			rBranchParam,
+			pBranchCondition,
+			DEFAULT_BRANCH_PREFIX + sTargetStep);
 	}
 
 	/***************************************
@@ -272,10 +275,11 @@ public class StepListProcessDefinition extends ProcessDefinition
 		Predicate<? super T>			 pBranchCondition,
 		String							 sName)
 	{
-		return branchTo(rTargetStepClass.getSimpleName(),
-						rBranchParam,
-						pBranchCondition,
-						sName);
+		return branchTo(
+			rTargetStepClass.getSimpleName(),
+			rBranchParam,
+			pBranchCondition,
+			sName);
 	}
 
 	/***************************************
@@ -300,10 +304,11 @@ public class StepListProcessDefinition extends ProcessDefinition
 										 Predicate<? super T> pBranchCondition,
 										 String				  sName)
 	{
-		return addBranchStep(sName,
-							 sTargetStep,
-							 rBranchParam,
-							 pBranchCondition);
+		return addBranchStep(
+			sName,
+			sTargetStep,
+			rBranchParam,
+			pBranchCondition);
 	}
 
 	/***************************************
@@ -333,7 +338,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 	 * @throws ProcessException If creating the process fails
 	 */
 	@Override
-	protected Process createProcess() throws ProcessException
+	protected Process createProcess()
 	{
 		Process aProcess = new Process(get(NAME));
 		int     nMax     = aSteps.size() - 1;
@@ -461,10 +466,11 @@ public class StepListProcessDefinition extends ProcessDefinition
 	 */
 	protected StepListEntry goTo(String sTargetStep)
 	{
-		return addBranchStep(DEFAULT_GOTO_PREFIX + sTargetStep,
-							 sTargetStep,
-							 null,
-							 Predicates.alwaysTrue());
+		return addBranchStep(
+			DEFAULT_GOTO_PREFIX + sTargetStep,
+			sTargetStep,
+			null,
+			Predicates.alwaysTrue());
 	}
 
 	/***************************************
@@ -500,7 +506,7 @@ public class StepListProcessDefinition extends ProcessDefinition
 		Class<? extends ProcessDefinition>... rFragmentHandlingProcesses)
 	{
 		Map<Class<? extends ProcessFragment>, Object> aSwitchMap =
-			new HashMap<Class<? extends ProcessFragment>, Object>();
+			new HashMap<>();
 
 		StepListEntry aSwitchStep =
 			switchOnParam(CONTINUATION_FRAGMENT_CLASS, aSwitchMap);
@@ -534,8 +540,9 @@ public class StepListProcessDefinition extends ProcessDefinition
 			}
 			else
 			{
-				throw new IllegalArgumentException("Not a process fragment: " +
-												   rEnclosingClass);
+				throw new IllegalArgumentException(
+					"Not a process fragment: " +
+					rEnclosingClass);
 			}
 		}
 
@@ -561,11 +568,13 @@ public class StepListProcessDefinition extends ProcessDefinition
 									Function<? super S, D> fInit)
 	{
 		Function<Relatable, D> fInitParam =
-			Functions.doIf(Predicates.notNull().from(rSourceParam),
-						   fInit.from(rSourceParam));
+			Functions.doIf(
+				Predicates.notNull().from(rSourceParam),
+				fInit.from(rSourceParam));
 
-		get(ProcessRelationTypes.PARAM_INITIALIZATIONS).put(rDestinationParam,
-															fInitParam);
+		get(ProcessRelationTypes.PARAM_INITIALIZATIONS).put(
+			rDestinationParam,
+			fInitParam);
 	}
 
 	/***************************************
@@ -679,10 +688,10 @@ public class StepListProcessDefinition extends ProcessDefinition
 	 * @return The new step list entry
 	 */
 	protected <I, O> StepListEntry invokeFunction(
-		String							 sName,
-		RelationType<I>					 rInputParam,
-		RelationType<O>					 rOutputParam,
-		Function<? super I, ? extends O> rFunction)
+		String												sName,
+		RelationType<I>										rInputParam,
+		RelationType<O>										rOutputParam,
+		java.util.function.Function<? super I, ? extends O> rFunction)
 	{
 		assert rInputParam != null || rOutputParam != null;
 
@@ -738,8 +747,9 @@ public class StepListProcessDefinition extends ProcessDefinition
 
 		StepListEntry aStep = addStep(sName, SubProcessStep.class, true);
 
-		aStep.set(ProcessRelationTypes.SUB_PROCESS_DEFINITION,
-				  rSubProcessDefinition);
+		aStep.set(
+			ProcessRelationTypes.SUB_PROCESS_DEFINITION,
+			rSubProcessDefinition);
 
 		return aStep;
 	}
@@ -761,8 +771,9 @@ public class StepListProcessDefinition extends ProcessDefinition
 		String							   sName,
 		Class<? extends ProcessDefinition> rSubProcessClass)
 	{
-		return invokeSubProcess(sName,
-								ProcessManager.getProcessDefinition(rSubProcessClass));
+		return invokeSubProcess(
+			sName,
+			ProcessManager.getProcessDefinition(rSubProcessClass));
 	}
 
 	/***************************************
@@ -793,10 +804,11 @@ public class StepListProcessDefinition extends ProcessDefinition
 	 */
 	protected <T> StepListEntry setParameter(RelationType<T> rParam, T rValue)
 	{
-		return invokeFunction("set" + rParam.getSimpleName(),
-							  ProcessRelationTypes.PROCESS,
-							  null,
-							  ProcessFunctions.setParameter(rParam, rValue));
+		return invokeFunction(
+			"set" + rParam.getSimpleName(),
+			ProcessRelationTypes.PROCESS,
+			null,
+			ProcessFunctions.setParameter(rParam, rValue));
 	}
 
 	/***************************************
@@ -825,8 +837,9 @@ public class StepListProcessDefinition extends ProcessDefinition
 		RelationType<T> rSwitchParam,
 		Map<T, Object>  rSwitchMap)
 	{
-		return switchOnParam(rSwitchParam,
-							 CollectionFunctions.getMapValueFrom(rSwitchMap));
+		return switchOnParam(
+			rSwitchParam,
+			CollectionFunctions.getMapValueFrom(rSwitchMap));
 	}
 
 	/***************************************
@@ -846,11 +859,11 @@ public class StepListProcessDefinition extends ProcessDefinition
 		Function<? super T, Object> fTargetSelector)
 	{
 		StepListEntry aStep =
-			addStep("SwitchOn" +
-					TextConvert.capitalizedIdentifier(rSwitchParam
-													  .getSimpleName()),
-					SwitchStep.class,
-					true);
+			addStep(
+				"SwitchOn" +
+				TextConvert.capitalizedIdentifier(rSwitchParam.getSimpleName()),
+				SwitchStep.class,
+				true);
 
 		aStep.set(SwitchStep.SWITCH_PARAM, rSwitchParam);
 		aStep.set(SwitchStep.SWITCH_TARGET_SELECTOR, fTargetSelector);
@@ -916,8 +929,9 @@ public class StepListProcessDefinition extends ProcessDefinition
 			}
 			else
 			{
-				throw new IllegalArgumentException("Duplicate process step name: " +
-												   sName);
+				throw new IllegalArgumentException(
+					"Duplicate process step name: " +
+					sName);
 			}
 		}
 
@@ -1205,10 +1219,10 @@ public class StepListProcessDefinition extends ProcessDefinition
 			}
 			else if (!rTargetType.isAssignableFrom(rValue.getClass()))
 			{
-				throw new IllegalArgumentException("Incompatible value datatype " +
-												   rValue.getClass() +
-												   " for parameter " +
-												   rTargetType);
+				throw new IllegalArgumentException(
+					"Incompatible value datatype " +
+					rValue.getClass() +
+					" for parameter " + rTargetType);
 			}
 
 			return rValue;
@@ -1232,8 +1246,8 @@ public class StepListProcessDefinition extends ProcessDefinition
 				if (aFragment instanceof InteractionFragment)
 				{
 					aStep =
-						new FragmentInteraction((InteractionFragment)
-												aFragment);
+						new FragmentInteraction(
+							(InteractionFragment) aFragment);
 				}
 				else
 				{
@@ -1246,11 +1260,12 @@ public class StepListProcessDefinition extends ProcessDefinition
 			}
 			catch (Exception e)
 			{
-				throw new ProcessException(null,
-										   String.format("Creation of process step %s failed",
-														 rStepClass
-														 .getSimpleName()),
-										   e);
+				throw new ProcessException(
+					null,
+					String.format(
+						"Creation of process step %s failed",
+						rStepClass.getSimpleName()),
+					e);
 			}
 		}
 
@@ -1317,12 +1332,14 @@ public class StepListProcessDefinition extends ProcessDefinition
 
 			if (!aMatcher.matches())
 			{
-				throw new IllegalArgumentException("Invalid configuration entry: " +
-												   sEntry);
+				throw new IllegalArgumentException(
+					"Invalid configuration entry: " +
+					sEntry);
 			}
 
-			return new Pair<Object, Object>(TextUtil.parseObject(aMatcher.group(1)),
-											TextUtil.parseObject(aMatcher.group(2)));
+			return new Pair<Object, Object>(
+				TextUtil.parseObject(aMatcher.group(1)),
+				TextUtil.parseObject(aMatcher.group(2)));
 		}
 
 		/***************************************
@@ -1350,8 +1367,8 @@ public class StepListProcessDefinition extends ProcessDefinition
 			}
 			else
 			{
-				rCollection.add(convertParamValue(rType.get(ELEMENT_DATATYPE),
-												  rValue));
+				rCollection.add(
+					convertParamValue(rType.get(ELEMENT_DATATYPE), rValue));
 			}
 		}
 
@@ -1392,17 +1409,20 @@ public class StepListProcessDefinition extends ProcessDefinition
 				}
 				else
 				{
-					throw new IllegalArgumentException("Invalid map type config entry: " +
-													   rValue);
+					throw new IllegalArgumentException(
+						"Invalid map type config entry: " +
+						rValue);
 				}
 
 				Object rKey =
-					convertParamValue(rType.get(KEY_DATATYPE),
-									  aMapEntry.first());
+					convertParamValue(
+						rType.get(KEY_DATATYPE),
+						aMapEntry.first());
 
 				rValue =
-					convertParamValue(rType.get(VALUE_DATATYPE),
-									  aMapEntry.second());
+					convertParamValue(
+						rType.get(VALUE_DATATYPE),
+						aMapEntry.second());
 
 				rMap.put(rKey, rValue);
 			}
