@@ -5,7 +5,10 @@ project.group   = 'de.esoco'
 
 sourceCompatibility = 1.8
 
-repositories { jcenter() }
+repositories {
+	mavenLocal()
+    jcenter()
+}
 
 // substitute local project dependencies if available
 configurations.all {
@@ -23,7 +26,7 @@ configurations.all {
 }
 
 dependencies {
-	api 'de.esoco:esoco-storage:1.4.+'
+	api 'de.esoco:esoco-storage:1.5.+'
 
 	testImplementation platform('org.junit:junit-bom:5.5.2')	
 	testImplementation 'org.junit.jupiter:junit-jupiter'
