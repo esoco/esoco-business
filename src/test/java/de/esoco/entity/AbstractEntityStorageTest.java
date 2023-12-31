@@ -17,27 +17,22 @@
 package de.esoco.entity;
 
 import de.esoco.history.HistoryRecord;
-
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
-
 import de.esoco.storage.Storage;
 import de.esoco.storage.StorageDefinition;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
 import de.esoco.storage.impl.jdbc.JdbcStorageDefinition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.obrel.core.RelationType;
 
 import java.sql.SQLException;
-
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.entity.TestContact.CONTACT_TYPE;
 import static de.esoco.entity.TestContact.CONTACT_VALUE;
@@ -68,7 +63,7 @@ public abstract class AbstractEntityStorageTest
 	 *
 	 * @throws ClassNotFoundException
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void init() throws ClassNotFoundException
 	{
 		Class.forName("org.h2.Driver");
@@ -81,7 +76,7 @@ public abstract class AbstractEntityStorageTest
 	 *
 	 * @throws Exception
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		StorageDefinition aDef =
@@ -108,7 +103,7 @@ public abstract class AbstractEntityStorageTest
 	 * @throws SQLException
 	 * @throws TransactionException
 	 */
-	@After
+	@AfterEach
 	public void tearDown() throws StorageException, SQLException,
 								  TransactionException
 	{

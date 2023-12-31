@@ -23,17 +23,15 @@ import de.esoco.entity.TestPerson;
 import de.esoco.lib.manage.TransactionException;
 
 import de.esoco.storage.StorageException;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import org.junit.Test;
 
 import static de.esoco.history.HistoryRecord.HistoryType.GROUP;
 import static de.esoco.history.HistoryRecord.HistoryType.INFO;
 import static de.esoco.history.HistoryRecord.HistoryType.NOTE;
-
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /********************************************************************
  * Test of history functions.

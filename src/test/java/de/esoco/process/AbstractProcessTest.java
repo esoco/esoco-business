@@ -17,33 +17,32 @@
 package de.esoco.process;
 
 import de.esoco.lib.expression.Predicate;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newType;
-
 
 /********************************************************************
  * A base class for the test of processes and process steps.
  *
  * @author eso
  */
-public class AbstractProcessTest
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class AbstractProcessTest {
+	//~ Static fields/initializers
+	// ---------------------------------------------
 
-	/** Postconditions for the automatic testing of processes */
-	public static final RelationType<Map<RelationType<?>, Predicate<?>>> POSTCONDITIONS =
-		newMapType(true);
+	/**
+	 * Postconditions for the automatic testing of processes
+	 */
+	public static final RelationType<Map<RelationType<?>, Predicate<?>>>
+		POSTCONDITIONS = newMapType(true);
 
 	/**
 	 * Stores the current test process; can be used to apply postcondition
@@ -51,58 +50,52 @@ public class AbstractProcessTest
 	 */
 	protected static final RelationType<Process> TEST_PROCESS = newType();
 
-	static
-	{
+	static {
 		RelationTypes.init(AbstractProcessTest.class);
 	}
 
-	//~ Static methods ---------------------------------------------------------
+	//~ Static methods
+	// ---------------------------------------------------------
 
 	/***************************************
-	 * Assets that the predicates stored in the relation {@link #POSTCONDITIONS}
+	 * Assets that the predicates stored in the relation
+	 * {@link #POSTCONDITIONS}
 	 * of the given process (or the current process step if the process has not
 	 * finished yet) yield TRUE.
 	 *
 	 * @param aProcess The process to assert
 	 */
 	@SuppressWarnings("boxing")
-	public static void assertPostconditions(Process aProcess)
-	{
+	public static void assertPostconditions(Process aProcess) {
 		Set<Entry<RelationType<?>, Predicate<?>>> rConditions;
 
-		if (aProcess.isFinished())
-		{
+		if (aProcess.isFinished()) {
 			rConditions = aProcess.get(POSTCONDITIONS).entrySet();
-		}
-		else
-		{
+		} else {
 			rConditions =
 				aProcess.getCurrentStep().get(POSTCONDITIONS).entrySet();
 		}
 
-		for (Map.Entry<RelationType<?>, Predicate<?>> e : rConditions)
-		{
+		for (Map.Entry<RelationType<?>, Predicate<?>> e : rConditions) {
 			RelationType<?> rType = e.getKey();
 
 			@SuppressWarnings("unchecked")
 			Predicate<Object> rPredicate = (Predicate<Object>) e.getValue();
 
-			if (rPredicate != null)
-			{
+			if (rPredicate != null) {
 				Object rValue = aProcess.getParameter(rType);
 
-				assertTrue("Expected: " + rType + " " + rPredicate +
-						   " but is " + rValue,
-						   rPredicate.evaluate(rValue));
-			}
-			else
-			{
-				assertFalse(rType + " exists", aProcess.hasParameter(rType));
+				assertTrue(rPredicate.evaluate(rValue),
+					"Expected: " + rType + " " + rPredicate + " but is " +
+						rValue);
+			} else {
+				assertFalse(aProcess.hasParameter(rType), rType + " exists");
 			}
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
+	//~ Methods
+	// ----------------------------------------------------------------
 
 	/***************************************
 	 * A method for subclasses to create a process from a process definition,
@@ -112,7 +105,8 @@ public class AbstractProcessTest
 	 * and the map values are predicates that check the relation value by
 	 * evaluating it and returning TRUE if the postcondition is valid and FALSE
 	 * if not. If the map value is NULL it will be asserted that NO relation
-	 * with the given type exists. If the relation type is {@link #TEST_PROCESS}
+	 * with the given type exists. If the relation type is
+	 * {@link #TEST_PROCESS}
 	 * the predicate will we applied to the current process instead of one of
 	 * it's parameters.
 	 *
@@ -129,21 +123,18 @@ public class AbstractProcessTest
 	 * @throws ProcessException If executing the process fails
 	 */
 	protected Process executeProcess(ProcessDefinition rProcessDefinition)
-		throws ProcessException
-	{
+		throws ProcessException {
 		Process aProcess = rProcessDefinition.createProcess();
 
 		// add TEST_PROCESS as self-reference so that predicates can be applied
 		// to the process itself
 		aProcess.setParameter(TEST_PROCESS, aProcess);
 
-		do
-		{
+		do {
 			aProcess.execute();
 
 			assertPostconditions(aProcess);
-		}
-		while (!aProcess.isFinished());
+		} while (!aProcess.isFinished());
 
 		return aProcess;
 	}

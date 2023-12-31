@@ -28,13 +28,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
@@ -58,18 +54,16 @@ import static de.esoco.lib.expression.Predicates.greaterThan;
 import static de.esoco.lib.expression.Predicates.lessOrEqual;
 
 import static de.esoco.storage.StoragePredicates.like;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /********************************************************************
  * Test for the JDBC storage implementation.
  *
  * @author eso
  */
-@RunWith(Parameterized.class)
 @SuppressWarnings("boxing")
 public class EntityStorageTest extends AbstractEntityStorageTest
 {
@@ -139,7 +133,6 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 	 *
 	 * @return The list of cache sizes
 	 */
-	@Parameters
 	public static List<Object[]> cacheSizes()
 	{
 		return Arrays.asList(new Object[][]
@@ -161,7 +154,7 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 	/***************************************
 	 * Invalidates the entity cache after
 	 */
-	@After
+	@AfterEach
 	public void afterTest()
 	{
 		EntityManager.invalidateCache();
@@ -172,7 +165,7 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 	 *
 	 * @throws Exception
 	 */
-	@Before
+	@BeforeEach
 	@Override
 	public void setUp() throws Exception
 	{
@@ -219,7 +212,7 @@ public class EntityStorageTest extends AbstractEntityStorageTest
 		try
 		{
 			EntityManager.queryEntityByExtraAttribute(XA2, "XA2-Test", true);
-			assertFalse(true);
+			fail();
 		}
 		catch (IllegalStateException e)
 		{

@@ -16,32 +16,29 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
-
 import static de.esoco.process.AbstractProcessTest.POSTCONDITIONS;
 import static de.esoco.process.AbstractProcessTest.assertPostconditions;
 import static de.esoco.process.TestStep.TEST_INT_PARAM;
 import static de.esoco.process.TestStep.TEST_STRING_RESULT;
-
 
 /********************************************************************
  * Test of {@link ProcessRunner}
  *
  * @author eso
  */
-public class ProcessRunnerTest
-{
-	//~ Methods ----------------------------------------------------------------
+public class ProcessRunnerTest {
+	//~ Methods
+	// ----------------------------------------------------------------
 
 	/***************************************
 	 * Test of {@link ProcessRunner#run()}.
 	 */
 	@SuppressWarnings("boxing")
 	@Test
-	public void testRun()
-	{
+	public void testRun() {
 		StepListProcessDefinition aDef =
 			new StepListProcessDefinition("Transfer");
 
