@@ -42,28 +42,21 @@ import java.util.Map.Entry;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A {@link EntityList} header implementation that displays the names of entity
  * attributes and optionally provides sorting and attribute-specific filtering.
  *
  * @author eso
  */
 public class EntityAttributesHeader<E extends Entity>
-	extends EntityListHeader<E>
-{
-	//~ Enums ------------------------------------------------------------------
+	extends EntityListHeader<E> {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the available actions in the header.
 	 */
-	enum HeaderDataAction { CLEAR_FILTER }
-
-	//~ Static fields/initializers ---------------------------------------------
+	enum HeaderDataAction {CLEAR_FILTER}
 
 	private static final long serialVersionUID = 1L;
-
-	//~ Instance fields --------------------------------------------------------
 
 	private Map<RelationType<?>, MutableProperties> aColumnProperties =
 		new LinkedHashMap<>();
@@ -73,42 +66,33 @@ public class EntityAttributesHeader<E extends Entity>
 	private Map<RelationType<?>, Predicate<? super E>> aColumnFilters =
 		new HashMap<>();
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rEntityList The entity list this header belongs to
 	 * @param rAttributes The attribute relation types
 	 */
-	public EntityAttributesHeader(
-		EntityList<E, ?>   rEntityList,
-		RelationType<?>... rAttributes)
-	{
+	public EntityAttributesHeader(EntityList<E, ?> rEntityList,
+		RelationType<?>... rAttributes) {
 		this(rEntityList, Arrays.asList(rAttributes));
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rEntityList The entity list this header belongs to
 	 * @param rAttributes The attribute relation types
 	 */
-	public EntityAttributesHeader(
-		EntityList<E, ?>			rEntityList,
-		Collection<RelationType<?>> rAttributes)
-	{
+	public EntityAttributesHeader(EntityList<E, ?> rEntityList,
+		Collection<RelationType<?>> rAttributes) {
 		super(rEntityList);
 
-		for (RelationType<?> rAttr : rAttributes)
-		{
+		for (RelationType<?> rAttr : rAttributes) {
 			aColumnProperties.put(rAttr, new StringProperties());
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets a column property for an attribute.
 	 *
 	 * @param rAttribute The attribute to set the property for
@@ -116,13 +100,11 @@ public class EntityAttributesHeader<E extends Entity>
 	 * @param rValue     The property value
 	 */
 	public <T> void setColumnProperty(RelationType<?> rAttribute,
-									  PropertyName<T> rProperty,
-									  T				  rValue)
-	{
+		PropertyName<T> rProperty, T rValue) {
 		aColumnProperties.get(rAttribute).setProperty(rProperty, rValue);
 	}
 
-	/***************************************
+	/**
 	 * Shortcut to set the width of an attribute column as an integer defining
 	 * the column span in the grid layout.
 	 *
@@ -130,118 +112,93 @@ public class EntityAttributesHeader<E extends Entity>
 	 * @param nWidth     The column width
 	 */
 	@SuppressWarnings("boxing")
-	public void setColumnWidth(RelationType<?> rAttribute, int nWidth)
-	{
+	public void setColumnWidth(RelationType<?> rAttribute, int nWidth) {
 		setColumnProperty(rAttribute, LayoutProperties.COLUMN_SPAN, nWidth);
 	}
 
-	/***************************************
+	/**
 	 * Shortcut to set the column width for a column.
 	 *
 	 * @param rAttribute     The attribute to set the column width for
 	 * @param eRelativeWidth The relative column width
 	 */
-	public void setColumnWidth(
-		RelationType<?> rAttribute,
-		RelativeSize    eRelativeWidth)
-	{
-		setColumnProperty(rAttribute,
-						  LayoutProperties.RELATIVE_WIDTH,
-						  eRelativeWidth);
+	public void setColumnWidth(RelationType<?> rAttribute,
+		RelativeSize eRelativeWidth) {
+		setColumnProperty(rAttribute, LayoutProperties.RELATIVE_WIDTH,
+			eRelativeWidth);
 	}
 
-	/***************************************
+	/**
 	 * Applies the columns filters to the entity list.
 	 */
-	protected void applyColumnFilters()
-	{
+	protected void applyColumnFilters() {
 		Predicate<? super E> pFilter = null;
 
-		for (Predicate<? super E> pColumnFilter : aColumnFilters.values())
-		{
+		for (Predicate<? super E> pColumnFilter : aColumnFilters.values()) {
 			pFilter = Predicates.and(pFilter, pColumnFilter);
 		}
 
 		getEntityList().setExtraCriteria(pFilter);
 	}
 
-	/***************************************
+	/**
 	 * Creates the parameter for a certain attribute filter.
 	 *
-	 * @param  rFilterPanel The fragment of the filter panel
-	 * @param  rAttr        The attribute to create the filter for
-	 *
+	 * @param rFilterPanel The fragment of the filter panel
+	 * @param rAttr        The attribute to create the filter for
 	 * @return A parameter instance or NULL if no filter is available
 	 */
 	protected Parameter<?> createAttributeFilter(
-		InteractionFragment rFilterPanel,
-		RelationType<?>		rAttr)
-	{
-		Class<?>     rDatatype   = rAttr.getTargetType();
-		String		 sAttrName   = rAttr.getSimpleName();
+		InteractionFragment rFilterPanel, RelationType<?> rAttr) {
+		Class<?> rDatatype = rAttr.getTargetType();
+		String sAttrName = rAttr.getSimpleName();
 		Parameter<?> aAttrFilter = null;
 
-		if (rDatatype == String.class)
-		{
+		if (rDatatype == String.class) {
 			aAttrFilter = rFilterPanel.inputText(sAttrName);
-		}
-		else if (rDatatype.isEnum())
-		{
-			aAttrFilter =
-				rFilterPanel.dropDown(sAttrName,
-									  Arrays.asList(rDatatype
-													.getEnumConstants()));
-		}
-		else if (Date.class.isAssignableFrom(rDatatype))
-		{
+		} else if (rDatatype.isEnum()) {
+			aAttrFilter = rFilterPanel.dropDown(sAttrName,
+				Arrays.asList(rDatatype.getEnumConstants()));
+		} else if (Date.class.isAssignableFrom(rDatatype)) {
 			aAttrFilter = rFilterPanel.inputDate(sAttrName);
 		}
 
 		return aAttrFilter;
 	}
 
-	/***************************************
+	/**
 	 * Handle the input in the filter parameter of a column.
 	 *
 	 * @param rAttribute   The column attribute
 	 * @param rFilterValue The value to be filtered
 	 */
-	protected void handleFilterInput(
-		RelationType<?> rAttribute,
-		Object			rFilterValue)
-	{
-		if (rFilterValue != null && !rFilterValue.toString().isEmpty())
-		{
+	protected void handleFilterInput(RelationType<?> rAttribute,
+		Object rFilterValue) {
+		if (rFilterValue != null && !rFilterValue.toString().isEmpty()) {
 			Predicate<? super E> pAttrCriterion;
 
-			if (rAttribute.getTargetType() == String.class)
-			{
-				pAttrCriterion =
-					rAttribute.is(StoragePredicates.createWildcardFilter(rFilterValue
-																		 .toString()));
-			}
-			else
-			{
+			if (rAttribute.getTargetType() == String.class) {
+				pAttrCriterion = rAttribute.is(
+					StoragePredicates.createWildcardFilter(
+						rFilterValue.toString()));
+			} else {
 				pAttrCriterion =
 					rAttribute.is(Predicates.equalTo(rFilterValue));
 			}
 
 			aColumnFilters.put(rAttribute, pAttrCriterion);
-		}
-		else
-		{
+		} else {
 			aColumnFilters.remove(rAttribute);
 		}
 
 		applyColumnFilters();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initDataPanel(InteractionFragment p)
-	{
+	protected void initDataPanel(InteractionFragment p) {
 //		if (aFilterParams == null)
 //		{
 //			aFilterParams = new ArrayList<>(aColumnProperties.size());
@@ -268,26 +225,26 @@ public class EntityAttributesHeader<E extends Entity>
 //				applyColumnProperties(aFilterParam, rProperties);
 //				aFilterParams.add(aFilterParam);
 //
-//				iconButtons(HeaderDataAction.class).alignHorizontal(Alignment.END)
-//												   .onAction(this::handleHeaderDataAction);
+//				iconButtons(HeaderDataAction.class).alignHorizontal(Alignment
+//				.END)
+//												   .onAction
+//												   (this::handleHeaderDataAction);
 //			}
 //		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initTitlePanel(InteractionFragment p)
-	{
+	protected void initTitlePanel(InteractionFragment p) {
 		// set the style name of the parent fragment (the actual header)
 		fragmentParam().style(EntityAttributesHeader.class.getSimpleName());
 
 		for (Entry<RelationType<?>, MutableProperties> rColumn :
-			 aColumnProperties.entrySet())
-		{
-			RelationType<?>   rAttr		  = rColumn.getKey();
-			HasProperties     rProperties = rColumn.getValue();
+			aColumnProperties.entrySet()) {
+			RelationType<?> rAttr = rColumn.getKey();
+			HasProperties rProperties = rColumn.getValue();
 			Parameter<String> aTitleLabel =
 				createColumnTitle(p, rAttr, rProperties);
 
@@ -296,36 +253,30 @@ public class EntityAttributesHeader<E extends Entity>
 		}
 	}
 
-	/***************************************
+	/**
 	 * Applies the properties for a certain colum to the respective parameter.
 	 *
 	 * @param rColumnParam The column parameter
 	 * @param rProperties  The properties to apply
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	void applyColumnProperties(
-		Parameter<?>  rColumnParam,
-		HasProperties rProperties)
-	{
-		for (PropertyName rProperty : rProperties.getPropertyNames())
-		{
+	void applyColumnProperties(Parameter<?> rColumnParam,
+		HasProperties rProperties) {
+		for (PropertyName rProperty : rProperties.getPropertyNames()) {
 			rColumnParam.set(rProperty,
-							 rProperties.getProperty(rProperty, null));
+				rProperties.getProperty(rProperty, null));
 		}
 	}
 
-	/***************************************
+	/**
 	 * Handles the actions for the header's data section.
 	 *
 	 * @param eAction The action
 	 */
 	@SuppressWarnings("unused")
-	private void handleHeaderDataAction(HeaderDataAction eAction)
-	{
-		if (eAction == HeaderDataAction.CLEAR_FILTER)
-		{
-			for (Parameter<?> rFilterParam : aFilterParams)
-			{
+	private void handleHeaderDataAction(HeaderDataAction eAction) {
+		if (eAction == HeaderDataAction.CLEAR_FILTER) {
+			for (Parameter<?> rFilterParam : aFilterParams) {
 				rFilterParam.value(null);
 			}
 

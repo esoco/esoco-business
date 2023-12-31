@@ -43,44 +43,33 @@ import static de.esoco.entity.TestPerson.FORENAME;
 import static de.esoco.entity.TestPerson.LASTNAME;
 import static de.esoco.entity.TestPerson.POSTAL_CODE;
 
-
-/********************************************************************
+/**
  * A base class for entity storage tests.
  *
  * @author eso
  */
-public abstract class AbstractEntityStorageTest
-{
-	//~ Instance fields --------------------------------------------------------
+public abstract class AbstractEntityStorageTest {
 
-	/** The storage reference (initialized in setUp()) */
+	/**
+	 * The storage reference (initialized in setUp())
+	 */
 	protected Storage rStorage;
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Test initialization.
-	 *
-	 * @throws ClassNotFoundException
 	 */
 	@BeforeAll
-	public static void init() throws ClassNotFoundException
-	{
+	public static void init() throws ClassNotFoundException {
 		Class.forName("org.h2.Driver");
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Initializes the storage.
-	 *
-	 * @throws Exception
 	 */
 	@BeforeEach
-	public void setUp() throws Exception
-	{
-		StorageDefinition aDef =
-			JdbcStorageDefinition.create("jdbc:h2:mem:testdb;user=sa;password=");
+	public void setUp() throws Exception {
+		StorageDefinition aDef = JdbcStorageDefinition.create(
+			"jdbc:h2:mem:testdb;user=sa;password=");
 
 		EntityManager.init();
 		StorageManager.setDefaultStorage(aDef);
@@ -96,41 +85,34 @@ public abstract class AbstractEntityStorageTest
 		rStorage.initObjectStorage(HistoryRecord.class);
 	}
 
-	/***************************************
+	/**
 	 * Performs a rollback and closes the storage.
-	 *
-	 * @throws StorageException
-	 * @throws SQLException
-	 * @throws TransactionException
 	 */
 	@AfterEach
-	public void tearDown() throws StorageException, SQLException,
-								  TransactionException
-	{
+	public void tearDown()
+		throws StorageException, SQLException, TransactionException {
 		TransactionManager.rollback();
 	}
 
-	/***************************************
+	/**
 	 * Adds contacts to a person entity.
 	 *
 	 * @param rEntity   The person entity
 	 * @param aContacts The contacts in the order email, phone, fax
 	 */
-	protected void addContacts(Entity rEntity, String... aContacts)
-	{
+	protected void addContacts(Entity rEntity, String... aContacts) {
 		String[] aTypes = new String[] { "EML", "TEL", "FAX" };
-		int		 nIndex = 0;
+		int nIndex = 0;
 
 		RelationType<List<TestContact>> rChildAttr =
-			(rEntity instanceof TestPerson ? TestPerson.CONTACTS
-										   : TestContact.CHILDREN);
+			(rEntity instanceof TestPerson ?
+			 TestPerson.CONTACTS :
+			 TestContact.CHILDREN);
 
-		for (String sContact : aContacts)
-		{
+		for (String sContact : aContacts) {
 			String sType = aTypes[nIndex++];
 
-			if (sContact != null)
-			{
+			if (sContact != null) {
 				TestContact aContact = new TestContact();
 
 				aContact.set(CONTACT_TYPE, sType);
@@ -141,15 +123,13 @@ public abstract class AbstractEntityStorageTest
 		}
 	}
 
-	/***************************************
+	/**
 	 * Creates a new person entity.
 	 *
-	 * @param  rAttributes The attributes of the person (6 elements)
-	 *
+	 * @param rAttributes The attributes of the person (6 elements)
 	 * @return The new entity
 	 */
-	protected TestPerson createPerson(String[] rAttributes)
-	{
+	protected TestPerson createPerson(String[] rAttributes) {
 		TestPerson aPerson = new TestPerson();
 
 		aPerson.set(LASTNAME, rAttributes[0]);
@@ -159,27 +139,23 @@ public abstract class AbstractEntityStorageTest
 		aPerson.set(CITY, rAttributes[4]);
 		aPerson.set(AGE, Integer.parseInt(rAttributes[5]));
 
-		if (rAttributes.length > 6)
-		{
+		if (rAttributes.length > 6) {
 			addContacts(aPerson,
-						Arrays.copyOfRange(rAttributes, 6, rAttributes.length));
+				Arrays.copyOfRange(rAttributes, 6, rAttributes.length));
 		}
 
 		return aPerson;
 	}
 
-	/***************************************
+	/**
 	 * Executes a query and returns the resulting entities in a list.
 	 *
-	 * @param  pCriteria The query criteria
-	 *
+	 * @param pCriteria The query criteria
 	 * @return A list containing the queried entities
-	 *
 	 * @throws StorageException On errors
 	 */
 	protected List<TestPerson> executePersonQuery(Predicate<Entity> pCriteria)
-		throws StorageException
-	{
+		throws StorageException {
 		return EntityManager.queryEntities(TestPerson.class, pCriteria, 1000);
 	}
 }

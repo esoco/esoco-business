@@ -18,58 +18,51 @@ package de.esoco.data.storage;
 
 import de.esoco.storage.StorageException;
 
-
-/********************************************************************
+/**
  * An interface that allows to register and query storage adapters.
  *
  * @author eso
  */
-public interface StorageAdapterRegistry
-{
-	//~ Methods ----------------------------------------------------------------
+public interface StorageAdapterRegistry {
 
-	/***************************************
+	/**
 	 * Returns the registered storage adapter for a {@link StorageAdapterId}.
 	 *
-	 * @param  rId The adapter ID
-	 *
+	 * @param rId The adapter ID
 	 * @return The storage adapter that has been registered for the given ID or
-	 *         NULL for none
-	 *
+	 * NULL for none
 	 * @throws StorageException If retrieving the storage adapter fails
 	 */
 	public StorageAdapter getStorageAdapter(StorageAdapterId rId)
 		throws StorageException;
 
-	/***************************************
-	 * Registers a certain {@link StorageAdapter} instance in the current user's
+	/**
+	 * Returns the registered storage adapter for the string representation
+	 * of a
+	 * storage adapter ID as created by {@link StorageAdapterId#toString()}.
+	 *
+	 * @param sId The adapter ID
+	 * @return The storage adapter that has been registered for the given ID or
+	 * NULL for none
+	 * @throws StorageException If retrieving the storage adapter fails
+	 */
+	default StorageAdapter getStorageAdapter(String sId)
+		throws StorageException {
+		return getStorageAdapter(new StorageAdapterId(sId));
+	}
+
+	/**
+	 * Registers a certain {@link StorageAdapter} instance in the current
+	 * user's
 	 * session and associates it with a unique string ID. Either a reference to
 	 * the returned ID or to the adapter must be kept by the invoking party
 	 * because the adapter will be garbage collected if neither the ID nor the
 	 * adapter are referenced any longer by any strong reference.
 	 *
-	 * @param  rAdapter The adapter to register
-	 *
+	 * @param rAdapter The adapter to register
 	 * @return The ID that identifies the adapter
-	 *
 	 * @throws StorageException If registering the adapter fails
 	 */
 	public StorageAdapterId registerStorageAdapter(StorageAdapter rAdapter)
 		throws StorageException;
-
-	/***************************************
-	 * Returns the registered storage adapter for the string representation of a
-	 * storage adapter ID as created by {@link StorageAdapterId#toString()}.
-	 *
-	 * @param  sId The adapter ID
-	 *
-	 * @return The storage adapter that has been registered for the given ID or
-	 *         NULL for none
-	 *
-	 * @throws StorageException If retrieving the storage adapter fails
-	 */
-	default StorageAdapter getStorageAdapter(String sId) throws StorageException
-	{
-		return getStorageAdapter(new StorageAdapterId(sId));
-	}
 }

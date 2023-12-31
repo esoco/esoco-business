@@ -28,8 +28,7 @@ import static de.esoco.lib.property.LayoutProperties.HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.WIDTH;
 import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 
-
-/********************************************************************
+/**
  * A layout that docks components to one or both sides of a center component,
  * either in horizontal or in vertical direction. The side components must have
  * a corresponding size value (width or height) set because the center component
@@ -37,107 +36,87 @@ import static de.esoco.lib.property.StyleProperties.ORIENTATION;
  *
  * @author eso
  */
-public class UiDockLayout extends UiLayout
-{
-	//~ Instance fields --------------------------------------------------------
+public class UiDockLayout extends UiLayout {
 
 	private Orientation eOrientation;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param eOrientation The layout orientation
 	 * @param bAllowResize TRUE to provide controls for the resizing of the
 	 *                     components in the layout direction (split panel)
 	 */
-	public UiDockLayout(Orientation eOrientation, boolean bAllowResize)
-	{
+	public UiDockLayout(Orientation eOrientation, boolean bAllowResize) {
 		super(bAllowResize ? LayoutType.SPLIT : LayoutType.DOCK,
-			  eOrientation == Orientation.VERTICAL ? 1 : 3);
+			eOrientation == Orientation.VERTICAL ? 1 : 3);
 
 		this.eOrientation = eOrientation;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void addComponent(UiComponent<?, ?> rComponent)
-	{
-		if (rComponent.getParent().getComponents().size() > 3)
-		{
-			throw new IllegalStateException("UiDockLayout can contain a maxium of 3 components");
+	protected void addComponent(UiComponent<?, ?> rComponent) {
+		if (rComponent.getParent().getComponents().size() > 3) {
+			throw new IllegalStateException(
+				"UiDockLayout can contain a maxium of 3 components");
 		}
 
 		super.addComponent(rComponent);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void applyToContainer(UiContainer<?> rContainer)
-	{
+	protected void applyToContainer(UiContainer<?> rContainer) {
 		super.applyToContainer(rContainer);
 
-		if (eOrientation == Orientation.VERTICAL)
-		{
+		if (eOrientation == Orientation.VERTICAL) {
 			rContainer.set(ORIENTATION, eOrientation);
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Cell createCell(Row rRow, Column rColumn)
-	{
+	protected Cell createCell(Row rRow, Column rColumn) {
 		return new DockCell(rRow, rColumn);
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A layout cell subclass that maps size values to the integer size fields
 	 * needed for the rendering.
 	 *
 	 * @author eso
 	 */
-	class DockCell extends Cell
-	{
-		//~ Constructors -------------------------------------------------------
+	class DockCell extends Cell {
 
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @see Cell#Cell(Row, Column, UiComponent)
 		 */
-		protected DockCell(Row rRow, Column rColumn)
-		{
+		protected DockCell(Row rRow, Column rColumn) {
 			super(rRow, rColumn);
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Cell height(int nHeight, SizeUnit eUnit)
-		{
+		public Cell height(int nHeight, SizeUnit eUnit) {
 			return set(HEIGHT, nHeight);
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Cell width(int nWidth, SizeUnit eUnit)
-		{
+		public Cell width(int nWidth, SizeUnit eUnit) {
 			return set(WIDTH, nWidth);
 		}
 	}

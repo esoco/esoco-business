@@ -25,24 +25,20 @@ import de.esoco.process.ui.graphics.UiIconSupplier;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
-
-/********************************************************************
+/**
  * An interactive icon button that produces click events.
  *
  * @author eso
  */
-public class UiIconButton extends UiButtonControl<String, UiIconButton>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiIconButton extends UiButtonControl<String, UiIconButton> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param rIcon   The icon
 	 */
-	public UiIconButton(UiContainer<?> rParent, UiIconSupplier rIcon)
-	{
+	public UiIconButton(UiContainer<?> rParent, UiIconSupplier rIcon) {
 		super(rParent, String.class);
 
 		icon(rIcon);
@@ -55,18 +51,14 @@ public class UiIconButton extends UiButtonControl<String, UiIconButton>
 		setValueImpl("");
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the icon of this button.
 	 *
-	 * @param  rIconSupplier The button icon
-	 *
+	 * @param rIconSupplier The button icon
 	 * @return This instance for fluent invocation
 	 */
 	@Override
-	public UiIconButton icon(UiIconSupplier rIconSupplier)
-	{
+	public UiIconButton icon(UiIconSupplier rIconSupplier) {
 		return super.icon(rIconSupplier);
 	}
 }

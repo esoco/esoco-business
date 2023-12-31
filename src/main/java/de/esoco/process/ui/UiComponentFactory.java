@@ -16,21 +16,18 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-/********************************************************************
+/**
  * A factory for UI components.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface UiComponentFactory
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UiComponentFactory {
 
-	/***************************************
+	/**
 	 * Creates a new component in the given parent.
 	 *
-	 * @param  rParent The parent container to create the component in
-	 *
+	 * @param rParent The parent container to create the component in
 	 * @return The new component
 	 */
 	public UiComponent<?, ?> createComponent(UiContainer<?> rParent);

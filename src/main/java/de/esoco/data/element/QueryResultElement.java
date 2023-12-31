@@ -21,8 +21,7 @@ import de.esoco.lib.property.PropertyName;
 import java.util.ArrayList;
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A data element that contains the result of the execution of a storage query.
  * The resulting query rows are encoded in a list of strings which are in turn
  * contained in a list of all rows for a certain query result. The easiest way
@@ -35,20 +34,15 @@ import java.util.List;
  *
  * @author eso
  */
-public class QueryResultElement<T> extends ListDataElement<T>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class QueryResultElement<T> extends ListDataElement<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private List<T> rRows;
-	private int     nQuerySize;
 
-	//~ Constructors -----------------------------------------------------------
+	private int nQuerySize;
 
-	/***************************************
+	/**
 	 * Creates a new instance for a certain query result.
 	 *
 	 * @param sName      The element name
@@ -56,71 +50,61 @@ public class QueryResultElement<T> extends ListDataElement<T>
 	 *                   the query rows
 	 * @param nQuerySize The full size of the query represented by this result
 	 */
-	public QueryResultElement(String sName, List<T> rRows, int nQuerySize)
-	{
+	public QueryResultElement(String sName, List<T> rRows, int nQuerySize) {
 		super(sName, null, null);
 
-		this.rRows	    = rRows;
+		this.rRows = rRows;
 		this.nQuerySize = nQuerySize;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	QueryResultElement()
-	{
+	QueryResultElement() {
 		rRows = new ArrayList<>();
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public QueryResultElement<T> copy(
-		CopyMode		   eMode,
-		PropertyName<?>... rCopyProperties)
-	{
+	public QueryResultElement<T> copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (QueryResultElement<T>) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * Returns the full query size for the query represented by this result.
 	 *
 	 * @return The full query size
 	 */
-	public final int getQuerySize()
-	{
+	public final int getQuerySize() {
 		return nQuerySize;
 	}
 
-	/***************************************
+	/**
 	 * Returns the list.
 	 *
 	 * @return The list
 	 */
 	@Override
-	protected List<T> getList()
-	{
+	protected List<T> getList() {
 		return rRows;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected QueryResultElement<T> newInstance()
-	{
+	protected QueryResultElement<T> newInstance() {
 		return new QueryResultElement<>();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<T> rNewRows)
-	{
+	protected void updateValue(List<T> rNewRows) {
 		rRows = rNewRows;
 	}
 }

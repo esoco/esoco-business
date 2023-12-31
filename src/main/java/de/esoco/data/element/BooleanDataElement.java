@@ -20,91 +20,76 @@ import de.esoco.lib.property.PropertyName;
 
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A data element implementation for boolean values.
  *
  * @author eso
  */
-public class BooleanDataElement extends DataElement<Boolean>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class BooleanDataElement extends DataElement<Boolean> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private Boolean rValue;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance with a certain initial value and read-only state.
 	 *
 	 * @param sName  The name of this element
 	 * @param rValue The initial value
 	 * @param rFlags The optional flags for this data element
 	 */
-	public BooleanDataElement(String sName, Boolean rValue, Set<Flag> rFlags)
-	{
+	public BooleanDataElement(String sName, Boolean rValue, Set<Flag> rFlags) {
 		super(sName, null, rFlags);
 
 		this.rValue = rValue;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	BooleanDataElement()
-	{
+	BooleanDataElement() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BooleanDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
-	{
+	public BooleanDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (BooleanDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#getValue()
 	 */
 	@Override
-	public final Boolean getValue()
-	{
+	public final Boolean getValue() {
 		return rValue;
 	}
 
-	/***************************************
+	/**
 	 * Sets the string value.
 	 *
 	 * @param sValue The new string value
 	 */
 	@Override
-	public void setStringValue(String sValue)
-	{
+	public void setStringValue(String sValue) {
 		setValue(Boolean.valueOf(sValue));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BooleanDataElement newInstance()
-	{
+	protected BooleanDataElement newInstance() {
 		return new BooleanDataElement();
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected final void updateValue(Boolean rNewValue)
-	{
+	protected final void updateValue(Boolean rNewValue) {
 		rValue = rNewValue;
 	}
 }

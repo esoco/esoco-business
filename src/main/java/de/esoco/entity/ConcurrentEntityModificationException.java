@@ -18,56 +18,43 @@ package de.esoco.entity;
 
 import java.util.ConcurrentModificationException;
 
-
-/********************************************************************
+/**
  * A runtime exception to signal the concurrent modification of an entity.
  *
  * @author eso
  */
 public class ConcurrentEntityModificationException
-	extends ConcurrentModificationException
-{
-	//~ Static fields/initializers ---------------------------------------------
+	extends ConcurrentModificationException {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private String sEntityId;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Default constructor.
 	 */
-	public ConcurrentEntityModificationException()
-	{
+	public ConcurrentEntityModificationException() {
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rEntity  The modified entity
 	 * @param sMessage The error message
 	 */
-	public ConcurrentEntityModificationException(
-		Entity rEntity,
-		String sMessage)
-	{
+	public ConcurrentEntityModificationException(Entity rEntity,
+		String sMessage) {
 		super(sMessage);
 
 		sEntityId = rEntity.getGlobalId();
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the global ID of the concurrently modified entity.
 	 *
 	 * @return The global entity ID
 	 */
-	public final String getEntityId()
-	{
+	public final String getEntityId() {
 		return sEntityId;
 	}
 }

@@ -16,22 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-/********************************************************************
+/**
  * An interface that must be implemented to interact with a running process.
  *
  * @author eso
  */
-public interface ProcessInteractionHandler
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ProcessInteractionHandler {
 
-	/***************************************
+	/**
 	 * This method must be implemented to perform the interaction for the given
 	 * process step. The process parameters for the interaction can be queried
 	 * from the given process step.
 	 *
-	 * @param  rProcessStep The process step to perform the interaction for
-	 *
+	 * @param rProcessStep The process step to perform the interaction for
 	 * @throws Exception Any kind of exception may be thrown if the interaction
 	 *                   fails
 	 */

@@ -26,50 +26,40 @@ import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * The base class for the access to external services.
  *
  * @author eso
  */
-public abstract class ExternalService extends RelatedObject
-{
-	//~ Enums ------------------------------------------------------------------
+public abstract class ExternalService extends RelatedObject {
 
-	/********************************************************************
+	/**
 	 * The possible values for service access types.
 	 */
-	public enum AccessType { GET, POST, DELETE, PUT, PATCH }
-
-	//~ Instance fields --------------------------------------------------------
+	public enum AccessType {GET, POST, DELETE, PUT, PATCH}
 
 	private final String sServiceId =
 		new BigInteger(130, new SecureRandom()).toString(32);
 
-	private Entity				  rUser;
+	private Entity rUser;
+
 	private ProvidesConfiguration rConfig;
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Factory method to create a new service instance of a certain type for a
 	 * user.
 	 *
-	 * @param  rServiceDefinition The type of service to create
-	 * @param  rUser              The user entity the service access shall be
-	 *                            performed for
-	 * @param  rConfig            The configuration entity to read configuration
-	 *                            values from
-	 *
+	 * @param rServiceDefinition The type of service to create
+	 * @param rUser              The user entity the service access shall be
+	 *                           performed for
+	 * @param rConfig            The configuration entity to read configuration
+	 *                           values from
 	 * @return The new service instance
-	 *
 	 * @throws Exception If the service creation fails
 	 */
 	public static ExternalService create(
-		ExternalServiceDefinition rServiceDefinition,
-		Entity					  rUser,
-		ProvidesConfiguration	  rConfig) throws Exception
-	{
+		ExternalServiceDefinition rServiceDefinition, Entity rUser,
+		ProvidesConfiguration rConfig) throws Exception {
 		ExternalService aService =
 			rServiceDefinition.getServiceClass().newInstance();
 
@@ -78,9 +68,7 @@ public abstract class ExternalService extends RelatedObject
 		return aService;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Authorizes access to the external service. If the external service
 	 * supports different access scopes these can be given in the second
 	 * parameter. The returned value depends on the actual service
@@ -88,45 +76,41 @@ public abstract class ExternalService extends RelatedObject
 	 * types:
 	 *
 	 * <ul>
-	 *   <li>A {@link java.net.URL URL}: if the user needs to verify the request
+	 *   <li>A {@link java.net.URL URL}: if the user needs to verify the
+	 *   request
 	 *     before the service access can be authorized. In that case the
-	 *     callback URL in the corresponding parameter will be invoked after the
+	 *     callback URL in the corresponding parameter will be invoked after
+	 *     the
 	 *     user has confirmed the request.</li>
 	 *   <li>A string: The access token that authorizes the access to the
 	 *     service in subsequent requests.</li>
 	 * </ul>
 	 *
-	 * @param  sCallbackUrl  The callback URL to be notified if the user needs
-	 *                       to manually verify the request before the service
-	 *                       access can be authorized
-	 * @param  bForceAuth    TRUE to force the authorization even if cached
-	 *                       authorization tokens or similar exist
-	 * @param  rAccessScopes The optional access scopes
-	 *
+	 * @param sCallbackUrl  The callback URL to be notified if the user
+	 *                         needs to
+	 *                      manually verify the request before the service
+	 *                      access can be authorized
+	 * @param bForceAuth    TRUE to force the authorization even if cached
+	 *                      authorization tokens or similar exist
+	 * @param rAccessScopes The optional access scopes
 	 * @return Either a verification URL or an access token string
-	 *
 	 * @throws Exception If the authorization fails
 	 */
-	public abstract Object authorizeAccess(String    sCallbackUrl,
-										   boolean   bForceAuth,
-										   Object... rAccessScopes)
-		throws Exception;
+	public abstract Object authorizeAccess(String sCallbackUrl,
+		boolean bForceAuth, Object... rAccessScopes) throws Exception;
 
-	/***************************************
+	/**
 	 * Prepares a request to the external service.
 	 *
-	 * @param  eAccessType The access type
-	 * @param  sRequestUrl The request URL
-	 *
+	 * @param eAccessType The access type
+	 * @param sRequestUrl The request URL
 	 * @return The request object
-	 *
 	 * @throws Exception If creating the request fails
 	 */
-	public abstract ExternalServiceRequest createRequest(
-		AccessType eAccessType,
-		String	   sRequestUrl) throws Exception;
+	public abstract ExternalServiceRequest createRequest(AccessType eAccessType,
+		String sRequestUrl) throws Exception;
 
-	/***************************************
+	/**
 	 * Returns the name of the parameter that must be read from a callback HTTP
 	 * request and then handed to the method {@link #processCallback(String)}.
 	 *
@@ -134,7 +118,16 @@ public abstract class ExternalService extends RelatedObject
 	 */
 	public abstract String getCallbackCodeRequestParam();
 
-	/***************************************
+	/**
+	 * Returns the configuration for this service.
+	 *
+	 * @return The configuration
+	 */
+	public final ProvidesConfiguration getConfig() {
+		return rConfig;
+	}
+
+	/**
 	 * Returns the name of the HTTP request parameter that contains the request
 	 * ID.
 	 *
@@ -142,22 +135,38 @@ public abstract class ExternalService extends RelatedObject
 	 */
 	public abstract String getRequestIdParam();
 
-	/***************************************
+	/**
+	 * Returns a string that uniquely identifies this service instance.
+	 *
+	 * @return The unique service Id
+	 */
+	public final String getServiceId() {
+		return sServiceId;
+	}
+
+	/**
+	 * Returns the user this service has been created for.
+	 *
+	 * @return The service user
+	 */
+	public final Entity getUser() {
+		return rUser;
+	}
+
+	/**
 	 * Processes the response received through the callback URL of a call to
 	 * {@link #authorizeAccess(String, boolean, Object...)}. IMPORTANT: This
 	 * method must be invoked on the same service instance on which the
 	 * authorization has been initiated.
 	 *
-	 * @param  sCallbackCode sRequestParam The HTTP request of the callback
-	 *
+	 * @param sCallbackCode sRequestParam The HTTP request of the callback
 	 * @return The access token string received by the callback
-	 *
 	 * @throws Exception If the processing fails
 	 */
 	public abstract String processCallback(String sCallbackCode)
 		throws Exception;
 
-	/***************************************
+	/**
 	 * Revokes any previously authorized access of the current user for this
 	 * service.
 	 *
@@ -165,69 +174,36 @@ public abstract class ExternalService extends RelatedObject
 	 */
 	public abstract void revokeAccess() throws Exception;
 
-	/***************************************
-	 * Returns the configuration for this service.
-	 *
-	 * @return The configuration
-	 */
-	public final ProvidesConfiguration getConfig()
-	{
-		return rConfig;
-	}
-
-	/***************************************
-	 * Returns a string that uniquely identifies this service instance.
-	 *
-	 * @return The unique service Id
-	 */
-	public final String getServiceId()
-	{
-		return sServiceId;
-	}
-
-	/***************************************
-	 * Returns the user this service has been created for.
-	 *
-	 * @return The service user
-	 */
-	public final Entity getUser()
-	{
-		return rUser;
-	}
-
-	/***************************************
+	/**
 	 * Queries a value from the configuration returned by {@link #getConfig()}
 	 * and throws an exception if the value doesn't exist.
 	 *
-	 * @param  rConfigKey The relation type to query from the configuration
-	 *
+	 * @param rConfigKey The relation type to query from the configuration
 	 * @return The configuration value
-	 *
 	 * @throws IllegalStateException If the value doesn't exist or if access to
 	 *                               it fails
 	 */
-	protected String getRequiredConfigValue(RelationType<String> rConfigKey)
-	{
+	protected String getRequiredConfigValue(RelationType<String> rConfigKey) {
 		String sConfigValue = getConfig().getConfigValue(rConfigKey, null);
 
-		if (sConfigValue == null)
-		{
-			throw new IllegalStateException("Service configuration value undefined: " +
-											rConfigKey.getSimpleName());
+		if (sConfigValue == null) {
+			throw new IllegalStateException(
+				"Service configuration value undefined: " +
+					rConfigKey.getSimpleName());
 		}
 
 		return sConfigValue;
 	}
 
-	/***************************************
+	/**
 	 * Initializes this instance.
 	 *
 	 * @param rUser   The user entity the service access shall be performed for
-	 * @param rConfig The configuration entity to read configuration values from
+	 * @param rConfig The configuration entity to read configuration values
+	 *                from
 	 */
-	private void init(Entity rUser, ProvidesConfiguration rConfig)
-	{
-		this.rUser   = rUser;
+	private void init(Entity rUser, ProvidesConfiguration rConfig) {
+		this.rUser = rUser;
 		this.rConfig = rConfig;
 	}
 }

@@ -23,20 +23,18 @@ import java.util.Collection;
 
 import static de.esoco.lib.property.ContentProperties.NULL_VALUE;
 
-
-/********************************************************************
+/**
  * The base class for lists with a single selectable value. The generic datatype
  * defines the type of the list values. Typically string and enum values are
  * supported.
  *
  * @author eso
  */
-public abstract class UiSingleSelectionList<T, C extends UiSingleSelectionList<T, C>>
-	extends UiListControl<T, C>
-{
-	//~ Constructors -----------------------------------------------------------
+public abstract class UiSingleSelectionList<T,
+	C extends UiSingleSelectionList<T, C>>
+	extends UiListControl<T, C> {
 
-	/***************************************
+	/**
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as the list values. This can be changed after construction
 	 * through the {@link #setListValues(java.util.Collection) setListValues}
@@ -46,65 +44,55 @@ public abstract class UiSingleSelectionList<T, C extends UiSingleSelectionList<T
 	 * @param rDatatype The datatype of the list values
 	 * @param eStyle    The list style
 	 */
-	public UiSingleSelectionList(UiContainer<?> rParent,
-								 Class<T>		rDatatype,
-								 ListStyle		eStyle)
-	{
+	public UiSingleSelectionList(UiContainer<?> rParent, Class<T> rDatatype,
+		ListStyle eStyle) {
 		super(rParent, rDatatype, eStyle);
 
-		if (rDatatype.isEnum())
-		{
+		if (rDatatype.isEnum()) {
 			setListValues(rDatatype.getEnumConstants());
-		}
-		else
-		{
+		} else {
 			// set empty list to force rendering as a list
 			setListValues(new ArrayList<>());
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the collection of values that is displayed in this list.
 	 *
 	 * @return The list values
 	 */
-	public Collection<T> getListValues()
-	{
+	public Collection<T> getListValues() {
 		return fragment().getAllowedValues(type());
 	}
 
-	/***************************************
+	/**
 	 * Sets the values to be displayed in this list.
 	 *
 	 * @param rValues The list values
 	 */
 	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues)
-	{
+	public void setListValues(T... rValues) {
 		fragment().setAllowedValues(type(), rValues);
 	}
 
-	/***************************************
+	/**
 	 * Sets a collection of values to be displayed in this list.
 	 *
 	 * @param rValues The list values
 	 */
-	public void setListValues(Collection<T> rValues)
-	{
+	public void setListValues(Collection<T> rValues) {
 		fragment().setAllowedValues(type(), rValues);
 	}
 
-	/***************************************
+	/**
 	 * Sets a value that should be displayed as a placeholder for the choice of
 	 * no list selection. This represents a NULL value of the component.
 	 *
-	 * @param sValue The string value to display as the "no selection" choice or
+	 * @param sValue The string value to display as the "no selection"
+	 *                  choice or
 	 *               NULL to not provide this choice
 	 */
-	public void setNoSelectionValue(String sValue)
-	{
+	public void setNoSelectionValue(String sValue) {
 		set(NULL_VALUE, sValue);
 	}
 }

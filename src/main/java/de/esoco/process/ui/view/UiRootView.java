@@ -22,51 +22,44 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
 
-
-/********************************************************************
+/**
  * The root view of an application UI. All other components or the UI must be
  * (direct or indirect) children of a root view. This class is abstract and must
- * be subclassed to provide an implementation of the {@link #buildContent(UiBuilder)} method.
+ * be subclassed to provide an implementation of the
+ * {@link #buildContent(UiBuilder)} method.
  *
  * @author eso
  */
-public abstract class UiRootView extends UiView<UiRootView>
-{
-	//~ Constructors -----------------------------------------------------------
+public abstract class UiRootView extends UiView<UiRootView> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rFragment The fragment this view shall be rendered in
 	 * @param rLayout   The view layout
 	 */
-	public UiRootView(InteractionFragment rFragment, UiLayout rLayout)
-	{
+	public UiRootView(InteractionFragment rFragment, UiLayout rLayout) {
 		super(null, rLayout);
 
 		setFragment(rFragment);
 		setParameterType(rFragment.getFragmentParameter());
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to show or hide this view.
 	 *
 	 * @see UiContainer#setVisible(boolean)
 	 */
 	@Override
-	public UiRootView setVisible(boolean bVisible)
-	{
-		if (bVisible)
-		{
+	public UiRootView setVisible(boolean bVisible) {
+		if (bVisible) {
 			applyProperties();
 		}
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Overridden to be abstract as it must be implemented.
 	 */
 	@Override

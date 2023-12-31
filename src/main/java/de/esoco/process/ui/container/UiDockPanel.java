@@ -22,24 +22,20 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiDockLayout;
 
-
-/********************************************************************
+/**
  * A panel that layouts components in and around a center area.
  *
  * @author eso
  */
-public class UiDockPanel extends UiLayoutContainer<UiDockPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiDockPanel extends UiLayoutContainer<UiDockPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent      The parent container
 	 * @param eOrientation bVertical TRUE for vertical orientation
 	 */
-	public UiDockPanel(UiContainer<?> rParent, Orientation eOrientation)
-	{
+	public UiDockPanel(UiContainer<?> rParent, Orientation eOrientation) {
 		super(rParent, new UiDockLayout(eOrientation, false));
 	}
 }

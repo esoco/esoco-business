@@ -24,17 +24,14 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A data element subclass for {@link Date} values.
  *
  * @author eso
  */
-public class DateDataElement extends DataElement<Date>
-{
-	//~ Enums ------------------------------------------------------------------
+public class DateDataElement extends DataElement<Date> {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the possible input types when presenting data elements of
 	 * this type in a user interface. The following types are supported:
 	 *
@@ -45,38 +42,35 @@ public class DateDataElement extends DataElement<Date>
 	 *   </li>
 	 * </ul>
 	 */
-	public enum DateInputType { INPUT_FIELD, CALENDAR }
+	public enum DateInputType {INPUT_FIELD, CALENDAR}
 
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
-
-	/** UI property: the type of a date input field. */
+	/**
+	 * UI property: the type of a date input field.
+	 */
 	public static final PropertyName<DateInputType> DATE_INPUT_TYPE =
 		PropertyName.newEnumName("DATE_INPUT_TYPE", DateInputType.class);
 
-	/** UI property: events that should be visualized in a calendar UI. */
+	/**
+	 * UI property: events that should be visualized in a calendar UI.
+	 */
 	public static final PropertyName<Map<Date, String>> DATE_HIGHLIGHTS =
 		PropertyName.newMapName("DATE_HIGHLIGHTS", Date.class, String.class);
 
-	//~ Instance fields --------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
 	private Date rValue;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new modifiable instance without a validator.
 	 *
 	 * @param sName  The name of this element
 	 * @param rValue The value of this element
 	 */
-	public DateDataElement(String sName, Date rValue)
-	{
+	public DateDataElement(String sName, Date rValue) {
 		this(sName, rValue, null, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with a certain initial value.
 	 *
 	 * @param sName      The element name
@@ -84,69 +78,57 @@ public class DateDataElement extends DataElement<Date>
 	 * @param rValidator The validator for the date value or NULL for none
 	 * @param rFlags     The optional flags for this data element
 	 */
-	public DateDataElement(String				   sName,
-						   Date					   rValue,
-						   Validator<? super Date> rValidator,
-						   Set<Flag>			   rFlags)
-	{
+	public DateDataElement(String sName, Date rValue,
+		Validator<? super Date> rValidator, Set<Flag> rFlags) {
 		super(sName, rValidator, rFlags);
 		this.rValue = rValue;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	DateDataElement()
-	{
+	DateDataElement() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * This method should be invoked to initialize the property name constants
 	 * for de-serialization.
 	 */
-	public static void init()
-	{
+	public static void init() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
-	{
+	public DateDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (DateDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * Returns the date value.
 	 *
 	 * @see DataElement#getValue()
 	 */
 	@Override
-	public final Date getValue()
-	{
+	public final Date getValue() {
 		return rValue;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DateDataElement newInstance()
-	{
+	protected DateDataElement newInstance() {
 		return new DateDataElement();
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected void updateValue(Date rNewValue)
-	{
+	protected void updateValue(Date rNewValue) {
 		rValue = rNewValue;
 	}
 }

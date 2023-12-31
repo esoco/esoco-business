@@ -31,22 +31,18 @@ import org.obrel.core.RelationType;
 import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
-
-/********************************************************************
+/**
  * A base class for groups of buttons that allow to select multiple buttons.
  *
  * @author eso
  */
-public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionButtonGroup<T, B>>
-	extends UiButtonControl<List<T>, B> implements HasSelection<List<T>>
-{
-	//~ Instance fields --------------------------------------------------------
+public abstract class UiMultiSelectionButtonGroup<T,
+	B extends UiMultiSelectionButtonGroup<T, B>>
+	extends UiButtonControl<List<T>, B> implements HasSelection<List<T>> {
 
 	private Class<T> rElementType;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent      The parent container
@@ -54,130 +50,110 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 	 * @param eListStyle   The style for the button rendering
 	 */
 	public UiMultiSelectionButtonGroup(UiContainer<?> rParent,
-									   Class<T>		  rElementType,
-									   ListStyle	  eListStyle)
-	{
+		Class<T> rElementType, ListStyle eListStyle) {
 		super(rParent, rParent.fragment().getTemporaryListType(rElementType));
 
 		this.rElementType = rElementType;
 
 		set(LIST_STYLE, eListStyle);
 
-		if (rElementType.isEnum())
-		{
+		if (rElementType.isEnum()) {
 			addButtons(rElementType.getEnumConstants());
 			resid(rElementType.getSimpleName());
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds certain buttons.
 	 *
 	 * @param rButtonLabels The labels of the buttons to add
 	 */
 	@SuppressWarnings("unchecked")
-	public void addButtons(T... rButtonLabels)
-	{
+	public void addButtons(T... rButtonLabels) {
 		addButtons(Arrays.asList(rButtonLabels));
 	}
 
-	/***************************************
+	/**
 	 * Adds a collection of buttons.
 	 *
 	 * @param rButtonLabels The collection of button labels to add
 	 */
-	public void addButtons(Collection<T> rButtonLabels)
-	{
-		InteractionFragment   rFragment  = fragment();
+	public void addButtons(Collection<T> rButtonLabels) {
+		InteractionFragment rFragment = fragment();
 		RelationType<List<T>> rParamType = type();
 
-		Collection<T> rAllowedValues = rFragment.getAllowedElements(rParamType);
+		Collection<T> rAllowedValues =
+			rFragment.getAllowedElements(rParamType);
 
-		if (rAllowedValues != null)
-		{
+		if (rAllowedValues != null) {
 			rAllowedValues.addAll(rButtonLabels);
 			checkSetColumns(rAllowedValues);
-		}
-		else
-		{
-			rFragment.annotateParameter(
-				rParamType,
-				null,
-				ProcessRelationTypes.ALLOWED_VALUES,
-				rButtonLabels);
+		} else {
+			rFragment.annotateParameter(rParamType, null,
+				ProcessRelationTypes.ALLOWED_VALUES, rButtonLabels);
 			checkSetColumns(rButtonLabels);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param rDisabledButtons rDisabledElements A collection of the elements to
+	 * @param rDisabledButtons rDisabledElements A collection of the
+	 *                            elements to
 	 *                         disable
 	 */
-	public void disableButtons(Collection<T> rDisabledButtons)
-	{
-		InteractionFragment   rFragment  = fragment();
+	public void disableButtons(Collection<T> rDisabledButtons) {
+		InteractionFragment rFragment = fragment();
 		RelationType<List<T>> rParamType = type();
 
-		rFragment.disableElements(
-			rParamType,
-			rElementType,
-			rFragment.getAllowedElements(rParamType),
-			rDisabledButtons);
+		rFragment.disableElements(rParamType, rElementType,
+			rFragment.getAllowedElements(rParamType), rDisabledButtons);
 	}
 
-	/***************************************
+	/**
 	 * Disables certain values of the parameter enum.
 	 *
 	 * @param rDisabledButtons rDisabledElements The elements to disable
 	 */
 	@SuppressWarnings("unchecked")
-	public void disableButtons(T... rDisabledButtons)
-	{
+	public void disableButtons(T... rDisabledButtons) {
 		disableButtons(Arrays.asList(rDisabledButtons));
 	}
 
-	/***************************************
+	/**
 	 * Enables all Buttons.
 	 */
-	public void enableAllButtons()
-	{
+	public void enableAllButtons() {
 		fragment().removeUIProperties(type(), DISABLED_ELEMENTS);
 	}
 
-	/***************************************
-	 * Returns the current selection. Depending on the datatype of this instance
+	/**
+	 * Returns the current selection. Depending on the datatype of this
+	 * instance
 	 * it will either be a single value or a collection of values.
 	 *
 	 * @return The current selection
 	 */
 	@Override
-	public List<T> getSelection()
-	{
+	public List<T> getSelection() {
 		return fragment().getParameter(type());
 	}
 
-	/***************************************
-	 * Sets the buttons of this instance, overriding any previously set buttons.
+	/**
+	 * Sets the buttons of this instance, overriding any previously set
+	 * buttons.
 	 * This can also be used to remove the current buttons by setting an empty
 	 * collection.
 	 *
 	 * @param rNewLabels The new collection of button labels
 	 */
-	public void setButtons(Collection<T> rNewLabels)
-	{
-		fragment().annotateParameter(
-			type(),
-			null,
-			ProcessRelationTypes.ALLOWED_VALUES,
-			rNewLabels);
+	public void setButtons(Collection<T> rNewLabels) {
+		fragment().annotateParameter(type(), null,
+			ProcessRelationTypes.ALLOWED_VALUES, rNewLabels);
 		checkSetColumns(rNewLabels);
 	}
 
-	/***************************************
+	/**
 	 * Sets the selection of this button group. Depending on the datatype of
 	 * this instance this either needs to be a single value or a collection of
 	 * values.
@@ -185,8 +161,7 @@ public abstract class UiMultiSelectionButtonGroup<T, B extends UiMultiSelectionB
 	 * @param rNewSelection The new selection
 	 */
 	@Override
-	public void setSelection(List<T> rNewSelection)
-	{
+	public void setSelection(List<T> rNewSelection) {
 		fragment().setParameter(type(), rNewSelection);
 	}
 }

@@ -21,23 +21,19 @@ import de.esoco.lib.property.InteractionEventType;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * An interaction event that hold information about the event source and the
  * type of event that occurred.
  *
  * @author eso
  */
-public final class InteractionEvent extends GenericEvent<RelationType<?>>
-{
-	//~ Instance fields --------------------------------------------------------
+public final class InteractionEvent extends GenericEvent<RelationType<?>> {
 
-	private Interaction			 rInteraction;
+	private Interaction rInteraction;
+
 	private InteractionEventType eEventType;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rInteraction          The Interaction. The context of the event.
@@ -45,37 +41,34 @@ public final class InteractionEvent extends GenericEvent<RelationType<?>>
 	 *                              event occurred.
 	 * @param eEventType            The type of event that occurred.
 	 */
-	public InteractionEvent(Interaction			 rInteraction,
-							RelationType<?>		 rInteractionParameter,
-							InteractionEventType eEventType)
-	{
+	public InteractionEvent(Interaction rInteraction,
+		RelationType<?> rInteractionParameter,
+		InteractionEventType eEventType) {
 		super(rInteractionParameter);
 
 		this.rInteraction = rInteraction;
-		this.eEventType   = eEventType;
+		this.eEventType = eEventType;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Returns the context in which the event occurred i.e. the context in which
+	/**
+	 * Returns the context in which the event occurred i.e. the context in
+	 * which
 	 * the event source lived when the event initially occurred on it.
 	 *
-	 * @return The context in which the event occurred i.e. the context in which
-	 *         the event source lived when the event initially occurred on it.
+	 * @return The context in which the event occurred i.e. the context in
+	 * which
+	 * the event source lived when the event initially occurred on it.
 	 */
-	public Interaction getContext()
-	{
+	public Interaction getContext() {
 		return rInteraction;
 	}
 
-	/***************************************
+	/**
 	 * Returns the type of event that occurred.
 	 *
 	 * @return The type of event that occurred.
 	 */
-	public InteractionEventType getType()
-	{
+	public InteractionEventType getType() {
 		return eEventType;
 	}
 }

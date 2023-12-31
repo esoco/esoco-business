@@ -23,8 +23,7 @@ import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
 
-
-/********************************************************************
+/**
  * A transaction implementation that stores an entity instance on a call to the
  * {@link #commit()} method. The entity will then be stored in the storage that
  * is associated with it's entity definition by performing a lookup with the
@@ -37,64 +36,50 @@ import de.esoco.storage.StorageManager;
  *
  * @author eso
  */
-public class EntityTransaction implements Transactional
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class EntityTransaction implements Transactional {
 
 	// flag that can be set by package test classes to enable the test mode
 	private static boolean bTestMode = false;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private Entity rEntity;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new transaction for a particular entity.
 	 *
 	 * @param rEntity The entity to wrap into the transaction
 	 */
-	public EntityTransaction(Entity rEntity)
-	{
+	public EntityTransaction(Entity rEntity) {
 		this.rEntity = rEntity;
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Package-internal method that can be used by (unit) tests to enable the
 	 * test mode. In this mode history records will be stored in the history
-	 * storage but not committed so that the test code can perform a rollback of
+	 * storage but not committed so that the test code can perform a
+	 * rollback of
 	 * any changes.
 	 */
-	static void activateTestMode()
-	{
+	static void activateTestMode() {
 		bTestMode = true;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Commits the entity by storing it in the storage that is associated with
 	 * it's entity definition in the current thread. The storage will be added
 	 * to an active transaction of the current thread's by invoking the method
 	 * {@link TransactionManager#addTransactionElement(Transactional)}. If no
 	 * such transaction is currently active an exception will occur.
-	 *
-	 * @throws StorageException
 	 */
 	@Override
-	public void commit() throws StorageException
-	{
+	public void commit() throws StorageException {
 		Storage rStorage = StorageManager.getStorage(rEntity.getClass());
 
 		rStorage.store(rEntity);
 
-		if (!bTestMode)
-		{
+		if (!bTestMode) {
 			// do not add in test mode to prevent commit during test
-			// the transaction will release the storage after  use, so it is not
+			// the transaction will release the storage after  use, so it is
+			// not
 			// necessary to have a finally block with a release call here
 			TransactionManager.addTransactionElement(rStorage);
 		}
@@ -102,12 +87,11 @@ public class EntityTransaction implements Transactional
 		rEntity = null;
 	}
 
-	/***************************************
+	/**
 	 * This method simply sets the entity reference to NULL.
 	 */
 	@Override
-	public void rollback()
-	{
+	public void rollback() {
 		rEntity = null;
 	}
 }

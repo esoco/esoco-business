@@ -20,25 +20,21 @@ import de.esoco.process.ui.UiImageDefinition;
 
 import static de.esoco.lib.property.ContentProperties.IMAGE;
 
-
-/********************************************************************
+/**
  * An image that is referenced by a URL.
  *
  * @author eso
  */
-public class UiImageUrl extends UiImageDefinition<UiImageUrl>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiImageUrl extends UiImageDefinition<UiImageUrl> {
 
-	/***************************************
+	/**
 	 * Creates a new instance from a certain URL. The URL can either be
 	 * application-relative or absolute, in which case it must start with
 	 * http:// (or https://).
 	 *
 	 * @param sUrl The image URL
 	 */
-	public UiImageUrl(String sUrl)
-	{
+	public UiImageUrl(String sUrl) {
 		set(IMAGE, "f:" + sUrl);
 	}
 }

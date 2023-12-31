@@ -23,34 +23,29 @@ import de.esoco.process.ui.UiDateInputField;
 
 import java.util.Date;
 
-
-/********************************************************************
+/**
  * A date input field with a pop-up date selector.
  *
  * @author eso
  */
-public class UiDateField extends UiDateInputField<UiDateField>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiDateField extends UiDateInputField<UiDateField> {
 
-	/***************************************
+	/**
 	 * Creates a new instance with the current date as it's value.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiDateField(UiContainer<?> rParent)
-	{
+	public UiDateField(UiContainer<?> rParent) {
 		this(rParent, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance for a particular date.
 	 *
 	 * @param rParent The parent container
 	 * @param rDate   The date
 	 */
-	public UiDateField(UiContainer<?> rParent, Date rDate)
-	{
+	public UiDateField(UiContainer<?> rParent, Date rDate) {
 		super(rParent, rDate, DateInputType.INPUT_FIELD);
 	}
 }

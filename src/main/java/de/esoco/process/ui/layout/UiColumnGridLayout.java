@@ -20,22 +20,18 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * Places components in a horizontal grid structure with a fixed number of
  * columns.
  *
  * @author eso
  */
-public class UiColumnGridLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiColumnGridLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance that is horizontally subdivided into 12 columns.
 	 */
-	public UiColumnGridLayout()
-	{
+	public UiColumnGridLayout() {
 		super(LayoutType.GRID, 12);
 	}
 }

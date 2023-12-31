@@ -22,8 +22,7 @@ import de.esoco.data.SessionManager;
 
 import de.esoco.entity.Entity;
 
-
-/********************************************************************
+/**
  * A base class for the implementation of business-specific log aspects that
  * need to access business-related data like entities. It provides the method
  * {@link #getLogSource()} that can be used by subclasses to query an entity
@@ -33,36 +32,30 @@ import de.esoco.entity.Entity;
  *
  * @author eso
  */
-public abstract class BusinessLogAspect<T> extends LogAspect<T>
-{
-	//~ Methods ----------------------------------------------------------------
+public abstract class BusinessLogAspect<T> extends LogAspect<T> {
 
-	/***************************************
+	/**
 	 * Returns the log source entity for the current context. The context is
-	 * determined by querying the {@link SessionData#SESSION_USER} from a {@link
-	 * DataRelationTypes#SESSION_MANAGER} set on this instance. If no session is
-	 * available or it doesn't contain a session user NULL will be returned.
+	 * determined by querying the {@link SessionData#SESSION_USER} from a
+	 * {@link DataRelationTypes#SESSION_MANAGER} set on this instance. If no
+	 * session is available or it doesn't contain a session user NULL will be
+	 * returned.
 	 *
 	 * @return The log source entity or NULL if none is available
 	 */
-	protected Entity getLogSource()
-	{
-		SessionManager rSessionManager = get(DataRelationTypes.SESSION_MANAGER);
-		Entity		   rSource		   = null;
+	protected Entity getLogSource() {
+		SessionManager rSessionManager =
+			get(DataRelationTypes.SESSION_MANAGER);
+		Entity rSource = null;
 
-		if (rSessionManager != null)
-		{
-			try
-			{
+		if (rSessionManager != null) {
+			try {
 				SessionData rSessionData = rSessionManager.getSessionData();
 
-				if (rSessionData != null)
-				{
+				if (rSessionData != null) {
 					rSource = rSessionData.get(SessionData.SESSION_USER);
 				}
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				// if no access to session data leave source as NULL
 			}
 		}

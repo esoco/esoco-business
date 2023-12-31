@@ -16,27 +16,27 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.style;
 
-/********************************************************************
+/**
  * Contains default style name declaration for UI components.
  *
  * @author eso
  */
-public class DefaultStyleNames
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class DefaultStyleNames {
 
-	/** The brand label in a web app's top menu. */
-	public static final String TOP_MENU_BRAND_LABEL = "eb-top-menu-brand-label";
+	/**
+	 * The brand label in a web app's top menu.
+	 */
+	public static final String TOP_MENU_BRAND_LABEL =
+		"eb-top-menu-brand" + "-label";
 
-	/** The copyright message in the page footer. */
+	/**
+	 * The copyright message in the page footer.
+	 */
 	public static final String FOOTER_COPYRIGHT = "eb-footer-copyright";
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private DefaultStyleNames()
-	{
+	private DefaultStyleNames() {
 	}
 }

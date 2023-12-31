@@ -18,26 +18,20 @@ package de.esoco.data.validate;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A base class for {@link Validator} implementations that check whether a value
  * is an element of a list of objects.
  *
  * @author eso
  */
-public abstract class ListValidator<T> implements Validator<T>, HasValueList<T>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public abstract class ListValidator<T>
+	implements Validator<T>, HasValueList<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private List<T> rValueList;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that checks if values are an element of the
 	 * argument list. If the list is empty any value will be allowed.
 	 *
@@ -45,33 +39,26 @@ public abstract class ListValidator<T> implements Validator<T>, HasValueList<T>
 	 *                   list to allow any value
 	 */
 	@SuppressWarnings("unchecked")
-	public ListValidator(List<? extends T> rValueList)
-	{
+	public ListValidator(List<? extends T> rValueList) {
 		this.rValueList = (List<T>) rValueList;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	ListValidator()
-	{
+	ListValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (this == rObj)
-		{
+	public boolean equals(Object rObj) {
+		if (this == rObj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass())
-		{
+		if (rObj == null || getClass() != rObj.getClass()) {
 			return false;
 		}
 
@@ -80,40 +67,36 @@ public abstract class ListValidator<T> implements Validator<T>, HasValueList<T>
 		return rValueList.equals(rOther.rValueList);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<T> getValues()
-	{
+	public List<T> getValues() {
 		return rValueList;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * rValueList.hashCode();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(T rValue)
-	{
+	public boolean isValid(T rValue) {
 		return rValue == null || rValueList.isEmpty() ||
-			   rValueList.contains(rValue);
+			rValueList.contains(rValue);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return getClass().getSimpleName() + "[" + rValueList + "]";
 	}
 }

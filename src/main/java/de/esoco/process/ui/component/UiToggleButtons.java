@@ -21,8 +21,7 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiMultiSelectionButtonGroup;
 
-
-/********************************************************************
+/**
  * A group of buttons that have a selection state that can be toggled
  * independent from each other (similar to check boxes). The datatype defines
  * the type of the button labels. Typically string and enum values are
@@ -31,19 +30,16 @@ import de.esoco.process.ui.UiMultiSelectionButtonGroup;
  * @author eso
  */
 public class UiToggleButtons<T>
-	extends UiMultiSelectionButtonGroup<T, UiToggleButtons<T>>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiMultiSelectionButtonGroup<T, UiToggleButtons<T>> {
 
-	/***************************************
+	/**
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as buttons.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the button labels
 	 */
-	public UiToggleButtons(UiContainer<?> rParent, Class<T> rDatatype)
-	{
+	public UiToggleButtons(UiContainer<?> rParent, Class<T> rDatatype) {
 		super(rParent, rDatatype, ListStyle.IMMEDIATE);
 	}
 }

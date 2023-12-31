@@ -25,54 +25,49 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 
-
-/********************************************************************
+/**
  * A {@link TabularDocumentWriter} implementation for the CSV file format. The
  * resulting document is a text string.
  *
  * @author u.eggers
  */
-public class CsvDocumentWriter implements TabularDocumentWriter<String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class CsvDocumentWriter implements TabularDocumentWriter<String> {
 
-	private static final String DATE_FORMAT		 = "dd.MM.yyyy";
+	private static final String DATE_FORMAT = "dd.MM.yyyy";
+
 	private static final String DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
-	private static final String DECIMAL_FORMAT   = "#,##0.00";
 
-	//~ Instance fields --------------------------------------------------------
+	private static final String DECIMAL_FORMAT = "#,##0.00";
 
-	private StringBuilder    aDocument		 = new StringBuilder();
-	private boolean			 bNewRow		 = true;
-	private String			 sValueSeparator;
+	private StringBuilder aDocument = new StringBuilder();
+
+	private boolean bNewRow = true;
+
+	private String sValueSeparator;
+
 	private SimpleDateFormat aDateFormat;
 
 	private DecimalFormat aDecimalFormat = new DecimalFormat(DECIMAL_FORMAT);
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sValueSeparator The list value separator to use.
 	 */
-	public CsvDocumentWriter(String sValueSeparator)
-	{
+	public CsvDocumentWriter(String sValueSeparator) {
 		this(sValueSeparator, DateFormat.DATE);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sValueSeparator The list value separator to use.
 	 * @param eDateFormat     The date format for date fields.
 	 */
-	public CsvDocumentWriter(String sValueSeparator, DateFormat eDateFormat)
-	{
+	public CsvDocumentWriter(String sValueSeparator, DateFormat eDateFormat) {
 		this.sValueSeparator = sValueSeparator;
 
-		switch (eDateFormat)
-		{
+		switch (eDateFormat) {
 			case DATE:
 				aDateFormat = new SimpleDateFormat(DATE_FORMAT);
 				break;
@@ -83,31 +78,22 @@ public class CsvDocumentWriter implements TabularDocumentWriter<String>
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see TabularDocumentWriter#addValue(Object)
 	 */
 	@Override
-	public void addValue(Object rValue)
-	{
+	public void addValue(Object rValue) {
 		String sValue = null;
 
-		if (!bNewRow)
-		{
+		if (!bNewRow) {
 			aDocument.append(sValueSeparator);
 		}
 
-		if (rValue instanceof Date)
-		{
+		if (rValue instanceof Date) {
 			sValue = aDateFormat.format((Date) rValue);
-		}
-		else if (rValue instanceof BigDecimal)
-		{
+		} else if (rValue instanceof BigDecimal) {
 			sValue = aDecimalFormat.format(rValue);
-		}
-		else
-		{
+		} else {
 			sValue = rValue != null ? rValue.toString() : "";
 		}
 
@@ -117,30 +103,27 @@ public class CsvDocumentWriter implements TabularDocumentWriter<String>
 		bNewRow = false;
 	}
 
-	/***************************************
+	/**
 	 * @see TabularDocumentWriter#createDocument()
 	 */
 	@Override
-	public String createDocument()
-	{
+	public String createDocument() {
 		return aDocument.toString();
 	}
 
-	/***************************************
+	/**
 	 * @see TabularDocumentWriter#getFileType()
 	 */
 	@Override
-	public FileType getFileType()
-	{
+	public FileType getFileType() {
 		return FileType.CSV;
 	}
 
-	/***************************************
+	/**
 	 * @see TabularDocumentWriter#newRow()
 	 */
 	@Override
-	public void newRow()
-	{
+	public void newRow() {
 		aDocument.append("\n");
 		bNewRow = true;
 	}

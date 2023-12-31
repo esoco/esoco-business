@@ -25,25 +25,21 @@ import de.esoco.process.ui.UiContainer;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
-
-/********************************************************************
+/**
  * An interactive button control that represents a clickable link.
  *
  * @author eso
  */
 public class UiLink extends UiButtonControl<String, UiLink>
-	implements TextAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	implements TextAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sLabel  The link label
 	 */
-	public UiLink(UiContainer<?> rParent, String sLabel)
-	{
+	public UiLink(UiContainer<?> rParent, String sLabel) {
 		super(rParent, String.class);
 
 		setText(sLabel);
@@ -51,23 +47,19 @@ public class UiLink extends UiButtonControl<String, UiLink>
 		set(BUTTON_STYLE, ButtonStyle.LINK);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText()
-	{
+	public String getText() {
 		return getValueImpl();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText)
-	{
+	public void setText(String sText) {
 		setValueImpl(sText);
 	}
 }

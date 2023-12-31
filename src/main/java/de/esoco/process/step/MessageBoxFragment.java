@@ -32,22 +32,18 @@ import static de.esoco.lib.property.UserInterfaceProperties.SAME_ROW;
 import static de.esoco.lib.property.UserInterfaceProperties.STYLE;
 import static de.esoco.lib.property.UserInterfaceProperties.TOOLTIP;
 
-
-/********************************************************************
+/**
  * A process interaction fragment that can be displayed in a dialog view.
  *
  * @author eso
  */
-public class MessageBoxFragment extends DialogFragment
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class MessageBoxFragment extends DialogFragment {
 
 	private static final long serialVersionUID = 1L;
-	private static int		  PREFIX_COUNTER   = 0;
 
-	//~ Constructors -----------------------------------------------------------
+	private static int PREFIX_COUNTER = 0;
 
-	/***************************************
+	/**
 	 * Creates a new instance. If extras parameters are given they will be
 	 * displayed between the message and the buttons. Any necessary
 	 * initialization of these parameters including UI properties must be done
@@ -59,125 +55,105 @@ public class MessageBoxFragment extends DialogFragment
 	 * @param rExtraParams   Optional extra parameters to be displayed in the
 	 *                       message box
 	 */
-	public MessageBoxFragment(String				   sMessage,
-							  String				   sIcon,
-							  Collection<DialogAction> rDialogActions,
-							  RelationType<?>... 	   rExtraParams)
-	{
+	public MessageBoxFragment(String sMessage, String sIcon,
+		Collection<DialogAction> rDialogActions,
+		RelationType<?>... rExtraParams) {
 		super("%s_" + PREFIX_COUNTER++,
-			  new MessageBoxContent(sMessage, sIcon, rExtraParams),
-			  true,
-			  null,
-			  rDialogActions);
+			new MessageBoxContent(sMessage, sIcon, rExtraParams), true, null,
+			rDialogActions);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to always return 'MessageBox'.
 	 *
 	 * @see ViewFragment#getResourceBaseName()
 	 */
 	@Override
-	protected String getResourceBaseName()
-	{
+	protected String getResourceBaseName() {
 		return "MessageBox";
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A fragment that defines the content of a message box.
 	 *
 	 * @author eso
 	 */
-	public static class MessageBoxContent extends InteractionFragment
-	{
-		//~ Static fields/initializers -----------------------------------------
+	public static class MessageBoxContent extends InteractionFragment {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
-
 		private List<RelationType<?>> aInteractionParams = new ArrayList<>();
-		private List<RelationType<?>> aInputParams		 =
-			Collections.emptyList();
 
-		private String				  sMessage;
-		private String				  sIcon;
+		private List<RelationType<?>> aInputParams = Collections.emptyList();
+
+		private String sMessage;
+
+		private String sIcon;
+
 		private List<RelationType<?>> rExtraParams;
 
 		private RelationType<String> aContentMessageParam;
+
 		private RelationType<String> aContentIconParam;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param sMessage     The message to display
 		 * @param sIcon        The resource name for the message box icon
-		 * @param rExtraParams Optional extra parameters to be displayed in this
+		 * @param rExtraParams Optional extra parameters to be displayed in
+		 *                           this
 		 *                     fragment
 		 */
-		public MessageBoxContent(String				sMessage,
-								 String				sIcon,
-								 RelationType<?>... rExtraParams)
-		{
-			this.sMessage     = sMessage;
-			this.sIcon		  = sIcon;
+		public MessageBoxContent(String sMessage, String sIcon,
+			RelationType<?>... rExtraParams) {
+			this.sMessage = sMessage;
+			this.sIcon = sIcon;
 			this.rExtraParams = Arrays.asList(rExtraParams);
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public List<RelationType<?>> getInputParameters()
-		{
+		public List<RelationType<?>> getInputParameters() {
 			return aInputParams;
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public List<RelationType<?>> getInteractionParameters()
-		{
+		public List<RelationType<?>> getInteractionParameters() {
 			return aInteractionParams;
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void init() throws Exception
-		{
+		public void init() throws Exception {
 			setUIFlag(SAME_ROW, aContentMessageParam);
 			setUIFlag(HIDE_LABEL, aContentIconParam, aContentMessageParam);
 
-			if (rExtraParams.size() > 0)
-			{
-				setUIProperty(rExtraParams.size() + 1,
-							  ROW_SPAN,
-							  aContentIconParam);
+			if (rExtraParams.size() > 0) {
+				setUIProperty(rExtraParams.size() + 1, ROW_SPAN,
+					aContentIconParam);
 			}
 
 			setUIProperty(STYLE, "MessageBoxText", aContentMessageParam);
-			setUIProperty(TOOLTIP, "", aContentMessageParam, aContentIconParam);
+			setUIProperty(TOOLTIP, "", aContentMessageParam,
+				aContentIconParam);
 
 			setParameter(aContentMessageParam, sMessage);
 			setParameter(aContentIconParam, sIcon);
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void setup()
-		{
+		public void setup() {
 			aContentMessageParam =
 				getTemporaryParameterType("MESSAGE_BOX_MESSAGE", String.class);
 

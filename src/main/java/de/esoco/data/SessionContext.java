@@ -18,17 +18,14 @@ package de.esoco.data;
 
 import org.obrel.core.SerializableRelatedObject;
 
-
-/********************************************************************
+/**
  * A session context class that contains informations about the context of
  * sessions managed by a {@link SessionManager}. The data is stored and accessed
  * as relations.
  *
  * @author eso
  */
-public class SessionContext extends SerializableRelatedObject
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class SessionContext extends SerializableRelatedObject {
 
 	private static final long serialVersionUID = 1L;
 }

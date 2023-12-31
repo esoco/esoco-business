@@ -23,49 +23,41 @@ import de.esoco.process.ui.UiTextInputField;
 
 import java.util.Collection;
 
-
-/********************************************************************
+/**
  * A combination of a single-line text field with a drop-down list of selectable
  * value suggestions.
  *
  * @author eso
  */
 public class UiComboBox extends UiTextInputField<UiComboBox>
-	implements TextAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	implements TextAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sText   The initial text
 	 */
-	public UiComboBox(UiContainer<?> rParent, String sText)
-	{
+	public UiComboBox(UiContainer<?> rParent, String sText) {
 		super(rParent, sText);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the values to be displayed as suggestions for the input field.
 	 *
 	 * @param rValues The suggested values
 	 */
-	public void setSuggestions(String... rValues)
-	{
+	public void setSuggestions(String... rValues) {
 		fragment().setAllowedValues(type(), rValues);
 	}
 
-	/***************************************
+	/**
 	 * Sets a collection of values to be displayed as suggestions for the input
 	 * field.
 	 *
 	 * @param rValues The suggested values
 	 */
-	public void setSuggestions(Collection<String> rValues)
-	{
+	public void setSuggestions(Collection<String> rValues) {
 		fragment().setAllowedValues(type(), rValues);
 	}
 }

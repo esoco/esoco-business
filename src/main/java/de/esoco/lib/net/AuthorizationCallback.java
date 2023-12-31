@@ -16,23 +16,21 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.net;
 
-/********************************************************************
+/**
  * A callback interface for the authorization of resources.
  *
  * @author eso
  */
-public interface AuthorizationCallback
-{
-	//~ Methods ----------------------------------------------------------------
+public interface AuthorizationCallback {
 
-	/***************************************
+	/**
 	 * Will be invoked if the authorization failed.
 	 *
 	 * @param eError The error exception
 	 */
 	public void authorizationFailure(Exception eError);
 
-	/***************************************
+	/**
 	 * Will be invoked if the authorization was successful.
 	 *
 	 * @param sAccessToken The token that grants access to the authorized

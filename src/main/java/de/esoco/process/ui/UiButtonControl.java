@@ -31,97 +31,83 @@ import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 
-
-/********************************************************************
+/**
  * The base class for button components.
  *
  * @author eso
  */
 public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
-	extends UiControl<T, C> implements UiHasActionEvents<T, C>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiControl<T, C> implements UiHasActionEvents<T, C> {
 
-	/***************************************
+	/**
 	 * Creates a new instance with an existing parameter type.
 	 *
 	 * @see UiControl#UiControl(UiContainer, RelationType)
 	 */
-	public UiButtonControl(UiContainer<?> rParent, RelationType<T> rParamType)
-	{
+	public UiButtonControl(UiContainer<?> rParent,
+		RelationType<T> rParamType) {
 		super(rParent, rParamType);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiControl#UiControl(UiContainer, Class)
 	 */
-	public UiButtonControl(UiContainer<?> rParent, Class<? super T> rDatatype)
-	{
+	public UiButtonControl(UiContainer<?> rParent,
+		Class<? super T> rDatatype) {
 		super(rParent, rDatatype);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Initiates a download from this button. This method must be invoked during
+	/**
+	 * Initiates a download from this button. This method must be invoked
+	 * during
 	 * the handling of an event and the download will then be executed as the
-	 * result of the event. After being processed by the process interaction the
+	 * result of the event. After being processed by the process interaction
+	 * the
 	 * generated download URL will be removed from the button's process
 	 * parameter. A typical usage would look like this:
 	 *
 	 * <pre>
-	    aButton.onClick(v -> initiateDownload(sFileName,
-	                                          eFileType,
-	                                          fDownloadGenerator));
+	 * aButton.onClick(v -> initiateDownload(sFileName,
+	 * eFileType,
+	 * fDownloadGenerator));
 	 * </pre>
 	 *
-	 * @param  sFileName          The file name of the download
-	 * @param  eFileType          The file type of the download
-	 * @param  fDownloadGenerator The function that generated the download data
-	 *
+	 * @param sFileName          The file name of the download
+	 * @param eFileType          The file type of the download
+	 * @param fDownloadGenerator The function that generated the download data
 	 * @throws RuntimeProcessException If the download preparation fails
 	 */
-	public void initiateDownload(String				   sFileName,
-								 FileType			   eFileType,
-								 Function<FileType, ?> fDownloadGenerator)
-	{
+	public void initiateDownload(String sFileName, FileType eFileType,
+		Function<FileType, ?> fDownloadGenerator) {
 		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C onAction(Consumer<T> rEventHandler)
-	{
+	public C onAction(Consumer<T> rEventHandler) {
 		return onClick(rEventHandler);
 	}
 
-	/***************************************
+	/**
 	 * Sets the event handler for click events on buttons.
 	 *
-	 * @param  rEventHandler The event handler
-	 *
+	 * @param rEventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final C onClick(Consumer<T> rEventHandler)
-	{
-		return setParameterEventHandler(
-			InteractionEventType.ACTION,
+	public final C onClick(Consumer<T> rEventHandler) {
+		return setParameterEventHandler(InteractionEventType.ACTION,
 			v -> rEventHandler.accept(v));
 	}
 
-	/***************************************
+	/**
 	 * Checks whether the columns should be set to the number of buttons.
-	 *
-	 * @param rNewButtons
 	 */
-	void checkSetColumns(Collection<?> rNewButtons)
-	{
-		if (!has(COLUMNS))
-		{
+	void checkSetColumns(Collection<?> rNewButtons) {
+		if (!has(COLUMNS)) {
 			set(rNewButtons.size(), COLUMNS);
 		}
 	}

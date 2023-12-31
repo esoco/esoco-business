@@ -22,65 +22,53 @@ import java.util.Collection;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A parameter wrapper with additional functions for enum values.
  *
  * @author eso
  */
 public class EnumParameter<E extends Enum<E>>
-	extends ParameterBase<E, EnumParameter<E>>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends ParameterBase<E, EnumParameter<E>> {
 
-	/***************************************
+	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public EnumParameter(
-		InteractionFragment rFragment,
-		RelationType<E>		rParamType)
-	{
+	public EnumParameter(InteractionFragment rFragment,
+		RelationType<E> rParamType) {
 		super(rFragment, rParamType);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param  rDisabledElements The elements to disable
-	 *
+	 * @param rDisabledElements The elements to disable
 	 * @return This parameter instance
 	 */
 	@SuppressWarnings("unchecked")
-	public EnumParameter<E> disable(E... rDisabledElements)
-	{
+	public EnumParameter<E> disable(E... rDisabledElements) {
 		fragment().disableElements(type(), rDisabledElements);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param  rDisabledElements A collection of the elements to disable
-	 *
+	 * @param rDisabledElements A collection of the elements to disable
 	 * @return This parameter instance
 	 */
-	public EnumParameter<E> disable(Collection<E> rDisabledElements)
-	{
+	public EnumParameter<E> disable(Collection<E> rDisabledElements) {
 		fragment().disableElements(type(), rDisabledElements);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Enables all enum values.
 	 *
 	 * @return This parameter instance
 	 */
-	public EnumParameter<E> enableAll()
-	{
+	public EnumParameter<E> enableAll() {
 		fragment().enableAllElements(type());
 
 		return this;

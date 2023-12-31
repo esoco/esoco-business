@@ -29,64 +29,51 @@ import static de.esoco.data.element.DataSetDataElement.CHART_3D;
 import static de.esoco.data.element.DataSetDataElement.CHART_LEGEND_POSITION;
 import static de.esoco.data.element.DataSetDataElement.CHART_TYPE;
 
-
-/********************************************************************
+/**
  * A parameter wrapper with additional functions for {@link DataSet} values.
  *
  * @author eso
  */
 public class DataSetParameter<T, D extends DataSet<T>>
-	extends ParameterBase<D, DataSetParameter<T, D>>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends ParameterBase<D, DataSetParameter<T, D>> {
 
-	/***************************************
+	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public DataSetParameter(
-		InteractionFragment rFragment,
-		RelationType<D>		rParamType)
-	{
+	public DataSetParameter(InteractionFragment rFragment,
+		RelationType<D> rParamType) {
 		super(rFragment, rParamType);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the chart type.
 	 *
-	 * @param  eChartType eLegendPosition The chart type
-	 *
+	 * @param eChartType eLegendPosition The chart type
 	 * @return This parameter instance for concatenation
 	 */
-	public DataSetParameter<T, D> chartType(ChartType eChartType)
-	{
+	public DataSetParameter<T, D> chartType(ChartType eChartType) {
 		return set(CHART_TYPE, eChartType);
 	}
 
-	/***************************************
+	/**
 	 * Enables the chart legend and sets it'S position.
 	 *
-	 * @param  eLegendPosition The legend position
-	 *
+	 * @param eLegendPosition The legend position
 	 * @return This parameter instance for concatenation
 	 */
-	public DataSetParameter<T, D> legend(LegendPosition eLegendPosition)
-	{
+	public DataSetParameter<T, D> legend(LegendPosition eLegendPosition) {
 		return set(CHART_LEGEND_POSITION, eLegendPosition);
 	}
 
-	/***************************************
+	/**
 	 * Sets whether the chart should be displayed in 3D (if suported by the
 	 * chart type).
 	 *
-	 * @param  b3D TRUE for a 3D chart, FALSE for 2D
-	 *
+	 * @param b3D TRUE for a 3D chart, FALSE for 2D
 	 * @return This parameter instance for concatenation
 	 */
 	@SuppressWarnings("boxing")
-	public DataSetParameter<T, D> set3D(boolean b3D)
-	{
+	public DataSetParameter<T, D> set3D(boolean b3D) {
 		return set(CHART_3D, b3D);
 	}
 }

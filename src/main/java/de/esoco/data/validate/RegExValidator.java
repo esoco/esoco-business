@@ -16,58 +16,45 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.validate;
 
-/********************************************************************
+/**
  * A validator that validates string values against a regular expression
  * pattern.
  *
  * @author eso
  */
-public class RegExValidator implements Validator<String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class RegExValidator implements Validator<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private String sPattern;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sPattern The regular expression pattern to validate against
 	 */
-	public RegExValidator(String sPattern)
-	{
+	public RegExValidator(String sPattern) {
 		assert sPattern != null;
 
 		this.sPattern = sPattern;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	RegExValidator()
-	{
+	RegExValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (this == rObj)
-		{
+	public boolean equals(Object rObj) {
+		if (this == rObj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass())
-		{
+		if (rObj == null || getClass() != rObj.getClass()) {
 			return false;
 		}
 
@@ -76,34 +63,31 @@ public class RegExValidator implements Validator<String>
 		return sPattern.equals(rOther.sPattern);
 	}
 
-	/***************************************
+	/**
 	 * @see Object#hashCode()
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * sPattern.hashCode();
 	}
 
-	/***************************************
+	/**
 	 * Validates the string value by matching it against the regular expression
 	 * pattern of this instance.
 	 *
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(String sValue)
-	{
+	public boolean isValid(String sValue) {
 		return sValue.matches(sPattern);
 	}
 
-	/***************************************
+	/**
 	 * Returns the regular expression pattern of this validator.
 	 *
 	 * @return The regular expression pattern
 	 */
-	protected final String getPattern()
-	{
+	protected final String getPattern() {
 		return sPattern;
 	}
 }

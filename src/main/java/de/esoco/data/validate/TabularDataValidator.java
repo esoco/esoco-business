@@ -20,58 +20,44 @@ import de.esoco.lib.model.ColumnDefinition;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A base class for the validation of tabular data. The validated type is an
  * integer that represents the selected table row. Depending on the implementing
  * subclass that can either be the list index or an ID of the selected element.
  *
  * @author eso
  */
-public abstract class TabularDataValidator implements Validator<String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public abstract class TabularDataValidator implements Validator<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private List<ColumnDefinition> rColumns;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rColumns The table columns
 	 */
-	public TabularDataValidator(List<ColumnDefinition> rColumns)
-	{
+	public TabularDataValidator(List<ColumnDefinition> rColumns) {
 		this.rColumns = rColumns;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	TabularDataValidator()
-	{
+	TabularDataValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (this == rObj)
-		{
+	public boolean equals(Object rObj) {
+		if (this == rObj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass())
-		{
+		if (rObj == null || getClass() != rObj.getClass()) {
 			return false;
 		}
 
@@ -80,22 +66,20 @@ public abstract class TabularDataValidator implements Validator<String>
 		return rColumns.equals(rOther.rColumns);
 	}
 
-	/***************************************
+	/**
 	 * Returns the definitions for the table columns.
 	 *
 	 * @return The table column definitions
 	 */
-	public final List<ColumnDefinition> getColumns()
-	{
+	public final List<ColumnDefinition> getColumns() {
 		return rColumns;
 	}
 
-	/***************************************
+	/**
 	 * @see Object#hashCode()
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * rColumns.hashCode();
 	}
 }

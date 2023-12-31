@@ -25,126 +25,112 @@ import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
-
-/********************************************************************
+/**
  * Base class for read-only text components.
  *
  * @author eso
  */
 public abstract class UiTextComponent<C extends UiTextComponent<C>>
-	extends UiComponent<String, C> implements TextAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiComponent<String, C> implements TextAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sText   The initial component text
 	 */
-	public UiTextComponent(UiContainer<?> rParent, String sText)
-	{
+	public UiTextComponent(UiContainer<?> rParent, String sText) {
 		super(rParent, String.class);
 
 		setText(sText);
 		set(HIDE_LABEL);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText()
-	{
+	public String getText() {
 		return getValueImpl();
 	}
 
-	/***************************************
+	/**
 	 * Sets the text value of this component so that it will be rendered as
 	 * HTML. The value can be queried with {@link #getText()}.
 	 *
-	 * @param  sHtml The HTML text
-	 *
+	 * @param sHtml The HTML text
 	 * @return This instance for fluent invocation
 	 */
-	public C html(String sHtml)
-	{
+	public C html(String sHtml) {
 		set(CONTENT_TYPE, ContentType.HTML);
 
 		return setValueImpl(sHtml);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C resid(String sResourceId)
-	{
-		if (sResourceId != null)
-		{
+	public C resid(String sResourceId) {
+		if (sResourceId != null) {
 			label("$lbl" + sResourceId);
 		}
 
 		return super.resid(sResourceId);
 	}
 
-	/***************************************
+	/**
 	 * Sets an HTML text value, formatted with arguments.
 	 *
 	 * @see #setHtml(String)
 	 * @see #setFormattedText(String, String...)
 	 */
-	public void setFormattedHtml(String sTemplate, String... rFormatArguments)
-	{
+	public void setFormattedHtml(String sTemplate,
+		String... rFormatArguments) {
 		setHtml(sTemplate);
 		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
 	}
 
-	/***************************************
+	/**
 	 * Sets a text that will be formatted by inserting values into a template,
-	 * similar to {@link String#format(String, Object...)} but only with strings
+	 * similar to {@link String#format(String, Object...)} but only with
+	 * strings
 	 * allowed as format arguments.
 	 *
 	 * @param sTemplate        The format template
 	 * @param rFormatArguments The format arguments
 	 */
-	public void setFormattedText(String sTemplate, String... rFormatArguments)
-	{
+	public void setFormattedText(String sTemplate,
+		String... rFormatArguments) {
 		setText(sTemplate);
 		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
 	}
 
-	/***************************************
+	/**
 	 * Sets the text value of this component so that it will be rendered as
 	 * HTML. The value can be queried with {@link #getText()}.
 	 *
 	 * @param sHtml The HTML text
 	 */
-	public void setHtml(String sHtml)
-	{
+	public void setHtml(String sHtml) {
 		html(sHtml);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText)
-	{
+	public void setText(String sText) {
 		text(sText);
 	}
 
-	/***************************************
+	/**
 	 * Sets the text of this component.
 	 *
-	 * @param  sText The new text
-	 *
+	 * @param sText The new text
 	 * @return This instance for fluent invocation
 	 */
-	public C text(String sText)
-	{
+	public C text(String sText) {
 		remove(CONTENT_TYPE);
 
 		return setValueImpl(sText);

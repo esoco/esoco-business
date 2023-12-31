@@ -22,8 +22,7 @@ import de.esoco.lib.comm.http.HttpRequestMethod;
 import de.esoco.lib.json.JsonRelatedObject;
 import de.esoco.lib.reflect.ReflectUtil;
 
-
-/********************************************************************
+/**
  * The HTTP endpoint for interaction with an {@link InteractiveProcessExecutor}
  * or {@link InteractiveProcessRenderer} REST service. The endpoint itself uses
  * the standard HTTP endpoint implementation. An instance can be created by
@@ -33,77 +32,64 @@ import de.esoco.lib.reflect.ReflectUtil;
  *
  * @author eso
  */
-public class InteractiveProcessEndpoint extends HttpEndpoint
-{
-	//~ Static methods ---------------------------------------------------------
+public class InteractiveProcessEndpoint extends HttpEndpoint {
 
-	/***************************************
+	/**
 	 * Returns a request method that will release a lock on an certain target.
 	 *
 	 * @return The request method
 	 */
-	public static ProcessRequest<?, ?> executeProcess()
-	{
+	public static ProcessRequest<?, ?> executeProcess() {
 		return null;
 	}
 
-	/***************************************
-	 * Returns a request method that will query the current locks. The result is
+	/**
+	 * Returns a request method that will query the current locks. The
+	 * result is
 	 * a map that contains entries for the lock contexts. Each context entry
 	 * contains another mapping from target IDs to the addresses of the clients
 	 * that hold the locks.
 	 *
 	 * @return The request method
 	 */
-	public static ProcessRequest<?, ?> registerProcesses()
-	{
+	public static ProcessRequest<?, ?> registerProcesses() {
 		return null;
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A container for the JSON serialization of process request data. The
 	 * actual request data is contained in the relations of an instance.
 	 *
 	 * @author eso
 	 */
 	public static abstract class RequestData<T extends RequestData<T>>
-		extends JsonRelatedObject<T>
-	{
+		extends JsonRelatedObject<T> {
 	}
 
-	/********************************************************************
-	 * The base class for request methods to the {@link
-	 * InteractiveProcessEndpoint}.
+	/**
+	 * The base class for request methods to the
+	 * {@link InteractiveProcessEndpoint}.
 	 *
 	 * @author eso
 	 */
 	public static class ProcessRequest<D extends RequestData<D>,
-									   R extends RequestData<R>>
-		extends HttpRequest<D, R>
-	{
-		//~ Constructors -------------------------------------------------------
+		R extends RequestData<R>>
+		extends HttpRequest<D, R> {
 
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param eMethod       The request method
 		 * @param sRequestUrl   The request URL
 		 * @param rResponseType The datatype of the request response
 		 */
-		ProcessRequest(HttpRequestMethod eMethod,
-					   String			 sRequestUrl,
-					   Class<R>			 rResponseType)
-		{
-			super(sRequestUrl,
-				  null,
-				  eMethod,
-				  "/api/" + sRequestUrl,
-				  data -> data != null ? data.toJson() : "",
-				  sResponse ->
-				  ReflectUtil.newInstance(rResponseType)
-				  .fromJson(sResponse));
+		ProcessRequest(HttpRequestMethod eMethod, String sRequestUrl,
+			Class<R> rResponseType) {
+			super(sRequestUrl, null, eMethod, "/api/" + sRequestUrl,
+				data -> data != null ? data.toJson() : "",
+				sResponse -> ReflectUtil
+					.newInstance(rResponseType)
+					.fromJson(sResponse));
 		}
 	}
 }

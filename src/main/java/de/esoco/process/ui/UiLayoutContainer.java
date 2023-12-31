@@ -16,49 +16,42 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-/********************************************************************
+/**
  * The base class for containers that expose layout functionality through
  * generic layout methods.
  *
  * @author eso
  */
 public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
-	extends UiContainer<C>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiContainer<C> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param rLayout The layout of this panel
 	 */
-	public UiLayoutContainer(UiContainer<?> rParent, UiLayout rLayout)
-	{
+	public UiLayoutContainer(UiContainer<?> rParent, UiLayout rLayout) {
 		super(rParent, rLayout);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the container layout.
 	 *
 	 * @return The layout
 	 */
 	@Override
-	public final UiLayout getLayout()
-	{
+	public final UiLayout getLayout() {
 		return super.getLayout();
 	}
 
-	/***************************************
+	/**
 	 * Removes a component from this container.
 	 *
 	 * @param rComponent The component to remove
 	 */
 	@Override
-	public void remove(UiComponent<?, ?> rComponent)
-	{
+	public void remove(UiComponent<?, ?> rComponent) {
 		super.remove(rComponent);
 	}
 }

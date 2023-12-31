@@ -23,73 +23,62 @@ import de.esoco.process.ui.UiTextComponent;
 
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
-
-/********************************************************************
+/**
  * A read-only UI text label.
  *
  * @author eso
  */
-public class UiLabel extends UiTextComponent<UiLabel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiLabel extends UiTextComponent<UiLabel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sText   The label text
 	 */
-	public UiLabel(UiContainer<?> rParent, String sText)
-	{
+	public UiLabel(UiContainer<?> rParent, String sText) {
 		super(rParent, sText);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Fluent variant of {@link #setCaption(String)}.
 	 *
-	 * @param  sCaption The caption label
-	 *
+	 * @param sCaption The caption label
 	 * @return This instance
 	 */
-	public UiLabel caption(String sCaption)
-	{
+	public UiLabel caption(String sCaption) {
 		return label(sCaption);
 	}
 
-	/***************************************
+	/**
 	 * Fluent variant of {@link #setLabelStyle(LabelStyle)}.
 	 *
-	 * @param  eStyle The label style
-	 *
+	 * @param eStyle The label style
 	 * @return This instance
 	 */
-	public UiLabel labelStyle(LabelStyle eStyle)
-	{
+	public UiLabel labelStyle(LabelStyle eStyle) {
 		set(LABEL_STYLE, eStyle);
 
 		return this;
 	}
 
-	/***************************************
-	 * Sets a caption label to be displayed over the label text (if supported by
+	/**
+	 * Sets a caption label to be displayed over the label text (if
+	 * supported by
 	 * the container layout).
 	 *
 	 * @param sCaption The caption label
 	 */
-	public void setCaption(String sCaption)
-	{
+	public void setCaption(String sCaption) {
 		caption(sCaption);
 	}
 
-	/***************************************
+	/**
 	 * Sets the style of this label.
 	 *
 	 * @param eStyle The label style
 	 */
-	public void setLabelStyle(LabelStyle eStyle)
-	{
+	public void setLabelStyle(LabelStyle eStyle) {
 		labelStyle(eStyle);
 	}
 }

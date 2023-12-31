@@ -27,61 +27,51 @@ import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 
-
-/********************************************************************
+/**
  * A date input field.
  *
  * @author eso
  */
 public abstract class UiDateInputField<C extends UiDateInputField<C>>
-	extends UiInputField<Date, C> implements DateAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiInputField<Date, C> implements DateAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent rContainer The parent fragment
 	 * @param rDate   The initial date value
 	 * @param eType   The type of date input
 	 */
-	protected UiDateInputField(UiContainer<?> rParent,
-							   Date			  rDate,
-							   DateInputType  eType)
-	{
+	protected UiDateInputField(UiContainer<?> rParent, Date rDate,
+		DateInputType eType) {
 		super(rParent, Date.class, rDate);
 
 		set(DATE_INPUT_TYPE, eType);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Date getDate()
-	{
+	public Date getDate() {
 		return fragment().getParameter(type());
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setDate(Date rDate)
-	{
+	public void setDate(Date rDate) {
 		fragment().setParameter(type(), rDate);
 	}
 
-	/***************************************
+	/**
 	 * Enables the input of a time value besides the calendar date.
 	 *
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C withTimeInput()
-	{
+	public C withTimeInput() {
 		set(CONTENT_TYPE, ContentType.DATE_TIME);
 
 		return (C) this;

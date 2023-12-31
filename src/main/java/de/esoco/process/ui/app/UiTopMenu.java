@@ -23,49 +23,42 @@ import de.esoco.process.ui.style.DefaultStyleNames;
 
 import java.util.Collection;
 
-
-/********************************************************************
+/**
  * The top menu of a web page.
  *
  * @author eso
  */
-public class UiTopMenu<T> extends UiNavMenu<T>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiTopMenu<T> extends UiNavMenu<T> {
 
-	/***************************************
+	/**
 	 * Creates a new instance without preset menu items.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiTopMenu(UiContainer<?> rParent)
-	{
+	public UiTopMenu(UiContainer<?> rParent) {
 		this(rParent, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with preset menu items.
 	 *
 	 * @param rParent    The parent container
 	 * @param rMenuItems The initial menu items
 	 */
-	public UiTopMenu(UiContainer<?> rParent, Collection<T> rMenuItems)
-	{
+	public UiTopMenu(UiContainer<?> rParent, Collection<T> rMenuItems) {
 		super(rParent, rMenuItems);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds a label that is displayed prominently to identify the website. It
 	 * has the style name {@link DefaultStyleNames#TOP_MENU_BRAND_LABEL}.
 	 *
 	 * @param sText The text to display as the site label
 	 */
-	public void addBrandLabel(String sText)
-	{
-		builder().addLabel(sText)
-				 .labelStyle(LabelStyle.BRAND)
-				 .styleName(DefaultStyleNames.TOP_MENU_BRAND_LABEL);
+	public void addBrandLabel(String sText) {
+		builder()
+			.addLabel(sText)
+			.labelStyle(LabelStyle.BRAND)
+			.styleName(DefaultStyleNames.TOP_MENU_BRAND_LABEL);
 	}
 }

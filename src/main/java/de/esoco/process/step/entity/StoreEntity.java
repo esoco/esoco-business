@@ -34,13 +34,12 @@ import static de.esoco.process.ProcessRelationTypes.ENTITY_UPDATE_ACTION;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 
-
-/********************************************************************
+/**
  * A step that stores an entity that is stored in the process parameter
  * referenced by {@link ProcessRelationTypes#ENTITY_PARAM}. If no history target
- * is set internally in the step relation {@link
- * ProcessRelationTypes#HISTORY_TARGET_PARAM} it will be set to the entity
- * parameter.
+ * is set internally in the step relation
+ * {@link ProcessRelationTypes#HISTORY_TARGET_PARAM} it will be set to the
+ * entity parameter.
  *
  * <p>If the process of this step contains an update {@link Action} in the
  * parameter {@link ProcessRelationTypes#ENTITY_UPDATE_ACTION} the action will
@@ -49,41 +48,31 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
  *
  * @author eso
  */
-public class StoreEntity extends EntityStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class StoreEntity extends EntityStep {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public StoreEntity()
-	{
+	public StoreEntity() {
 		set(MetaTypes.TRANSACTIONAL);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see EntityStep#execute()
 	 */
 	@Override
-	protected void execute() throws Exception
-	{
+	protected void execute() throws Exception {
 		RelationType<? extends Entity> rEntityParam =
 			checkParameter(ENTITY_PARAM);
 
 		Entity rEntity = checkParameter(rEntityParam);
 
-		if (rEntity != null)
-		{
+		if (rEntity != null) {
 			Action<Entity> fUpdate = getParameter(ENTITY_UPDATE_ACTION);
 
-			if (fUpdate != null)
-			{
+			if (fUpdate != null) {
 				fUpdate.evaluate(rEntity);
 				setParameter(ENTITY_UPDATE_ACTION, null);
 			}
@@ -92,19 +81,16 @@ public class StoreEntity extends EntityStep
 		}
 	}
 
-	/***************************************
+	/**
 	 * @see EntityStep#prepareParameters()
 	 */
 	@Override
-	protected void prepareParameters() throws Exception
-	{
-		if (get(HISTORY_TARGET_PARAM) == null)
-		{
+	protected void prepareParameters() throws Exception {
+		if (get(HISTORY_TARGET_PARAM) == null) {
 			set(HISTORY_TARGET_PARAM, checkParameter(ENTITY_PARAM));
 		}
 
-		if (get(HistoryRecord.VALUE) == null)
-		{
+		if (get(HistoryRecord.VALUE) == null) {
 			set(HistoryRecord.VALUE, getProcess().get(StandardTypes.NAME));
 		}
 	}

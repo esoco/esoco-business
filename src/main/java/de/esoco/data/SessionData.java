@@ -32,68 +32,69 @@ import org.obrel.core.SerializableRelatedObject;
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * A structure that contains data that is associated with a certain session
  * managed by a {@link SessionManager}. All session data is stored and accessed
  * as relations.
  *
  * @author eso
  */
-public class SessionData extends SerializableRelatedObject
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class SessionData extends SerializableRelatedObject {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The session user. */
+	/**
+	 * The session user.
+	 */
 	public static final RelationType<Entity> SESSION_USER = newType();
 
-	/** The session user. */
+	/**
+	 * The session user.
+	 */
 	public static final RelationType<String> SESSION_LOGIN_NAME = newType();
 
-	/** The session-specific user data. */
+	/**
+	 * The session-specific user data.
+	 */
 	public static final RelationType<DataElementList> SESSION_USER_DATA =
 		newType();
 
-	/** The creation time of the session. */
+	/**
+	 * The creation time of the session.
+	 */
 	public static final RelationType<Date> SESSION_START_TIME = newType();
 
-	/** The session-specific log level. */
+	/**
+	 * The session-specific log level.
+	 */
 	public static final RelationType<LogLevel> SESSION_LOG_LEVEL = newType();
 
-	/** A mapping from user names to session data objects. */
+	/**
+	 * A mapping from user names to session data objects.
+	 */
 	public static final RelationType<Map<String, SessionData>> USER_SESSIONS =
 		newMapType(true);
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(SessionData.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public SessionData()
-	{
+	public SessionData() {
 		set(SESSION_START_TIME, new Date());
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Updates this instance with the given values.
 	 *
 	 * @param rUser      The entity that describes the session user
 	 * @param sLoginName The login name of the session user
 	 * @param rUserData  The user data
 	 */
-	public void update(Entity		   rUser,
-					   String		   sLoginName,
-					   DataElementList rUserData)
-	{
+	public void update(Entity rUser, String sLoginName,
+		DataElementList rUserData) {
 		set(SESSION_USER, rUser);
 		set(SESSION_LOGIN_NAME, sLoginName);
 		set(SESSION_USER_DATA, rUserData);

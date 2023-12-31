@@ -29,14 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newType;
 
-/********************************************************************
+/**
  * A base class for the test of processes and process steps.
  *
  * @author eso
  */
 public class AbstractProcessTest {
-	//~ Static fields/initializers
-	// ---------------------------------------------
 
 	/**
 	 * Postconditions for the automatic testing of processes
@@ -54,10 +52,7 @@ public class AbstractProcessTest {
 		RelationTypes.init(AbstractProcessTest.class);
 	}
 
-	//~ Static methods
-	// ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Assets that the predicates stored in the relation
 	 * {@link #POSTCONDITIONS}
 	 * of the given process (or the current process step if the process has not
@@ -94,10 +89,7 @@ public class AbstractProcessTest {
 		}
 	}
 
-	//~ Methods
-	// ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * A method for subclasses to create a process from a process definition,
 	 * execute it, and assert a set of postconditions. The postconditions must
 	 * be set as a map relation of type {@link #POSTCONDITIONS} in the given
@@ -116,10 +108,8 @@ public class AbstractProcessTest {
 	 * postconditions that are set on the process definition will always be
 	 * checked after the process has finished execution completely.</p>
 	 *
-	 * @param  rProcessDefinition The definition of the process to execute
-	 *
+	 * @param rProcessDefinition The definition of the process to execute
 	 * @return The finished process
-	 *
 	 * @throws ProcessException If executing the process fails
 	 */
 	protected Process executeProcess(ProcessDefinition rProcessDefinition)

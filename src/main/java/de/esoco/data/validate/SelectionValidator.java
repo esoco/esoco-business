@@ -23,8 +23,7 @@ import de.esoco.lib.model.ColumnDefinition;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A validator for the selection of a certain object from a list of data
  * objects. The value of the {@link SelectionDataElement} will be the index of
  * the selected data element, therefore this class validates the integer value
@@ -33,51 +32,39 @@ import java.util.List;
  * @author eso
  */
 public class SelectionValidator extends TabularDataValidator
-	implements HasValueList<HierarchicalDataObject>
-{
-	//~ Static fields/initializers ---------------------------------------------
+	implements HasValueList<HierarchicalDataObject> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private List<HierarchicalDataObject> rValues;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance that uses zero-based continuous integer values for
+	/**
+	 * Creates a new instance that uses zero-based continuous integer values
+	 * for
 	 * the identification of the data objects.
 	 *
 	 * @param rValues  The hierarchical data objects allowed by this instance
 	 * @param rColumns The table columns
 	 */
-	public SelectionValidator(
-		List<HierarchicalDataObject> rValues,
-		List<ColumnDefinition>		 rColumns)
-	{
+	public SelectionValidator(List<HierarchicalDataObject> rValues,
+		List<ColumnDefinition> rColumns) {
 		super(rColumns);
 
 		this.rValues = rValues;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	SelectionValidator()
-	{
+	SelectionValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (!super.equals(rObj))
-		{
+	public boolean equals(Object rObj) {
+		if (!super.equals(rObj)) {
 			return false;
 		}
 
@@ -86,30 +73,27 @@ public class SelectionValidator extends TabularDataValidator
 		return rValues.equals(rOther.rValues);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final List<HierarchicalDataObject> getValues()
-	{
+	public final List<HierarchicalDataObject> getValues() {
 		return rValues;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * super.hashCode() + rValues.hashCode();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(String sId)
-	{
+	public boolean isValid(String sId) {
 		return true;
 	}
 }

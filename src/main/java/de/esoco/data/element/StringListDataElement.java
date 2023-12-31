@@ -24,36 +24,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A list data element implementation for string values.
  *
  * @author eso
  */
-public class StringListDataElement extends ListDataElement<String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class StringListDataElement extends ListDataElement<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private List<String> rValues = new ArrayList<String>();
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance with a list of values.
 	 *
 	 * @param sName   The name of this element
 	 * @param rValues The string values for this element
 	 */
-	public StringListDataElement(String sName, List<String> rValues)
-	{
+	public StringListDataElement(String sName, List<String> rValues) {
 		this(sName, rValues, null, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with a list of values.
 	 *
 	 * @param sName      The name of this element
@@ -61,63 +53,51 @@ public class StringListDataElement extends ListDataElement<String>
 	 * @param rValidator The validator for the list elements or NULL for none
 	 * @param rFlags     The optional flags for this data element
 	 */
-	public StringListDataElement(String					   sName,
-								 List<String>			   rValues,
-								 Validator<? super String> rValidator,
-								 Set<Flag>				   rFlags)
-	{
+	public StringListDataElement(String sName, List<String> rValues,
+		Validator<? super String> rValidator, Set<Flag> rFlags) {
 		super(sName, rValidator, rFlags);
 
-		if (rValues != null)
-		{
+		if (rValues != null) {
 			this.rValues.addAll(rValues);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	StringListDataElement()
-	{
+	StringListDataElement() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringListDataElement copy(
-		CopyMode		   eMode,
-		PropertyName<?>... rCopyProperties)
-	{
+	public StringListDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (StringListDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * @see ListDataElement#getList()
 	 */
 	@Override
-	public final List<String> getList()
-	{
+	public final List<String> getList() {
 		return rValues;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected StringListDataElement newInstance()
-	{
+	protected StringListDataElement newInstance() {
 		return new StringListDataElement();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<String> rNewValues)
-	{
+	protected void updateValue(List<String> rNewValues) {
 		rValues = rNewValues;
 	}
 }

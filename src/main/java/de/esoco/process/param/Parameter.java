@@ -20,23 +20,20 @@ import de.esoco.process.step.InteractionFragment;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * The standard parameter subclass that will be used for most process parameter
  * relation types.
  *
  * @author eso
- * @see    ParameterBase
+ * @see ParameterBase
  */
-public class Parameter<T> extends ParameterBase<T, Parameter<T>>
-{
-	//~ Constructors -----------------------------------------------------------
+public class Parameter<T> extends ParameterBase<T, Parameter<T>> {
 
-	/***************************************
+	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public Parameter(InteractionFragment rFragment, RelationType<T> rParamType)
-	{
+	public Parameter(InteractionFragment rFragment,
+		RelationType<T> rParamType) {
 		super(rFragment, rParamType);
 	}
 }

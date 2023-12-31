@@ -41,27 +41,26 @@ import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * An interactive process fragment to select an entity from a list.
  *
  * @author eso
  */
-public class SelectEntity<E extends Entity> extends InteractionFragment
-{
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+public class SelectEntity<E extends Entity> extends InteractionFragment {
 
 	/**
 	 * A standard parameter that can be used to display this fragment in a
 	 * process step.
 	 */
-	public static final RelationType<List<RelationType<?>>> SELECT_ENTITY_FRAGMENT =
-		newListType();
+	public static final RelationType<List<RelationType<?>>>
+		SELECT_ENTITY_FRAGMENT = newListType();
 
-	/** The parameter containing the selected entity. */
+	/**
+	 * The parameter containing the selected entity.
+	 */
 	public static final RelationType<Entity> SELECTED_ENTITY = newType();
+
+	private static final long serialVersionUID = 1L;
 
 	private static final List<RelationType<?>> INTERACTION_PARAMS =
 		Arrays.<RelationType<?>>asList(SELECTED_ENTITY);
@@ -69,21 +68,19 @@ public class SelectEntity<E extends Entity> extends InteractionFragment
 	private static final List<RelationType<?>> INPUT_PARAMS =
 		Arrays.<RelationType<?>>asList(SELECTED_ENTITY);
 
-	static
-	{
+	static {
 		RelationTypes.init(SelectEntity.class);
 	}
 
-	//~ Instance fields --------------------------------------------------------
+	List<Function<? super E, ?>> rAttributes;
 
-	private QueryPredicate<E>		  qSelectableEntities;
+	private QueryPredicate<E> qSelectableEntities;
+
 	private Predicate<? super Entity> pSortOrder;
-	List<Function<? super E, ?>>	  rAttributes;
-	private boolean					  bValidateSelection;
 
-	//~ Constructors -----------------------------------------------------------
+	private boolean bValidateSelection;
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param qSelectableEntities The class of the entity type to select
@@ -94,98 +91,82 @@ public class SelectEntity<E extends Entity> extends InteractionFragment
 	 *                            selected; FALSE to allow no selection (i.e. a
 	 *                            NULL value) without a validation error
 	 */
-	public SelectEntity(QueryPredicate<E>			 qSelectableEntities,
-						Predicate<? super Entity>    pSortOrder,
-						List<Function<? super E, ?>> rAttributes,
-						boolean						 bValidateSelection)
-	{
+	public SelectEntity(QueryPredicate<E> qSelectableEntities,
+		Predicate<? super Entity> pSortOrder,
+		List<Function<? super E, ?>> rAttributes, boolean bValidateSelection) {
 		this.qSelectableEntities = qSelectableEntities;
-		this.pSortOrder			 = pSortOrder;
-		this.rAttributes		 = rAttributes;
-		this.bValidateSelection  = bValidateSelection;
+		this.pSortOrder = pSortOrder;
+		this.rAttributes = rAttributes;
+		this.bValidateSelection = bValidateSelection;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<RelationType<?>> getInputParameters()
-	{
+	public List<RelationType<?>> getInputParameters() {
 		return INPUT_PARAMS;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<RelationType<?>> getInteractionParameters()
-	{
+	public List<RelationType<?>> getInteractionParameters() {
 		return INTERACTION_PARAMS;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void handleInteraction(RelationType<?> rInteractionParam)
-		throws Exception
-	{
-		if (rInteractionParam == SELECTED_ENTITY)
-		{
+		throws Exception {
+		if (rInteractionParam == SELECTED_ENTITY) {
 			InteractionFragment rParent = getParent();
 
-			if (rParent instanceof DialogFragment)
-			{
-				((DialogFragment) rParent).finishDialog(DialogFragment
-														.DialogAction.OK);
+			if (rParent instanceof DialogFragment) {
+				((DialogFragment) rParent).finishDialog(
+					DialogFragment.DialogAction.OK);
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init()
-	{
+	public void init() {
 		setInteractive(InteractiveInputMode.ACTION, SELECTED_ENTITY);
 		setUIFlag(HIDE_LABEL, SELECTED_ENTITY);
 
 		initEntityQuery();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Map<RelationType<?>, String> validateParameters(
-		boolean bOnInteraction)
-	{
+		boolean bOnInteraction) {
 		Map<RelationType<?>, String> rInvalidParams =
 			super.validateParameters(bOnInteraction);
 
-		if (bValidateSelection &&
-			!bOnInteraction &&
-			getParameter(SELECTED_ENTITY) == null)
-		{
+		if (bValidateSelection && !bOnInteraction &&
+			getParameter(SELECTED_ENTITY) == null) {
 			rInvalidParams.put(SELECTED_ENTITY, MSG_PARAM_NOT_SET);
 		}
 
 		return rInvalidParams;
 	}
 
-	/***************************************
+	/**
 	 * Initializes the entity query.
 	 */
-	private void initEntityQuery()
-	{
-		if (rAttributes == null)
-		{
-			EntityDefinition<E> rDef =
-				EntityManager.getEntityDefinition(qSelectableEntities
-												  .getQueryType());
+	private void initEntityQuery() {
+		if (rAttributes == null) {
+			EntityDefinition<E> rDef = EntityManager.getEntityDefinition(
+				qSelectableEntities.getQueryType());
 
 			List<RelationType<?>> rDisplayAttr =
 				rDef.getDisplayAttributes(DisplayMode.COMPACT);
@@ -193,9 +174,8 @@ public class SelectEntity<E extends Entity> extends InteractionFragment
 			rAttributes = new ArrayList<Function<? super E, ?>>(rDisplayAttr);
 		}
 
-		annotateForEntityQuery(SELECTED_ENTITY,
-							   qSelectableEntities,
-							   pSortOrder,
-							   rAttributes);
+		annotateForEntityQuery(SELECTED_ENTITY, qSelectableEntities,
+			pSortOrder,
+			rAttributes);
 	}
 }

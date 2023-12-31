@@ -16,80 +16,78 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.element;
 
-/********************************************************************
+/**
  * An interface for objects that allow to write data rValues to some
  * destination.
  *
  * @author eso
  */
-public interface DataWriter
-{
-	//~ Methods ----------------------------------------------------------------
+public interface DataWriter {
 
-	/***************************************
+	/**
 	 * Writes a boolean rValue.
 	 *
 	 * @param bValue The boolean
 	 */
 	void writeBoolean(boolean bValue);
 
-	/***************************************
+	/**
 	 * Writes a byte rValue.
 	 *
 	 * @param nValue The byte
 	 */
 	void writeByte(byte nValue);
 
-	/***************************************
+	/**
 	 * Writes a char rValue.
 	 *
 	 * @param cValue The char
 	 */
 	void writeChar(char cValue);
 
-	/***************************************
+	/**
 	 * Writes a double rValue.
 	 *
 	 * @param fValue The double
 	 */
 	void writeDouble(double fValue);
 
-	/***************************************
+	/**
 	 * Writes a float rValue.
 	 *
 	 * @param fValue The float
 	 */
 	void writeFloat(float fValue);
 
-	/***************************************
+	/**
 	 * Writes a int rValue.
 	 *
 	 * @param nValue The int
 	 */
 	void writeInt(int nValue);
 
-	/***************************************
+	/**
 	 * Writes a long rValue.
 	 *
 	 * @param nValue The long
 	 */
 	void writeLong(long nValue);
 
-	/***************************************
+	/**
 	 * Writes a object rValue.
 	 *
 	 * @param rValue The object
 	 */
 	void writeObject(Object rValue);
 
-	/***************************************
+	/**
 	 * Writes a short rValue.
 	 *
 	 * @param nValue The short
 	 */
 	void writeShort(short nValue);
 
-	/***************************************
+	/**
 	 * Writes a string rValue.
 	 *
 	 * @param sValue The string

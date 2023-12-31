@@ -27,38 +27,32 @@ import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A paging table list that displays the
  *
  * @author eso
  */
-public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
-{
-	//~ Instance fields --------------------------------------------------------
+public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E> {
 
 	private EntityDataProvider<E> aEntityProvider;
 
-	private String				   sGlobalFilter		   = null;
+	private String sGlobalFilter = null;
+
 	private RelationType<String>[] aGlobalFilterAttributes;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new simple, non-expanding entity list.
 	 *
 	 * @param rParent          The parent container
 	 * @param rEntityType      The class of the entity type to display
 	 * @param pDefaultCriteria The default criteria or NULL for none
 	 */
-	public UiEntityTableList(UiContainer<?>		  rParent,
-							 Class<E>			  rEntityType,
-							 Predicate<? super E> pDefaultCriteria)
-	{
+	public UiEntityTableList(UiContainer<?> rParent, Class<E> rEntityType,
+		Predicate<? super E> pDefaultCriteria) {
 		this(rParent, rEntityType, pDefaultCriteria, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new expanding entity list.
 	 *
 	 * @param rParent          The parent container
@@ -67,11 +61,9 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 	 *                         for none
 	 * @param oExpandStyle     The expand style
 	 */
-	public UiEntityTableList(UiContainer<?>				 rParent,
-							 Class<E>					 rEntityType,
-							 Predicate<? super E>		 pDefaultCriteria,
-							 Option<ExpandableListStyle> oExpandStyle)
-	{
+	public UiEntityTableList(UiContainer<?> rParent, Class<E> rEntityType,
+		Predicate<? super E> pDefaultCriteria,
+		Option<ExpandableListStyle> oExpandStyle) {
 		super(rParent, oExpandStyle);
 
 		aEntityProvider =
@@ -80,59 +72,51 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E>
 		setData(aEntityProvider);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Changes the default criteria and updates the displayed data.
 	 *
 	 * @param pCriteria The new default criteria
 	 */
-	public void changeDefaultCriteria(Predicate<? super E> pCriteria)
-	{
+	public void changeDefaultCriteria(Predicate<? super E> pCriteria) {
 		aEntityProvider.setDefaultCriteria(pCriteria);
 		update();
 	}
 
-	/***************************************
+	/**
 	 * Returns the global filter string.
 	 *
 	 * @return The global filter string or NULL for none
 	 */
-	public final String getGlobalFilter()
-	{
+	public final String getGlobalFilter() {
 		return sGlobalFilter;
 	}
 
-	/***************************************
+	/**
 	 * Sets a global filter string for this list. This will apply the filter to
-	 * all attributes set with {@link
-	 * #setGlobalFilterAttributes(RelationType...)}.
+	 * all attributes set with
+	 * {@link #setGlobalFilterAttributes(RelationType...)}.
 	 *
 	 * @param sFilter The filter string or NULL or empty for no filter
 	 */
-	public void setGlobalFilter(String sFilter)
-	{
+	public void setGlobalFilter(String sFilter) {
 		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
 
-		aEntityProvider.setWildcardFilter(
-			sGlobalFilter,
+		aEntityProvider.setWildcardFilter(sGlobalFilter,
 			aGlobalFilterAttributes);
 		update();
 	}
 
-	/***************************************
+	/**
 	 * Sets the attributes to be considered by the global filter.
 	 *
 	 * @param rAttributes The new filter attributes
 	 */
 	@SafeVarargs
 	public final void setGlobalFilterAttributes(
-		RelationType<String>... rAttributes)
-	{
+		RelationType<String>... rAttributes) {
 		this.aGlobalFilterAttributes = rAttributes;
 
-		aEntityProvider.setWildcardFilter(
-			sGlobalFilter,
+		aEntityProvider.setWildcardFilter(sGlobalFilter,
 			aGlobalFilterAttributes);
 	}
 }

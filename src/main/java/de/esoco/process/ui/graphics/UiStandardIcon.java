@@ -18,61 +18,49 @@ package de.esoco.process.ui.graphics;
 
 import java.util.function.Function;
 
-
-/********************************************************************
+/**
  * An enumeration of some standard icons that are used internally by the process
  * UI API. Applications must register a mapping to a specific icon library by
  * invoking {@link #registerIconMapping(Function)} to make the standard icons
  * available.
  */
-public enum UiStandardIcon implements UiIconSupplier
-{
+public enum UiStandardIcon implements UiIconSupplier {
 	ARROW_LEFT, ARROW_RIGHT, ARROW_UP, ARROW_DOWN, LEFT, RIGHT, UP, DOWN,
 	PREVIOUS, NEXT, FIRST_PAGE, LAST_PAGE, PLAY, PAUSE, STOP, SKIP_PREVIOUS,
-	SKIP_NEXT, FAST_REWIND, FAST_FORWARD, BACKSPACE, CANCEL, CLOSE, DONE, ERROR,
+	SKIP_NEXT, FAST_REWIND, FAST_FORWARD, BACKSPACE, CANCEL, CLOSE, DONE,
+	ERROR,
 	HELP, INFO, WARNING, FILE_DOWNLOAD, FILE_UPLOAD, HISTORY, MENU,
 	MORE_HORIZONTAL, MORE_VERTICAL, SEND, SETTINGS, UNDO;
 
-	//~ Static fields/initializers ---------------------------------------------
-
 	private static Function<UiStandardIcon, UiIconSupplier> fIconMapping;
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Registers a mapping function that maps implementation icons to standard
 	 * icon constants.
 	 *
 	 * @param fMapping The icon mapping function
 	 */
 	public static void registerIconMapping(
-		Function<UiStandardIcon, UiIconSupplier> fMapping)
-	{
+		Function<UiStandardIcon, UiIconSupplier> fMapping) {
 		fIconMapping = fMapping;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiIconName getIcon()
-	{
+	public UiIconName getIcon() {
 		UiIconName rIcon = null;
 
-		if (fIconMapping != null)
-		{
+		if (fIconMapping != null) {
 			UiIconSupplier rIconSupplier = fIconMapping.apply(this);
 
-			if (rIconSupplier != null)
-			{
+			if (rIconSupplier != null) {
 				rIcon = rIconSupplier.getIcon();
 			}
-		}
-		else
-		{
-			assert false : "No standard icon mapping available. Icon mapping registered?";
+		} else {
+			assert false :
+				"No standard icon mapping available. Icon mapping registered?";
 		}
 
 		return rIcon;

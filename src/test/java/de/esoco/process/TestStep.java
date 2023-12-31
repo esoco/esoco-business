@@ -25,63 +25,58 @@ import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newIntType;
 
-
-/********************************************************************
+/**
  * Test process step implementation.
  *
  * @author eso
  */
-public class TestStep extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class TestStep extends ProcessStep {
 
-	private static final long serialVersionUID = 1L;
-
-	/** Test parameter ID */
+	/**
+	 * Test parameter ID
+	 */
 	public static final RelationType<Integer> TEST_INT_PARAM = newIntType();
 
-	/** Interactive test interruptions */
+	/**
+	 * Interactive test interruptions
+	 */
 	public static final RelationType<Integer> TEST_INTERACTION_COUNT =
 		newIntType();
 
-	/** Test result parameter ID */
+	/**
+	 * Test result parameter ID
+	 */
 	public static final RelationType<String> TEST_STRING_RESULT =
 		newInitialValueType("");
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(TestStep.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public TestStep()
-	{
+	public TestStep() {
 		setMandatory(TEST_INT_PARAM);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see de.esoco.process.ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Test execution. Test
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void execute()
-	{
-		int    rValue  = checkParameter(TEST_INT_PARAM);
+	protected void execute() {
+		int rValue = checkParameter(TEST_INT_PARAM);
 		String sResult = checkParameter(TEST_STRING_RESULT);
 
 		sResult += getName().charAt(getName().length() - 1);
@@ -89,14 +84,13 @@ public class TestStep extends ProcessStep
 		setParameter(TEST_INT_PARAM, rValue + 1);
 		setParameter(TEST_STRING_RESULT, sResult);
 
-		if (hasFlag(MetaTypes.INTERACTIVE))
-		{
+		if (hasFlag(MetaTypes.INTERACTIVE)) {
 			setParameter(TEST_INTERACTION_COUNT,
-						 checkParameter(TEST_INTERACTION_COUNT) + 1);
+				checkParameter(TEST_INTERACTION_COUNT) + 1);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns a list containing {@link #TEST_INT_PARAM} if this instance has
 	 * the flag relation {@link MetaTypes#INTERACTIVE} is set. Else returns
 	 * NULL.
@@ -104,26 +98,23 @@ public class TestStep extends ProcessStep
 	 * @see ProcessStep#prepareStep()
 	 */
 	@Override
-	protected boolean prepareStep() throws Exception
-	{
+	protected boolean prepareStep() throws Exception {
 		boolean bInteractive = hasFlag(MetaTypes.INTERACTIVE);
 
-		if (bInteractive && !hasRelation(INPUT_PARAMS))
-		{
+		if (bInteractive && !hasRelation(INPUT_PARAMS)) {
 			addInputParameters(TEST_INT_PARAM, TEST_STRING_RESULT);
 		}
 
 		return !bInteractive;
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void rollback() throws Exception
-	{
-		int    v	   = checkParameter(TEST_INT_PARAM);
+	protected void rollback() throws Exception {
+		int v = checkParameter(TEST_INT_PARAM);
 		String sResult = checkParameter(TEST_STRING_RESULT);
 
 		sResult = sResult.substring(0, sResult.length() - 1);

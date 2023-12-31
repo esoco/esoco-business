@@ -22,27 +22,22 @@ import de.esoco.process.ui.UiChildView;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
 
-
-/********************************************************************
+/**
  * A view that is displayed as a pop-up windows over a parent view.
  *
  * @author eso
  */
-public class UiPopupView extends UiChildView<UiPopupView>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiPopupView extends UiChildView<UiPopupView> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent view
 	 * @param rLayout The dialog layout
 	 * @param bModal  TRUE to block any input outside of the view
 	 */
-	public UiPopupView(UiView<?> rParent, UiLayout rLayout, boolean bModal)
-	{
-		super(rParent,
-			  rLayout,
-			  bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
+	public UiPopupView(UiView<?> rParent, UiLayout rLayout, boolean bModal) {
+		super(rParent, rLayout,
+			bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
 	}
 }

@@ -22,31 +22,24 @@ import de.esoco.lib.property.PropertyName;
 
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A data element that stores a {@link DataSet} for a chart.
  *
  * @author eso
  */
-public class DataSetDataElement extends DataElement<DataSet<?>>
-{
-	//~ Enums ------------------------------------------------------------------
+public class DataSetDataElement extends DataElement<DataSet<?>> {
 
-	/********************************************************************
+	/**
 	 * Redefinition of chart types to make them available on the server side.
 	 */
 
-	public enum ChartType { AREA, BAR, COLUMN, GEO_MAP, LINE, PIE, GAUGE }
+	public enum ChartType {AREA, BAR, COLUMN, GEO_MAP, LINE, PIE, GAUGE}
 
-	/********************************************************************
+	/**
 	 * Redefinition of legend positions to make them available on the server
 	 * side.
 	 */
-	public enum LegendPosition { TOP, BOTTOM, LEFT, RIGHT, NONE }
-
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+	public enum LegendPosition {TOP, BOTTOM, LEFT, RIGHT, NONE}
 
 	/**
 	 * Enum property: the type of the chart to render (for possible values see
@@ -60,39 +53,40 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	 * {@link LegendPosition})
 	 */
 	public static final PropertyName<LegendPosition> CHART_LEGEND_POSITION =
-		PropertyName.newEnumName("CHART_LEGEND_POSITION", LegendPosition.class);
+		PropertyName.newEnumName("CHART_LEGEND_POSITION",
+			LegendPosition.class);
 
-	/** The chart background color */
+	/**
+	 * The chart background color
+	 */
 	public static final PropertyName<Color> CHART_BACKGROUND =
 		PropertyName.newName("CHART_BACKGROUND", Color.class);
 
-	/** Boolean property: display chart in 3D */
+	/**
+	 * Boolean property: display chart in 3D
+	 */
 	public static final PropertyName<Boolean> CHART_3D =
 		PropertyName.newBooleanName("CHART_3D");
 
-	//~ Instance fields --------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
 	private DataSet<?> rDataSet;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName    The name of the data element
 	 * @param rDataSet The data set for the chart
 	 * @param rFlags   The flags for this instance
 	 */
-	public DataSetDataElement(String	 sName,
-							  DataSet<?> rDataSet,
-							  Set<Flag>  rFlags)
-	{
+	public DataSetDataElement(String sName, DataSet<?> rDataSet,
+		Set<Flag> rFlags) {
 		super(sName, null, rFlags);
 
 		this.rDataSet = rDataSet;
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with certain display properties set.
 	 *
 	 * @param sName            The name of the data element
@@ -102,77 +96,63 @@ public class DataSetDataElement extends DataElement<DataSet<?>>
 	 * @param sBackgroundColor The chart background color
 	 * @param b3D              TRUE for a 3D chart
 	 */
-	public DataSetDataElement(String		 sName,
-							  DataSet<?>	 aDataSet,
-							  ChartType		 eChartType,
-							  LegendPosition eLegendPosition,
-							  String		 sBackgroundColor,
-							  boolean		 b3D)
-	{
+	public DataSetDataElement(String sName, DataSet<?> aDataSet,
+		ChartType eChartType, LegendPosition eLegendPosition,
+		String sBackgroundColor, boolean b3D) {
 		this(sName, aDataSet, DISPLAY_FLAGS);
 
 		setProperty(CHART_BACKGROUND, Color.valueOf(sBackgroundColor));
 		setProperty(CHART_LEGEND_POSITION, eLegendPosition);
 		setProperty(CHART_TYPE, eChartType);
 
-		if (b3D)
-		{
+		if (b3D) {
 			setFlag(CHART_3D);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for GWT serialization.
 	 */
-	DataSetDataElement()
-	{
+	DataSetDataElement() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * This method should be invoked to initialize the property name constants
 	 * for de-serialization.
 	 */
-	public static void init()
-	{
+	public static void init() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DataSetDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
-	{
+	public DataSetDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (DataSetDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#getValue()
 	 */
 	@Override
-	public DataSet<?> getValue()
-	{
+	public DataSet<?> getValue() {
 		return rDataSet;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataSetDataElement newInstance()
-	{
+	protected DataSetDataElement newInstance() {
 		return new DataSetDataElement();
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected void updateValue(DataSet<?> rNewDataSet)
-	{
+	protected void updateValue(DataSet<?> rNewDataSet) {
 		rDataSet = rNewDataSet;
 	}
 }

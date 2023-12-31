@@ -16,24 +16,23 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.net;
 
-/********************************************************************
+/**
  * An interface that represents a response to a {@link ExternalServiceRequest}.
  *
  * @author eso
  */
-public interface ExternalServiceResponse
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ExternalServiceResponse {
 
-	/***************************************
-	 * Returns the response code. The value is implementation dependent but will
+	/**
+	 * Returns the response code. The value is implementation dependent but
+	 * will
 	 * typically be an HTTP response code.
 	 *
 	 * @return The response code
 	 */
 	public int getCode();
 
-	/***************************************
+	/**
 	 * Returns the response data. The contents is implementation dependent but
 	 * will typically be the body of an HTTP response.
 	 *
@@ -41,7 +40,7 @@ public interface ExternalServiceResponse
 	 */
 	public String getData();
 
-	/***************************************
+	/**
 	 * Returns the response message that is related to the response code.
 	 *
 	 * @return The response message

@@ -31,8 +31,7 @@ import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypes.newRelationType;
 
-
-/********************************************************************
+/**
  * A process step that closes and/or disposes a resource that is contained in a
  * certain parameter. The ID of the parameter that contains the resource to be
  * disposed must be set in this step's parameter {@link #DISPOSE_RESOURCE}.
@@ -45,66 +44,51 @@ import static org.obrel.core.RelationTypes.newRelationType;
  *
  * @author thomas
  */
-public class DisposeResource extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class DisposeResource extends ProcessStep {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The ID of the parameter that contains the resource to be disposed. */
+	/**
+	 * The ID of the parameter that contains the resource to be disposed.
+	 */
 	public static final RelationType<RelationType<?>> DISPOSE_RESOURCE =
 		newRelationType("DISPOSE_RESOURCE", RelationType.class);
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(DisposeResource.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public DisposeResource()
-	{
+	public DisposeResource() {
 		setMandatory(DISPOSE_RESOURCE);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Reads the resource object from the process parameters and disposes it.
-	 * The ID of the parameter to read the object from must be contained in this
+	 * The ID of the parameter to read the object from must be contained in
+	 * this
 	 * step's parameter {@link #DISPOSE_RESOURCE}.
 	 *
 	 * @throws ProcessException if the parameter ID of the resource to be
 	 *                          disposed is not set or the disposing of the
 	 *                          resource fails
-	 * @throws IOException
 	 */
 	@Override
-	protected void execute() throws ProcessException, IOException
-	{
-		RelationType<?> rParam    = checkParameter(DISPOSE_RESOURCE);
-		Object		    rResource = checkParameter(rParam);
+	protected void execute() throws ProcessException, IOException {
+		RelationType<?> rParam = checkParameter(DISPOSE_RESOURCE);
+		Object rResource = checkParameter(rParam);
 
-		if (rResource instanceof Closeable)
-		{
+		if (rResource instanceof Closeable) {
 			((Closeable) rResource).close();
-		}
-		else if (rResource instanceof Disposable)
-		{
+		} else if (rResource instanceof Disposable) {
 			((Disposable) rResource).dispose();
-		}
-		else if (rResource instanceof Socket)
-		{
+		} else if (rResource instanceof Socket) {
 			((Socket) rResource).close();
-		}
-		else
-		{
+		} else {
 			throw new ProcessException(this,
-									   "Invalid resource in " + rParam + ": " +
-									   rResource);
+				"Invalid resource in " + rParam + ": " + rResource);
 		}
 	}
 }

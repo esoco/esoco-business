@@ -16,85 +16,70 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-/********************************************************************
+/**
  * Base class for all process-specific exceptions.
  *
  * @author eso
  */
-public class ProcessException extends RuntimeException
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ProcessException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final ProcessFragment rStep;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rStep    The step in which the exception occurred
 	 * @param sMessage The error message
 	 */
-	public ProcessException(ProcessFragment rStep, String sMessage)
-	{
+	public ProcessException(ProcessFragment rStep, String sMessage) {
 		this(rStep, sMessage, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rStep  The step in which the exception occurred
 	 * @param aCause The causing exception (may be NULL)
 	 */
-	public ProcessException(ProcessFragment rStep, Throwable aCause)
-	{
+	public ProcessException(ProcessFragment rStep, Throwable aCause) {
 		this(rStep, null, aCause);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rStep    The step in which the exception occurred
 	 * @param sMessage The error message
 	 * @param aCause   The causing exception (may be NULL)
 	 */
-	public ProcessException(ProcessFragment rStep,
-							String			sMessage,
-							Throwable		aCause)
-	{
+	public ProcessException(ProcessFragment rStep, String sMessage,
+		Throwable aCause) {
 		super(sMessage, aCause);
 
 		this.rStep = rStep;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the process step that caused this exception.
 	 *
 	 * @return The process step
 	 */
-	public final ProcessFragment getProcessStep()
-	{
+	public final ProcessFragment getProcessStep() {
 		return rStep;
 	}
 
-	/***************************************
+	/**
 	 * Returns the root exception of this instance, i.e. the topmost causing
 	 * exception or this if no cause exists.
 	 *
 	 * @return The root exception
 	 */
-	public Throwable getRootException()
-	{
+	public Throwable getRootException() {
 		Throwable eRoot = this;
 
-		while (eRoot.getCause() != null)
-		{
+		while (eRoot.getCause() != null) {
 			eRoot = eRoot.getCause();
 		}
 

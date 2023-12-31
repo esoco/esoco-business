@@ -22,26 +22,23 @@ import de.esoco.process.ui.UiInputField;
 
 import java.util.function.Consumer;
 
-
-/********************************************************************
+/**
  * An event listener abstraction that indicates that a component can produce
  * events if some action occurred (e.g. button clicked, text entered, selection
  * confirmed). Action events are typically mapped onto more specific events of
- * components like {@link UiButtonControl#onClick(Consumer)} or {@link
- * UiInputField#onEnter(Consumer)}.
+ * components like {@link UiButtonControl#onClick(Consumer)} or
+ * {@link UiInputField#onEnter(Consumer)}.
  *
  * @author eso
  */
-public interface UiHasActionEvents<T, C extends UiComponent<T, ?>>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UiHasActionEvents<T, C extends UiComponent<T, ?>> {
 
-	/***************************************
-	 * Registers an event handler that will be invoked on action events with the
+	/**
+	 * Registers an event handler that will be invoked on action events with
+	 * the
 	 * new component value.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
+	 * @param rEventHandler The event handler to be invoked
 	 * @return The component the handler has been registered on
 	 */
 	public C onAction(Consumer<T> rEventHandler);

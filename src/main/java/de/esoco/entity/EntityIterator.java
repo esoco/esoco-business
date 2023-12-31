@@ -30,8 +30,7 @@ import de.esoco.storage.StorageRuntimeException;
 
 import java.util.Iterator;
 
-
-/********************************************************************
+/**
  * An iterator implementation for the iteration over an entity query. Because
  * the methods of the {@link Iterator} interface don't support throwing
  * exceptions a occurring {@link StorageException} will be converted into a
@@ -44,107 +43,91 @@ import java.util.Iterator;
  *
  * @author eso
  */
-public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
-{
-	//~ Instance fields --------------------------------------------------------
+public class EntityIterator<E extends Entity>
+	implements Iterator<E>, Closeable {
 
 	private QueryPredicate<E> qEntities;
-	private boolean			  bUseNewStorage;
 
-	private Storage		   rStorage     = null;
-	private Query<E>	   rQuery;
+	private boolean bUseNewStorage;
+
+	private Storage rStorage = null;
+
+	private Query<E> rQuery;
+
 	private QueryResult<E> rQueryResult;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that performs a certain query on the default
 	 * storage for the queried entity type and current thread.
 	 *
 	 * @param qEntities The entity query
 	 */
-	public EntityIterator(QueryPredicate<E> qEntities)
-	{
+	public EntityIterator(QueryPredicate<E> qEntities) {
 		this(qEntities, false);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance that performs a certain query.
 	 *
 	 * @param qEntities      The entity query to perform
-	 * @param bUseNewStorage TRUE to perform the query on a new storage instance
+	 * @param bUseNewStorage TRUE to perform the query on a new storage
+	 *                          instance
 	 *                       (instead of the shared storage for the current
 	 *                       thread)
 	 */
-	public EntityIterator(QueryPredicate<E> qEntities, boolean bUseNewStorage)
-	{
-		this.qEntities	    = qEntities;
+	public EntityIterator(QueryPredicate<E> qEntities,
+		boolean bUseNewStorage) {
+		this.qEntities = qEntities;
 		this.bUseNewStorage = bUseNewStorage;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Closes the query result and releases the storage. This method must always
+	/**
+	 * Closes the query result and releases the storage. This method must
+	 * always
 	 * be invoked after an entity iterator has been used to prevent resource
 	 * leakage.
 	 */
 	@Override
-	public void close()
-	{
-		if (rStorage != null)
-		{
-			try
-			{
-				if (rQuery != null)
-				{
+	public void close() {
+		if (rStorage != null) {
+			try {
+				if (rQuery != null) {
 					rQuery.close();
 				}
-			}
-			finally
-			{
+			} finally {
 				rStorage.release();
 				rStorage = null;
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Invokes a function on each iterated entity and closes the storage
 	 * afterwards. Like in the iterator methods a storage exception that occurs
 	 * will be wrapped into a {@link StorageRuntimeException}.
 	 *
 	 * @param fAction The function to invoke on each entity
 	 */
-	public void forEach(Action<E> fAction)
-	{
-		try
-		{
-			while (hasNext())
-			{
+	public void forEach(Action<E> fAction) {
+		try {
+			while (hasNext()) {
 				fAction.evaluate(next());
 			}
-		}
-		finally
-		{
+		} finally {
 			close();
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean hasNext()
-	{
-		try
-		{
+	public boolean hasNext() {
+		try {
 			checkPrepareQuery();
 
 			return rQueryResult.hasNext();
-		}
-		catch (StorageException e)
-		{
+		} catch (StorageException e) {
 			handleError(e);
 
 			// not reached, handleError always throws exception
@@ -152,25 +135,20 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public E next()
-	{
-		try
-		{
+	public E next() {
+		try {
 			E rEntity = rQueryResult.next();
 
-			if (rEntity.isRoot())
-			{
+			if (rEntity.isRoot()) {
 				rEntity = EntityManager.checkCaching(rEntity);
 			}
 
 			return rEntity;
-		}
-		catch (StorageException e)
-		{
+		} catch (StorageException e) {
 			handleError(e);
 
 			// not reached, handleError always throws exception
@@ -178,11 +156,13 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the index of the next entity to be returned by the combination of
 	 * calls to {@link #hasNext()} and {@link #next()}. If the index is invalid
-	 * for the current query {@link #hasNext()} will return FALSE. This is based
-	 * on {@link QueryResult#setPosition(int, boolean)}, so the same limitations
+	 * for the current query {@link #hasNext()} will return FALSE. This is
+	 * based
+	 * on {@link QueryResult#setPosition(int, boolean)}, so the same
+	 * limitations
 	 * apply.
 	 *
 	 * @param nIndex    The new position of this iterator
@@ -190,36 +170,27 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 	 *                  position, FALSE to set an absolute position relative to
 	 *                  the full query
 	 */
-	public void setPosition(int nIndex, boolean bRelative)
-	{
-		try
-		{
+	public void setPosition(int nIndex, boolean bRelative) {
+		try {
 			checkPrepareQuery();
 			rQueryResult.setPosition(nIndex, bRelative);
-		}
-		catch (StorageException e)
-		{
+		} catch (StorageException e) {
 			handleError(e);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns the size of the query result this iterator represents.
 	 *
 	 * @return The query size
-	 *
-	 * @see    Query#size()
+	 * @see Query#size()
 	 */
-	public int size()
-	{
-		try
-		{
+	public int size() {
+		try {
 			checkPrepareQuery();
 
 			return rQuery.size();
-		}
-		catch (StorageException e)
-		{
+		} catch (StorageException e) {
 			handleError(e);
 
 			// not reached, handleError always throws exception
@@ -227,43 +198,36 @@ public class EntityIterator<E extends Entity> implements Iterator<E>, Closeable
 		}
 	}
 
-	/***************************************
+	/**
 	 * Prepares the query of this iterator if not yet done.
 	 *
 	 * @throws StorageException If the storage access fails
 	 */
-	protected void checkPrepareQuery() throws StorageException
-	{
-		if (rStorage == null)
-		{
+	protected void checkPrepareQuery() throws StorageException {
+		if (rStorage == null) {
 			Class<E> rQueryType = qEntities.getQueryType();
 
-			rStorage =
-				bUseNewStorage ? StorageManager.newStorage(rQueryType)
-							   : StorageManager.getStorage(rQueryType);
+			rStorage = bUseNewStorage ?
+			           StorageManager.newStorage(rQueryType) :
+			           StorageManager.getStorage(rQueryType);
 
-			rQuery		 = rStorage.query(qEntities);
+			rQuery = rStorage.query(qEntities);
 			rQueryResult = rQuery.execute();
 		}
 	}
 
-	/***************************************
+	/**
 	 * Performs the error handling if an exception occurred in another iterator
 	 * method.
 	 *
-	 * @param  eStorage e The exception
-	 *
+	 * @param eStorage e The exception
 	 * @throws StorageRuntimeException The converted exception
 	 */
 	protected void handleError(StorageException eStorage)
-		throws StorageRuntimeException
-	{
-		try
-		{
+		throws StorageRuntimeException {
+		try {
 			close();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			Log.error(e.getMessage());
 			// continue with original exception
 		}

@@ -86,49 +86,52 @@ import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 
-
-/********************************************************************
+/**
  * A generic fragment for the editing of an entity's attributes and children.
  *
  * @author eso
  */
-public class EditEntity extends InteractionFragment
-{
-	//~ Enums ------------------------------------------------------------------
+public class EditEntity extends InteractionFragment {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the available attribute edit actions.
 	 */
-	public enum AttributesAction { SAVE }
+	public enum AttributesAction {SAVE}
 
-	/********************************************************************
+	/**
 	 * Enumeration of the available child edit actions.
 	 */
-	public enum DetailAction { NEW, EDIT, DELETE }
+	public enum DetailAction {NEW, EDIT, DELETE}
 
-	/********************************************************************
+	/**
 	 * Enumeration of the available extra attribute edit actions.
 	 */
-	public enum ExtraAttrAction { SAVE }
+	public enum ExtraAttrAction {SAVE}
 
-	//~ Static fields/initializers ---------------------------------------------
+	/**
+	 * A default parameter for this fragment.
+	 */
+	public static final RelationType<List<RelationType<?>>>
+		EDIT_ENTITY_FRAGMENT = newListType();
+
+	/**
+	 * The entity to be edited.
+	 */
+	public static final RelationType<Entity> EDITED_ENTITY = newType();
+
+	/**
+	 * A child entity to be edited.
+	 */
+	public static final RelationType<Entity> EDITED_ENTITY_CHILD = newType();
+
+	/**
+	 * The parent of an edited child entity.
+	 */
+	public static final RelationType<Entity> EDITED_ENTITY_PARENT = newType();
 
 	private static final long serialVersionUID = 1L;
 
 	private static final int CHILD_TABLE_ROWS = -1;
-
-	/** A default parameter for this fragment. */
-	public static final RelationType<List<RelationType<?>>> EDIT_ENTITY_FRAGMENT =
-		newListType();
-
-	/** The entity to be edited. */
-	public static final RelationType<Entity> EDITED_ENTITY = newType();
-
-	/** A child entity to be edited. */
-	public static final RelationType<Entity> EDITED_ENTITY_CHILD = newType();
-
-	/** The parent of an edited child entity. */
-	public static final RelationType<Entity> EDITED_ENTITY_PARENT = newType();
 
 	private static final RelationType<String> EDIT_ENTITY_ERROR_MESSAGE =
 		newType();
@@ -140,18 +143,15 @@ public class EditEntity extends InteractionFragment
 	private static final RelationType<ExtraAttrAction> EXTRA_ATTR_ACTION =
 		newType();
 
-	private static final RelationType<RelationType<? extends Entity>> TAB_LIST_PARAM =
-		newType();
+	private static final RelationType<RelationType<? extends Entity>>
+		TAB_LIST_PARAM = newType();
 
-	private static final RelationType<RelationType<DetailAction>> TAB_ACTION_PARAM =
-		newType();
+	private static final RelationType<RelationType<DetailAction>>
+		TAB_ACTION_PARAM = newType();
 
-	static
-	{
+	static {
 		RelationTypes.init(EditEntity.class);
 	}
-
-	//~ Instance fields --------------------------------------------------------
 
 	private RelationType<Entity> rEditedEntityParam;
 
@@ -159,9 +159,11 @@ public class EditEntity extends InteractionFragment
 
 	private Collection<String> aExtraAttrKeys;
 
-	private RelationType<?>				   rCurrentExtraAttrKey = null;
+	private RelationType<?> rCurrentExtraAttrKey = null;
+
 	private RelationType<AttributesAction> aAttrActionParam;
-	private RelationType<?>				   rExtraAttrListParam;
+
+	private RelationType<?> rExtraAttrListParam;
 
 	private Map<RelationType<?>, RelationType<?>> aEntityAttrParamsMap =
 		new HashMap<RelationType<?>, RelationType<?>>();
@@ -172,39 +174,29 @@ public class EditEntity extends InteractionFragment
 	private List<RelationType<?>> aInputParams =
 		new ArrayList<RelationType<?>>();
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that edits the entity in a certain process
 	 * parameter.
 	 *
 	 * @param rEntityParam The parameter containing the entity to edit
 	 */
-	public EditEntity(RelationType<Entity> rEntityParam)
-	{
+	public EditEntity(RelationType<Entity> rEntityParam) {
 		rEditedEntityParam = rEntityParam;
-		aExtraAttrKeys     = collectExtraAttributeKeys();
+		aExtraAttrKeys = collectExtraAttributeKeys();
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Determines the temporary parameter name prefix for a certain entity.
 	 *
-	 * @param  rEntity The entity
-	 *
+	 * @param rEntity The entity
 	 * @return The parameter name prefix
 	 */
-	public static String getParameterPrefix(Entity rEntity)
-	{
+	public static String getParameterPrefix(Entity rEntity) {
 		String sEntityPrefix;
 
-		if (rEntity.isPersistent())
-		{
+		if (rEntity.isPersistent()) {
 			sEntityPrefix = rEntity.getGlobalId();
-		}
-		else
-		{
+		} else {
 			sEntityPrefix = rEntity.getClass().getSimpleName();
 			sEntityPrefix = TextConvert.capitalizedIdentifier(sEntityPrefix);
 		}
@@ -212,85 +204,71 @@ public class EditEntity extends InteractionFragment
 		return sEntityPrefix + "_";
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see InteractionFragment#getInputParameters()
 	 */
 	@Override
-	public List<RelationType<?>> getInputParameters()
-	{
+	public List<RelationType<?>> getInputParameters() {
 		return aInputParams;
 	}
 
-	/***************************************
+	/**
 	 * @see InteractionFragment#getInteractionParameters()
 	 */
 	@Override
-	public List<RelationType<?>> getInteractionParameters()
-	{
+	public List<RelationType<?>> getInteractionParameters() {
 		return aInteractionParams;
 	}
 
-	/***************************************
+	/**
 	 * @see InteractionFragment#handleInteraction(RelationType)
 	 */
 	@Override
 	public void handleInteraction(RelationType<?> rInteractionParam)
-		throws Exception
-	{
+		throws Exception {
 		setParameter(EDIT_ENTITY_ERROR_MESSAGE, "");
 
-		try
-		{
+		try {
 			handleInteractionParam(rInteractionParam);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			setParameter(EDIT_ENTITY_ERROR_MESSAGE, "ERR: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
-	/***************************************
+	/**
 	 * @see InteractionFragment#init()
 	 */
 	@Override
-	public void init() throws Exception
-	{
+	public void init() throws Exception {
 		setEntity(rEditedEntity);
 	}
 
-	/***************************************
+	/**
 	 * @see InteractionFragment#prepareInteraction()
 	 */
 	@Override
-	public void prepareInteraction() throws Exception
-	{
+	public void prepareInteraction() throws Exception {
 		Entity rNewEntity = get(rEditedEntityParam);
 
-		if (rNewEntity == null)
-		{
+		if (rNewEntity == null) {
 			rNewEntity = checkParameter(rEditedEntityParam);
 		}
 
-		if (rNewEntity != rEditedEntity)
-		{
+		if (rNewEntity != rEditedEntity) {
 			setEntity(rNewEntity);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Creates a collection of the names of the available extra attribute keys.
 	 *
 	 * @return The new collection
 	 */
-	private Collection<String> collectExtraAttributeKeys()
-	{
-		List<RelationType<?>> aExtraAttrs =
-			new ArrayList<RelationType<?>>(
-				RelationType.getRelationTypes(
-					r -> r.hasFlag(EXTRA_ATTRIBUTE_FLAG)));
+	private Collection<String> collectExtraAttributeKeys() {
+		List<RelationType<?>> aExtraAttrs = new ArrayList<RelationType<?>>(
+			RelationType.getRelationTypes(
+				r -> r.hasFlag(EXTRA_ATTRIBUTE_FLAG)));
 
 		List<String> aKeys =
 			CollectionUtil.map(aExtraAttrs, RelationType::getSimpleName);
@@ -301,33 +279,27 @@ public class EditEntity extends InteractionFragment
 		return aKeys;
 	}
 
-	/***************************************
+	/**
 	 * Creates and sets the process parameters for the entity attributes.
 	 *
-	 * @param  sPrefix    The prefix for the parameter names
-	 * @param  rEntityDef The entity attributes
-	 *
+	 * @param sPrefix    The prefix for the parameter names
+	 * @param rEntityDef The entity attributes
 	 * @return A new list containing the attribute process parameters
 	 */
 	@SuppressWarnings("unchecked")
-	private List<RelationType<?>> createAttributeParameters(
-		String				sPrefix,
-		EntityDefinition<?> rEntityDef)
-	{
+	private List<RelationType<?>> createAttributeParameters(String sPrefix,
+		EntityDefinition<?> rEntityDef) {
 		Collection<RelationType<?>> rAttributes = rEntityDef.getAttributes();
-		RelationType<Number>	    rIdAttr     = rEntityDef.getIdAttribute();
+		RelationType<Number> rIdAttr = rEntityDef.getIdAttribute();
 
 		List<RelationType<?>> aAttrTabParams =
 			new ArrayList<RelationType<?>>(rAttributes.size());
 
-		aAttrActionParam =
-			getTemporaryParameterType(
-				sPrefix + "ATTR_ACTION",
-				AttributesAction.class);
+		aAttrActionParam = getTemporaryParameterType(sPrefix + "ATTR_ACTION",
+			AttributesAction.class);
 
-		for (RelationType<?> rAttr : rAttributes)
-		{
-			String		  sAttrName   = rAttr.getSimpleName();
+		for (RelationType<?> rAttr : rAttributes) {
+			String sAttrName = rAttr.getSimpleName();
 			Class<Object> rTargetType = (Class<Object>) rAttr.getTargetType();
 
 			RelationType<Object> aAttrParam =
@@ -337,14 +309,10 @@ public class EditEntity extends InteractionFragment
 			setParameter(aAttrParam, rEditedEntity.get(rAttr));
 			setAttributeProperties(rEditedEntity, aAttrParam, sAttrName);
 
-			if (rAttr == rIdAttr)
-			{
-				if (rEditedEntity.isPersistent())
-				{
+			if (rAttr == rIdAttr) {
+				if (rEditedEntity.isPersistent()) {
 					aInputParams.remove(aAttrParam);
-				}
-				else
-				{
+				} else {
 					aAttrParam.set(MetaTypes.OPTIONAL);
 				}
 			}
@@ -354,8 +322,7 @@ public class EditEntity extends InteractionFragment
 			setUIProperty(HTML_WIDTH, "100%", aAttrParam);
 		}
 
-		if (aAttrTabParams.size() > 0)
-		{
+		if (aAttrTabParams.size() > 0) {
 			aAttrTabParams.add(1, aAttrActionParam);
 			aInputParams.add(aAttrActionParam);
 
@@ -369,20 +336,17 @@ public class EditEntity extends InteractionFragment
 		return aAttrTabParams;
 	}
 
-	/***************************************
+	/**
 	 * Creates a process parameter for a certain entity child attribute.
 	 *
-	 * @param  sPrefix    The prefix for the parameter name
-	 * @param  rParentDef The entity definition of the parent
-	 * @param  rChildAttr The child attribute
-	 *
+	 * @param sPrefix    The prefix for the parameter name
+	 * @param rParentDef The entity definition of the parent
+	 * @param rChildAttr The child attribute
 	 * @return The new process parameter type
 	 */
 	private RelationType<List<RelationType<?>>> createChildParameter(
-		String					   sPrefix,
-		EntityDefinition<?>		   rParentDef,
-		RelationType<List<Entity>> rChildAttr)
-	{
+		String sPrefix, EntityDefinition<?> rParentDef,
+		RelationType<List<Entity>> rChildAttr) {
 		String sChildName = rChildAttr.getSimpleName();
 
 		@SuppressWarnings("unchecked")
@@ -393,59 +357,44 @@ public class EditEntity extends InteractionFragment
 			EntityManager.getEntityDefinition(rChildType);
 
 		@SuppressWarnings("boxing")
-		QueryPredicate<Entity> qChildren =
-			forEntity(
-				rChildType,
-				ifAttribute(
-					rChildDef.getParentAttribute(rParentDef),
-					equalTo(rEditedEntity.getId())));
+		QueryPredicate<Entity> qChildren = forEntity(rChildType,
+			ifAttribute(rChildDef.getParentAttribute(rParentDef),
+				equalTo(rEditedEntity.getId())));
 
 		List<Function<? super Entity, ?>> aColumns =
 			new ArrayList<Function<? super Entity, ?>>();
 
-		for (RelationType<?> rAttr :
-			 rChildDef.getDisplayAttributes(DisplayMode.COMPACT))
-		{
+		for (RelationType<?> rAttr : rChildDef.getDisplayAttributes(
+			DisplayMode.COMPACT)) {
 			aColumns.add(rAttr);
 		}
 
 		RelationType<List<RelationType<?>>> aChildTabParam =
-			createDetailTabParameter(
-				sPrefix + sChildName,
-				rChildType,
-				qChildren,
-				null,
-				aColumns,
-				CHILD_TABLE_ROWS);
+			createDetailTabParameter(sPrefix + sChildName, rChildType,
+				qChildren, null, aColumns, CHILD_TABLE_ROWS);
 
 		setResourceId(sChildName, aChildTabParam);
 
 		return aChildTabParam;
 	}
 
-	/***************************************
+	/**
 	 * Creates a temporary parameter type for a detail tab of an entity which
 	 * displays subordinate entities of the edited entity.
 	 *
-	 * @param  sBaseName       The base name for the temporary parameters
-	 * @param  rDetailType
-	 * @param  qDetail         The query for the detail elements
-	 * @param  pSortOrder      The optional sort order predicate
-	 * @param  aColumns        The query columns
-	 * @param  nTableRows      The number of table rows to display
-	 * @param  rAllowedActions The allowed detail actions
-	 *
+	 * @param sBaseName       The base name for the temporary parameters
+	 * @param qDetail         The query for the detail elements
+	 * @param pSortOrder      The optional sort order predicate
+	 * @param aColumns        The query columns
+	 * @param nTableRows      The number of table rows to display
+	 * @param rAllowedActions The allowed detail actions
 	 * @return The temporary detail parameter
 	 */
-	private <E extends Entity> RelationType<List<RelationType<?>>>
-	createDetailTabParameter(String						  sBaseName,
-							 Class<E>					  rDetailType,
-							 QueryPredicate<E>			  qDetail,
-							 Predicate<? super Entity>    pSortOrder,
-							 List<Function<? super E, ?>> aColumns,
-							 int						  nTableRows,
-							 DetailAction... 			  rAllowedActions)
-	{
+	private <E extends Entity> RelationType<List<RelationType<?>>> createDetailTabParameter(
+		String sBaseName, Class<E> rDetailType, QueryPredicate<E> qDetail,
+		Predicate<? super Entity> pSortOrder,
+		List<Function<? super E, ?>> aColumns, int nTableRows,
+		DetailAction... rAllowedActions) {
 		RelationType<List<RelationType<?>>> aTabParam =
 			getTemporarySubPanelParameter(sBaseName + "_TAB", false);
 
@@ -453,8 +402,7 @@ public class EditEntity extends InteractionFragment
 			getTemporaryParameterType(sBaseName + "_LIST", rDetailType);
 
 		RelationType<DetailAction> aActionParam =
-			getTemporaryParameterType(
-				sBaseName + "_ACTION",
+			getTemporaryParameterType(sBaseName + "_ACTION",
 				DetailAction.class);
 
 		List<RelationType<?>> aChildParams = new ArrayList<RelationType<?>>();
@@ -476,13 +424,9 @@ public class EditEntity extends InteractionFragment
 		setUIProperty(-1, CURRENT_SELECTION, aListParam);
 		setUIProperty(HTML_HEIGHT, "100%", aListParam);
 
-		setUIProperty(
-			RESOURCE_ID,
-			TextConvert.toPlural(rDetailType.getSimpleName()),
-			aListParam);
-		setUIProperty(
-			RESOURCE_ID,
-			DetailAction.class.getSimpleName(),
+		setUIProperty(RESOURCE_ID,
+			TextConvert.toPlural(rDetailType.getSimpleName()), aListParam);
+		setUIProperty(RESOURCE_ID, DetailAction.class.getSimpleName(),
 			aActionParam);
 
 		setImmediateAction(aActionParam, rAllowedActions);
@@ -494,16 +438,15 @@ public class EditEntity extends InteractionFragment
 		return aTabParam;
 	}
 
-	/***************************************
+	/**
 	 * Creates and adds the process parameters for the current entity.
 	 */
-	private void createEntityParameters()
-	{
+	private void createEntityParameters() {
 		EntityDefinition<?> rEntityDef = rEditedEntity.getDefinition();
 
-		boolean bPersistent   = rEditedEntity.isPersistent();
-		boolean bChildEdit    = rEditedEntityParam == EDITED_ENTITY_CHILD;
-		String  sEntityPrefix = getParameterPrefix(rEditedEntity);
+		boolean bPersistent = rEditedEntity.isPersistent();
+		boolean bChildEdit = rEditedEntityParam == EDITED_ENTITY_CHILD;
+		String sEntityPrefix = getParameterPrefix(rEditedEntity);
 
 		Collection<RelationType<List<Entity>>> rChildAttributes =
 			rEntityDef.getChildAttributes();
@@ -522,19 +465,17 @@ public class EditEntity extends InteractionFragment
 		List<RelationType<?>> aAttrParams =
 			createAttributeParameters(sEntityPrefix, rEntityDef);
 
-		if (bPersistent && !bChildEdit)
-		{
-			for (RelationType<List<Entity>> rChildAttr : rChildAttributes)
-			{
+		if (bPersistent && !bChildEdit) {
+			for (RelationType<List<Entity>> rChildAttr : rChildAttributes) {
 				RelationType<List<RelationType<?>>> aChildParameter =
-					createChildParameter(sEntityPrefix, rEntityDef, rChildAttr);
+					createChildParameter(sEntityPrefix, rEntityDef,
+						rChildAttr);
 
 				aTabParams.add(aChildParameter);
 			}
 		}
 
-		if (bPersistent)
-		{
+		if (bPersistent) {
 			RelationType<List<RelationType<?>>> rExtraAttrParam =
 				createExtraAttributesParameter(sEntityPrefix);
 
@@ -559,40 +500,30 @@ public class EditEntity extends InteractionFragment
 		markInputParams(true, aInputParams);
 	}
 
-	/***************************************
+	/**
 	 * Creates a process parameter for an entities extra attributes.
 	 *
-	 * @param  sPrefix The prefix for the parameter name
-	 *
+	 * @param sPrefix The prefix for the parameter name
 	 * @return The new process parameter type
 	 */
 	private RelationType<List<RelationType<?>>> createExtraAttributesParameter(
-		String sPrefix)
-	{
+		String sPrefix) {
 		String sBaseName = sPrefix + "XA";
 
 		List<Function<? super ExtraAttribute, ?>> aColumns =
 			new ArrayList<Function<? super ExtraAttribute, ?>>();
 
 		QueryPredicate<ExtraAttribute> qExtraAttr =
-			forEntity(
-				ExtraAttribute.class,
-				ifAttribute(
-					ExtraAttribute.ENTITY,
-					equalTo(rEditedEntity.getGlobalId())));
+			forEntity(ExtraAttribute.class, ifAttribute(ExtraAttribute.ENTITY,
+				equalTo(rEditedEntity.getGlobalId())));
 
 		aColumns.add(ExtraAttribute.KEY);
 		aColumns.add(ExtraAttribute.VALUE);
 
 		RelationType<List<RelationType<?>>> aExtraAttrTabParam =
-			createDetailTabParameter(
-				sBaseName,
-				ExtraAttribute.class,
-				qExtraAttr,
-				sortBy(ExtraAttribute.KEY),
-				aColumns,
-				CHILD_TABLE_ROWS,
-				DetailAction.DELETE);
+			createDetailTabParameter(sBaseName, ExtraAttribute.class,
+				qExtraAttr, sortBy(ExtraAttribute.KEY), aColumns,
+				CHILD_TABLE_ROWS, DetailAction.DELETE);
 
 		setResourceId("ExtraAttributes", aExtraAttrTabParam);
 
@@ -602,9 +533,7 @@ public class EditEntity extends InteractionFragment
 		RelationType<?> rExtraAttrListParam = rExtraAttrParams.get(0);
 
 		List<RelationType<?>> rExtraAttrEditParams =
-			Arrays.<RelationType<?>>asList(
-				EXTRA_ATTR_KEY,
-				EXTRA_ATTR_ACTION,
+			Arrays.<RelationType<?>>asList(EXTRA_ATTR_KEY, EXTRA_ATTR_ACTION,
 				EXTRA_ATTR_VALUE);
 
 		rExtraAttrParams.addAll(rExtraAttrEditParams);
@@ -621,35 +550,30 @@ public class EditEntity extends InteractionFragment
 		setUIProperty(HTML_WIDTH, "100%", EXTRA_ATTR_KEY);
 		setAllowedValues(EXTRA_ATTR_KEY, aExtraAttrKeys);
 
-		setParameter(
-			EXTRA_ATTR_KEY,
+		setParameter(EXTRA_ATTR_KEY,
 			CollectionUtil.firstElementOf(aExtraAttrKeys));
 		setParameter(EXTRA_ATTR_VALUE, "");
 
 		return aExtraAttrTabParam;
 	}
 
-	/***************************************
+	/**
 	 * Creates a temporary parameter type for a sub-panel parameter that
 	 * contains a list of parameter types. This will also set the UI properties
 	 * to hide the parameter's label and for hierarchical evaluation of the
 	 * panel's parameters.
 	 *
-	 * @param  sName              The name of the temporary parameter type
-	 * @param  bDisplayAsTabPanel TRUE to display the new parameter as a tab
-	 *                            panel, FALSE for a normal panel
-	 *
+	 * @param sName              The name of the temporary parameter type
+	 * @param bDisplayAsTabPanel TRUE to display the new parameter as a tab
+	 *                           panel, FALSE for a normal panel
 	 * @return The new temporary parameter type
 	 */
 	private RelationType<List<RelationType<?>>> getTemporarySubPanelParameter(
-		String  sName,
-		boolean bDisplayAsTabPanel)
-	{
+		String sName, boolean bDisplayAsTabPanel) {
 		RelationType<List<RelationType<?>>> aParam =
 			getTemporaryListType(sName, RelationType.class);
 
-		if (bDisplayAsTabPanel)
-		{
+		if (bDisplayAsTabPanel) {
 			setLayout(LayoutType.TABS, aParam);
 		}
 
@@ -659,27 +583,19 @@ public class EditEntity extends InteractionFragment
 		return aParam;
 	}
 
-	/***************************************
+	/**
 	 * Performs a detail action for a certain entity list parameter.
 	 *
-	 * @param  eDetailAction The detail action
-	 * @param  rListParam    The entity list parameter
-	 *
+	 * @param eDetailAction The detail action
+	 * @param rListParam    The entity list parameter
 	 * @throws Exception If displaying the edit dialog fails
 	 */
-	private void handleDetailAction(
-		DetailAction				   eDetailAction,
-		RelationType<? extends Entity> rListParam) throws Exception
-	{
-		switch (eDetailAction)
-		{
+	private void handleDetailAction(DetailAction eDetailAction,
+		RelationType<? extends Entity> rListParam) throws Exception {
+		switch (eDetailAction) {
 			case DELETE:
-				showMessageBox(
-					"$msgDeleteEntityChild",
-					"#imWarning",
-					null,
-					DialogAction.OK,
-					DialogAction.CANCEL);
+				showMessageBox("$msgDeleteEntityChild", "#imWarning", null,
+					DialogAction.OK, DialogAction.CANCEL);
 				break;
 
 			case EDIT:
@@ -699,48 +615,39 @@ public class EditEntity extends InteractionFragment
 		}
 	}
 
-	/***************************************
+	/**
 	 * Handles the (de-) selection in a detail tab panel.
 	 *
 	 * @param rInteractionParam The interaction parameter
 	 */
-	private void handleDetailSelection(RelationType<?> rInteractionParam)
-	{
-		Object   rParamValue    = getParameter(rInteractionParam);
+	private void handleDetailSelection(RelationType<?> rInteractionParam) {
+		Object rParamValue = getParameter(rInteractionParam);
 		Class<?> rParamDatatype = rInteractionParam.getTargetType();
 
 		RelationType<DetailAction> rTabActionParam =
 			rInteractionParam.get(TAB_ACTION_PARAM);
 
-		if (rParamValue != null)
-		{
+		if (rParamValue != null) {
 			disableElements(rTabActionParam);
 
-			if (rParamDatatype == ExtraAttribute.class)
-			{
+			if (rParamDatatype == ExtraAttribute.class) {
 				ExtraAttribute rExtraAttr = (ExtraAttribute) rParamValue;
 
 				rCurrentExtraAttrKey = rExtraAttr.get(ExtraAttribute.KEY);
 
 				Object rValue = rExtraAttr.get(ExtraAttribute.VALUE);
 
-				setParameter(
-					EXTRA_ATTR_KEY,
+				setParameter(EXTRA_ATTR_KEY,
 					rCurrentExtraAttrKey.getSimpleName());
 				setParameter(EXTRA_ATTR_VALUE, Conversions.asString(rValue));
 
 				setUIFlag(DISABLED, EXTRA_ATTR_KEY);
 			}
-		}
-		else
-		{
-			disableElements(
-				rTabActionParam,
-				DetailAction.EDIT,
+		} else {
+			disableElements(rTabActionParam, DetailAction.EDIT,
 				DetailAction.DELETE);
 
-			if (rParamDatatype == ExtraAttribute.class)
-			{
+			if (rParamDatatype == ExtraAttribute.class) {
 				rCurrentExtraAttrKey = null;
 				setParameter(EXTRA_ATTR_VALUE, "");
 
@@ -749,93 +656,69 @@ public class EditEntity extends InteractionFragment
 		}
 	}
 
-	/***************************************
+	/**
 	 * Performs the actual interaction handling (without error handling).
 	 *
-	 * @param  rInteractionParam The interaction parameter
-	 *
+	 * @param rInteractionParam The interaction parameter
 	 * @throws TransactionException If storing an entity fails
 	 * @throws StorageException     If accessing storage data fails
 	 * @throws Exception            If displaying the edit dialog fails
 	 */
 	private void handleInteractionParam(RelationType<?> rInteractionParam)
-		throws Exception
-	{
+		throws Exception {
 		Class<?> rParamDatatype = rInteractionParam.getTargetType();
 
-		if (rInteractionParam == aAttrActionParam)
-		{
-			if (getParameter(rInteractionParam) == AttributesAction.SAVE)
-			{
+		if (rInteractionParam == aAttrActionParam) {
+			if (getParameter(rInteractionParam) == AttributesAction.SAVE) {
 				updateAndStoreEditedEntity();
 			}
-		}
-		else if (Entity.class.isAssignableFrom(rParamDatatype))
-		{
+		} else if (Entity.class.isAssignableFrom(rParamDatatype)) {
 			handleDetailSelection(rInteractionParam);
-		}
-		else if (rParamDatatype == DetailAction.class)
-		{
-			handleDetailAction(
-				(DetailAction) getParameter(rInteractionParam),
+		} else if (rParamDatatype == DetailAction.class) {
+			handleDetailAction((DetailAction) getParameter(rInteractionParam),
 				rInteractionParam.get(TAB_LIST_PARAM));
-		}
-		else if (rParamDatatype == ExtraAttrAction.class)
-		{
+		} else if (rParamDatatype == ExtraAttrAction.class) {
 			updateAndStoreExtraAttribute();
 			setParameter(EXTRA_ATTR_VALUE, "");
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the UI properties for a certain entity attribute parameter.
 	 *
 	 * @param rEntity    The entity
 	 * @param rAttrParam The attribute parameter
 	 * @param sAttrName  The name of the attribute
 	 */
-	private void setAttributeProperties(Entity			rEntity,
-										RelationType<?> rAttrParam,
-										String			sAttrName)
-	{
+	private void setAttributeProperties(Entity rEntity,
+		RelationType<?> rAttrParam, String sAttrName) {
 		Class<?> rDatatype = rAttrParam.getTargetType();
 
-		setUIProperty(
-			RESOURCE_ID,
-			rEntity.getClass().getSimpleName() +
-			TextConvert.capitalizedIdentifier(sAttrName),
-			rAttrParam);
+		setUIProperty(RESOURCE_ID, rEntity.getClass().getSimpleName() +
+			TextConvert.capitalizedIdentifier(sAttrName), rAttrParam);
 
-		if (Enum.class.isAssignableFrom(rDatatype))
-		{
+		if (Enum.class.isAssignableFrom(rDatatype)) {
 			setUIProperty(RESOURCE_ID, rDatatype.getSimpleName(), rAttrParam);
 			setUIProperty(LIST_STYLE, ListStyle.DROP_DOWN, rAttrParam);
-		}
-		else if (Date.class.isAssignableFrom(rDatatype))
-		{
-			setUIProperty(
-				DATE_INPUT_TYPE,
-				DateInputType.INPUT_FIELD,
+		} else if (Date.class.isAssignableFrom(rDatatype)) {
+			setUIProperty(DATE_INPUT_TYPE, DateInputType.INPUT_FIELD,
 				rAttrParam);
 		}
 
-		if (!Entity.class.isAssignableFrom(rDatatype))
-		{
+		if (!Entity.class.isAssignableFrom(rDatatype)) {
 			aInputParams.add(rAttrParam);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the entity to be displayed by this instance.
 	 *
 	 * @param rNewEntity The entity
 	 */
-	private void setEntity(Entity rNewEntity)
-	{
+	private void setEntity(Entity rNewEntity) {
 		rEditedEntity = rNewEntity;
 
-		for (RelationType<?> rAttrParam : aEntityAttrParamsMap.values())
-		{
+		for (RelationType<?> rAttrParam : aEntityAttrParamsMap.values()) {
 			removeTemporaryParameterType(rAttrParam);
 		}
 
@@ -843,12 +726,9 @@ public class EditEntity extends InteractionFragment
 		aInteractionParams.clear();
 		aInputParams.clear();
 
-		if (rEditedEntity != null)
-		{
+		if (rEditedEntity != null) {
 			createEntityParameters();
-		}
-		else
-		{
+		} else {
 			aInteractionParams.add(StandardTypes.INFO);
 			setParameter(StandardTypes.INFO, "$msgSelectEntity");
 
@@ -856,51 +736,41 @@ public class EditEntity extends InteractionFragment
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets an entity-specific resource ID for the given parameter.
 	 *
 	 * @param sName  The name to generate the resource ID from
 	 * @param rParam The parameter to set the resource ID for
 	 */
-	private void setResourceId(String sName, RelationType<?> rParam)
-	{
+	private void setResourceId(String sName, RelationType<?> rParam) {
 		sName = TextConvert.capitalizedIdentifier(sName);
 
 		setUIProperty(RESOURCE_ID, sName, rParam);
 	}
 
-	/***************************************
-	 * Adds the fragment for the editing on an entity child and configures it to
+	/**
+	 * Adds the fragment for the editing on an entity child and configures
+	 * it to
 	 * be displayed in a dialog.
 	 *
-	 * @param  rChild The entity to be edited
-	 *
-	 * @throws Exception
+	 * @param rChild The entity to be edited
 	 */
-	private void showEditChildDialog(Entity rChild) throws Exception
-	{
+	private void showEditChildDialog(Entity rChild) throws Exception {
 		EditEntity aEditChildFragment = new EditEntity(EDITED_ENTITY_CHILD);
 
-		showDialog(
-			getParameterPrefix(rChild),
-			aEditChildFragment,
-			null,
+		showDialog(getParameterPrefix(rChild), aEditChildFragment, null,
 			DialogAction.CLOSE);
 
 		aEditChildFragment.set(EDITED_ENTITY_CHILD, rChild);
 		aEditChildFragment.set(EDITED_ENTITY_PARENT, rEditedEntity);
 	}
 
-	/***************************************
+	/**
 	 * Updates the the edited entity from the input parameters and stores it.
-	 *
-	 * @throws TransactionException
 	 */
-	private void updateAndStoreEditedEntity() throws TransactionException
-	{
+	private void updateAndStoreEditedEntity() throws TransactionException {
 		for (Entry<RelationType<?>, RelationType<?>> rAttrParam :
-			 aEntityAttrParamsMap.entrySet())
-		{
+			aEntityAttrParamsMap.entrySet()) {
 			@SuppressWarnings("unchecked")
 			RelationType<Object> rAttr =
 				(RelationType<Object>) rAttrParam.getKey();
@@ -910,29 +780,24 @@ public class EditEntity extends InteractionFragment
 
 			// do not replace NULL values with empty strings
 			if (rOldValue != null ||
-				(rNewValue != null && rNewValue.toString().length() > 0))
-			{
+				(rNewValue != null && rNewValue.toString().length() > 0)) {
 				rEditedEntity.set(rAttr, rNewValue);
 			}
 		}
 
-		if (!rEditedEntity.isPersistent())
-		{
+		if (!rEditedEntity.isPersistent()) {
 			Entity rParent = get(EDITED_ENTITY_PARENT);
 
-			if (rParent == null)
-			{
+			if (rParent == null) {
 				rParent = getParameter(EDITED_ENTITY_PARENT);
 			}
 
-			if (rParent != null)
-			{
-				for (RelationType<List<Entity>> rChildAttr :
-					 rParent.getDefinition().getChildAttributes())
-				{
+			if (rParent != null) {
+				for (RelationType<List<Entity>> rChildAttr : rParent
+					.getDefinition()
+					.getChildAttributes()) {
 					if (rEditedEntity.getClass() ==
-						rChildAttr.get(ELEMENT_DATATYPE))
-					{
+						rChildAttr.get(ELEMENT_DATATYPE)) {
 						rParent.addChild(rChildAttr, rEditedEntity);
 
 						break;
@@ -944,7 +809,7 @@ public class EditEntity extends InteractionFragment
 		EntityManager.storeEntity(rEditedEntity, getProcessUser());
 	}
 
-	/***************************************
+	/**
 	 * Updates an extra attribute from the input values, sets it in the edited
 	 * entity, and stores the entity.
 	 *
@@ -952,18 +817,15 @@ public class EditEntity extends InteractionFragment
 	 * @throws TransactionException If storing the entity fails
 	 */
 	@SuppressWarnings("unchecked")
-	private void updateAndStoreExtraAttribute() throws StorageException,
-													   TransactionException
-	{
-		String		    sRawValue = getParameter(EXTRA_ATTR_VALUE);
-		RelationType<?> rKey	  = rCurrentExtraAttrKey;
+	private void updateAndStoreExtraAttribute()
+		throws StorageException, TransactionException {
+		String sRawValue = getParameter(EXTRA_ATTR_VALUE);
+		RelationType<?> rKey = rCurrentExtraAttrKey;
 
-		if (rKey == null)
-		{
-			rKey =
-				RelationType.valueOf(
-					ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE +
-					"." + getParameter(EXTRA_ATTR_KEY));
+		if (rKey == null) {
+			rKey = RelationType.valueOf(
+				ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE + "." +
+					getParameter(EXTRA_ATTR_KEY));
 		}
 
 		Object rValue = Conversions.parseValue(sRawValue, rKey);

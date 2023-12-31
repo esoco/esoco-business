@@ -18,56 +18,44 @@ package de.esoco.data.validate;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A {@link ListValidator} implementation that checks whether a value is an
  * element of a list of strings.
  *
  * @author eso
  */
-public class StringListValidator extends ListValidator<String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class StringListValidator extends ListValidator<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private boolean bResourceIds;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that validates against a certain list.
 	 *
 	 * @param rStrings     The list of strings to be validated against or an
 	 *                     empty list to allow any value
 	 * @param bResourceIds TRUE to interpret the string values as resource IDs
 	 */
-	public StringListValidator(List<String> rStrings, boolean bResourceIds)
-	{
+	public StringListValidator(List<String> rStrings, boolean bResourceIds) {
 		super(rStrings);
 
 		this.bResourceIds = bResourceIds;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	StringListValidator()
-	{
+	StringListValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns TRUE if the string values of this instance should be interpreted
 	 * as resource IDs.
 	 *
 	 * @return TRUE to interpret the string values as resource IDs
 	 */
-	public final boolean isResourceIds()
-	{
+	public final boolean isResourceIds() {
 		return bResourceIds;
 	}
 }

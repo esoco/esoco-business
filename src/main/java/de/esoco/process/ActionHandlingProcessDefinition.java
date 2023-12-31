@@ -16,24 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-/********************************************************************
+/**
  * A base class for the action handling processes of interaction fragments.
  *
  * @author eso
  */
 public abstract class ActionHandlingProcessDefinition
-	extends StepListProcessDefinition
-{
-	//~ Static fields/initializers ---------------------------------------------
+	extends StepListProcessDefinition {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public ActionHandlingProcessDefinition()
-	{
+	public ActionHandlingProcessDefinition() {
 	}
 }

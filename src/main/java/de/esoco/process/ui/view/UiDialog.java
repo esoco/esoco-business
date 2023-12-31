@@ -20,17 +20,14 @@ import de.esoco.process.ui.UiDialogView;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiView;
 
-
-/********************************************************************
+/**
  * A view implementing dialogs.
  *
  * @author eso
  */
-public class UiDialog extends UiDialogView<UiDialog>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiDialog extends UiDialogView<UiDialog> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent view
@@ -38,11 +35,8 @@ public class UiDialog extends UiDialogView<UiDialog>
 	 * @param rLayout The layout of the dialog content
 	 * @param bModal  TRUE to block any input outside of the view
 	 */
-	public UiDialog(UiView<?> rParent,
-					String    sTitle,
-					UiLayout  rLayout,
-					boolean   bModal)
-	{
+	public UiDialog(UiView<?> rParent, String sTitle, UiLayout rLayout,
+		boolean bModal) {
 		super(rParent, sTitle, rLayout, bModal);
 	}
 }

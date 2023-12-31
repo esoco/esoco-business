@@ -37,45 +37,38 @@ import static de.esoco.entity.EntityRelationTypes.ENTITY_ATTRIBUTES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_QUERY_PREDICATE;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
 
-
-/********************************************************************
+/**
  * A parameter subclass that contains additional methods for accessing process
  * parameters with an {@link Entity} datatype.
  *
  * @author eso
- * @see    ParameterBase
+ * @see ParameterBase
  */
-public class EntityParameter<E extends Entity> extends Parameter<E>
-{
-	//~ Constructors -----------------------------------------------------------
+public class EntityParameter<E extends Entity> extends Parameter<E> {
 
-	/***************************************
+	/**
 	 * @see Parameter#Parameter(InteractionFragment, RelationType) .
 	 */
-	public EntityParameter(
-		InteractionFragment rFragment,
-		RelationType<E>		rParamType)
-	{
+	public EntityParameter(InteractionFragment rFragment,
+		RelationType<E> rParamType) {
 		super(rFragment, rParamType);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the attributes to be displayed for entity queries.
 	 *
 	 * @see #attributes(Collection)
 	 */
 	@SafeVarargs
 	public final EntityParameter<E> attributes(
-		Function<? super E, ?>... rAttributes)
-	{
+		Function<? super E, ?>... rAttributes) {
 		return attributes(Arrays.asList(rAttributes));
 	}
 
-	/***************************************
+	/**
 	 * Sets the attributes to be displayed for entity queries. The datatype of
-	 * an attribute is defined as a function that queries the attributes from an
+	 * an attribute is defined as a function that queries the attributes
+	 * from an
 	 * entity. This applies to standard relation types as these are also
 	 * functions that can be applied to relatable objects (like entities). But
 	 * that can also be compound functions that generate the attribute value to
@@ -83,117 +76,98 @@ public class EntityParameter<E extends Entity> extends Parameter<E>
 	 * that extracts the name from an entity reference (like
 	 * NAME.from(OTHER_ENTITY)).
 	 *
-	 * @param  rAttributes The entity attribute access functions
-	 *
+	 * @param rAttributes The entity attribute access functions
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
 	public final EntityParameter<E> attributes(
-		Collection<Function<? super E, ?>> rAttributes)
-	{
+		Collection<Function<? super E, ?>> rAttributes) {
 		List<Function<? super Entity, ?>> rGenericAttributes = null;
 
-		if (rAttributes != null && rAttributes.size() > 0)
-		{
+		if (rAttributes != null && rAttributes.size() > 0) {
 			rGenericAttributes = new ArrayList<Function<? super Entity, ?>>();
 
-			for (Function<? super E, ?> rFunction : rAttributes)
-			{
+			for (Function<? super E, ?> rFunction : rAttributes) {
 				rGenericAttributes.add((Function<? super Entity, ?>) rFunction);
 			}
 		}
 
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_ATTRIBUTES,
-									 rGenericAttributes);
+		fragment().annotateParameter(type(), null, ENTITY_ATTRIBUTES,
+			rGenericAttributes);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Returns the current storage query for this parameter, including the
 	 * filter criteria that have been set by the user.
 	 *
 	 * @return The current query
 	 */
-	public final QueryPredicate<E> getCurrentQuery()
-	{
+	public final QueryPredicate<E> getCurrentQuery() {
 		return fragment().getCurrentQuery(type());
 	}
 
-	/***************************************
+	/**
 	 * Defines the ordering for queries on the entity type of this parameter.
 	 *
-	 * @param  pOrder The sort order criteria (NULL for none)
-	 *
+	 * @param pOrder The sort order criteria (NULL for none)
 	 * @return This instance for concatenation
 	 */
-	public final EntityParameter<E> order(Predicate<? super Entity> pOrder)
-	{
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_SORT_PREDICATE,
-									 pOrder);
+	public final EntityParameter<E> order(Predicate<? super Entity> pOrder) {
+		fragment().annotateParameter(type(), null, ENTITY_SORT_PREDICATE,
+			pOrder);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Sets an ordering attribute for queries on the entity type of this
 	 * parameter.
 	 *
 	 * @param rOrderAttribute The ordering attribute
 	 * @param bAscending      TRUE for ascending order, FALSE for descending
-	 *
-	 * @see   #order(Predicate)
+	 * @see #order(Predicate)
 	 */
-	public final EntityParameter<E> orderBy(
-		RelationType<?> rOrderAttribute,
-		boolean			bAscending)
-	{
+	public final EntityParameter<E> orderBy(RelationType<?> rOrderAttribute,
+		boolean bAscending) {
 		return order(StoragePredicates.sortBy(rOrderAttribute, bAscending));
 	}
 
-	/***************************************
+	/**
 	 * Defines a general storage query without criteria for this parameter.
 	 *
 	 * @see #query(Predicate)
 	 */
-	public final EntityParameter<E> query()
-	{
+	public final EntityParameter<E> query() {
 		return query(null);
 	}
 
-	/***************************************
+	/**
 	 * Defines the storage query to be executed for this parameter.
 	 *
-	 * @param  pCriteria The query criteria to apply (NULL for none)
-	 *
+	 * @param pCriteria The query criteria to apply (NULL for none)
 	 * @return This instance for concatenation
 	 */
-	public final EntityParameter<E> query(Predicate<? super E> pCriteria)
-	{
+	public final EntityParameter<E> query(Predicate<? super E> pCriteria) {
 		@SuppressWarnings("unchecked")
 		QueryPredicate<E> pQuery =
-			new QueryPredicate<E>((Class<E>) type().getTargetType(), pCriteria);
+			new QueryPredicate<E>((Class<E>) type().getTargetType(),
+				pCriteria);
 
-		fragment().annotateParameter(type(),
-									 null,
-									 ENTITY_QUERY_PREDICATE,
-									 pQuery);
+		fragment().annotateParameter(type(), null, ENTITY_QUERY_PREDICATE,
+			pQuery);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Reloads the entity that is stored in this parameter. NULL values are
 	 * ignored.
 	 *
 	 * @return This instance
 	 */
-	public EntityParameter<E> reloadEntity()
-	{
+	public EntityParameter<E> reloadEntity() {
 		fragment().reloadEntity(rParamType);
 
 		return this;

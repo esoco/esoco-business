@@ -18,18 +18,15 @@ package de.esoco.lib.net;
 
 import de.esoco.lib.net.ExternalService.AccessType;
 
-
-/********************************************************************
+/**
  * An interface that defines the methods needed to access external services that
  * are secured by an authorization method (typically the OAuth protocol).
  *
  * @author eso
  */
-public interface ExternalServiceAccess
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ExternalServiceAccess {
 
-	/***************************************
+	/**
 	 * Performs an authorization of the access to an external service. The
 	 * invocation of this method can have two possible results. The first is a
 	 * URL that needs to be visited by the user to confirm the authorization
@@ -45,55 +42,49 @@ public interface ExternalServiceAccess
 	 * value will be NULL.</p>
 	 *
 	 * <p>Some external services (e.g. Google) provide access to multiple
-	 * functionalities that must be named when requesting access to the service.
+	 * functionalities that must be named when requesting access to the
+	 * service.
 	 * This can be done with the access scopes parameter. The scope objects
 	 * should have a string representation that can be interpreted by the
 	 * corresponding service implementation.</p>
 	 *
-	 * @param  rServiceDefinition The definition of the service to authorize
-	 * @param  rCallback          The callback to be notified of successful
-	 *                            authorization
-	 * @param  bForceAuth         TRUE to force the authorization even if cached
-	 *                            authorization tokens or similar exist
-	 * @param  rAccessScopes      The optional access scopes
-	 *
+	 * @param rServiceDefinition The definition of the service to authorize
+	 * @param rCallback          The callback to be notified of successful
+	 *                           authorization
+	 * @param bForceAuth         TRUE to force the authorization even if cached
+	 *                           authorization tokens or similar exist
+	 * @param rAccessScopes      The optional access scopes
 	 * @return A verification URL or NULL if no verification is necessary
-	 *
 	 * @throws Exception If the authorization fails
 	 */
 	public String authorizeExternalServiceAccess(
 		ExternalServiceDefinition rServiceDefinition,
-		AuthorizationCallback	  rCallback,
-		boolean					  bForceAuth,
-		Object... 				  rAccessScopes) throws Exception;
+		AuthorizationCallback rCallback, boolean bForceAuth,
+		Object... rAccessScopes) throws Exception;
 
-	/***************************************
+	/**
 	 * Creates a request to an external service. The access to the external
 	 * service must have been authorized previously by a call to the method
 	 * {@link #authorizeExternalServiceAccess(ExternalServiceDefinition,
 	 * AuthorizationCallback, boolean, Object...)}.
 	 *
-	 * @param  rServiceDefinition The type of service to create the request for
-	 * @param  eAccessType        The service access type
-	 * @param  sRequestUrl        The URL of the service request
-	 *
+	 * @param rServiceDefinition The type of service to create the request for
+	 * @param eAccessType        The service access type
+	 * @param sRequestUrl        The URL of the service request
 	 * @return The service request instance
-	 *
 	 * @throws Exception If creating the request fails
 	 */
 	public ExternalServiceRequest createExternalServiceRequest(
-		ExternalServiceDefinition rServiceDefinition,
-		AccessType				  eAccessType,
-		String					  sRequestUrl) throws Exception;
+		ExternalServiceDefinition rServiceDefinition, AccessType eAccessType,
+		String sRequestUrl) throws Exception;
 
-	/***************************************
+	/**
 	 * Revokes any previously authorized access to an external service. This is
 	 * typically handled by removing all internal references and authorization
 	 * tokens to the external service for the current user from the system.
 	 *
-	 * @param  rServiceDefinition The definition of the service to revoke the
-	 *                            access to
-	 *
+	 * @param rServiceDefinition The definition of the service to revoke the
+	 *                           access to
 	 * @throws Exception In the case of unrecoverable errors
 	 */
 	public void revokeExternalServiceAccess(

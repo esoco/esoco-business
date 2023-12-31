@@ -18,29 +18,25 @@ package de.esoco.data;
 
 import java.io.InputStream;
 
-
-/********************************************************************
+/**
  * An interface that defines the handling of an HTTP file upload.
  *
  * @author eso
  */
-public interface UploadHandler
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UploadHandler {
 
-	/***************************************
-	 * Must be implemented to process the uploaded data. The actual data must be
+	/**
+	 * Must be implemented to process the uploaded data. The actual data
+	 * must be
 	 * read from the given input stream and stored as needed by the
 	 * implementation.
 	 *
-	 * @param  sFilename    The file name of the upload
-	 * @param  sContentType The MIME type of the uploaded data
-	 * @param  rDataStream  The input stream that provides the upload data
-	 *
+	 * @param sFilename    The file name of the upload
+	 * @param sContentType The MIME type of the uploaded data
+	 * @param rDataStream  The input stream that provides the upload data
 	 * @throws Exception Any kind of exception may be thrown if the data
 	 *                   processing fails
 	 */
-	public void processUploadData(String	  sFilename,
-								  String	  sContentType,
-								  InputStream rDataStream) throws Exception;
+	public void processUploadData(String sFilename, String sContentType,
+		InputStream rDataStream) throws Exception;
 }

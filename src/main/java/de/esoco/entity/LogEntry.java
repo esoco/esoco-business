@@ -36,51 +36,60 @@ import static de.esoco.lib.property.UserInterfaceProperties.MAX_CHARS;
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * The definition of an entity to store log records in a storage.
  *
  * @author eso
  */
 @RelationTypeNamespace("de.esoco.entity.log")
-public class LogEntry extends Entity
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class LogEntry extends Entity {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The log level. */
+	/**
+	 * The log level.
+	 */
 	public static final RelationType<LogLevel> LEVEL = newType(FINAL);
 
-	/** The log time. */
+	/**
+	 * The log time.
+	 */
 	public static final RelationType<Date> TIME = newType(FINAL);
 
-	/** The entity that is the source of the log entry (typically a person). */
+	/**
+	 * The entity that is the source of the log entry (typically a person).
+	 */
 	public static final RelationType<Entity> SOURCE =
 		arbitraryEntityAttribute(FINAL);
 
-	/** The log message. */
+	/**
+	 * The log message.
+	 */
 	public static final RelationType<String> MESSAGE = newType(FINAL);
 
-	/** The prefix for global entity IDs */
+	/**
+	 * The prefix for global entity IDs
+	 */
 	public static final String ID_PREFIX = "LOG";
 
-	/** The storage name */
+	/**
+	 * The storage name
+	 */
 	public static final String STORAGE_NAME = "log";
 
-	/** The attribute display properties map. */
-	public static final Map<RelationType<?>, HasProperties> ATTRIBUTE_DISPLAY_PROPERTIES =
+	/**
+	 * The attribute display properties map.
+	 */
+	public static final Map<RelationType<?>, HasProperties>
+		ATTRIBUTE_DISPLAY_PROPERTIES =
 		new HashMap<RelationType<?>, HasProperties>();
 
-	static
-	{
-		MESSAGE.set(StorageRelationTypes.STORAGE_LENGTH,
-					Integer.valueOf(16000));
+	private static final long serialVersionUID = 1L;
 
-		setAttributeDisplayProperty(LogEntry.class,
-									CONTENT_TYPE,
-									ContentType.DATE_TIME,
-									TIME);
+	static {
+		MESSAGE.set(StorageRelationTypes.STORAGE_LENGTH,
+			Integer.valueOf(16000));
+
+		setAttributeDisplayProperty(LogEntry.class, CONTENT_TYPE,
+			ContentType.DATE_TIME, TIME);
 		setAttributeDisplayProperty(LogEntry.class, 20, MAX_CHARS, SOURCE);
 	}
 }

@@ -19,87 +19,72 @@ package de.esoco.data.validate;
 import java.util.Date;
 import java.util.Objects;
 
-
-/********************************************************************
+/**
  * A validator for date values. The date can be constrained by a start and an
  * end value if required.
  *
  * @author eso
  */
-public class DateValidator implements Validator<Date>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class DateValidator implements Validator<Date> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private Date rStartDate;
+
 	private Date rEndDate;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that tests against a certain date range.
 	 *
 	 * @param rStartDate The start date to test against or NULL for no
 	 *                   limitation
 	 * @param rEndDate   The end date to test against or NULL for no limitation
 	 */
-	public DateValidator(Date rStartDate, Date rEndDate)
-	{
+	public DateValidator(Date rStartDate, Date rEndDate) {
 		this.rStartDate = rStartDate;
-		this.rEndDate   = rEndDate;
+		this.rEndDate = rEndDate;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	DateValidator()
-	{
+	DateValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (this == rObj)
-		{
+	public boolean equals(Object rObj) {
+		if (this == rObj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass())
-		{
+		if (rObj == null || getClass() != rObj.getClass()) {
 			return false;
 		}
 
 		DateValidator rOther = (DateValidator) rObj;
 
 		return Objects.equals(rStartDate, rOther.rStartDate) &&
-			   Objects.equals(rEndDate, rOther.rEndDate);
+			Objects.equals(rEndDate, rOther.rEndDate);
 	}
 
-	/***************************************
+	/**
 	 * @see Object#hashCode()
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * (rStartDate != null ? rStartDate.hashCode() : 1) +
-			   (rEndDate != null ? rEndDate.hashCode() : 0);
+			(rEndDate != null ? rEndDate.hashCode() : 0);
 	}
 
-	/***************************************
+	/**
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(Date rDate)
-	{
+	public boolean isValid(Date rDate) {
 		return (rStartDate == null || rDate.compareTo(rStartDate) >= 0) &&
-			   (rEndDate == null || rDate.compareTo(rEndDate) <= 0);
+			(rEndDate == null || rDate.compareTo(rEndDate) <= 0);
 	}
 }

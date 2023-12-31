@@ -22,23 +22,19 @@ import de.esoco.lib.property.TextFieldStyle;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
-
-/********************************************************************
+/**
  * A single-line text input field that hides the input value.
  *
  * @author eso
  */
-public class UiPasswordField extends UiTextInputField<UiPasswordField>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiPasswordField extends UiTextInputField<UiPasswordField> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiPasswordField(UiContainer<?> rContainer, String sText)
-	{
+	public UiPasswordField(UiContainer<?> rContainer, String sText) {
 		super(rContainer, sText);
 
 		set(StyleProperties.TEXT_FIELD_STYLE, TextFieldStyle.PASSWORD);

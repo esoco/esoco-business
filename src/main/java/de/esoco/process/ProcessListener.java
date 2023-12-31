@@ -16,35 +16,34 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-/********************************************************************
+/**
  * An event listener interface to be notified of changes in the status of a
  * {@link Process} instance.
  *
  * @author eso
  */
-public interface ProcessListener
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ProcessListener {
 
-	/***************************************
+	/**
 	 * Will be notified when the process execution has been canceled.
 	 *
 	 * @param rProcess The process
 	 */
 	public void processCanceled(Process rProcess);
 
-	/***************************************
+	/**
 	 * Will be notified when the process execution failed. If the failure was
 	 * caused by an exception it can be queried from the process parameter
 	 * {@link ProcessRelationTypes#PROCESS_EXCEPTION}. This method will also be
-	 * invoked if another listener method caused the process failure by throwing
+	 * invoked if another listener method caused the process failure by
+	 * throwing
 	 * a runtime exception.
 	 *
 	 * @param rProcess The process
 	 */
 	public void processFailed(Process rProcess);
 
-	/***************************************
+	/**
 	 * Will be notified when the process execution has finished. If the method
 	 * wants to prevent the process from committing it's transaction it should
 	 * throw a runtime exception.
@@ -53,7 +52,7 @@ public interface ProcessListener
 	 */
 	public void processFinished(Process rProcess);
 
-	/***************************************
+	/**
 	 * Will be notified when the process execution is resumed after a previous
 	 * suspension.
 	 *
@@ -61,14 +60,14 @@ public interface ProcessListener
 	 */
 	public void processResumed(Process rProcess);
 
-	/***************************************
+	/**
 	 * Will be notified when the process execution has started.
 	 *
 	 * @param rProcess The process
 	 */
 	public void processStarted(Process rProcess);
 
-	/***************************************
+	/**
 	 * Will be notified when the process execution has been suspended
 	 * temporarily.
 	 *

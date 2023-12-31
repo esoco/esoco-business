@@ -25,31 +25,38 @@ import static de.esoco.entity.EntityRelationTypes.parentAttribute;
 
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * Test entity definition for person addresses.
  *
  * @author eso
  */
-public class TestContact extends Entity
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class TestContact extends Entity {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The parent contact */
+	/**
+	 * The parent contact
+	 */
 	public static final RelationType<TestContact> PARENT = parentAttribute();
 
-	/** The child contacts */
+	/**
+	 * The child contacts
+	 */
 	public static final RelationType<List<TestContact>> CHILDREN =
 		childAttribute();
 
-	/** The parent person */
+	/**
+	 * The parent person
+	 */
 	public static final RelationType<TestPerson> PERSON = parentAttribute();
 
-	/** Contact type */
+	/**
+	 * Contact type
+	 */
 	public static final RelationType<String> CONTACT_TYPE = newType();
 
-	/** Contact value */
+	/**
+	 * Contact value
+	 */
 	public static final RelationType<String> CONTACT_VALUE = newType();
+
+	private static final long serialVersionUID = 1L;
 }

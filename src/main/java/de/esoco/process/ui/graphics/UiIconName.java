@@ -27,78 +27,66 @@ import static de.esoco.lib.property.LayoutProperties.ICON_ALIGN;
 import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
 import static de.esoco.lib.property.StyleProperties.ICON_COLOR;
 
-
-/********************************************************************
+/**
  * An icon image that is identified by the icon's name.
  *
  * @author eso
  */
 public class UiIconName extends UiImageDefinition<UiIconName>
-	implements UiIconSupplier
-{
-	//~ Constructors -----------------------------------------------------------
+	implements UiIconSupplier {
 
-	/***************************************
+	/**
 	 * Creates a new instance. The argument must be an object with a string
 	 * representation that can be used to identify the icon. This is typically
 	 * an enum constant or a string.
 	 *
 	 * @param rIconIdentifier The icon identifier
 	 */
-	public UiIconName(Object rIconIdentifier)
-	{
+	public UiIconName(Object rIconIdentifier) {
 		set(ICON, rIconIdentifier.toString());
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the icon's alignment relative to it's component. Which alignments
 	 * are supported depends on the client-side UI toolkit.
 	 *
 	 * @return This instance
 	 */
-	public UiIconName alignRight()
-	{
+	public UiIconName alignRight() {
 		set(ICON_ALIGN, Alignment.END);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Sets the icon's foreground color.
 	 *
-	 * @param  rIconColor The foreground color
-	 *
+	 * @param rIconColor The foreground color
 	 * @return This instance
 	 */
-	public UiIconName color(Color rIconColor)
-	{
+	public UiIconName color(Color rIconColor) {
 		set(ICON_COLOR, rIconColor);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Implemented to return THIS.
 	 *
 	 * @see UiIconSupplier#getIcon()
 	 */
 	@Override
-	public UiIconName getIcon()
-	{
+	public UiIconName getIcon() {
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Sets the icon's foreground color.
 	 *
-	 * @param  eScale rIconColor The foreground color
-	 *
+	 * @param eScale rIconColor The foreground color
 	 * @return This instance
 	 */
-	public UiIconName size(RelativeScale eScale)
-	{
+	public UiIconName size(RelativeScale eScale) {
 		set(ICON_SIZE, eScale);
 
 		return this;

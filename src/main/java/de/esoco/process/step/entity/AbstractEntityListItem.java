@@ -28,147 +28,135 @@ import de.esoco.process.step.entity.EntityList.EntityListItem;
 import static de.esoco.lib.property.StateProperties.ACTION_EVENT_ON_ACTIVATION_ONLY;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 
-
-/********************************************************************
+/**
  * A base class for items in an {@link EntityListItem}.
  *
  * @author eso
  */
 public abstract class AbstractEntityListItem<E extends Entity>
-	extends InteractionFragment implements EntityListItem<E>
-{
-	//~ Static fields/initializers ---------------------------------------------
+	extends InteractionFragment implements EntityListItem<E> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private EntityList<?, ?> rEntityList;
 
-	private E	    rEntity		  = null;
-	private boolean bSelected     = false;
+	private E rEntity = null;
+
+	private boolean bSelected = false;
+
 	private boolean bSimpleLayout;
 
 	private String sDefaultStyle;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public AbstractEntityListItem()
-	{
+	public AbstractEntityListItem() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the entity displayed by this item.
 	 *
 	 * @return The current entity
 	 */
 	@Override
-	public final E getEntity()
-	{
+	public final E getEntity() {
 		return rEntity;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init() throws Exception
-	{
+	public void init() throws Exception {
 		layout(LayoutType.LIST_ITEM).style(sDefaultStyle);
 
 		initItemContent();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isSelected()
-	{
+	public boolean isSelected() {
 		return bSelected;
 	}
 
-	/***************************************
+	/**
 	 * Sets the default style.
 	 *
 	 * @param sStyle The new default style
 	 */
 	@Override
-	public void setDefaultStyle(String sStyle)
-	{
+	public void setDefaultStyle(String sStyle) {
 		sDefaultStyle = sStyle;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSelected(boolean bSelected)
-	{
+	public void setSelected(boolean bSelected) {
 		String sStyle = sDefaultStyle;
 
 		this.bSelected = bSelected;
 
-		if (bSelected)
-		{
+		if (bSelected) {
 			sStyle += " selectedEntity";
 		}
 
 		fragmentParam().style(sStyle);
 
-		if (bSelected && !bSimpleLayout)
-		{
-			try
-			{
+		if (bSelected && !bSimpleLayout) {
+			try {
 				updateContent(rEntity);
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				throw new RuntimeProcessException(this, e);
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Updates the asset to be display by this instance.
 	 *
 	 * @param rEntity The asset for this item
 	 */
 	@Override
-	public void updateEntity(E rEntity)
-	{
+	public void updateEntity(E rEntity) {
 		this.rEntity = rEntity;
-		bSelected    = false;
+		bSelected = false;
 
-		try
-		{
-			if (bSimpleLayout)
-			{
+		try {
+			if (bSimpleLayout) {
 				updateContent(rEntity);
-			}
-			else
-			{
+			} else {
 				updateHeader(rEntity);
 				prepareContent(rEntity);
 
-				if (bSelected)
-				{
+				if (bSelected) {
 					updateContent(rEntity);
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw new RuntimeProcessException(this, e);
 		}
 	}
 
-	/***************************************
+	/**
+	 * Internal method to create the event handling wrapper for the header
+	 * panel.
+	 *
+	 * @param rHeader The header panel fragment
+	 */
+	protected void createHeaderPanel(InteractionFragment rHeader) {
+		rHeader
+			.layout(LayoutType.HEADER)
+			.set(ACTION_EVENT_ON_ACTIVATION_ONLY)
+			.onAction(v -> handleItemSelection());
+		rHeader.panel(p -> initHeaderPanel(p));
+	}
+
+	/**
 	 * Must be implemented to init the fragment containing the content panel of
 	 * this list item. The panel layout is pre-set to {@link LayoutType#GRID}
 	 * which can be overridden.
@@ -177,134 +165,112 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	protected abstract void initContentPanel(InteractionFragment rContentPanel);
 
-	/***************************************
-	 * Internal method to create the event handling wrapper for the header
-	 * panel.
-	 *
-	 * @param rHeader The header panel fragment
-	 */
-	protected void createHeaderPanel(InteractionFragment rHeader)
-	{
-		rHeader.layout(LayoutType.HEADER)
-			   .set(ACTION_EVENT_ON_ACTIVATION_ONLY)
-			   .onAction(v -> handleItemSelection());
-		rHeader.panel(p -> initHeaderPanel(p));
-	}
-
-	/***************************************
+	/**
 	 * Needs to be implemented to initialize the header panel of list items in
-	 * list layouts that separate header and content (i.e. with a {@link
-	 * ListLayoutStyle} other than {@link ListLayoutStyle#SIMPLE}). The panel
-	 * layout is set to {@link LayoutType#GRID} which can be overridden. The
-	 * default implementation does nothing.
+	 * list layouts that separate header and content (i.e. with a
+	 * {@link ListLayoutStyle} other than {@link ListLayoutStyle#SIMPLE}). The
+	 * panel layout is set to {@link LayoutType#GRID} which can be overridden.
+	 * The default implementation does nothing.
 	 *
 	 * @param rHeaderPanel The header panel fragment
 	 */
-	protected void initHeaderPanel(InteractionFragment rHeaderPanel)
-	{
+	protected void initHeaderPanel(InteractionFragment rHeaderPanel) {
 	}
 
-	/***************************************
-	 * Initializes the content parameters that defines the UI of this list item.
+	/**
+	 * Initializes the content parameters that defines the UI of this list
+	 * item.
 	 * Can be overridden by subclasses that need to define specific UIs. The
-	 * default implementation invokes {@link
-	 * #initHeaderPanel(InteractionFragment)} and {@link
-	 * #initContentPanel(InteractionFragment)}.
+	 * default implementation invokes
+	 * {@link #initHeaderPanel(InteractionFragment)} and
+	 * {@link #initContentPanel(InteractionFragment)}.
 	 */
-	protected void initItemContent()
-	{
+	protected void initItemContent() {
 		fragmentParam().resid(getClass().getSimpleName());
 
-		if (!bSimpleLayout)
-		{
+		if (!bSimpleLayout) {
 			panel(p -> createHeaderPanel(p));
 		}
 
 		panel(p -> initContentPanel(p));
 	}
 
-	/***************************************
+	/**
 	 * Returns the simpleLayout value.
 	 *
 	 * @return The simpleLayout value
 	 */
-	protected boolean isSimpleLayout()
-	{
+	protected boolean isSimpleLayout() {
 		return bSimpleLayout;
 	}
 
-	/***************************************
-	 * Will be invoked for all items in an entity list if the entity needs to be
+	/**
+	 * Will be invoked for all items in an entity list if the entity needs
+	 * to be
 	 * updated. For selected entities the method {@link #updateContent(Entity)}
-	 * will be invoked afterwards. Normally the latter should be used to perform
-	 * time-critical updates from the entity, e.g. performing queries of related
+	 * will be invoked afterwards. Normally the latter should be used to
+	 * perform
+	 * time-critical updates from the entity, e.g. performing queries of
+	 * related
 	 * data.
 	 *
-	 * @param  rEntity The entity to prepare the content from
-	 *
+	 * @param rEntity The entity to prepare the content from
 	 * @throws Exception May throw any kind of exception on errors
 	 */
-	protected void prepareContent(E rEntity) throws Exception
-	{
+	protected void prepareContent(E rEntity) throws Exception {
 	}
 
-	/***************************************
-	 * Overridden to check whether the parent fragment has a simple list layout.
+	/**
+	 * Overridden to check whether the parent fragment has a simple list
+	 * layout.
 	 *
 	 * @see InteractionFragment#setParent(InteractionFragment)
 	 */
 	@Override
-	protected void setParent(InteractionFragment rParent)
-	{
+	protected void setParent(InteractionFragment rParent) {
 		super.setParent(rParent);
 
-		if (rParent != null)
-		{
+		if (rParent != null) {
 			rEntityList = (EntityList<?, ?>) rParent.getParent();
 
 			ListLayoutStyle eListLayout =
 				rParent.fragmentParam().get(LIST_LAYOUT_STYLE);
 
 			bSimpleLayout =
-				(eListLayout == null ||
-				 eListLayout == ListLayoutStyle.SIMPLE);
+				(eListLayout == null || eListLayout == ListLayoutStyle.SIMPLE);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Will be invoked to update the content of this item when it is selected.
 	 * If an update of the item content is time-consuming (e.g. because of
-	 * additional storage queries) it should be performed in this method instead
+	 * additional storage queries) it should be performed in this method
+	 * instead
 	 * of in {@link #prepareContent(Entity)} so that it is not invoked for each
 	 * item without the data being displayed.
 	 *
-	 * @param  rEntity The new entity to update the parameters from
-	 *
+	 * @param rEntity The new entity to update the parameters from
 	 * @throws Exception May throw any kind of exception on errors
 	 */
-	protected void updateContent(E rEntity) throws Exception
-	{
+	protected void updateContent(E rEntity) throws Exception {
 	}
 
-	/***************************************
+	/**
 	 * Needs be implemented to update the content of list items in list layouts
 	 * that separate header and content (i.e. with a {@link ListLayoutStyle}
 	 * other than {@link ListLayoutStyle#SIMPLE}). The default implementation
 	 * does nothing.
 	 *
-	 * @param  rEntity The new entity to update the parameters from
-	 *
+	 * @param rEntity The new entity to update the parameters from
 	 * @throws Exception May throw any kind of exception on errors
 	 */
-	protected void updateHeader(E rEntity) throws Exception
-	{
+	protected void updateHeader(E rEntity) throws Exception {
 	}
 
-	/***************************************
+	/**
 	 * Handles the selection event for an item.
 	 */
-	void handleItemSelection()
-	{
+	void handleItemSelection() {
 		rEntityList.setSelection(this);
 	}
 }

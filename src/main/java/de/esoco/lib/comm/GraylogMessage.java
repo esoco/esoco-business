@@ -30,47 +30,56 @@ import org.obrel.core.RelationTypes;
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * A data object that holds the informations for a Graylog message in the
  * Graylog extended log format (GELF).
  *
  * @author eso
  */
-public class GraylogMessage extends RelatedObject
-{
-	//~ Enums ------------------------------------------------------------------
+public class GraylogMessage extends RelatedObject {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the RFC 5424 severity levels used by graylog.
 	 */
-	public enum Level
-	{
-		EMERGENCY, ALERT, CRITICAL, ERROR, WARNING, NOTICE, INFORMATIONAL, DEBUG
+	public enum Level {
+		EMERGENCY, ALERT, CRITICAL, ERROR, WARNING, NOTICE, INFORMATIONAL,
+		DEBUG
 	}
 
-	//~ Static fields/initializers ---------------------------------------------
-
-	/** The message format version. */
+	/**
+	 * The message format version.
+	 */
 	public static final RelationType<String> VERSION =
 		newInitialValueType("1.1");
 
-	/** The host sending the message. */
+	/**
+	 * The host sending the message.
+	 */
 	public static final RelationType<String> HOST = newType();
 
-	/** The short log message. */
+	/**
+	 * The short log message.
+	 */
 	public static final RelationType<String> SHORT_MESSAGE = newType();
 
-	/** The full log message. */
+	/**
+	 * The full log message.
+	 */
 	public static final RelationType<String> FULL_MESSAGE = newType();
 
-	/** The log timestamp in milliseconds. */
+	/**
+	 * The log timestamp in milliseconds.
+	 */
 	public static final RelationType<Long> TIMESTAMP = newType();
 
-	/** The severity level. */
+	/**
+	 * The severity level.
+	 */
 	public static final RelationType<Level> LEVEL = newType();
 
-	/** Optional field: the name of the file in which the logging occurred. */
+	/**
+	 * Optional field: the name of the file in which the logging occurred.
+	 */
 	public static final RelationType<String> _FILE_NAME = newType();
 
 	/**
@@ -80,7 +89,8 @@ public class GraylogMessage extends RelatedObject
 	public static final RelationType<Integer> _LINE_NUMBER = newType();
 
 	/**
-	 * Optional field: a description of the origin that caused the generation of
+	 * Optional field: a description of the origin that caused the
+	 * generation of
 	 * the log message. This is typically something like a person, process, or
 	 * system.
 	 */
@@ -88,23 +98,17 @@ public class GraylogMessage extends RelatedObject
 
 	private static final String LOCALHOST;
 
-	static
-	{
-		try
-		{
+	static {
+		try {
 			LOCALHOST = InetAddress.getLocalHost().getHostName();
-		}
-		catch (UnknownHostException e)
-		{
+		} catch (UnknownHostException e) {
 			throw new IllegalStateException(e);
 		}
 
 		RelationTypes.init(GraylogMessage.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rLevel        The severity level
@@ -112,39 +116,31 @@ public class GraylogMessage extends RelatedObject
 	 * @param sFullMessage  The full message or NULL for none
 	 */
 	@SuppressWarnings("boxing")
-	public GraylogMessage(Level  rLevel,
-						  String sShortMessage,
-						  String sFullMessage)
-	{
+	public GraylogMessage(Level rLevel, String sShortMessage,
+		String sFullMessage) {
 		assert rLevel != null && sShortMessage != null &&
-			   sShortMessage.length() > 0;
+			sShortMessage.length() > 0;
 
 		set(TIMESTAMP, System.currentTimeMillis());
 		set(HOST, LOCALHOST);
 		set(LEVEL, rLevel);
 		set(SHORT_MESSAGE, sShortMessage);
 
-		if (sFullMessage != null)
-		{
+		if (sFullMessage != null) {
 			set(FULL_MESSAGE, sFullMessage);
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a string containing a JSON representation of this message.
 	 *
 	 * @return The JSON string for this message
 	 */
-	public String toJson()
-	{
+	public String toJson() {
 		StringBuilder aJsonMessage = new StringBuilder("{\n");
 
-		for (Relation<?> rRelation : getRelations(null))
-		{
-			if (appendRelation(aJsonMessage, rRelation))
-			{
+		for (Relation<?> rRelation : getRelations(null)) {
+			if (appendRelation(aJsonMessage, rRelation)) {
 				aJsonMessage.append(",\n");
 			}
 		}
@@ -156,53 +152,41 @@ public class GraylogMessage extends RelatedObject
 		return aJsonMessage.toString();
 	}
 
-	/***************************************
+	/**
 	 * Appends a relation to a JSON string.
 	 *
-	 * @param  rJsonMessage The string builder
-	 * @param  rRelation    The relation
-	 *
+	 * @param rJsonMessage The string builder
+	 * @param rRelation    The relation
 	 * @return TRUE if a relation has been appended
 	 */
-	private boolean appendRelation(
-		StringBuilder rJsonMessage,
-		Relation<?>   rRelation)
-	{
-		Object  rValue    = rRelation.getTarget();
+	private boolean appendRelation(StringBuilder rJsonMessage,
+		Relation<?> rRelation) {
+		Object rValue = rRelation.getTarget();
 		boolean bHasValue = rValue != null;
 
-		if (bHasValue)
-		{
+		if (bHasValue) {
 			RelationType<?> rRelationType = rRelation.getType();
-			Class<?>	    rDatatype     = rRelationType.getTargetType();
+			Class<?> rDatatype = rRelationType.getTargetType();
 
 			rJsonMessage.append('\"');
 			rJsonMessage.append(rRelationType.getSimpleName().toLowerCase());
 			rJsonMessage.append("\":");
 
-			if (Number.class.isAssignableFrom(rDatatype))
-			{
-				if (rRelationType == TIMESTAMP)
-				{
-					long   nTimestamp    = ((Long) rValue).longValue();
+			if (Number.class.isAssignableFrom(rDatatype)) {
+				if (rRelationType == TIMESTAMP) {
+					long nTimestamp = ((Long) rValue).longValue();
 					String sMilliseconds =
 						TextConvert.padLeft("" + (nTimestamp % 1000), 4, '0');
 
 					rJsonMessage.append(nTimestamp / 1000);
 					rJsonMessage.append('.');
 					rJsonMessage.append(sMilliseconds);
-				}
-				else
-				{
+				} else {
 					rJsonMessage.append(rValue.toString());
 				}
-			}
-			else if (rRelationType == LEVEL)
-			{
+			} else if (rRelationType == LEVEL) {
 				rJsonMessage.append(((Level) rValue).ordinal());
-			}
-			else
-			{
+			} else {
 				rJsonMessage.append('\"');
 				rJsonMessage.append(Json.escape(rValue.toString()));
 				rJsonMessage.append('\"');

@@ -22,24 +22,20 @@ import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
-
-/********************************************************************
+/**
  * A single-line text input field that provides special validations for
  * international phone numbers.
  *
  * @author eso
  */
-public class UiPhoneNumberField extends UiTextInputField<UiPhoneNumberField>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiPhoneNumberField extends UiTextInputField<UiPhoneNumberField> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiPhoneNumberField(UiContainer<?> rContainer, String sText)
-	{
+	public UiPhoneNumberField(UiContainer<?> rContainer, String sText) {
 		super(rContainer, sText);
 
 		set(UserInterfaceProperties.CONTENT_TYPE, ContentType.PHONE_NUMBER);

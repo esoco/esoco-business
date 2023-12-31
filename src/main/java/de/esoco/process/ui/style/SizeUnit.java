@@ -16,41 +16,32 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.style;
 
-/********************************************************************
+/**
  * An enumeration of size units that have HTML representations.
  */
-public enum SizeUnit
-{
+public enum SizeUnit {
 	CHAR("em"), FRACTION("fr"), PERCENT("%"), PIXEL("px"), POINT("pt"),
 	ROOT_CHAR("rem");
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final String sHtmlSizeUnit;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sHtmlSizeUnit The HTML size unit token
 	 */
-	private SizeUnit(String sHtmlSizeUnit)
-	{
+	private SizeUnit(String sHtmlSizeUnit) {
 		this.sHtmlSizeUnit = sHtmlSizeUnit;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Generates a HTML size string with this unit from a certain integer value.
+	/**
+	 * Generates a HTML size string with this unit from a certain integer
+	 * value.
 	 *
-	 * @param  nSizeValue The integer size value
-	 *
+	 * @param nSizeValue The integer size value
 	 * @return The HTML size string
 	 */
-	public final String getHtmlSize(int nSizeValue)
-	{
+	public final String getHtmlSize(int nSizeValue) {
 		return nSizeValue + sHtmlSizeUnit;
 	}
 }

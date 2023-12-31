@@ -18,23 +18,19 @@ package de.esoco.data.validate;
 
 import java.io.Serializable;
 
-
-/********************************************************************
+/**
  * Instances of this interface serve to validate data element values. Validators
- * that contain additional fields must implement the {@link
- * Object#equals(Object)} and {@link Object#hashCode()} methods.
+ * that contain additional fields must implement the
+ * {@link Object#equals(Object)} and {@link Object#hashCode()} methods.
  *
  * @author eso
  */
-public interface Validator<T> extends Serializable
-{
-	//~ Methods ----------------------------------------------------------------
+public interface Validator<T> extends Serializable {
 
-	/***************************************
+	/**
 	 * Must be implemented to validate data element values.
 	 *
-	 * @param  rValue The value to validate
-	 *
+	 * @param rValue The value to validate
 	 * @return TRUE if the value is valid according to this validator's rules
 	 */
 	public abstract boolean isValid(T rValue);

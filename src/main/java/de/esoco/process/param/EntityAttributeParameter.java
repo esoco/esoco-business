@@ -24,90 +24,71 @@ import java.util.Objects;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A parameter subclass that manages the relation between the process parameter
  * and an entity attribute.
  *
  * @author eso
  */
 public class EntityAttributeParameter<E extends Entity, T>
-	extends ParameterBase<T, EntityAttributeParameter<E, T>>
-{
-	//~ Instance fields --------------------------------------------------------
+	extends ParameterBase<T, EntityAttributeParameter<E, T>> {
 
 	private E rEntity;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public EntityAttributeParameter(
-		InteractionFragment rFragment,
-		RelationType<T>		rEntityAttribute)
-	{
+	public EntityAttributeParameter(InteractionFragment rFragment,
+		RelationType<T> rEntityAttribute) {
 		super(rFragment, rEntityAttribute);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Applies the current process parameter value to an entity.
 	 */
-	public void apply()
-	{
-		if (rEntity != null)
-		{
+	public void apply() {
+		if (rEntity != null) {
 			fragment().applyDerivedParameter(type(), rEntity);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Check whether the parameter value is different than the attribute value.
 	 *
 	 * @return The value changed
 	 */
-	public boolean isValueChanged()
-	{
+	public boolean isValueChanged() {
 		boolean bChanged = false;
 
-		if (rEntity != null)
-		{
-			T rAttrValue  =
-				fragment().getDerivedParameterValue(rEntity, type());
+		if (rEntity != null) {
+			T rAttrValue = fragment().getDerivedParameterValue(rEntity,
+				type());
 			T rParamValue = value();
 
-			bChanged =
-				!Objects.equals(rParamValue, rAttrValue) &&
+			bChanged = !Objects.equals(rParamValue, rAttrValue) &&
 				!(rAttrValue == null && "".equals(rParamValue));
 		}
 
 		return bChanged;
 	}
 
-	/***************************************
+	/**
 	 * Resets the value of this parameter to the entity attribute value.
 	 */
-	public void reset()
-	{
-		if (rEntity != null)
-		{
+	public void reset() {
+		if (rEntity != null) {
 			fragment().collectDerivedParameter(rEntity, type(), false);
-		}
-		else
-		{
+		} else {
 			value(null);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the entity of which the attribute value shall be displayed.
 	 *
 	 * @param rEntity The entity this parameter references
 	 */
-	public void setEntity(E rEntity)
-	{
+	public void setEntity(E rEntity) {
 		this.rEntity = rEntity;
 
 		reset();

@@ -21,25 +21,21 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.composite.UiCard;
 
-
-/********************************************************************
- * A layout for the content area of a page or of some UI containers (e.g. {@link
- * UiCard}). Many client-side container implementations will create content
- * structure areas (header, content, footer) automatically but for more complex
- * layouts it can be helpful to define these areas explicitly in separate panels
- * (which are then added to the container).
+/**
+ * A layout for the content area of a page or of some UI containers (e.g.
+ * {@link UiCard}). Many client-side container implementations will create
+ * content structure areas (header, content, footer) automatically but for more
+ * complex layouts it can be helpful to define these areas explicitly in
+ * separate panels (which are then added to the container).
  *
  * @author eso
  */
-public class UiContentLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiContentLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiContentLayout()
-	{
+	public UiContentLayout() {
 		super(LayoutType.CONTENT);
 	}
 }

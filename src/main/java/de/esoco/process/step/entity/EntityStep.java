@@ -18,15 +18,12 @@ package de.esoco.process.step.entity;
 
 import de.esoco.process.ProcessStep;
 
-
-/********************************************************************
+/**
  * Process step that implements storage queries.
  *
  * @author thomas
  */
-public abstract class EntityStep extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public abstract class EntityStep extends ProcessStep {
 
 	private static final long serialVersionUID = 1L;
 }

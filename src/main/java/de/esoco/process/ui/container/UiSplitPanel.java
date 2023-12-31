@@ -22,25 +22,21 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiDockLayout;
 
-
-/********************************************************************
+/**
  * A panel that layouts components so that they can be resized with a split
  * control between them.
  *
  * @author eso
  */
-public class UiSplitPanel extends UiLayoutContainer<UiSplitPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiSplitPanel extends UiLayoutContainer<UiSplitPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent      The parent container
 	 * @param eOrientation TRUE for vertical orientation
 	 */
-	public UiSplitPanel(UiContainer<?> rParent, Orientation eOrientation)
-	{
+	public UiSplitPanel(UiContainer<?> rParent, Orientation eOrientation) {
 		super(rParent, new UiDockLayout(eOrientation, true));
 	}
 }

@@ -23,41 +23,32 @@ import de.esoco.process.ui.style.DefaultStyleNames;
 
 import java.util.Date;
 
-
-/********************************************************************
+/**
  * A composite that represents the header of a web page.
  *
  * @author eso
  */
-public class UiWebPageFooter extends UiComposite<UiWebPageFooter>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiWebPageFooter extends UiComposite<UiWebPageFooter> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent the parent container
 	 */
-	public UiWebPageFooter(UiContainer<?> rParent)
-	{
+	public UiWebPageFooter(UiContainer<?> rParent) {
 		super(rParent, new UiFooterLayout());
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds a copyright message to the footer that includes the current year.
 	 * The label has the style name {@link DefaultStyleNames#FOOTER_COPYRIGHT}.
 	 *
 	 * @param sCopyrightHolder The display name of the copyright holder(s)
 	 */
-	public void addCopyrightMessage(String sCopyrightHolder)
-	{
-		builder().addLabel(
-		 			String.format(
-		 				"$$Copyright %tY {%s}",
-		 				new Date(),
-		 				sCopyrightHolder))
-				 .styleName(DefaultStyleNames.FOOTER_COPYRIGHT);
+	public void addCopyrightMessage(String sCopyrightHolder) {
+		builder()
+			.addLabel(String.format("$$Copyright %tY {%s}", new Date(),
+				sCopyrightHolder))
+			.styleName(DefaultStyleNames.FOOTER_COPYRIGHT);
 	}
 }

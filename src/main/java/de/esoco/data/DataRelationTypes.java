@@ -28,37 +28,46 @@ import org.obrel.core.RelationTypes;
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * Contains specific relation type definitions for the data package.
  *
  * @author eso
  */
-public class DataRelationTypes
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class DataRelationTypes {
 
-	/** A reference to a storage adapter ID string. */
+	/**
+	 * A reference to a storage adapter ID string.
+	 */
 	public static final RelationType<StorageAdapterId> STORAGE_ADAPTER_ID =
 		newType();
 
-	/** The ID of a storage adapter that is a child to another. */
-	public static final RelationType<StorageAdapterId> CHILD_STORAGE_ADAPTER_ID =
-		newType();
+	/**
+	 * The ID of a storage adapter that is a child to another.
+	 */
+	public static final RelationType<StorageAdapterId>
+		CHILD_STORAGE_ADAPTER_ID = newType();
 
-	/** A list of storage adapter IDs. */
-	public static final RelationType<List<StorageAdapterId>> STORAGE_ADAPTER_IDS =
-		newListType();
+	/**
+	 * A list of storage adapter IDs.
+	 */
+	public static final RelationType<List<StorageAdapterId>>
+		STORAGE_ADAPTER_IDS = newListType();
 
-	/** A relation type to store a storage adapter. */
+	/**
+	 * A relation type to store a storage adapter.
+	 */
 	public static final RelationType<StorageAdapter> STORAGE_ADAPTER =
 		newType();
 
-	/** A relation type to store a storage adapter registry. */
-	public static final RelationType<StorageAdapterRegistry> STORAGE_ADAPTER_REGISTRY =
-		newType();
+	/**
+	 * A relation type to store a storage adapter registry.
+	 */
+	public static final RelationType<StorageAdapterRegistry>
+		STORAGE_ADAPTER_REGISTRY = newType();
 
-	/** A relation to a session manager instance. */
+	/**
+	 * A relation to a session manager instance.
+	 */
 	public static final RelationType<SessionManager> SESSION_MANAGER =
 		newType();
 
@@ -69,17 +78,13 @@ public class DataRelationTypes
 	public static final RelationType<RelationType<?>> FLAG_ATTRIBUTE =
 		newType();
 
-	static
-	{
+	static {
 		RelationTypes.init(DataRelationTypes.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private DataRelationTypes()
-	{
+	private DataRelationTypes() {
 	}
 }

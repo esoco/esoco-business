@@ -25,8 +25,7 @@ import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypes.newBooleanType;
 
-
-/********************************************************************
+/**
  * A process step implementation that can be used to copy or move a process
  * parameter. Because the parameter types must be related it is recommended to
  * create instances of this step only through generic methods that ensure the
@@ -45,42 +44,35 @@ import static org.obrel.core.RelationTypes.newBooleanType;
  *
  * @author eso
  */
-public class TransferParam extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class TransferParam extends ProcessStep {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The transfer mode */
+	/**
+	 * The transfer mode
+	 */
 	public static final RelationType<Boolean> TRANSFER_PARAM_MOVE =
 		newBooleanType("de.esoco.process.step.TRANSFER_PARAM_MOVE");
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(TransferParam.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public TransferParam()
-	{
+	public TransferParam() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Executes the parameter transfer.
 	 *
 	 * @throws ProcessException When a required parameter is missing or if the
@@ -89,47 +81,45 @@ public class TransferParam extends ProcessStep
 	 */
 	@Override
 	@SuppressWarnings({ "boxing", "unchecked" })
-	protected void execute() throws ProcessException
-	{
+	protected void execute() throws ProcessException {
 		RelationType<?> rSource =
 			checkParameter(ProcessRelationTypes.SOURCE_PARAM);
 		RelationType<?> rTarget =
 			checkParameter(ProcessRelationTypes.TARGET_PARAM);
 
-		Object  rValue = getParameter(rSource);
-		boolean bMove  = getParameter(TRANSFER_PARAM_MOVE);
+		Object rValue = getParameter(rSource);
+		boolean bMove = getParameter(TRANSFER_PARAM_MOVE);
 
-		if (!rTarget.getTargetType().isAssignableFrom(rSource.getTargetType()))
-		{
+		if (!rTarget
+			.getTargetType()
+			.isAssignableFrom(rSource.getTargetType())) {
 			throw new ProcessException(this,
-									   "Incompatible source and target parameter datatypes");
+				"Incompatible source and target parameter datatypes");
 		}
 
 		setParameter((RelationType<Object>) rTarget, rValue);
 
-		if (bMove)
-		{
+		if (bMove) {
 			deleteParameters(rSource);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Reverses a previous move and removes all set parameters.
 	 *
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
 	@SuppressWarnings({ "unchecked" })
-	protected void rollback() throws Exception
-	{
-		if (hasFlagParameter(TRANSFER_PARAM_MOVE))
-		{
+	protected void rollback() throws Exception {
+		if (hasFlagParameter(TRANSFER_PARAM_MOVE)) {
 			RelationType<?> rSource =
 				getParameter(ProcessRelationTypes.SOURCE_PARAM);
 			RelationType<?> rTarget =
 				getParameter(ProcessRelationTypes.TARGET_PARAM);
 
-			setParameter((RelationType<Object>) rSource, getParameter(rTarget));
+			setParameter((RelationType<Object>) rSource,
+				getParameter(rTarget));
 			deleteParameters(rTarget);
 		}
 	}

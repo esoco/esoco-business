@@ -22,26 +22,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
-/********************************************************************
+/**
  * Contains Entity-specific annotations.
  *
  * @author eso
  */
-public class Annotations
-{
-	//~ Constructors -----------------------------------------------------------
+public class Annotations {
 
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private Annotations()
-	{
+	private Annotations() {
 	}
 
-	//~ Annotations ------------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * Marks an entity class that only represents a certain type value in the
 	 * type attribute of a parent entity class and has no entity definition of
 	 * it's own.
@@ -51,7 +45,6 @@ public class Annotations
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
-	public @interface TypeSpecificEntity
-	{
+	public @interface TypeSpecificEntity {
 	}
 }

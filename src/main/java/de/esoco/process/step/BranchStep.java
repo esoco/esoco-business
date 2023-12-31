@@ -29,8 +29,7 @@ import org.obrel.core.RelationTypes;
 import static org.obrel.core.RelationTypes.newRelationType;
 import static org.obrel.core.RelationTypes.newStringType;
 
-
-/********************************************************************
+/**
  * A ProcessStep subclass that can branch during the process execution depending
  * on the value of a certain process parameter. The following parameters can be
  * set in the step configuration:
@@ -49,122 +48,107 @@ import static org.obrel.core.RelationTypes.newStringType;
  *
  * @author eso
  */
-public final class BranchStep extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public final class BranchStep extends ProcessStep {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The process parameter to check for the branch condition */
+	/**
+	 * The process parameter to check for the branch condition
+	 */
 	public static final RelationType<RelationType<?>> BRANCH_PARAM =
 		newRelationType("de.esoco.process.BRANCH_PARAM", RelationType.class);
 
-	/** The predicate to evaluate the branch parameter with */
+	/**
+	 * The predicate to evaluate the branch parameter with
+	 */
 	public static final RelationType<Predicate<?>> BRANCH_CONDITION =
 		newRelationType("de.esoco.process.BRANCH_CONDITION", Predicate.class);
 
-	/** The target process step if the branch condition is true */
+	/**
+	 * The target process step if the branch condition is true
+	 */
 	public static final RelationType<String> BRANCH_TARGET =
 		newStringType("de.esoco.process.BRANCH_TARGET");
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(BranchStep.class);
 	}
 
-	//~ Instance fields --------------------------------------------------------
-
 	private String sNoBranchTarget;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Initializes the step parameters.
 	 */
-	public BranchStep()
-	{
+	public BranchStep() {
 		setMandatory(BRANCH_CONDITION);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
-	 * Checks the defined branching condition and if the condition is fulfilled,
+	/**
+	 * Checks the defined branching condition and if the condition is
+	 * fulfilled,
 	 * modifies the superclass' reference to the next step accordingly.
 	 *
 	 * @throws ProcessException If the step configuration is invalid
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void execute() throws ProcessException
-	{
+	protected void execute() throws ProcessException {
 		@SuppressWarnings("unchecked")
 		Predicate<Object> pCondition =
 			(Predicate<Object>) checkParameter(BRANCH_CONDITION);
 
-		RelationType<?> rBranchParam  = getParameter(BRANCH_PARAM);
-		String		    sBranchTarget = getParameter(BRANCH_TARGET);
-		String		    sNextStep;
+		RelationType<?> rBranchParam = getParameter(BRANCH_PARAM);
+		String sBranchTarget = getParameter(BRANCH_TARGET);
+		String sNextStep;
 
-		if (pCondition != Predicates.alwaysTrue() &&
-			rBranchParam == null &&
-			!hasRelation(BRANCH_PARAM))
-		{
+		if (pCondition != Predicates.alwaysTrue() && rBranchParam == null &&
+			!hasRelation(BRANCH_PARAM)) {
 			throw new ProcessException(this,
-									   String.format("Parameter %s not set",
-													 BRANCH_PARAM));
+				String.format("Parameter %s not set", BRANCH_PARAM));
 		}
 
-		if (!hasRelation(BRANCH_TARGET))
-		{
+		if (!hasRelation(BRANCH_TARGET)) {
 			throw new ProcessException(this,
-									   String.format("Parameter %s not set",
-													 BRANCH_TARGET));
+				String.format("Parameter %s not set", BRANCH_TARGET));
 		}
 
 		Object rBranchValue =
 			rBranchParam != null ? getParameter(rBranchParam) : null;
 
-		if (pCondition.evaluate(rBranchValue))
-		{
+		if (pCondition.evaluate(rBranchValue)) {
 			sNextStep = sBranchTarget;
-		}
-		else
-		{
+		} else {
 			sNextStep = sNoBranchTarget;
 		}
 
 		super.setNextStep(sNextStep);
 	}
 
-	/***************************************
+	/**
 	 * Overridden to do nothing to prevent the superclass exception.
 	 *
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
-	protected void rollback() throws Exception
-	{
+	protected void rollback() throws Exception {
 	}
 
-	/***************************************
+	/**
 	 * Overridden to store the name of the step to be invoked if no branching
 	 * occurs.
 	 *
 	 * @param sNextStep The next step to be invoked if no branching occurs
 	 */
 	@Override
-	protected void setNextStep(String sNextStep)
-	{
+	protected void setNextStep(String sNextStep) {
 		super.setNextStep(sNextStep);
 
 		sNoBranchTarget = sNextStep;

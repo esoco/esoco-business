@@ -20,22 +20,18 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A simple layout that accepts a single component that fills the available
  * area.
  *
  * @author eso
  */
-public class UiFlowLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiFlowLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiFlowLayout()
-	{
+	public UiFlowLayout() {
 		super(LayoutType.FLOW);
 	}
 }

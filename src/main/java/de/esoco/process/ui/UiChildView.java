@@ -30,29 +30,22 @@ import static de.esoco.lib.property.StyleProperties.AUTO_HIDE;
 
 import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
-
-/********************************************************************
+/**
  * A view that is displayed as a child of another view.
  *
  * @author eso
  */
-public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
-{
-	//~ Instance fields --------------------------------------------------------
+public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V> {
 
 	private Runnable rCloseHandler;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance and shows it.
 	 *
 	 * @see UiView#UiView(UiView, UiLayout)
 	 */
-	public UiChildView(UiView<?>	   rParent,
-					   UiLayout		   rLayout,
-					   ViewDisplayType eViewType)
-	{
+	public UiChildView(UiView<?> rParent, UiLayout rLayout,
+		ViewDisplayType eViewType) {
 		super(rParent, rLayout);
 
 		getParent().fragment().addViewFragment(type(), fragment());
@@ -61,105 +54,90 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V>
 		setViewType(eViewType);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Enables automatic hiding of this view if the user clicks outside.
 	 *
 	 * @return This instance
 	 */
-	public V autoHide()
-	{
+	public V autoHide() {
 		setParameterEventHandler(InteractionEventType.UPDATE,
-								 v -> handleCloseView());
+			v -> handleCloseView());
 
 		return set(AUTO_HIDE);
 	}
 
-	/***************************************
+	/**
 	 * Indicates that this view should be centered on the screen.
 	 *
 	 * @return This instance
 	 */
-	public V center()
-	{
+	public V center() {
 		return set(UserInterfaceProperties.VERTICAL_ALIGN, Alignment.CENTER);
 	}
 
-	/***************************************
+	/**
 	 * Adds a handler that will be invoked when this view is closed.
 	 *
-	 * @param  rCloseHandler The handler to be invoked if the view is closed
-	 *
+	 * @param rCloseHandler The handler to be invoked if the view is closed
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public V onClose(Runnable rCloseHandler)
-	{
+	public V onClose(Runnable rCloseHandler) {
 		this.rCloseHandler = rCloseHandler;
 
 		return (V) this;
 	}
 
-	/***************************************
+	/**
 	 * Overridden to show or hide this view.
 	 *
 	 * @see UiContainer#setVisible(boolean)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public V setVisible(boolean bVisible)
-	{
+	public V setVisible(boolean bVisible) {
 		RelationType<List<RelationType<?>>> rViewParam = type();
 
-		if (bVisible)
-		{
+		if (bVisible) {
 			fragment().get(VIEW_PARAMS).add(rViewParam);
 			applyProperties();
-		}
-		else
-		{
+		} else {
 			getParent().fragment().removeViewFragment(rViewParam);
 		}
 
 		return (V) this;
 	}
 
-	/***************************************
+	/**
 	 * Overridden to do nothing because child views are managed separately from
 	 * components.
 	 *
 	 * @see UiContainer#attachTo(UiContainer)
 	 */
 	@Override
-	protected void attachTo(UiContainer<?> rParent)
-	{
+	protected void attachTo(UiContainer<?> rParent) {
 	}
 
-	/***************************************
+	/**
 	 * Set the type of this view
 	 *
 	 * @param eViewType The view type
 	 */
-	protected void setViewType(ViewDisplayType eViewType)
-	{
+	protected void setViewType(ViewDisplayType eViewType) {
 		set(LayoutProperties.VIEW_DISPLAY_TYPE, eViewType);
 	}
 
-	/***************************************
+	/**
 	 * Handles close events for this view.
 	 */
-	private void handleCloseView()
-	{
-		if (rCloseHandler != null)
-		{
+	private void handleCloseView() {
+		if (rCloseHandler != null) {
 			rCloseHandler.run();
 		}
 
 		Boolean rAutoHide = get(AUTO_HIDE);
 
-		if (rAutoHide != null && rAutoHide.booleanValue())
-		{
+		if (rAutoHide != null && rAutoHide.booleanValue()) {
 			hide();
 		}
 	}

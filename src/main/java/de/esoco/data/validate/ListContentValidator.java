@@ -18,59 +18,44 @@ package de.esoco.data.validate;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A validator that checks the content of a list by checking each element with
  * another validator.
  *
  * @author eso
  */
-public class ListContentValidator<T> implements Validator<List<T>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ListContentValidator<T> implements Validator<List<T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private Validator<? super T> rElementValidator;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rElementValidator The validator for the list elements
 	 */
-	public ListContentValidator(Validator<? super T> rElementValidator)
-	{
+	public ListContentValidator(Validator<? super T> rElementValidator) {
 		this.rElementValidator = rElementValidator;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	ListContentValidator()
-	{
+	ListContentValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(List<T> rList)
-	{
-		if (rList == null)
-		{
+	public boolean isValid(List<T> rList) {
+		if (rList == null) {
 			return false;
 		}
 
-		for (T rElement : rList)
-		{
-			if (!rElementValidator.isValid(rElement))
-			{
+		for (T rElement : rList) {
+			if (!rElementValidator.isValid(rElement)) {
 				return false;
 			}
 		}

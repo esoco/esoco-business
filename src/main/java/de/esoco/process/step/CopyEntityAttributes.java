@@ -37,8 +37,7 @@ import static de.esoco.process.ProcessRelationTypes.ENTITY_PARAM;
 import static org.obrel.core.RelationTypes.newEnumType;
 import static org.obrel.core.RelationTypes.newRelationType;
 
-
-/********************************************************************
+/**
  * Copies the attributes of an entity from or to a certain relatable object. The
  * following parameters can be set:
  *
@@ -54,18 +53,18 @@ import static org.obrel.core.RelationTypes.newRelationType;
  *
  * @author eso
  */
-public class CopyEntityAttributes extends RollbackStep
-{
-	//~ Enums ------------------------------------------------------------------
+public class CopyEntityAttributes extends RollbackStep {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the possible copy modes. The available values are:
 	 *
 	 * <ul>
-	 *   <li>{@link #FROM_ENTITY}: The entity attributes will be copied from the
+	 *   <li>{@link #FROM_ENTITY}: The entity attributes will be copied from
+	 *   the
 	 *     entity to the copy object.</li>
 	 *   <li>{@link #TO_ENTITY}: The entity attributes will be copied from the
-	 *     copy object to the entity. If the entity doesn't exist a new instance
+	 *     copy object to the entity. If the entity doesn't exist a new
+	 *     instance
 	 *     will be created.</li>
 	 *   <li>{@link #TO_NEW_ENTITY}: The entity attributes will be copied from
 	 *     the copy object to a new entity instance. If the entity parameter
@@ -76,62 +75,54 @@ public class CopyEntityAttributes extends RollbackStep
 	 *     parameter doesn't contain an entity no values will be copied.</li>
 	 * </ul>
 	 */
-	public enum CopyMode
-	{
+	public enum CopyMode {
 		FROM_ENTITY, TO_ENTITY, TO_NEW_ENTITY, TO_EXISTING_ENTITY
 	}
-
-	//~ Static fields/initializers ---------------------------------------------
 
 	/**
 	 * Refers to the parameter that contains the relatable object that is the
 	 * target or source for the attribute copy.
 	 */
-	public static final RelationType<RelationType<? extends Relatable>> COPY_OBJECT_PARAM =
+	public static final RelationType<RelationType<? extends Relatable>>
+		COPY_OBJECT_PARAM =
 		newRelationType("de.esoco.process.COPY_OBJECT", RelationType.class);
 
-	/** Contains the {@link CopyMode copy mode}. */
+	/**
+	 * Contains the {@link CopyMode copy mode}.
+	 */
 	public static final RelationType<CopyMode> COPY_MODE =
 		newEnumType("de.esoco.process.COPY_MODE", CopyMode.class);
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public CopyEntityAttributes()
-	{
+	public CopyEntityAttributes() {
 		setMandatory(ENTITY_PARAM, COPY_MODE);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ProcessStep#execute()
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void execute() throws StorageException, ProcessException,
-									TransactionException
-	{
+	protected void execute()
+		throws StorageException, ProcessException, TransactionException {
 		RelationType<? extends Entity> rEntityParam =
 			checkParameter(ENTITY_PARAM);
 
 		RelationType<? extends Relatable> rCopyObjectParam =
 			getParameter(COPY_OBJECT_PARAM);
 
-		CopyMode  eCopyMode   = checkParameter(COPY_MODE);
-		Entity    rEntity     = getParameter(rEntityParam);
+		CopyMode eCopyMode = checkParameter(COPY_MODE);
+		Entity rEntity = getParameter(rEntityParam);
 		Relatable rCopyObject = null;
 
-		if (rCopyObjectParam != null)
-		{
+		if (rCopyObjectParam != null) {
 			rCopyObject = getParameter(rCopyObjectParam);
 
-			if (rCopyObject == null)
-			{
+			if (rCopyObject == null) {
 				throwMissingParameterException(rCopyObjectParam);
 			}
 		}
@@ -142,8 +133,7 @@ public class CopyEntityAttributes extends RollbackStep
 		Relatable rSource;
 		Relatable rTarget;
 
-		switch (eCopyMode)
-		{
+		switch (eCopyMode) {
 			case FROM_ENTITY:
 				rSource = rEntity;
 				rTarget = rCopyObject != null ? rCopyObject : getProcess();
@@ -154,8 +144,7 @@ public class CopyEntityAttributes extends RollbackStep
 				// fall through
 
 			case TO_ENTITY:
-				if (rEntity == null)
-				{
+				if (rEntity == null) {
 					rEntity = ReflectUtil.newInstance(rEntityClass);
 					setParameter((RelationType<Entity>) rEntityParam, rEntity);
 				}
@@ -170,17 +159,15 @@ public class CopyEntityAttributes extends RollbackStep
 				throw new AssertionError("Unknown copy mode " + eCopyMode);
 		}
 
-		if (rEntity == null)
-		{
+		if (rEntity == null) {
 			throwMissingParameterException(rEntityParam);
 		}
 
-		copyAttributes(rSource,
-					   rTarget,
-					   rEntity.getDefinition().getAttributes());
+		copyAttributes(rSource, rTarget,
+			rEntity.getDefinition().getAttributes());
 	}
 
-	/***************************************
+	/**
 	 * Performs the attribute copy.
 	 *
 	 * @param rSource     The source object
@@ -188,21 +175,17 @@ public class CopyEntityAttributes extends RollbackStep
 	 * @param rAttributes The attributes to copy
 	 */
 	@SuppressWarnings("unchecked")
-	private void copyAttributes(Relatable					rSource,
-								Relatable					rTarget,
-								Collection<RelationType<?>> rAttributes)
-	{
-		for (RelationType<?> rAttribute : rAttributes)
-		{
-			boolean bHasAttribute =
-				rSource == this ? hasParameter(rAttribute)
-								: rSource.hasRelation(rAttribute);
+	private void copyAttributes(Relatable rSource, Relatable rTarget,
+		Collection<RelationType<?>> rAttributes) {
+		for (RelationType<?> rAttribute : rAttributes) {
+			boolean bHasAttribute = rSource == this ?
+			                        hasParameter(rAttribute) :
+			                        rSource.hasRelation(rAttribute);
 
-			if (bHasAttribute)
-			{
-				Object rValue =
-					rSource == this ? getParameter(rAttribute)
-									: rSource.get(rAttribute);
+			if (bHasAttribute) {
+				Object rValue = rSource == this ?
+				                getParameter(rAttribute) :
+				                rSource.get(rAttribute);
 
 				rTarget.set((RelationType<Object>) rAttribute, rValue);
 			}

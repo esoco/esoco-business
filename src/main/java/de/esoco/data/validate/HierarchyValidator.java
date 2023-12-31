@@ -20,59 +20,46 @@ import de.esoco.data.element.HierarchicalDataObject;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A validator for the selection of a certain object from a hierarchy of data
  * objects.
  *
  * @author eso
  */
 public class HierarchyValidator implements Validator<HierarchicalDataObject>,
-										   HasValueList<HierarchicalDataObject>
-{
-	//~ Static fields/initializers ---------------------------------------------
+	HasValueList<HierarchicalDataObject> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private List<HierarchicalDataObject> rValues;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance that uses zero-based continuous integer values for
+	/**
+	 * Creates a new instance that uses zero-based continuous integer values
+	 * for
 	 * the identification of the data objects.
 	 *
 	 * @param rValues The hierarchical data objects allowed by this instance
 	 */
-	public HierarchyValidator(List<HierarchicalDataObject> rValues)
-	{
+	public HierarchyValidator(List<HierarchicalDataObject> rValues) {
 		this.rValues = rValues;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	HierarchyValidator()
-	{
+	HierarchyValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (this == rObj)
-		{
+	public boolean equals(Object rObj) {
+		if (this == rObj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass())
-		{
+		if (rObj == null || getClass() != rObj.getClass()) {
 			return false;
 		}
 
@@ -81,30 +68,27 @@ public class HierarchyValidator implements Validator<HierarchicalDataObject>,
 		return rValues.equals(rOther.rValues);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final List<HierarchicalDataObject> getValues()
-	{
+	public final List<HierarchicalDataObject> getValues() {
 		return rValues;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * rValues.hashCode();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(HierarchicalDataObject rObject)
-	{
+	public boolean isValid(HierarchicalDataObject rObject) {
 		// always return true because the object must be from the validated set
 		return true;
 	}

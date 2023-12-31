@@ -18,8 +18,7 @@ package de.esoco.process.step;
 
 import de.esoco.process.ProcessStep;
 
-
-/********************************************************************
+/**
  * A base class for process steps that can perform a (simple) rollback of their
  * execution. The {@link #canRollback()} method is implemented to always return
  * TRUE and {@link #rollback()} to do nothing. Subclasses that perform parameter
@@ -28,42 +27,33 @@ import de.esoco.process.ProcessStep;
  *
  * @author eso
  */
-public abstract class RollbackStep extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public abstract class RollbackStep extends ProcessStep {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public RollbackStep()
-	{
+	public RollbackStep() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Always returns TRUE.
 	 *
 	 * @see ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Implemented to do nothing. Subclasses that perform parameter
 	 * modifications must override this method to revert such changes.
 	 *
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
-	protected void rollback() throws Exception
-	{
+	protected void rollback() throws Exception {
 	}
 }

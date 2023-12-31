@@ -24,157 +24,157 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A data element that holds a list of date values and associated data in
  * instances of {@link DateDataElement}. The properties of the data elements can
  * be used to transfer additional
  *
  * @author eso
  */
-public class DateListDataElement extends ListDataElement<DateDataElement>
-{
-	//~ Enums ------------------------------------------------------------------
+public class DateListDataElement extends ListDataElement<DateDataElement> {
 
-	/********************************************************************
-	 * Enumeration of the display types for time the rendering in a Timetable
-	 * component.
-	 */
-	public enum TimetableDisplayStyle
-	{
-		DAY, MONTH, AGENDA;
-	}
-
-	/********************************************************************
-	 * Enumeration of the possible edit types that can occur in interactions for
+	/**
+	 * Enumeration of the possible edit types that can occur in interactions
+	 * for
 	 * the child elements.
 	 */
-	public enum InteractionType
-	{
+	public enum InteractionType {
 		OPEN, DATE_OPEN, SELECT, UPDATE, DELETE, CREATE
 	}
 
-	//~ Static fields/initializers ---------------------------------------------
+	/**
+	 * Enumeration of the display types for time the rendering in a Timetable
+	 * component.
+	 */
+	public enum TimetableDisplayStyle {
+		DAY, MONTH, AGENDA;
+	}
 
-	private static final long serialVersionUID = 1L;
-
-	/** The type of the interaction event that occurred on a child. */
+	/**
+	 * The type of the interaction event that occurred on a child.
+	 */
 	public static final PropertyName<InteractionType> INTERACTION_TYPE =
 		PropertyName.newEnumName("INTERACTION_TYPE", InteractionType.class);
 
-	/** UI property: the style in which to render a Timetable display. */
-	public static final PropertyName<TimetableDisplayStyle> TIMETABLE_DISPLAY_STYLE =
-		PropertyName.newEnumName(
-			"TIMETABLE_DISPLAY_STYLE",
+	/**
+	 * UI property: the style in which to render a Timetable display.
+	 */
+	public static final PropertyName<TimetableDisplayStyle>
+		TIMETABLE_DISPLAY_STYLE =
+		PropertyName.newEnumName("TIMETABLE_DISPLAY_STYLE",
 			TimetableDisplayStyle.class);
 
 	/**
-	 * UI property: the number of days to display with {@link
-	 * TimetableDisplayStyle#DAY}.
+	 * UI property: the number of days to display with
+	 * {@link TimetableDisplayStyle#DAY}.
 	 */
 	public static final PropertyName<Integer> TIMETABLE_DAYS =
 		PropertyName.newIntegerName("TIMETABLE_DAYS");
 
-	/** UI property: the first hour to display in DAY views. */
+	/**
+	 * UI property: the first hour to display in DAY views.
+	 */
 	public static final PropertyName<Integer> TIMETABLE_DAY_START =
 		PropertyName.newIntegerName("TIMETABLE_DAY_START");
 
-	/** UI property: the first working hour in DAY views. */
+	/**
+	 * UI property: the first working hour in DAY views.
+	 */
 	public static final PropertyName<Integer> TIMETABLE_FIRST_WORKING_HOUR =
 		PropertyName.newIntegerName("TIMETABLE_FIRST_WORKING_HOUR");
 
-	/** UI property: the last working hour in DAY views. */
+	/**
+	 * UI property: the last working hour in DAY views.
+	 */
 	public static final PropertyName<Integer> TIMETABLE_LAST_WORKING_HOUR =
 		PropertyName.newIntegerName("TIMETABLE_LAST_WORKING_HOUR");
 
-	/** UI property: the first hour to display in DAY or AGENDA views. */
+	/**
+	 * UI property: the first hour to display in DAY or AGENDA views.
+	 */
 	public static final PropertyName<Integer> TIMETABLE_SCROLL_TO_HOUR =
 		PropertyName.newIntegerName("TIMETABLE_SCROLL_TO_HOUR");
 
-	/** UI property: the number of hour subdivisions in DAY views. */
+	/**
+	 * UI property: the number of hour subdivisions in DAY views.
+	 */
 	public static final PropertyName<Integer> TIMETABLE_HOUR_SUBDIVISIONS =
 		PropertyName.newIntegerName("TIMETABLE_HOUR_SUBDIVISIONS");
 
-	/** UI property: the size in pixels of hour subdivisions in DAY views. */
-	public static final PropertyName<Integer> TIMETABLE_HOUR_SUBDIVISION_HEIGHT =
+	/**
+	 * UI property: the size in pixels of hour subdivisions in DAY views.
+	 */
+	public static final PropertyName<Integer>
+		TIMETABLE_HOUR_SUBDIVISION_HEIGHT =
 		PropertyName.newIntegerName("TIMETABLE_HOUR_SUBDIVISION_HEIGHT");
 
-	/** UI property: TRUE to display week numbers. */
+	/**
+	 * UI property: TRUE to display week numbers.
+	 */
 	public static final PropertyName<Boolean> TIMETABLE_SHOW_WEEK_NUMBERS =
 		PropertyName.newBooleanName("TIMETABLE_SHOW_WEEK_NUMBERS");
 
-	//~ Instance fields --------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
 	private List<DateDataElement> aDataElements = new ArrayList<>();
 
 	private InteractionType eInteractionType;
-	private HasProperties   rSelection;
-	private HasProperties   rInteractionData;
 
-	//~ Constructors -----------------------------------------------------------
+	private HasProperties rSelection;
 
-	/***************************************
+	private HasProperties rInteractionData;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName     The name of this element
 	 * @param rElements The date data
 	 */
-	public DateListDataElement(
-		String						sName,
-		Collection<DateDataElement> rElements)
-	{
+	public DateListDataElement(String sName,
+		Collection<DateDataElement> rElements) {
 		super(sName, null, null);
 
 		aDataElements.addAll(rElements);
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	protected DateListDataElement()
-	{
+	protected DateListDataElement() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * This method should be invoked to initialize the property name constants
 	 * for de-serialization.
 	 */
-	public static void init()
-	{
+	public static void init() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateListDataElement copy(
-		CopyMode		   eMode,
-		PropertyName<?>... rCopyProperties)
-	{
+	public DateListDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (DateListDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
-	 * Returns the properties containing the data resulting from an interaction.
+	/**
+	 * Returns the properties containing the data resulting from an
+	 * interaction.
 	 * If the interaction is caused by the editing of an existing child of this
 	 * instance the returned object will be the corresponding child element.
 	 * Otherwise the returned object will contain the respective data for the
 	 * interaction type.
 	 *
 	 * @return The interaction data
-	 *
-	 * @see    #getInteractionType()
+	 * @see #getInteractionType()
 	 */
-	public final HasProperties getInteractionData()
-	{
+	public final HasProperties getInteractionData() {
 		return rInteractionData;
 	}
 
-	/***************************************
+	/**
 	 * Returns the type of an interaction that occurred. Depending on the
 	 * interaction type the method {@link #getInteractionData()} will return a
 	 * different kind of data object:
@@ -192,67 +192,61 @@ public class DateListDataElement extends ListDataElement<DateDataElement>
 	 *
 	 * @return The interaction type
 	 */
-	public final InteractionType getInteractionType()
-	{
+	public final InteractionType getInteractionType() {
 		return eInteractionType;
 	}
 
-	/***************************************
+	/**
 	 * Returns the properties object for the currently selected element.
 	 *
 	 * @return The selection properties or NULL for none
 	 */
-	public final HasProperties getSelection()
-	{
+	public final HasProperties getSelection() {
 		return rSelection;
 	}
 
-	/***************************************
+	/**
 	 * Sets the type of an interaction that occurred and the associated data.
 	 *
 	 * @param eType The type of interaction that occurred
 	 * @param rData The properties containing the interaction-specific data
 	 */
-	public final void setInteraction(InteractionType eType, HasProperties rData)
-	{
+	public final void setInteraction(InteractionType eType,
+		HasProperties rData) {
 		eInteractionType = eType;
 		rInteractionData = rData;
 	}
 
-	/***************************************
+	/**
 	 * Returns the properties object for the currently selected element.
 	 *
 	 * @param rSelection The selection properties or NULL for none
 	 */
-	public final void setSelection(HasProperties rSelection)
-	{
+	public final void setSelection(HasProperties rSelection) {
 		this.rSelection = rSelection;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected List<DateDataElement> getList()
-	{
+	protected List<DateDataElement> getList() {
 		return aDataElements;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DateListDataElement newInstance()
-	{
+	protected DateListDataElement newInstance() {
 		return new DateListDataElement();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<DateDataElement> rNewElements)
-	{
+	protected void updateValue(List<DateDataElement> rNewElements) {
 		aDataElements = rNewElements;
 	}
 }

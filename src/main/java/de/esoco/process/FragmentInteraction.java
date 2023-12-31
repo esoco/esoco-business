@@ -30,44 +30,40 @@ import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 
-
-/********************************************************************
+/**
  * An interactive process step that displays of one or more instances of the
  * class {@link InteractionFragment} in tabs or similar group panels.
  *
  * @author eso
  */
-public class FragmentInteraction extends Interaction
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class FragmentInteraction extends Interaction {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final String FRAGMENT_PARAM_NAME =
 		FragmentInteraction.class.getSimpleName();
 
-	//~ Instance fields --------------------------------------------------------
-
-	/** A default parameter to display a single fragment in. */
+	/**
+	 * A default parameter to display a single fragment in.
+	 */
 	private RelationType<List<RelationType<?>>> rRootFragmentParam;
-	private InteractionFragment				    rRootFragment;
 
-	//~ Constructors -----------------------------------------------------------
+	private InteractionFragment rRootFragment;
 
-	/***************************************
+	/**
 	 * Creates a new instance that displays a single interaction fragment.
 	 *
 	 * @param rFragment The interaction fragment
 	 */
-	public FragmentInteraction(InteractionFragment rFragment)
-	{
+	public FragmentInteraction(InteractionFragment rFragment) {
 		rRootFragment = rFragment;
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance that displays multiple interaction fragments in
 	 * tabs. The fragment instances can either be set in the variable argument
-	 * list of this method or later in an overridden {@link #prepareExecution()}
+	 * list of this method or later in an overridden
+	 * {@link #prepareExecution()}
 	 * method. In the first case the number of fragments must be equal to the
 	 * number of fragment parameters or else there must be no fragments at all.
 	 *
@@ -75,61 +71,51 @@ public class FragmentInteraction extends Interaction
 	 * @param rFragmentParams One tab parameter for each fragment
 	 * @param rFragments      The interaction fragments for the tabs
 	 */
-	public FragmentInteraction(
-		RelationType<List<RelationType<?>>>		  rTabsParam,
+	public FragmentInteraction(RelationType<List<RelationType<?>>> rTabsParam,
 		List<RelationType<List<RelationType<?>>>> rFragmentParams,
-		InteractionFragment... 					  rFragments)
-	{
+		InteractionFragment... rFragments) {
 		rRootFragmentParam = rTabsParam;
-		rRootFragment	   = new RootFragment(rFragmentParams, rFragments);
+		rRootFragment = new RootFragment(rFragmentParams, rFragments);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the root fragment that of this interaction.
 	 *
 	 * @return The root fragment
 	 */
-	public final InteractionFragment getRootFragment()
-	{
+	public final InteractionFragment getRootFragment() {
 		return rRootFragment;
 	}
 
-	/***************************************
+	/**
 	 * Returns the parameter wrapper for the root fragment's parameter relation
 	 * type.
 	 *
 	 * @return The root fragment parameter
 	 */
-	public final ParameterList getRootFragmentParam()
-	{
+	public final ParameterList getRootFragmentParam() {
 		return rRootFragment.fragmentParam();
 	}
 
-	/***************************************
+	/**
 	 * Overridden to ignore a single fragment parameter without content to
 	 * prevent process lockup.
 	 *
 	 * @see Interaction#needsInteraction()
 	 */
 	@Override
-	protected boolean needsInteraction() throws Exception
-	{
-		return super.needsInteraction() &&
-			   (rRootFragmentParam == null ||
-				getParameter(rRootFragmentParam).size() > 0);
+	protected boolean needsInteraction() throws Exception {
+		return super.needsInteraction() && (rRootFragmentParam == null ||
+			getParameter(rRootFragmentParam).size() > 0);
 	}
 
-	/***************************************
+	/**
 	 * @see Interaction#prepareExecution()
 	 */
 	@Override
-	protected void prepareExecution() throws Exception
-	{
+	protected void prepareExecution() throws Exception {
 		// generate a temporary parameter type for a single fragment
-		if (rRootFragmentParam == null)
-		{
+		if (rRootFragmentParam == null) {
 			String sName = FRAGMENT_PARAM_NAME + "_" + getFragmentId();
 
 			rRootFragmentParam =
@@ -139,40 +125,33 @@ public class FragmentInteraction extends Interaction
 		addDisplayParameters(rRootFragmentParam);
 		addSubFragment(rRootFragmentParam, rRootFragment);
 
-		rRootFragment.fragmentParam()
-					 .hideLabel()
-					 .resid(FRAGMENT_PARAM_NAME)
-					 .label("")
-					 .tooltip("")
-					 .style(rRootFragment.getClass().getSimpleName());
+		rRootFragment
+			.fragmentParam()
+			.hideLabel()
+			.resid(FRAGMENT_PARAM_NAME)
+			.label("")
+			.tooltip("")
+			.style(rRootFragment.getClass().getSimpleName());
 
 		super.prepareExecution();
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A root fragment for fragment interactions that contain multiple
 	 * fragments.
 	 *
 	 * @author eso
 	 */
-	static class RootFragment extends InteractionFragment
-	{
-		//~ Static fields/initializers -----------------------------------------
+	static class RootFragment extends InteractionFragment {
 
 		private static final long serialVersionUID = 1L;
-
-		//~ Instance fields ----------------------------------------------------
 
 		private List<RelationType<List<RelationType<?>>>> rFragmentParams =
 			new ArrayList<>();
 
 		private List<InteractionFragment> rFragments = new ArrayList<>();
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param rFragmentParams The fragment parameters
@@ -180,30 +159,26 @@ public class FragmentInteraction extends Interaction
 		 */
 		public RootFragment(
 			List<RelationType<List<RelationType<?>>>> rFragmentParams,
-			InteractionFragment... 					  rFragments)
-		{
+			InteractionFragment... rFragments) {
 			// allow empty fragment list for lazy initialization
 			assert rFragments.length == 0 ||
-				   rFragmentParams.size() == rFragments.length : "Fragment and param counts must be equal";
+				rFragmentParams.size() == rFragments.length :
+				"Fragment and param counts must be equal";
 
 			this.rFragmentParams.addAll(rFragmentParams);
 			this.rFragments.addAll(Arrays.asList(rFragments));
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void init() throws Exception
-		{
+		public void init() throws Exception {
 			layout(LayoutType.TABS).set(HTML_HEIGHT, "100%");
 
 			addDisplayParameters(rFragmentParams);
 
-			for (int i = 0; i < rFragments.size(); i++)
-			{
+			for (int i = 0; i < rFragments.size(); i++) {
 				addSubFragment(rFragmentParams.get(i), rFragments.get(i));
 			}
 		}

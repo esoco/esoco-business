@@ -27,24 +27,20 @@ import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
-
-/********************************************************************
+/**
  * A component that displays an image and can create click events.
  *
  * @author eso
  */
-public class UiImage extends UiComponent<String, UiImage>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiImage extends UiComponent<String, UiImage> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param rImage  The initial image
 	 */
-	public UiImage(UiContainer<?> rParent, UiImageDefinition<?> rImage)
-	{
+	public UiImage(UiContainer<?> rParent, UiImageDefinition<?> rImage) {
 		super(rParent, String.class);
 
 		setImage(rImage);
@@ -58,62 +54,53 @@ public class UiImage extends UiComponent<String, UiImage>
 		setValueImpl("");
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Fluent variant of {@link #setCaption(String)}.
 	 *
-	 * @param  sCaption The image caption
-	 *
+	 * @param sCaption The image caption
 	 * @return This instance
 	 */
-	public UiImage caption(String sCaption)
-	{
+	public UiImage caption(String sCaption) {
 		return label(sCaption);
 	}
 
-	/***************************************
+	/**
 	 * Returns the image that is displayed by this image component.
 	 *
 	 * @return The image definition
 	 */
 	@Override
-	public UiImageDefinition<?> getImage()
-	{
+	public UiImageDefinition<?> getImage() {
 		return super.getImage();
 	}
 
-	/***************************************
+	/**
 	 * Sets the event handler for click events on images.
 	 *
-	 * @param  rEventHandler The event handler
-	 *
+	 * @param rEventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final UiImage onClick(Runnable rEventHandler)
-	{
+	public final UiImage onClick(Runnable rEventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-										v -> rEventHandler.run());
+			v -> rEventHandler.run());
 	}
 
-	/***************************************
+	/**
 	 * Sets a caption label to be displayed over the image (if supported by the
 	 * container layout).
 	 *
 	 * @param sCaption The caption label or null for none
 	 */
-	public void setCaption(String sCaption)
-	{
+	public void setCaption(String sCaption) {
 		caption(sCaption);
 	}
 
-	/***************************************
+	/**
 	 * Sets the image to be displayed.
 	 *
 	 * @param rImage The image
 	 */
-	public void setImage(UiImageDefinition<?> rImage)
-	{
+	public void setImage(UiImageDefinition<?> rImage) {
 		super.image(rImage);
 	}
 }

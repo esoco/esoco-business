@@ -20,49 +20,40 @@ import de.esoco.lib.property.TableStyle;
 
 import static de.esoco.lib.property.StyleProperties.TABLE_STYLE;
 
-
-/********************************************************************
+/**
  * The base class for UI tables.
  *
  * @author eso
  */
 public abstract class UiTableControl<T, C extends UiTableControl<T, C>>
-	extends UiControl<T, C>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiControl<T, C> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The value datatype
 	 */
-	public UiTableControl(UiContainer<?> rParent, Class<T> rDatatype)
-	{
+	public UiTableControl(UiContainer<?> rParent, Class<T> rDatatype) {
 		super(rParent, rDatatype);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the table style.
 	 *
 	 * @param eStyle The new table style
 	 */
-	public void setTableStyle(TableStyle eStyle)
-	{
+	public void setTableStyle(TableStyle eStyle) {
 		tableStyle(eStyle);
 	}
 
-	/***************************************
+	/**
 	 * Sets the table style.
 	 *
-	 * @param  eStyle The table style
-	 *
+	 * @param eStyle The table style
 	 * @return This instance for fluent invocation
 	 */
-	public C tableStyle(TableStyle eStyle)
-	{
+	public C tableStyle(TableStyle eStyle) {
 		return set(TABLE_STYLE, eStyle);
 	}
 }

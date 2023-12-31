@@ -20,23 +20,19 @@ import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.layout.UiContentLayout;
 
-
-/********************************************************************
+/**
  * A composite that represents the content of a web page.
  *
  * @author eso
  */
-public class UiWebPageContent extends UiComposite<UiWebPageContent>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiWebPageContent extends UiComposite<UiWebPageContent> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent the parent container
 	 */
-	public UiWebPageContent(UiContainer<?> rParent)
-	{
+	public UiWebPageContent(UiContainer<?> rParent) {
 		super(rParent, new UiContentLayout());
 	}
 }

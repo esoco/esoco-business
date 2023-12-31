@@ -16,13 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.graphics;
 
-/********************************************************************
+/**
  * Enumeration of Font Awesome (5.1.0) icons.
  *
  * @see <a href="http://fontawesome.io">Font Awesome</a>
  */
-public enum UiFontAwesomeIcon implements UiIconSupplier
-{
+public enum UiFontAwesomeIcon implements UiIconSupplier {
 	ADDRESS_BOOK('\uF2B9'), ADDRESS_CARD('\uF2BB'), ADJUST('\uF042'),
 	ALARM_CLOCK('\uF34E'), ALIGN_CENTER('\uF037'), ALIGN_JUSTIFY('\uF039'),
 	ALIGN_LEFT('\uF036'), ALIGN_RIGHT('\uF038'), ALLERGIES('\uF461'),
@@ -101,7 +100,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	CHEVRON_CIRCLE_LEFT('\uF137'), CHEVRON_CIRCLE_RIGHT('\uF138'),
 	CHEVRON_CIRCLE_UP('\uF139'), CHEVRON_DOUBLE_DOWN('\uF322'),
 	CHEVRON_DOUBLE_LEFT('\uF323'), CHEVRON_DOUBLE_RIGHT('\uF324'),
-	CHEVRON_DOUBLE_UP('\uF325'), CHEVRON_DOWN('\uF078'), CHEVRON_LEFT('\uF053'),
+	CHEVRON_DOUBLE_UP('\uF325'), CHEVRON_DOWN('\uF078'),
+	CHEVRON_LEFT('\uF053'),
 	CHEVRON_RIGHT('\uF054'), CHEVRON_SQUARE_DOWN('\uF329'),
 	CHEVRON_SQUARE_LEFT('\uF32A'), CHEVRON_SQUARE_RIGHT('\uF32B'),
 	CHEVRON_SQUARE_UP('\uF32C'), CHEVRON_UP('\uF077'), CHILD('\uF1AE'),
@@ -127,7 +127,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	COMPRESS('\uF066'), COMPRESS_ALT('\uF422'), COMPRESS_WIDE('\uF326'),
 	CONCIERGE_BELL('\uF562'), CONTAINER_STORAGE('\uF4B7'),
 	CONVEYOR_BELT('\uF46E'), CONVEYOR_BELT_ALT('\uF46F'), COOKIE('\uF563'),
-	COOKIE_BITE('\uF564'), COPY('\uF0C5'), COPYRIGHT('\uF1F9'), COUCH('\uF4B8'),
+	COOKIE_BITE('\uF564'), COPY('\uF0C5'), COPYRIGHT('\uF1F9'),
+	COUCH('\uF4B8'),
 	CREDIT_CARD('\uF09D'), CREDIT_CARD_BLANK('\uF389'),
 	CREDIT_CARD_FRONT('\uF38A'), CRICKET('\uF449'), CROP('\uF125'),
 	CROP_ALT('\uF565'), CROSSHAIRS('\uF05B'), CROW('\uF520'), CROWN('\uF521'),
@@ -138,7 +139,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	DICE_ONE('\uF525'), DICE_SIX('\uF526'), DICE_THREE('\uF527'),
 	DICE_TWO('\uF528'), DIGITAL_TACHOGRAPH('\uF566'), DIVIDE('\uF529'),
 	DIZZY('\uF567'), DNA('\uF471'), DOLLAR_SIGN('\uF155'), DOLLY('\uF472'),
-	DOLLY_EMPTY('\uF473'), DOLLY_FLATBED('\uF474'), DOLLY_FLATBED_ALT('\uF475'),
+	DOLLY_EMPTY('\uF473'), DOLLY_FLATBED('\uF474'),
+	DOLLY_FLATBED_ALT('\uF475'),
 	DOLLY_FLATBED_EMPTY('\uF476'), DONATE('\uF4B9'), DOOR_CLOSED('\uF52A'),
 	DOOR_OPEN('\uF52B'), DOT_CIRCLE('\uF192'), DOVE('\uF4BA'),
 	DOWNLOAD('\uF019'), DRAFTING_COMPASS('\uF568'), DRUM('\uF569'),
@@ -147,10 +149,12 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	ELLIPSIS_V('\uF142'), ELLIPSIS_V_ALT('\uF39C'), ENVELOPE('\uF0E0'),
 	ENVELOPE_OPEN('\uF2B6'), ENVELOPE_SQUARE('\uF199'), EQUALS('\uF52C'),
 	ERASER('\uF12D'), EURO_SIGN('\uF153'), EXCHANGE('\uF0EC'),
-	EXCHANGE_ALT('\uF362'), EXCLAMATION('\uF12A'), EXCLAMATION_CIRCLE('\uF06A'),
+	EXCHANGE_ALT('\uF362'), EXCLAMATION('\uF12A'),
+	EXCLAMATION_CIRCLE('\uF06A'),
 	EXCLAMATION_SQUARE('\uF321'), EXCLAMATION_TRIANGLE('\uF071'),
 	EXPAND('\uF065'), EXPAND_ALT('\uF424'), EXPAND_ARROWS('\uF31D'),
-	EXPAND_ARROWS_ALT('\uF31E'), EXPAND_WIDE('\uF320'), EXTERNAL_LINK('\uF08E'),
+	EXPAND_ARROWS_ALT('\uF31E'), EXPAND_WIDE('\uF320'),
+	EXTERNAL_LINK('\uF08E'),
 	EXTERNAL_LINK_ALT('\uF35D'), EXTERNAL_LINK_SQUARE('\uF14C'),
 	EXTERNAL_LINK_SQUARE_ALT('\uF360'), EYE('\uF06E'), EYE_DROPPER('\uF1FB'),
 	EYE_SLASH('\uF070'), FAST_BACKWARD('\uF049'), FAST_FORWARD('\uF050'),
@@ -163,7 +167,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	FILE_IMPORT('\uF56F'), FILE_INVOICE('\uF570'),
 	FILE_INVOICE_DOLLAR('\uF571'), FILE_MEDICAL('\uF477'),
 	FILE_MEDICAL_ALT('\uF478'), FILE_MINUS('\uF318'), FILE_PDF('\uF1C1'),
-	FILE_PLUS('\uF319'), FILE_POWERPOINT('\uF1C4'), FILE_PRESCRIPTION('\uF572'),
+	FILE_PLUS('\uF319'), FILE_POWERPOINT('\uF1C4'),
+	FILE_PRESCRIPTION('\uF572'),
 	FILE_SIGNATURE('\uF573'), FILE_TIMES('\uF317'), FILE_UPLOAD('\uF574'),
 	FILE_VIDEO('\uF1C8'), FILE_WORD('\uF1C2'), FILL('\uF575'),
 	FILL_DRIP('\uF576'), FILM('\uF008'), FILM_ALT('\uF3A0'), FILTER('\uF0B0'),
@@ -192,7 +197,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	HAND_HOLDING_USD('\uF4C0'), HAND_HOLDING_WATER('\uF4C1'),
 	HAND_LIZARD('\uF258'), HAND_PAPER('\uF256'), HAND_PEACE('\uF25B'),
 	HAND_POINT_DOWN('\uF0A7'), HAND_POINT_LEFT('\uF0A5'),
-	HAND_POINT_RIGHT('\uF0A4'), HAND_POINT_UP('\uF0A6'), HAND_POINTER('\uF25A'),
+	HAND_POINT_RIGHT('\uF0A4'), HAND_POINT_UP('\uF0A6'),
+	HAND_POINTER('\uF25A'),
 	HAND_RECEIVING('\uF47C'), HAND_ROCK('\uF255'), HAND_SCISSORS('\uF257'),
 	HAND_SPOCK('\uF259'), HANDS('\uF4C2'), HANDS_HEART('\uF4C3'),
 	HANDS_HELPING('\uF4C4'), HANDS_USD('\uF4C5'), HANDSHAKE('\uF2B5'),
@@ -206,7 +212,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	HOSPITAL_SYMBOL('\uF47E'), HOT_TUB('\uF593'), HOTEL('\uF594'),
 	HOURGLASS('\uF254'), HOURGLASS_END('\uF253'), HOURGLASS_HALF('\uF252'),
 	HOURGLASS_START('\uF251'), I_CURSOR('\uF246'), ID_BADGE('\uF2C1'),
-	ID_CARD('\uF2C2'), ID_CARD_ALT('\uF47F'), IMAGE('\uF03E'), IMAGES('\uF302'),
+	ID_CARD('\uF2C2'), ID_CARD_ALT('\uF47F'), IMAGE('\uF03E'),
+	IMAGES('\uF302'),
 	INBOX('\uF01C'), INBOX_IN('\uF310'), INBOX_OUT('\uF311'), INDENT('\uF03C'),
 	INDUSTRY('\uF275'), INDUSTRY_ALT('\uF3B3'), INFINITY('\uF534'),
 	INFO('\uF129'), INFO_CIRCLE('\uF05A'), INFO_SQUARE('\uF30F'),
@@ -221,7 +228,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	LIGHTBULB('\uF0EB'), LINK('\uF0C1'), LIRA_SIGN('\uF195'), LIST('\uF03A'),
 	LIST_ALT('\uF022'), LIST_OL('\uF0CB'), LIST_UL('\uF0CA'),
 	LOCATION_ARROW('\uF124'), LOCK('\uF023'), LOCK_ALT('\uF30D'),
-	LOCK_OPEN('\uF3C1'), LOCK_OPEN_ALT('\uF3C2'), LONG_ARROW_ALT_DOWN('\uF309'),
+	LOCK_OPEN('\uF3C1'), LOCK_OPEN_ALT('\uF3C2'),
+	LONG_ARROW_ALT_DOWN('\uF309'),
 	LONG_ARROW_ALT_LEFT('\uF30A'), LONG_ARROW_ALT_RIGHT('\uF30B'),
 	LONG_ARROW_ALT_UP('\uF30C'), LONG_ARROW_DOWN('\uF175'),
 	LONG_ARROW_LEFT('\uF177'), LONG_ARROW_RIGHT('\uF178'),
@@ -243,7 +251,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	MONEY_BILL_WAVE_ALT('\uF53B'), MONEY_CHECK('\uF53C'),
 	MONEY_CHECK_ALT('\uF53D'), MONUMENT('\uF5A6'), MOON('\uF186'),
 	MORTAR_PESTLE('\uF5A7'), MOTORCYCLE('\uF21C'), MOUSE_POINTER('\uF245'),
-	MUSIC('\uF001'), NEUTER('\uF22C'), NEWSPAPER('\uF1EA'), NOT_EQUAL('\uF53E'),
+	MUSIC('\uF001'), NEUTER('\uF22C'), NEWSPAPER('\uF1EA'),
+	NOT_EQUAL('\uF53E'),
 	NOTES_MEDICAL('\uF481'), OBJECT_GROUP('\uF247'), OBJECT_UNGROUP('\uF248'),
 	OCTAGON('\uF306'), OUTDENT('\uF03B'), PAINT_BRUSH('\uF1FC'),
 	PAINT_BRUSH_ALT('\uF5A9'), PAINT_ROLLER('\uF5AA'), PALETTE('\uF53F'),
@@ -257,11 +266,13 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	PERCENTAGE('\uF541'), PERSON_CARRY('\uF4CF'), PERSON_DOLLY('\uF4D0'),
 	PERSON_DOLLY_EMPTY('\uF4D1'), PHONE('\uF095'), PHONE_PLUS('\uF4D2'),
 	PHONE_SLASH('\uF3DD'), PHONE_SQUARE('\uF098'), PHONE_VOLUME('\uF2A0'),
-	PIGGY_BANK('\uF4D3'), PILLS('\uF484'), PLANE('\uF072'), PLANE_ALT('\uF3DE'),
+	PIGGY_BANK('\uF4D3'), PILLS('\uF484'), PLANE('\uF072'),
+	PLANE_ALT('\uF3DE'),
 	PLANE_ARRIVAL('\uF5AF'), PLANE_DEPARTURE('\uF5B0'), PLAY('\uF04B'),
 	PLAY_CIRCLE('\uF144'), PLUG('\uF1E6'), PLUS('\uF067'),
 	PLUS_CIRCLE('\uF055'), PLUS_HEXAGON('\uF300'), PLUS_OCTAGON('\uF301'),
-	PLUS_SQUARE('\uF0FE'), PODCAST('\uF2CE'), POO('\uF2FE'), PORTRAIT('\uF3E0'),
+	PLUS_SQUARE('\uF0FE'), PODCAST('\uF2CE'), POO('\uF2FE'),
+	PORTRAIT('\uF3E0'),
 	POUND_SIGN('\uF154'), POWER_OFF('\uF011'), PRESCRIPTION('\uF5B1'),
 	PRESCRIPTION_BOTTLE('\uF485'), PRESCRIPTION_BOTTLE_ALT('\uF486'),
 	PRINT('\uF02F'), PROCEDURES('\uF487'), PROJECT_DIAGRAM('\uF542'),
@@ -279,10 +290,12 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	RUBLE_SIGN('\uF158'), RULER('\uF545'), RULER_COMBINED('\uF546'),
 	RULER_HORIZONTAL('\uF547'), RULER_VERTICAL('\uF548'), RUPEE_SIGN('\uF156'),
 	SAD_CRY('\uF5B3'), SAD_TEAR('\uF5B4'), SAVE('\uF0C7'), SCANNER('\uF488'),
-	SCANNER_KEYBOARD('\uF489'), SCANNER_TOUCHSCREEN('\uF48A'), SCHOOL('\uF549'),
+	SCANNER_KEYBOARD('\uF489'), SCANNER_TOUCHSCREEN('\uF48A'),
+	SCHOOL('\uF549'),
 	SCREWDRIVER('\uF54A'), SCRUBBER('\uF2F8'), SEARCH('\uF002'),
 	SEARCH_MINUS('\uF010'), SEARCH_PLUS('\uF00E'), SEEDLING('\uF4D8'),
-	SERVER('\uF233'), SHARE('\uF064'), SHARE_ALL('\uF367'), SHARE_ALT('\uF1E0'),
+	SERVER('\uF233'), SHARE('\uF064'), SHARE_ALL('\uF367'),
+	SHARE_ALT('\uF1E0'),
 	SHARE_ALT_SQUARE('\uF1E1'), SHARE_SQUARE('\uF14D'), SHEKEL_SIGN('\uF20B'),
 	SHIELD('\uF132'), SHIELD_ALT('\uF3ED'), SHIELD_CHECK('\uF2F7'),
 	SHIP('\uF21A'), SHIPPING_FAST('\uF48B'), SHIPPING_TIMED('\uF48C'),
@@ -292,7 +305,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	SIGN_IN_ALT('\uF2F6'), SIGN_LANGUAGE('\uF2A7'), SIGN_OUT('\uF08B'),
 	SIGN_OUT_ALT('\uF2F5'), SIGNAL('\uF012'), SIGNATURE('\uF5B7'),
 	SITEMAP('\uF0E8'), SKULL('\uF54C'), SLIDERS_H('\uF1DE'),
-	SLIDERS_H_SQUARE('\uF3F0'), SLIDERS_V('\uF3F1'), SLIDERS_V_SQUARE('\uF3F2'),
+	SLIDERS_H_SQUARE('\uF3F0'), SLIDERS_V('\uF3F1'),
+	SLIDERS_V_SQUARE('\uF3F2'),
 	SMILE('\uF118'), SMILE_BEAM('\uF5B8'), SMILE_PLUS('\uF5B9'),
 	SMILE_WINK('\uF4DA'), SMOKING('\uF48D'), SMOKING_BAN('\uF54D'),
 	SNOWFLAKE('\uF2DC'), SOLAR_PANEL('\uF5BA'), SORT('\uF0DC'),
@@ -305,7 +319,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	STAR_EXCLAMATION('\uF2F3'), STAR_HALF('\uF089'), STAR_HALF_ALT('\uF5C0'),
 	STEP_BACKWARD('\uF048'), STEP_FORWARD('\uF051'), STETHOSCOPE('\uF0F1'),
 	STICKY_NOTE('\uF249'), STOP('\uF04D'), STOP_CIRCLE('\uF28D'),
-	STOPWATCH('\uF2F2'), STORE('\uF54E'), STORE_ALT('\uF54F'), STREAM('\uF550'),
+	STOPWATCH('\uF2F2'), STORE('\uF54E'), STORE_ALT('\uF54F'),
+	STREAM('\uF550'),
 	STREET_VIEW('\uF21D'), STRIKETHROUGH('\uF0CC'), STROOPWAFEL('\uF551'),
 	SUBSCRIPT('\uF12C'), SUBWAY('\uF239'), SUITCASE('\uF0F2'),
 	SUITCASE_ROLLING('\uF5C1'), SUN('\uF185'), SUPERSCRIPT('\uF12B'),
@@ -328,7 +343,8 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	TIRED('\uF5C8'), TOGGLE_OFF('\uF204'), TOGGLE_ON('\uF205'),
 	TOOLBOX('\uF552'), TOOTH('\uF5C9'), TRADEMARK('\uF25C'), TRAIN('\uF238'),
 	TRANSGENDER('\uF224'), TRANSGENDER_ALT('\uF225'), TRASH('\uF1F8'),
-	TRASH_ALT('\uF2ED'), TREE('\uF1BB'), TREE_ALT('\uF400'), TRIANGLE('\uF2EC'),
+	TRASH_ALT('\uF2ED'), TREE('\uF1BB'), TREE_ALT('\uF400'),
+	TRIANGLE('\uF2EC'),
 	TROPHY('\uF091'), TROPHY_ALT('\uF2EB'), TRUCK('\uF0D1'),
 	TRUCK_CONTAINER('\uF4DC'), TRUCK_COUCH('\uF4DD'), TRUCK_LOADING('\uF4DE'),
 	TRUCK_MOVING('\uF4DF'), TRUCK_RAMP('\uF4E0'), TSHIRT('\uF553'),
@@ -360,44 +376,35 @@ public enum UiFontAwesomeIcon implements UiIconSupplier
 	WINE_GLASS_ALT('\uF5CE'), WON_SIGN('\uF159'), WRENCH('\uF0AD'),
 	X_RAY('\uF497'), YEN_SIGN('\uF157');
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final char cFontChar;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param cFontChar The character code in the font awesome icon font.
 	 */
-	private UiFontAwesomeIcon(char cFontChar)
-	{
+	private UiFontAwesomeIcon(char cFontChar) {
 		this.cFontChar = cFontChar;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the character code of this instance in the font awesome icon
 	 * font.
 	 *
 	 * @return The character code
 	 */
-	public final char getFontChar()
-	{
+	public final char getFontChar() {
 		return cFontChar;
 	}
 
-	/***************************************
+	/**
 	 * Returns a new {@link UiIconName} initialized from this enumeration
 	 * constant.
 	 *
 	 * @return The new icon
 	 */
 	@Override
-	public UiIconName getIcon()
-	{
+	public UiIconName getIcon() {
 		return new UiIconName(this);
 	}
 }

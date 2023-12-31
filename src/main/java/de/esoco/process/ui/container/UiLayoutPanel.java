@@ -20,36 +20,30 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiLayoutContainer;
 
-
-/********************************************************************
+/**
  * A generic panel container that arranges it's child containers according to a
  * particular layout.
  *
  * @author eso
  */
-public class UiLayoutPanel extends UiLayoutContainer<UiLayoutPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiLayoutPanel extends UiLayoutContainer<UiLayoutPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param rLayout The layout of this panel
 	 */
-	public UiLayoutPanel(UiContainer<?> rParent, UiLayout rLayout)
-	{
+	public UiLayoutPanel(UiContainer<?> rParent, UiLayout rLayout) {
 		super(rParent, rLayout);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only have
+	/**
+	 * A shortcut to invoke {@link UiLayout#nextRow()}. This call will only
+	 * have
 	 * an effect for layouts that support multiple rows of components.
 	 */
-	public void nextRow()
-	{
+	public void nextRow() {
 		getLayout().nextRow();
 	}
 }

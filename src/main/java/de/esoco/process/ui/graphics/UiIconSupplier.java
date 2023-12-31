@@ -16,18 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.graphics;
 
-/********************************************************************
+/**
  * An interface that provides access to an {@link UiIconName}. This can be
  * implemented by enumerations of icon names to provide access to an icon
  * instance initialized with the respective name.
  *
  * @author eso
  */
-public interface UiIconSupplier
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UiIconSupplier {
 
-	/***************************************
+	/**
 	 * Returns the UI icon.
 	 *
 	 * @return The icon

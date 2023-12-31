@@ -30,25 +30,21 @@ import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
-
-/********************************************************************
+/**
  * An interactive button control that produces click events.
  *
  * @author eso
  */
 public class UiButton extends UiButtonControl<String, UiButton>
-	implements TextAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	implements TextAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sLabel  The link label
 	 */
-	public UiButton(UiContainer<?> rParent, String sLabel)
-	{
+	public UiButton(UiContainer<?> rParent, String sLabel) {
 		super(rParent, String.class);
 
 		setText(sLabel);
@@ -56,79 +52,70 @@ public class UiButton extends UiButtonControl<String, UiButton>
 		set(HIDE_LABEL);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the button style.
 	 *
-	 * @param  eStyle The new style
-	 *
+	 * @param eStyle The new style
 	 * @return This instance
 	 */
-	public UiButton buttonStyle(ButtonStyle eStyle)
-	{
+	public UiButton buttonStyle(ButtonStyle eStyle) {
 		return set(BUTTON_STYLE, eStyle);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText()
-	{
+	public String getText() {
 		return getValueImpl();
 	}
 
-	/***************************************
+	/**
 	 * Sets an icon for the button. If both image and text are set both may be
 	 * displayed but that depends on the client-side UI toolkit. As icons are a
 	 * subclass of {@link UiImageDefinition} setting an icon will replace any
 	 * previously set image and vice versa.
 	 *
-	 * @param  rIconSupplier The button icon
-	 *
+	 * @param rIconSupplier The button icon
 	 * @return This instance
 	 */
 	@Override
-	public UiButton icon(UiIconSupplier rIconSupplier)
-	{
+	public UiButton icon(UiIconSupplier rIconSupplier) {
 		return super.icon(rIconSupplier);
 	}
 
-	/***************************************
+	/**
 	 * Sets the button image. If both image and text are set both may be
 	 * displayed but that depends on the client-side UI toolkit.
 	 *
-	 * @param  rImage The button image
-	 *
+	 * @param rImage The button image
 	 * @return This instance
 	 */
 	@Override
-	public UiButton image(UiImageDefinition<?> rImage)
-	{
+	public UiButton image(UiImageDefinition<?> rImage) {
 		return super.image(rImage);
 	}
 
-	/***************************************
+	/**
 	 * Sets a text that will be formatted by inserting values into a template,
-	 * similar to {@link String#format(String, Object...)} but only with strings
+	 * similar to {@link String#format(String, Object...)} but only with
+	 * strings
 	 * allowed as format arguments.
 	 *
 	 * @param sTemplate        The format template
 	 * @param rFormatArguments The format arguments
 	 */
-	public void setFormattedText(String sTemplate, String... rFormatArguments)
-	{
+	public void setFormattedText(String sTemplate,
+		String... rFormatArguments) {
 		setText(sTemplate);
 		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText)
-	{
+	public void setText(String sText) {
 		setValueImpl(sText);
 	}
 }

@@ -21,26 +21,22 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.process.ui.UiButtonGroup;
 import de.esoco.process.ui.UiContainer;
 
-
-/********************************************************************
+/**
  * A group of buttons with mutual exclusive selection. The datatype defines the
  * type of the button labels. Typically string and enum values are supported.
  *
  * @author eso
  */
-public class UiRadioButtons<T> extends UiButtonGroup<T, UiRadioButtons<T>>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiRadioButtons<T> extends UiButtonGroup<T, UiRadioButtons<T>> {
 
-	/***************************************
+	/**
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as buttons.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the list values
 	 */
-	public UiRadioButtons(UiContainer<?> rParent, Class<T> rDatatype)
-	{
+	public UiRadioButtons(UiContainer<?> rParent, Class<T> rDatatype) {
 		super(rParent, rDatatype, ListStyle.DISCRETE);
 	}
 }

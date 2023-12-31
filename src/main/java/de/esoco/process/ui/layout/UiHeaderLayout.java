@@ -20,21 +20,17 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A layout for a container that represents a header element in a UI.
  *
  * @author eso
  */
-public class UiHeaderLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiHeaderLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiHeaderLayout()
-	{
+	public UiHeaderLayout() {
 		super(LayoutType.HEADER);
 	}
 }

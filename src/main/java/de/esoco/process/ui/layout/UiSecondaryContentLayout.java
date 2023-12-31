@@ -20,21 +20,17 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A layout for secondary content in some UI containers.
  *
  * @author eso
  */
-public class UiSecondaryContentLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiSecondaryContentLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiSecondaryContentLayout()
-	{
+	public UiSecondaryContentLayout() {
 		super(LayoutType.SECONDARY_CONTENT);
 	}
 }

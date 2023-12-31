@@ -18,8 +18,7 @@ package de.esoco.data.document;
 
 import de.esoco.data.FileType;
 
-
-/********************************************************************
+/**
  * An interface that defines the creation of tabular data documents. The column
  * values can be added by means of {@link #addValue(Object)} and new table rows
  * can be created with {@link #newRow()}. After completion the resulting
@@ -27,18 +26,14 @@ import de.esoco.data.FileType;
  *
  * @author eso
  */
-public interface TabularDocumentWriter<T>
-{
-	//~ Enums ------------------------------------------------------------------
+public interface TabularDocumentWriter<T> {
 
-	/********************************************************************
+	/**
 	 * The available date type formats
 	 */
-	public enum DateFormat { DATE, DATE_TIME }
+	public enum DateFormat {DATE, DATE_TIME}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds a value object to the current position in the document. NULL values
 	 * will be handled as an empty celll.
 	 *
@@ -46,24 +41,24 @@ public interface TabularDocumentWriter<T>
 	 */
 	public void addValue(Object rItem);
 
-	/***************************************
+	/**
 	 * Generates and/or returns the resulting document.
 	 *
 	 * @return The resulting document
-	 *
 	 * @throws Exception if the document creation fails
 	 */
 	public T createDocument() throws Exception;
 
-	/***************************************
+	/**
 	 * Returns the file type of the generated document.
 	 *
 	 * @return The file type
 	 */
 	public FileType getFileType();
 
-	/***************************************
-	 * Indicates that a new row should be started at the current position of the
+	/**
+	 * Indicates that a new row should be started at the current position of
+	 * the
 	 * document.
 	 */
 	public void newRow();

@@ -18,18 +18,15 @@ package de.esoco.data.validate;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * An additional interface for validators that constrain their value to a list
  * of values that can be queried with {@link #getValues()}.
  *
  * @author eso
  */
-public interface HasValueList<T>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface HasValueList<T> {
 
-	/***************************************
+	/**
 	 * Returns the list of values from which a value can be selected.
 	 *
 	 * @return The value list

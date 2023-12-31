@@ -21,18 +21,15 @@ import de.esoco.data.process.ProcessState;
 
 import org.obrel.core.Relatable;
 
-
-/********************************************************************
+/**
  * Defines the interface for the execution of processes in the current
  * application's context.
  *
  * @author eso
  */
-public interface ProcessExecutor
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ProcessExecutor {
 
-	/***************************************
+	/**
 	 * Executes a process and returns the resulting state. If the process is
 	 * interactive the returned state will not be finished and the state can be
 	 * processed by an interactive front-end to perform user interactions.
@@ -40,17 +37,14 @@ public interface ProcessExecutor
 	 * <p>If the initialization parameters are not NULL they will all be copied
 	 * onto the new process, overriding any existing parameters.</p>
 	 *
-	 * @param  rDescription The description of the process to execute
-	 * @param  rInitParams  Optional process initialization parameters or NULL
-	 *                      for none
-	 *
+	 * @param rDescription The description of the process to execute
+	 * @param rInitParams  Optional process initialization parameters or NULL
+	 *                     for none
 	 * @return The resulting process state or NULL if the process has already
-	 *         been finished by a previous execution.
-	 *
+	 * been finished by a previous execution.
 	 * @throws Exception Any kind of exception can occur if the process
 	 *                   execution fails
 	 */
-	ProcessState executeProcess(
-		ProcessDescription rDescription,
-		Relatable		   rInitParams) throws Exception;
+	ProcessState executeProcess(ProcessDescription rDescription,
+		Relatable rInitParams) throws Exception;
 }

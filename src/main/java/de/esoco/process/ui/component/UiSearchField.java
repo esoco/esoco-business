@@ -22,24 +22,20 @@ import de.esoco.lib.property.TextFieldStyle;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
-
-/********************************************************************
+/**
  * A single-line text input field for the input of search terms that allows to
  * execute the query with a button.
  *
  * @author eso
  */
-public class UiSearchField extends UiTextInputField<UiSearchField>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiSearchField extends UiTextInputField<UiSearchField> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiSearchField(UiContainer<?> rContainer, String sText)
-	{
+	public UiSearchField(UiContainer<?> rContainer, String sText) {
 		super(rContainer, sText);
 
 		set(StyleProperties.TEXT_FIELD_STYLE, TextFieldStyle.SEARCH);

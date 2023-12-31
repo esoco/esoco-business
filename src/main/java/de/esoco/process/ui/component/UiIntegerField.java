@@ -21,61 +21,51 @@ import de.esoco.lib.property.IntAttribute;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiNumberInputField;
 
-
-/********************************************************************
+/**
  * An input field for integer numbers with the option to display spinner
  * buttons.
  *
  * @author eso
  */
 public class UiIntegerField extends UiNumberInputField<Integer, UiIntegerField>
-	implements IntAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	implements IntAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rContainer rParent The parent container
 	 * @param nValue     The initial value
 	 */
-	public UiIntegerField(UiContainer<?> rContainer, int nValue)
-	{
+	public UiIntegerField(UiContainer<?> rContainer, int nValue) {
 		super(rContainer, Integer.class, Integer.valueOf(nValue));
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getValue()
-	{
+	public int getValue() {
 		return getValueImpl().intValue();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setValue(int nValue)
-	{
+	public void setValue(int nValue) {
 		setValueImpl(Integer.valueOf(nValue));
 	}
 
-	/***************************************
+	/**
 	 * Sets the minimum and maximum values for the integer input. If these
 	 * limits are set the component will display additional button to increment
 	 * or decrement the displayed value.
 	 *
-	 * @param  nMinimum The minimum integer value
-	 * @param  nMaximum The maximum integer value
-	 *
+	 * @param nMinimum The minimum integer value
+	 * @param nMaximum The maximum integer value
 	 * @return This instance
 	 */
-	public UiIntegerField withBounds(int nMinimum, int nMaximum)
-	{
+	public UiIntegerField withBounds(int nMinimum, int nMaximum) {
 		fragment().setParameterBounds(type(), nMinimum, nMaximum);
 
 		return this;

@@ -20,23 +20,19 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiFlowLayout;
 
-
-/********************************************************************
+/**
  * A panel that layouts it's children with a {@link UiFlowLayout}.
  *
  * @author eso
  */
-public class UiFlowPanel extends UiLayoutContainer<UiFlowPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiFlowPanel extends UiLayoutContainer<UiFlowPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiFlowPanel(UiContainer<?> rParent)
-	{
+	public UiFlowPanel(UiContainer<?> rParent) {
 		super(rParent, new UiFlowLayout());
 	}
 }

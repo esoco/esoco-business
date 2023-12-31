@@ -21,27 +21,24 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/********************************************************************
+/**
  * Test for {@link GraylogEndpoint}
  *
  * @author eso
  */
-public class GraylogEndpointTest
-{
-	//~ Methods ----------------------------------------------------------------
+public class GraylogEndpointTest {
 
-	/***************************************
-	 * Tests the functionality of {@link GraylogEndpoint#url(String, int,
-	 * Protocol, boolean)}.
+	/**
+	 * Tests the functionality of
+	 * {@link GraylogEndpoint#url(String, int, Protocol, boolean)}.
 	 */
 	@Test
-	public void testGraylogUrl()
-	{
+	public void testGraylogUrl() {
 		assertEquals("graylog://1.2.3.4:5?TCP",
-					 GraylogEndpoint.url("1.2.3.4", 5, Protocol.TCP, false));
+			GraylogEndpoint.url("1.2.3.4", 5, Protocol.TCP, false));
 		assertEquals("graylogs://host:123?TCP",
-					 GraylogEndpoint.url("host", 123, Protocol.TCP, true));
+			GraylogEndpoint.url("host", 123, Protocol.TCP, true));
 		assertEquals("graylog://1.2.3.4:5?UDP",
-					 GraylogEndpoint.url("1.2.3.4", 5, Protocol.UDP, false));
+			GraylogEndpoint.url("1.2.3.4", 5, Protocol.UDP, false));
 	}
 }

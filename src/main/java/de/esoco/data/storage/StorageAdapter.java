@@ -25,44 +25,41 @@ import de.esoco.lib.property.StorageProperties;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * The interface for storage adapters that perform storage access based on data
  * elements.
  *
  * @author eso
  */
-public interface StorageAdapter
-{
-	//~ Methods ----------------------------------------------------------------
+public interface StorageAdapter {
 
-	/***************************************
+	/**
 	 * Returns the definitions of the columns of the storage query.
 	 *
 	 * @return A list of column definitions (may be NULL)
 	 */
 	public List<ColumnDefinition> getColumns();
 
-	/***************************************
+	/**
 	 * An optional operation that returns the current query criteria of this
 	 * instance. The result of this method may only be valid after a call to
-	 * {@link #performQuery(StringDataElement)}. What kind of object is returned
+	 * {@link #performQuery(StringDataElement)}. What kind of object is
+	 * returned
 	 * depends on the implementation.
 	 *
-	 * @return The current query predicate or NULL if no query has been executed
-	 *         yet
+	 * @return The current query predicate or NULL if no query has been
+	 * executed
+	 * yet
 	 */
 	public Object getCurrentQueryCriteria();
 
-	/***************************************
+	/**
 	 * Must be implemented by subclasses to perform a query. The query
 	 * parameters data element must contain the mandatory query properties from
 	 * {@link StorageProperties}.
 	 *
-	 * @param  rQueryParams A data element containing the query parameters
-	 *
+	 * @param rQueryParams A data element containing the query parameters
 	 * @return A query result data element
-	 *
 	 * @throws Exception If executing the query fails
 	 */
 	public QueryResultElement<DataModel<String>> performQuery(

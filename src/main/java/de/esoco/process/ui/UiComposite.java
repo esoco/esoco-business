@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-/********************************************************************
+/**
  * A base class for components that are build from the combination of other
  * components. A composite is always a container with a certain layout in which
  * it's
@@ -24,18 +24,15 @@ package de.esoco.process.ui;
  * @author eso
  */
 public abstract class UiComposite<C extends UiComposite<C>>
-	extends UiContainer<C>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiContainer<C> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param rLayout The layout of this panel
 	 */
-	public UiComposite(UiContainer<?> rParent, UiLayout rLayout)
-	{
+	public UiComposite(UiContainer<?> rParent, UiLayout rLayout) {
 		super(rParent, rLayout);
 	}
 }

@@ -20,24 +20,20 @@ import de.esoco.process.ui.UiImageDefinition;
 
 import static de.esoco.lib.property.ContentProperties.IMAGE;
 
-
-/********************************************************************
+/**
  * An image that is defined in the application resource. The resource name is
  * derived from the component's resource ID.
  *
  * @author eso
  */
-public class UiImageResource extends UiImageDefinition<UiImageResource>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiImageResource extends UiImageDefinition<UiImageResource> {
 
-	/***************************************
+	/**
 	 * Creates a new instance with a certain resource ID.
 	 *
 	 * @param sResourceId The image resource ID
 	 */
-	public UiImageResource(String sResourceId)
-	{
+	public UiImageResource(String sResourceId) {
 		set(IMAGE, sResourceId);
 	}
 }

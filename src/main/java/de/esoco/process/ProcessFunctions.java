@@ -23,118 +23,92 @@ import de.esoco.lib.expression.function.SetElement;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A class that contains process-specific functions and predicates and the
  * corresponding static access methods.
  *
  * @author eso
  */
-public class ProcessFunctions
-{
-	//~ Constructors -----------------------------------------------------------
+public class ProcessFunctions {
 
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private ProcessFunctions()
-	{
+	private ProcessFunctions() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a new function instance which returns a certain process
 	 * parameter.
 	 *
-	 * @param  rType The type of the process parameter to return
-	 *
+	 * @param rType The type of the process parameter to return
 	 * @return A new function instance
 	 */
-	public static <T> Function<Process, T> getParameter(RelationType<T> rType)
-	{
+	public static <T> Function<Process, T> getParameter(RelationType<T> rType) {
 		return new GetParameter<T>(rType);
 	}
 
-	/***************************************
+	/**
 	 * Returns a new function instance which sets a certain process parameter.
 	 *
-	 * @param  rType  The type of the parameter to set
-	 * @param  rValue The parameter value to set
-	 *
+	 * @param rType  The type of the parameter to set
+	 * @param rValue The parameter value to set
 	 * @return A new function instance
 	 */
 	public static <V> BinaryFunction<Process, V, Process> setParameter(
-		RelationType<V> rType,
-		V				rValue)
-	{
+		RelationType<V> rType, V rValue) {
 		return new SetParameter<V>(rType, rValue);
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An element access function that returns a particular parameter from a
 	 * {@link Process}.
 	 */
 	public static class GetParameter<T>
-		extends GetElement<Process, RelationType<T>, T>
-	{
-		//~ Constructors -------------------------------------------------------
+		extends GetElement<Process, RelationType<T>, T> {
 
-		/***************************************
+		/**
 		 * Creates a new instance that accesses a particular single-type
 		 * relation.
 		 *
 		 * @param rType The single-relation type to access
 		 */
-		public GetParameter(RelationType<T> rType)
-		{
+		public GetParameter(RelationType<T> rType) {
 			super(rType, "GetParameter[%s]");
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected T getElementValue(Process rProcess, RelationType<T> rType)
-		{
+		protected T getElementValue(Process rProcess, RelationType<T> rType) {
 			return rProcess.getParameter(rType);
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * Implementation of an element access function that sets a certain
 	 * parameter in a {@link Process}.
 	 */
 	public static class SetParameter<T>
-		extends SetElement<Process, RelationType<T>, T>
-	{
-		//~ Constructors -------------------------------------------------------
+		extends SetElement<Process, RelationType<T>, T> {
 
-		/***************************************
+		/**
 		 * Creates a new instance that sets a particular relation.
 		 *
 		 * @param rType  The type of the relation to set
 		 * @param rValue The relation value to set
 		 */
-		public SetParameter(RelationType<T> rType, T rValue)
-		{
+		public SetParameter(RelationType<T> rType, T rValue) {
 			super(rType, rValue, "SetParameter[%s]");
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(RelationType<T> rType,
-									   Process		   rProcess,
-									   T			   rValue)
-		{
+		protected void setElementValue(RelationType<T> rType, Process rProcess,
+			T rValue) {
 			rProcess.setParameter(rType, rValue);
 		}
 	}

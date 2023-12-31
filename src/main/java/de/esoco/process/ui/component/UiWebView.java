@@ -24,24 +24,20 @@ import de.esoco.process.ui.UiContainer;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 
-
-/********************************************************************
+/**
  * A component that renders a web page at a certain URL.
  *
  * @author eso
  */
-public class UiWebView extends UiComponent<String, UiWebView>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiWebView extends UiComponent<String, UiWebView> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sUrl    sText The label text
 	 */
-	public UiWebView(UiContainer<?> rParent, String sUrl)
-	{
+	public UiWebView(UiContainer<?> rParent, String sUrl) {
 		super(rParent, String.class);
 
 		setUrl(sUrl);
@@ -49,25 +45,21 @@ public class UiWebView extends UiComponent<String, UiWebView>
 		set(HIDE_LABEL);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the URL of the displayed web page.
 	 *
 	 * @return The website URL
 	 */
-	public String getUrl()
-	{
+	public String getUrl() {
 		return getValueImpl();
 	}
 
-	/***************************************
+	/**
 	 * Sets the URL of the web page to be displayed.
 	 *
 	 * @param sUrl The website URL
 	 */
-	public void setUrl(String sUrl)
-	{
+	public void setUrl(String sUrl) {
 		setValueImpl(sUrl);
 	}
 }

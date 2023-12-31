@@ -23,24 +23,20 @@ import de.esoco.process.ui.UiTextComponent;
 
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
-
-/********************************************************************
+/**
  * A read-only text component that is rendered as a title.
  *
  * @author eso
  */
-public class UiTitle extends UiTextComponent<UiTitle>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiTitle extends UiTextComponent<UiTitle> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param sText   The initial title text
 	 */
-	public UiTitle(UiContainer<?> rParent, String sText)
-	{
+	public UiTitle(UiContainer<?> rParent, String sText) {
 		super(rParent, sText);
 
 		set(LABEL_STYLE, LabelStyle.TITLE);

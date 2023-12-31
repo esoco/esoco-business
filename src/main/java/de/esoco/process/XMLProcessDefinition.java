@@ -23,75 +23,57 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 
-
-/********************************************************************
+/**
  * Defines a process from an XML process description.
  *
  * @author eso
  */
-public class XMLProcessDefinition extends StepListProcessDefinition
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class XMLProcessDefinition extends StepListProcessDefinition {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new XML process definition from a specific XML file.
 	 *
 	 * @param sXMLFile The XML file name
 	 */
-	public XMLProcessDefinition(String sXMLFile)
-	{
+	public XMLProcessDefinition(String sXMLFile) {
 		this(new File(sXMLFile));
 	}
 
-	/***************************************
+	/**
 	 * Creates a new XML process definition from a specific XML file.
 	 *
-	 * @param  rXMLFile The XML file name
-	 *
+	 * @param rXMLFile The XML file name
 	 * @throws IllegalArgumentException If the file doesn't exist or if it has
 	 *                                  an invalid format
 	 */
-	public XMLProcessDefinition(File rXMLFile)
-	{
-		if (!rXMLFile.exists())
-		{
-			throw new IllegalArgumentException("Process definition file not found: " +
-											   rXMLFile);
+	public XMLProcessDefinition(File rXMLFile) {
+		if (!rXMLFile.exists()) {
+			throw new IllegalArgumentException(
+				"Process definition file not found: " + rXMLFile);
 		}
 
-		try
-		{
-			DocumentBuilder aBuilder  =
+		try {
+			DocumentBuilder aBuilder =
 				DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document	    aDocument = aBuilder.parse(rXMLFile);
+			Document aDocument = aBuilder.parse(rXMLFile);
 
 			parseXML(aDocument);
-		}
-		catch (Exception e)
-		{
-			IllegalArgumentException eIA =
-				new IllegalArgumentException("Error parsing process definition file: " +
-											 rXMLFile);
+		} catch (Exception e) {
+			IllegalArgumentException eIA = new IllegalArgumentException(
+				"Error parsing process definition file: " + rXMLFile);
 
 			eIA.initCause(e);
 			throw eIA;
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Parses the XML representation of the process definition and creates the
 	 * corresponding internal process step list.
-	 *
-	 * @param rDocument
 	 */
-	private void parseXML(Document rDocument)
-	{
+	private void parseXML(Document rDocument) {
 		// TODO: Auto-generated method stub
 	}
 }

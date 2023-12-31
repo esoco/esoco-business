@@ -21,29 +21,22 @@ import de.esoco.lib.property.PropertyName;
 
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A data element implementation for period values. Because the Period class is
  * not serializable by GWT the datatype of this element is string. Periods must
  * be mapped from and to strings outside of this class.
  *
  * @author eso
  */
-public class PeriodDataElement extends DataElement<String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class PeriodDataElement extends DataElement<String> {
 
 	private static final long serialVersionUID = 1L;
-
-	//~ Instance fields --------------------------------------------------------
 
 	private int nPeriodCount;
 
 	private String sPeriodUnit;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance with a certain initial value and read-only state.
 	 *
 	 * @param sName         The name of this element
@@ -52,122 +45,105 @@ public class PeriodDataElement extends DataElement<String>
 	 * @param rAllowedUnits The period units that can be selected
 	 * @param rFlags        The optional flags for this data element
 	 */
-	public PeriodDataElement(String				 sName,
-							 int				 nPeriodCount,
-							 String				 sPeriodUnit,
-							 StringListValidator rAllowedUnits,
-							 Set<Flag>			 rFlags)
-	{
+	public PeriodDataElement(String sName, int nPeriodCount,
+		String sPeriodUnit,
+		StringListValidator rAllowedUnits, Set<Flag> rFlags) {
 		super(sName, rAllowedUnits, rFlags);
 
 		this.nPeriodCount = nPeriodCount;
-		this.sPeriodUnit  = sPeriodUnit;
+		this.sPeriodUnit = sPeriodUnit;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	PeriodDataElement()
-	{
+	PeriodDataElement() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PeriodDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
-	{
+	public PeriodDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (PeriodDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * Returns the period count.
 	 *
 	 * @return The period count
 	 */
-	public final int getPeriodCount()
-	{
+	public final int getPeriodCount() {
 		return nPeriodCount;
 	}
 
-	/***************************************
+	/**
 	 * Returns the period unit.
 	 *
 	 * @return The period unit
 	 */
-	public final String getPeriodUnit()
-	{
+	public final String getPeriodUnit() {
 		return sPeriodUnit;
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#getValue()
 	 */
 	@Override
-	public final String getValue()
-	{
+	public final String getValue() {
 		return nPeriodCount + "." + sPeriodUnit;
 	}
 
-	/***************************************
+	/**
 	 * Sets the period count.
 	 *
 	 * @param nCount The period count
 	 */
-	public final void setPeriodCount(int nCount)
-	{
+	public final void setPeriodCount(int nCount) {
 		nPeriodCount = nCount;
 	}
 
-	/***************************************
+	/**
 	 * Sets the period unit.
 	 *
 	 * @param sUnit The period unit
 	 */
-	public final void setPeriodUnit(String sUnit)
-	{
+	public final void setPeriodUnit(String sUnit) {
 		sPeriodUnit = sUnit;
 	}
 
-	/***************************************
+	/**
 	 * Sets the string value.
 	 *
 	 * @param sValue The new string value
 	 */
 	@Override
-	public void setStringValue(String sValue)
-	{
+	public void setStringValue(String sValue) {
 		setValue(sValue);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PeriodDataElement newInstance()
-	{
+	protected PeriodDataElement newInstance() {
 		return new PeriodDataElement();
 	}
 
-	/***************************************
+	/**
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected final void updateValue(String sNewValue)
-	{
-		if ("NONE".equals(sNewValue))
-		{
+	protected final void updateValue(String sNewValue) {
+		if ("NONE".equals(sNewValue)) {
 			nPeriodCount = 0;
-			sPeriodUnit  = sNewValue;
-		}
-		else
-		{
+			sPeriodUnit = sNewValue;
+		} else {
 			String[] rParts = sNewValue.split("\\.");
 
 			nPeriodCount = Integer.parseInt(rParts[0]);
-			sPeriodUnit  = rParts[1];
+			sPeriodUnit = rParts[1];
 		}
 	}
 }

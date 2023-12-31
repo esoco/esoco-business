@@ -45,8 +45,7 @@ import static de.esoco.storage.StorageRelationTypes.STORAGE_QUERY_SIZE;
 
 import static org.obrel.core.RelationTypes.newRelationType;
 
-
-/********************************************************************
+/**
  * A process step that performs an arbitrary storage query and places the result
  * in a certain target parameter. This step can be invoked until the last object
  * that fulfills the query has been read. After that the target parameter will
@@ -73,92 +72,80 @@ import static org.obrel.core.RelationTypes.newRelationType;
  *
  * @author eso
  */
-public class PerformStorageQuery extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class PerformStorageQuery extends ProcessStep {
+
+	/**
+	 * An optional reference to a parameter that stores the query size
+	 */
+	public static final RelationType<Function<Object, String>>
+		QUERY_PROGRESS_FORMAT =
+		newRelationType("de.esoco.process.step.QUERY_PROGRESS_FORMAT",
+			Function.class);
 
 	private static final long serialVersionUID = 1L;
 
-	/** An optional reference to a parameter that stores the query size */
-	public static final RelationType<Function<Object, String>> QUERY_PROGRESS_FORMAT =
-		newRelationType("de.esoco.process.step.QUERY_PROGRESS_FORMAT",
-						Function.class);
-
-	static
-	{
+	static {
 		RelationTypes.init(PerformStorageQuery.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public PerformStorageQuery()
-	{
+	public PerformStorageQuery() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Closes the query, releases the storage, and removes the query parameters
 	 * from the process.
 	 *
 	 * @see ProcessStep#cleanup()
 	 */
 	@Override
-	protected void cleanup()
-	{
+	protected void cleanup() {
 		Query<?> rQuery = getParameter(STORAGE_QUERY);
 
-		if (rQuery != null)
-		{
+		if (rQuery != null) {
 			Storage rStorage = rQuery.getStorage();
 
-			try
-			{
+			try {
 				rQuery.close();
-			}
-			finally
-			{
+			} finally {
 				rStorage.release();
 				deleteParameters(STORAGE_QUERY, STORAGE_QUERY_RESULT);
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessStep#execute()
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void execute() throws StorageException, ProcessException
-	{
-		Query<?>	   rQuery	    = getParameter(STORAGE_QUERY);
+	protected void execute() throws StorageException, ProcessException {
+		Query<?> rQuery = getParameter(STORAGE_QUERY);
 		QueryResult<?> rQueryResult = getParameter(STORAGE_QUERY_RESULT);
 
 		Function<Object, String> fProgressFormat =
 			getParameter(QUERY_PROGRESS_FORMAT);
 
-		if (rQueryResult == null)
-		{
+		if (rQueryResult == null) {
 			QueryPredicate<?> pQuery = checkParameter(STORAGE_QUERY_PREDICATE);
 
 			// create a new storage because multiple invocations may occur from
 			// different threads if the process contains a progress display
 			// interaction
-			Storage rStorage = StorageManager.newStorage(pQuery.getQueryType());
+			Storage rStorage =
+				StorageManager.newStorage(pQuery.getQueryType());
 
-			rQuery		 = rStorage.query(pQuery);
+			rQuery = rStorage.query(pQuery);
 			rQueryResult = rQuery.execute();
 
 			int nQuerySize = rQuery.size();
@@ -171,8 +158,7 @@ public class PerformStorageQuery extends ProcessStep
 
 		Object rNextObject = null;
 
-		if (rQueryResult.hasNext())
-		{
+		if (rQueryResult.hasNext()) {
 			rNextObject = rQueryResult.next();
 		}
 
@@ -182,38 +168,32 @@ public class PerformStorageQuery extends ProcessStep
 
 		setParameter(rTargetParam, rNextObject);
 
-		if (rNextObject != null)
-		{
+		if (rNextObject != null) {
 			setParameter(PROGRESS, getParameter(PROGRESS) + 1);
 
-			if (fProgressFormat != null)
-			{
+			if (fProgressFormat != null) {
 				setParameter(PROGRESS_DESCRIPTION,
-							 fProgressFormat.evaluate(rNextObject));
+					fProgressFormat.evaluate(rNextObject));
 			}
-		}
-		else
-		{
+		} else {
 			cleanup();
 		}
 	}
 
-	/***************************************
+	/**
 	 * Checks whether the storage query is already initialized.
 	 *
 	 * @return TRUE if the query is initialized
 	 */
-	protected boolean isQueryInitialized()
-	{
+	protected boolean isQueryInitialized() {
 		return getParameter(STORAGE_QUERY_RESULT) != null;
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
-	protected void rollback()
-	{
+	protected void rollback() {
 		cleanup();
 	}
 }

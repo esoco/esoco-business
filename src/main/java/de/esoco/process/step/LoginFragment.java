@@ -42,50 +42,45 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 
 import static org.obrel.type.MetaTypes.AUTHENTICATED;
 
-
-/********************************************************************
+/**
  * A generic login fragment for the authentication process of an application.
  *
  * @author eso
  */
-public class LoginFragment extends InteractionFragment
-{
-	//~ Enums ------------------------------------------------------------------
+public class LoginFragment extends InteractionFragment {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the available login actions.
 	 */
-	public enum LoginAction { LOGIN, REGISTER, RESET_PASSWORD }
-
-	//~ Static fields/initializers ---------------------------------------------
+	public enum LoginAction {LOGIN, REGISTER, RESET_PASSWORD}
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final int nMaxLoginAttempts;
+
 	private final int nInitialLoginErrorWaitTime;
 
 	private Parameter<String> aLoginName;
+
 	private Parameter<String> aPassword;
+
 	private Parameter<String> aErrorMessage;
 
-	private int  nErrorCount     = 0;
-	private int  nErrorWaitTime  = 0;
+	private int nErrorCount = 0;
+
+	private int nErrorWaitTime = 0;
+
 	private long nErrorWaitStart;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Default constructor with 3 allowed login attempts and 5 seconds initial
 	 * wait time.
 	 */
-	public LoginFragment()
-	{
+	public LoginFragment() {
 		this(3, 5);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with the given login failure parameters.
 	 *
 	 * @param nMaxLoginAttemptsUntilDelay The maximum number of login attempts
@@ -98,22 +93,17 @@ public class LoginFragment extends InteractionFragment
 	 *                                    login attempts has been reached; this
 	 *                                    will double with each failure cycle.
 	 */
-	public LoginFragment(
-		int nMaxLoginAttemptsUntilDelay,
-		int nInitialLoginErrorWaitTime)
-	{
-		this.nMaxLoginAttempts		    = nMaxLoginAttemptsUntilDelay;
+	public LoginFragment(int nMaxLoginAttemptsUntilDelay,
+		int nInitialLoginErrorWaitTime) {
+		this.nMaxLoginAttempts = nMaxLoginAttemptsUntilDelay;
 		this.nInitialLoginErrorWaitTime = nInitialLoginErrorWaitTime;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init() throws Exception
-	{
+	public void init() throws Exception {
 		layout(LayoutType.FORM).set(DISABLE_ON_INTERACTION);
 
 		addInputFields();
@@ -121,7 +111,7 @@ public class LoginFragment extends InteractionFragment
 		addLoginButton();
 	}
 
-	/***************************************
+	/**
 	 * Adds the next domain availability check result to this fragment on an
 	 * auto-update interaction.
 	 *
@@ -129,34 +119,26 @@ public class LoginFragment extends InteractionFragment
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public void prepareInteraction() throws Exception
-	{
-		if (nErrorWaitTime > 0)
-		{
+	public void prepareInteraction() throws Exception {
+		if (nErrorWaitTime > 0) {
 			int nWaitSeconds =
 				(int) ((System.currentTimeMillis() - nErrorWaitStart) / 1000);
 
-			if (nWaitSeconds > nErrorWaitTime)
-			{
-				if (hasFlag(AUTO_UPDATE))
-				{
+			if (nWaitSeconds > nErrorWaitTime) {
+				if (hasFlag(AUTO_UPDATE)) {
 					aErrorMessage.hide();
 					set(AUTO_UPDATE, false);
 					fragmentParam().enableEdit(true);
 				}
-			}
-			else
-			{
-				aErrorMessage.show()
-							 .value(createErrorWaitMessage(nErrorWaitTime -
-														   nWaitSeconds));
+			} else {
+				aErrorMessage
+					.show()
+					.value(
+						createErrorWaitMessage(nErrorWaitTime - nWaitSeconds));
 				Thread.sleep(1000);
 			}
-		}
-		else
-		{
-			if (hasFlagParameter(PROCESS_SESSION_EXPIRED))
-			{
+		} else {
+			if (hasFlagParameter(PROCESS_SESSION_EXPIRED)) {
 				deleteParameters(PROCESS_SESSION_EXPIRED);
 				aErrorMessage.show().value("$msgProcessSessionExpired");
 			}
@@ -165,134 +147,116 @@ public class LoginFragment extends InteractionFragment
 		}
 	}
 
-	/***************************************
+	/**
 	 * Adds the error label to this fragment.
 	 */
-	protected void addErrorLabel()
-	{
+	protected void addErrorLabel() {
 		aErrorMessage = label("").style("ErrorMessage").hide();
 	}
 
-	/***************************************
+	/**
 	 * Adds the login name and password input fields to this fragment.
 	 */
-	protected void addInputFields()
-	{
-		aLoginName =
-			inputText("LoginName").ensureNotEmpty()
-								  .set(FOCUSED)
-								  .onAction(new ValueEventHandler<String>()
-				{
-					@Override
-					public void handleValueUpdate(String sLoginName)
-						throws Exception
-					{
-						handleLoginNameInput(sLoginName);
-					}
-				});
-		aPassword  =
-			inputText("Password").set(TEXT_FIELD_STYLE, TextFieldStyle.PASSWORD)
-								 .ensureNotEmpty()
-								 .onAction(new ValueEventHandler<String>()
-				{
-					@Override
-					public void handleValueUpdate(String sPassword)
-						throws Exception
-					{
-						handlePasswordInput(sPassword);
-					}
-				});
+	protected void addInputFields() {
+		aLoginName = inputText("LoginName")
+			.ensureNotEmpty()
+			.set(FOCUSED)
+			.onAction(new ValueEventHandler<String>() {
+				@Override
+				public void handleValueUpdate(String sLoginName)
+					throws Exception {
+					handleLoginNameInput(sLoginName);
+				}
+			});
+		aPassword = inputText("Password")
+			.set(TEXT_FIELD_STYLE, TextFieldStyle.PASSWORD)
+			.ensureNotEmpty()
+			.onAction(new ValueEventHandler<String>() {
+				@Override
+				public void handleValueUpdate(String sPassword)
+					throws Exception {
+					handlePasswordInput(sPassword);
+				}
+			});
 	}
 
-	/***************************************
+	/**
 	 * Adds the login button to this fragment.
 	 */
-	protected void addLoginButton()
-	{
-		buttons(LoginAction.LOGIN).alignHorizontal(Alignment.CENTER)
-								  .continueOnInteraction(false)
-								  .onAction(eAction -> performLogin());
+	protected void addLoginButton() {
+		buttons(LoginAction.LOGIN)
+			.alignHorizontal(Alignment.CENTER)
+			.continueOnInteraction(false)
+			.onAction(eAction -> performLogin());
 	}
 
-	/***************************************
+	/**
 	 * Creates the waiting message after successive login failures.
 	 *
-	 * @param  nRemainingSeconds The number of seconds the user has to wait
-	 *
+	 * @param nRemainingSeconds The number of seconds the user has to wait
 	 * @return The error message
 	 */
 	@SuppressWarnings("boxing")
-	protected String createErrorWaitMessage(int nRemainingSeconds)
-	{
+	protected String createErrorWaitMessage(int nRemainingSeconds) {
 		return String.format("$${$msgSuccessiveLoginErrorStart} %d " +
-							 "{$msgSuccessiveLoginErrorEnd}",
-							 nRemainingSeconds);
+			"{$msgSuccessiveLoginErrorEnd}", nRemainingSeconds);
 	}
 
-	/***************************************
+	/**
 	 * Handles login name input.
 	 *
 	 * @param sLoginName The login name
 	 */
-	protected void handleLoginNameInput(String sLoginName)
-	{
-		if (aPassword.value().length() > 5)
-		{
+	protected void handleLoginNameInput(String sLoginName) {
+		if (aPassword.value().length() > 5) {
 			performLogin();
-		}
-		else
-		{
+		} else {
 			aPassword.set(FOCUSED);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Handles password input.
 	 *
 	 * @param sPassword The password
 	 */
-	protected void handlePasswordInput(String sPassword)
-	{
-		if (aLoginName.value().length() > 2)
-		{
+	protected void handlePasswordInput(String sPassword) {
+		if (aLoginName.value().length() > 2) {
 			performLogin();
 		}
 	}
 
-	/***************************************
+	/**
 	 * Will be invoked after the user has been successfully authenticated to
-	 * check whether she is authorized to use the application. Can be overridden
+	 * check whether she is authorized to use the application. Can be
+	 * overridden
 	 * by subclasses that need to check additional constraints. Only if this
 	 * method returns TRUE will the process be initialized with the
 	 * authentication data. The default implementation always returns TRUE.
 	 *
-	 * @param  rUser The user that has been authenticated
-	 *
+	 * @param rUser The user that has been authenticated
 	 * @return TRUE if the user is authorized to use the application, FALSE if
-	 *         not
-	 *
+	 * not
 	 * @throws Exception Implementations may alternatively throw any kind of
-	 *                   exception if the authorization fails. This has the same
+	 *                   exception if the authorization fails. This has the
+	 *                   same
 	 *                   effect as returning FALSE.
 	 */
-	protected boolean isUserAuthorized(Entity rUser) throws Exception
-	{
+	protected boolean isUserAuthorized(Entity rUser) throws Exception {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Handles the login action that occurred.
 	 */
-	protected void performLogin()
-	{
+	protected void performLogin() {
 		String sLoginName = aLoginName.value().toLowerCase();
-		String sPassword  = aPassword.value();
+		String sPassword = aPassword.value();
 
 		StringDataElement aLoginData =
 			new StringDataElement(sLoginName, sPassword);
 
-		try
-		{
+		try {
 			SessionManager rSessionManager =
 				getParameter(DataRelationTypes.SESSION_MANAGER);
 
@@ -301,13 +265,12 @@ public class LoginFragment extends InteractionFragment
 			Entity rUser =
 				rSessionManager.getSessionData().get(SessionData.SESSION_USER);
 
-			if (!isUserAuthorized(rUser))
-			{
+			if (!isUserAuthorized(rUser)) {
 				// handle in catch block
 				throw new Exception();
 			}
 
-			nErrorCount    = 0;
+			nErrorCount = 0;
 			nErrorWaitTime = 0;
 
 			aPassword.value("");
@@ -317,27 +280,22 @@ public class LoginFragment extends InteractionFragment
 			setParameter(AUTHENTICATED, true);
 
 			continueOnInteraction(getInteractiveInputParameter());
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			String sMessage = "$msgLoginError";
 
-			if (nMaxLoginAttempts > 0 && ++nErrorCount >= nMaxLoginAttempts)
-			{
-				if (nErrorWaitTime > 0)
-				{
-					Log.warnf(e,
-							  "Repeated login failure of user %s",
-							  sLoginName);
+			if (nMaxLoginAttempts > 0 && ++nErrorCount >= nMaxLoginAttempts) {
+				if (nErrorWaitTime > 0) {
+					Log.warnf(e, "Repeated login failure of user %s",
+						sLoginName);
 				}
 
-				nErrorWaitTime =
-					nErrorWaitTime == 0 ? nInitialLoginErrorWaitTime
-										: nErrorWaitTime * 2;
+				nErrorWaitTime = nErrorWaitTime == 0 ?
+				                 nInitialLoginErrorWaitTime :
+				                 nErrorWaitTime * 2;
 
-				nErrorCount     = 0;
+				nErrorCount = 0;
 				nErrorWaitStart = System.currentTimeMillis();
-				sMessage	    = createErrorWaitMessage(nErrorWaitTime);
+				sMessage = createErrorWaitMessage(nErrorWaitTime);
 
 				fragmentParam().enableEdit(false);
 				set(ProcessRelationTypes.AUTO_UPDATE);

@@ -16,25 +16,22 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.net;
 
-/********************************************************************
+/**
  * An interface that represents a request to an external service.
  *
  * @author eso
  */
-public interface ExternalServiceRequest
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ExternalServiceRequest {
 
-	/***************************************
+	/**
 	 * Sends this request to the external service and returns the response.
 	 *
 	 * @return The response of the service
-	 *
 	 * @throws Exception If sending the request fails
 	 */
 	public ExternalServiceResponse send() throws Exception;
 
-	/***************************************
+	/**
 	 * Sets the full body of this request. This is mutual exclusive to the
 	 * method {@link #setParameter(String, String)} and will override any
 	 * existing parameters.
@@ -43,7 +40,7 @@ public interface ExternalServiceRequest
 	 */
 	public void setBody(String sBodyData);
 
-	/***************************************
+	/**
 	 * Sets a certain request header field.
 	 *
 	 * @param sName  The name of the header field
@@ -51,7 +48,7 @@ public interface ExternalServiceRequest
 	 */
 	public void setHeader(String sName, String sValue);
 
-	/***************************************
+	/**
 	 * Sets a certain request parameter. To set the complete request body for
 	 * POST and PUT requests use {@link #setBody(String)} instead.
 	 *

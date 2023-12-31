@@ -27,54 +27,75 @@ import static de.esoco.entity.EntityRelationTypes.parentAttribute;
 import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * A simple person entity for test purposes.
  *
  * @author eso
  */
-public class TestPerson extends Entity
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class TestPerson extends Entity {
 
-	private static final long serialVersionUID = 1L;
-
-	//- Attributes ------------------------------
-	/** The parent person. */
+	/**
+	 * The parent person.
+	 */
 	public static final RelationType<TestPerson> PARENT = parentAttribute();
 
-	/** The child contacts */
+	//- Attributes ------------------------------
+
+	/**
+	 * The child contacts
+	 */
 	public static final RelationType<List<TestPerson>> CHILDREN =
 		childAttribute();
 
-	/** Last name */
+	/**
+	 * Last name
+	 */
 	public static final RelationType<String> LASTNAME = newType();
 
-	/** Forename */
+	/**
+	 * Forename
+	 */
 	public static final RelationType<String> FORENAME = newType();
 
-	/** Address */
+	/**
+	 * Address
+	 */
 	public static final RelationType<String> ADDRESS = newType();
 
-	/** Postal code */
+	/**
+	 * Postal code
+	 */
 	public static final RelationType<String> POSTAL_CODE = newType();
 
-	/** City */
+	/**
+	 * City
+	 */
 	public static final RelationType<String> CITY = newType();
 
-	/** Age */
+	/**
+	 * Age
+	 */
 	public static final RelationType<Integer> AGE = newIntType();
 
-	//- Child entities --------------------------
-	/** Contact informations */
+	/**
+	 * Contact informations
+	 */
 	public static final RelationType<List<TestContact>> CONTACTS =
 		childAttribute();
 
-	/** Minimal display attributes */
+	//- Child entities --------------------------
+
+	/**
+	 * Minimal display attributes
+	 */
 	public static final RelationType<?>[] DISPLAY_ATTRIBUTES_MINIMAL =
 		new RelationType<?>[] { ENTITY_ID, FORENAME, LASTNAME };
 
-	/** Compact display attributes */
+	/**
+	 * Compact display attributes
+	 */
 	public static final RelationType<?>[] DISPLAY_ATTRIBUTES_COMPACT =
 		new RelationType<?>[] { ENTITY_ID, FORENAME, LASTNAME, ADDRESS, CITY };
+
+	private static final long serialVersionUID = 1L;
 }

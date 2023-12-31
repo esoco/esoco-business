@@ -21,39 +21,31 @@ import de.esoco.process.ui.UiTextInputField;
 
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 
-
-/********************************************************************
+/**
  * A multi-line text input field.
  *
  * @author eso
  */
-public class UiTextArea extends UiTextInputField<UiTextArea>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiTextArea extends UiTextInputField<UiTextArea> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiTextArea(UiContainer<?> rContainer, String sText)
-	{
+	public UiTextArea(UiContainer<?> rContainer, String sText) {
 		super(rContainer, sText);
 
 		set(-1, ROWS);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the number of rows that should be displayed.
 	 *
-	 * @param  nRows The visible rows
-	 *
+	 * @param nRows The visible rows
 	 * @return This instance for concatenation
 	 */
-	public UiTextArea visibleRows(int nRows)
-	{
+	public UiTextArea visibleRows(int nRows) {
 		return set(nRows, ROWS);
 	}
 }

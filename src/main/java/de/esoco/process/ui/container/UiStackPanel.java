@@ -22,43 +22,34 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiSwitchPanel;
 
-
-/********************************************************************
+/**
  * A panel that arranges components in a stack of elements that can be selected
  * to display them.
  *
  * @author eso
  */
-public class UiStackPanel extends UiSwitchPanel<UiStackPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiStackPanel extends UiSwitchPanel<UiStackPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiStackPanel(UiContainer<?> rParent)
-	{
+	public UiStackPanel(UiContainer<?> rParent) {
 		super(rParent, new StackLayout());
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * The internal stack panel layout.
 	 *
 	 * @author eso
 	 */
-	static class StackLayout extends UiLayout
-	{
-		//~ Constructors -------------------------------------------------------
+	static class StackLayout extends UiLayout {
 
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 */
-		public StackLayout()
-		{
+		public StackLayout() {
 			super(LayoutType.STACK);
 		}
 	}

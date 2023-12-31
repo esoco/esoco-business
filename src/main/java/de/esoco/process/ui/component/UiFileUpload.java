@@ -22,23 +22,19 @@ import de.esoco.process.ui.UiContainer;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 
-
-/********************************************************************
+/**
  * A button subclass that represent a file upload control.
  *
  * @author eso
  */
-public class UiFileUpload extends UiButton
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiFileUpload extends UiButton {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiButton#UiButton(UiContainer, String)
 	 */
-	public UiFileUpload(UiContainer<?> rParent, String sLabel)
-	{
+	public UiFileUpload(UiContainer<?> rParent, String sLabel) {
 		super(rParent, sLabel);
 
 		set(CONTENT_TYPE, ContentType.FILE_UPLOAD);

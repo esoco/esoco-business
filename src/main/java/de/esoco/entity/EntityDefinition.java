@@ -89,8 +89,7 @@ import static org.obrel.type.StandardTypes.INFO;
 import static org.obrel.type.StandardTypes.NAME;
 import static org.obrel.type.StandardTypes.PREVIOUS_VALUE;
 
-
-/********************************************************************
+/**
  * The base class for the definition of entities. The easiest way to define an
  * entity is to subclass this class, add relation type constants for all
  * attributes (including children), and invoke one of the constructors with
@@ -104,18 +103,12 @@ import static org.obrel.type.StandardTypes.PREVIOUS_VALUE;
  */
 public class EntityDefinition<E extends Entity>
 	extends AbstractStorageMapping<E, RelationType<?>, EntityDefinition<?>>
-	implements EventHandler<RelationEvent<?>>, Serializable
-{
-	//~ Enums ------------------------------------------------------------------
+	implements EventHandler<RelationEvent<?>>, Serializable {
 
-	/********************************************************************
+	/**
 	 * Enumeration of entity display modes
 	 */
-	public enum DisplayMode { MINIMAL, COMPACT, FULL, HIERARCHICAL }
-
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+	public enum DisplayMode {MINIMAL, COMPACT, FULL, HIERARCHICAL}
 
 	/**
 	 * The name of the optional static field in an entity class that contains a
@@ -164,156 +157,139 @@ public class EntityDefinition<E extends Entity>
 	public static final String ATTRIBUTE_DISPLAY_PROPERTIES_FIELD =
 		"ATTRIBUTE_DISPLAY_PROPERTIES";
 
-	//~ Instance fields --------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
 	/**
-	 * @serial Only the entity class field will be serialized (with default
-	 *         serialization) and instances read will then be replaced with
-	 *         their singleton by the {@link #readResolve()} method.
+	 *
 	 */
 	private Class<E> rEntityClass;
 
-	private transient String						 sEntityName;
-	private transient String						 sIdPrefix;
+	private transient String sEntityName;
+
+	private transient String sIdPrefix;
+
 	private transient RelationType<? extends Number> rIdAttribute;
-	private transient RelationType<Enum<?>>			 rTypeAttribute;
-	private transient RelationType<String>			 rNameAttribute;
+
+	private transient RelationType<Enum<?>> rTypeAttribute;
+
+	private transient RelationType<String> rNameAttribute;
+
 	private transient RelationType<? extends Entity> rMasterAttribute;
+
 	private transient RelationType<? extends Entity> rParentAttribute;
+
 	private transient RelationType<? extends Entity> rRootAttribute;
-	private transient RelationType<List<Entity>>     rHierarchyChildAttribute;
 
-	private transient List<RelationType<?>>								   aAttributes;
-	private transient Map<EntityDefinition<?>, RelationType<List<Entity>>> aChildAttributes;
+	private transient RelationType<List<Entity>> rHierarchyChildAttribute;
 
-	private transient Map<String, Class<? extends E>>  aTypeSubClasses = null;
-	private transient Map<Class<? extends E>, Enum<?>> aSubClassTypes  = null;
+	private transient List<RelationType<?>> aAttributes;
 
-	private transient Map<DisplayMode, List<RelationType<?>>> aDisplayAttributes =
-		new EnumMap<>(DisplayMode.class);
+	private transient Map<EntityDefinition<?>, RelationType<List<Entity>>>
+		aChildAttributes;
 
-	private transient Map<RelationType<?>, ? extends HasProperties> aAttributeDisplayProperties;
+	private transient Map<String, Class<? extends E>> aTypeSubClasses = null;
 
-	//~ Constructors -----------------------------------------------------------
+	private transient Map<Class<? extends E>, Enum<?>> aSubClassTypes = null;
 
-	/***************************************
+	private transient Map<DisplayMode, List<RelationType<?>>>
+		aDisplayAttributes = new EnumMap<>(DisplayMode.class);
+
+	private transient Map<RelationType<?>, ? extends HasProperties>
+		aAttributeDisplayProperties;
+
+	/**
 	 * Creates a new instance without initializing it. Subclasses that use this
 	 * constructor must invoke the init method or else this instance will be in
 	 * an unusable state.
 	 */
-	protected EntityDefinition()
-	{
+	protected EntityDefinition() {
 	}
 
-	/***************************************
-	 * Creates a new instance from a certain entity class. Internally the method
+	/**
+	 * Creates a new instance from a certain entity class. Internally the
+	 * method
 	 * {@link #init(String, String, Class, List)} will be invoked which will
-	 * then evaluate the relation type declarations in the given entity class to
+	 * then evaluate the relation type declarations in the given entity
+	 * class to
 	 * define the entity structure.
 	 *
 	 * @param rEntityClass The entity class to create the definition for
 	 */
-	protected EntityDefinition(Class<E> rEntityClass)
-	{
+	protected EntityDefinition(Class<E> rEntityClass) {
 		this(rEntityClass, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new definition from a certain entity class which contains the
 	 * attribute relation type definitions.
 	 *
 	 * @param rEntityClass The entity class to create the definition for
 	 * @param sIdPrefix    The prefix for global entity IDs
 	 */
-	protected EntityDefinition(Class<E> rEntityClass, String sIdPrefix)
-	{
+	protected EntityDefinition(Class<E> rEntityClass, String sIdPrefix) {
 		RelationTypes.init(rEntityClass);
 
 		ObjectRelations.getRelatable(rEntityClass).set(STORAGE_MAPPING, this);
 
-		init(
-			rEntityClass.getSimpleName(),
-			sIdPrefix,
-			rEntityClass,
+		init(rEntityClass.getSimpleName(), sIdPrefix, rEntityClass,
 			getAttributeTypes(rEntityClass));
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Initializes the attribute-specific display properties that may be stored
 	 * in the optional field {@link #ATTRIBUTE_DISPLAY_PROPERTIES_FIELD} of an
 	 * entity class.
 	 *
-	 * @param  rEntityClass The entity class
-	 *
+	 * @param rEntityClass The entity class
 	 * @return The mapping from attributes to display properties
 	 */
 	@SuppressWarnings("unchecked")
-	static Map<RelationType<?>, MutableProperties>
-	getAttributeDisplayProperties(Class<? extends Entity> rEntityClass)
-	{
+	static Map<RelationType<?>, MutableProperties> getAttributeDisplayProperties(
+		Class<? extends Entity> rEntityClass) {
 		return (Map<RelationType<?>, MutableProperties>) getStaticFieldValue(
-			rEntityClass,
-			ATTRIBUTE_DISPLAY_PROPERTIES_FIELD);
+			rEntityClass, ATTRIBUTE_DISPLAY_PROPERTIES_FIELD);
 	}
 
-	/***************************************
+	/**
 	 * Returns the value of a certain static field from an entity class.
 	 *
-	 * @param  rEntityClass The entity class
-	 * @param  sFieldName   The name of the static field to access
-	 *
+	 * @param rEntityClass The entity class
+	 * @param sFieldName   The name of the static field to access
 	 * @return The field value
 	 */
-	static Object getStaticFieldValue(
-		Class<? extends Entity> rEntityClass,
-		String					sFieldName)
-	{
+	static Object getStaticFieldValue(Class<? extends Entity> rEntityClass,
+		String sFieldName) {
 		Object rValue;
 
-		try
-		{
+		try {
 			Field rField = rEntityClass.getDeclaredField(sFieldName);
 
-			if (!Modifier.isPublic(rField.getModifiers()))
-			{
+			if (!Modifier.isPublic(rField.getModifiers())) {
 				rField.setAccessible(true);
 			}
 
 			rValue = rField.get(null);
-		}
-		catch (NoSuchFieldException e)
-		{
+		} catch (NoSuchFieldException e) {
 			rValue = null;
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw new IllegalStateException(
-				"Could not access field " +
-				sFieldName);
+				"Could not access field " + sFieldName);
 		}
 
 		return rValue;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object checkAttributeValue(RelationType<?> rAttribute, Object rValue)
-	{
+	public Object checkAttributeValue(RelationType<?> rAttribute,
+		Object rValue) {
 		if (rValue != null &&
-			Entity.class.isAssignableFrom(rAttribute.getTargetType()))
-		{
-			if (rValue instanceof String)
-			{
+			Entity.class.isAssignableFrom(rAttribute.getTargetType())) {
+			if (rValue instanceof String) {
 				rValue = EntityManager.queryEntity((String) rValue);
-			}
-			else if (rValue instanceof Integer)
-			{
+			} else if (rValue instanceof Integer) {
 				int nId = ((Integer) rValue).intValue();
 
 				@SuppressWarnings("unchecked")
@@ -322,44 +298,33 @@ public class EntityDefinition<E extends Entity>
 
 				rValue = EntityManager.queryEntity(rEntityType, nId);
 			}
-		}
-		else
-		{
+		} else {
 			rValue = super.checkAttributeValue(rAttribute, rValue);
 		}
 
 		return rValue;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public E createObject(List<?> rAttributeValues, boolean bAsChild)
-	{
+	public E createObject(List<?> rAttributeValues, boolean bAsChild) {
 		boolean bHasCaching =
 			EntityManager.isCachingEnabledFor(getMappedType());
 
 		E aEntity = null;
 
-		if (!bAsChild && bHasCaching)
-		{
+		if (!bAsChild && bHasCaching) {
 			aEntity = tryToGetFromParent(rAttributeValues);
 		}
 
-		if (aEntity == null)
-		{
-			try
-			{
+		if (aEntity == null) {
+			try {
 				aEntity = createNewEntity(rAttributeValues);
-			}
-			catch (Exception e)
-			{
-				Log.errorf(
-					e,
-					"Error creating entity %s from data %s",
-					rEntityClass.getSimpleName(),
-					rAttributeValues);
+			} catch (Exception e) {
+				Log.errorf(e, "Error creating entity %s from data %s",
+					rEntityClass.getSimpleName(), rAttributeValues);
 
 				throw e;
 			}
@@ -368,21 +333,17 @@ public class EntityDefinition<E extends Entity>
 		return aEntity;
 	}
 
-	/***************************************
+	/**
 	 * Returns the attribute relation type that corresponds to a particular
 	 * attribute name. This method is mainly intended to support the
 	 * implementation of attribute mappings that are defined with strings.
 	 *
-	 * @param  sAttributeName The attribute name to return the type for
-	 *
+	 * @param sAttributeName The attribute name to return the type for
 	 * @return The matching attribute type or NULL if no such instance exists
 	 */
-	public final RelationType<?> getAttribute(String sAttributeName)
-	{
-		for (RelationType<?> rAttr : aAttributes)
-		{
-			if (rAttr.getName().equals(sAttributeName))
-			{
+	public final RelationType<?> getAttribute(String sAttributeName) {
+		for (RelationType<?> rAttr : aAttributes) {
+			if (rAttr.getName().equals(sAttributeName)) {
 				return rAttr;
 			}
 		}
@@ -390,94 +351,78 @@ public class EntityDefinition<E extends Entity>
 		return null;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class<?> getAttributeDatatype(RelationType<?> rAttribute)
-	{
+	public Class<?> getAttributeDatatype(RelationType<?> rAttribute) {
 		return rAttribute.getTargetType();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<RelationType<?>> getAttributes()
-	{
-		return aAttributes;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Object getAttributeValue(E rEntity, RelationType<?> rAttribute)
-	{
+	public Object getAttributeValue(E rEntity, RelationType<?> rAttribute) {
 		return rEntity.get(rAttribute);
 	}
 
-	/***************************************
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Collection<RelationType<?>> getAttributes() {
+		return aAttributes;
+	}
+
+	/**
 	 * Returns the relation types of the child attributes of this definition.
 	 *
 	 * @return A collection of the child attribute relation types
 	 */
-	public Collection<RelationType<List<Entity>>> getChildAttributes()
-	{
-		if (aChildAttributes != null)
-		{
+	public Collection<RelationType<List<Entity>>> getChildAttributes() {
+		if (aChildAttributes != null) {
 			return aChildAttributes.values();
-		}
-		else
-		{
+		} else {
 			return Collections.emptySet();
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<EntityDefinition<?>> getChildMappings()
-	{
-		if (aChildAttributes != null)
-		{
+	public Collection<EntityDefinition<?>> getChildMappings() {
+		if (aChildAttributes != null) {
 			return aChildAttributes.keySet();
-		}
-		else
-		{
+		} else {
 			return Collections.emptySet();
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<Entity> getChildren(
-		E					rParent,
-		EntityDefinition<?> rChildMapping)
-	{
+	public Collection<Entity> getChildren(E rParent,
+		EntityDefinition<?> rChildMapping) {
 		return rParent.get(aChildAttributes.get(rChildMapping));
 	}
 
-	/***************************************
+	/**
 	 * Overridden to return a prediate for a type attribute value if a specific
 	 * sub-class of the entity type exists.
 	 *
 	 * @see StorageMapping#getDefaultCriteria(Class)
 	 */
 	@Override
-	public Predicate<E> getDefaultCriteria(Class<? extends E> rType)
-	{
+	public Predicate<E> getDefaultCriteria(Class<? extends E> rType) {
 		Predicate<E> pDefault = null;
 
-		if (aSubClassTypes != null)
-		{
+		if (aSubClassTypes != null) {
 			Enum<?> eType = aSubClassTypes.get(rType);
 
-			if (eType != null)
-			{
+			if (eType != null) {
 				pDefault = rTypeAttribute.is(Predicates.equalTo(eType));
 			}
 		}
@@ -485,199 +430,182 @@ public class EntityDefinition<E extends Entity>
 		return pDefault;
 	}
 
-	/***************************************
+	/**
 	 * Returns the attributes for a certain display mode.
 	 *
-	 * @param  rDisplayMode The display mode
-	 *
+	 * @param rDisplayMode The display mode
 	 * @return A collection containing the attributes for the display mode
 	 */
-	public List<RelationType<?>> getDisplayAttributes(DisplayMode rDisplayMode)
-	{
+	public List<RelationType<?>> getDisplayAttributes(
+		DisplayMode rDisplayMode) {
 		return aDisplayAttributes.get(rDisplayMode);
 	}
 
-	/***************************************
+	/**
 	 * Returns the display properties for a certain attribute. Always returns a
 	 * new properties object, even if empty, that can be modified freely by the
 	 * receiver.
 	 *
-	 * @param  rAttribute The attribute to return the display properties for
-	 *
+	 * @param rAttribute The attribute to return the display properties for
 	 * @return The display properties for the given attribute
 	 */
-	public MutableProperties getDisplayProperties(RelationType<?> rAttribute)
-	{
+	public MutableProperties getDisplayProperties(RelationType<?> rAttribute) {
 		StringProperties aDisplayProperties = new StringProperties();
 
 		addProperties(aDisplayProperties, rAttribute.get(DISPLAY_PROPERTIES));
 
-		if (aAttributeDisplayProperties != null)
-		{
-			addProperties(
-				aDisplayProperties,
+		if (aAttributeDisplayProperties != null) {
+			addProperties(aDisplayProperties,
 				aAttributeDisplayProperties.get(rAttribute));
 		}
 
 		return aDisplayProperties;
 	}
 
-	/***************************************
+	/**
 	 * Returns the descriptive entity name.
 	 *
 	 * @return The entity name
 	 */
-	public final String getEntityName()
-	{
+	public final String getEntityName() {
 		return sEntityName;
 	}
 
-	/***************************************
+	/**
 	 * Returns the child attribute for a hierarchy of entities of the same type
 	 * as the entity type described by this definition.
 	 *
 	 * @return The hierarchy child attribute or NULL for none
 	 */
-	public final RelationType<List<Entity>> getHierarchyChildAttribute()
-	{
+	public final RelationType<List<Entity>> getHierarchyChildAttribute() {
 		return rHierarchyChildAttribute;
 	}
 
-	/***************************************
-	 * Returns the relation type of the numeric ID attribute in this definition.
+	/**
+	 * Returns the relation type of the numeric ID attribute in this
+	 * definition.
 	 * The exact datatype depends on the actual ID attribute relation type.
 	 * Typically this will be either {@link Integer} or {@link Long}.
 	 *
-	 * <p>If an entity does not define it's own ID attribute the default ID type
-	 * {@link EntityRelationTypes#ENTITY_ID} will be returned.</p>
+	 * <p>If an entity does not define it's own ID attribute the default ID
+	 * type {@link EntityRelationTypes#ENTITY_ID} will be returned.</p>
 	 *
 	 * @see AbstractStorageMapping#getIdAttribute()
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public RelationType<Number> getIdAttribute()
-	{
+	public RelationType<Number> getIdAttribute() {
 		return (RelationType<Number>) rIdAttribute;
 	}
 
-	/***************************************
+	/**
 	 * Returns the prefix that will be added to global entity IDs.
 	 *
 	 * @return The ID prefix
 	 */
-	public final String getIdPrefix()
-	{
+	public final String getIdPrefix() {
 		return sIdPrefix;
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractStorageMapping#getMappedType()
 	 */
 	@Override
-	public Class<E> getMappedType()
-	{
+	public Class<E> getMappedType() {
 		return rEntityClass;
 	}
 
-	/***************************************
+	/**
 	 * Returns the master attribute if such exists.
 	 *
 	 * @return The master attribute or NULL for none
 	 */
-	public RelationType<? extends Entity> getMasterAttribute()
-	{
+	public RelationType<? extends Entity> getMasterAttribute() {
 		return rMasterAttribute;
 	}
 
-	/***************************************
+	/**
 	 * Returns the relation type of an attribute in this definition that refers
-	 * to the name of an entity. This will either be the attribute with the type
+	 * to the name of an entity. This will either be the attribute with the
+	 * type
 	 * {@link StandardTypes#NAME} or any other string attribute that has the
 	 * meta relation type {@link MetaTypes#OBJECT_NAME_ATTRIBUTE} set.
 	 *
 	 * @return The name attribute of the entity or NULL for none
 	 */
-	public RelationType<String> getNameAttribute()
-	{
+	public RelationType<String> getNameAttribute() {
 		return rNameAttribute;
 	}
 
-	/***************************************
+	/**
 	 * Returns the parent attribute if such exists.
 	 *
 	 * @return The parent attribute or NULL for none
 	 */
-	public RelationType<? extends Entity> getParentAttribute()
-	{
+	public RelationType<? extends Entity> getParentAttribute() {
 		return rParentAttribute;
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractStorageMapping#getParentAttribute(StorageMapping)
 	 */
 	@Override
 	public RelationType<? extends Entity> getParentAttribute(
-		StorageMapping<?, ?, ?> rParentDefinition)
-	{
+		StorageMapping<?, ?, ?> rParentDefinition) {
 		RelationType<? extends Entity> rResult = null;
 
 		if (rParentAttribute != null &&
-			rParentAttribute.get(STORAGE_MAPPING) == rParentDefinition)
-		{
+			rParentAttribute.get(STORAGE_MAPPING) == rParentDefinition) {
 			rResult = rParentAttribute;
-		}
-		else if (rMasterAttribute != null &&
-				 rMasterAttribute.get(STORAGE_MAPPING) == rParentDefinition)
-		{
+		} else if (rMasterAttribute != null &&
+			rMasterAttribute.get(STORAGE_MAPPING) == rParentDefinition) {
 			rResult = rMasterAttribute;
 		}
 
 		return rResult;
 	}
 
-	/***************************************
+	/**
 	 * Returns the root parent attribute if such exists.
 	 *
 	 * @return The root attribute or NULL for none
 	 */
-	public RelationType<? extends Entity> getRootAttribute()
-	{
+	public RelationType<? extends Entity> getRootAttribute() {
 		return rRootAttribute;
 	}
 
-	/***************************************
+	/**
 	 * Returns the hierarchy attribute of this definition that references
 	 * entities of the same type.
 	 *
 	 * @return The attribute or NULL for none
 	 */
-	public RelationType<List<Entity>> getSelfReferenceAttribute()
-	{
+	public RelationType<List<Entity>> getSelfReferenceAttribute() {
 		RelationType<List<Entity>> rAttr = null;
 
-		if (aChildAttributes != null)
-		{
+		if (aChildAttributes != null) {
 			rAttr = aChildAttributes.get(this);
 		}
 
 		return rAttr;
 	}
 
-	/***************************************
-	 * Returns the relation type of an attribute in this definition that defines
+	/**
+	 * Returns the relation type of an attribute in this definition that
+	 * defines
 	 * the type of an entity. If a definition subclass does not define such a
 	 * type attribute with an enum datatype and a meta-relation with the flag
-	 * type {@link MetaTypes#OBJECT_TYPE_ATTRIBUTE} set to TRUE this method will
+	 * type {@link MetaTypes#OBJECT_TYPE_ATTRIBUTE} set to TRUE this method
+	 * will
 	 * return NULL.
 	 *
 	 * @return The type attribute of this definition or NULL for none
 	 */
-	public RelationType<Enum<?>> getTypeAttribute()
-	{
+	public RelationType<Enum<?>> getTypeAttribute() {
 		return rTypeAttribute;
 	}
 
-	/***************************************
+	/**
 	 * Event handler implementation that will be registered as a relation
 	 * listener on entities to perform the modification tracking for entity
 	 * attributes.
@@ -686,20 +614,16 @@ public class EntityDefinition<E extends Entity>
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public void handleEvent(RelationEvent<?> rEvent)
-	{
+	public void handleEvent(RelationEvent<?> rEvent) {
 		Entity rEntity = (Entity) rEvent.getSource();
 
-		if (!rEntity.hasFlag(INITIALIZING))
-		{
+		if (!rEntity.hasFlag(INITIALIZING)) {
 			RelationType<?> rRelationType = rEvent.getElement().getType();
-			Object		    rUpdateValue  = rEvent.getUpdateValue();
+			Object rUpdateValue = rEvent.getUpdateValue();
 
-			if (rRelationType == MODIFIED)
-			{
+			if (rRelationType == MODIFIED) {
 				// can be NULL if relations are copied between objects
-				if (rUpdateValue != null)
-				{
+				if (rUpdateValue != null) {
 					handleEntityModification(rEntity, (Boolean) rUpdateValue);
 				}
 			}
@@ -708,27 +632,25 @@ public class EntityDefinition<E extends Entity>
 			// generation by the database (causing an update event for a newly
 			// persisted entity). Cases where ONLY the ID is set manually on a
 			// persistent object would therefore be excluded from modification
-			// detection and need to be handled explicitly (by setting MODIFIED).
+			// detection and need to be handled explicitly (by setting
+			// MODIFIED).
 			else if (rRelationType != rIdAttribute &&
-					 aAttributes.contains(rRelationType))
-			{
+				aAttributes.contains(rRelationType)) {
 				handleAttributeValueChange(rEvent, rEntity, rUpdateValue);
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractStorageMapping#initChildren(Object, List, StorageMapping)
 	 */
 	@Override
-	public void initChildren(E					 rParent,
-							 List<?>			 rChildren,
-							 EntityDefinition<?> rChildDef)
-	{
+	public void initChildren(E rParent, List<?> rChildren,
+		EntityDefinition<?> rChildDef) {
 		initChildren(rParent, rChildren, rChildDef, true);
 	}
 
-	/***************************************
+	/**
 	 * Initializes the child entities of a parent by setting the parent
 	 * attributes accordingly. This includes the root and master attributes if
 	 * available.
@@ -741,232 +663,192 @@ public class EntityDefinition<E extends Entity>
 	 *                      an existing object hierarchy
 	 */
 	@SuppressWarnings("unchecked")
-	public void initChildren(E					 rParent,
-							 List<?>			 rChildren,
-							 EntityDefinition<?> rChildDef,
-							 boolean			 bInitializing)
-	{
-		if (rParent.getDefinition() != this)
-		{
+	public void initChildren(E rParent, List<?> rChildren,
+		EntityDefinition<?> rChildDef, boolean bInitializing) {
+		if (rParent.getDefinition() != this) {
 			throw new IllegalArgumentException("Wrong parent for children");
 		}
 
-		RelationType<List<Entity>> rChildAttr = aChildAttributes.get(rChildDef);
+		RelationType<List<Entity>> rChildAttr =
+			aChildAttributes.get(rChildDef);
 
 		Class<?> rChildType = rChildAttr.get(ELEMENT_DATATYPE);
-		Entity   rMaster    = null;
-		Entity   rRoot	    = null;
+		Entity rMaster = null;
+		Entity rRoot = null;
 
 		RelationType<E> rChildParentAttr = getChildParentAttribute(rChildDef);
 
 		RelationType<List<Entity>> rChildChildAttr =
 			rChildDef.getSelfReferenceAttribute();
 
-		if (rChildDef.rMasterAttribute != null)
-		{
-			if (this == rChildDef)
-			{
+		if (rChildDef.rMasterAttribute != null) {
+			if (this == rChildDef) {
 				rMaster = rParent.get((RelationType<Entity>) rMasterAttribute);
-			}
-			else
-			{
+			} else {
 				rMaster = rParent;
 			}
 		}
 
-		if (this == rChildDef && rRootAttribute != null)
-		{
+		if (this == rChildDef && rRootAttribute != null) {
 			rRoot = rParent.get((RelationType<Entity>) rRootAttribute);
 
-			if (rRoot == null)
-			{
+			if (rRoot == null) {
 				rRoot = rParent;
 			}
 		}
 
-		for (Object rChild : rChildren)
-		{
+		for (Object rChild : rChildren) {
 			assert rChildType.isAssignableFrom(rChild.getClass());
 
 			Entity rChildEntity = (Entity) rChild;
-			E	   rChildParent = rChildEntity.get(rChildParentAttr);
+			E rChildParent = rChildEntity.get(rChildParentAttr);
 
-			if (rChildParent != null && rChildParent.getId() != rParent.getId())
-			{
+			if (rChildParent != null &&
+				rChildParent.getId() != rParent.getId()) {
 				throw new IllegalArgumentException(
 					"Child already has other parent: " +
-					rChildEntity.get(rChildParentAttr));
+						rChildEntity.get(rChildParentAttr));
 			}
 
-			if (bInitializing)
-			{
+			if (bInitializing) {
 				rChildEntity.set(INITIALIZING);
 			}
 
 			rChildEntity.set(rChildParentAttr, rParent);
-			rChildDef.setHierarchyReferences(
-				rChildEntity,
-				rChildChildAttr,
-				rMaster,
-				rRoot);
+			rChildDef.setHierarchyReferences(rChildEntity, rChildChildAttr,
+				rMaster, rRoot);
 
 			rChildEntity.deleteRelation(INITIALIZING);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Forwarded to {@link EntityManager#isDeletionEnabledFor(Class)}.
 	 *
 	 * @see AbstractStorageMapping#isDeleteAllowed()
 	 */
 	@Override
-	public boolean isDeleteAllowed()
-	{
+	public boolean isDeleteAllowed() {
 		return EntityManager.isDeletionEnabledFor(rEntityClass);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isHierarchyAttribute(RelationType<?> rAttribute)
-	{
+	public boolean isHierarchyAttribute(RelationType<?> rAttribute) {
 		return rAttribute == rParentAttribute || rAttribute == rRootAttribute ||
-			   rAttribute == rMasterAttribute;
+			rAttribute == rMasterAttribute;
 	}
 
-	/***************************************
+	/**
 	 * Overridden to map entity references to entity IDs.
 	 *
 	 * @see AbstractStorageMapping#mapValue(Relatable, Object)
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public Object mapValue(RelationType<?> rAttribute, Object rValue)
-	{
-		if (rValue instanceof Entity)
-		{
+	public Object mapValue(RelationType<?> rAttribute, Object rValue) {
+		if (rValue instanceof Entity) {
 			Entity rReferencedEntity = (Entity) rValue;
 
 			// if value is a specific entity (i.e. with a specific entity
 			// subclass as the attribute type) only the entity ID will be
 			// returned; arbitrary entity references will be mapped to their
 			// global ID
-			if (rAttribute.getTargetType() != Entity.class)
-			{
+			if (rAttribute.getTargetType() != Entity.class) {
 				rValue = rReferencedEntity.getId();
-			}
-			else
-			{
+			} else {
 				rValue = EntityManager.getGlobalEntityId(rReferencedEntity);
 			}
-		}
-		else
-		{
+		} else {
 			rValue = super.mapValue(rAttribute, rValue);
 		}
 
 		return rValue;
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractStorageMapping#setAttributeValue(Object, Relatable, Object)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void setAttributeValue(E				  rEntity,
-								  RelationType<?> rAttribute,
-								  Object		  rValue)
-	{
+	public void setAttributeValue(E rEntity, RelationType<?> rAttribute,
+		Object rValue) {
 		// will throw an exception if the value type is inappropriate
 		rEntity.set((RelationType<Object>) rAttribute, rValue);
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractStorageMapping#setChildren(Object, List, StorageMapping)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void setChildren(E					rParent,
-							List<?>				rChildren,
-							EntityDefinition<?> rChildDef)
-	{
+	public void setChildren(E rParent, List<?> rChildren,
+		EntityDefinition<?> rChildDef) {
 		RelationType<List<Entity>> rChildAttribute =
 			aChildAttributes.get(rChildDef);
 
 		rParent.set(rChildAttribute, (List<Entity>) rChildren);
 	}
 
-	/***************************************
-	 * Overridden to store the referenced entity with {@link
-	 * EntityManager#storeEntity(Entity, Entity)}.
+	/**
+	 * Overridden to store the referenced entity with
+	 * {@link EntityManager#storeEntity(Entity, Entity)}.
 	 *
 	 * @see AbstractStorageMapping#storeReference(Relatable, Object)
 	 */
 	@Override
-	public void storeReference(Relatable rSourceObject, E rReferencedEntity)
-	{
-		try
-		{
-			EntityManager.storeEntity(
-				rReferencedEntity,
+	public void storeReference(Relatable rSourceObject, E rReferencedEntity) {
+		try {
+			EntityManager.storeEntity(rReferencedEntity,
 				rSourceObject.get(ENTITY_STORE_ORIGIN));
-		}
-		catch (TransactionException e)
-		{
+		} catch (TransactionException e) {
 			throw new StorageException(e);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns a string representation of this entity for debugging purpose,
 	 * which includes a list of it's attribute types.
 	 *
 	 * @return The debug string representation of this definition
 	 */
-	public String toDebugString()
-	{
+	public String toDebugString() {
 		return getClass().getSimpleName() + aAttributes +
-			   (aChildAttributes != null ? "," + aChildAttributes.values()
-										 : "");
+			(aChildAttributes != null ? "," + aChildAttributes.values() : "");
 	}
 
-	/***************************************
+	/**
 	 * Returns a string representation of this definition.
 	 *
 	 * @see Object#toString()
 	 */
 	@Override
-	public final String toString()
-	{
+	public final String toString() {
 		return String.format("EntityDefinition[%s]", sEntityName);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance of the entity class. If the entity has a type
 	 * attribute and a subclass that has the same name as the type value in the
 	 * attribute values (converted to camel case) a subclass of that type will
 	 * be created instead.
 	 *
-	 * @param  rAttributeValues The attribute values of the new instance
-	 *
+	 * @param rAttributeValues The attribute values of the new instance
 	 * @return The new entity
 	 */
-	protected E createEntityInstance(List<?> rAttributeValues)
-	{
+	protected E createEntityInstance(List<?> rAttributeValues) {
 		Class<? extends E> rClass = rEntityClass;
 
-		if (aTypeSubClasses != null && rTypeAttribute != null)
-		{
+		if (aTypeSubClasses != null && rTypeAttribute != null) {
 			Object rType =
 				rAttributeValues.get(getAttributeIndex(rTypeAttribute));
 
-			if (rType != null)
-			{
+			if (rType != null) {
 				Class<? extends E> rSubClass = aTypeSubClasses.get(rType);
 
-				if (rSubClass != null)
-				{
+				if (rSubClass != null) {
 					rClass = rSubClass;
 				}
 			}
@@ -975,19 +857,17 @@ public class EntityDefinition<E extends Entity>
 		return ReflectUtil.newInstance(rClass);
 	}
 
-	/***************************************
+	/**
 	 * A method for subclasses to query the index of a particular attribute.
 	 *
-	 * @param  rAttr The attribute relation type
-	 *
+	 * @param rAttr The attribute relation type
 	 * @return The attribute index or -1 if not found
 	 */
-	protected final int getAttributeIndex(RelationType<?> rAttr)
-	{
+	protected final int getAttributeIndex(RelationType<?> rAttr) {
 		return aAttributes.indexOf(rAttr);
 	}
 
-	/***************************************
+	/**
 	 * Internal initialization method that builds the map of attribute relation
 	 * types.
 	 *
@@ -996,35 +876,28 @@ public class EntityDefinition<E extends Entity>
 	 * @param rEntityClass The Entity class to be used for new instances
 	 * @param rAttributes  A list containing the attribute relation types
 	 */
-	protected final void init(String				sEntityName,
-							  String				sIdPrefix,
-							  Class<E>				rEntityClass,
-							  List<RelationType<?>> rAttributes)
-	{
-		this.sEntityName  = sEntityName;
+	protected final void init(String sEntityName, String sIdPrefix,
+		Class<E> rEntityClass, List<RelationType<?>> rAttributes) {
+		this.sEntityName = sEntityName;
 		this.rEntityClass = rEntityClass;
 
 		setIdPrefix(sIdPrefix);
 		aAttributes = new ArrayList<>(rAttributes.size());
 
-		for (RelationType<?> rAttribute : rAttributes)
-		{
+		for (RelationType<?> rAttribute : rAttributes) {
 			// to prevent initialization cycles child attributes will be
 			// added later through a special child definition constructor
-			if (rAttribute.hasFlag(CHILD_ATTRIBUTE))
-			{
+			if (rAttribute.hasFlag(CHILD_ATTRIBUTE)) {
 				addChildAttribute(rAttribute);
-			}
-			else if (!rAttribute.hasFlag(EXTRA_ATTRIBUTE_FLAG))
-			{
+			} else if (!rAttribute.hasFlag(EXTRA_ATTRIBUTE_FLAG)) {
 				detectSpecialAttributes(rAttribute);
 				aAttributes.add(rAttribute);
 			}
 		}
 
-		if (rIdAttribute == null)
-		{
-			// if the entity has no own ID attribute insert ENTITY_ID as default
+		if (rIdAttribute == null) {
+			// if the entity has no own ID attribute insert ENTITY_ID as
+			// default
 			aAttributes.add(0, ENTITY_ID);
 			rIdAttribute = ENTITY_ID;
 		}
@@ -1041,7 +914,7 @@ public class EntityDefinition<E extends Entity>
 		EntityManager.registerEntityType(rEntityClass, this);
 	}
 
-	/***************************************
+	/**
 	 * Initializes an entity reference attribute with an intermediate relation.
 	 *
 	 * @param aEntity        The entity to init the relation on
@@ -1049,84 +922,63 @@ public class EntityDefinition<E extends Entity>
 	 * @param rReferenceId   The referenced entity's ID
 	 */
 	@SuppressWarnings("unchecked")
-	protected void initEntityReference(E					aEntity,
-									   RelationType<Entity> rEntityRefAttr,
-									   Object				rReferenceId)
-	{
+	protected void initEntityReference(E aEntity,
+		RelationType<Entity> rEntityRefAttr, Object rReferenceId) {
 		Class<?> rAttrType = rEntityRefAttr.getTargetType();
 
 		java.util.function.Function<?, Entity> fQueryEntity;
 
-		if (rAttrType == Entity.class)
-		{
+		if (rAttrType == Entity.class) {
 			// fetch arbitrary entities by their global ID
 			fQueryEntity = EntityFunctions.queryEntity();
-		}
-		else
-		{
+		} else {
 			fQueryEntity =
 				EntityFunctions.queryEntity((Class<Entity>) rAttrType);
 		}
 
-		aEntity.set(
-			rEntityRefAttr,
-			(Function<Object, Entity>) fQueryEntity,
+		aEntity.set(rEntityRefAttr, (Function<Object, Entity>) fQueryEntity,
 			rReferenceId);
 	}
 
-	/***************************************
+	/**
 	 * Initializes an attribute that refers to a relation type. If the relation
 	 * type cannot be retrieved by it's name because it hasn't been initialized
 	 * yet an intermediate relation will be created that tries to resolve the
 	 * relation type on the first access.
-	 *
-	 * @param rEntity
-	 * @param rRelationTypeAttr
-	 * @param sTypeName
 	 */
-	protected void initRelationTypeAttribute(
-		E							  rEntity,
-		RelationType<RelationType<?>> rRelationTypeAttr,
-		String						  sTypeName)
-	{
+	protected void initRelationTypeAttribute(E rEntity,
+		RelationType<RelationType<?>> rRelationTypeAttr, String sTypeName) {
 		RelationType<?> rType = RelationType.valueOf(sTypeName);
 
-		if (rType != null)
-		{
+		if (rType != null) {
 			rEntity.set(rRelationTypeAttr, rType);
-		}
-		else
-		{
+		} else {
 			rEntity.set(rRelationTypeAttr, RelationType::valueOf, sTypeName);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Implemented to return the singleton entity definition instance for the
 	 * entity class that has been read by the deserialization. Defined as
 	 * protected and final so that it applies to all subclasses as well.
 	 *
 	 * @return The resolved entity definition instance
-	 *
 	 * @throws ObjectStreamException If no entity definition is available for
 	 *                               the deserialized class
 	 */
-	protected final Object readResolve() throws ObjectStreamException
-	{
+	protected final Object readResolve() throws ObjectStreamException {
 		EntityDefinition<?> rDef =
 			EntityManager.getEntityDefinition(rEntityClass);
 
-		if (rDef == null)
-		{
+		if (rDef == null) {
 			throw new InvalidObjectException(
-				"Undefined entity definition: " +
-				rDef);
+				"Undefined entity definition: " + rDef);
 		}
 
 		return rDef;
 	}
 
-	/***************************************
+	/**
 	 * Detaches child entities from a parent entity. This will set all parent
 	 * references in the child entities to NULL and remove it from the parent's
 	 * child list.
@@ -1135,12 +987,10 @@ public class EntityDefinition<E extends Entity>
 	 * @param rChildAttr The child attribute to remove the child entities from
 	 * @param rChildren  The child entities
 	 */
-	<C extends Entity> void detachChildren(E					 rParent,
-										   RelationType<List<C>> rChildAttr,
-										   List<C>				 rChildren)
-	{
-		Class<?>		    rChildType = rChildAttr.get(ELEMENT_DATATYPE);
-		EntityDefinition<?> rChildDef  =
+	<C extends Entity> void detachChildren(E rParent,
+		RelationType<List<C>> rChildAttr, List<C> rChildren) {
+		Class<?> rChildType = rChildAttr.get(ELEMENT_DATATYPE);
+		EntityDefinition<?> rChildDef =
 			(EntityDefinition<?>) rChildAttr.get(STORAGE_MAPPING);
 
 		RelationType<E> rChildParentAttr = getChildParentAttribute(rChildDef);
@@ -1148,62 +998,50 @@ public class EntityDefinition<E extends Entity>
 		RelationType<List<Entity>> rChildChildAttr =
 			rChildDef.getSelfReferenceAttribute();
 
-		for (C rChild : rChildren)
-		{
+		for (C rChild : rChildren) {
 			assert rChildType.isAssignableFrom(rChild.getClass());
 
 			Entity rChildEntity = rChild;
 
-			if (rChildEntity.get(rChildParentAttr) == null)
-			{
+			if (rChildEntity.get(rChildParentAttr) == null) {
 				throw new IllegalArgumentException(
-					"Child has no parent: " +
-					rChildEntity);
+					"Child has no parent: " + rChildEntity);
 			}
 
 			rChildEntity.set(rChildParentAttr, null);
-			rChildDef.setHierarchyReferences(
-				rChildEntity,
-				rChildChildAttr,
-				null,
-				null);
+			rChildDef.setHierarchyReferences(rChildEntity, rChildChildAttr,
+				null, null);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns the parent object of a certain entity.
 	 *
-	 * @param  rEntity The entity to return the parent of
-	 *
+	 * @param rEntity The entity to return the parent of
 	 * @return The parent entity or NULL for none
 	 */
-	Entity getParent(Entity rEntity)
-	{
+	Entity getParent(Entity rEntity) {
 		Entity rParent = null;
 
-		if (rParentAttribute != null)
-		{
+		if (rParentAttribute != null) {
 			rParent = rEntity.get(rParentAttribute);
 		}
 
-		if (rParent == null && rMasterAttribute != null)
-		{
+		if (rParent == null && rMasterAttribute != null) {
 			rParent = rEntity.get(rMasterAttribute);
 		}
 
 		return rParent;
 	}
 
-	/***************************************
+	/**
 	 * Adds a child attribute to this definition.
 	 *
 	 * @param rAttribute The relation type of the child attribute to add
 	 */
 	@SuppressWarnings("unchecked")
-	private void addChildAttribute(RelationType<?> rAttribute)
-	{
-		if (aChildAttributes == null)
-		{
+	private void addChildAttribute(RelationType<?> rAttribute) {
+		if (aChildAttributes == null) {
 			aChildAttributes = new LinkedHashMap<>();
 		}
 
@@ -1215,104 +1053,85 @@ public class EntityDefinition<E extends Entity>
 
 		StorageMapping<?, ?, ?> rMapping = rAttribute.get(STORAGE_MAPPING);
 
-		if (rMapping == null)
-		{
+		if (rMapping == null) {
 			rAttribute.set(STORAGE_MAPPING, rChildDef);
-		}
-		else if (rMapping != rChildDef)
-		{
-			throw new IllegalStateException(
-				"Duplicate child attribute with " +
+		} else if (rMapping != rChildDef) {
+			throw new IllegalStateException("Duplicate child attribute with " +
 				"different entity definition: " + rAttribute);
 		}
 
-		aChildAttributes.put(
-			rChildDef,
+		aChildAttributes.put(rChildDef,
 			(RelationType<List<Entity>>) rAttribute);
 
-		if (rChildClass == rEntityClass)
-		{
+		if (rChildClass == rEntityClass) {
 			rHierarchyChildAttribute = (RelationType<List<Entity>>) rAttribute;
 		}
 	}
 
-	/***************************************
+	/**
 	 * Helper method to add non-null properties to another properties object.
 	 *
 	 * @param rProperties           The properties to add to
 	 * @param rAdditionalProperties The properties to add
 	 */
-	private void addProperties(
-		MutableProperties rProperties,
-		HasProperties	  rAdditionalProperties)
-	{
-		if (rAdditionalProperties != null)
-		{
+	private void addProperties(MutableProperties rProperties,
+		HasProperties rAdditionalProperties) {
+		if (rAdditionalProperties != null) {
 			rProperties.setProperties(rAdditionalProperties, true);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Checks whether the generation of child count columns in SQL should be
 	 * disabled.
 	 */
-	private void checkDisableChildCounts()
-	{
+	private void checkDisableChildCounts() {
 		Boolean rDisableChildCounts =
-			(Boolean) getStaticFieldValue(
-				rEntityClass,
+			(Boolean) getStaticFieldValue(rEntityClass,
 				DISABLE_SQL_CHILD_COUNT_FIELD);
 
-		if ((rDisableChildCounts != null && rDisableChildCounts.booleanValue()))
-		{
+		if ((rDisableChildCounts != null &&
+			rDisableChildCounts.booleanValue())) {
 			set(JdbcRelationTypes.SQL_DISABLE_CHILD_COUNTS);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Checks that a new parent attribute doesn't exist already and returns the
 	 * new attribute if appropriate.
 	 *
-	 * @param  rCurrentAttribute The current attribute value which must be NULL
-	 *                           or else an exception will be thrown
-	 * @param  rNewAttribute     The new attribute value
-	 *
+	 * @param rCurrentAttribute The current attribute value which must be NULL
+	 *                          or else an exception will be thrown
+	 * @param rNewAttribute     The new attribute value
 	 * @throws IllegalStateException If the current attribute is not NULL
 	 */
 	private void checkParentAttribute(
 		RelationType<? extends Entity> rCurrentAttribute,
-		RelationType<? extends Entity> rNewAttribute)
-	{
-		if (rCurrentAttribute != null && rCurrentAttribute != rNewAttribute)
-		{
+		RelationType<? extends Entity> rNewAttribute) {
+		if (rCurrentAttribute != null && rCurrentAttribute != rNewAttribute) {
 			throw new IllegalStateException(
-				String.format(
-					"Duplicate hierarchy attribute: %s and %s",
-					rCurrentAttribute,
-					rNewAttribute));
+				String.format("Duplicate hierarchy attribute: %s and %s",
+					rCurrentAttribute, rNewAttribute));
 		}
 	}
 
-	/***************************************
+	/**
 	 * Internal method to create a new instance of the described entity from a
 	 * list of attribute values.
 	 *
-	 * @param  rAttributeValues The attribute values
-	 *
+	 * @param rAttributeValues The attribute values
 	 * @return The new entity instance
 	 *
-	 *         <p>@ If retrieving a referenced entity fails</p>
+	 * <p>@ If retrieving a referenced entity fails</p>
 	 */
 	@SuppressWarnings("unchecked")
-	private E createNewEntity(List<?> rAttributeValues)
-	{
-		E   aEntity     = createEntityInstance(rAttributeValues);
+	private E createNewEntity(List<?> rAttributeValues) {
+		E aEntity = createEntityInstance(rAttributeValues);
 		int nValueIndex = 0;
 
 		aEntity.set(INITIALIZING);
 
-		for (RelationType<?> rAttr : aAttributes)
-		{
+		for (RelationType<?> rAttr : aAttributes) {
 			Object rValue = rAttributeValues.get(nValueIndex++);
 
 			// omit parent and master attributes for child objects if parents
@@ -1320,43 +1139,26 @@ public class EntityDefinition<E extends Entity>
 			// the parent from tryToGetFromParent(); the caching test from
 			// createObject() therefore needs to be repeated here
 			if (isHierarchyAttribute(rAttr) &&
-				EntityManager.isCachingEnabledFor(getMappedType()))
-			{
+				EntityManager.isCachingEnabledFor(getMappedType())) {
 				setHierarchyAttributeValue(aEntity, rAttr, rValue);
-			}
-			else if (rValue != null)
-			{
+			} else if (rValue != null) {
 				Class<?> rAttrType = rAttr.getTargetType();
 
-				if (Entity.class.isAssignableFrom(rAttrType))
-				{
-					initEntityReference(
-						aEntity,
-						(RelationType<Entity>) rAttr,
+				if (Entity.class.isAssignableFrom(rAttrType)) {
+					initEntityReference(aEntity, (RelationType<Entity>) rAttr,
 						rValue);
-				}
-				else if (RelationType.class.isAssignableFrom(rAttrType))
-				{
-					initRelationTypeAttribute(
-						aEntity,
+				} else if (RelationType.class.isAssignableFrom(rAttrType)) {
+					initRelationTypeAttribute(aEntity,
 						(RelationType<RelationType<?>>) rAttr,
 						rValue.toString());
-				}
-				else
-				{
-					try
-					{
+				} else {
+					try {
 						rValue = checkAttributeValue(rAttr, rValue);
 						aEntity.set((RelationType<Object>) rAttr, rValue);
-					}
-					catch (IllegalArgumentException e)
-					{
+					} catch (IllegalArgumentException e) {
 						String sMessage =
-							String.format(
-								"Could not map attribute %s.%s: %s",
-								getEntityName(),
-								rAttr,
-								e.getMessage());
+							String.format("Could not map attribute %s.%s: %s",
+								getEntityName(), rAttr, e.getMessage());
 
 						throw new StorageException(sMessage, e);
 					}
@@ -1369,103 +1171,76 @@ public class EntityDefinition<E extends Entity>
 		return aEntity;
 	}
 
-	/***************************************
+	/**
 	 * Assigns the fields containing special attributes if applicable.
 	 *
 	 * @param rAttribute The attribute to check
 	 */
 	@SuppressWarnings("unchecked")
-	private void detectSpecialAttributes(RelationType<?> rAttribute)
-	{
+	private void detectSpecialAttributes(RelationType<?> rAttribute) {
 		Class<?> rTargetType = rAttribute.getTargetType();
 
 		if (rAttribute.hasFlag(OBJECT_ID_ATTRIBUTE) &&
-			Number.class.isAssignableFrom(rAttribute.getTargetType()))
-		{
+			Number.class.isAssignableFrom(rAttribute.getTargetType())) {
 			rIdAttribute = (RelationType<Number>) rAttribute;
-		}
-		else if (rAttribute.hasFlag(OBJECT_TYPE_ATTRIBUTE))
-		{
+		} else if (rAttribute.hasFlag(OBJECT_TYPE_ATTRIBUTE)) {
 			rTypeAttribute = (RelationType<Enum<?>>) rAttribute;
 
 			registerSubTypes();
-		}
-		else if (rAttribute == StandardTypes.NAME ||
-				 rAttribute.hasFlag(OBJECT_NAME_ATTRIBUTE))
-		{
+		} else if (rAttribute == StandardTypes.NAME ||
+			rAttribute.hasFlag(OBJECT_NAME_ATTRIBUTE)) {
 			rNameAttribute = (RelationType<String>) rAttribute;
-		}
-		else if (rAttribute.hasFlag(PARENT_ATTRIBUTE))
-		{
+		} else if (rAttribute.hasFlag(PARENT_ATTRIBUTE)) {
 			initHierarchyAttribute((RelationType<? extends Entity>) rAttribute);
-		}
-		else if (rAttribute.hasFlag(ROOT_ATTRIBUTE))
-		{
-			rRootAttribute =
-				initParentAttribute(
-					rRootAttribute,
-					(RelationType<? extends Entity>) rAttribute);
-		}
-		else if (Entity.class.isAssignableFrom(rTargetType) &&
-				 rTargetType != Entity.class)
-		{
+		} else if (rAttribute.hasFlag(ROOT_ATTRIBUTE)) {
+			rRootAttribute = initParentAttribute(rRootAttribute,
+				(RelationType<? extends Entity>) rAttribute);
+		} else if (Entity.class.isAssignableFrom(rTargetType) &&
+			rTargetType != Entity.class) {
 			initAttributeStorageMapping(rAttribute);
 		}
 
-		if (!rAttribute.hasRelation(STORAGE_DATATYPE))
-		{
+		if (!rAttribute.hasRelation(STORAGE_DATATYPE)) {
 			rAttribute.set(STORAGE_DATATYPE, rAttribute.getTargetType());
 		}
 
-		if (!rAttribute.hasRelation(STORAGE_NAME))
-		{
+		if (!rAttribute.hasRelation(STORAGE_NAME)) {
 			rAttribute.set(STORAGE_NAME, rAttribute.getSimpleName());
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns the attribute relation types of the given entity. First checks
 	 * for a static field with the name {@link #ENTITY_ATTRIBUTES_FIELD}. If
 	 * that doesn't exist it collections all static final fields with the
 	 * datatype {@link RelationType}.
 	 *
-	 * @param  rEntityClass The entity class to query the relation types from
-	 *
+	 * @param rEntityClass The entity class to query the relation types from
 	 * @return The list of attribute relation types
 	 */
-	private List<RelationType<?>> getAttributeTypes(Class<E> rEntityClass)
-	{
+	private List<RelationType<?>> getAttributeTypes(Class<E> rEntityClass) {
 		@SuppressWarnings("unchecked")
 		List<RelationType<?>> rAttributes =
-			(List<RelationType<?>>) getStaticFieldValue(
-				rEntityClass,
+			(List<RelationType<?>>) getStaticFieldValue(rEntityClass,
 				ENTITY_ATTRIBUTES_FIELD);
 
-		if (rAttributes == null)
-		{
+		if (rAttributes == null) {
 			rAttributes =
-				ReflectUtil.collectConstants(
-					rEntityClass,
-					RelationType.class,
-					null,
-					true,
-					true,
-					true);
+				ReflectUtil.collectConstants(rEntityClass, RelationType.class,
+					null, true, true, true);
 		}
 
 		return rAttributes;
 	}
 
-	/***************************************
+	/**
 	 * Returns a child entity with a certain ID from a parent entity.
 	 *
-	 * @param  rParent The parent entity to get the child from
-	 * @param  rId     The child entity's ID
-	 *
+	 * @param rParent The parent entity to get the child from
+	 * @param rId     The child entity's ID
 	 * @return The corresponding child entity or NULL if none could be found
 	 */
-	private E getChild(Entity rParent, Number rId)
-	{
+	private E getChild(Entity rParent, Number rId) {
 		@SuppressWarnings("unchecked")
 		EntityDefinition<Entity> rParentDef =
 			(EntityDefinition<Entity>) rParent.getDefinition();
@@ -1474,10 +1249,8 @@ public class EntityDefinition<E extends Entity>
 		Collection<E> rChildren =
 			(Collection<E>) rParentDef.getChildren(rParent, this);
 
-		for (E rChild : rChildren)
-		{
-			if (rId.equals(rChild.get(rIdAttribute)))
-			{
+		for (E rChild : rChildren) {
+			if (rId.equals(rChild.get(rIdAttribute))) {
 				return rChild;
 			}
 		}
@@ -1485,59 +1258,52 @@ public class EntityDefinition<E extends Entity>
 		return null;
 	}
 
-	/***************************************
+	/**
 	 * Returns the parent attribute of a child definition that refers to
 	 * entities of this definition.
 	 *
-	 * @param  rChildDef The child definition
-	 *
+	 * @param rChildDef The child definition
 	 * @return The parent attribute
-	 *
-	 * @throws IllegalArgumentException If there is no parent reference for this
+	 * @throws IllegalArgumentException If there is no parent reference for
+	 * this
 	 *                                  definition in the child definition
 	 */
 	private RelationType<E> getChildParentAttribute(
-		EntityDefinition<?> rChildDef)
-	{
+		EntityDefinition<?> rChildDef) {
 		@SuppressWarnings("unchecked")
 		RelationType<E> rChildParentAttr =
 			(RelationType<E>) rChildDef.getParentAttribute(this);
 
-		if (rChildParentAttr == null)
-		{
+		if (rChildParentAttr == null) {
 			throw new IllegalArgumentException(
-				String.format(
-					"No parent attribute in %s for %s",
-					rChildDef,
+				String.format("No parent attribute in %s for %s", rChildDef,
 					this));
 		}
 
 		return rChildParentAttr;
 	}
 
-	/***************************************
+	/**
 	 * Returns the storage name for this definition. This method first tries to
 	 * access the field with the name {@link #STORAGE_NAME_FIELD}. If that
 	 * doesn't exist the storage name will be generated from the entity name.
 	 *
 	 * @return The storage name
 	 */
-	private String getStorageName()
-	{
+	private String getStorageName() {
 		String sStorageName =
 			(String) getStaticFieldValue(rEntityClass, STORAGE_NAME_FIELD);
 
-		if (sStorageName == null)
-		{
-			sStorageName =
-				EntityManager.isUsePluralStorageNames()
-				? TextConvert.toPlural(sEntityName) : sEntityName;
+		if (sStorageName == null) {
+			sStorageName = EntityManager.isUsePluralStorageNames() ?
+			               TextConvert.toPlural(sEntityName) :
+			               sEntityName;
 		}
 
 		return sStorageName;
 	}
 
-	/***************************************
+	/**
 	 * Handles the change of an attribute value.
 	 *
 	 * @param rEvent       The relation event that occurred
@@ -1545,17 +1311,14 @@ public class EntityDefinition<E extends Entity>
 	 * @param rUpdateValue The new attribute value
 	 */
 	private void handleAttributeValueChange(RelationEvent<?> rEvent,
-											Entity			 rEntity,
-											Object			 rUpdateValue)
-	{
-		EventType   eEventType = rEvent.getType();
-		Relation<?> rRelation  = rEvent.getElement();
-		Object	    rPrevValue = rRelation.getTarget();
-		Object	    rNewValue  = rUpdateValue;
+		Entity rEntity, Object rUpdateValue) {
+		EventType eEventType = rEvent.getType();
+		Relation<?> rRelation = rEvent.getElement();
+		Object rPrevValue = rRelation.getTarget();
+		Object rNewValue = rUpdateValue;
 
-		if (eEventType == EventType.ADD)
-		{
-			rNewValue  = rPrevValue;
+		if (eEventType == EventType.ADD) {
+			rNewValue = rPrevValue;
 			rPrevValue = null;
 		}
 
@@ -1564,43 +1327,36 @@ public class EntityDefinition<E extends Entity>
 		// only store previous value on first change to remember
 		// the persistent state, not intermediate changes; upon store
 		// the PREVIOUS_VALUE relation will be removed
-		if (bModified && !rRelation.hasAnnotation(PREVIOUS_VALUE))
-		{
+		if (bModified && !rRelation.hasAnnotation(PREVIOUS_VALUE)) {
 			rRelation.annotate(PREVIOUS_VALUE, rPrevValue);
 		}
 
 		if ((bModified || eEventType != EventType.UPDATE) &&
-			!rEntity.isModified())
-		{
+			!rEntity.isModified()) {
 			// this will invoke the MODIFIED branch of handleEvent
 			rEntity.set(MODIFIED);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Performs the state changes necessary if an entity's modified state is
 	 * toggled.
 	 *
 	 * @param rEntity   The entity
 	 * @param bModified The new modified state
 	 */
-	private void handleEntityModification(Entity rEntity, boolean bModified)
-	{
-		if (bModified)
-		{
+	private void handleEntityModification(Entity rEntity, boolean bModified) {
+		if (bModified) {
 			EntityManager.beginEntityModification(rEntity);
 
 			Entity rParent = rEntity.getParent();
 
-			if (rParent != null)
-			{
+			if (rParent != null) {
 				// also recursively mark the parent hierarchy as modified to
 				// ensure evaluation of the parents on store
 				rParent.set(MODIFIED);
 			}
-		}
-		else
-		{
+		} else {
 			EntityManager.endEntityModification(rEntity);
 
 			// reset all PREVIOUS_VALUE and REMOVED_CHILDREN annotations if the
@@ -1609,17 +1365,16 @@ public class EntityDefinition<E extends Entity>
 		}
 	}
 
-	/***************************************
-	 * Initializes the storage mapping for a certain entity reference attribute.
+	/**
+	 * Initializes the storage mapping for a certain entity reference
+	 * attribute.
 	 *
 	 * @param rAttribute The attribute relation type
 	 */
-	private void initAttributeStorageMapping(RelationType<?> rAttribute)
-	{
+	private void initAttributeStorageMapping(RelationType<?> rAttribute) {
 		// set entity mapping if not an arbitrary
 		// entity reference
-		if (rAttribute.get(STORAGE_MAPPING) == null)
-		{
+		if (rAttribute.get(STORAGE_MAPPING) == null) {
 			StorageMapping<?, ?, ?> rMapping =
 				StorageManager.getMapping(rAttribute.getTargetType());
 
@@ -1628,32 +1383,26 @@ public class EntityDefinition<E extends Entity>
 			rAttribute.set(STORAGE_MAPPING, rMapping);
 
 			// only set to TRUE if not explicitly set to FALSE
-			if (!rAttribute.hasRelation(REFERENCE_ATTRIBUTE))
-			{
+			if (!rAttribute.hasRelation(REFERENCE_ATTRIBUTE)) {
 				rAttribute.set(REFERENCE_ATTRIBUTE);
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Initializes the lists of display attributes.
 	 */
-	private void initDisplayAttributes()
-	{
-		for (DisplayMode rDisplayMode : DisplayMode.values())
-		{
+	private void initDisplayAttributes() {
+		for (DisplayMode rDisplayMode : DisplayMode.values()) {
 			RelationType<?>[] rModeAttributes =
-				(RelationType<?>[]) getStaticFieldValue(
-					rEntityClass,
+				(RelationType<?>[]) getStaticFieldValue(rEntityClass,
 					DISPLAY_ATTRIBUTES_FIELD_PREFIX + rDisplayMode);
 
-			if (rModeAttributes != null)
-			{
+			if (rModeAttributes != null) {
 				assert rModeAttributes.length > 0;
 
-				List<RelationType<?>> rAttrList =
-					Collections.unmodifiableList(
-						Arrays.asList(rModeAttributes));
+				List<RelationType<?>> rAttrList = Collections.unmodifiableList(
+					Arrays.asList(rModeAttributes));
 
 				aDisplayAttributes.put(rDisplayMode, rAttrList);
 			}
@@ -1665,14 +1414,12 @@ public class EntityDefinition<E extends Entity>
 		setDisplayAttributes(DisplayMode.COMPACT, rIdAttribute, NAME, INFO);
 		setDisplayAttributes(DisplayMode.HIERARCHICAL, aAttributes);
 
-		if (!aDisplayAttributes.containsKey(DisplayMode.FULL))
-		{
+		if (!aDisplayAttributes.containsKey(DisplayMode.FULL)) {
 			List<RelationType<?>> aSimpleAttributes = new ArrayList<>();
 
-			for (RelationType<?> rAttribute : aAttributes)
-			{
-				if (!Entity.class.isAssignableFrom(rAttribute.getTargetType()))
-				{
+			for (RelationType<?> rAttribute : aAttributes) {
+				if (!Entity.class.isAssignableFrom(
+					rAttribute.getTargetType())) {
 					aSimpleAttributes.add(rAttribute);
 				}
 			}
@@ -1681,57 +1428,47 @@ public class EntityDefinition<E extends Entity>
 		}
 	}
 
-	/***************************************
+	/**
 	 * Internal method to initialize the parent attribute for either a
 	 * parent-child or a master-detail relationship.
 	 *
 	 * @param rAttribute The attribute relation type
 	 */
 	private void initHierarchyAttribute(
-		RelationType<? extends Entity> rAttribute)
-	{
-		if (rAttribute.getTargetType() == rEntityClass)
-		{
+		RelationType<? extends Entity> rAttribute) {
+		if (rAttribute.getTargetType() == rEntityClass) {
 			rParentAttribute =
 				initParentAttribute(rParentAttribute, rAttribute);
-		}
-		else
-		{
+		} else {
 			@SuppressWarnings("unchecked")
 			Class<? extends Entity> rMasterClass =
 				(Class<? extends Entity>) rAttribute.getTargetType();
 
 			checkParentAttribute(rMasterAttribute, rAttribute);
 
-			if (rMasterAttribute == null)
-			{
+			if (rMasterAttribute == null) {
 				// update only if not set already
 				rMasterAttribute = rAttribute;
-				rMasterAttribute.set(
-					STORAGE_MAPPING,
+				rMasterAttribute.set(STORAGE_MAPPING,
 					EntityManager.getEntityDefinition(rMasterClass));
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Initializes a parent attribute for this definition. Such attributes are
 	 * identified by one of the flags {@link MetaTypes#PARENT_ATTRIBUTE} or
 	 * {@link EntityRelationTypes#ROOT_ATTRIBUTE}.
 	 *
-	 * @param  rParentAttr The current value of the parent attribute to init
-	 * @param  rNewAttr    The new attribute value
-	 *
-	 * @return
+	 * @param rParentAttr The current value of the parent attribute to init
+	 * @param rNewAttr    The new attribute value
 	 */
 	private RelationType<? extends Entity> initParentAttribute(
 		RelationType<? extends Entity> rParentAttr,
-		RelationType<? extends Entity> rNewAttr)
-	{
+		RelationType<? extends Entity> rNewAttr) {
 		checkParentAttribute(rParentAttr, rNewAttr);
 
-		if (rParentAttr == null)
-		{
+		if (rParentAttr == null) {
 			// update only if not set already
 			rParentAttr = rNewAttr;
 			rParentAttr.set(STORAGE_MAPPING, this);
@@ -1740,79 +1477,66 @@ public class EntityDefinition<E extends Entity>
 		return rParentAttr;
 	}
 
-	/***************************************
-	 * Registers this definition also for sub-classes of this definitions entity
+	/**
+	 * Registers this definition also for sub-classes of this definitions
+	 * entity
 	 * type if they are marked as sub-types without separate definition.
 	 */
-	private void registerSubTypes()
-	{
+	private void registerSubTypes() {
 		Enum<?>[] rEntityTypes =
 			(Enum<?>[]) rTypeAttribute.getTargetType().getEnumConstants();
 
-		for (Enum<?> eType : rEntityTypes)
-		{
-			String sSubTypeClass =
-				rEntityClass.getPackage().getName() + "." +
+		for (Enum<?> eType : rEntityTypes) {
+			String sSubTypeClass = rEntityClass.getPackage().getName() + "." +
 				TextConvert.capitalizedIdentifier(eType.toString());
 
-			try
-			{
+			try {
 				@SuppressWarnings("unchecked")
 				Class<? extends E> rTypeClass =
 					(Class<? extends E>) Class.forName(sSubTypeClass);
 
-				if (rEntityClass.isAssignableFrom(rTypeClass))
-				{
-					if (aTypeSubClasses == null)
-					{
+				if (rEntityClass.isAssignableFrom(rTypeClass)) {
+					if (aTypeSubClasses == null) {
 						aTypeSubClasses = new HashMap<>();
-						aSubClassTypes  = new HashMap<>();
+						aSubClassTypes = new HashMap<>();
 					}
 
 					EntityManager.registerEntitySubType(rTypeClass, this);
 					aTypeSubClasses.put(eType.toString(), rTypeClass);
 					aSubClassTypes.put(rTypeClass, eType);
 				}
-			}
-			catch (ClassNotFoundException e)
-			{
+			} catch (ClassNotFoundException e) {
 				// ignore non-existing sub-type and use the base class
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Remove all previous value annotations from the attribute relations.
 	 *
 	 * @param rEntity The target entity
 	 */
-	private void removePreviousValues(Entity rEntity)
-	{
-		for (RelationType<?> rAttr : aAttributes)
-		{
+	private void removePreviousValues(Entity rEntity) {
+		for (RelationType<?> rAttr : aAttributes) {
 			Relation<?> rRelation = rEntity.getRelation(rAttr);
 
-			if (rRelation != null)
-			{
+			if (rRelation != null) {
 				rRelation.deleteRelation(PREVIOUS_VALUE);
 			}
 		}
 
-		if (aChildAttributes != null)
-		{
-			for (RelationType<?> rChildAttr : aChildAttributes.values())
-			{
+		if (aChildAttributes != null) {
+			for (RelationType<?> rChildAttr : aChildAttributes.values()) {
 				Relation<?> rChildRelation = getRelation(rChildAttr);
 
-				if (rChildRelation != null)
-				{
+				if (rChildRelation != null) {
 					rChildRelation.deleteRelation(REMOVED_CHILDREN);
 				}
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Registers a set of entity attributes for a certain display mode. This
 	 * method should be invoked by subclasses to set the attributes that they
 	 * want to be displayed in a certain mode. The initialization code sets the
@@ -1823,40 +1547,34 @@ public class EntityDefinition<E extends Entity>
 	 * provides a convenient way to register specific attribute types. See
 	 * {@link #setDisplayAttributes(DisplayMode, RelationType...)}.</p>
 	 *
-	 * @param rDisplayMode       The display mode to register the attributes for
-	 * @param rDisplayAttributes A collection of the attribute relation types to
+	 * @param rDisplayMode       The display mode to register the attributes
+	 *                           for
+	 * @param rDisplayAttributes A collection of the attribute relation
+	 *                              types to
 	 *                           display in the given mode
 	 */
-	private void setDisplayAttributes(
-		DisplayMode			  rDisplayMode,
-		List<RelationType<?>> rDisplayAttributes)
-	{
-		if (!aDisplayAttributes.containsKey(rDisplayMode))
-		{
+	private void setDisplayAttributes(DisplayMode rDisplayMode,
+		List<RelationType<?>> rDisplayAttributes) {
+		if (!aDisplayAttributes.containsKey(rDisplayMode)) {
 			assert rDisplayAttributes != null && !rDisplayAttributes.isEmpty();
 
 			aDisplayAttributes.put(rDisplayMode, rDisplayAttributes);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the display attributes for a certain display mode.
 	 *
 	 * @see #setDisplayAttributes(DisplayMode, List)
 	 */
-	private void setDisplayAttributes(
-		DisplayMode		   rDisplayMode,
-		RelationType<?>... rDisplayAttributes)
-	{
-		if (!aDisplayAttributes.containsKey(rDisplayMode))
-		{
+	private void setDisplayAttributes(DisplayMode rDisplayMode,
+		RelationType<?>... rDisplayAttributes) {
+		if (!aDisplayAttributes.containsKey(rDisplayMode)) {
 			List<RelationType<?>> aAttributeList =
 				new ArrayList<>(Arrays.asList(rDisplayAttributes));
 
-			for (RelationType<?> rAttribute : rDisplayAttributes)
-			{
-				if (!aAttributes.contains(rAttribute))
-				{
+			for (RelationType<?> rAttribute : rDisplayAttributes) {
+				if (!aAttributes.contains(rAttribute)) {
 					aAttributeList.remove(rAttribute);
 				}
 			}
@@ -1865,35 +1583,31 @@ public class EntityDefinition<E extends Entity>
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the value of a hierarchy attribute if it is a valid {@link Number}.
 	 *
 	 * @param aEntity The target entity
 	 * @param rAttr   The hierarchy attribute
 	 * @param rValue  The attribute value
 	 */
-	private void setHierarchyAttributeValue(E				aEntity,
-											RelationType<?> rAttr,
-											Object			rValue)
-	{
-		if (rValue != null)
-		{
+	private void setHierarchyAttributeValue(E aEntity, RelationType<?> rAttr,
+		Object rValue) {
+		if (rValue != null) {
 			Number rId = (Number) rValue;
 
-			if (rAttr == rMasterAttribute)
-			{
+			if (rAttr == rMasterAttribute) {
 				aEntity.set(MASTER_ENTITY_ID, rId.longValue());
-			}
-			else if (rAttr == rParentAttribute)
-			{
+			} else if (rAttr == rParentAttribute) {
 				aEntity.set(PARENT_ENTITY_ID, rId.longValue());
 			}
 		}
 	}
 
-	/***************************************
-	 * Sets the master and root entities recursively on an entity hierarchy. The
-	 * master attribute will always be set, the root attribute only if it is not
+	/**
+	 * Sets the master and root entities recursively on an entity hierarchy.
+	 * The
+	 * master attribute will always be set, the root attribute only if it is
+	 * not
 	 * NULL.
 	 *
 	 * @param rEntity         The starting entity of the hierarchy
@@ -1903,119 +1617,98 @@ public class EntityDefinition<E extends Entity>
 	 * @param rRoot           The new root entity (NULL to ignore)
 	 */
 	@SuppressWarnings("unchecked")
-	private void setHierarchyReferences(
-		Entity					   rEntity,
-		RelationType<List<Entity>> rChildAttribute,
-		Entity					   rMaster,
-		Entity					   rRoot)
-	{
-		if (rMasterAttribute != null)
-		{
+	private void setHierarchyReferences(Entity rEntity,
+		RelationType<List<Entity>> rChildAttribute, Entity rMaster,
+		Entity rRoot) {
+		if (rMasterAttribute != null) {
 			rEntity.set((RelationType<Entity>) rMasterAttribute, rMaster);
 		}
 
-		if (rRootAttribute != null)
-		{
+		if (rRootAttribute != null) {
 			rEntity.set((RelationType<Entity>) rRootAttribute, rRoot);
 
 			// the (first) root may be set to NULL if hierarchy levels change
 			// but then subsequent levels need to reference the current entity
 			// as their root
-			if (rRoot == null)
-			{
+			if (rRoot == null) {
 				rRoot = rEntity;
 			}
 		}
 
-		if (rChildAttribute != null)
-		{
+		if (rChildAttribute != null) {
 			List<Entity> rChildren = rEntity.get(rChildAttribute);
 
-			// prevent unnecessary querying of child lists during initialization
+			// prevent unnecessary querying of child lists during
+			// initialization
 			if (!(rEntity.hasFlag(INITIALIZING) &&
-				  rChildren instanceof QueryList))
-			{
-				for (Entity rChild : rChildren)
-				{
-					setHierarchyReferences(
-						rChild,
-						rChildAttribute,
-						rMaster,
+				rChildren instanceof QueryList)) {
+				for (Entity rChild : rChildren) {
+					setHierarchyReferences(rChild, rChildAttribute, rMaster,
 						rRoot);
 				}
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the ID prefix and generates it if necessary.
 	 *
 	 * @param sPrefix The prefix to set or NULL to query it from the field
 	 *                {@link #ID_PREFIX_FIELD} or to generate it
 	 */
-	private void setIdPrefix(String sPrefix)
-	{
-		if (sPrefix == null)
-		{
+	private void setIdPrefix(String sPrefix) {
+		if (sPrefix == null) {
 			sPrefix =
 				(String) getStaticFieldValue(rEntityClass, ID_PREFIX_FIELD);
 
-			if (sPrefix == null)
-			{
+			if (sPrefix == null) {
 				// default value: the upper case letters of the class name
-				sPrefix =
-					rEntityClass.getSimpleName()
-								.replaceAll("\\p{javaLowerCase}*", "");
+				sPrefix = rEntityClass
+					.getSimpleName()
+					.replaceAll("\\p{javaLowerCase}*", "");
 			}
 		}
 
 		sIdPrefix = sPrefix;
 	}
 
-	/***************************************
+	/**
 	 * Internal method to check whether a list of attributes contains a
 	 * reference to a parent entity and to return the corresponding parent
 	 * entity if possible.
 	 *
-	 * @param  rAttributeValues The list of attribute values to check
-	 *
+	 * @param rAttributeValues The list of attribute values to check
 	 * @return The parent entity or NULL for none
 	 *
-	 *         <p>@ If retrieving the parent entity fails</p>
+	 * <p>@ If retrieving the parent entity fails</p>
 	 */
-	private E tryToGetFromParent(List<?> rAttributeValues)
-	{
+	private E tryToGetFromParent(List<?> rAttributeValues) {
 		RelationType<?> rParentAttr = null;
-		Entity		    rParent     = null;
-		Number		    rParentId   = null;
-		E			    rEntity     = null;
+		Entity rParent = null;
+		Number rParentId = null;
+		E rEntity = null;
 
-		if (rParentAttribute != null)
-		{
+		if (rParentAttribute != null) {
 			int nParentIdIndex = aAttributes.indexOf(rParentAttribute);
 
 			rParentId = (Number) rAttributeValues.get(nParentIdIndex);
 
-			if (rParentId != null)
-			{
+			if (rParentId != null) {
 				rParentAttr = rParentAttribute;
 			}
 		}
 
-		if (rParentAttr == null && rMasterAttribute != null)
-		{
+		if (rParentAttr == null && rMasterAttribute != null) {
 			int nParentIdIndex = aAttributes.indexOf(rMasterAttribute);
 
 			rParentId = (Number) rAttributeValues.get(nParentIdIndex);
 
-			if (rParentId != null)
-			{
+			if (rParentId != null) {
 				rParentAttr = rMasterAttribute;
 			}
 		}
 
-		if (rParentAttr != null)
-		{
+		if (rParentAttr != null) {
 			@SuppressWarnings("unchecked")
 			Class<Entity> rParentClass =
 				(Class<Entity>) rParentAttr.getTargetType();
@@ -2023,10 +1716,9 @@ public class EntityDefinition<E extends Entity>
 			rParent =
 				EntityManager.queryEntity(rParentClass, rParentId.intValue());
 
-			if (rParent != null)
-			{
-				int    nIdIndex = aAttributes.indexOf(rIdAttribute);
-				Number rId	    = (Number) rAttributeValues.get(nIdIndex);
+			if (rParent != null) {
+				int nIdIndex = aAttributes.indexOf(rIdAttribute);
+				Number rId = (Number) rAttributeValues.get(nIdIndex);
 
 				rEntity = getChild(rParent, rId);
 			}

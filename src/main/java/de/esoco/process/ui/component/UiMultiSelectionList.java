@@ -26,8 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A list component that allows the selection of multiple values. The datatype
  * of of the list values can be defined on creation. Typically string and enum
  * values are supported.
@@ -35,64 +34,51 @@ import java.util.List;
  * @author eso
  */
 public class UiMultiSelectionList<T>
-	extends UiListControl<List<T>, UiMultiSelectionList<T>>
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiListControl<List<T>, UiMultiSelectionList<T>> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent      The parent container
 	 * @param rElementType The datatype of the list elements
 	 */
-	public UiMultiSelectionList(UiContainer<?> rParent, Class<T> rElementType)
-	{
-		super(
-			rParent,
-			rParent.fragment().getTemporaryListType(rElementType),
+	public UiMultiSelectionList(UiContainer<?> rParent,
+		Class<T> rElementType) {
+		super(rParent, rParent.fragment().getTemporaryListType(rElementType),
 			ListStyle.LIST);
 
-		if (rElementType.isEnum())
-		{
+		if (rElementType.isEnum()) {
 			resid(rElementType.getSimpleName());
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the collection of values that is displayed in this list.
 	 *
 	 * @return The list values
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<T> getListValues()
-	{
+	public Collection<T> getListValues() {
 		return (Collection<T>) fragment().getAllowedValues(type());
 	}
 
-	/***************************************
+	/**
 	 * Sets the values to be displayed in this list.
 	 *
 	 * @param rValues The list values
 	 */
 	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues)
-	{
+	public void setListValues(T... rValues) {
 		setListValues(Arrays.asList(rValues));
 	}
 
-	/***************************************
+	/**
 	 * Sets a collection of values to be displayed in this list.
 	 *
 	 * @param rValues The list values
 	 */
-	public void setListValues(Collection<T> rValues)
-	{
-		fragment().annotateParameter(
-			type(),
-			null,
-			ProcessRelationTypes.ALLOWED_VALUES,
-			rValues);
+	public void setListValues(Collection<T> rValues) {
+		fragment().annotateParameter(type(), null,
+			ProcessRelationTypes.ALLOWED_VALUES, rValues);
 	}
 }

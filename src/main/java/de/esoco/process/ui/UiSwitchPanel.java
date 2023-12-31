@@ -27,8 +27,7 @@ import java.util.function.Function;
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
-
-/********************************************************************
+/**
  * A panel that contains multiple children of which only one is visible at a
  * time. The visible component can then be selected through the methods of the
  * implemented {@link SingleSelection} interface.
@@ -36,109 +35,93 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
  * @author eso
  */
 public class UiSwitchPanel<P extends UiSwitchPanel<P>>
-	extends UiLayoutContainer<P> implements SingleSelection
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiLayoutContainer<P> implements SingleSelection {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 * @param rLayout The panel layout
 	 */
-	public UiSwitchPanel(UiContainer<?> rParent, UiLayout rLayout)
-	{
+	public UiSwitchPanel(UiContainer<?> rParent, UiLayout rLayout) {
 		super(rParent, rLayout);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Adds a panel with a particular layout as a new page of this switch panel.
+	/**
+	 * Adds a panel with a particular layout as a new page of this switch
+	 * panel.
 	 *
-	 * @param  sTitle  The page title
-	 * @param  eLayout The panel layout
-	 *
+	 * @param sTitle  The page title
+	 * @param eLayout The panel layout
 	 * @return The page panel to allow further invocations
 	 */
-	public UiLayoutPanel addPage(String sTitle, UiLayout eLayout)
-	{
+	public UiLayoutPanel addPage(String sTitle, UiLayout eLayout) {
 		return addPage(sTitle, c -> c.builder().addPanel(eLayout));
 	}
 
-	/***************************************
+	/**
 	 * Adds a component that is created by a factory function as a new page of
 	 * this switch panel. The component must be a child of this container or
 	 * else an exception will be thrown.
 	 *
-	 * @param  sTitle  The page title
-	 * @param  fCreate A factory function that receives this panel as it's input
-	 *                 and returns a child component for the new page
-	 *
+	 * @param sTitle  The page title
+	 * @param fCreate A factory function that receives this panel as it's input
+	 *                and returns a child component for the new page
 	 * @return The page component to allow further invocations
-	 *
 	 * @throws IllegalArgumentException If the given component has a different
 	 *                                  parent than this container
 	 */
-	public <T, V extends UiComponent<T, V>> V addPage(
-		String								  sTitle,
-		Function<UiContainer<?>, ? extends V> fCreate)
-	{
+	public <T, V extends UiComponent<T, V>> V addPage(String sTitle,
+		Function<UiContainer<?>, ? extends V> fCreate) {
 		V rPageComponent = fCreate.apply(this).set(LABEL, sTitle);
 
-		assert rPageComponent.getParent() == this : String.format(
-			"Component %s has other parent: ",
-			rPageComponent,
-			rPageComponent.getParent());
+		assert rPageComponent.getParent() == this :
+			String.format("Component %s has other parent: ", rPageComponent,
+				rPageComponent.getParent());
 
 		return rPageComponent;
 	}
 
-	/***************************************
+	/**
 	 * Returns the component of the currently selected (visible) page.
 	 *
 	 * @return The selected component
 	 */
-	public UiComponent<?, ?> getSelection()
-	{
+	public UiComponent<?, ?> getSelection() {
 		return getComponents().get(getSelectionIndex());
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getSelectionIndex()
-	{
+	public int getSelectionIndex() {
 		Integer rSelectionIndex = get(CURRENT_SELECTION);
 
 		return rSelectionIndex != null ? rSelectionIndex.intValue() : 0;
 	}
 
-	/***************************************
+	/**
 	 * Sets the event handler for selection events of this panel. The event
-	 * handler will receive this panel as it's argument so that it can query the
+	 * handler will receive this panel as it's argument so that it can query
+	 * the
 	 * current selection index or the selected page component.
 	 *
-	 * @param  rEventHandler The event handler
-	 *
+	 * @param rEventHandler The event handler
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onSelection(Consumer<P> rEventHandler)
-	{
-		return setParameterEventHandler(
-			InteractionEventType.UPDATE,
+	public final P onSelection(Consumer<P> rEventHandler) {
+		return setParameterEventHandler(InteractionEventType.UPDATE,
 			v -> rEventHandler.accept((P) this));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public void setSelection(int nIndex)
-	{
+	public void setSelection(int nIndex) {
 		set(CURRENT_SELECTION, nIndex);
 	}
 }

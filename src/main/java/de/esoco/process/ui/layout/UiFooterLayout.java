@@ -20,21 +20,17 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A layout for footer elements.
  *
  * @author eso
  */
-public class UiFooterLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiFooterLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiFooterLayout()
-	{
+	public UiFooterLayout() {
 		super(LayoutType.FOOTER);
 	}
 }

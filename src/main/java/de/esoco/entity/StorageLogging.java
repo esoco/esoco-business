@@ -28,38 +28,30 @@ import de.esoco.storage.StorageManager;
 import java.util.Collection;
 import java.util.Date;
 
-
-/********************************************************************
+/**
  * A logging implementation that stores log records as {@link LogEntry} entities
  * in a database. It requires no additional configuration relations.
  *
  * @author eso
  */
-public class StorageLogging extends BusinessLogAspect<LogEntry>
-{
-	//~ Methods ----------------------------------------------------------------
+public class StorageLogging extends BusinessLogAspect<LogEntry> {
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected LogEntry createLogObject(LogRecord rLogRecord)
-	{
+	protected LogEntry createLogObject(LogRecord rLogRecord) {
 		LogLevel eLogLevel = rLogRecord.getLevel();
 		LogEntry aLogEntry = null;
 
 		String sMessage = rLogRecord.getMessage();
 
-		if (eLogLevel.compareTo(get(MIN_STACK_LOG_LEVEL)) >= 0)
-		{
+		if (eLogLevel.compareTo(get(MIN_STACK_LOG_LEVEL)) >= 0) {
 			Throwable eCause = rLogRecord.getCause();
 
-			if (eCause != null)
-			{
-				sMessage +=
-					String.format(" [%s]\n--------------\n%s",
-								  eCause,
-								  Log.CAUSE_TRACE.evaluate(rLogRecord));
+			if (eCause != null) {
+				sMessage += String.format(" [%s]\n--------------\n%s", eCause,
+					Log.CAUSE_TRACE.evaluate(rLogRecord));
 			}
 		}
 
@@ -72,31 +64,24 @@ public class StorageLogging extends BusinessLogAspect<LogEntry>
 		return aLogEntry;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void processLogObjects(Collection<LogEntry> rLogEntries)
-		throws StorageException
-	{
+		throws StorageException {
 		Storage rStorage = StorageManager.newStorage(LogEntry.class);
 
-		try
-		{
-			for (LogEntry rLogEntry : rLogEntries)
-			{
+		try {
+			for (LogEntry rLogEntry : rLogEntries) {
 				rStorage.store(rLogEntry);
 			}
 
 			rStorage.commit();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			rStorage.rollback();
 			throw e;
-		}
-		finally
-		{
+		} finally {
 			rStorage.release();
 		}
 	}

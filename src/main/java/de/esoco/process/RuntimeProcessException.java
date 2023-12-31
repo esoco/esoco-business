@@ -16,54 +16,46 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-/********************************************************************
- * A variant of {@link ProcessException} that is derived from {@link
- * RuntimeException} so that it can be thrown from contexts that don't declare
- * exceptions.
+/**
+ * A variant of {@link ProcessException} that is derived from
+ * {@link RuntimeException} so that it can be thrown from contexts that don't
+ * declare exceptions.
  *
  * @author eso
  */
-public class RuntimeProcessException extends ProcessException
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class RuntimeProcessException extends ProcessException {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rStep    The step in which the exception occurred
 	 * @param sMessage The error message
 	 */
-	public RuntimeProcessException(ProcessFragment rStep, String sMessage)
-	{
+	public RuntimeProcessException(ProcessFragment rStep, String sMessage) {
 		this(rStep, sMessage, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rStep  The step in which the exception occurred
 	 * @param aCause The causing exception (may be NULL)
 	 */
-	public RuntimeProcessException(ProcessFragment rStep, Throwable aCause)
-	{
+	public RuntimeProcessException(ProcessFragment rStep, Throwable aCause) {
 		this(rStep, null, aCause);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rStep    The step in which the exception occurred
 	 * @param sMessage The error message
 	 * @param aCause   The causing exception (may be NULL)
 	 */
-	public RuntimeProcessException(ProcessFragment rStep,
-								   String		   sMessage,
-								   Throwable	   aCause)
-	{
+	public RuntimeProcessException(ProcessFragment rStep, String sMessage,
+		Throwable aCause) {
 		super(rStep, sMessage, aCause);
 	}
 }

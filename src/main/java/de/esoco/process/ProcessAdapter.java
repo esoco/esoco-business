@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-/********************************************************************
+/**
  * An abstract implementation of {@link ProcessListener} that contains empty
  * implementations of all listener methods. Subclasses need only to implement
  * the methods for the events they are interested in. This class also provides
@@ -26,20 +26,17 @@ package de.esoco.process;
  *
  * @author eso
  */
-public abstract class ProcessAdapter implements ProcessListener
-{
-	//~ Methods ----------------------------------------------------------------
+public abstract class ProcessAdapter implements ProcessListener {
 
-	/***************************************
+	/**
 	 * @see ProcessListener#processCanceled(Process)
 	 */
 	@Override
-	public void processCanceled(Process rProcess)
-	{
+	public void processCanceled(Process rProcess) {
 		processEnded(rProcess);
 	}
 
-	/***************************************
+	/**
 	 * This method will be invoked from the default implementations of the
 	 * {@link #processCanceled(Process)}, {@link #processFailed(Process)}, and
 	 * {@link #processFinished(Process)} methods. It is recommended that
@@ -47,49 +44,43 @@ public abstract class ProcessAdapter implements ProcessListener
 	 *
 	 * @param rProcess The process
 	 */
-	public void processEnded(Process rProcess)
-	{
+	public void processEnded(Process rProcess) {
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessListener#processFailed(Process)
 	 */
 	@Override
-	public void processFailed(Process rProcess)
-	{
+	public void processFailed(Process rProcess) {
 		processEnded(rProcess);
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessListener#processFinished(Process)
 	 */
 	@Override
-	public void processFinished(Process rProcess)
-	{
+	public void processFinished(Process rProcess) {
 		processEnded(rProcess);
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessListener#processResumed(Process)
 	 */
 	@Override
-	public void processResumed(Process rProcess)
-	{
+	public void processResumed(Process rProcess) {
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessListener#processStarted(Process)
 	 */
 	@Override
-	public void processStarted(Process rProcess)
-	{
+	public void processStarted(Process rProcess) {
 	}
 
-	/***************************************
+	/**
 	 * @see ProcessListener#processSuspended(Process)
 	 */
 	@Override
-	public void processSuspended(Process rProcess)
-	{
+	public void processSuspended(Process rProcess) {
 	}
 }

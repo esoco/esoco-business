@@ -30,133 +30,113 @@ import static de.esoco.process.ProcessRelationTypes.PROGRESS_DESCRIPTION;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_INDICATOR;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_MAXIMUM;
 
-
-/********************************************************************
+/**
  * An interactive and automatically continuing step that displays the progress
  * of an iterating process.
  *
  * @author eso
  */
-public class DisplayProgress extends Interaction
-{
-	//~ Enums ------------------------------------------------------------------
+public class DisplayProgress extends Interaction {
 
-	/********************************************************************
+	/**
 	 * An interaction enum to skip the query.
 	 */
-	public enum SkipAction { SKIP }
+	public enum SkipAction {SKIP}
 
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
-
-	/** Flag to enable or disable the skip button. */
+	/**
+	 * Flag to enable or disable the skip button.
+	 */
 	public static final RelationType<Boolean> SHOW_SKIP_BUTTON =
 		RelationTypes.newFlagType();
 
-	/** Flag to enable or disable the skip button. */
+	/**
+	 * Flag to enable or disable the skip button.
+	 */
 	public static final RelationType<Boolean> SKIP_PROCESSING =
 		RelationTypes.newFlagType();
 
-	/** The interactive skip action parameter. */
+	/**
+	 * The interactive skip action parameter.
+	 */
 	public static final RelationType<SkipAction> SKIP_ACTION =
 		RelationTypes.newType();
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(DisplayProgress.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public DisplayProgress()
-	{
+	public DisplayProgress() {
 		continueOnInteraction(SKIP_ACTION);
-		addDisplayParameters(PROGRESS,
-							 PROGRESS_INDICATOR,
-							 PROGRESS_DESCRIPTION);
+		addDisplayParameters(PROGRESS, PROGRESS_INDICATOR,
+			PROGRESS_DESCRIPTION);
 		set(AUTO_CONTINUE);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Resets the progress display parameters.
 	 *
 	 * @param rProcessStep The step for which to reset the parameters
 	 */
-	public static void resetProgress(ProcessFragment rProcessStep)
-	{
-		rProcessStep.deleteParameters(PROGRESS,
-									  PROGRESS_INDICATOR,
-									  SKIP_PROCESSING);
+	public static void resetProgress(ProcessFragment rProcessStep) {
+		rProcessStep.deleteParameters(PROGRESS, PROGRESS_INDICATOR,
+			SKIP_PROCESSING);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Interaction#execute()
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void execute() throws Exception
-	{
-		if (getInteractiveInputParameter() == SKIP_ACTION)
-		{
+	protected void execute() throws Exception {
+		if (getInteractiveInputParameter() == SKIP_ACTION) {
 			setParameter(SKIP_PROCESSING, true);
 		}
 
 		// if this was the last invocation reset all progress parameter for
 		// the case of an re-execution
-		if (getParameter(PROGRESS) >= getParameter(PROGRESS_MAXIMUM))
-		{
+		if (getParameter(PROGRESS) >= getParameter(PROGRESS_MAXIMUM)) {
 			resetProgress(this);
 		}
 	}
 
-	/***************************************
+	/**
 	 * @see Interaction#prepareParameters()
 	 */
 	@Override
-	protected void prepareParameters() throws Exception
-	{
-		if (hasFlagParameter(SHOW_SKIP_BUTTON))
-		{
-			if (!hasParameter(SKIP_ACTION))
-			{
+	protected void prepareParameters() throws Exception {
+		if (hasFlagParameter(SHOW_SKIP_BUTTON)) {
+			if (!hasParameter(SKIP_ACTION)) {
 				addInputParameters(SKIP_ACTION);
 				setImmediateAction(SKIP_ACTION);
 				setUIFlag(HIDE_LABEL, SKIP_ACTION);
 				setUIProperty(TOOLTIP, null, SKIP_ACTION);
 			}
-		}
-		else
-		{
+		} else {
 			removeInteractionParameters(SKIP_ACTION);
 		}
 
 		initProgressParameter();
 	}
 
-	/***************************************
+	/**
 	 * @see Interaction#prepareValues()
 	 */
 	@Override
-	protected void prepareValues()
-	{
+	protected void prepareValues() {
 		markParameterAsModified(PROGRESS_DESCRIPTION);
 		setProgressIndicator();
 	}
 
-	/***************************************
+	/**
 	 * @see Interaction#rollback()
 	 */
 	@Override
-	protected void rollback()
-	{
+	protected void rollback() {
 		resetProgress(this);
 	}
 }

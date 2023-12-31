@@ -16,59 +16,47 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data.validate;
 
-/********************************************************************
+/**
  * A validator for integer values that constrains them in a range between a
  * minimal and a maximal value.
  *
  * @author eso
  */
-public class IntegerRangeValidator implements Validator<Integer>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class IntegerRangeValidator implements Validator<Integer> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private int nMin;
+
 	private int nMax;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that tests against a certain integer range.
 	 *
 	 * @param nMin The minimal value (inclusive)
 	 * @param nMax The maximal value (inclusive)
 	 */
-	public IntegerRangeValidator(int nMin, int nMax)
-	{
+	public IntegerRangeValidator(int nMin, int nMax) {
 		this.nMin = nMin;
 		this.nMax = nMax;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	IntegerRangeValidator()
-	{
+	IntegerRangeValidator() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (this == rObj)
-		{
+	public boolean equals(Object rObj) {
+		if (this == rObj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass())
-		{
+		if (rObj == null || getClass() != rObj.getClass()) {
 			return false;
 		}
 
@@ -77,41 +65,37 @@ public class IntegerRangeValidator implements Validator<Integer>
 		return nMin == rOther.nMin && nMax == rOther.nMax;
 	}
 
-	/***************************************
+	/**
 	 * Returns the maximum value.
 	 *
 	 * @return The maximum value
 	 */
-	public final int getMaximum()
-	{
+	public final int getMaximum() {
 		return nMax;
 	}
 
-	/***************************************
+	/**
 	 * Returns the minimum value.
 	 *
 	 * @return The minimum value
 	 */
-	public final int getMinimum()
-	{
+	public final int getMinimum() {
 		return nMin;
 	}
 
-	/***************************************
+	/**
 	 * @see Object#hashCode()
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 37 * nMin + nMax;
 	}
 
-	/***************************************
+	/**
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(Integer rValue)
-	{
+	public boolean isValid(Integer rValue) {
 		int nValue = rValue.intValue();
 
 		return nMin <= nValue && nValue <= nMax;

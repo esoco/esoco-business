@@ -18,17 +18,14 @@ package de.esoco.process;
 
 import de.esoco.entity.Entity;
 
-
-/********************************************************************
+/**
  * An interface for classes that perform the periodic scheduling of processes.
  *
  * @author eso
  */
-public interface ProcessScheduler
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ProcessScheduler {
 
-	/***************************************
+	/**
 	 * Adds the schedule process defined by the Entity to the management of the
 	 * scheduler.
 	 *
@@ -36,42 +33,42 @@ public interface ProcessScheduler
 	 */
 	public void addScheduleProcess(Entity rProcessDescription);
 
-	/***************************************
+	/**
 	 * Must be implemented by subclasses to provide access to the entity to be
 	 * used as the schedule process user.
 	 *
 	 * @return An entity instance that will be used as the user of schedule
-	 *         processes
+	 * processes
 	 */
 	public Entity getScheduleProcessUser();
 
-	/***************************************
+	/**
 	 * Returns TRUE if the process scheduler is enabled and FALSE otherwise.
 	 *
 	 * @return TRUE if the process scheduler is enabled and FALSE otherwise.
 	 */
 	public boolean isProcessSchedulingEnabled();
 
-	/***************************************
+	/**
 	 * Notify about a change or edit of a schedule process.
 	 */
 	public void notifyScheduleProcessChanged();
 
-	/***************************************
+	/**
 	 * Notify about a schedule process that has finished execution.
 	 *
 	 * @param rProcess The schedule process that has finished
 	 */
 	public void notifyScheduleProcessFinished(Process rProcess);
 
-	/***************************************
+	/**
 	 * Notify about a schedule process that is about to start execution.
 	 *
 	 * @param rProcess The schedule process that is starting
 	 */
 	public void notifyScheduleProcessStarting(Process rProcess);
 
-	/***************************************
+	/**
 	 * Removes the process from the management of the scheduler.
 	 *
 	 * @param sEntityId ProcessDescription the Entity that defines the schedule
@@ -79,7 +76,7 @@ public interface ProcessScheduler
 	 */
 	public void removeScheduleProcess(String sEntityId);
 
-	/***************************************
+	/**
 	 * Resumes the execution of a process if it is currently suspended. This is
 	 * useful if a schedule process should be run immediately although it is in
 	 * an idle state waiting the period time for the next execution.
@@ -90,22 +87,23 @@ public interface ProcessScheduler
 	public void resumeProcess(
 		Class<? extends ProcessDefinition> rProcessDefinitionClass);
 
-	/***************************************
+	/**
 	 * Resumes the process defined by the Entity-Id.
 	 *
 	 * @param sEntityId The Id of the Entity that defines the process.
 	 */
 	public void resumeScheduleProcess(String sEntityId);
 
-	/***************************************
+	/**
 	 * Runs the process defined by the Entity immediately.
 	 *
-	 * @param sEntityId rProcessDescription The Entity that defines the schedule
+	 * @param sEntityId rProcessDescription The Entity that defines the
+	 *                     schedule
 	 *                  process.
 	 */
 	public void runScheduleProcessNow(String sEntityId);
 
-	/***************************************
+	/**
 	 * Stops the schedule process and suspends the execution of this process
 	 * until resumeScheduleProcess is called.
 	 *

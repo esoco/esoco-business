@@ -24,16 +24,14 @@ import static de.esoco.process.AbstractProcessTest.assertPostconditions;
 import static de.esoco.process.TestStep.TEST_INT_PARAM;
 import static de.esoco.process.TestStep.TEST_STRING_RESULT;
 
-/********************************************************************
+/**
  * Test of {@link ProcessRunner}
  *
  * @author eso
  */
 public class ProcessRunnerTest {
-	//~ Methods
-	// ----------------------------------------------------------------
 
-	/***************************************
+	/**
 	 * Test of {@link ProcessRunner#run()}.
 	 */
 	@SuppressWarnings("boxing")

@@ -53,473 +53,441 @@ import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StyleProperties.LIST_LAYOUT_STYLE;
 import static de.esoco.lib.property.StyleProperties.MULTI_SELECTION;
 
-
-/********************************************************************
+/**
  * A fragment that displays a list of entities with user-defined list item
  * fragments.
  *
  * @author eso
  */
 public class EntityList<E extends Entity,
-						I extends InteractionFragment & EntityListItem<E>>
-	extends InteractionFragment
-{
-	//~ Enums ------------------------------------------------------------------
+	I extends InteractionFragment & EntityListItem<E>>
+	extends InteractionFragment {
 
-	/********************************************************************
-	 * Enumeration of paging navigation controls.
-	 */
-	enum PagingNavigation { FIRST_PAGE, PREVIOUS_PAGE, NEXT_PAGE, LAST_PAGE }
-
-	/********************************************************************
+	/**
 	 * Enumeration of actions on the list filter.
 	 */
-	enum ListFilterAction { CLEAR }
+	enum ListFilterAction {CLEAR}
 
-	//~ Static fields/initializers ---------------------------------------------
+	/**
+	 * Enumeration of paging navigation controls.
+	 */
+	enum PagingNavigation {FIRST_PAGE, PREVIOUS_PAGE, NEXT_PAGE, LAST_PAGE}
 
 	private static final long serialVersionUID = 1L;
 
 	private static final Collection<String> DEFAULT_ALLOWED_LIST_SIZES =
 		Arrays.asList("5", "10", "20", "25", "50");
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final Class<E> rEntityType;
+
 	private final Class<I> rItemType;
 
 	private Predicate<? super E> pDefaultCriteria;
-	private Predicate<? super E> pExtraCriteria   = null;
-	private Predicate<? super E> pAllCriteria     = null;
-	private String				 sGlobalFilter    = null;
-	private ListLayoutStyle		 eListLayoutStyle = null;
+
+	private Predicate<? super E> pExtraCriteria = null;
+
+	private Predicate<? super E> pAllCriteria = null;
+
+	private String sGlobalFilter = null;
+
+	private ListLayoutStyle eListLayoutStyle = null;
 
 	private SortPredicate<? super E> pSortColumn;
 
 	private List<E> aVisibleEntities = new ArrayList<>();
-	private int     nEntityCount     = 0;
-	private int     nFirstEntity     = 0;
-	private int     nPageSize		 = 10;
-	private boolean bInitialQuery    = false;
+
+	private int nEntityCount = 0;
+
+	private int nFirstEntity = 0;
+
+	private int nPageSize = 10;
+
+	private boolean bInitialQuery = false;
 
 	private Collection<String> aAllowedListSizes = DEFAULT_ALLOWED_LIST_SIZES;
 
 	private EntityListNavigation aNavigation;
-	private EntityListItemList   aItemList;
-	private I					 rSelectedItem = null;
+
+	private EntityListItemList aItemList;
+
+	private I rSelectedItem = null;
 
 	private EntityListHeader<E> rHeader;
-	private ParameterList	    aItemListPanel;
-	private ParameterList	    aNavigationPanel;
+
+	private ParameterList aItemListPanel;
+
+	private ParameterList aNavigationPanel;
 
 	private RelationType<String>[] rGlobalFilterAttributes;
 
 	private Collection<EntitySelectionListener<E>> aSelectionListeners =
 		new LinkedHashSet<>();
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance without criteria that doesn't perform an initial
-	 * query. The user must invoke either {@link #setDefaultCriteria(Predicate)}
+	 * query. The user must invoke either
+	 * {@link #setDefaultCriteria(Predicate)}
 	 * or {@link #update()} to perform the first query.
 	 *
 	 * @param rEntityType The entity type to be displayed in this list
 	 * @param rItemType   The type of the list items
 	 */
-	public EntityList(Class<E> rEntityType, Class<I> rItemType)
-	{
+	public EntityList(Class<E> rEntityType, Class<I> rItemType) {
 		this(rEntityType, rItemType, null, null, false);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance that displays entities that fulfill the given
 	 * criteria (if not NULL). Depending on the boolean parameter the first
-	 * query will be performed immediately after the fragment initialization has
+	 * query will be performed immediately after the fragment initialization
+	 * has
 	 * completed or, if FALSE on the first call to {@link #update()}.
 	 *
 	 * @param rEntityType      The entity type to be displayed in this list
 	 * @param rItemType        The type of the list items
 	 * @param pDefaultCriteria The optional default criteria or NULL to query
 	 *                         all entities
-	 * @param pSortColumn      The sort predicate for the initial sort column or
+	 * @param pSortColumn      The sort predicate for the initial sort
+	 *                            column or
 	 *                         NULL for none
 	 * @param bInitialQuery    TRUE if a initial query should be performed
 	 *                         automatically
 	 */
-	public EntityList(Class<E>				   rEntityType,
-					  Class<I>				   rItemType,
-					  Predicate<? super E>	   pDefaultCriteria,
-					  SortPredicate<? super E> pSortColumn,
-					  boolean				   bInitialQuery)
-	{
-		this.rItemType		  = rItemType;
-		this.rEntityType	  = rEntityType;
+	public EntityList(Class<E> rEntityType, Class<I> rItemType,
+		Predicate<? super E> pDefaultCriteria,
+		SortPredicate<? super E> pSortColumn, boolean bInitialQuery) {
+		this.rItemType = rItemType;
+		this.rEntityType = rEntityType;
 		this.pDefaultCriteria = pDefaultCriteria;
-		this.pSortColumn	  = pSortColumn;
-		this.bInitialQuery    = bInitialQuery;
+		this.pSortColumn = pSortColumn;
+		this.bInitialQuery = bInitialQuery;
 
 		aNavigation = new EntityListNavigation();
-		aItemList   = new EntityListItemList();
+		aItemList = new EntityListItemList();
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Register an entity selection listener.
 	 *
 	 * @param rListener The listener to register
 	 */
-	public void addSelectionListener(EntitySelectionListener<E> rListener)
-	{
+	public void addSelectionListener(EntitySelectionListener<E> rListener) {
 		aSelectionListeners.add(rListener);
 	}
 
-	/***************************************
+	/**
 	 * Clears this list by removing all entities and updating the display.
 	 */
-	public void clear()
-	{
+	public void clear() {
 		aVisibleEntities.clear();
 		aItemList.update();
 		aNavigation.update();
 		aNavigationPanel.hide();
 	}
 
-	/***************************************
+	/**
 	 * Returns the current default criteria of this instance.
 	 *
 	 * @return The default criteria
 	 */
-	public final Predicate<? super E> getDefaultCriteria()
-	{
+	public final Predicate<? super E> getDefaultCriteria() {
 		return pDefaultCriteria;
 	}
 
-	/***************************************
+	/**
 	 * Returns the type of the entities displayed in this list.
 	 *
 	 * @return The entityType value
 	 */
-	public final Class<E> getEntityType()
-	{
+	public final Class<E> getEntityType() {
 		return rEntityType;
 	}
 
-	/***************************************
+	/**
 	 * Returns the current extra criteria of this instance.
 	 *
 	 * @return The extra criteria
 	 */
-	public final Predicate<? super E> getExtraCriteria()
-	{
+	public final Predicate<? super E> getExtraCriteria() {
 		return pExtraCriteria;
 	}
 
-	/***************************************
+	/**
 	 * Returns the global filter string.
 	 *
 	 * @return The global filter string or NULL for none
 	 */
-	public final String getGlobalFilter()
-	{
+	public final String getGlobalFilter() {
 		return sGlobalFilter;
 	}
 
-	/***************************************
+	/**
 	 * Returns the list of items for this entity list.
 	 *
 	 * @return The item list
 	 */
-	public final List<I> getItems()
-	{
+	public final List<I> getItems() {
 		return aItemList.aItems;
 	}
 
-	/***************************************
+	/**
 	 * Returns the list layout style.
 	 *
 	 * @return The list layout style
 	 */
-	public final ListLayoutStyle getListLayoutStyle()
-	{
-		return eListLayoutStyle != null
-			   ? eListLayoutStyle : fragmentParam().get(LIST_LAYOUT_STYLE);
+	public final ListLayoutStyle getListLayoutStyle() {
+		return eListLayoutStyle != null ?
+		       eListLayoutStyle :
+		       fragmentParam().get(LIST_LAYOUT_STYLE);
 	}
 
-	/***************************************
-	 * Returns the current number of entities that are displayed in a list page.
+	/**
+	 * Returns the current number of entities that are displayed in a list
+	 * page.
 	 *
 	 * @return The current page size
 	 */
-	public final int getPageSize()
-	{
+	public final int getPageSize() {
 		return nPageSize;
 	}
 
-	/***************************************
+	/**
 	 * Returns the currently selected entity.
 	 *
 	 * @return The selected entity or NULL for none
 	 */
-	public final E getSelectedEntity()
-	{
+	public final E getSelectedEntity() {
 		return rSelectedItem != null ? rSelectedItem.getEntity() : null;
 	}
 
-	/***************************************
+	/**
 	 * Returns the currently selected item.
 	 *
 	 * @return The selected item or NULL for none
 	 */
-	public final I getSelectedItem()
-	{
+	public final I getSelectedItem() {
 		return rSelectedItem;
 	}
 
-	/***************************************
+	/**
 	 * Returns the sort predicate for the current sort column.
 	 *
 	 * @return The current sort column predicate (NULL for none)
 	 */
-	public final SortPredicate<? super E> getSortColumn()
-	{
+	public final SortPredicate<? super E> getSortColumn() {
 		return pSortColumn;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init()
-	{
+	public void init() {
 		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
 
-		if (eListLayoutStyle != null)
-		{
+		if (eListLayoutStyle != null) {
 			fragmentParam().set(LIST_LAYOUT_STYLE, eListLayoutStyle);
 		}
 
-		if (rHeader != null)
-		{
+		if (rHeader != null) {
 			panel(this::initHeaderPanel);
 		}
 
-		aItemListPanel   = panel(aItemList);
+		aItemListPanel = panel(aItemList);
 		aNavigationPanel = panel(aNavigation).hide();
 
 		aItemListPanel.inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void initComplete() throws Exception
-	{
-		if (bInitialQuery)
-		{
-			if (pAllCriteria == null)
-			{
+	public void initComplete() throws Exception {
+		if (bInitialQuery) {
+			if (pAllCriteria == null) {
 				updateQuery();
-			}
-			else
-			{
+			} else {
 				queryEntities();
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Removes an entity selection listener.
 	 *
 	 * @param rListener The listener to remove
 	 */
-	public void removeSelectionListener(EntitySelectionListener<?> rListener)
-	{
+	public void removeSelectionListener(EntitySelectionListener<?> rListener) {
 		aSelectionListeners.remove(rListener);
 	}
 
-	/***************************************
+	/**
 	 * Sets the default criteria for this instance. This will also update the
 	 * display.
 	 *
-	 * @param  pDefaultCriteria The new default criteria
-	 *
+	 * @param pDefaultCriteria The new default criteria
 	 * @throws StorageException If updating the list fails
 	 */
-	public void setDefaultCriteria(Predicate<? super E> pDefaultCriteria)
-	{
+	public void setDefaultCriteria(Predicate<? super E> pDefaultCriteria) {
 		this.pDefaultCriteria = pDefaultCriteria;
 
 		updateQuery();
 	}
 
-	/***************************************
+	/**
 	 * Sets a filter predicate for this list. This predicate will be considered
-	 * together with the default criteria and the text filter set through {@link
-	 * #setGlobalFilter(String)}.
+	 * together with the default criteria and the text filter set through
+	 * {@link #setGlobalFilter(String)}.
 	 *
 	 * @param pCriteria sThe filter predicate or NULL to reset
 	 */
-	public void setExtraCriteria(Predicate<? super E> pCriteria)
-	{
+	public void setExtraCriteria(Predicate<? super E> pCriteria) {
 		this.pExtraCriteria = pCriteria;
 
 		updateQuery();
 	}
 
-	/***************************************
+	/**
 	 * Sets a global filter string for this list. This will apply the filter to
-	 * all attributes set with {@link
-	 * #setGlobalFilterAttributes(RelationType...)}.
+	 * all attributes set with
+	 * {@link #setGlobalFilterAttributes(RelationType...)}.
 	 *
 	 * @param sFilter The filter string or NULL or empty for no filter
 	 */
-	public void setGlobalFilter(String sFilter)
-	{
+	public void setGlobalFilter(String sFilter) {
 		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
 		updateQuery();
 	}
 
-	/***************************************
+	/**
 	 * Sets the attributes to be considered by the global filter.
 	 *
 	 * @param rFilterAttributes The new filter attributes
 	 */
 	@SafeVarargs
 	public final void setGlobalFilterAttributes(
-		RelationType<String>... rFilterAttributes)
-	{
+		RelationType<String>... rFilterAttributes) {
 		this.rGlobalFilterAttributes = rFilterAttributes;
 	}
 
-	/***************************************
+	/**
 	 * Sets the header for to be displayed at the top of the list. This method
 	 * must be invoked before this fragment is initialized or otherwise the
 	 * header will not be displayed.
 	 *
 	 * @param rHeader The new list header
 	 */
-	public void setListHeader(EntityListHeader<E> rHeader)
-	{
+	public void setListHeader(EntityListHeader<E> rHeader) {
 		this.rHeader = rHeader;
 	}
 
-	/***************************************
+	/**
 	 * Sets the list layout style.
 	 *
 	 * @param eListLayoutStyle The style
 	 */
-	public final void setListLayoutStyle(ListLayoutStyle eListLayoutStyle)
-	{
+	public final void setListLayoutStyle(ListLayoutStyle eListLayoutStyle) {
 		this.eListLayoutStyle = eListLayoutStyle;
 	}
 
-	/***************************************
-	 * Sets the number of entities to be displayed in a list page. Sets the page
+	/**
+	 * Sets the number of entities to be displayed in a list page. Sets the
+	 * page
 	 * size value.
 	 *
 	 * @param rPageSize The new page size
 	 */
-	public final void setPageSize(int rPageSize)
-	{
+	public final void setPageSize(int rPageSize) {
 		nPageSize = rPageSize;
 
 		updateQuery();
 	}
 
-	/***************************************
+	/**
 	 * Sets the currently selected list item.
 	 *
 	 * @param rItem The new selection
 	 */
 	@SuppressWarnings("unchecked")
-	public void setSelection(EntityListItem<?> rItem)
-	{
-		if (rSelectedItem != rItem)
-		{
-			if (rSelectedItem != null)
-			{
+	public void setSelection(EntityListItem<?> rItem) {
+		if (rSelectedItem != rItem) {
+			if (rSelectedItem != null) {
 				rSelectedItem.setSelected(false);
 			}
 
 			rSelectedItem = (I) rItem;
 
-			if (rSelectedItem != null)
-			{
+			if (rSelectedItem != null) {
 				rSelectedItem.setSelected(true);
 			}
 
-			aItemListPanel.set(rSelectedItem != null
-							   ? aItemList.aItems.indexOf(rSelectedItem) : -1,
-							   CURRENT_SELECTION);
+			aItemListPanel.set(rSelectedItem != null ?
+			                   aItemList.aItems.indexOf(rSelectedItem) :
+			                   -1, CURRENT_SELECTION);
 		}
 
-		for (EntitySelectionListener<E> rListener : aSelectionListeners)
-		{
+		for (EntitySelectionListener<E> rListener : aSelectionListeners) {
 			rListener.onSelection(getSelectedEntity());
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the sort predicate for the column to sort by.
 	 *
 	 * @param pSortColumn The sort predicate or NULL for none
 	 */
-	public final void setSortColumn(SortPredicate<? super E> pSortColumn)
-	{
+	public final void setSortColumn(SortPredicate<? super E> pSortColumn) {
 		this.pSortColumn = pSortColumn;
 		updateQuery();
 	}
 
-	/***************************************
+	/**
 	 * Updates this list to display the entities for the current criteria.
 	 *
 	 * @throws StorageException If performing the query fails
 	 */
-	public void update() throws StorageException
-	{
+	public void update() throws StorageException {
 		queryEntities();
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance of the list item type. The default implementation
-	 * uses reflection to create a new instance and requires the availability of
-	 * a public no-arguments constructor. Subclasses can override this method to
+	 * uses reflection to create a new instance and requires the
+	 * availability of
+	 * a public no-arguments constructor. Subclasses can override this
+	 * method to
 	 * create items that need additional initialization, e.g. through
 	 * constructor arguments.
 	 *
 	 * @return The new list item
 	 */
-	protected I createListItem()
-	{
+	protected I createListItem() {
 		return ReflectUtil.newInstance(rItemType);
 	}
 
-	/***************************************
+	/**
 	 * Initializes the header panel of this list if a header has been set with
 	 * {@link #setListHeader(EntityListHeader)}.
 	 *
 	 * @param rHeaderPanel The header panel fragment
 	 */
-	protected void initHeaderPanel(InteractionFragment rHeaderPanel)
-	{
-		rHeaderPanel.layout(LayoutType.LIST)
-					.resid("EntityListHeaderPanel")
-					.set(LIST_LAYOUT_STYLE, rHeader.getHeaderType());
+	protected void initHeaderPanel(InteractionFragment rHeaderPanel) {
+		rHeaderPanel
+			.layout(LayoutType.LIST)
+			.resid("EntityListHeaderPanel")
+			.set(LIST_LAYOUT_STYLE, rHeader.getHeaderType());
 
 		rHeaderPanel.panel(rHeader);
 	}
 
-	/***************************************
+	/**
 	 * Queries the current page of entities according to the given criteria and
 	 * updates the display.
 	 *
 	 * @throws StorageException If the query fails
 	 */
-	void queryEntities() throws StorageException
-	{
+	void queryEntities() throws StorageException {
 		Predicate<E> pCriteria = Predicates.and(pAllCriteria, pSortColumn);
 
 		QueryPredicate<E> qEntities =
@@ -528,21 +496,18 @@ public class EntityList<E extends Entity,
 		qEntities.set(StorageRelationTypes.QUERY_OFFSET, nFirstEntity);
 		qEntities.set(StorageRelationTypes.QUERY_LIMIT, nPageSize);
 
-		try (EntityIterator<E> aEntities = new EntityIterator<>(qEntities))
-		{
+		try (EntityIterator<E> aEntities = new EntityIterator<>(qEntities)) {
 			int nCount = nPageSize;
 
 			nEntityCount = aEntities.size();
 
-			if (nFirstEntity + nPageSize > nEntityCount)
-			{
+			if (nFirstEntity + nPageSize > nEntityCount) {
 				nFirstEntity = Math.max(0, nEntityCount - nPageSize);
 			}
 
 			aVisibleEntities.clear();
 
-			while (nCount-- > 0 && aEntities.hasNext())
-			{
+			while (nCount-- > 0 && aEntities.hasNext()) {
 				aVisibleEntities.add(aEntities.next());
 			}
 		}
@@ -553,87 +518,72 @@ public class EntityList<E extends Entity,
 		aNavigationPanel.show();
 	}
 
-	/***************************************
+	/**
 	 * Sets the allowed list sizes that can be selected from a drop-down.
 	 *
 	 * @param rAllowedSizes The selectable list sizes
 	 */
-	final void setAllowedListSizes(int[] rAllowedSizes)
-	{
+	final void setAllowedListSizes(int[] rAllowedSizes) {
 		aAllowedListSizes = new ArrayList<>(rAllowedSizes.length);
 
-		for (int nSize : rAllowedSizes)
-		{
+		for (int nSize : rAllowedSizes) {
 			aAllowedListSizes.add(Integer.toString(nSize));
 		}
 	}
 
-	/***************************************
+	/**
 	 * Builds the full query criteria.
 	 */
-	private void updateQuery()
-	{
+	private void updateQuery() {
 		Predicate<? super E> pGlobalFilter;
 
-		if (sGlobalFilter != null &&
-			sGlobalFilter.startsWith("=") &&
-			rGlobalFilterAttributes.length == 1)
-		{
-			pGlobalFilter =
-				rGlobalFilterAttributes[0].is(equalTo(sGlobalFilter.substring(1)));
-		}
-		else
-		{
+		if (sGlobalFilter != null && sGlobalFilter.startsWith("=") &&
+			rGlobalFilterAttributes.length == 1) {
+			pGlobalFilter = rGlobalFilterAttributes[0].is(
+				equalTo(sGlobalFilter.substring(1)));
+		} else {
 			pGlobalFilter =
 				EntityPredicates.createWildcardFilter(sGlobalFilter,
-													  rGlobalFilterAttributes);
+				rGlobalFilterAttributes);
 		}
 
 		pAllCriteria = Predicates.and(pDefaultCriteria, pExtraCriteria);
 		pAllCriteria = Predicates.and(pAllCriteria, pGlobalFilter);
 
-		try
-		{
+		try {
 			nFirstEntity = 0;
 
-			if (isInitialized())
-			{
+			if (isInitialized()) {
 				queryEntities();
 			}
-		}
-		catch (StorageException e)
-		{
+		} catch (StorageException e) {
 			throw new RuntimeProcessException(this, e);
 		}
 	}
 
-	//~ Inner Interfaces -------------------------------------------------------
-
-	/********************************************************************
-	 * The interface that needs to be implemented by item fragments in an {@link
-	 * EntityList}.
+	/**
+	 * The interface that needs to be implemented by item fragments in an
+	 * {@link EntityList}.
 	 *
 	 * @author eso
 	 */
-	public static interface EntityListItem<E extends Entity>
-	{
-		//~ Methods ------------------------------------------------------------
+	public static interface EntityListItem<E extends Entity> {
 
-		/***************************************
+		/**
 		 * Returns the entity of this list item.
 		 *
 		 * @return The item entity
 		 */
 		public E getEntity();
 
-		/***************************************
+		/**
 		 * Checks whether this item is currently selected.
 		 *
 		 * @return The selected state
 		 */
 		public boolean isSelected();
 
-		/***************************************
+		/**
 		 * Sets the default style of this item. This style should always be
 		 * applied if the style of an item needs to be reset.
 		 *
@@ -641,14 +591,14 @@ public class EntityList<E extends Entity,
 		 */
 		public void setDefaultStyle(String sStyle);
 
-		/***************************************
+		/**
 		 * Sets the selected state of this item
 		 *
 		 * @param bSelected The new selected state
 		 */
 		public void setSelected(boolean bSelected);
 
-		/***************************************
+		/**
 		 * Updates the entity that is displayed by this instance.
 		 *
 		 * @param rEntity The new Entity
@@ -656,16 +606,14 @@ public class EntityList<E extends Entity,
 		public void updateEntity(E rEntity);
 	}
 
-	/********************************************************************
+	/**
 	 * A listener interface that will be notified of entity selection.
 	 *
 	 * @author eso
 	 */
-	public static interface EntitySelectionListener<E extends Entity>
-	{
-		//~ Methods ------------------------------------------------------------
+	public static interface EntitySelectionListener<E extends Entity> {
 
-		/***************************************
+		/**
 		 * Will be invoked if an entity is (de-) selected.
 		 *
 		 * @param rEntity The selected entity or NULL for none
@@ -673,80 +621,62 @@ public class EntityList<E extends Entity,
 		public void onSelection(E rEntity);
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * Internal fragment that represents the list of entity list items.
 	 *
 	 * @author eso
 	 */
-	class EntityListItemList extends InteractionFragment
-	{
-		//~ Static fields/initializers -----------------------------------------
+	class EntityListItemList extends InteractionFragment {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
-
 		private List<I> aItems = new ArrayList<>();
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void init()
-		{
+		public void init() {
 			layout(LayoutType.LIST);
 			updateItemList();
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		protected void abort()
-		{
+		protected void abort() {
 		}
 
-		/***************************************
+		/**
 		 * Updates the currently displayed entities.
 		 */
-		void update()
-		{
+		void update() {
 			updateItemList();
 
 			int nVisibleItems = Math.min(aVisibleEntities.size(), nPageSize);
 
-			for (int i = 0; i < nPageSize; i++)
-			{
+			for (int i = 0; i < nPageSize; i++) {
 				I rItem = aItems.get(i);
 
-				if (i < nVisibleItems)
-				{
+				if (i < nVisibleItems) {
 					rItem.updateEntity(aVisibleEntities.get(i));
 					rItem.fragmentParam().show();
-				}
-				else
-				{
+				} else {
 					rItem.fragmentParam().hide();
 				}
 			}
 		}
 
-		/***************************************
+		/**
 		 * Updates the list items by creating or removing item according to the
 		 * current page size.
 		 */
-		void updateItemList()
-		{
+		void updateItemList() {
 			int nCurrentSize = aItems.size();
 
-			if (nCurrentSize < nPageSize)
-			{
-				for (int i = nCurrentSize; i < nPageSize; i++)
-				{
+			if (nCurrentSize < nPageSize) {
+				for (int i = nCurrentSize; i < nPageSize; i++) {
 					I aItem = createListItem();
 
 					aItems.add(aItem);
@@ -754,15 +684,11 @@ public class EntityList<E extends Entity,
 					addSubFragment("Entity" + i, aItem);
 					aItem.fragmentParam().hide();
 				}
-			}
-			else if (nCurrentSize > nPageSize)
-			{
-				for (int i = aItems.size() - 1; i >= nPageSize; i--)
-				{
+			} else if (nCurrentSize > nPageSize) {
+				for (int i = aItems.size() - 1; i >= nPageSize; i--) {
 					I rItem = aItems.remove(i);
 
-					if (rItem == rSelectedItem)
-					{
+					if (rItem == rSelectedItem) {
 						setSelection(null);
 					}
 
@@ -772,99 +698,85 @@ public class EntityList<E extends Entity,
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * The navigation panel of an entity list.
 	 *
 	 * @author eso
 	 */
-	class EntityListNavigation extends InteractionFragment
-	{
-		//~ Static fields/initializers -----------------------------------------
+	class EntityListNavigation extends InteractionFragment {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
+		private Parameter<String> aNavPosition;
 
-		private Parameter<String>		    aNavPosition;
-		private Parameter<String>		    aListSizeDropDown;
+		private Parameter<String> aListSizeDropDown;
+
 		private Parameter<PagingNavigation> aLeftPagingButtons;
+
 		private Parameter<PagingNavigation> aRightPagingButtons;
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void init() throws Exception
-		{
+		public void init() throws Exception {
 			layout(LayoutType.TABLE);
 
-			if (aAllowedListSizes.size() > 1)
-			{
+			if (aAllowedListSizes.size() > 1) {
 				String sPageSize = Integer.toString(nPageSize);
 
 				aListSizeDropDown =
-					dropDown("EntityListPageSize", aAllowedListSizes).value(sPageSize)
-																	 .input()
-																	 .onUpdate(new ValueEventHandler<String>()
-						{
+					dropDown("EntityListPageSize", aAllowedListSizes)
+						.value(sPageSize)
+						.input()
+						.onUpdate(new ValueEventHandler<String>() {
 							@Override
 							public void handleValueUpdate(String sPageSize)
-								throws Exception
-							{
+								throws Exception {
 								changePageSize(sPageSize);
 							}
 						});
 			}
 
 			aLeftPagingButtons =
-				pagingButtons("LeftPaging",
-							  PagingNavigation.FIRST_PAGE,
-							  PagingNavigation.PREVIOUS_PAGE).sameRow();
+				pagingButtons("LeftPaging", PagingNavigation.FIRST_PAGE,
+					PagingNavigation.PREVIOUS_PAGE).sameRow();
 
 			aNavPosition = label("").resid("EntityListPosition").sameRow();
 
 			aRightPagingButtons =
-				pagingButtons("RightPaging",
-							  PagingNavigation.NEXT_PAGE,
-							  PagingNavigation.LAST_PAGE).sameRow();
+				pagingButtons("RightPaging", PagingNavigation.NEXT_PAGE,
+					PagingNavigation.LAST_PAGE).sameRow();
 
 			update();
 		}
 
-		/***************************************
+		/**
 		 * Changes the number of displayed list items.
 		 *
-		 * @param  sNewSize The new number of list items
-		 *
+		 * @param sNewSize The new number of list items
 		 * @throws StorageException If updating the list fails
 		 */
-		void changePageSize(String sNewSize) throws StorageException
-		{
+		void changePageSize(String sNewSize) throws StorageException {
 			nPageSize = Integer.parseInt(sNewSize);
 
-			if (nFirstEntity + nPageSize > nEntityCount)
-			{
+			if (nFirstEntity + nPageSize > nEntityCount) {
 				nFirstEntity = Math.max(0, nEntityCount - nPageSize);
 			}
 
 			queryEntities();
 		}
 
-		/***************************************
+		/**
 		 * Handles the paging navigation.
 		 *
-		 * @param  eNavigation The navigation action
-		 *
+		 * @param eNavigation The navigation action
 		 * @throws StorageException If updating the list fails
 		 */
-		void navigate(PagingNavigation eNavigation) throws StorageException
-		{
+		void navigate(PagingNavigation eNavigation) throws StorageException {
 			int nMax = Math.max(0, nEntityCount - nPageSize);
 
-			switch (eNavigation)
-			{
+			switch (eNavigation) {
 				case FIRST_PAGE:
 					nFirstEntity = 0;
 					break;
@@ -886,37 +798,27 @@ public class EntityList<E extends Entity,
 			queryEntities();
 		}
 
-		/***************************************
+		/**
 		 * Updates the indicator of the current navigation position.
 		 */
 		@SuppressWarnings("boxing")
-		void update()
-		{
+		void update() {
 			boolean bShowControls = nEntityCount > nPageSize;
-			String  sPosition     = "";
+			String sPosition = "";
 
-			if (nEntityCount > 5)
-			{
-				int nLast =
-					Math.min(nFirstEntity + aItemList.aItems.size(),
-							 nEntityCount);
+			if (nEntityCount > 5) {
+				int nLast = Math.min(nFirstEntity + aItemList.aItems.size(),
+					nEntityCount);
 
+				sPosition = String.format("$$%d - %d {$lblPositionOfCount} %d",
+					nFirstEntity + 1, nLast, nEntityCount);
+			} else if (nEntityCount == 0) {
 				sPosition =
-					String.format("$$%d - %d {$lblPositionOfCount} %d",
-								  nFirstEntity + 1,
-								  nLast,
-								  nEntityCount);
-			}
-			else if (nEntityCount == 0)
-			{
-				sPosition = "$lbl" + EntityList.this.getClass().getSimpleName();
+					"$lbl" + EntityList.this.getClass().getSimpleName();
 
-				if (pExtraCriteria != null || sGlobalFilter != null)
-				{
+				if (pExtraCriteria != null || sGlobalFilter != null) {
 					sPosition += "NoMatch";
-				}
-				else
-				{
+				} else {
 					sPosition += "Empty";
 				}
 			}
@@ -929,29 +831,27 @@ public class EntityList<E extends Entity,
 			aNavPosition.value(sPosition);
 		}
 
-		/***************************************
+		/**
 		 * Creates a navigation buttons parameter for the given values.
 		 *
-		 * @param  sName          The name of the parameter
-		 * @param  rAllowedValues The allowed button values
-		 *
+		 * @param sName          The name of the parameter
+		 * @param rAllowedValues The allowed button values
 		 * @return The new parameter
 		 */
-		private Parameter<PagingNavigation> pagingButtons(
-			String				sName,
-			PagingNavigation... rAllowedValues)
-		{
+		private Parameter<PagingNavigation> pagingButtons(String sName,
+			PagingNavigation... rAllowedValues) {
 			Parameter<PagingNavigation> aNavigation =
 				param(sName, PagingNavigation.class);
 
-			return aNavigation.resid(PagingNavigation.class.getSimpleName())
-							  .label("")
-							  .buttons(rAllowedValues)
-							  .buttonStyle(ButtonStyle.ICON)
-							  .images()
-							  .set(ICON_SIZE, RelativeScale.SMALL)
-							  .layout(LayoutType.TABLE)
-							  .onAction(this::navigate);
+			return aNavigation
+				.resid(PagingNavigation.class.getSimpleName())
+				.label("")
+				.buttons(rAllowedValues)
+				.buttonStyle(ButtonStyle.ICON)
+				.images()
+				.set(ICON_SIZE, RelativeScale.SMALL)
+				.layout(LayoutType.TABLE)
+				.onAction(this::navigate);
 		}
 	}
 }

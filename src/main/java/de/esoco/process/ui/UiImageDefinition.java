@@ -19,23 +19,19 @@ package de.esoco.process.ui;
 import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.IMAGE;
 
-
-/********************************************************************
+/**
  * The base class for the definition of images to be used in UI components.
  *
  * @author eso
  */
 public abstract class UiImageDefinition<E extends UiImageDefinition<E>>
-	extends UiElement<E>
-{
-	//~ Methods ----------------------------------------------------------------
+	extends UiElement<E> {
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void applyPropertiesTo(UiComponent<?, ?> rComponent)
-	{
+	protected void applyPropertiesTo(UiComponent<?, ?> rComponent) {
 		// remove properties related to image-data to prevent conflict when
 		// the image type has changed
 		rComponent.remove(IMAGE, ICON);

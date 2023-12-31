@@ -23,52 +23,45 @@ import java.util.Arrays;
 import static de.esoco.lib.property.ContentProperties.FORMAT_ARGUMENTS;
 import static de.esoco.lib.property.StyleProperties.EDITABLE;
 
-
-/********************************************************************
+/**
  * A text input field.
  *
  * @author eso
  */
 public abstract class UiTextInputField<T extends UiTextInputField<T>>
-	extends UiInputField<String, T> implements TextAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	extends UiInputField<String, T> implements TextAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent rContainer The parent container
 	 * @param sText   The initial text
 	 */
-	public UiTextInputField(UiContainer<?> rParent, String sText)
-	{
+	public UiTextInputField(UiContainer<?> rParent, String sText) {
 		super(rParent, String.class, sText);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText()
-	{
+	public String getText() {
 		return getValueImpl();
 	}
 
-	/***************************************
-	 * Sets the editable state of this text field. If set to FALSE no input will
+	/**
+	 * Sets the editable state of this text field. If set to FALSE no input
+	 * will
 	 * be possible but the field will not be rendered as disabled.
 	 *
 	 * @param bEditable The new editable
 	 */
 	@SuppressWarnings("boxing")
-	public void setEditable(boolean bEditable)
-	{
+	public void setEditable(boolean bEditable) {
 		set(EDITABLE, bEditable);
 	}
 
-	/***************************************
+	/**
 	 * Sets a text that will be formatted by inserting values into a template,
 	 * similar to {@link String#format(String, Object...)}. Depending on the
 	 * underlying client UI implementation the formatting options may be
@@ -78,30 +71,27 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	 * @param sTemplate        The format template
 	 * @param rFormatArguments The format arguments
 	 */
-	public void setFormattedText(String sTemplate, String... rFormatArguments)
-	{
+	public void setFormattedText(String sTemplate,
+		String... rFormatArguments) {
 		setText(sTemplate);
 		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText)
-	{
+	public void setText(String sText) {
 		setValueImpl(sText);
 	}
 
-	/***************************************
+	/**
 	 * Fluent method to set the text of this field.
 	 *
-	 * @param  sText The new text
-	 *
+	 * @param sText The new text
 	 * @return This instance
 	 */
-	public T text(String sText)
-	{
+	public T text(String sText) {
 		return setValueImpl(sText);
 	}
 }

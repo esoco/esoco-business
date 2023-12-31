@@ -16,19 +16,20 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui.graphics;
 
-/********************************************************************
+/**
  * Enumeration of Font Awesome (5.1.0) brand icons.
  *
  * @see <a href="http://fontawesome.io">Font Awesome</a>
  */
-public enum UiFontAwesomeBrand implements UiIconSupplier
-{
+public enum UiFontAwesomeBrand implements UiIconSupplier {
 	_500PX('\uF26E'), ACCESSIBLE_ICON('\uF368'), ACCUSOFT('\uF369'),
 	ADN('\uF170'), ADVERSAL('\uF36A'), AFFILIATETHEME('\uF36B'),
-	ALGOLIA('\uF36C'), AMAZON('\uF270'), AMAZON_PAY('\uF42C'), AMILIA('\uF36D'),
+	ALGOLIA('\uF36C'), AMAZON('\uF270'), AMAZON_PAY('\uF42C'),
+	AMILIA('\uF36D'),
 	ANDROID('\uF17B'), ANGELLIST('\uF209'), ANGRYCREATIVE('\uF36E'),
 	ANGULAR('\uF420'), APP_STORE('\uF36F'), APP_STORE_IOS('\uF370'),
-	APPER('\uF371'), APPLE('\uF179'), APPLE_PAY('\uF415'), ASYMMETRIK('\uF372'),
+	APPER('\uF371'), APPLE('\uF179'), APPLE_PAY('\uF415'),
+	ASYMMETRIK('\uF372'),
 	AUDIBLE('\uF373'), AUTOPREFIXER('\uF41C'), AVIANEX('\uF374'),
 	AVIATO('\uF421'), AWS('\uF375'), BANDCAMP('\uF2D5'), BEHANCE('\uF1B4'),
 	BEHANCE_SQUARE('\uF1B5'), BIMOBJECT('\uF378'), BITBUCKET('\uF171'),
@@ -42,7 +43,8 @@ public enum UiFontAwesomeBrand implements UiIconSupplier
 	CENTERCODE('\uF380'), CHROME('\uF268'), CLOUDSCALE('\uF383'),
 	CLOUDSMITH('\uF384'), CLOUDVERSIFY('\uF385'), CODEPEN('\uF1CB'),
 	CODIEPIE('\uF284'), CONNECTDEVELOP('\uF20E'), CONTAO('\uF26D'),
-	CPANEL('\uF388'), CREATIVE_COMMONS('\uF25E'), CREATIVE_COMMONS_BY('\uF4E7'),
+	CPANEL('\uF388'), CREATIVE_COMMONS('\uF25E'),
+	CREATIVE_COMMONS_BY('\uF4E7'),
 	CREATIVE_COMMONS_NC('\uF4E8'), CREATIVE_COMMONS_NC_EU('\uF4E9'),
 	CREATIVE_COMMONS_NC_JP('\uF4EA'), CREATIVE_COMMONS_ND('\uF4EB'),
 	CREATIVE_COMMONS_PD('\uF4EC'), CREATIVE_COMMONS_PD_ALT('\uF4ED'),
@@ -55,7 +57,8 @@ public enum UiFontAwesomeBrand implements UiIconSupplier
 	DEVIANTART('\uF1BD'), DIGG('\uF1A6'), DIGITAL_OCEAN('\uF391'),
 	DISCORD('\uF392'), DISCOURSE('\uF393'), DOCHUB('\uF394'), DOCKER('\uF395'),
 	DRAFT2DIGITAL('\uF396'), DRIBBBLE('\uF17D'), DRIBBBLE_SQUARE('\uF397'),
-	DROPBOX('\uF16B'), DRUPAL('\uF1A9'), DYALOG('\uF399'), EARLYBIRDS('\uF39A'),
+	DROPBOX('\uF16B'), DRUPAL('\uF1A9'), DYALOG('\uF399'),
+	EARLYBIRDS('\uF39A'),
 	EBAY('\uF4F4'), EDGE('\uF282'), ELEMENTOR('\uF430'), EMBER('\uF423'),
 	EMPIRE('\uF1D1'), ENVIRA('\uF299'), ERLANG('\uF39D'), ETHEREUM('\uF42E'),
 	ETSY('\uF2D7'), EXPEDITEDSSL('\uF23E'), FACEBOOK('\uF09A'),
@@ -109,7 +112,8 @@ public enum UiFontAwesomeBrand implements UiIconSupplier
 	README('\uF4D5'), REBEL('\uF1D0'), RED_RIVER('\uF3E3'), REDDIT('\uF1A1'),
 	REDDIT_ALIEN('\uF281'), REDDIT_SQUARE('\uF1A2'), RENDACT('\uF3E4'),
 	RENREN('\uF18B'), REPLYD('\uF3E6'), RESEARCHGATE('\uF4F8'),
-	RESOLVING('\uF3E7'), REV('\uF5B2'), ROCKETCHAT('\uF3E8'), ROCKRMS('\uF3E9'),
+	RESOLVING('\uF3E7'), REV('\uF5B2'), ROCKETCHAT('\uF3E8'),
+	ROCKRMS('\uF3E9'),
 	SAFARI('\uF267'), SASS('\uF41E'), SCHLIX('\uF3EA'), SCRIBD('\uF28A'),
 	SEARCHENGIN('\uF3EB'), SELLCAST('\uF2DA'), SELLSY('\uF213'),
 	SERVICESTACK('\uF3EC'), SHIRTSINBULK('\uF214'), SHOPWARE('\uF5B5'),
@@ -121,14 +125,16 @@ public enum UiFontAwesomeBrand implements UiIconSupplier
 	STACK_OVERFLOW('\uF16C'), STAYLINKED('\uF3F5'), STEAM('\uF1B6'),
 	STEAM_SQUARE('\uF1B7'), STEAM_SYMBOL('\uF3F6'), STICKER_MULE('\uF3F7'),
 	STRAVA('\uF428'), STRIPE('\uF429'), STRIPE_S('\uF42A'),
-	STUDIOVINARI('\uF3F8'), STUMBLEUPON('\uF1A4'), STUMBLEUPON_CIRCLE('\uF1A3'),
+	STUDIOVINARI('\uF3F8'), STUMBLEUPON('\uF1A4'),
+	STUMBLEUPON_CIRCLE('\uF1A3'),
 	SUPERPOWERS('\uF2DD'), SUPPLE('\uF3F9'), TEAMSPEAK('\uF4F9'),
 	TELEGRAM('\uF2C6'), TELEGRAM_PLANE('\uF3FE'), TENCENT_WEIBO('\uF1D5'),
 	THEMECO('\uF5C6'), THEMEISLE('\uF2B2'), TRADE_FEDERATION('\uF513'),
 	TRELLO('\uF181'), TRIPADVISOR('\uF262'), TUMBLR('\uF173'),
 	TUMBLR_SQUARE('\uF174'), TWITCH('\uF1E8'), TWITTER('\uF099'),
 	TWITTER_SQUARE('\uF081'), TYPO3('\uF42B'), UBER('\uF402'), UIKIT('\uF403'),
-	UNIREGISTRY('\uF404'), UNTAPPD('\uF405'), USB('\uF287'), USSUNNAH('\uF407'),
+	UNIREGISTRY('\uF404'), UNTAPPD('\uF405'), USB('\uF287'),
+	USSUNNAH('\uF407'),
 	VAADIN('\uF408'), VIACOIN('\uF237'), VIADEO('\uF2A9'),
 	VIADEO_SQUARE('\uF2AA'), VIBER('\uF409'), VIMEO('\uF40A'),
 	VIMEO_SQUARE('\uF194'), VIMEO_V('\uF27D'), VINE('\uF1CA'), VK('\uF189'),
@@ -142,44 +148,35 @@ public enum UiFontAwesomeBrand implements UiIconSupplier
 	YANDEX_INTERNATIONAL('\uF414'), YELP('\uF1E9'), YOAST('\uF2B1'),
 	YOUTUBE('\uF167'), YOUTUBE_SQUARE('\uF431');
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final char cFontChar;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param cFontChar The character code in the font awesome icon font.
 	 */
-	private UiFontAwesomeBrand(char cFontChar)
-	{
+	private UiFontAwesomeBrand(char cFontChar) {
 		this.cFontChar = cFontChar;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the character code of this instance in the font awesome icon
 	 * font.
 	 *
 	 * @return The character code
 	 */
-	public final char getFontChar()
-	{
+	public final char getFontChar() {
 		return cFontChar;
 	}
 
-	/***************************************
+	/**
 	 * Returns a new {@link UiIconName} initialized from this enumeration
 	 * constant.
 	 *
 	 * @return The new icon
 	 */
 	@Override
-	public UiIconName getIcon()
-	{
+	public UiIconName getIcon() {
 		return new UiIconName(this);
 	}
 }

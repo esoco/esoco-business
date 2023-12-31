@@ -16,28 +16,24 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-/********************************************************************
+/**
  * The base class for input fields of numerical values.
  *
  * @author eso
  */
 public abstract class UiNumberInputField<T extends Number,
-										 C extends UiNumberInputField<T, C>>
-	extends UiInputField<T, C>
-{
-	//~ Constructors -----------------------------------------------------------
+	C extends UiNumberInputField<T, C>>
+	extends UiInputField<T, C> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The value datatype
 	 * @param rValue    The initial value
 	 */
-	public UiNumberInputField(UiContainer<?> rParent,
-							  Class<T>		 rDatatype,
-							  T				 rValue)
-	{
+	public UiNumberInputField(UiContainer<?> rParent, Class<T> rDatatype,
+		T rValue) {
 		super(rParent, rDatatype, rValue);
 	}
 }

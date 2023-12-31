@@ -24,37 +24,28 @@ import java.util.Date;
 
 import org.obrel.core.SerializableRelatedObject;
 
-
-/********************************************************************
+/**
  * A base class for {@link StorageAdapter} implementations.
  *
  * @author eso
  */
 public abstract class AbstractStorageAdapter extends SerializableRelatedObject
-	implements StorageAdapter
-{
-	//~ Static fields/initializers ---------------------------------------------
+	implements StorageAdapter {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final SimpleDateFormat aConstraintDateFormat =
-		new SimpleDateFormat(FilterableDataModel.CONSTRAINT_DATE_FORMAT_PATTERN);
+		new SimpleDateFormat(
+		FilterableDataModel.CONSTRAINT_DATE_FORMAT_PATTERN);
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public AbstractStorageAdapter()
-	{
+	public AbstractStorageAdapter() {
 		aConstraintDateFormat.setLenient(true);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * ö Must be implemented by subclasses to return a short string that
 	 * describes this instance. Used by {@link #toString()}.
 	 *
@@ -62,79 +53,55 @@ public abstract class AbstractStorageAdapter extends SerializableRelatedObject
 	 */
 	public abstract String getStorageDescription();
 
-	/***************************************
+	/**
 	 * @see Object#toString()
 	 */
 	@Override
-	public String toString()
-	{
-		return String.format("%s[%s]",
-							 getClass().getSimpleName(),
-							 getStorageDescription());
+	public String toString() {
+		return String.format("%s[%s]", getClass().getSimpleName(),
+			getStorageDescription());
 	}
 
-	/***************************************
+	/**
 	 * Parses a string constraint value into a certain datatype.
 	 *
-	 * @param  sConstraint The constraint value
-	 * @param  rDataType   The datatype to parse the constraint into
-	 *
+	 * @param sConstraint The constraint value
+	 * @param rDataType   The datatype to parse the constraint into
 	 * @return The parsed value or NULL if it could not be parsed
-	 *
 	 * @throws IllegalArgumentException If the constraint could not be parsed
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected Object parseConstraintValue(
-		String   sConstraint,
-		Class<?> rDataType)
-	{
+	protected Object parseConstraintValue(String sConstraint,
+		Class<?> rDataType) {
 		Object rValue = sConstraint;
 
-		try
-		{
-			if (!FilterableDataModel.NULL_CONSTRAINT_VALUE.equals(rValue))
-			{
-				if (rDataType.isEnum())
-				{
-					try
-					{
+		try {
+			if (!FilterableDataModel.NULL_CONSTRAINT_VALUE.equals(rValue)) {
+				if (rDataType.isEnum()) {
+					try {
 						rValue =
 							Enum.valueOf((Class<Enum>) rDataType, sConstraint);
-					}
-					catch (Exception e)
-					{
+					} catch (Exception e) {
 						rValue = sConstraint;
 					}
-				}
-				else if (Number.class.isAssignableFrom(rDataType))
-				{
-					try
-					{
+				} else if (Number.class.isAssignableFrom(rDataType)) {
+					try {
 						rValue = Integer.valueOf(sConstraint);
-					}
-					catch (NumberFormatException e)
-					{
+					} catch (NumberFormatException e) {
 						rValue = null;
 					}
-				}
-				else if (rDataType == Boolean.class)
-				{
-					rValue =
-						sConstraint != null ? Boolean.valueOf(sConstraint)
-											: null;
-				}
-				else if (Date.class.isAssignableFrom(rDataType))
-				{
+				} else if (rDataType == Boolean.class) {
+					rValue = sConstraint != null ?
+					         Boolean.valueOf(sConstraint) :
+					         null;
+				} else if (Date.class.isAssignableFrom(rDataType)) {
 					rValue = aConstraintDateFormat.parse(sConstraint);
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			String sMessage =
 				String.format("Could not parse constraint %s as type %s",
-							  sConstraint,
-							  rDataType);
+					sConstraint, rDataType);
 
 			throw new IllegalArgumentException(sMessage, e);
 		}

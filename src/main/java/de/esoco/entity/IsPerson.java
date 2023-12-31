@@ -18,13 +18,11 @@ package de.esoco.entity;
 
 import org.obrel.core.Relatable;
 
-
-/********************************************************************
+/**
  * An interface that marks entities which represent a natural or legal person.
  * To make full use of the framework implementations should always derive their
  *
  * @author eso
  */
-public interface IsPerson extends Relatable
-{
+public interface IsPerson extends Relatable {
 }

@@ -21,128 +21,103 @@ import de.esoco.lib.app.CommandLineException;
 import de.esoco.lib.app.Service;
 import de.esoco.lib.logging.LogLevel;
 
-
-/********************************************************************
+/**
  * An service implementation that executes a {@link Process}.
  *
  * @author eso
  */
-public class ProcessService extends Service
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ProcessService extends Service {
 
 	private static final String ARG_PROCESS = "process";
 
-	//~ Instance fields --------------------------------------------------------
-
 	private ProcessRunner aProcessRunner;
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * The main method of this application.
 	 *
 	 * @param rArgs The application arguments
 	 */
-	public static void main(String[] rArgs)
-	{
+	public static void main(String[] rArgs) {
 		new ProcessService().run(rArgs);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see de.esoco.lib.manage.Stoppable#stop()
 	 */
 	@Override
-	public void stop()
-	{
+	public void stop() {
 		aProcessRunner.stop();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void configure(CommandLine rCommandLine) throws Exception
-	{
+	protected void configure(CommandLine rCommandLine) throws Exception {
 		aProcessRunner.setLogLevel(LogLevel.INFO);
 	}
 
-	/***************************************
+	/**
 	 * Creates the {@link ProcessRunner} instance that will be used to run the
-	 * process of this application. Can be overridden by subclasses that need to
+	 * process of this application. Can be overridden by subclasses that
+	 * need to
 	 * run a sub-class of {@link ProcessRunner}.
 	 *
-	 * @param  rCommandLine The application command line
-	 *
+	 * @param rCommandLine The application command line
 	 * @return A process runner instance
-	 *
 	 * @throws Exception If creating the runner fails
 	 */
 	@SuppressWarnings("unchecked")
 	protected ProcessRunner createProcessRunner(CommandLine rCommandLine)
-		throws Exception
-	{
+		throws Exception {
 		ProcessRunner aRunner = null;
 
 		String sProcess = rCommandLine.requireOption(ARG_PROCESS).toString();
 
-		try
-		{
+		try {
 			Class<?> rProcessClass = Class.forName(sProcess);
 
-			if (ProcessDefinition.class.isAssignableFrom(rProcessClass))
-			{
+			if (ProcessDefinition.class.isAssignableFrom(rProcessClass)) {
 				ProcessDefinition rProcessDef =
-					ProcessManager.getProcessDefinition((Class<? extends ProcessDefinition>)
-														rProcessClass);
+					ProcessManager.getProcessDefinition(
+						(Class<? extends ProcessDefinition>) rProcessClass);
 
 				aRunner = new ProcessRunner(rProcessDef);
 			}
-		}
-		catch (ClassNotFoundException e)
-		{
-			throw new CommandLineException(String.format("Could not find process class '%s'",
-														 sProcess),
-										   ARG_PROCESS,
-										   e);
+		} catch (ClassNotFoundException e) {
+			throw new CommandLineException(
+				String.format("Could not find process class '%s'", sProcess),
+				ARG_PROCESS, e);
 		}
 
-		if (aRunner != null)
-		{
+		if (aRunner != null) {
 			return aRunner;
-		}
-		else
-		{
+		} else {
 			throw new CommandLineException("Missing argument %s", ARG_PROCESS);
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected String getServiceName()
-	{
+	protected String getServiceName() {
 		return aProcessRunner.getProcessDefinition().getClass().getSimpleName();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initialize(CommandLine rCommandLine) throws Exception
-	{
+	protected void initialize(CommandLine rCommandLine) throws Exception {
 		aProcessRunner = createProcessRunner(rCommandLine);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void runService() throws Exception
-	{
+	protected void runService() throws Exception {
 		aProcessRunner.run();
 	}
 }

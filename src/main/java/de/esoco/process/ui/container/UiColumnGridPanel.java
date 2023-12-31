@@ -21,25 +21,21 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 
-
-/********************************************************************
+/**
  * A panel that layouts it's children with a {@link UiColumnGridLayout} in a
  * vertically aligned grid. Components are added to the same grid row until
  * {@link UiLayout#nextRow() nextRow()} is called on the layout.
  *
  * @author eso
  */
-public class UiColumnGridPanel extends UiLayoutContainer<UiColumnGridPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiColumnGridPanel extends UiLayoutContainer<UiColumnGridPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiColumnGridPanel(UiContainer<?> rParent)
-	{
+	public UiColumnGridPanel(UiContainer<?> rParent) {
 		super(rParent, new UiColumnGridLayout());
 	}
 }

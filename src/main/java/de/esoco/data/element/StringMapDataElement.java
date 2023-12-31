@@ -23,46 +23,36 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A map data element implementation that contains string mappings. It uses a
  * {@link LinkedHashMap} to preserve the order in which mappings are added.
  *
  * @author eso
  */
-public class StringMapDataElement extends MapDataElement<String, String>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class StringMapDataElement extends MapDataElement<String, String> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private Map<String, String> aDataMap = new LinkedHashMap<String, String>();
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance with a certain name.
 	 *
 	 * @param sName The name of the element
 	 */
-	public StringMapDataElement(String sName)
-	{
+	public StringMapDataElement(String sName) {
 		this(sName, null, null);
 	}
 
-	/***************************************
+	/**
 	 * @see MapDataElement#MapDataElement(String, Validator, Set)
 	 */
-	public StringMapDataElement(String					  sName,
-								Validator<? super String> rValidator,
-								Set<Flag>				  rFlags)
-	{
+	public StringMapDataElement(String sName,
+		Validator<? super String> rValidator, Set<Flag> rFlags) {
 		super(sName, rValidator, rFlags);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance that is initialized from a certain map.
 	 *
 	 * @param sName            The name of this data element
@@ -71,51 +61,44 @@ public class StringMapDataElement extends MapDataElement<String, String>
 	 * @param rFlags           The optional flags for this data element or NULL
 	 *                         for none
 	 */
-	public StringMapDataElement(String					  sName,
-								Map<String, String>		  rInitialMappings,
-								Validator<? super String> rValidator,
-								Set<Flag>				  rFlags)
-	{
+	public StringMapDataElement(String sName,
+		Map<String, String> rInitialMappings,
+		Validator<? super String> rValidator, Set<Flag> rFlags) {
 		this(sName, rValidator, rFlags);
 
 		aDataMap.putAll(rInitialMappings);
 	}
 
-	/***************************************
+	/**
 	 * @see MapDataElement#MapDataElement()
 	 */
-	StringMapDataElement()
-	{
+	StringMapDataElement() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringMapDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
-	{
+	public StringMapDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (StringMapDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * Returns the internal map of this data element.
 	 *
 	 * @see MapDataElement#getMap()
 	 */
 	@Override
-	public Map<String, String> getMap()
-	{
+	public Map<String, String> getMap() {
 		return aDataMap;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected StringMapDataElement newInstance()
-	{
+	protected StringMapDataElement newInstance() {
 		return new StringMapDataElement();
 	}
 }

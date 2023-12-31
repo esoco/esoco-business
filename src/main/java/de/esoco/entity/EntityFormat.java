@@ -23,77 +23,59 @@ import java.util.Collection;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
 
-
-/********************************************************************
+/**
  * A function that converts an entity into a formatted string value.
  *
  * @author eso
  */
-public class EntityFormat<E extends Entity> implements Function<E, String>
-{
-	//~ Instance fields --------------------------------------------------------
+public class EntityFormat<E extends Entity> implements Function<E, String> {
 
 	private final String sNullString;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param sNullString The string to be displayed if the input entity is NULL
+	 * @param sNullString The string to be displayed if the input entity is
+	 *                    NULL
 	 */
-	public EntityFormat(String sNullString)
-	{
+	public EntityFormat(String sNullString) {
 		this.sNullString = sNullString;
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Formats an entity in to a describing string.
 	 *
-	 * @param  rEntity The entity to format
-	 *
+	 * @param rEntity The entity to format
 	 * @return The resulting string
 	 */
-	public static String toString(Entity rEntity)
-	{
-		EntityDefinition<?>  rDefinition = rEntity.getDefinition();
-		RelationType<String> rNameAttr   = rDefinition.getNameAttribute();
+	public static String toString(Entity rEntity) {
+		EntityDefinition<?> rDefinition = rEntity.getDefinition();
+		RelationType<String> rNameAttr = rDefinition.getNameAttribute();
 
 		Collection<RelationType<?>> rAttributes = rDefinition.getAttributes();
-		String					    sResult     = null;
+		String sResult = null;
 
-		if (rNameAttr != null)
-		{
+		if (rNameAttr != null) {
 			sResult = rEntity.get(rNameAttr);
 
 			String sFirstName = rEntity.get(StandardTypes.FIRST_NAME);
 
-			if (sFirstName != null && sFirstName.length() > 0)
-			{
+			if (sFirstName != null && sFirstName.length() > 0) {
 				sResult = sFirstName + " " + sResult;
 			}
-		}
-		else if (rAttributes.contains(StandardTypes.INFO))
-		{
+		} else if (rAttributes.contains(StandardTypes.INFO)) {
 			String sInfo = rEntity.get(StandardTypes.INFO);
 
-			if (sInfo != null && sInfo.length() > 0)
-			{
+			if (sInfo != null && sInfo.length() > 0) {
 				sResult = sInfo;
 			}
-		}
-		else
-		{
+		} else {
 			RelationType<Enum<?>> rTypeAttribute = rEntity.getTypeAttribute();
 
-			if (rTypeAttribute != null)
-			{
+			if (rTypeAttribute != null) {
 				Enum<?> eType = rEntity.get(rTypeAttribute);
 
-				if (eType != null)
-				{
+				if (eType != null) {
 					sResult = eType.name();
 				}
 			}
@@ -102,18 +84,14 @@ public class EntityFormat<E extends Entity> implements Function<E, String>
 		return sResult != null ? sResult : "";
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String evaluate(E rEntity)
-	{
+	public String evaluate(E rEntity) {
 		String sResult = sNullString;
 
-		if (rEntity != null)
-		{
+		if (rEntity != null) {
 			sResult = toString(rEntity);
 		}
 

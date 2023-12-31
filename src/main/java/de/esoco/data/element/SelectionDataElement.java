@@ -25,18 +25,13 @@ import de.esoco.lib.property.PropertyName;
 import java.util.List;
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A data element that stores information about a selection. The element value
  * is the identifier of the selected object.
  *
  * @author eso
  */
-public class SelectionDataElement extends StringDataElement
-{
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+public class SelectionDataElement extends StringDataElement {
 
 	/**
 	 * A constant for the value of this element if no value is currently
@@ -44,27 +39,24 @@ public class SelectionDataElement extends StringDataElement
 	 */
 	public static final String NO_SELECTION = "-1";
 
-	//~ Constructors -----------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
-	/***************************************
-	 * Creates a new instance with no initial selection and a {@link
-	 * SelectionValidator} that is initialized with the given data and columns.
+	/**
+	 * Creates a new instance with no initial selection and a
+	 * {@link SelectionValidator} that is initialized with the given data and
+	 * columns.
 	 *
 	 * @param sName    The name of this element
 	 * @param rData    The data objects to be displayed and selected from
 	 * @param rColumns The data columns to be displayed
 	 */
-	public SelectionDataElement(String						 sName,
-								List<HierarchicalDataObject> rData,
-								List<ColumnDefinition>		 rColumns)
-	{
-		this(sName,
-			 NO_SELECTION,
-			 new SelectionValidator(rData, rColumns),
-			 null);
+	public SelectionDataElement(String sName,
+		List<HierarchicalDataObject> rData, List<ColumnDefinition> rColumns) {
+		this(sName, NO_SELECTION, new SelectionValidator(rData, rColumns),
+			null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName             The name of this element
@@ -72,59 +64,50 @@ public class SelectionDataElement extends StringDataElement
 	 * @param rValidator        The validator defining the selectable elements
 	 * @param rFlags            The optional flags for this data element
 	 */
-	public SelectionDataElement(String					  sName,
-								String					  sInitialSelection,
-								Validator<? super String> rValidator,
-								Set<Flag>				  rFlags)
-	{
+	public SelectionDataElement(String sName, String sInitialSelection,
+		Validator<? super String> rValidator, Set<Flag> rFlags) {
 		super(sName, sInitialSelection, rValidator, rFlags);
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	SelectionDataElement()
-	{
+	SelectionDataElement() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public SelectionDataElement copy(CopyMode eMode, PropertyName<?>... rCopyProperties)
-	{
+	public SelectionDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (SelectionDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * Returns the integer index of the current selection.
 	 *
 	 * @return The selection index (-1 for no selection)
 	 */
-	public int getSelectionIndex()
-	{
+	public int getSelectionIndex() {
 		return Integer.parseInt(getValue());
 	}
 
-	/***************************************
+	/**
 	 * Checks whether this instance has a selection by comparing the value with
 	 * the {@link #NO_SELECTION} constant.
 	 *
 	 * @return TRUE if this instance has a valid selection
 	 */
-	public boolean hasSelection()
-	{
+	public boolean hasSelection() {
 		return !NO_SELECTION.equals(getValue());
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected SelectionDataElement newInstance()
-	{
+	protected SelectionDataElement newInstance() {
 		return new SelectionDataElement();
 	}
 }

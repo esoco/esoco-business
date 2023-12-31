@@ -23,138 +23,109 @@ import java.util.List;
 
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A fragment that allows to edit the elements of an interaction.
  *
  * @author eso
  */
 public class EditInteractionParameters extends InteractionFragment
-	implements Updatable
-{
-	//~ Static fields/initializers ---------------------------------------------
+	implements Updatable {
 
 	private static final long serialVersionUID = 1L;
-
-	//~ Instance fields --------------------------------------------------------
 
 	private List<RelationType<?>> rRootParams;
 
 	private InteractionParameterTree aElementTree;
+
 	private EditInteractionParameter aElementEditor;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rRootParams The root fragment to edit
 	 */
-	public EditInteractionParameters(List<RelationType<?>> rRootParams)
-	{
+	public EditInteractionParameters(List<RelationType<?>> rRootParams) {
 		this.rRootParams = rRootParams;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init() throws Exception
-	{
+	public void init() throws Exception {
 		setLayout(LayoutType.SPLIT, getFragmentParameter());
 
-		aElementTree   = new InteractionParameterTree(rRootParams);
+		aElementTree = new InteractionParameterTree(rRootParams);
 		aElementEditor = new EditInteractionParameter();
 
 		addSubFragment(aElementTree).width("300px");
 		addSubFragment(aElementEditor);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void update()
-	{
+	public void update() {
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * This fragment allows the editing of a single element in the interaction
 	 * hierarchy.
 	 *
 	 * @author eso
 	 */
-	public static class EditInteractionParameter extends InteractionFragment
-	{
-		//~ Static fields/initializers -----------------------------------------
+	public static class EditInteractionParameter extends InteractionFragment {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
 		public void handleInteraction(RelationType<?> rInteractionParam)
-			throws Exception
-		{
+			throws Exception {
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void init() throws Exception
-		{
-			textParam("NoInteractionParamSelected").display()
-												   .value("Please select a parameter");
+		public void init() throws Exception {
+			textParam("NoInteractionParamSelected")
+				.display()
+				.value("Please select a parameter");
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * This fragment displays the tree of interaction elements and the controls
 	 * to manipulate it.
 	 *
 	 * @author eso
 	 */
-	static class InteractionParameterTree extends InteractionFragment
-	{
-		//~ Static fields/initializers -----------------------------------------
+	static class InteractionParameterTree extends InteractionFragment {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
-
 		private List<RelationType<?>> rRootParams;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param rRootParams The root parameters to display in the tree
 		 */
-		public InteractionParameterTree(List<RelationType<?>> rRootParams)
-		{
+		public InteractionParameterTree(List<RelationType<?>> rRootParams) {
 			this.rRootParams = rRootParams;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
 		@SuppressWarnings("unused")
-		public void init() throws Exception
-		{
-			for (RelationType<?> rParam : rRootParams)
-			{
+		public void init() throws Exception {
+			for (RelationType<?> rParam : rRootParams) {
 			}
 		}
 	}

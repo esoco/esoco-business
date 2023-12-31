@@ -54,8 +54,7 @@ import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
 import static org.obrel.core.RelationTypes.newFlagType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * An interactive process step that adds a history note. Multiple target
  * entities for the history records can be stored in a parameter with the type
  * {@link #HISTORY_TARGETS}. Alternatively a single history target can either be
@@ -65,14 +64,11 @@ import static org.obrel.core.RelationTypes.newType;
  *
  * @author eso
  */
-public class AddHistoryNote extends Interaction
-{
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+public class AddHistoryNote extends Interaction {
 
 	/**
-	 * A parameter containing a list of multiple history targets. This parameter
+	 * A parameter containing a list of multiple history targets. This
+	 * parameter
 	 * has precedence over all other history target parameters.
 	 */
 	public static final RelationType<List<Entity>> HISTORY_TARGETS =
@@ -82,11 +78,13 @@ public class AddHistoryNote extends Interaction
 	 * A reference to another parameter that contains the target entities for a
 	 * history record.
 	 */
-	public static final RelationType<RelationType<? extends List<? extends Entity>>> HISTORY_TARGETS_PARAM =
-		RelationTypes.newType();
+	public static final RelationType<RelationType<? extends List<?
+		extends Entity>>>
+		HISTORY_TARGETS_PARAM = RelationTypes.newType();
 
 	/**
-	 * An optional input parameter that signals that the note input is optional.
+	 * An optional input parameter that signals that the note input is
+	 * optional.
 	 */
 	public static final RelationType<Boolean> HISTORY_NOTE_OPTIONAL =
 		newFlagType();
@@ -115,67 +113,53 @@ public class AddHistoryNote extends Interaction
 	 */
 	public static final RelationType<String> HISTORY_NOTE_VALUE = newType();
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(AddHistoryNote.class);
 	}
 
-	//~ Instance fields --------------------------------------------------------
-
 	private Map<String, String> aNoteTemplateMap;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public AddHistoryNote()
-	{
+	public AddHistoryNote() {
 		set(MetaTypes.TRANSACTIONAL);
 		addDisplayParameters(HISTORY_NOTE_TARGETS);
-		addInputParameters(HISTORY_NOTE_TEMPLATE,
-						   HISTORY_NOTE_TITLE,
-						   HISTORY_NOTE_VALUE);
+		addInputParameters(HISTORY_NOTE_TEMPLATE, HISTORY_NOTE_TITLE,
+			HISTORY_NOTE_VALUE);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to disallow rollback.
 	 *
 	 * @see RollbackStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return false;
 	}
 
-	/***************************************
+	/**
 	 * @see Interaction#execute()
 	 */
 	@Override
-	protected void execute() throws Exception
-	{
+	protected void execute() throws Exception {
 		RelationType<?> rInteractionParam = getInteractiveInputParameter();
 
-		if (rInteractionParam == HISTORY_NOTE_TEMPLATE)
-		{
+		if (rInteractionParam == HISTORY_NOTE_TEMPLATE) {
 			String sTitle = getParameter(HISTORY_NOTE_TEMPLATE);
 
-			if (sTitle != null)
-			{
+			if (sTitle != null) {
 				setParameter(HISTORY_NOTE_TITLE, sTitle);
 				setParameter(HISTORY_NOTE_VALUE, aNoteTemplateMap.get(sTitle));
 			}
-		}
-		else if (rInteractionParam == null)
-		{
+		} else if (rInteractionParam == null) {
 			List<Entity> rTargets = getHistoryTargets();
-			String		 sTitle   = getParameter(HISTORY_NOTE_TITLE);
+			String sTitle = getParameter(HISTORY_NOTE_TITLE);
 
-			if (sTitle != null && sTitle.length() > 0)
-			{
+			if (sTitle != null && sTitle.length() > 0) {
 				String sValue = getParameter(HISTORY_NOTE_VALUE);
 
 				sValue = sTitle + '\n' + sValue;
@@ -190,12 +174,11 @@ public class AddHistoryNote extends Interaction
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void prepareParameters() throws Exception
-	{
+	protected void prepareParameters() throws Exception {
 		List<Entity> rTargets = getHistoryTargets();
 
 		aNoteTemplateMap = new LinkedHashMap<String, String>();
@@ -203,38 +186,31 @@ public class AddHistoryNote extends Interaction
 		int nCount = rTargets.size();
 
 		setParameter(HISTORY_NOTE_TARGETS,
-					 CollectionUtil.toString(rTargets,
-											 EntityFunctions.formatEntity(""),
-											 ", "));
+			CollectionUtil.toString(rTargets, EntityFunctions.formatEntity(""),
+				", "));
 
-		if (nCount > 1)
-		{
+		if (nCount > 1) {
 			setUIProperty(Math.min(nCount / 2, 5), ROWS, HISTORY_NOTE_TARGETS);
 		}
 
 		setUIProperty(RESOURCE_ID, "HistoryNoteValue", HISTORY_NOTE_VALUE);
 		setUIProperty(-1, ROWS, HISTORY_NOTE_VALUE);
 		setUIProperty(HTML_HEIGHT, "100%", HISTORY_NOTE_VALUE);
-		setUIProperty(INTERACTIVE_INPUT_MODE,
-					  InteractiveInputMode.CONTINUOUS,
-					  HISTORY_NOTE_TEMPLATE);
+		setUIProperty(INTERACTIVE_INPUT_MODE, InteractiveInputMode.CONTINUOUS,
+			HISTORY_NOTE_TEMPLATE);
 
 		ProvidesConfiguration rConfiguration = getParameter(CONFIGURATION);
 
-		if (rConfiguration != null)
-		{
+		if (rConfiguration != null) {
 			Map<String, String> rHistoryTemplateMap =
 				rConfiguration.getConfigValue(HISTORY_NOTE_TEMPLATES, null);
 
-			if (rHistoryTemplateMap != null)
-			{
+			if (rHistoryTemplateMap != null) {
+				parseTemplates(aNoteTemplateMap, rHistoryTemplateMap.get(
+					getProcess().get(StandardTypes.NAME)));
 				parseTemplates(aNoteTemplateMap,
-							   rHistoryTemplateMap.get(getProcess().get(StandardTypes.NAME)));
-				parseTemplates(aNoteTemplateMap,
-							   rHistoryTemplateMap.get(DEFAULT_HISTORY_NOTE_TEMPLATES));
-			}
-			else
-			{
+					rHistoryTemplateMap.get(DEFAULT_HISTORY_NOTE_TEMPLATES));
+			} else {
 				aNoteTemplateMap.put("Interne Änderung", "");
 				aNoteTemplateMap.put("DNS-Änderung", "Alt:\nNeu:");
 				aNoteTemplateMap.put("Kundenkontakt", "");
@@ -243,66 +219,54 @@ public class AddHistoryNote extends Interaction
 
 		setAllowedValues(HISTORY_NOTE_TEMPLATE, aNoteTemplateMap.keySet());
 
-		if (!hasFlagParameter(HISTORY_NOTE_OPTIONAL))
-		{
+		if (!hasFlagParameter(HISTORY_NOTE_OPTIONAL)) {
 			setParameterNotEmptyValidations(HISTORY_NOTE_TITLE);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Stores history notes on a list of target entities.
 	 *
-	 * @param  rOrigin  The origin of the note
-	 * @param  rTargets The target entities
-	 * @param  sNote    The note string
-	 *
+	 * @param rOrigin  The origin of the note
+	 * @param rTargets The target entities
+	 * @param sNote    The note string
 	 * @throws Exception If storing a history record fails
 	 */
-	protected void storeNotes(Entity				 rOrigin,
-							  List<? extends Entity> rTargets,
-							  String				 sNote) throws Exception
-	{
-		for (Entity rTarget : rTargets)
-		{
+	protected void storeNotes(Entity rOrigin, List<? extends Entity> rTargets,
+		String sNote) throws Exception {
+		for (Entity rTarget : rTargets) {
 			HistoryManager.record(HistoryType.NOTE, rOrigin, rTarget, sNote);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Retrieves the list of history targets from the process parameters.
 	 *
 	 * @return The history targets
-	 *
 	 * @throws ProcessException If no history target is available
 	 */
 	@SuppressWarnings("unchecked")
-	private List<Entity> getHistoryTargets() throws ProcessException
-	{
+	private List<Entity> getHistoryTargets() throws ProcessException {
 		List<Entity> rTargets = getParameter(HISTORY_TARGETS);
 
-		if (rTargets == null || rTargets.isEmpty())
-		{
-			RelationType<? extends List<? extends Entity>> rHistoryTargetsParam =
-				getParameter(HISTORY_TARGETS_PARAM);
+		if (rTargets == null || rTargets.isEmpty()) {
+			RelationType<? extends List<? extends Entity>>
+				rHistoryTargetsParam = getParameter(HISTORY_TARGETS_PARAM);
 
-			if (rHistoryTargetsParam != null)
-			{
+			if (rHistoryTargetsParam != null) {
 				rTargets = (List<Entity>) getParameter(rHistoryTargetsParam);
 			}
 
-			if (rTargets == null || rTargets.isEmpty())
-			{
+			if (rTargets == null || rTargets.isEmpty()) {
 				Entity rTarget = getParameter(HistoryRecord.TARGET);
 
-				if (rTarget == null)
-				{
+				if (rTarget == null) {
 					rTarget =
 						getParameter(checkParameter(HISTORY_TARGET_PARAM));
 
-					if (rTarget == null)
-					{
+					if (rTarget == null) {
 						throw new ProcessException(this,
-												   "MissingHistoryNoteTarget");
+							"MissingHistoryNoteTarget");
 					}
 				}
 
@@ -313,25 +277,21 @@ public class AddHistoryNote extends Interaction
 		return rTargets;
 	}
 
-	/***************************************
+	/**
 	 * Parses a raw template string into a map.
 	 *
 	 * @param rTemplateMap  The target template map
 	 * @param sRawTemplates The raw templates string to parse
 	 */
-	private void parseTemplates(
-		Map<String, String> rTemplateMap,
-		String				sRawTemplates)
-	{
-		if (sRawTemplates != null)
-		{
+	private void parseTemplates(Map<String, String> rTemplateMap,
+		String sRawTemplates) {
+		if (sRawTemplates != null) {
 			String[] aTemplates = sRawTemplates.split("\n");
 
-			for (String sTemplate : aTemplates)
-			{
-				int    nSeparator = sTemplate.indexOf('|');
-				String sTitle     = sTemplate.substring(0, nSeparator);
-				String sValue     = sTemplate.substring(nSeparator + 1);
+			for (String sTemplate : aTemplates) {
+				int nSeparator = sTemplate.indexOf('|');
+				String sTitle = sTemplate.substring(0, nSeparator);
+				String sValue = sTemplate.substring(nSeparator + 1);
 
 				sValue = sValue.replaceAll("\r", "");
 				sValue = sValue.replaceAll("\\$n", "\n");

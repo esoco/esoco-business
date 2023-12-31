@@ -24,34 +24,29 @@ import java.util.Collection;
 
 import static de.esoco.lib.property.StyleProperties.ORIENTATION;
 
-
-/********************************************************************
+/**
  * The side menu of a web page.
  *
  * @author eso
  */
-public class UiSideMenu<T> extends UiNavMenu<T>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiSideMenu<T> extends UiNavMenu<T> {
 
-	/***************************************
+	/**
 	 * Creates a new instance without preset menu items.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiSideMenu(UiContainer<?> rParent)
-	{
+	public UiSideMenu(UiContainer<?> rParent) {
 		this(rParent, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with preset menu items.
 	 *
 	 * @param rParent    The parent container
 	 * @param rMenuItems The initial menu items
 	 */
-	public UiSideMenu(UiContainer<?> rParent, Collection<T> rMenuItems)
-	{
+	public UiSideMenu(UiContainer<?> rParent, Collection<T> rMenuItems) {
 		super(rParent, rMenuItems);
 
 		set(ORIENTATION, Orientation.VERTICAL);

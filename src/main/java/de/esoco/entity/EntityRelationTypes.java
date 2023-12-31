@@ -57,19 +57,16 @@ import static org.obrel.type.MetaTypes.CHILD_ATTRIBUTE;
 import static org.obrel.type.MetaTypes.OBJECT_ID_ATTRIBUTE;
 import static org.obrel.type.MetaTypes.PARENT_ATTRIBUTE;
 
-
-/********************************************************************
+/**
  * Contains entity-specific relation type declarations and factory methods to
  * create such relation types.
  *
  * @author eso
  */
 @RelationTypeNamespace("de.esoco.entity")
-public class EntityRelationTypes
-{
-	//~ Enums ------------------------------------------------------------------
+public class EntityRelationTypes {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the possible modes for hierarchical queries. The values
 	 * are:
 	 *
@@ -80,9 +77,7 @@ public class EntityRelationTypes
 	 *   <li>{@link #ALWAYS}: always perform a hierarchical query.</li>
 	 * </ul>
 	 */
-	public enum HierarchicalQueryMode { NEVER, UNCONSTRAINED, ALWAYS }
-
-	//~ Static fields/initializers ---------------------------------------------
+	public enum HierarchicalQueryMode {NEVER, UNCONSTRAINED, ALWAYS}
 
 	/**
 	 * Meta-type that marks a relation type that represents the root in a
@@ -97,53 +92,74 @@ public class EntityRelationTypes
 	 */
 	public static final RelationType<Boolean> CACHE_ENTITY = newFlagType();
 
-	/** The entity ID of an entity's parent entity. */
+	/**
+	 * The entity ID of an entity's parent entity.
+	 */
 	public static final RelationType<Long> PARENT_ENTITY_ID = newLongType();
 
-	/** The entity ID of an entity's master entity. */
+	/**
+	 * The entity ID of an entity's master entity.
+	 */
 	public static final RelationType<Long> MASTER_ENTITY_ID = newLongType();
 
-	/** A generic reference to a single entity, */
+	/**
+	 * A generic reference to a single entity,
+	 */
 	public static final RelationType<Entity> ENTITY = entityAttribute();
 
-	/** An entity class. */
+	/**
+	 * An entity class.
+	 */
 	public static final RelationType<Class<? extends Entity>> ENTITY_CLASS =
 		newType();
 
-	/** A predicate for entities. */
-	public static final RelationType<Predicate<? super Entity>> ENTITY_PREDICATE =
-		newType();
+	/**
+	 * A predicate for entities.
+	 */
+	public static final RelationType<Predicate<? super Entity>>
+		ENTITY_PREDICATE = newType();
 
-	/** A query predicate for entity storage queries. */
-	public static final RelationType<QueryPredicate<? extends Entity>> ENTITY_QUERY_PREDICATE =
-		newType();
+	/**
+	 * A query predicate for entity storage queries.
+	 */
+	public static final RelationType<QueryPredicate<? extends Entity>>
+		ENTITY_QUERY_PREDICATE = newType();
 
-	/** A previously executed entity query predicate. */
-	public static final RelationType<QueryPredicate<? extends Entity>> LAST_ENTITY_QUERY_PREDICATE =
-		newType();
+	/**
+	 * A previously executed entity query predicate.
+	 */
+	public static final RelationType<QueryPredicate<? extends Entity>>
+		LAST_ENTITY_QUERY_PREDICATE = newType();
 
-	/** A predicate that defines the sort order of entities */
-	public static final RelationType<Predicate<? super Entity>> ENTITY_SORT_PREDICATE =
-		newType();
+	/**
+	 * A predicate that defines the sort order of entities
+	 */
+	public static final RelationType<Predicate<? super Entity>>
+		ENTITY_SORT_PREDICATE = newType();
 
 	/**
 	 * A flag that will skip the automatic change logging of an entity the next
-	 * time it is stored with {@link EntityManager#storeEntity(Entity, Entity,
-	 * boolean)}. The flag will automatically be removed after the entity has
-	 * been stored so that it must always be set before an entity is stored to
-	 * skip the creation of history.
+	 * time it is stored with
+	 * {@link EntityManager#storeEntity(Entity, Entity, boolean)}. The flag
+	 * will
+	 * automatically be removed after the entity has been stored so that it
+	 * must
+	 * always be set before an entity is stored to skip the creation of
+	 * history.
 	 */
 	public static final RelationType<Boolean> SKIP_NEXT_CHANGE_LOGGING =
 		newType();
 
 	/**
-	 * A flag that prevents the locking of an entity by {@link EntityManager} if
+	 * A flag that prevents the locking of an entity by
+	 * {@link EntityManager} if
 	 * it is set on the entity. This is intended to be used for bulk processing
 	 * of entities. Applying code must ensure that the flag is removed
 	 * afterwards, especially for cached entities. If necessary it must also
-	 * ensure that the affected entities are not modified concurrently while the
-	 * locking is disabled (e.g. through {@link
-	 * EntityManager#setEntityModificationLock(String, Predicate)}).
+	 * ensure that the affected entities are not modified concurrently while
+	 * the
+	 * locking is disabled (e.g. through
+	 * {@link EntityManager#setEntityModificationLock(String, Predicate)}).
 	 */
 	public static final RelationType<Boolean> NO_ENTITY_LOCKING = newType();
 
@@ -159,12 +175,13 @@ public class EntityRelationTypes
 	 * These can either be attribute relation types (because relation types
 	 * implement the function interface) or more complex functions that access
 	 * the entity hierarchy or convert values (for example). This type is not
-	 * defined with the standard factory method for list properties to avoid the
+	 * defined with the standard factory method for list properties to avoid
+	 * the
 	 * creation of a default value. Accessing a non-existing relation of this
 	 * type will therefore return NULL.
 	 */
-	public static final RelationType<List<Function<? super Entity, ?>>> ENTITY_ATTRIBUTES =
-		newType();
+	public static final RelationType<List<Function<? super Entity, ?>>>
+		ENTITY_ATTRIBUTES = newType();
 
 	/**
 	 * The mode to be used when displaying entity attributes. The default value
@@ -177,28 +194,32 @@ public class EntityRelationTypes
 	 * A relation type to set the {@link HierarchicalQueryMode} on a query
 	 * predicate. The default value is {@link HierarchicalQueryMode#NEVER}.
 	 */
-	public static final RelationType<HierarchicalQueryMode> HIERARCHICAL_QUERY_MODE =
+	public static final RelationType<HierarchicalQueryMode>
+		HIERARCHICAL_QUERY_MODE =
 		newInitialValueType(HierarchicalQueryMode.NEVER);
 
 	/**
-	 * A predicate that defines the roots of a hierarchy. It constrains the root
-	 * entities that are displayed in the hierarchical query modes {@link
-	 * HierarchicalQueryMode#ALWAYS ALWAYS} and {@link
-	 * HierarchicalQueryMode#UNCONSTRAINED UNCONSTRAINED}. If not set the
+	 * A predicate that defines the roots of a hierarchy. It constrains the
+	 * root
+	 * entities that are displayed in the hierarchical query modes
+	 * {@link HierarchicalQueryMode#ALWAYS ALWAYS} and
+	 * {@link HierarchicalQueryMode#UNCONSTRAINED UNCONSTRAINED}. If not set
+	 * the
 	 * default root criterion PARENT = NULL will be used.
 	 */
-	public static final RelationType<Predicate<? super Entity>> HIERARCHY_ROOT_PREDICATE =
-		newType();
+	public static final RelationType<Predicate<? super Entity>>
+		HIERARCHY_ROOT_PREDICATE = newType();
 
 	/**
 	 * A predicate that defines the children in a hierarchy. It constrains the
-	 * child entities that are displayed in the hierarchical query modes {@link
-	 * HierarchicalQueryMode#ALWAYS ALWAYS} and {@link
-	 * HierarchicalQueryMode#UNCONSTRAINED UNCONSTRAINED}. If not set all
+	 * child entities that are displayed in the hierarchical query modes
+	 * {@link HierarchicalQueryMode#ALWAYS ALWAYS} and
+	 * {@link HierarchicalQueryMode#UNCONSTRAINED UNCONSTRAINED}. If not set
+	 * all
 	 * children in the hierarchy will be displayed.
 	 */
-	public static final RelationType<Predicate<? super Entity>> HIERARCHY_CHILD_PREDICATE =
-		newType();
+	public static final RelationType<Predicate<? super Entity>>
+		HIERARCHY_CHILD_PREDICATE = newType();
 
 	/**
 	 * Will contain the entity that caused the storing of an entity during an
@@ -209,7 +230,8 @@ public class EntityRelationTypes
 
 	/**
 	 * A collection of entities that should be stored if the target entity is
-	 * stored. Evaluated by {@link EntityManager#storeEntity(Entity, Entity)} to
+	 * stored. Evaluated by
+	 * {@link EntityManager#storeEntity(Entity, Entity)} to
 	 * store the dependent entities in the order in which they are listed after
 	 * the main entity. After the dependent entities have been stored this
 	 * relation will be removed from the target.
@@ -218,7 +240,8 @@ public class EntityRelationTypes
 		newListType();
 
 	/**
-	 * A mapping from global entity IDs to child entities that have been removed
+	 * A mapping from global entity IDs to child entities that have been
+	 * removed
 	 * from a parent. Used internally by the change tracking of the framework.
 	 */
 	public static final RelationType<List<Entity>> REMOVED_CHILDREN =
@@ -250,27 +273,10 @@ public class EntityRelationTypes
 	 * A mapping from global entity IDs to entities that have been modified
 	 * within an entity modification context.
 	 */
-	public static final RelationType<Map<String, Entity>> CONTEXT_MODIFIED_ENTITIES =
-		newMapType(false);
+	public static final RelationType<Map<String, Entity>>
+		CONTEXT_MODIFIED_ENTITIES = newMapType(false);
 
-	//- Extra attribute management types ---------------------------------------
-
-	/**
-	 * Will be set to TRUE after the extra attributes have been read from the
-	 * storage.
-	 */
-	static final RelationType<Boolean> EXTRA_ATTRIBUTES_READ =
-		newFlagType(FINAL);
-
-	/** Will be set to TRUE when extra attributes have been modified. */
-	static final RelationType<Boolean> EXTRA_ATTRIBUTES_MODIFIED =
-		newFlagType();
-
-	/** Contains the mapping from extra attribute keys to extra attributes. */
-	static final RelationType<Map<String, ExtraAttribute>> EXTRA_ATTRIBUTE_MAP =
-		newMapType(false);
-
-	//- Standard entity attributes ---------------------------------------------
+	//- Extra attribute management types
 
 	/**
 	 * The default attribute for an auto-incremented long integer entity ID.
@@ -281,14 +287,18 @@ public class EntityRelationTypes
 	 */
 	public static final RelationType<Long> ENTITY_ID = longAutoIdAttribute();
 
-	/** An entity that is targeted by another entity for a certain purpose. */
+	/**
+	 * An entity that is targeted by another entity for a certain purpose.
+	 */
 	public static final RelationType<Entity> TARGET =
 		arbitraryEntityAttribute();
 
-	/** The date of the last modification of an entity. */
+	/**
+	 * The date of the last modification of an entity.
+	 */
 	public static final RelationType<Date> LAST_CHANGE = newType();
 
-	//- Standard extra attributes ----------------------------------------------
+	//- Standard entity attributes
 
 	/**
 	 * A flag indicating that an entity is locked for (typically concurrent)
@@ -298,213 +308,232 @@ public class EntityRelationTypes
 	public static final RelationType<Boolean> MODIFICATION_LOCK =
 		newExtraAttribute();
 
-	/** Entity is hidden from display. */
-	public static final RelationType<Boolean> HIDE_ENTITY = newExtraAttribute();
+	/**
+	 * Entity is hidden from display.
+	 */
+	public static final RelationType<Boolean> HIDE_ENTITY =
+		newExtraAttribute();
 
-	/** A set of tags that categorize an entity. */
+	/**
+	 * A set of tags that categorize an entity.
+	 */
 	public static final RelationType<Set<String>> ENTITY_TAGS =
 		newOrderedSetExtraAttribute();
 
-	/** Child entities that have bee removed from a parent. */
+	//- Standard extra attributes
+
+	/**
+	 * Child entities that have bee removed from a parent.
+	 */
 	public static final RelationType<List<Entity>> REMOVED_CHILD_ENTITIES =
 		newListType();
 
-	static
-	{
+	/**
+	 * Will be set to TRUE after the extra attributes have been read from the
+	 * storage.
+	 */
+	static final RelationType<Boolean> EXTRA_ATTRIBUTES_READ =
+		newFlagType(FINAL);
+
+	/**
+	 * Will be set to TRUE when extra attributes have been modified.
+	 */
+	static final RelationType<Boolean> EXTRA_ATTRIBUTES_MODIFIED =
+		newFlagType();
+
+	/**
+	 * Contains the mapping from extra attribute keys to extra attributes.
+	 */
+	static final RelationType<Map<String, ExtraAttribute>> EXTRA_ATTRIBUTE_MAP =
+		newMapType(false);
+
+	static {
 		RelationTypes.init(EntityRelationTypes.class);
 
 		ENTITY_ID.set(STORAGE_NAME, "id");
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private EntityRelationTypes()
-	{
+	private EntityRelationTypes() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
-	 * A factory method to create a new relation type for entity attributes that
+	/**
+	 * A factory method to create a new relation type for entity attributes
+	 * that
 	 * reference arbitrary entity instances. The storage datatype for such
 	 * attributes will be a string that holds the global entity ID.
 	 *
 	 * @see #entityAttribute(RelationTypeModifier...)
 	 */
 	public static RelationType<Entity> arbitraryEntityAttribute(
-		RelationTypeModifier... rFlags)
-	{
-		return RelationTypes.<Entity>newType(rFlags)
-							.annotate(STORAGE_DATATYPE, String.class);
+		RelationTypeModifier... rFlags) {
+		return RelationTypes
+			.<Entity>newType(rFlags)
+			.annotate(STORAGE_DATATYPE, String.class);
 	}
 
-	/***************************************
+	/**
 	 * Factory method that creates an integer relation type for automatically
 	 * generated object identifiers. The flags {@link MetaTypes#AUTOGENERATED}
 	 * and {@link MetaTypes#OBJECT_ID_ATTRIBUTE} will be set on the returned
 	 * type. The initial value of relations with this type will be zero.
 	 *
 	 * @see RelationTypes#newRelationType(String, Class,
-	 *      RelationTypeModifier...)
+	 * RelationTypeModifier...)
 	 */
 	public static RelationType<Integer> autoIdAttribute(
-		RelationTypeModifier... rFlags)
-	{
+		RelationTypeModifier... rFlags) {
 		return idAttribute(rFlags).annotate(AUTOGENERATED);
 	}
 
-	/***************************************
-	 * A factory method that creates a new relation type for relations to a list
+	/**
+	 * A factory method that creates a new relation type for relations to a
+	 * list
 	 * of child entities. To prevent initialization cycles the child entity
-	 * definition cannot be set directly through this method. Instead, a special
+	 * definition cannot be set directly through this method. Instead, a
+	 * special
 	 * constructor of {@link EntityDefinition} must be used to define the child
 	 * entity relation and set the entity definitions on the attributes.
 	 *
-	 * @param  rFlags The optional type flags
-	 *
+	 * @param rFlags The optional type flags
 	 * @return A new relation type instance
-	 *
-	 * @see    RelationTypes#newListType(String, Class, RelationTypeModifier...)
+	 * @see RelationTypes#newListType(String, Class, RelationTypeModifier...)
 	 */
 	public static <T extends Entity> RelationType<List<T>> childAttribute(
-		RelationTypeModifier... rFlags)
-	{
+		RelationTypeModifier... rFlags) {
 		return RelationTypes.<T>newListType(rFlags).annotate(CHILD_ATTRIBUTE);
 	}
 
-	/***************************************
-	 * A factory method to create a new relation type for entity attributes that
+	/**
+	 * A factory method to create a new relation type for entity attributes
+	 * that
 	 * reference an entity instance of a specific entity subclass.
 	 *
-	 * @param  rFlags The optional type flags
-	 *
+	 * @param rFlags The optional type flags
 	 * @return A new relation type instance
-	 *
-	 * @see    RelationTypes#newRelationType(String, Class,
-	 *         RelationTypeModifier...)
+	 * @see RelationTypes#newRelationType(String, Class,
+	 * RelationTypeModifier...)
 	 */
 	public static <T extends Entity> RelationType<T> entityAttribute(
-		RelationTypeModifier... rFlags)
-	{
-		return RelationTypes.<T>newType(rFlags)
-							.annotate(STORAGE_DATATYPE, long.class);
+		RelationTypeModifier... rFlags) {
+		return RelationTypes
+			.<T>newType(rFlags)
+			.annotate(STORAGE_DATATYPE, long.class);
 	}
 
-	/***************************************
+	/**
 	 * A factory method that creates an integer relation type for object
 	 * identifiers. The flag {@link MetaTypes#OBJECT_ID_ATTRIBUTE} will be set
 	 * on the returned type. The initial value of relations with this type will
 	 * be zero.
 	 *
 	 * @see RelationTypes#newRelationType(String, Class,
-	 *      RelationTypeModifier...)
+	 * RelationTypeModifier...)
 	 */
 	public static RelationType<Integer> idAttribute(
-		RelationTypeModifier... rFlags)
-	{
-		return RelationTypes.newIntType(rFlags)
-							.annotate(OBJECT_ID_ATTRIBUTE)
-							.annotate(STORAGE_DATATYPE, Integer.class);
+		RelationTypeModifier... rFlags) {
+		return RelationTypes
+			.newIntType(rFlags)
+			.annotate(OBJECT_ID_ATTRIBUTE)
+			.annotate(STORAGE_DATATYPE, Integer.class);
 	}
 
-	/***************************************
+	/**
+	 * Package-internal initialization.
+	 */
+	static void init() {
+	}
+
+	/**
 	 * Factory method that creates a long relation type for automatically
 	 * generated object identifiers. The flags {@link MetaTypes#AUTOGENERATED}
 	 * and {@link MetaTypes#OBJECT_ID_ATTRIBUTE} will be set on the returned
 	 * type. The initial value of relations with this type will be zero.
 	 *
 	 * @see RelationTypes#newRelationType(String, Class,
-	 *      RelationTypeModifier...)
+	 * RelationTypeModifier...)
 	 */
 	public static RelationType<Long> longAutoIdAttribute(
-		RelationTypeModifier... rFlags)
-	{
+		RelationTypeModifier... rFlags) {
 		return longIdAttribute(rFlags).annotate(AUTOGENERATED);
 	}
 
-	/***************************************
+	/**
 	 * A factory method that creates a long relation type for object
 	 * identifiers. The flag {@link MetaTypes#OBJECT_ID_ATTRIBUTE} will be set
 	 * on the returned type. The initial value of relations with this type will
 	 * be zero.
 	 *
 	 * @see RelationTypes#newRelationType(String, Class,
-	 *      RelationTypeModifier...)
+	 * RelationTypeModifier...)
 	 */
 	public static RelationType<Long> longIdAttribute(
-		RelationTypeModifier... rFlags)
-	{
-		return RelationTypes.newLongType(rFlags)
-							.annotate(OBJECT_ID_ATTRIBUTE)
-							.annotate(STORAGE_DATATYPE, Long.class);
+		RelationTypeModifier... rFlags) {
+		return RelationTypes
+			.newLongType(rFlags)
+			.annotate(OBJECT_ID_ATTRIBUTE)
+			.annotate(STORAGE_DATATYPE, Long.class);
 	}
 
-	/***************************************
+	/**
 	 * A factory method that creates a new relation type for relations to the
-	 * parent entity in a hierarchy. To prevent initialization cycles the entity
-	 * definition of the parent attribute cannot be set directly in this method.
+	 * parent entity in a hierarchy. To prevent initialization cycles the
+	 * entity
+	 * definition of the parent attribute cannot be set directly in this
+	 * method.
 	 * Instead this will be handled by the {@link EntityDefinition} class.
 	 *
-	 * @param  rFlags The optional type flags
-	 *
+	 * @param rFlags The optional type flags
 	 * @return A new relation type instance
-	 *
-	 * @see    RelationTypes#newRelationType(String, Class,
-	 *         RelationTypeModifier...)
+	 * @see RelationTypes#newRelationType(String, Class,
+	 * RelationTypeModifier...)
 	 */
 	public static <T extends Entity> RelationType<T> parentAttribute(
-		RelationTypeModifier... rFlags)
-	{
-		return EntityRelationTypes.<T>entityAttribute(rFlags)
-								  .annotate(PARENT_ATTRIBUTE);
+		RelationTypeModifier... rFlags) {
+		return EntityRelationTypes
+			.<T>entityAttribute(rFlags)
+			.annotate(PARENT_ATTRIBUTE);
 	}
 
-	/***************************************
-	 * Creates a new relation type for the root entity in a hierarchy similar to
+	/**
+	 * Creates a new relation type for the root entity in a hierarchy
+	 * similar to
 	 * {@link #parentAttribute(RelationTypeModifier...)}.
 	 *
 	 * @see #parentAttribute(RelationTypeModifier...)
 	 */
 	public static <T extends Entity> RelationType<T> rootAttribute(
-		RelationTypeModifier... rFlags)
-	{
-		return EntityRelationTypes.<T>entityAttribute(rFlags)
-								  .annotate(ROOT_ATTRIBUTE);
+		RelationTypeModifier... rFlags) {
+		return EntityRelationTypes
+			.<T>entityAttribute(rFlags)
+			.annotate(ROOT_ATTRIBUTE);
 	}
 
-	/***************************************
+	/**
 	 * Convenience method to set a boolean display property.
 	 *
 	 * @see #setAttributeDisplayProperty(PropertyName, Object, RelationType...)
 	 */
 	@SuppressWarnings("boxing")
-	public static void setAttributeDisplayFlag(
-		PropertyName<Boolean> rProperty,
-		RelationType<?>...    rAttributes)
-	{
+	public static void setAttributeDisplayFlag(PropertyName<Boolean> rProperty,
+		RelationType<?>... rAttributes) {
 		setAttributeDisplayProperty(rProperty, true, rAttributes);
 	}
 
-	/***************************************
+	/**
 	 * Convenience method to set an integer display property.
 	 *
 	 * @see #setAttributeDisplayProperty(PropertyName, Object, RelationType...)
 	 */
-	public static void setAttributeDisplayProperty(
-		int					  nValue,
-		PropertyName<Integer> rProperty,
-		RelationType<?>...    rAttributes)
-	{
-		setAttributeDisplayProperty(
-			rProperty,
-			Integer.valueOf(nValue),
+	public static void setAttributeDisplayProperty(int nValue,
+		PropertyName<Integer> rProperty, RelationType<?>... rAttributes) {
+		setAttributeDisplayProperty(rProperty, Integer.valueOf(nValue),
 			rAttributes);
 	}
 
-	/***************************************
+	/**
 	 * Helper method for subclasses to set a display property on attributes. If
 	 * the attribute doesn't have display attributes yet they will be created
 	 * and stored in the {@link EntityRelationTypes#DISPLAY_PROPERTIES}
@@ -513,37 +542,25 @@ public class EntityRelationTypes
 	 * <p>ATTENTION: this setting affects all occurrences of the given
 	 * attribute. Properties of attributes that are re-used in different
 	 * contexts (e.g. relation types defined in {@link StandardTypes} or
-	 * similar) should be set with a {@link
-	 * EntityDefinition#ATTRIBUTE_DISPLAY_PROPERTIES_FIELD} instead to prevent
-	 * side effects.</p>
+	 * similar) should be set with a
+	 * {@link EntityDefinition#ATTRIBUTE_DISPLAY_PROPERTIES_FIELD} instead to
+	 * prevent side effects.</p>
 	 *
 	 * @param rProperty   The property to set
 	 * @param rValue      The property values
 	 * @param rAttributes The attributes to set the display property on
 	 */
 	public static <T> void setAttributeDisplayProperty(
-		PropertyName<T>    rProperty,
-		T				   rValue,
-		RelationType<?>... rAttributes)
-	{
-		for (RelationType<?> rAttribute : rAttributes)
-		{
+		PropertyName<T> rProperty, T rValue, RelationType<?>... rAttributes) {
+		for (RelationType<?> rAttribute : rAttributes) {
 			MutableProperties rProperties = rAttribute.get(DISPLAY_PROPERTIES);
 
-			if (rProperties == null)
-			{
+			if (rProperties == null) {
 				rProperties = new StringProperties();
 				rAttribute.set(DISPLAY_PROPERTIES, rProperties);
 			}
 
 			rProperties.setProperty(rProperty, rValue);
 		}
-	}
-
-	/***************************************
-	 * Package-internal initialization.
-	 */
-	static void init()
-	{
 	}
 }

@@ -16,11 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.data;
 
-/********************************************************************
- * An enumeration of common MIME (Multi-purpose Internet Mail Extensions) types.
+/**
+ * An enumeration of common MIME (Multi-purpose Internet Mail Extensions)
+ * types.
  */
-public enum MimeType
-{
+public enum MimeType {
 	AUDIO_MIDI("audio/midi", ".mid .midi .kar"),
 	AUDIO_MPEG("audio/mpeg", ".mp3 .mpga .mp1 .mp2"),
 	AUDIO_OGG("audio/ogg", ".oga .ogg .opus .spx"),
@@ -39,28 +39,30 @@ public enum MimeType
 	JSON("application/json", ".json"),
 	MS_EXCEL("application/vnd.ms-excel", ".xls .xlm .xla .xlc .xlt .xlw"),
 	MS_POWERPOINT("application/vnd.ms-powerpoint", ".ppt .pps .pot"),
-	MS_PROJECT("application/vnd.ms-project", ".mpp .mpt"),
-	MS_XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-			".xlsx"),
-	MS_XLTX("application/vnd.openxmlformats-officedocument.spreadsheetml.template",
-			".xltx"),
-	MSWORD("application/msword", ".doc"), MU3("audio/x-mpegurl", ".mu3"),
-	OCTET_STREAM("application/octet-stream",
-				 ".bin .lha .lzh .exe .class .so .dll .img .iso"),
-	OPENDOCUMENT_CHART("application/vnd.oasis.opendocument.chart", ".odc .otc"),
-	OPENDOCUMENT_DATABASE("application/vnd.oasis.opendocument.database", ".odb"),
+	MS_PROJECT("application/vnd.ms-project", ".mpp .mpt"), MS_XLSX(
+		"application/vnd.openxmlformats-officedocument.spreadsheetml" +
+			".sheet", ".xlsx"), MS_XLTX(
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+		".xltx"), MSWORD("application/msword", ".doc"),
+	MU3("audio/x-mpegurl", ".mu3"), OCTET_STREAM("application/octet-stream",
+		".bin .lha .lzh .exe .class .so .dll .img .iso"),
+	OPENDOCUMENT_CHART("application/vnd.oasis.opendocument.chart",
+		".odc " + ".otc"),
+	OPENDOCUMENT_DATABASE("application/vnd.oasis.opendocument.database",
+		".odb"),
 	OPENDOCUMENT_FORMULAR("application/vnd.oasis.opendocument.formula",
-						  ".odf .otf"),
+		".odf .otf"),
 	OPENDOCUMENT_GRAPHIC("application/vnd.oasis.opendocument.graphics",
-						 ".odg .otg"),
-	OPENDOCUMENT_IMAGE("application/vnd.oasis.opendocument.image", ".odi .oti"),
+		".odg .otg"),
+	OPENDOCUMENT_IMAGE("application/vnd.oasis.opendocument.image",
+		".odi " + ".oti"),
 	OPENDOCUMENT_PRESENT("application/vnd.oasis.opendocument.presentation",
-						 ".odp .otp"),
+		".odp .otp"),
 	OPENDOCUMENT_SPREAD("application/vnd.oasis.opendocument.spreadsheet",
-						".ods .ots"),
+		".ods .ots"),
 	OPENDOCUMENT_TEXT("application/vnd.oasis.opendocument.text",
-					  ".odt .ott .odm .oth"),
-	PDF("application/pdf", ".pdf"), PERL("application/x-perl", ".pl"),
+		".odt .ott .odm .oth"), PDF("application/pdf", ".pdf"),
+	PERL("application/x-perl", ".pl"),
 	PGP_ENCRYPTED("application/pgp-encrypted", ".pgp"),
 	PGP_KEYS("application/pgp-keys", ""),
 	PGP_SIGNATURE("application/pgp-signature", ".sig"),
@@ -78,55 +80,43 @@ public enum MimeType
 	TEXT_XML("text/xml", ".xml .xsd .rng"), VCARD("text/vcard", ".vcf .vcard"),
 	VIDEO_AVI("video/x-msvideo", ".avi"), VIDEO_FLV("video/x-flv", ".flv"),
 	VIDEO_MP4("video/mp4", ".mp4 .mpeg4 .mpg4"),
-	VIDEO_MPEG("video/mpeg", ".mpeg .mpg .mpe .m1v .m2v"),
-	VND_DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-			 ".docx"),
-	VND_DOTX("application/vnd.openxmlformats-officedocument.wordprocessingml.template",
-			 ".dotx"),
-	WSDL("application/wsdl+xml", ".wsdl"),
+	VIDEO_MPEG("video/mpeg", ".mpeg .mpg .mpe .m1v .m2v"), VND_DOCX(
+		"application/vnd.openxmlformats-officedocument.wordprocessingml" +
+			".document", ".docx"), VND_DOTX(
+		"application/vnd.openxmlformats-officedocument.wordprocessingml" +
+			".template", ".dotx"), WSDL("application/wsdl+xml", ".wsdl"),
 	XHTML("application/xhtml+xml", ".xhtml .xhtm .xht"),
 	XML_DTD("application/xml-dtd", ".dtd"),
 	XSLT("application/xslt+xml", ".xsl .xslt"), ZIP("application/zip", ".zip");
 
-	//~ Instance fields --------------------------------------------------------
-
 	private String sDefinition;
+
 	private String sFileExtensions;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sDefinition     The mime type definition string
 	 * @param sFileExtensions The file extension of this MIME type
 	 */
-	private MimeType(String sDefinition, String sFileExtensions)
-	{
-		this.sDefinition     = sDefinition;
+	private MimeType(String sDefinition, String sFileExtensions) {
+		this.sDefinition = sDefinition;
 		this.sFileExtensions = sFileExtensions;
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the MIME type for a certain file extension.
 	 *
-	 * @param  sExtension The file extension to search for
-	 *
+	 * @param sExtension The file extension to search for
 	 * @return The MIME type for the given extension or NULL if no match could
-	 *         be found
+	 * be found
 	 */
-	public static MimeType forFileExtension(String sExtension)
-	{
+	public static MimeType forFileExtension(String sExtension) {
 		sExtension = sExtension.toLowerCase();
 
-		for (MimeType eMimeType : values())
-		{
-			for (String sTypeExtension : eMimeType.getFileExtensions())
-			{
-				if (sTypeExtension.contains(sExtension))
-				{
+		for (MimeType eMimeType : values()) {
+			for (String sTypeExtension : eMimeType.getFileExtensions()) {
+				if (sTypeExtension.contains(sExtension)) {
 					return eMimeType;
 				}
 			}
@@ -135,20 +125,17 @@ public enum MimeType
 		return null;
 	}
 
-	/***************************************
-	 * Returns the MIME type instance for a certain MIME type definition string.
+	/**
+	 * Returns the MIME type instance for a certain MIME type definition
+	 * string.
 	 *
-	 * @param  sMimeType The MIME type definition to search for
-	 *
+	 * @param sMimeType The MIME type definition to search for
 	 * @return The MIME type for the given definition or NULL if no match could
-	 *         be found
+	 * be found
 	 */
-	public static MimeType forMimeType(String sMimeType)
-	{
-		for (MimeType eMimeType : values())
-		{
-			if (eMimeType.sDefinition.equalsIgnoreCase(sMimeType))
-			{
+	public static MimeType forMimeType(String sMimeType) {
+		for (MimeType eMimeType : values()) {
+			if (eMimeType.sDefinition.equalsIgnoreCase(sMimeType)) {
 				return eMimeType;
 			}
 		}
@@ -156,26 +143,22 @@ public enum MimeType
 		return null;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the MIME type string.
 	 *
 	 * @return The MIME type string
 	 */
-	public String getDefinition()
-	{
+	public String getDefinition() {
 		return sDefinition;
 	}
 
-	/***************************************
+	/**
 	 * Returns the file extensions associated with this MIME type.
 	 *
 	 * @return A string array containing the MIME type file extenstions (may be
-	 *         empty but will never be NULL)
+	 * empty but will never be NULL)
 	 */
-	public String[] getFileExtensions()
-	{
+	public String[] getFileExtensions() {
 		return sFileExtensions.split("\\w");
 	}
 }

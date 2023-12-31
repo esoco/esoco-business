@@ -21,36 +21,29 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A simple layout that accepts a single component that fills the available
  * area.
  *
  * @author eso
  */
-public class UiFillLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiFillLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiFillLayout()
-	{
+	public UiFillLayout() {
 		super(LayoutType.FILL);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void addComponent(UiComponent<?, ?> rComponent)
-	{
-		if (rComponent.getParent().getComponents().size() > 1)
-		{
-			throw new IllegalStateException("UiFillLayout can only contain a single component");
+	protected void addComponent(UiComponent<?, ?> rComponent) {
+		if (rComponent.getParent().getComponents().size() > 1) {
+			throw new IllegalStateException(
+				"UiFillLayout can only contain a single component");
 		}
 
 		super.addComponent(rComponent);

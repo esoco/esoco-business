@@ -18,15 +18,12 @@ package de.esoco.lib.net;
 
 import org.obrel.core.Relatable;
 
-
-/********************************************************************
+/**
  * An interface that must be implemented to define external services.
  */
-public interface ExternalServiceDefinition extends Relatable
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ExternalServiceDefinition extends Relatable {
 
-	/***************************************
+	/**
 	 * Returns the implementation class of this service type.
 	 *
 	 * @return The serviceClass value

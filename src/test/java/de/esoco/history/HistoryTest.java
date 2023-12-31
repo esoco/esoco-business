@@ -27,46 +27,33 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-
 import static de.esoco.history.HistoryRecord.HistoryType.GROUP;
 import static de.esoco.history.HistoryRecord.HistoryType.INFO;
 import static de.esoco.history.HistoryRecord.HistoryType.NOTE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/********************************************************************
+/**
  * Test of history functions.
  *
  * @author eso
  */
-public class HistoryTest extends AbstractEntityStorageTest
-{
-	//~ Instance fields --------------------------------------------------------
+public class HistoryTest extends AbstractEntityStorageTest {
 
 	private Entity rOrigin;
+
 	private Entity rTarget;
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Initializes the storage for the tests.
-	 *
-	 * @throws Exception
 	 */
 	@Override
-	public void setUp() throws Exception
-	{
+	public void setUp() throws Exception {
 		super.setUp();
 
-		rOrigin =
-			createPerson(new String[]
-						 {
-							 "Origin", "Test", "-", "-", "-", "11"
-						 });
-		rTarget =
-			createPerson(new String[]
-						 {
-							 "Target", "Test", "-", "-", "-", "22"
-						 });
+		rOrigin = createPerson(
+			new String[] { "Origin", "Test", "-", "-", "-", "11" });
+		rTarget = createPerson(
+			new String[] { "Target", "Test", "-", "-", "-", "22" });
 
 		rStorage.initObjectStorage(HistoryRecord.class);
 		rStorage.initObjectStorage(TestPerson.class);
@@ -75,16 +62,12 @@ public class HistoryTest extends AbstractEntityStorageTest
 		rStorage.store(rTarget);
 	}
 
-	/***************************************
+	/**
 	 * Test of discarding empty hierarchy.
-	 *
-	 * @throws StorageException
-	 * @throws TransactionException
 	 */
 	@Test
-	public void testDiscardEmptyHierarchy() throws StorageException,
-												   TransactionException
-	{
+	public void testDiscardEmptyHierarchy()
+		throws StorageException, TransactionException {
 		HistoryManager.begin(rOrigin, rTarget, "TEST");
 		HistoryManager.begin(rOrigin, rTarget, "SUBTEST");
 		HistoryManager.commit(false);
@@ -96,15 +79,11 @@ public class HistoryTest extends AbstractEntityStorageTest
 		assertEquals(0, rHistory.size());
 	}
 
-	/***************************************
+	/**
 	 * History hierarchy test.
-	 *
-	 * @throws StorageException
-	 * @throws TransactionException
 	 */
 	@Test
-	public void testHierarchy() throws StorageException, TransactionException
-	{
+	public void testHierarchy() throws StorageException, TransactionException {
 		HistoryManager.begin(rOrigin, rTarget, "TEST");
 		HistoryManager.record(INFO, null, rTarget, "TESTINFO");
 		HistoryManager.record(NOTE, null, rTarget, "TESTNOTE");
@@ -124,15 +103,11 @@ public class HistoryTest extends AbstractEntityStorageTest
 		assertEquals(2, rRecords.size());
 	}
 
-	/***************************************
+	/**
 	 * Basic history test.
-	 *
-	 * @throws StorageException
-	 * @throws TransactionException
 	 */
 	@Test
-	public void testHistory() throws StorageException, TransactionException
-	{
+	public void testHistory() throws StorageException, TransactionException {
 		HistoryManager.record(INFO, rOrigin, rTarget, "TEST");
 
 		List<HistoryRecord> rHistory =
@@ -142,16 +117,12 @@ public class HistoryTest extends AbstractEntityStorageTest
 		assertEquals("TEST", rHistory.get(0).get(HistoryRecord.VALUE));
 	}
 
-	/***************************************
+	/**
 	 * Test of saving empty hierarchy.
-	 *
-	 * @throws StorageException
-	 * @throws TransactionException
 	 */
 	@Test
-	public void testKeepEmptyHierarchy() throws StorageException,
-												TransactionException
-	{
+	public void testKeepEmptyHierarchy()
+		throws StorageException, TransactionException {
 		HistoryManager.begin(rOrigin, rTarget, "TEST");
 		HistoryManager.commit(true);
 

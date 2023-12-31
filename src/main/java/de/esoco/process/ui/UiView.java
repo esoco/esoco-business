@@ -19,75 +19,64 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.StandardProperties;
 import de.esoco.lib.property.TitleAttribute;
 
-
-/********************************************************************
+/**
  * The base class for top-level UI rendering contexts.
  *
  * @author eso
  */
 public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
-	implements TitleAttribute
-{
-	//~ Constructors -----------------------------------------------------------
+	implements TitleAttribute {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent view
 	 * @param rLayout The view layout
 	 */
-	public UiView(UiView<?> rParent, UiLayout rLayout)
-	{
+	public UiView(UiView<?> rParent, UiLayout rLayout) {
 		super(rParent, rLayout);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public abstract V setVisible(boolean bVisible);
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getTitle()
-	{
+	public String getTitle() {
 		return get(StandardProperties.TITLE);
 	}
 
-	/***************************************
+	/**
 	 * Overridden to always throw an {@link UnsupportedOperationException} as
 	 * this functionality is not possible for views.
 	 *
 	 * @see de.esoco.process.ui.UiComponent#placeBefore(UiComponent)
 	 */
 	@Override
-	public V placeBefore(UiComponent<?, ?> rBeforeComponent)
-	{
+	public V placeBefore(UiComponent<?, ?> rBeforeComponent) {
 		throw new UnsupportedOperationException();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTitle(String sTitle)
-	{
+	public void setTitle(String sTitle) {
 		title(sTitle);
 	}
 
-	/***************************************
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public abstract V setVisible(boolean bVisible);
+
+	/**
 	 * Fluent variant of {@link #setTitle(String)}.
 	 *
-	 * @param  sTitle The view title
-	 *
+	 * @param sTitle The view title
 	 * @return This instance
 	 */
-	public V title(String sTitle)
-	{
+	public V title(String sTitle) {
 		return set(StandardProperties.TITLE, sTitle);
 	}
 }

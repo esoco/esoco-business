@@ -22,42 +22,33 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiSwitchPanel;
 
-
-/********************************************************************
+/**
  * A panel that arranges components in selectable tab pages.
  *
  * @author eso
  */
-public class UiTabPanel extends UiSwitchPanel<UiTabPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiTabPanel extends UiSwitchPanel<UiTabPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiTabPanel(UiContainer<?> rParent)
-	{
+	public UiTabPanel(UiContainer<?> rParent) {
 		super(rParent, new TabLayout());
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * The internal tab panel layout.
 	 *
 	 * @author eso
 	 */
-	static class TabLayout extends UiLayout
-	{
-		//~ Constructors -------------------------------------------------------
+	static class TabLayout extends UiLayout {
 
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 */
-		public TabLayout()
-		{
+		public TabLayout() {
 			super(LayoutType.TABS);
 		}
 	}

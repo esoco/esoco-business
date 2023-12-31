@@ -24,43 +24,42 @@ import java.math.BigDecimal;
 
 import java.util.Set;
 
-
-/********************************************************************
+/**
  * A data element implementation for {@link BigDecimal} values.
  *
  * @author eso
  */
-public class BigDecimalDataElement extends DataElement<BigDecimal>
-{
-	//~ Enums ------------------------------------------------------------------
+public class BigDecimalDataElement extends DataElement<BigDecimal> {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the available display styles.
 	 */
-	public enum DisplayStyle
-	{
+	public enum DisplayStyle {
 		DECIMAL, MULTI_FORMAT, CALCULATOR;
 	}
 
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
-
-	/** A style property that defines the rendering of big decimal values. */
+	/**
+	 * A style property that defines the rendering of big decimal values.
+	 */
 	public static final PropertyName<DisplayStyle> DISPLAY_STYLE =
 		PropertyName.newEnumName("CALCULATOR", DisplayStyle.class);
 
-	/** The placeholder string for the decimal grouping character. */
+	/**
+	 * The placeholder string for the decimal grouping character.
+	 */
 	public static final String DECIMAL_GROUP_CHAR = "<dec:grp>";
 
-	/** The placeholder string for the decimal separator character. */
+	/**
+	 * The placeholder string for the decimal separator character.
+	 */
 	public static final String DECIMAL_SEPARATOR_CHAR = "<dec:sep>";
 
 	/**
 	 * Default input constraint for positive or negative decimal values with
 	 * optional grouping characters. Contains the input character placeholders
 	 * {@link #DECIMAL_GROUP_CHAR} and {@link #DECIMAL_SEPARATOR_CHAR} which
-	 * must be replaced with the actual locale-specific pattern before using the
+	 * must be replaced with the actual locale-specific pattern before using
+	 * the
 	 * string as a regular expression.
 	 */
 	public static final String DEFAULT_CONSTRAINT =
@@ -81,24 +80,21 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	public static final String SIGNED_CURRENCY_CONSTRAINT =
 		"-?" + CURRENCY_CONSTRAINT;
 
-	//~ Instance fields --------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
 	private BigDecimal aValue;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new read-only instance with a certain name and value.
 	 *
 	 * @param sName  The name of this element
 	 * @param nValue The initial value
 	 */
-	public BigDecimalDataElement(String sName, BigDecimal nValue)
-	{
+	public BigDecimalDataElement(String sName, BigDecimal nValue) {
 		this(sName, nValue, null, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance with a certain initial value and validator.
 	 *
 	 * @param sName      The name of this element
@@ -106,78 +102,65 @@ public class BigDecimalDataElement extends DataElement<BigDecimal>
 	 * @param rValidator The validator for the value or NULL for none
 	 * @param rFlags     The optional flags for this data element
 	 */
-	public BigDecimalDataElement(String						   sName,
-								 BigDecimal					   rValue,
-								 Validator<? super BigDecimal> rValidator,
-								 Set<Flag>					   rFlags)
-	{
+	public BigDecimalDataElement(String sName, BigDecimal rValue,
+		Validator<? super BigDecimal> rValidator, Set<Flag> rFlags) {
 		super(sName, rValidator, rFlags);
 
 		this.aValue = rValue;
 	}
 
-	/***************************************
+	/**
 	 * Default constructor for serialization.
 	 */
-	protected BigDecimalDataElement()
-	{
+	protected BigDecimalDataElement() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigDecimalDataElement copy(
-		CopyMode		   eMode,
-		PropertyName<?>... rCopyProperties)
-	{
+	public BigDecimalDataElement copy(CopyMode eMode,
+		PropertyName<?>... rCopyProperties) {
 		return (BigDecimalDataElement) super.copy(eMode, rCopyProperties);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final BigDecimal getValue()
-	{
+	public final BigDecimal getValue() {
 		return aValue;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStringValue(String sValue)
-	{
+	public void setStringValue(String sValue) {
 		setValue(new BigDecimal(sValue));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BigDecimalDataElement newInstance()
-	{
+	protected BigDecimalDataElement newInstance() {
 		return new BigDecimalDataElement();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(BigDecimal rNewValue)
-	{
+	protected void updateValue(BigDecimal rNewValue) {
 		aValue = rNewValue;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean valuesEqual(BigDecimal a, BigDecimal b)
-	{
+	protected boolean valuesEqual(BigDecimal a, BigDecimal b) {
 		return a == b || (a != null && b != null && a.compareTo(b) == 0);
 	}
 }

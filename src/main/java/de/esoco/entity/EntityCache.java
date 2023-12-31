@@ -16,28 +16,25 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
-/********************************************************************
+/**
  * An interface for the implementation of class-specific entity caches.
  *
  * @author eso
  */
-public interface EntityCache<E extends Entity>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface EntityCache<E extends Entity> {
 
-	/***************************************
+	/**
 	 * Caches a certain entity.
 	 *
 	 * @param rEntity The entity to cache
 	 */
 	public void cacheEntity(E rEntity);
 
-	/***************************************
+	/**
 	 * Returns the cached entity with a certain ID or NULL if no cached entity
 	 * exists.
 	 *
-	 * @param  nId The entity ID
-	 *
+	 * @param nId The entity ID
 	 * @return The entity with the given ID or NULL for none
 	 */
 	public E getEntity(long nId);

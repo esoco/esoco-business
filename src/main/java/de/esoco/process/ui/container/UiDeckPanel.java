@@ -22,58 +22,46 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiSwitchPanel;
 
-
-/********************************************************************
+/**
  * Contains multiple components arranged as a deck of pages of which only one is
  * visible at a time. The visible component can be selected or queried through
  * the selection methods of {@link UiSwitchPanel}.
  *
  * @author eso
  */
-public class UiDeckPanel extends UiSwitchPanel<UiDeckPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiDeckPanel extends UiSwitchPanel<UiDeckPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent The parent container
 	 */
-	public UiDeckPanel(UiContainer<?> rParent)
-	{
+	public UiDeckPanel(UiContainer<?> rParent) {
 		super(rParent, new DeckLayout());
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds a new panel as a deck page. This is a variant of the base class
 	 * method {@link #addPage(String, UiLayout)} because the page title is
 	 * ignored in deck panels.
 	 *
 	 * @see #addPage(String, UiLayout)
 	 */
-	public UiLayoutPanel addPage(UiLayout eLayout)
-	{
+	public UiLayoutPanel addPage(UiLayout eLayout) {
 		return addPage("", eLayout);
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * The internal deck panel layout.
 	 *
 	 * @author eso
 	 */
-	static class DeckLayout extends UiLayout
-	{
-		//~ Constructors -------------------------------------------------------
+	static class DeckLayout extends UiLayout {
 
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 */
-		public DeckLayout()
-		{
+		public DeckLayout() {
 			super(LayoutType.DECK, 1);
 		}
 	}

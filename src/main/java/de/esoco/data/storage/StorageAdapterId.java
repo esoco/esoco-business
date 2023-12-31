@@ -18,69 +18,56 @@ package de.esoco.data.storage;
 
 import org.obrel.core.RelatedObject;
 
-
-/********************************************************************
+/**
  * Instances of this class that identify storage adapters that are registered
  * with a {@link StorageAdapterRegistry}.
  *
  * @author eso
  */
-public class StorageAdapterId extends RelatedObject
-{
-	//~ Instance fields --------------------------------------------------------
+public class StorageAdapterId extends RelatedObject {
 
 	private String sId;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance from a string ID.
 	 *
 	 * @param sId The identifier string
 	 */
-	public StorageAdapterId(String sId)
-	{
+	public StorageAdapterId(String sId) {
 		this.sId = sId;
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance from a numeric ID.
 	 *
 	 * @param nId The ID
 	 */
-	public StorageAdapterId(long nId)
-	{
+	public StorageAdapterId(long nId) {
 		this(Long.toString(nId));
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		return rObj == this ||
-			   rObj != null && rObj.getClass() == getClass() &&
-			   sId.equals(((StorageAdapterId) rObj).sId);
+	public boolean equals(Object rObj) {
+		return rObj == this || rObj != null && rObj.getClass() == getClass() &&
+			sId.equals(((StorageAdapterId) rObj).sId);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return sId.hashCode();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return sId;
 	}
 }

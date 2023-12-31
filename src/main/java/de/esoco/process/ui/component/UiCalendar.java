@@ -23,34 +23,29 @@ import de.esoco.process.ui.UiDateInputField;
 
 import java.util.Date;
 
-
-/********************************************************************
+/**
  * A component that allows to select a date from a calendar display.
  *
  * @author eso
  */
-public class UiCalendar extends UiDateInputField<UiCalendar>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiCalendar extends UiDateInputField<UiCalendar> {
 
-	/***************************************
+	/**
 	 * Creates a new instance with the current date as it's value.
 	 *
 	 * @param rParent rContainer The parent container
 	 */
-	public UiCalendar(UiContainer<?> rParent)
-	{
+	public UiCalendar(UiContainer<?> rParent) {
 		this(rParent, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance for a particular date.
 	 *
 	 * @param rContainer The parent container
 	 * @param rDate      The initial date to display
 	 */
-	public UiCalendar(UiContainer<?> rContainer, Date rDate)
-	{
+	public UiCalendar(UiContainer<?> rContainer, Date rDate) {
 		super(rContainer, rDate, DateInputType.CALENDAR);
 	}
 }

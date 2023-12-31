@@ -43,14 +43,12 @@ import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newType;
 import static org.obrel.type.MetaTypes.INTERACTIVE;
 
-/********************************************************************
+/**
  * Process test case.
  *
  * @author eso
  */
 public class ProcessTest extends AbstractProcessTest {
-	//~ Static fields/initializers
-	// ---------------------------------------------
 
 	private static final RelationType<Integer> TEST_INT_PARAM2 = newIntType();
 
@@ -64,10 +62,7 @@ public class ProcessTest extends AbstractProcessTest {
 		RelationTypes.init(ProcessTest.class);
 	}
 
-	//~ Methods
-	// ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Test of {@link FunctionStep}.
 	 *
 	 * @throws ProcessException On errors
@@ -95,7 +90,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Tests execution of a process that contains branch steps.
 	 *
 	 * @throws Exception On errors
@@ -116,7 +111,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link FunctionStep}.
 	 *
 	 * @throws ProcessException On errors
@@ -143,7 +138,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Tests execution of a process that performs interaction through an
 	 * InteractionHandler.
 	 *
@@ -193,7 +188,7 @@ public class ProcessTest extends AbstractProcessTest {
 		assertEquals("1-234-5", aProcess.getParameter(TEST_STRING_RESULT));
 	}
 
-	/***************************************
+	/**
 	 * Tests execution of an interactive process.
 	 *
 	 * @throws ProcessException On errors
@@ -231,7 +226,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Test the invocation of an interactive sub-process.
 	 *
 	 * @throws Exception On errors
@@ -272,7 +267,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Tests the cancellation of an interactive process.
 	 *
 	 * @throws ProcessException On errors
@@ -300,10 +295,8 @@ public class ProcessTest extends AbstractProcessTest {
 		assertEquals("12", aProcess.getParameter(TEST_STRING_RESULT));
 	}
 
-	/***************************************
+	/**
 	 * Tests the execution of the {@link TransferParam} step.
-	 *
-	 * @throws ProcessException
 	 */
 	@SuppressWarnings("boxing")
 	@Test
@@ -395,7 +388,7 @@ public class ProcessTest extends AbstractProcessTest {
 		assertTrue(aListenerMethods.contains(ProcessEventType.FAILED));
 	}
 
-	/***************************************
+	/**
 	 * Tests the rollback of an interactive process.
 	 *
 	 * @throws ProcessException On errors
@@ -437,7 +430,7 @@ public class ProcessTest extends AbstractProcessTest {
 		assertEquals("123", aProcess.getParameter(TEST_STRING_RESULT));
 	}
 
-	/***************************************
+	/**
 	 * Test the invocation of a sub-process.
 	 *
 	 * @throws Exception On errors
@@ -463,7 +456,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Tests execution of a process that performs branching and parameter
 	 * copying.
 	 *
@@ -499,10 +492,8 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Tests the execution of the {@link TransferParam} step.
-	 *
-	 * @throws ProcessException
 	 */
 	@Test
 	public void testTransferStep() throws ProcessException {
@@ -526,7 +517,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Tests execution of an unordered process.
 	 *
 	 * @throws ProcessException On errors
@@ -549,7 +540,7 @@ public class ProcessTest extends AbstractProcessTest {
 		executeProcess(aDef);
 	}
 
-	/***************************************
+	/**
 	 * Creates a branching test process.
 	 *
 	 * @return The process definition

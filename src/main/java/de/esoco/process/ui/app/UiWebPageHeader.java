@@ -20,23 +20,19 @@ import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.layout.UiHeaderLayout;
 
-
-/********************************************************************
+/**
  * A composite that represents the header of a web page.
  *
  * @author eso
  */
-public class UiWebPageHeader extends UiComposite<UiWebPageHeader>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiWebPageHeader extends UiComposite<UiWebPageHeader> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent the parent container
 	 */
-	public UiWebPageHeader(UiContainer<?> rParent)
-	{
+	public UiWebPageHeader(UiContainer<?> rParent) {
 		super(rParent, new UiHeaderLayout());
 	}
 }

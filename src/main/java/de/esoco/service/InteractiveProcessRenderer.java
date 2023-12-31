@@ -26,43 +26,36 @@ import org.obrel.space.ObjectSpace;
 
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * A renderer for interactive processes that are executed by a remote service
  * (typically a {@link InteractiveProcessExecutor}).
  *
  * @author eso
  */
 public abstract class InteractiveProcessRenderer extends RestService
-	implements AuthenticationService
-{
-	//~ Static fields/initializers ---------------------------------------------
+	implements AuthenticationService {
 
 	private static final RelationType<Map<String, String>> REGISTER_PROCESSES =
 		newType();
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected ObjectSpace<Object> buildRestServerSpace()
-	{
+	protected ObjectSpace<Object> buildRestServerSpace() {
 		ObjectSpace<Object> rRootSpace = super.buildRestServerSpace();
-		ObjectSpace<String> rApiSpace  = rRootSpace.get(API);
+		ObjectSpace<String> rApiSpace = rRootSpace.get(API);
 
 		rApiSpace.init(REGISTER_PROCESSES).onUpdate(this::registerProcesses);
 
 		return rRootSpace;
 	}
 
-	/***************************************
+	/**
 	 * Registers interactive processes that can be executed.
 	 *
 	 * @param rRequest The registration request
 	 */
-	private void registerProcesses(Map<String, String> rRequest)
-	{
+	private void registerProcesses(Map<String, String> rRequest) {
 	}
 }

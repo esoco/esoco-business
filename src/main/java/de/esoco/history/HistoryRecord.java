@@ -43,18 +43,15 @@ import static de.esoco.lib.property.StyleProperties.MAX_CHARS;
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * An entity subclass that implements special history record handling.
  *
  * @author eso
  */
 @RelationTypeNamespace("de.esoco.entity.history")
-public class HistoryRecord extends Entity
-{
-	//~ Enums ------------------------------------------------------------------
+public class HistoryRecord extends Entity {
 
-	/********************************************************************
+	/**
 	 * An enumeration of the possible types of history records. The type value
 	 * {@link #GROUP} is only for internal use and must not be used by
 	 * application code, or else an exception will be thrown. The suggested
@@ -70,128 +67,143 @@ public class HistoryRecord extends Entity
 	 *
 	 * @author eso
 	 */
-	public enum HistoryType { NOTE, INFO, ERROR, CHANGE, GROUP }
+	public enum HistoryType {NOTE, INFO, ERROR, CHANGE, GROUP}
 
-	/********************************************************************
-	 * An enumeration of the possible keys for the {@link
-	 * HistoryRecord#REFERENCE} field.
+	/**
+	 * An enumeration of the possible keys for the
+	 * {@link HistoryRecord#REFERENCE} field.
 	 */
-	public enum ReferenceType { EMAIL, DOCUMENT }
+	public enum ReferenceType {EMAIL, DOCUMENT}
 
-	//~ Static fields/initializers ---------------------------------------------
+	/**
+	 * The parent record of the history record (NULL for the root)
+	 */
+	public static final RelationType<HistoryRecord> PARENT = parentAttribute();
 
-	private static final long serialVersionUID = 1L;
-
-	/** The parent record of the history record (NULL for the root) */
-	public static final RelationType<HistoryRecord> PARENT =
-		parentAttribute();
-
-	/** The root history record in a hierarchy or NULL for the root itself */
+	/**
+	 * The root history record in a hierarchy or NULL for the root itself
+	 */
 	public static final RelationType<HistoryRecord> ROOT = rootAttribute();
 
-	/** The child history records */
+	/**
+	 * The child history records
+	 */
 	public static final RelationType<List<HistoryRecord>> DETAILS =
 		childAttribute();
 
-	/** Type of the history record */
+	/**
+	 * Type of the history record
+	 */
 	public static final RelationType<HistoryType> TYPE = newType(FINAL);
 
-	/** Creation time of the history record */
+	/**
+	 * Creation time of the history record
+	 */
 	public static final RelationType<Date> TIME = newType(FINAL);
 
-	/** The entity that is the origin of the history record */
+	/**
+	 * The entity that is the origin of the history record
+	 */
 	public static final RelationType<Entity> ORIGIN =
 		arbitraryEntityAttribute(FINAL);
 
-	/** The root target in a hierarchy of history records */
+	/**
+	 * The root target in a hierarchy of history records
+	 */
 	public static final RelationType<Entity> ROOT_TARGET =
 		arbitraryEntityAttribute();
 
-	/** The entity that is the target of the history record */
+	/**
+	 * The entity that is the target of the history record
+	 */
 	public static final RelationType<Entity> TARGET =
 		EntityRelationTypes.TARGET;
 
-	/** A reference to additional informations. */
+	/**
+	 * A reference to additional informations.
+	 */
 	public static final RelationType<String> REFERENCE = newType();
 
-	/** The value of the history record */
+	/**
+	 * The value of the history record
+	 */
 	public static final RelationType<String> VALUE = newType();
 
-	//- entity definition constants --------------------------------------------
-
-	/** The prefix for global entity IDs */
+	/**
+	 * The prefix for global entity IDs
+	 */
 	public static final String ID_PREFIX = "HST";
 
-	/** The storage name */
+	//- entity definition constants
+
+	/**
+	 * The storage name
+	 */
 	public static final String STORAGE_NAME = "history";
 
-	/** Minimal display attributes */
+	/**
+	 * Minimal display attributes
+	 */
 	public static final RelationType<?>[] DISPLAY_ATTRIBUTES_MINIMAL =
 		new RelationType<?>[] { ENTITY_ID, TYPE, TIME };
 
-	/** Compact display attributes */
+	/**
+	 * Compact display attributes
+	 */
 	public static final RelationType<?>[] DISPLAY_ATTRIBUTES_COMPACT =
 		new RelationType<?>[] { ENTITY_ID, TYPE, TIME, VALUE };
 
-	/** The attribute display properties map. */
-	public static final Map<RelationType<?>, HasProperties> ATTRIBUTE_DISPLAY_PROPERTIES =
+	/**
+	 * The attribute display properties map.
+	 */
+	public static final Map<RelationType<?>, HasProperties>
+		ATTRIBUTE_DISPLAY_PROPERTIES =
 		new HashMap<RelationType<?>, HasProperties>();
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		Class<? extends Entity> rClass = HistoryRecord.class;
 
 		setAttributeDisplayFlag(rClass, HAS_IMAGES, TYPE);
 		setAttributeDisplayProperty(rClass, 20, MAX_CHARS, ORIGIN);
-		setAttributeDisplayProperty(rClass,
-									CONTENT_TYPE,
-									ContentType.DATE_TIME,
-									TIME);
+		setAttributeDisplayProperty(rClass, CONTENT_TYPE,
+			ContentType.DATE_TIME,
+			TIME);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Overridden to only return TRUE if the type of this record is {@link
-	 * HistoryType#NOTE NOTE}. All other types of history will be ignored for
-	 * the change logging.
+	/**
+	 * Overridden to only return TRUE if the type of this record is
+	 * {@link HistoryType#NOTE NOTE}. All other types of history will be
+	 * ignored
+	 * for the change logging.
 	 *
 	 * @see Entity#hasChangeLogging()
 	 */
 	@Override
-	public boolean hasChangeLogging()
-	{
+	public boolean hasChangeLogging() {
 		return get(TYPE) == HistoryType.NOTE;
 	}
 
-	/***************************************
+	/**
 	 * Starts a new detail history record.
 	 *
-	 * @param  rType           The type of this history record
-	 * @param  rTarget         The target entity referenced by this record (may
-	 *                         be NULL)
-	 * @param  sValue          The value of this record
-	 * @param  rReferenceType  The type of the reference value
-	 * @param  sReferenceValue The reference value
-	 *
+	 * @param rType           The type of this history record
+	 * @param rTarget         The target entity referenced by this record (may
+	 *                        be NULL)
+	 * @param sValue          The value of this record
+	 * @param rReferenceType  The type of the reference value
+	 * @param sReferenceValue The reference value
 	 * @return The new history record
 	 */
-	HistoryRecord addDetail(HistoryType   rType,
-							Entity		  rTarget,
-							String		  sValue,
-							ReferenceType rReferenceType,
-							String		  sReferenceValue)
-	{
+	HistoryRecord addDetail(HistoryType rType, Entity rTarget, String sValue,
+		ReferenceType rReferenceType, String sReferenceValue) {
 		HistoryRecord rRoot = get(ROOT);
 
 		HistoryRecord aDetailRecord =
-			HistoryManager.createRecord(rType,
-										get(ORIGIN),
-										rTarget != null ? rTarget : get(TARGET),
-										get(ROOT_TARGET),
-										sValue,
-										rReferenceType,
-										sReferenceValue);
+			HistoryManager.createRecord(rType, get(ORIGIN),
+				rTarget != null ? rTarget : get(TARGET), get(ROOT_TARGET),
+				sValue, rReferenceType, sReferenceValue);
 
 		aDetailRecord.set(ROOT, rRoot != null ? rRoot : this);
 		aDetailRecord.set(PARENT, this);

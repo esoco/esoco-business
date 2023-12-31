@@ -58,42 +58,45 @@ import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newSetType;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * Contains process-specific relation type declarations.
  *
  * @author eso
  */
 @RelationTypeNamespace("de.esoco.process")
-public class ProcessRelationTypes
-{
-	//~ Enums ------------------------------------------------------------------
+public class ProcessRelationTypes {
 
-	/********************************************************************
+	/**
 	 * An enumeration of generic actions that can be applied to lists of
 	 * objects.
 	 */
-	public enum ListAction
-	{
+	public enum ListAction {
 		ADD_ALL, ADD_SELECTED, REMOVE_SELECTED, REMOVE_ALL
 	}
 
-	//~ Static fields/initializers ---------------------------------------------
-
-	/** The process itself, to allow generic access as a parameter. */
+	/**
+	 * The process itself, to allow generic access as a parameter.
+	 */
 	public static final RelationType<Process> PROCESS = newType();
 
-	/** A unique process ID. */
+	/**
+	 * A unique process ID.
+	 */
 	public static final RelationType<Integer> PROCESS_ID = newType();
 
-	/** The process name. */
+	/**
+	 * The process name.
+	 */
 	public static final RelationType<String> PROCESS_NAME = newType();
 
-	/** An information string describing the process or it's current state. */
+	/**
+	 * An information string describing the process or it's current state.
+	 */
 	public static final RelationType<String> PROCESS_INFO = newType();
 
 	/**
-	 * A reference to a {@link ProcessExecutor} instance that can be used to run
+	 * A reference to a {@link ProcessExecutor} instance that can be used to
+	 * run
 	 * additional processes.
 	 */
 	public static final RelationType<ProcessExecutor> PROCESS_EXECUTOR =
@@ -110,7 +113,9 @@ public class ProcessRelationTypes
 	public static final RelationType<List<ProcessState>> SPAWN_PROCESSES =
 		newListType();
 
-	/** A reference to a process definition. */
+	/**
+	 * A reference to a process definition.
+	 */
 	public static final RelationType<ProcessDefinition> PROCESS_DEFINITION =
 		newType();
 
@@ -128,29 +133,44 @@ public class ProcessRelationTypes
 	public static final RelationType<Boolean> SUB_PROCESS_SEPARATE_CONTEXT =
 		newType();
 
-	/** The (person) entity of the user that executes the process. */
-	public static final RelationType<Entity> PROCESS_USER =
-		entityAttribute();
+	/**
+	 * The (person) entity of the user that executes the process.
+	 */
+	public static final RelationType<Entity> PROCESS_USER = entityAttribute();
 
-	/** The locale of a process instance. */
+	/**
+	 * The locale of a process instance.
+	 */
 	public static final RelationType<Locale> PROCESS_LOCALE = newType();
 
-	/** The information about the client (web browser) of the process user. */
+	/**
+	 * The information about the client (web browser) of the process user.
+	 */
 	public static final RelationType<String> CLIENT_INFO = newType();
 
-	/** The information about the current user's locale. */
+	/**
+	 * The information about the current user's locale.
+	 */
 	public static final RelationType<Locale> CLIENT_LOCALE = newType();
 
-	/** The width of the client area available to a process. */
+	/**
+	 * The width of the client area available to a process.
+	 */
 	public static final RelationType<Integer> CLIENT_WIDTH = newType();
 
-	/** The height of the client area available to a process. */
+	/**
+	 * The height of the client area available to a process.
+	 */
 	public static final RelationType<Integer> CLIENT_HEIGHT = newType();
 
-	/** The start time of the process. */
+	/**
+	 * The start time of the process.
+	 */
 	public static final RelationType<Date> PROCESS_START_TIME = newType();
 
-	/** The last time the process has been suspended. */
+	/**
+	 * The last time the process has been suspended.
+	 */
 	public static final RelationType<Date> PROCESS_SUSPEND_TIME = newType();
 
 	/**
@@ -160,39 +180,46 @@ public class ProcessRelationTypes
 	public static final RelationType<ProcessException> PROCESS_EXCEPTION =
 		newType();
 
-	/** A list of process instances. */
+	/**
+	 * A list of process instances.
+	 */
 	public static final RelationType<List<Process>> PROCESS_LIST =
 		newListType();
 
-	/** The relation type for the registration of process listeners. */
-	public static final ListenerType<ProcessListener, Process> PROCESS_LISTENERS =
-		ListenerTypes.newListenerType();
+	/**
+	 * The relation type for the registration of process listeners.
+	 */
+	public static final ListenerType<ProcessListener, Process>
+		PROCESS_LISTENERS = ListenerTypes.newListenerType();
 
 	/**
 	 * Contains a mapping from process parameter types to functions that
-	 * initialize the parameter value from the process (typically from a certain
+	 * initialize the parameter value from the process (typically from a
+	 * certain
 	 * different parameter).
 	 */
-	public static final RelationType<Map<RelationType<?>,
-										 Function<? super Process, ?>>>			 PARAM_INITIALIZATIONS =
-		RelationTypes.newMapType(false);
+	public static final RelationType<Map<RelationType<?>, Function<?
+		super Process, ?>>>
+		PARAM_INITIALIZATIONS = RelationTypes.newMapType(false);
 
 	/**
-	 * A list of parameter relation types that are required to be available when
+	 * A list of parameter relation types that are required to be available
+	 * when
 	 * the process is executed.
 	 */
-	public static final RelationType<List<RelationType<?>>> REQUIRED_PROCESS_INPUT_PARAMS =
-		newListType();
+	public static final RelationType<List<RelationType<?>>>
+		REQUIRED_PROCESS_INPUT_PARAMS = newListType();
 
 	/**
 	 * A list of parameter relation types that can optionally be set as input
 	 * values when the process is executed.
 	 */
-	public static final RelationType<List<RelationType<?>>> OPTIONAL_PROCESS_INPUT_PARAMS =
-		newListType();
+	public static final RelationType<List<RelationType<?>>>
+		OPTIONAL_PROCESS_INPUT_PARAMS = newListType();
 
 	/**
-	 * A list of the parameter relation types to be used in an interaction. This
+	 * A list of the parameter relation types to be used in an interaction.
+	 * This
 	 * relation must be set on a process step.
 	 */
 	public static final RelationType<List<RelationType<?>>> INTERACTION_PARAMS =
@@ -210,33 +237,36 @@ public class ProcessRelationTypes
 	 * A set of the parameter relation types that should be displayed in
 	 * additional views.
 	 */
-	public static final RelationType<Set<RelationType<List<RelationType<?>>>>> VIEW_PARAMS =
-		newSetType(true);
+	public static final RelationType<Set<RelationType<List<RelationType<?>>>>>
+		VIEW_PARAMS = newSetType(true);
 
 	/**
 	 * Contains the relation type of the {@link #INTERACTION_PARAMS} parameter
 	 * that caused an interactive input event during an interaction. This
-	 * parameter should preferably be queried by steps through the method {@link
-	 * ProcessFragment#getInteractiveInputParameter()}.
+	 * parameter should preferably be queried by steps through the method
+	 * {@link ProcessFragment#getInteractiveInputParameter()}.
 	 */
 	public static final RelationType<RelationType<?>> INTERACTION_EVENT_PARAM =
 		newType();
 
-	/** The event type of an interaction. */
-	public static final RelationType<InteractionEventType> INTERACTION_EVENT_TYPE =
-		newType();
+	/**
+	 * The event type of an interaction.
+	 */
+	public static final RelationType<InteractionEventType>
+		INTERACTION_EVENT_TYPE = newType();
 
 	/**
 	 * A list of actions that will be performed once before the next process
 	 * execution after an interaction.
 	 */
-	public static final RelationType<List<Runnable>> INTERACTION_CLEANUP_ACTIONS =
-		newListType();
+	public static final RelationType<List<Runnable>>
+		INTERACTION_CLEANUP_ACTIONS = newListType();
 
 	/**
 	 * A set of the interaction parameters that will continue the process if
 	 * they cause an interaction. This are typically enumerated interaction
-	 * parameters with the style {@link ListStyle#IMMEDIATE}. This relation must
+	 * parameters with the style {@link ListStyle#IMMEDIATE}. This relation
+	 * must
 	 * be set on a process step.
 	 */
 	public static final RelationType<Set<RelationType<?>>> CONTINUATION_PARAMS =
@@ -251,12 +281,13 @@ public class ProcessRelationTypes
 		newType();
 
 	/**
-	 * A process parameter that contains the class of the {@link
-	 * InteractionFragment} that caused the most recent continuation. See
+	 * A process parameter that contains the class of the
+	 * {@link InteractionFragment} that caused the most recent continuation.
+	 * See
 	 * parameter {@link #CONTINUATION_PARAMS} for more information.
 	 */
-	public static final RelationType<Class<? extends ProcessFragment>> CONTINUATION_FRAGMENT_CLASS =
-		newType();
+	public static final RelationType<Class<? extends ProcessFragment>>
+		CONTINUATION_FRAGMENT_CLASS = newType();
 
 	/**
 	 * If this flag is set on a process it should gracefully end its execution
@@ -271,7 +302,8 @@ public class ProcessRelationTypes
 	 * process interaction. This can be used to interactively display
 	 * intermediate results of a process. This can be used to create repeated
 	 * process loops where an interactive step displays the results or the
-	 * progress of an operation. The re-execution of the process must be handled
+	 * progress of an operation. The re-execution of the process must be
+	 * handled
 	 * by the code which handles the interaction.
 	 */
 	public static final RelationType<Boolean> AUTO_CONTINUE = newType();
@@ -282,8 +314,10 @@ public class ProcessRelationTypes
 	 * step). This can be used to inform the user while an interactive step
 	 * prepares data during it's initialization or because of an interaction.
 	 * The update of the interaction will continue as long as this flag is set.
-	 * Because this is basically an endless loop the code setting this flag must
-	 * take appropriate measures to reduce the processing load on the client and
+	 * Because this is basically an endless loop the code setting this flag
+	 * must
+	 * take appropriate measures to reduce the processing load on the client
+	 * and
 	 * server (e.g. by invoking {@link Thread#sleep(long)} between invocations.
 	 */
 	public static final RelationType<Boolean> AUTO_UPDATE = newType();
@@ -308,19 +342,23 @@ public class ProcessRelationTypes
 	 * process. This can be used by the user interface as a hint that no extra
 	 * execution control ('next button') needs to be displayed.
 	 */
-	public static final RelationType<Boolean> IMMEDIATE_INTERACTION = newType();
+	public static final RelationType<Boolean> IMMEDIATE_INTERACTION =
+		newType();
 
 	/**
-	 * This relation type serves as an indicator that the current step should be
+	 * This relation type serves as an indicator that the current step
+	 * should be
 	 * reloaded (i.e. prepared again) during an interaction. It doesn't need to
-	 * be set as a parameter but should instead only be set in the relation with
+	 * be set as a parameter but should instead only be set in the relation
+	 * with
 	 * the type {@link #INTERACTION_EVENT_PARAM}.
 	 */
 	public static final RelationType<Boolean> RELOAD_CURRENT_STEP = newType();
 
 	/**
 	 * Indicates that the process step on which this flag is set should be the
-	 * starting point of a transaction. The transaction will be committed when a
+	 * starting point of a transaction. The transaction will be committed
+	 * when a
 	 * step is reached that has the flag {@link #TRANSACTION_END} set. Setting
 	 * both flags on the same step would have the same effect as setting the
 	 * single flag {@link MetaTypes#TRANSACTIONAL} which should therefore be
@@ -340,7 +378,8 @@ public class ProcessRelationTypes
 	/**
 	 * Indicates that the process step on which this flag is set should be the
 	 * starting point of a history group. The group will be closed when a step
-	 * is reached that has the flag {@link #HISTORY_END} set. Setting both flags
+	 * is reached that has the flag {@link #HISTORY_END} set. Setting both
+	 * flags
 	 * on the same step would have the same effect as setting the single flag
 	 * {@link HistoryManager#HISTORIZED} which should therefore be preferred.
 	 *
@@ -353,7 +392,8 @@ public class ProcessRelationTypes
 
 	/**
 	 * Indicates that the process step on which this flag is set should be the
-	 * end point of a history group. A group that had been started previously by
+	 * end point of a history group. A group that had been started
+	 * previously by
 	 * a step with the flag {@link #HISTORY_START} will be closed. If the
 	 * numbers of start and end points of history groups don't match an
 	 * exception will occur.
@@ -364,19 +404,27 @@ public class ProcessRelationTypes
 	 * A reference to another parameter that contains the target entity for a
 	 * history record.
 	 */
-	public static final RelationType<RelationType<? extends Entity>> HISTORY_TARGET_PARAM =
-		newType();
+	public static final RelationType<RelationType<? extends Entity>>
+		HISTORY_TARGET_PARAM = newType();
 
-	/** A string parameter that can contain the value for a history entry. */
+	/**
+	 * A string parameter that can contain the value for a history entry.
+	 */
 	public static final RelationType<String> HISTORY_VALUE = newType();
 
-	/** A string containing a message for the current process step. */
+	/**
+	 * A string containing a message for the current process step.
+	 */
 	public static final RelationType<String> PROCESS_STEP_MESSAGE = newType();
 
-	/** An information string for the current process step. */
+	/**
+	 * An information string for the current process step.
+	 */
 	public static final RelationType<String> PROCESS_STEP_INFO = newType();
 
-	/** A string containing result informations for the current process step. */
+	/**
+	 * A string containing result informations for the current process step.
+	 */
 	public static final RelationType<String> PROCESS_RESULT = newType();
 
 	/**
@@ -385,21 +433,31 @@ public class ProcessRelationTypes
 	 */
 	public static final RelationType<String> PROCESS_STEP_STYLE = newType();
 
-	/** A reference to a source parameter type. */
+	/**
+	 * A reference to a source parameter type.
+	 */
 	public static final RelationType<RelationType<?>> SOURCE_PARAM = newType();
 
-	/** A reference to a target parameter type. */
+	/**
+	 * A reference to a target parameter type.
+	 */
 	public static final RelationType<RelationType<?>> TARGET_PARAM = newType();
 
-	/** A reference to an entity parameter type. */
-	public static final RelationType<RelationType<? extends Entity>> ENTITY_PARAM =
-		newType();
+	/**
+	 * A reference to an entity parameter type.
+	 */
+	public static final RelationType<RelationType<? extends Entity>>
+		ENTITY_PARAM = newType();
 
-	/** A reference to an action that will be invoked to update an entity. */
+	/**
+	 * A reference to an action that will be invoked to update an entity.
+	 */
 	public static final RelationType<Action<Entity>> ENTITY_UPDATE_ACTION =
 		newType();
 
-	/** A string containing an entity type name for display or selection. */
+	/**
+	 * A string containing an entity type name for display or selection.
+	 */
 	public static final RelationType<String> ENTITY_TYPE = newType();
 
 	/**
@@ -410,21 +468,23 @@ public class ProcessRelationTypes
 	 * user interface). The relation will always return at least an empty map,
 	 * never NULL.
 	 */
-	public static final RelationType<Map<RelationType<?>, Function<?, String>>> PARAM_VALIDATIONS =
-		newMapType(false);
+	public static final RelationType<Map<RelationType<?>, Function<?, String>>>
+		PARAM_VALIDATIONS = newMapType(false);
 
 	/**
 	 * A mapping from parameter relation types to functions that validate
-	 * parameter values already during interactions while the validations stored
+	 * parameter values already during interactions while the validations
+	 * stored
 	 * in {@link #PARAM_VALIDATIONS} will only be performed if the process
 	 * progresses to the next step.
 	 */
-	public static final RelationType<Map<RelationType<?>, Function<?, String>>> INTERACTION_PARAM_VALIDATIONS =
-		newMapType(false);
+	public static final RelationType<Map<RelationType<?>, Function<?, String>>>
+		INTERACTION_PARAM_VALIDATIONS = newMapType(false);
 
 	/**
 	 * An ordered list of strings that constrains the values from which a
-	 * certain process parameter can be selected. Created as a standard relation
+	 * certain process parameter can be selected. Created as a standard
+	 * relation
 	 * type without an initial value to allow easier detection of the
 	 * constraint.
 	 */
@@ -437,10 +497,14 @@ public class ProcessRelationTypes
 	public static final RelationType<RelationType<?>> ORIGINAL_RELATION_TYPE =
 		newType();
 
-	/** A reference to a data element that has been created by this factory. */
+	/**
+	 * A reference to a data element that has been created by this factory.
+	 */
 	public static final RelationType<DataElement<?>> DATA_ELEMENT = newType();
 
-	/** A relation type for references to process scheduler instances. */
+	/**
+	 * A relation type for references to process scheduler instances.
+	 */
 	public static final RelationType<ProcessScheduler> PROCESS_SCHEDULER =
 		newType();
 
@@ -448,8 +512,8 @@ public class ProcessRelationTypes
 	 * A reference to an object that provides access to external services
 	 * through an {@link ExternalServiceAccess} interface.
 	 */
-	public static final RelationType<ExternalServiceAccess> EXTERNAL_SERVICE_ACCESS =
-		newType();
+	public static final RelationType<ExternalServiceAccess>
+		EXTERNAL_SERVICE_ACCESS = newType();
 
 	/**
 	 * An integer value containing a value indicating the progress of a process
@@ -457,11 +521,15 @@ public class ProcessRelationTypes
 	 */
 	public static final RelationType<Integer> PROGRESS = newIntType();
 
-	/** The maximum value for the progress indicator. */
+	/**
+	 * The maximum value for the progress indicator.
+	 */
 	public static final RelationType<Integer> PROGRESS_MAXIMUM =
 		RelationTypes.newIntType();
 
-	/** A string indicator for the progress of a process. */
+	/**
+	 * A string indicator for the progress of a process.
+	 */
 	public static final RelationType<String> PROGRESS_INDICATOR = newType();
 
 	/**
@@ -473,25 +541,31 @@ public class ProcessRelationTypes
 	public static final RelationType<String> PROGRESS_INDICATOR_TEMPLATE =
 		newInitialValueType("%d/%d");
 
-	/** A string description of the current process progress. */
+	/**
+	 * A string description of the current process progress.
+	 */
 	public static final RelationType<String> PROGRESS_DESCRIPTION = newType();
 
 	/**
-	 * A process parameter that contains the configuration of the application in
+	 * A process parameter that contains the configuration of the
+	 * application in
 	 * which the process is running.
 	 */
 	public static final RelationType<ProvidesConfiguration> CONFIGURATION =
 		newType();
 
 	/**
-	 * A list of process definition classes for background process that shall be
+	 * A list of process definition classes for background process that
+	 * shall be
 	 * resumed by a {@link ProcessScheduler}. Will be evaluated after a process
 	 * has finished execution of it's steps.
 	 */
-	public static final RelationType<List<Class<? extends ProcessDefinition>>> RESUME_PROCESSES =
-		newListType();
+	public static final RelationType<List<Class<? extends ProcessDefinition>>>
+		RESUME_PROCESSES = newListType();
 
-	/** An interactive enum parameter to perform list actions. */
+	/**
+	 * An interactive enum parameter to perform list actions.
+	 */
 	public static final RelationType<ListAction> LIST_ACTION = newType();
 
 	/**
@@ -514,7 +588,7 @@ public class ProcessRelationTypes
 	 */
 	public static final RelationType<String> DUMMY_PARAMETER = newType();
 
-	//- Internal types ---------------------------------------------------------
+	//- Internal types
 
 	/**
 	 * A package-internal set of the temporary parameter relation types used by
@@ -529,48 +603,39 @@ public class ProcessRelationTypes
 	 */
 	static final RelationType<Integer> PARAM_USAGE_COUNT = newIntType();
 
-	static
-	{
+	static {
 		RelationTypes.init(ProcessRelationTypes.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private ProcessRelationTypes()
-	{
+	private ProcessRelationTypes() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new parameter relation type that is derived from an existing
 	 * relation type. The new type will have the same target datatype as the
 	 * original type and a name that is created from the process package, the
 	 * optional prefix, and the simple name of the original type. The original
-	 * type will be stored in a relation of type {@link #ORIGINAL_RELATION_TYPE}
+	 * type will be stored in a relation of type
+	 * {@link #ORIGINAL_RELATION_TYPE}
 	 * on the derived type. The prefix must be in relation type notation, i.e.
 	 * upper case words separated by underscores.
 	 *
-	 * @param  sPrefix       The optional prefix to prepend to the original
-	 *                       type's name (can be NULL or empty for none)
-	 * @param  rRelationType The relation type to derive the parameter from
-	 *
+	 * @param sPrefix       The optional prefix to prepend to the original
+	 *                      type's name (can be NULL or empty for none)
+	 * @param rRelationType The relation type to derive the parameter from
 	 * @return The new derived parameter type
 	 */
-	public static <T> RelationType<T> deriveParameter(
-		String			sPrefix,
-		RelationType<T> rRelationType)
-	{
+	public static <T> RelationType<T> deriveParameter(String sPrefix,
+		RelationType<T> rRelationType) {
 		StringBuilder aName =
 			new StringBuilder(Process.class.getPackage().getName());
 
 		aName.append('.');
 
-		if (sPrefix != null && sPrefix.length() > 0)
-		{
+		if (sPrefix != null && sPrefix.length() > 0) {
 			aName.append(sPrefix);
 			aName.append('_');
 		}
@@ -578,8 +643,7 @@ public class ProcessRelationTypes
 		aName.append(rRelationType.getSimpleName());
 
 		RelationType<T> aDerivedType =
-			RelationTypes.<T>newRelationType(
-				aName.toString(),
+			RelationTypes.<T>newRelationType(aName.toString(),
 				rRelationType.getTargetType(),
 				rRelationType.getDefaultValueFunction(),
 				rRelationType.getInitialValueFunction());
@@ -589,68 +653,58 @@ public class ProcessRelationTypes
 		return aDerivedType;
 	}
 
-	/***************************************
+	/**
 	 * Creates a list of derived parameter relation types. For details see
 	 * method {@link #deriveParameter(String, RelationType)}. The returned list
 	 * can be manipulated freely.
 	 *
-	 * @param  sPrefix        The optional prefix to prepend to the original
-	 *                        type names (can be NULL or empty for none)
-	 * @param  rRelationTypes The relation types to derive the parameters from
-	 *
+	 * @param sPrefix        The optional prefix to prepend to the original
+	 *                          type
+	 *                       names (can be NULL or empty for none)
+	 * @param rRelationTypes The relation types to derive the parameters from
 	 * @return A list of new derived parameters types
 	 */
-	public static List<RelationType<?>> deriveParameters(
-		String			   sPrefix,
-		RelationType<?>... rRelationTypes)
-	{
+	public static List<RelationType<?>> deriveParameters(String sPrefix,
+		RelationType<?>... rRelationTypes) {
 		return deriveParameters(sPrefix, Arrays.asList(rRelationTypes));
 	}
 
-	/***************************************
+	/**
 	 * Creates a list of derived parameter relation types. For details see
 	 * method {@link #deriveParameter(String, RelationType)}. The returned list
 	 * can be manipulated freely.
 	 *
-	 * @param  sPrefix        The optional prefix to prepend to the original
-	 *                        type names (can be NULL or empty for none)
-	 * @param  rRelationTypes The relation types to derive the parameters from
-	 *
+	 * @param sPrefix        The optional prefix to prepend to the original
+	 *                          type
+	 *                       names (can be NULL or empty for none)
+	 * @param rRelationTypes The relation types to derive the parameters from
 	 * @return A list of new derived parameters types
 	 */
-	public static List<RelationType<?>> deriveParameters(
-		String				  sPrefix,
-		List<RelationType<?>> rRelationTypes)
-	{
+	public static List<RelationType<?>> deriveParameters(String sPrefix,
+		List<RelationType<?>> rRelationTypes) {
 		List<RelationType<?>> aDerivedTypes =
 			new ArrayList<RelationType<?>>(rRelationTypes.size());
 
-		for (RelationType<?> rRelationType : rRelationTypes)
-		{
+		for (RelationType<?> rRelationType : rRelationTypes) {
 			aDerivedTypes.add(deriveParameter(sPrefix, rRelationType));
 		}
 
 		return aDerivedTypes;
 	}
 
-	/***************************************
+	/**
 	 * Returns the derived parameter relation type for a certain original
 	 * relation type from a list of derived types.
 	 *
-	 * @param  rOriginalType  The original relation type
-	 * @param  rDerivedParams A list of derived parameter types
-	 *
+	 * @param rOriginalType  The original relation type
+	 * @param rDerivedParams A list of derived parameter types
 	 * @return The derived parameter relation type or NULL if not found
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> RelationType<T> getDerivedParameter(
-		RelationType<T>		  rOriginalType,
-		List<RelationType<?>> rDerivedParams)
-	{
-		for (RelationType<?> rParam : rDerivedParams)
-		{
-			if (rParam.get(ORIGINAL_RELATION_TYPE) == rOriginalType)
-			{
+		RelationType<T> rOriginalType, List<RelationType<?>> rDerivedParams) {
+		for (RelationType<?> rParam : rDerivedParams) {
+			if (rParam.get(ORIGINAL_RELATION_TYPE) == rOriginalType) {
 				return (RelationType<T>) rParam;
 			}
 		}

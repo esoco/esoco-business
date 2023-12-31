@@ -20,26 +20,22 @@ import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiGridLayout;
 
-
-/********************************************************************
+/**
  * A panel that arranges it's children with a {@link UiGridLayout} in a
  * two-dimensional grid.
  *
  * @author eso
  */
-public class UiGridPanel extends UiLayoutContainer<UiGridPanel>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiGridPanel extends UiLayoutContainer<UiGridPanel> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent  The parent container
 	 * @param nRows    The number of layout rows
 	 * @param nColumns The number of layout columns
 	 */
-	public UiGridPanel(UiContainer<?> rParent, int nRows, int nColumns)
-	{
+	public UiGridPanel(UiContainer<?> rParent, int nRows, int nColumns) {
 		super(rParent, new UiGridLayout(nRows, nColumns));
 	}
 }

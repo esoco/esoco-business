@@ -20,21 +20,17 @@ import de.esoco.lib.property.LayoutType;
 
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A layout that renders components in the context of the parent container.
  *
  * @author eso
  */
-public class UiInlineLayout extends UiLayout
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiInlineLayout extends UiLayout {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public UiInlineLayout()
-	{
+	public UiInlineLayout() {
 		super(LayoutType.INLINE);
 	}
 }

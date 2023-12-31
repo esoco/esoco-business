@@ -47,107 +47,97 @@ import static de.esoco.storage.StorageRelationTypes.STORAGE_LENGTH;
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * The entity definition for additional attributes that can be set on entities.
  *
  * @author eso
  */
 @RelationTypeNamespace("de.esoco.entity.xattr")
-public class ExtraAttribute extends Entity
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ExtraAttribute extends Entity {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The prefix for global entity IDs */
+	/**
+	 * The prefix for global entity IDs
+	 */
 	public static final String ID_PREFIX = "XA";
 
-	/** The entity an attribute belongs to */
+	/**
+	 * The entity an attribute belongs to
+	 */
 	public static final RelationType<Entity> ENTITY =
 		arbitraryEntityAttribute(FINAL);
 
-	/** The entity an attribute belongs to */
+	/**
+	 * The entity an attribute belongs to
+	 */
 	public static final RelationType<Entity> OWNER =
 		arbitraryEntityAttribute(FINAL);
 
-	/** The key string that identifies the attribute */
+	/**
+	 * The key string that identifies the attribute
+	 */
 	public static final RelationType<RelationType<?>> KEY = newType(FINAL);
 
-	/** The value of the attribute */
+	/**
+	 * The value of the attribute
+	 */
 	public static final RelationType<Object> VALUE = newType();
 
-	/** A predicate that checks whether the {@link #OWNER} attribute is NULL. */
+	/**
+	 * A predicate that checks whether the {@link #OWNER} attribute is NULL.
+	 */
 	public static final Predicate<Relatable> HAS_NO_OWNER =
 		ExtraAttribute.OWNER.is(equalTo(null));
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		VALUE.set(STORAGE_DATATYPE, String.class);
 		VALUE.set(STORAGE_LENGTH, Integer.valueOf(8000));
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to always return FALSE because the change logging of entities
 	 * includes their extra attributes.
 	 *
 	 * @see Entity#hasChangeLogging()
 	 */
 	@Override
-	public boolean hasChangeLogging()
-	{
+	public boolean hasChangeLogging() {
 		return false;
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * The entity definition.
 	 */
-	public static class Definition extends EntityDefinition<ExtraAttribute>
-	{
-		//~ Static fields/initializers -----------------------------------------
+	public static class Definition extends EntityDefinition<ExtraAttribute> {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 */
-		public Definition()
-		{
+		public Definition() {
 			super(ExtraAttribute.class);
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * Overridden to handle the special namespace of extra attributes and to
+		/**
+		 * Overridden to handle the special namespace of extra attributes
+		 * and to
 		 * make collection and map value immutable.
 		 *
 		 * @see EntityDefinition#checkAttributeValue(RelationType, Object)
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object checkAttributeValue(
-			RelationType<?> rAttribute,
-			Object			rValue) throws StorageException
-		{
+		public Object checkAttributeValue(RelationType<?> rAttribute,
+			Object rValue) throws StorageException {
 			rValue = super.checkAttributeValue(rAttribute, rValue);
 
-			if (rValue instanceof List)
-			{
+			if (rValue instanceof List) {
 				rValue = Collections.unmodifiableList((List<Object>) rValue);
-			}
-			else if (rValue instanceof Set)
-			{
+			} else if (rValue instanceof Set) {
 				rValue = Collections.unmodifiableSet((Set<Object>) rValue);
-			}
-			else if (rValue instanceof Map)
-			{
+			} else if (rValue instanceof Map) {
 				rValue =
 					Collections.unmodifiableMap((Map<Object, Object>) rValue);
 			}
@@ -155,57 +145,45 @@ public class ExtraAttribute extends Entity
 			return rValue;
 		}
 
-		/***************************************
+		/**
 		 * @see EntityDefinition#createObject(List, boolean)
 		 */
 		@Override
-		public ExtraAttribute createObject(
-			List<?> rAttributeValues,
-			boolean bAsChild) throws StorageException
-		{
-			ExtraAttribute rXA = super.createObject(rAttributeValues, bAsChild);
+		public ExtraAttribute createObject(List<?> rAttributeValues,
+			boolean bAsChild) throws StorageException {
+			ExtraAttribute rXA = super.createObject(rAttributeValues,
+				bAsChild);
 
 			rXA.set(MetaTypes.INITIALIZING);
 
-			try
-			{
+			try {
 				Relation<RelationType<?>> rKeyRelation = rXA.getRelation(KEY);
 
 				String sValue = (String) rXA.get(VALUE);
 
-				if (rKeyRelation instanceof IntermediateRelation)
-				{
+				if (rKeyRelation instanceof IntermediateRelation) {
 					String sKeyName =
 						((IntermediateRelation<?, ?>) rKeyRelation)
-						.getIntermediateTarget().toString();
+							.getIntermediateTarget()
+							.toString();
 
 					rXA.deleteRelation(VALUE);
 					rXA.set(VALUE,
-							rRawData ->
-							Conversions.parseValue(rRawData.second(),
-												   getKeyRelationType(rRawData
-																	  .first(),
-																	  true)),
-							new Pair<String, String>(sKeyName, sValue));
-				}
-				else
-				{
+						rRawData -> Conversions.parseValue(rRawData.second(),
+							getKeyRelationType(rRawData.first(), true)),
+						new Pair<String, String>(sKeyName, sValue));
+				} else {
 					RelationType<?> rKey = rKeyRelation.getTarget();
 
 					rXA.set(VALUE, Conversions.parseValue(sValue, rKey));
 				}
 
 				rXA.deleteRelation(MetaTypes.INITIALIZING);
-			}
-			catch (FunctionException e)
-			{
+			} catch (FunctionException e) {
 				// unwrap any storage exceptions that occur on parsing
-				if (e.getCause() instanceof StorageException)
-				{
+				if (e.getCause() instanceof StorageException) {
 					throw (StorageException) e.getCause();
-				}
-				else
-				{
+				} else {
 					throw e;
 				}
 			}
@@ -213,81 +191,64 @@ public class ExtraAttribute extends Entity
 			return rXA;
 		}
 
-		/***************************************
+		/**
 		 * Overridden to map the value attribute to a string value.
 		 *
 		 * @see EntityDefinition#mapValue(RelationType, Object)
 		 */
 		@Override
 		public Object mapValue(RelationType<?> rAttribute, Object rValue)
-			throws StorageException
-		{
-			if (rAttribute == VALUE)
-			{
-				if (rValue != null)
-				{
+			throws StorageException {
+			if (rAttribute == VALUE) {
+				if (rValue != null) {
 					rValue = Conversions.asString(rValue);
 				}
-			}
-			else
-			{
+			} else {
 				rValue = super.mapValue(rAttribute, rValue);
 			}
 
 			return rValue;
 		}
 
-		/***************************************
+		/**
 		 * Overridden to handle the special namespace of extra attributes.
 		 *
 		 * @see EntityDefinition#initRelationTypeAttribute(Entity, RelationType,
-		 *      String)
+		 * String)
 		 */
 		@Override
-		protected void initRelationTypeAttribute(
-			ExtraAttribute				  rExtraAttribute,
-			RelationType<RelationType<?>> rRelationTypeAttr,
-			String						  sKeyName)
-		{
+		protected void initRelationTypeAttribute(ExtraAttribute rExtraAttribute,
+			RelationType<RelationType<?>> rRelationTypeAttr, String sKeyName) {
 			RelationType<?> rType = getKeyRelationType(sKeyName, false);
 
-			if (rType != null)
-			{
+			if (rType != null) {
 				rExtraAttribute.set(rRelationTypeAttr, rType);
-			}
-			else
-			{
+			} else {
 				rExtraAttribute.set(rRelationTypeAttr,
-									sKey -> getKeyRelationType(sKey, true),
-									sKeyName);
+					sKey -> getKeyRelationType(sKey, true), sKeyName);
 			}
 		}
 
-		/***************************************
+		/**
 		 * Returns the relation type for a certain extra attribute key.
 		 *
-		 * @param  sKeyName    The name of the key
-		 * @param  bLogMissing TRUE to log an error if the key relation type
-		 *                     cannot be resolved
-		 *
+		 * @param sKeyName    The name of the key
+		 * @param bLogMissing TRUE to log an error if the key relation type
+		 *                    cannot be resolved
 		 * @return The key relation type or NULL for none
 		 */
-		RelationType<?> getKeyRelationType(String  sKeyName,
-										   boolean bLogMissing)
-		{
+		RelationType<?> getKeyRelationType(String sKeyName,
+			boolean bLogMissing) {
 			RelationType<?> rType = RelationType.valueOf(sKeyName);
 
-			if (rType == null)
-			{
-				rType =
-					RelationType.valueOf(EXTRA_ATTRIBUTES_NAMESPACE + "." +
-										 sKeyName);
+			if (rType == null) {
+				rType = RelationType.valueOf(
+					EXTRA_ATTRIBUTES_NAMESPACE + "." + sKeyName);
 
-				if (rType == null && bLogMissing)
-				{
-					Log.errorf("Missing extra attribute type %s (in entity %s)",
-							   sKeyName,
-							   get(ENTITY));
+				if (rType == null && bLogMissing) {
+					Log.errorf(
+						"Missing extra attribute type %s (in entity " + "%s)",
+						sKeyName, get(ENTITY));
 				}
 			}
 

@@ -20,22 +20,17 @@ import java.util.Collection;
 
 import org.obrel.core.RelatedObject;
 
-
-/********************************************************************
+/**
  * An implementation of the {@link ExternalServiceDefinition} interface.
  *
  * @author eso
  */
 public class ServiceDefinitionImpl extends RelatedObject
-	implements ExternalServiceDefinition
-{
-	//~ Instance fields --------------------------------------------------------
+	implements ExternalServiceDefinition {
 
 	private final Class<? extends ExternalService> rServiceClass;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rServiceClass      The implementation class of the service type
@@ -43,25 +38,19 @@ public class ServiceDefinitionImpl extends RelatedObject
 	 * @param rAccessScopes      The access scopes the service supports (can be
 	 *                           empty)
 	 */
-	public ServiceDefinitionImpl(
-		Class<? extends ExternalService> rServiceClass,
-		String							 sAccessScopePrefix,
-		Collection<String>				 rAccessScopes)
-	{
+	public ServiceDefinitionImpl(Class<? extends ExternalService> rServiceClass,
+		String sAccessScopePrefix, Collection<String> rAccessScopes) {
 		this.rServiceClass = rServiceClass;
 
 		set(ExternalServices.ACCESS_SCOPE_PREFIX, sAccessScopePrefix);
 		get(ExternalServices.ACCESS_SCOPES).addAll(rAccessScopes);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class<? extends ExternalService> getServiceClass()
-	{
+	public Class<? extends ExternalService> getServiceClass() {
 		return rServiceClass;
 	}
 }

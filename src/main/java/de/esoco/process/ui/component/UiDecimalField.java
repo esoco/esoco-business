@@ -27,62 +27,51 @@ import de.esoco.process.ui.UiNumberInputField;
 
 import java.math.BigDecimal;
 
-
-/********************************************************************
+/**
  * An input field for decimal numbers.
  *
  * @author eso
  */
 public class UiDecimalField
 	extends UiNumberInputField<BigDecimal, UiDecimalField>
-	implements HasValue<BigDecimal>
-{
-	//~ Constructors -----------------------------------------------------------
+	implements HasValue<BigDecimal> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiNumberInputField#UiNumberInputField(UiContainer, Class, Number)
 	 */
-	public UiDecimalField(UiContainer<?> rContainer, BigDecimal rValue)
-	{
+	public UiDecimalField(UiContainer<?> rContainer, BigDecimal rValue) {
 		super(rContainer, BigDecimal.class, rValue);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the display style for the big decimal value.
 	 *
-	 * @param  eDisplayStyle The display style
-	 *
+	 * @param eDisplayStyle The display style
 	 * @return This instance for fluent invocation
 	 */
-	public UiDecimalField displayAs(DisplayStyle eDisplayStyle)
-	{
-		if (eDisplayStyle == DisplayStyle.MULTI_FORMAT)
-		{
+	public UiDecimalField displayAs(DisplayStyle eDisplayStyle) {
+		if (eDisplayStyle == DisplayStyle.MULTI_FORMAT) {
 			fragment().get(ProcessRelationTypes.INPUT_PARAMS).remove(type());
 		}
 
 		return set(BigDecimalDataElement.DISPLAY_STYLE, eDisplayStyle);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigDecimal getValue()
-	{
+	public BigDecimal getValue() {
 		return getValueImpl();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setValue(BigDecimal rValue)
-	{
+	public void setValue(BigDecimal rValue) {
 		setValueImpl(rValue);
 	}
 }

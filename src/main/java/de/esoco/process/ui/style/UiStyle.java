@@ -29,148 +29,119 @@ import java.util.Map;
 
 import static de.esoco.lib.property.StyleProperties.STYLE;
 
-
-/********************************************************************
+/**
  * Contains properties that define the style of a {@link UiComponent}.
  *
  * @author eso
  */
-public class UiStyle extends UiElement<UiStyle>
-{
-	//~ Instance fields --------------------------------------------------------
+public class UiStyle extends UiElement<UiStyle> {
 
 	private String sDefaultStyleName;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates an empty instance.
 	 */
-	public UiStyle()
-	{
+	public UiStyle() {
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance from an existing style.
 	 *
 	 * @param rStyle The style to copy the properties from
 	 */
-	public UiStyle(UiStyle rStyle)
-	{
+	public UiStyle(UiStyle rStyle) {
 		super(rStyle);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds an additional style name to an existing style name and returns the
 	 * corresponding string.
 	 *
-	 * @param  sStyleName      The existing style name (NULL or empty for none)
-	 * @param  sAdditionalName The style name to add
-	 *
+	 * @param sStyleName      The existing style name (NULL or empty for none)
+	 * @param sAdditionalName The style name to add
 	 * @return The resulting style name (may be empty but will never be NULL)
 	 */
-	public static String addStyleName(String sStyleName, String sAdditionalName)
-	{
-		if (sStyleName != null && sStyleName.length() > 0)
-		{
-			if (sAdditionalName.length() > 0)
-			{
+	public static String addStyleName(String sStyleName,
+		String sAdditionalName) {
+		if (sStyleName != null && sStyleName.length() > 0) {
+			if (sAdditionalName.length() > 0) {
 				sStyleName += " " + sAdditionalName;
 			}
-		}
-		else
-		{
+		} else {
 			sStyleName = sAdditionalName;
 		}
 
 		return sStyleName;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Adds a style name to the current style name.
 	 *
-	 * @param  sAdditionalName The style name to add
-	 *
+	 * @param sAdditionalName The style name to add
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle addStyleName(String sAdditionalName)
-	{
+	public final UiStyle addStyleName(String sAdditionalName) {
 		return styleName(addStyleName(get(STYLE, ""), sAdditionalName));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent)
-	{
+	public void applyPropertiesTo(UiComponent<?, ?> rComponent) {
 		super.applyPropertiesTo(rComponent);
 
 		String sFullStyle = addStyleName(sDefaultStyleName, get(STYLE, ""));
 
-		if (sFullStyle.length() > 0)
-		{
+		if (sFullStyle.length() > 0) {
 			rComponent.set(STYLE, sFullStyle);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets the background color.
 	 *
-	 * @param  rColor The HTML color string
-	 *
+	 * @param rColor The HTML color string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle backgroundColor(Color rColor)
-	{
+	public final UiStyle backgroundColor(Color rColor) {
 		return css("backgroundColor", rColor.toHtml());
 	}
 
-	/***************************************
+	/**
 	 * Sets the component border.
 	 *
-	 * @param  sBorder The HTML border definition string
-	 *
+	 * @param sBorder The HTML border definition string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle border(String sBorder)
-	{
+	public final UiStyle border(String sBorder) {
 		return css("border", sBorder);
 	}
 
-	/***************************************
+	/**
 	 * Sets a CSS style property for the parameter. The names of multi-word CSS
-	 * properties must be given in CamelCase form without hyphens, starting with
+	 * properties must be given in CamelCase form without hyphens, starting
+	 * with
 	 * a lower case letter (e.g. 'font-size' must be set as 'fontSize').
 	 *
-	 * <p>This method is optimized to ignore NULL values if the property doesn't
-	 * exist already. Therefore invoking code doesn't need to perform null
-	 * checks to prevent adding empty CSS values (e.g. from NULL-initialized
-	 * variables).</p>
+	 * <p>This method is optimized to ignore NULL values if the property
+	 * doesn't exist already. Therefore invoking code doesn't need to perform
+	 * null checks to prevent adding empty CSS values (e.g. from
+	 * NULL-initialized variables).</p>
 	 *
-	 * @param  sPropertyName The name of the CSS property
-	 * @param  sValue        The value of the CSS property or NULL to clear
-	 *
+	 * @param sPropertyName The name of the CSS property
+	 * @param sValue        The value of the CSS property or NULL to clear
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle css(String sPropertyName, String sValue)
-	{
+	public final UiStyle css(String sPropertyName, String sValue) {
 		Map<String, String> rCssStyles = get(StyleProperties.CSS_STYLES, null);
 
-		if (rCssStyles != null)
-		{
+		if (rCssStyles != null) {
 			// prevent adding unnecessary empty values
-			if (sValue == null && !rCssStyles.containsKey(sPropertyName))
-			{
+			if (sValue == null && !rCssStyles.containsKey(sPropertyName)) {
 				return this;
 			}
-		}
-		else
-		{
+		} else {
 			rCssStyles = new HashMap<>();
 		}
 
@@ -183,156 +154,133 @@ public class UiStyle extends UiElement<UiStyle>
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Applies a CSS property.
 	 *
-	 * @param  sPropertyName The name of the CSS property to apply
-	 * @param  rValue        The property value to apply or NULL to clear
-	 *
+	 * @param sPropertyName The name of the CSS property to apply
+	 * @param rValue        The property value to apply or NULL to clear
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle css(String sPropertyName, HasCssName rValue)
-	{
+	public final UiStyle css(String sPropertyName, HasCssName rValue) {
 		return css(sPropertyName, rValue != null ? rValue.getCssName() : null);
 	}
 
-	/***************************************
-	 * Sets the default style name that should always be applied. The style name
+	/**
+	 * Sets the default style name that should always be applied. The style
+	 * name
 	 * can consist of multiple words that are separated by spaces.
 	 *
-	 * @param  sStyleName The new default style name
-	 *
+	 * @param sStyleName The new default style name
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle defaultStyleName(String sStyleName)
-	{
+	public final UiStyle defaultStyleName(String sStyleName) {
 		sDefaultStyleName = sStyleName;
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Sets the font size.
 	 *
-	 * @param  nSize The size value
-	 * @param  eUnit The size unit
-	 *
+	 * @param nSize The size value
+	 * @param eUnit The size unit
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle fontSize(int nSize, SizeUnit eUnit)
-	{
+	public final UiStyle fontSize(int nSize, SizeUnit eUnit) {
 		return css("fontSize", eUnit.getHtmlSize(nSize));
 	}
 
-	/***************************************
+	/**
 	 * Sets the font weight.
 	 *
-	 * @param  sWeight The font weight HTML value
-	 *
+	 * @param sWeight The font weight HTML value
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle fontWeight(String sWeight)
-	{
+	public final UiStyle fontWeight(String sWeight) {
 		return css("fontWeight", sWeight);
 	}
 
-	/***************************************
+	/**
 	 * Sets the foreground color.
 	 *
-	 * @param  rColor The HTML color string
-	 *
+	 * @param rColor The HTML color string
 	 * @return This instance for fluent invocation
 	 */
-	public UiStyle foregroundColor(Color rColor)
-	{
+	public UiStyle foregroundColor(Color rColor) {
 		return css("color", rColor.toHtml());
 	}
 
-	/***************************************
+	/**
 	 * Returns the style name(s) of a component.
 	 *
 	 * @return The style name (empty string for none)
 	 */
-	public final String getStyleName()
-	{
+	public final String getStyleName() {
 		String sStyle = get(STYLE, "");
 
 		return sStyle != null ? sStyle : "";
 	}
 
-	/***************************************
+	/**
 	 * Sets the height of a text line in the component.
 	 *
-	 * @param  nHeight The height value
-	 * @param  eUnit   The height unit
-	 *
+	 * @param nHeight The height value
+	 * @param eUnit   The height unit
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle lineHeight(int nHeight, SizeUnit eUnit)
-	{
+	public final UiStyle lineHeight(int nHeight, SizeUnit eUnit) {
 		return css("lineHeight", eUnit.getHtmlSize(nHeight));
 	}
 
-	/***************************************
+	/**
 	 * Sets the component margin.
 	 *
-	 * @param  sMargin sPadding The HTML margin definition string
-	 *
+	 * @param sMargin sPadding The HTML margin definition string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle margin(String sMargin)
-	{
+	public final UiStyle margin(String sMargin) {
 		return css("margin", sMargin);
 	}
 
-	/***************************************
+	/**
 	 * Sets the component padding.
 	 *
-	 * @param  sPadding The HTML padding definition string
-	 *
+	 * @param sPadding The HTML padding definition string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle padding(String sPadding)
-	{
+	public final UiStyle padding(String sPadding) {
 		return css("padding", sPadding);
 	}
 
-	/***************************************
+	/**
 	 * Sets the style name. The style name can consist of multiple words that
 	 * are separated by spaces.
 	 *
-	 * @param  sStyleName The style name
-	 *
+	 * @param sStyleName The style name
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle styleName(String sStyleName)
-	{
+	public final UiStyle styleName(String sStyleName) {
 		return set(STYLE, sStyleName);
 	}
 
-	/***************************************
+	/**
 	 * Sets the horizontal alignment of text in the component.
 	 *
-	 * @param  eTextAlignment The horizontal text alignment
-	 *
+	 * @param eTextAlignment The horizontal text alignment
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle textAlign(Alignment eTextAlignment)
-	{
+	public final UiStyle textAlign(Alignment eTextAlignment) {
 		return css("textAlign", mapTextAlignment(eTextAlignment));
 	}
 
-	/***************************************
+	/**
 	 * Maps an alignment value to the corresponding CSS text alignment value.
 	 *
-	 * @param  eAlignment The alignment to map
-	 *
+	 * @param eAlignment The alignment to map
 	 * @return The CSS text alignment value
 	 */
-	private String mapTextAlignment(Alignment eAlignment)
-	{
-		switch (eAlignment)
-		{
+	private String mapTextAlignment(Alignment eAlignment) {
+		switch (eAlignment) {
 			case BEGIN:
 				return "start";
 

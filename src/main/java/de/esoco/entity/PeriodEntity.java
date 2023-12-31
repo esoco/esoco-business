@@ -21,18 +21,13 @@ import java.util.Date;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
 
-
-/********************************************************************
+/**
  * A base class for entities that may be valid only during a certain period of
  * time.
  *
  * @author eso
  */
-public abstract class PeriodEntity extends Entity
-{
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+public abstract class PeriodEntity extends Entity {
 
 	/**
 	 * The start date (inclusively) from which an invoicing element will be
@@ -48,55 +43,49 @@ public abstract class PeriodEntity extends Entity
 	 */
 	public static final RelationType<Date> END_DATE = StandardTypes.END_DATE;
 
-	//~ Methods ----------------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
-	/***************************************
+	/**
 	 * Checks whether this entity is valid on a certain date, i.e. whether it's
 	 * start date is before or equal to and less than the given date.
 	 *
-	 * @param  rDate The date to check
-	 *
+	 * @param rDate The date to check
 	 * @return TRUE if this entity is valid on the given date
 	 */
-	public boolean isValidOn(Date rDate)
-	{
+	public boolean isValidOn(Date rDate) {
 		Date rStartDate = get(START_DATE);
-		Date rEndDate   = get(END_DATE);
+		Date rEndDate = get(END_DATE);
 
 		return (rStartDate == null || rDate.compareTo(rStartDate) >= 0) &&
-			   (rEndDate == null || rDate.compareTo(rEndDate) < 0);
+			(rEndDate == null || rDate.compareTo(rEndDate) < 0);
 	}
 
-	/***************************************
+	/**
 	 * Sets a date attribute to the earliest date compared with the current
 	 * attribute value.
 	 *
 	 * @param rDateAttr The date attribute to compare and set
 	 * @param rDate     The new date value to compare the current value with
 	 */
-	public void setEarliestDate(RelationType<Date> rDateAttr, Date rDate)
-	{
+	public void setEarliestDate(RelationType<Date> rDateAttr, Date rDate) {
 		Date rCurrentDate = get(rDateAttr);
 
-		if (rCurrentDate == null || rCurrentDate.compareTo(rDate) > 0)
-		{
+		if (rCurrentDate == null || rCurrentDate.compareTo(rDate) > 0) {
 			set(rDateAttr, rDate);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Sets a date attribute to the latest date compared with the current
 	 * attribute value.
 	 *
 	 * @param rDateAttr The date attribute to compare and set
 	 * @param rDate     The new date value to compare the current value with
 	 */
-	public void setLatestDate(RelationType<Date> rDateAttr, Date rDate)
-	{
+	public void setLatestDate(RelationType<Date> rDateAttr, Date rDate) {
 		Date rCurrentDate = get(rDateAttr);
 
-		if (rCurrentDate == null || rCurrentDate.compareTo(rDate) < 0)
-		{
+		if (rCurrentDate == null || rCurrentDate.compareTo(rDate) < 0) {
 			set(rDateAttr, rDate);
 		}
 	}

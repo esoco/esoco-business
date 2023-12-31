@@ -21,29 +21,24 @@ import de.esoco.process.step.SubProcessFragment;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 
-
-/********************************************************************
+/**
  * A UI container that wraps a process interaction fragment. This allows UI
  * components to be combined with existing process fragments. including the
  * execution of sub-processes (by means of {@link SubProcessFragment}).
  *
  * @author eso
  */
-public class UiSubFragment extends UiContainer<UiSubFragment>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiSubFragment extends UiContainer<UiSubFragment> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent   The parent container
 	 * @param rFragment The fragment to wrap
 	 * @param rLayout   The layout to embed the sub-fragment in
 	 */
-	public UiSubFragment(UiContainer<?>		 rParent,
-						 InteractionFragment rFragment,
-						 UiLayout			 rLayout)
-	{
+	public UiSubFragment(UiContainer<?> rParent, InteractionFragment rFragment,
+		UiLayout rLayout) {
 		super(rParent, rFragment, rLayout);
 	}
 }

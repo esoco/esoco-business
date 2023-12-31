@@ -16,10 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.ui;
 
-/********************************************************************
+/**
  * An extension of {@link UiComponentFactory} that also supports the updating of
- * component value. The value update is implemented in the method {@link
- * #updateComponent(UiComponent, Object)}.
+ * component value. The value update is implemented in the method
+ * {@link #updateComponent(UiComponent, Object)}.
  *
  * <p>Implementations of this interface are intended to be stateless so that
  * they can be applied to multiple component instances (hat have been created by
@@ -29,11 +29,9 @@ package de.esoco.process.ui;
  *
  * @author eso
  */
-public interface UiComponentAdapter<T> extends UiComponentFactory
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UiComponentAdapter<T> extends UiComponentFactory {
 
-	/***************************************
+	/**
 	 * Updates a component from the given value.
 	 *
 	 * @param rComponent The component to be updated

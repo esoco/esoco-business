@@ -19,23 +19,19 @@ package de.esoco.process.ui.component;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
-
-/********************************************************************
+/**
  * A single-line text input field.
  *
  * @author eso
  */
-public class UiTextField extends UiTextInputField<UiTextField>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiTextField extends UiTextInputField<UiTextField> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiTextField(UiContainer<?> rContainer, String sText)
-	{
+	public UiTextField(UiContainer<?> rContainer, String sText) {
 		super(rContainer, sText);
 	}
 }

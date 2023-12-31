@@ -24,27 +24,26 @@ import org.obrel.core.RelationTypes;
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newSetType;
 
-
-/********************************************************************
+/**
  * Enumeration of the available service types.
  */
-public class ExternalServices
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ExternalServices {
 
 	/**
-	 * Contains the prefix for the scopes in {@link #ACCESS_SCOPES}. The default
+	 * Contains the prefix for the scopes in {@link #ACCESS_SCOPES}. The
+	 * default
 	 * value is an empty string.
 	 */
 	public static final RelationType<String> ACCESS_SCOPE_PREFIX =
 		newInitialValueType("");
 
-	/** A collection of access scopes that are available on a service. */
+	/**
+	 * A collection of access scopes that are available on a service.
+	 */
 	public static final RelationType<Set<String>> ACCESS_SCOPES =
 		newSetType(true);
 
-	static
-	{
+	static {
 		// must occur before instances of ServiceDefinitionImpl are created!
 		RelationTypes.init(ExternalServices.class);
 	}

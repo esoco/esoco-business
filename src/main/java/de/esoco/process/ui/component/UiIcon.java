@@ -26,24 +26,20 @@ import de.esoco.process.ui.graphics.UiImageResource;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 
-
-/********************************************************************
+/**
  * A component that displays an icon.
  *
  * @author eso
  */
-public class UiIcon extends UiComponent<String, UiIcon>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiIcon extends UiComponent<String, UiIcon> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent       The parent container
 	 * @param rIconSupplier rIcon rImage The initial image
 	 */
-	public UiIcon(UiContainer<?> rParent, UiIconSupplier rIconSupplier)
-	{
+	public UiIcon(UiContainer<?> rParent, UiIconSupplier rIconSupplier) {
 		super(rParent, String.class);
 
 		setIcon(rIconSupplier);
@@ -56,26 +52,23 @@ public class UiIcon extends UiComponent<String, UiIcon>
 		setValueImpl("");
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the icon to be displayed from an icon supplier.
 	 *
 	 * @param rIconSupplier The icon supplier
 	 */
-	public void setIcon(UiIconSupplier rIconSupplier)
-	{
+	public void setIcon(UiIconSupplier rIconSupplier) {
 		super.image(rIconSupplier != null ? rIconSupplier.getIcon() : null);
 	}
 
-	/***************************************
-	 * Sets the icon to be displayed from an image resource (which must point to
+	/**
+	 * Sets the icon to be displayed from an image resource (which must
+	 * point to
 	 * an icon reference).
 	 *
 	 * @param rIconResource The icon image resource
 	 */
-	public void setIcon(UiImageResource rIconResource)
-	{
+	public void setIcon(UiImageResource rIconResource) {
 		super.image(rIconResource);
 	}
 }

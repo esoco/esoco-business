@@ -20,22 +20,18 @@ import de.esoco.process.ui.UiComponent;
 
 import java.util.function.Consumer;
 
-
-/********************************************************************
+/**
  * Indicates that a component can provide input focus events.
  *
  * @author eso
  */
-public interface UiHasFocusEvents<T, C extends UiComponent<T, ?>>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UiHasFocusEvents<T, C extends UiComponent<T, ?>> {
 
-	/***************************************
+	/**
 	 * Registers an event handler that will be invoked if a interactive
 	 * component loses the input focus.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
+	 * @param rEventHandler The event handler to be invoked
 	 * @return The component the handler has been registered on
 	 */
 	public C onFocusLost(Consumer<T> rEventHandler);

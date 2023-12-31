@@ -20,106 +20,79 @@ import de.esoco.data.process.ProcessState.ProcessExecutionMode;
 
 import de.esoco.process.ProcessException;
 
-
-/********************************************************************
+/**
  * Provides a UI to control the execution of a process and display information
  * about the current execution state.
  *
  * @author eso
  */
-public class ProcessControlFragment extends InteractionFragment
-{
-	//~ Enums ------------------------------------------------------------------
+public class ProcessControlFragment extends InteractionFragment {
 
-	/********************************************************************
+	/**
 	 * TODO: DOCUMENT ME!
 	 */
-	public enum ProcessControlAction
-	{
+	public enum ProcessControlAction {
 		PREVIOUS(ProcessExecutionMode.ROLLBACK),
-		NEXT(ProcessExecutionMode.EXECUTE), CANCEL(ProcessExecutionMode.CANCEL),
+		NEXT(ProcessExecutionMode.EXECUTE),
+		CANCEL(ProcessExecutionMode.CANCEL),
 		RELOAD(ProcessExecutionMode.RELOAD);
-
-		//~ Instance fields ----------------------------------------------------
 
 		private final ProcessExecutionMode eExecutionMode;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param eExecutionMode The associated execution mode
 		 */
-		private ProcessControlAction(ProcessExecutionMode eExecutionMode)
-		{
+		private ProcessControlAction(ProcessExecutionMode eExecutionMode) {
 			this.eExecutionMode = eExecutionMode;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Returns the associated execution mode.
 		 *
 		 * @return The execution mode
 		 */
-		public final ProcessExecutionMode getExecutionMode()
-		{
+		public final ProcessExecutionMode getExecutionMode() {
 			return eExecutionMode;
 		}
 	}
 
-	//~ Static fields/initializers ---------------------------------------------
-
 	private static final long serialVersionUID = 1L;
-
-	//~ Instance fields --------------------------------------------------------
 
 	private ProcessExecutionHandler rExecutionHandler;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rExecutionHandler The handler to be notified of process execution
 	 *                          events
 	 */
-	public ProcessControlFragment(ProcessExecutionHandler rExecutionHandler)
-	{
+	public ProcessControlFragment(ProcessExecutionHandler rExecutionHandler) {
 		this.rExecutionHandler = rExecutionHandler;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void init() throws Exception
-	{
-		iconButtons(ProcessControlAction.class).onAction(a ->
-														 rExecutionHandler
-														 .executeProcess(a.getExecutionMode()));
+	public void init() throws Exception {
+		iconButtons(ProcessControlAction.class).onAction(
+			a -> rExecutionHandler.executeProcess(a.getExecutionMode()));
 	}
 
-	//~ Inner Interfaces -------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An interface that defines how a process can be executed.
 	 *
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface ProcessExecutionHandler
-	{
-		//~ Methods ------------------------------------------------------------
+	public static interface ProcessExecutionHandler {
 
-		/***************************************
+		/**
 		 * Executes the process with the given execution mode.
 		 *
-		 * @param  eMode The process execution mode
-		 *
+		 * @param eMode The process execution mode
 		 * @throws ProcessException If the process execution fails
 		 */
 		public void executeProcess(ProcessExecutionMode eMode)

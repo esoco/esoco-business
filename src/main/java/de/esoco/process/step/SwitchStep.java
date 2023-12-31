@@ -25,8 +25,7 @@ import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypes.newRelationType;
 
-
-/********************************************************************
+/**
  * A ProcessStep subclass that can switch between different process execution
  * paths based on the value of a certain process parameter. If the value of the
  * process parameter is NULL (either because it is not set or explicitly set to
@@ -47,103 +46,87 @@ import static org.obrel.core.RelationTypes.newRelationType;
  *
  * @author eso
  */
-public final class SwitchStep extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public final class SwitchStep extends ProcessStep {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The process parameter that contains the value to switch upon */
+	/**
+	 * The process parameter that contains the value to switch upon
+	 */
 	public static final RelationType<RelationType<?>> SWITCH_PARAM =
 		newRelationType("de.esoco.process.SWITCH_PARAM", RelationType.class);
 
 	/**
 	 * A function that selects the switch target for the switch parameter. The
-	 * function result can either be a process step class or an arbitrary object
+	 * function result can either be a process step class or an arbitrary
+	 * object
 	 * with a toString() method that produces the name of a process step.
 	 */
-	public static final RelationType<Function<?, Object>> SWITCH_TARGET_SELECTOR =
+	public static final RelationType<Function<?, Object>>
+		SWITCH_TARGET_SELECTOR =
 		newRelationType("de.esoco.process.SWITCH_TARGET_SELECTOR",
-						Function.class);
+			Function.class);
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(SwitchStep.class);
 	}
 
-	//~ Instance fields --------------------------------------------------------
-
 	private String sDefaultNextStep = null;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Initializes the step parameters.
 	 */
-	public SwitchStep()
-	{
+	public SwitchStep() {
 		setMandatory(SWITCH_PARAM, SWITCH_TARGET_SELECTOR);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Checks the defined switch parameter and sets the process to continue at
 	 * the associated process step. This is done by modifying the name of the
 	 * next process step through {@link #setNextStep(String)}.
 	 */
 	@Override
-	protected void execute()
-	{
+	protected void execute() {
 		@SuppressWarnings("unchecked")
 		Function<Object, Object> fTargetSelector =
 			(Function<Object, Object>) checkParameter(SWITCH_TARGET_SELECTOR);
 
 		Object rSwitchValue = getParameter(checkParameter(SWITCH_PARAM));
 
-		if (rSwitchValue != null)
-		{
-			Object rNextStep		 = fTargetSelector.evaluate(rSwitchValue);
+		if (rSwitchValue != null) {
+			Object rNextStep = fTargetSelector.evaluate(rSwitchValue);
 			String sSwitchTargetStep = null;
 
-			if (sDefaultNextStep == null)
-			{
+			if (sDefaultNextStep == null) {
 				sDefaultNextStep = getNextStep();
 			}
 
-			if (rNextStep instanceof Class)
-			{
+			if (rNextStep instanceof Class) {
 				sSwitchTargetStep = ((Class<?>) rNextStep).getSimpleName();
-			}
-			else if (rNextStep != null)
-			{
+			} else if (rNextStep != null) {
 				sSwitchTargetStep = rNextStep.toString();
 			}
 
 			setNextStep(sSwitchTargetStep);
-		}
-		else if (sDefaultNextStep != null)
-		{
+		} else if (sDefaultNextStep != null) {
 			setNextStep(sDefaultNextStep);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Overridden to do nothing to prevent the superclass exception.
 	 *
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
-	protected void rollback() throws Exception
-	{
+	protected void rollback() throws Exception {
 	}
 }

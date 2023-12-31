@@ -22,26 +22,23 @@ import de.esoco.process.ui.component.UiList;
 
 import java.util.function.Consumer;
 
-
-/********************************************************************
+/**
  * An event listener abstraction that indicates that a component can produce
  * events if a displayed value has been updated (e.g. text typed, item
  * selected). Update events are typically mapped onto more specific events of
- * components like {@link UiInputField#onInput(Consumer)} or {@link
- * UiList#onSelection(Consumer)}.
+ * components like {@link UiInputField#onInput(Consumer)} or
+ * {@link UiList#onSelection(Consumer)}.
  *
  * @author eso
  */
-public interface UiHasUpdateEvents<T, C extends UiComponent<T, ?>>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface UiHasUpdateEvents<T, C extends UiComponent<T, ?>> {
 
-	/***************************************
-	 * Registers an event handler that will be invoked on update events with the
+	/**
+	 * Registers an event handler that will be invoked on update events with
+	 * the
 	 * new component value.
 	 *
-	 * @param  rEventHandler The event handler to be invoked
-	 *
+	 * @param rEventHandler The event handler to be invoked
 	 * @return The component the handler has been registered on
 	 */
 	public C onUpdate(Consumer<T> rEventHandler);

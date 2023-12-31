@@ -21,8 +21,7 @@ import de.esoco.process.ProcessRelationTypes;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_INFO;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
 
-
-/********************************************************************
+/**
  * A simple interactive process step that displays a message in a standard
  * format to the user. The message to display must be stored in a relation of
  * the type {@link ProcessRelationTypes#PROCESS_STEP_MESSAGE} either in the step
@@ -30,71 +29,63 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS_STEP_MESSAGE;
  *
  * @author eso
  */
-public class DisplayMessage extends Interaction
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class DisplayMessage extends Interaction {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public DisplayMessage()
-	{
+	public DisplayMessage() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Can be overridden by subclasses to return the information string for this
-	 * process step. The default implementation returns either the value of this
+	/**
+	 * Can be overridden by subclasses to return the information string for
+	 * this
+	 * process step. The default implementation returns either the value of
+	 * this
 	 * step's relation of type {@link ProcessRelationTypes#PROCESS_STEP_INFO}
-	 * or, if it doesn't exist the process parameter with that type. This method
+	 * or, if it doesn't exist the process parameter with that type. This
+	 * method
 	 * will be invoked from {@link #prepareParameters()}.
 	 *
 	 * @return The information string for this step
 	 */
-	protected String getProcessStepInfo()
-	{
+	protected String getProcessStepInfo() {
 		String sInfo = get(PROCESS_STEP_INFO);
 
-		if (sInfo == null)
-		{
+		if (sInfo == null) {
 			sInfo = getParameter(PROCESS_STEP_INFO);
 		}
 
 		return sInfo;
 	}
 
-	/***************************************
+	/**
 	 * Can be overridden by subclasses to return the message for this process
 	 * step. The default implementation returns either the value of the step
 	 * relation with the type {@link ProcessRelationTypes#PROCESS_STEP_MESSAGE}
-	 * or, if it doesn't exist the process parameter with that type. This method
+	 * or, if it doesn't exist the process parameter with that type. This
+	 * method
 	 * will be invoked from {@link #prepareParameters()}.
 	 *
 	 * @return The process step message
 	 */
-	protected String getProcessStepMessage()
-	{
+	protected String getProcessStepMessage() {
 		String sMessage = get(PROCESS_STEP_MESSAGE);
 
-		if (sMessage == null)
-		{
+		if (sMessage == null) {
 			sMessage = getParameter(PROCESS_STEP_MESSAGE);
 		}
 
 		return sMessage;
 	}
 
-	/***************************************
+	/**
 	 * @see Interaction#prepareParameters()
 	 */
 	@Override
-	protected void prepareParameters() throws Exception
-	{
+	protected void prepareParameters() throws Exception {
 		setProcessStepMessage(getProcessStepMessage());
 		setProcessStepInfo(getProcessStepInfo(), -1);
 	}

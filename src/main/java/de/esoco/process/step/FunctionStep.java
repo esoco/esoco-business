@@ -29,8 +29,7 @@ import org.obrel.core.RelationType;
 
 import static org.obrel.core.RelationTypes.newRelationType;
 
-
-/********************************************************************
+/**
  * A process step implementation that evaluates input parameters with a function
  * and stores the resulting output value in a process parameter. All function
  * steps inherently support a rollback of their execution. During a rollback the
@@ -70,23 +69,21 @@ import static org.obrel.core.RelationTypes.newRelationType;
  *
  * @author eso
  */
-public class FunctionStep extends ProcessStep
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class FunctionStep extends ProcessStep {
 
-	private static final long serialVersionUID = 1L;
-
-	/** The function to evaluate the input parameter with. */
-	public static final RelationType<java.util.function.Function<?, ?>> FUNCTION =
-		newRelationType("de.esoco.process.FUNCTION", Function.class);
+	/**
+	 * The function to evaluate the input parameter with.
+	 */
+	public static final RelationType<java.util.function.Function<?, ?>>
+		FUNCTION = newRelationType("de.esoco.process.FUNCTION",
+		Function.class);
 
 	/**
 	 * The process parameter containing the main (left) input value for the
 	 * function.
 	 */
 	public static final RelationType<RelationType<?>> FUNCTION_MAIN_INPUT =
-		newRelationType(
-			"de.esoco.process.FUNCTION_MAIN_INPUT",
+		newRelationType("de.esoco.process.FUNCTION_MAIN_INPUT",
 			RelationType.class);
 
 	/**
@@ -94,194 +91,149 @@ public class FunctionStep extends ProcessStep
 	 * binary function.
 	 */
 	public static final RelationType<RelationType<?>> FUNCTION_SECONDARY_INPUT =
-		newRelationType(
-			"de.esoco.process.FUNCTION_SECONDARY_INPUT",
+		newRelationType("de.esoco.process.FUNCTION_SECONDARY_INPUT",
 			RelationType.class);
 
-	/** The process parameter to store the function result in. */
+	/**
+	 * The process parameter to store the function result in.
+	 */
 	public static final RelationType<RelationType<?>> FUNCTION_OUTPUT =
-		newRelationType("de.esoco.process.FUNCTION_OUTPUT", RelationType.class);
+		newRelationType("de.esoco.process.FUNCTION_OUTPUT",
+			RelationType.class);
 
-	//~ Constructors -----------------------------------------------------------
+	private static final long serialVersionUID = 1L;
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public FunctionStep()
-	{
+	public FunctionStep() {
 		setMandatory(FUNCTION);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to always return TRUE.
 	 *
 	 * @see ProcessStep#canRollback()
 	 */
 	@Override
-	protected boolean canRollback()
-	{
+	protected boolean canRollback() {
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Evaluates the value of the input parameter with the function and stores
 	 * the result in the output parameter.
 	 *
 	 * @throws ProcessException If the function evaluation yields an exception
 	 */
 	@Override
-	protected void execute()
-	{
+	protected void execute() {
 		@SuppressWarnings("unchecked")
 		UnaryOperator<Object> rFunction =
 			(UnaryOperator<Object>) checkParameter(FUNCTION);
 		@SuppressWarnings("unchecked")
-		RelationType<Object>  rOutParam =
+		RelationType<Object> rOutParam =
 			(RelationType<Object>) getParameter(FUNCTION_OUTPUT);
 
-		RelationType<?> rLeftParam  = getParameter(FUNCTION_MAIN_INPUT);
+		RelationType<?> rLeftParam = getParameter(FUNCTION_MAIN_INPUT);
 		RelationType<?> rRightParam = getParameter(FUNCTION_SECONDARY_INPUT);
 
-		if (rLeftParam == null && rOutParam == null)
-		{
+		if (rLeftParam == null && rOutParam == null) {
 			throw new IllegalStateException(
-				"Both input and output parameters missing for " +
-				rFunction);
+				"Both input and output parameters missing for " + rFunction);
 		}
 
-		if (rLeftParam != null && !hasParameter(rLeftParam))
-		{
-			throw new ProcessException(
-				this,
-				String.format(
-					"Input value %s missing for function [%s]",
-					rLeftParam,
-					rFunction));
+		if (rLeftParam != null && !hasParameter(rLeftParam)) {
+			throw new ProcessException(this,
+				String.format("Input value %s missing for function [%s]",
+					rLeftParam, rFunction));
 		}
 
 		Object rResult = evaluateFunction(rFunction, rLeftParam, rRightParam);
 
-		if (rOutParam != null)
-		{
+		if (rOutParam != null) {
 			setParameter(rOutParam, rResult);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Removes the {@link #FUNCTION_OUTPUT} parameter from the process.
 	 *
 	 * @see ProcessStep#rollback()
 	 */
 	@Override
-	protected final void rollback() throws Exception
-	{
+	protected final void rollback() throws Exception {
 		RelationType<?> rOutParam = getParameter(FUNCTION_OUTPUT);
 
-		if (rOutParam != null)
-		{
+		if (rOutParam != null) {
 			deleteParameters(rOutParam);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Internal method to evaluate the value of the input parameters with this
 	 * step's function.
 	 *
-	 * @param  rFunction   The function
-	 * @param  rLeftParam  The parameter containing the left (main) input value
-	 * @param  rRightParam The parameter containing the right (secondary) input
-	 *                     value for binary functions
-	 *
+	 * @param rFunction   The function
+	 * @param rLeftParam  The parameter containing the left (main) input value
+	 * @param rRightParam The parameter containing the right (secondary) input
+	 *                    value for binary functions
 	 * @return The result of the function evaluation
-	 *
 	 * @throws ProcessException If the evaluation fails
 	 */
 	@SuppressWarnings("unchecked")
 	private Object evaluateFunction(UnaryOperator<Object> rFunction,
-									RelationType<?>		  rLeftParam,
-									RelationType<?>		  rRightParam)
-	{
-		Object rLeft   = (rLeftParam != null ? getParameter(rLeftParam) : null);
-		Object rRight  = null;
+		RelationType<?> rLeftParam, RelationType<?> rRightParam) {
+		Object rLeft = (rLeftParam != null ? getParameter(rLeftParam) : null);
+		Object rRight = null;
 		Object rResult;
 
-		try
-		{
-			if (rRightParam != null)
-			{
-				if (!(rFunction instanceof BinaryFunction<?, ?, ?>))
-				{
-					throw new ProcessException(
-						this,
-						String.format(
-							"Secondary function parameter %s cannot be used with unary function [%s]",
-							rRightParam,
-							rFunction));
+		try {
+			if (rRightParam != null) {
+				if (!(rFunction instanceof BinaryFunction<?, ?, ?>)) {
+					throw new ProcessException(this, String.format(
+						"Secondary function parameter %s cannot be used with" +
+							" " + "unary function [%s]", rRightParam,
+						rFunction));
 				}
 
-				if (!hasParameter(rRightParam))
-				{
-					throw new ProcessException(
-						this,
-						String.format(
-							"Secondary input value %s missing for binary function [%s]",
-							rRightParam,
-							rFunction));
+				if (!hasParameter(rRightParam)) {
+					throw new ProcessException(this, String.format(
+						"Secondary input value %s missing for binary " +
+							"function" +
+							" " + "[%s]", rRightParam, rFunction));
 				}
 
 				rRight = getParameter(rRightParam);
 
 				rResult =
-					((BinaryFunction<Object, Object, Object>) rFunction)
-					.evaluate(rLeft, rRight);
-			}
-			else
-			{
+					((BinaryFunction<Object, Object, Object>) rFunction).evaluate(
+						rLeft, rRight);
+			} else {
 				rResult = rFunction.apply(rLeft);
 			}
-		}
-		catch (FunctionException e)
-		{
+		} catch (FunctionException e) {
 			Throwable t = e.getCause();
 
-			if (t instanceof ProcessException)
-			{
+			if (t instanceof ProcessException) {
 				throw (ProcessException) t;
-			}
-			else
-			{
+			} else {
 				throw new ProcessException(this, t);
 			}
-		}
-		catch (ProcessException e)
-		{
+		} catch (ProcessException e) {
 			throw e;
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			String sMessage;
 
-			if (rRightParam != null)
-			{
-				sMessage =
-					String.format(
-						"Could not evaluate binary function %s (input: [%s=%s], [%s=%s])",
-						rFunction,
-						rLeftParam,
-						rLeft,
-						rRightParam,
-						rRight);
-			}
-			else
-			{
-				sMessage =
-					String.format(
-						"Could not evaluate function %s (input: [%s=%s])",
-						rFunction,
-						rLeftParam,
-						rLeft);
+			if (rRightParam != null) {
+				sMessage = String.format(
+					"Could not evaluate binary function %s (input: [%s=%s], " +
+						"[%s=%s])", rFunction, rLeftParam, rLeft, rRightParam,
+					rRight);
+			} else {
+				sMessage = String.format(
+					"Could not evaluate function %s (input: [%s=%s])",
+					rFunction, rLeftParam, rLeft);
 			}
 
 			throw new ProcessException(this, sMessage, e);

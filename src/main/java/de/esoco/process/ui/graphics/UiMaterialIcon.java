@@ -18,15 +18,13 @@ package de.esoco.process.ui.graphics;
 
 import java.util.function.Function;
 
-
-/********************************************************************
+/**
  * Enumeration of material icons.
  *
  * @see <a href="https://www.google.com/design/icons/#ic_3d_rotation">Material
- *      Design Icons</a>
+ * Design Icons</a>
  */
-public enum UiMaterialIcon implements UiIconSupplier
-{
+public enum UiMaterialIcon implements UiIconSupplier {
 	AC_UNIT, ACCESS_ALARM, ACCESS_ALARMS, ACCESS_TIME, ACCESSIBILITY,
 	ACCESSIBLE, ACCOUNT_BALANCE, ACCOUNT_BALANCE_WALLET, ACCOUNT_BOX,
 	ACCOUNT_CIRCLE, ADB, ADD, ADD_A_PHOTO, ADD_ALARM, ADD_ALERT, ADD_BOX,
@@ -49,7 +47,8 @@ public enum UiMaterialIcon implements UiIconSupplier
 	BLUETOOTH_SEARCHING, BLUR_CIRCULAR, BLUR_LINEAR, BLUR_OFF, BLUR_ON, BOOK,
 	BOOKMARK, BOOKMARK_BORDER, BORDER_ALL, BORDER_BOTTOM, BORDER_CLEAR,
 	BORDER_COLOR, BORDER_HORIZONTAL, BORDER_INNER, BORDER_LEFT, BORDER_OUTER,
-	BORDER_RIGHT, BORDER_STYLE, BORDER_TOP, BORDER_VERTICAL, BRANDING_WATERMARK,
+	BORDER_RIGHT, BORDER_STYLE, BORDER_TOP, BORDER_VERTICAL,
+	BRANDING_WATERMARK,
 	BRIGHTNESS_1, BRIGHTNESS_2, BRIGHTNESS_3, BRIGHTNESS_4, BRIGHTNESS_5,
 	BRIGHTNESS_6, BRIGHTNESS_7, BRIGHTNESS_AUTO, BRIGHTNESS_HIGH,
 	BRIGHTNESS_LOW, BRIGHTNESS_MEDIUM, BROKEN_IMAGE, BRUSH, BUBBLE_CHART,
@@ -63,13 +62,16 @@ public enum UiMaterialIcon implements UiIconSupplier
 	CHECK_CIRCLE, CHEVRON_LEFT, CHEVRON_RIGHT, CHILD_CARE, CHILD_FRIENDLY,
 	CHROME_READER_MODE, CLASS, CLEAR, CLEAR_ALL, CLOSE, CLOSED_CAPTION, CLOUD,
 	CLOUD_CIRCLE, CLOUD_DONE, CLOUD_DOWNLOAD, CLOUD_OFF, CLOUD_QUEUE,
-	CLOUD_UPLOAD, CODE, COLLECTIONS, COLLECTIONS_BOOKMARK, COLOR_LENS, COLORIZE,
+	CLOUD_UPLOAD, CODE, COLLECTIONS, COLLECTIONS_BOOKMARK, COLOR_LENS,
+	COLORIZE,
 	COMMENT, COMPARE, COMPARE_ARROWS, COMPUTER, CONFIRMATION_NUMBER,
 	CONTACT_MAIL, CONTACT_PHONE, CONTACTS, CONTENT_COPY, CONTENT_CUT,
 	CONTENT_PASTE, CONTROL_POINT, CONTROL_POINT_DUPLICATE, COPYRIGHT, CREATE,
 	CREATE_NEW_FOLDER, CREDIT_CARD, CROP, CROP_16_9, CROP_3_2, CROP_5_4,
-	CROP_7_5, CROP_DIN, CROP_FREE, CROP_LANDSCAPE, CROP_ORIGINAL, CROP_PORTRAIT,
-	CROP_ROTATE, CROP_SQUARE, DASHBOARD, DATA_USAGE, DATE_RANGE, DEHAZE, DELETE,
+	CROP_7_5, CROP_DIN, CROP_FREE, CROP_LANDSCAPE, CROP_ORIGINAL,
+	CROP_PORTRAIT,
+	CROP_ROTATE, CROP_SQUARE, DASHBOARD, DATA_USAGE, DATE_RANGE, DEHAZE,
+	DELETE,
 	DELETE_FOREVER, DELETE_SWEEP, DESCRIPTION, DESKTOP_MAC, DESKTOP_WINDOWS,
 	DETAILS, DEVELOPER_BOARD, DEVELOPER_MODE, DEVICE_HUB, DEVICES,
 	DEVICES_OTHER, DIALER_SIP, DIALPAD, DIRECTIONS, DIRECTIONS_BIKE,
@@ -90,7 +92,8 @@ public enum UiMaterialIcon implements UiIconSupplier
 	FILTER_B_AND_W, FILTER_CENTER_FOCUS, FILTER_DRAMA, FILTER_FRAMES,
 	FILTER_HDR, FILTER_LIST, FILTER_NONE, FILTER_TILT_SHIFT, FILTER_VINTAGE,
 	FIND_IN_PAGE, FIND_REPLACE, FINGERPRINT, FIRST_PAGE, FITNESS_CENTER, FLAG,
-	FLARE, FLASH_AUTO, FLASH_OFF, FLASH_ON, FLIGHT, FLIGHT_LAND, FLIGHT_TAKEOFF,
+	FLARE, FLASH_AUTO, FLASH_OFF, FLASH_ON, FLIGHT, FLIGHT_LAND,
+	FLIGHT_TAKEOFF,
 	FLIP, FLIP_TO_BACK, FLIP_TO_FRONT, FOLDER, FOLDER_OPEN, FOLDER_SHARED,
 	FOLDER_SPECIAL, FONT_DOWNLOAD, FORMAT_ALIGN_CENTER, FORMAT_ALIGN_JUSTIFY,
 	FORMAT_ALIGN_LEFT, FORMAT_ALIGN_RIGHT, FORMAT_BOLD, FORMAT_CLEAR,
@@ -128,7 +131,8 @@ public enum UiMaterialIcon implements UiIconSupplier
 	LOCATION_DISABLED, LOCATION_OFF, LOCATION_ON, LOCATION_SEARCHING, LOCK,
 	LOCK_OPEN, LOCK_OUTLINE, LOOKS, LOOKS_3, LOOKS_4, LOOKS_5, LOOKS_6,
 	LOOKS_ONE, LOOKS_TWO, LOOP, LOUPE, LOW_PRIORITY, LOYALTY, MAIL,
-	MAIL_OUTLINE, MAP, MARKUNREAD, MARKUNREAD_MAILBOX, MEMORY, MENU, MERGE_TYPE,
+	MAIL_OUTLINE, MAP, MARKUNREAD, MARKUNREAD_MAILBOX, MEMORY, MENU,
+	MERGE_TYPE,
 	MESSAGE, MIC, MIC_NONE, MIC_OFF, MMS, MODE_COMMENT, MODE_EDIT,
 	MONETIZATION_ON, MONEY_OFF, MONOCHROME_PHOTOS, MOOD, MOOD_BAD, MORE,
 	MORE_HORIZ, MORE_VERT, MOTORCYCLE, MOUSE, MOVE_TO_INBOX, MOVIE,
@@ -211,52 +215,40 @@ public enum UiMaterialIcon implements UiIconSupplier
 	WIFI_TETHERING, WORK, WRAP_TEXT, YOUTUBE_SEARCHED_FOR, ZOOM_IN, ZOOM_OUT,
 	ZOOM_OUT_MAP;
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a mapping function from standard icons to material icons.
 	 *
 	 * @return The mapping function
 	 */
-	public static Function<UiStandardIcon, UiIconSupplier> getStandardIconMapper()
-	{
+	public static Function<UiStandardIcon, UiIconSupplier> getStandardIconMapper() {
 		return new StandardIconMapper();
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a new {@link UiIconName} initialized from this enumeration
 	 * constant.
 	 *
 	 * @return The new icon
 	 */
 	@Override
-	public UiIconName getIcon()
-	{
+	public UiIconName getIcon() {
 		return new UiIconName(this);
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * Implements a mapping from standard icons to material icons.
 	 *
 	 * @author eso
 	 */
 	private static class StandardIconMapper
-		implements Function<UiStandardIcon, UiIconSupplier>
-	{
-		//~ Methods ------------------------------------------------------------
+		implements Function<UiStandardIcon, UiIconSupplier> {
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public UiIconSupplier apply(UiStandardIcon eStandardIcon)
-		{
-			switch (eStandardIcon)
-			{
+		public UiIconSupplier apply(UiStandardIcon eStandardIcon) {
+			switch (eStandardIcon) {
 				case NEXT:
 					return NAVIGATE_NEXT;
 
@@ -297,12 +289,9 @@ public enum UiMaterialIcon implements UiIconSupplier
 					return MORE_VERT;
 
 				default:
-					try
-					{
+					try {
 						return valueOf(eStandardIcon.name());
-					}
-					catch (Exception e)
-					{
+					} catch (Exception e) {
 						return ERROR;
 					}
 			}

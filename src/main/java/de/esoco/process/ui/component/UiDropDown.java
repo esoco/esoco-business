@@ -21,27 +21,23 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiSingleSelectionList;
 
-
-/********************************************************************
+/**
  * A single-line field with a drop-down list of selectable values. The datatype
  * of of the list values can be defined on creation. Typically only string and
  * enum values are supported.
  *
  * @author eso
  */
-public class UiDropDown<T> extends UiSingleSelectionList<T, UiDropDown<T>>
-{
-	//~ Constructors -----------------------------------------------------------
+public class UiDropDown<T> extends UiSingleSelectionList<T, UiDropDown<T>> {
 
-	/***************************************
+	/**
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as the list values.
 	 *
 	 * @param rParent   The parent container
 	 * @param rDatatype The datatype of the list values
 	 */
-	public UiDropDown(UiContainer<?> rParent, Class<T> rDatatype)
-	{
+	public UiDropDown(UiContainer<?> rParent, Class<T> rDatatype) {
 		super(rParent, rDatatype, ListStyle.DROP_DOWN);
 	}
 }
