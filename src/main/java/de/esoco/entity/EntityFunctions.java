@@ -212,8 +212,8 @@ public class EntityFunctions {
 	 *
 	 * @see EntityManager#queryEntity(String)
 	 */
-	public static java.util.function.Function<String, Entity> queryEntity() {
-		return ThrowingFunction.of(EntityManager::queryEntity);
+	public static Function<String, Entity> queryEntity() {
+		return EntityManager::queryEntity;
 	}
 
 	/**
@@ -222,10 +222,9 @@ public class EntityFunctions {
 	 *
 	 * @see EntityManager#queryEntity(Class, long)
 	 */
-	public static <E extends Entity> java.util.function.Function<Number, E> queryEntity(
+	public static <E extends Entity> Function<Number, E> queryEntity(
 		final Class<E> entityClass) {
-		return ThrowingFunction.of(
-			id -> EntityManager.queryEntity(entityClass, id.longValue()));
+		return id -> EntityManager.queryEntity(entityClass, id.longValue());
 	}
 
 	/**
