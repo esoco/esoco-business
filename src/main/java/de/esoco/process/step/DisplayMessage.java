@@ -52,13 +52,13 @@ public class DisplayMessage extends Interaction {
 	 * @return The information string for this step
 	 */
 	protected String getProcessStepInfo() {
-		String sInfo = get(PROCESS_STEP_INFO);
+		String info = get(PROCESS_STEP_INFO);
 
-		if (sInfo == null) {
-			sInfo = getParameter(PROCESS_STEP_INFO);
+		if (info == null) {
+			info = getParameter(PROCESS_STEP_INFO);
 		}
 
-		return sInfo;
+		return info;
 	}
 
 	/**
@@ -72,13 +72,13 @@ public class DisplayMessage extends Interaction {
 	 * @return The process step message
 	 */
 	protected String getProcessStepMessage() {
-		String sMessage = get(PROCESS_STEP_MESSAGE);
+		String message = get(PROCESS_STEP_MESSAGE);
 
-		if (sMessage == null) {
-			sMessage = getParameter(PROCESS_STEP_MESSAGE);
+		if (message == null) {
+			message = getParameter(PROCESS_STEP_MESSAGE);
 		}
 
-		return sMessage;
+		return message;
 	}
 
 	/**

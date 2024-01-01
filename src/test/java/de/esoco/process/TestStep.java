@@ -21,7 +21,6 @@ import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
-
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newIntType;
 
@@ -76,13 +75,13 @@ public class TestStep extends ProcessStep {
 	@Override
 	@SuppressWarnings("boxing")
 	protected void execute() {
-		int rValue = checkParameter(TEST_INT_PARAM);
-		String sResult = checkParameter(TEST_STRING_RESULT);
+		int value = checkParameter(TEST_INT_PARAM);
+		String result = checkParameter(TEST_STRING_RESULT);
 
-		sResult += getName().charAt(getName().length() - 1);
+		result += getName().charAt(getName().length() - 1);
 
-		setParameter(TEST_INT_PARAM, rValue + 1);
-		setParameter(TEST_STRING_RESULT, sResult);
+		setParameter(TEST_INT_PARAM, value + 1);
+		setParameter(TEST_STRING_RESULT, result);
 
 		if (hasFlag(MetaTypes.INTERACTIVE)) {
 			setParameter(TEST_INTERACTION_COUNT,
@@ -99,13 +98,13 @@ public class TestStep extends ProcessStep {
 	 */
 	@Override
 	protected boolean prepareStep() throws Exception {
-		boolean bInteractive = hasFlag(MetaTypes.INTERACTIVE);
+		boolean interactive = hasFlag(MetaTypes.INTERACTIVE);
 
-		if (bInteractive && !hasRelation(INPUT_PARAMS)) {
+		if (interactive && !hasRelation(INPUT_PARAMS)) {
 			addInputParameters(TEST_INT_PARAM, TEST_STRING_RESULT);
 		}
 
-		return !bInteractive;
+		return !interactive;
 	}
 
 	/**
@@ -115,11 +114,11 @@ public class TestStep extends ProcessStep {
 	@SuppressWarnings("boxing")
 	protected void rollback() throws Exception {
 		int v = checkParameter(TEST_INT_PARAM);
-		String sResult = checkParameter(TEST_STRING_RESULT);
+		String result = checkParameter(TEST_STRING_RESULT);
 
-		sResult = sResult.substring(0, sResult.length() - 1);
+		result = result.substring(0, result.length() - 1);
 
 		setParameter(TEST_INT_PARAM, v - 1);
-		setParameter(TEST_STRING_RESULT, sResult);
+		setParameter(TEST_STRING_RESULT, result);
 	}
 }

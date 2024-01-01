@@ -18,15 +18,13 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import org.obrel.core.RelationType;
 
 /**
  * The base class for all UI containers.
@@ -36,52 +34,51 @@ import org.obrel.core.RelationType;
 public abstract class UiContainer<C extends UiContainer<C>>
 	extends UiComponent<List<RelationType<?>>, C> {
 
-	private UiLayout rLayout;
+	private final UiLayout layout;
 
-	private boolean bBuilt;
+	private boolean built;
 
-	private List<UiComponent<?, ?>> aComponents = new ArrayList<>();
+	private final List<UiComponent<?, ?>> components = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
-	private UiBuilder<C> aContainerBuilder = new UiBuilder<>((C) this);
+	private final UiBuilder<C> containerBuilder = new UiBuilder<>((C) this);
 
 	/**
 	 * Creates a new instance with a certain layout.
 	 *
-	 * @param rParent The parent container or NULL for a root container
-	 * @param rLayout The layout of this container
+	 * @param parent The parent container or NULL for a root container
+	 * @param layout The layout of this container
 	 */
-	protected UiContainer(UiContainer<?> rParent, UiLayout rLayout) {
-		this(rParent, new UiContainerFragment(), rLayout);
+	protected UiContainer(UiContainer<?> parent, UiLayout layout) {
+		this(parent, new UiContainerFragment(), layout);
 	}
 
 	/**
 	 * Creates a new instance that wraps a specific fragment.
 	 *
-	 * @param rParent   The parent container or NULL for a root container
-	 * @param rFragment The fragment to wrap
-	 * @param rLayout   The layout of this container
+	 * @param parent   The parent container or NULL for a root container
+	 * @param fragment The fragment to wrap
+	 * @param layout   The layout of this container
 	 */
-	protected UiContainer(UiContainer<?> rParent,
-		InteractionFragment rFragment,
-		UiLayout rLayout) {
-		super(rParent, rFragment, getContainerParamType(rParent));
+	protected UiContainer(UiContainer<?> parent, InteractionFragment fragment,
+		UiLayout layout) {
+		super(parent, fragment, getContainerParamType(parent));
 
-		Objects.requireNonNull(rLayout, "Container layout must not be NULL");
+		Objects.requireNonNull(layout, "Container layout must not be NULL");
 
-		this.rLayout = rLayout;
+		this.layout = layout;
 	}
 
 	/**
 	 * Returns the parameter type for a container if the parent is not null.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 * @return The container parameter type or NULL if the parent is NULL
 	 */
 	private static RelationType<List<RelationType<?>>> getContainerParamType(
-		UiContainer<?> rParent) {
-		return rParent != null ?
-		       rParent
+		UiContainer<?> parent) {
+		return parent != null ?
+		       parent
 			       .fragment()
 			       .getTemporaryListType(null, RelationType.class) :
 		       null;
@@ -95,18 +92,18 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return A UI builder instance for this container
 	 */
 	public final UiBuilder<C> builder() {
-		return aContainerBuilder;
+		return containerBuilder;
 	}
 
 	/**
 	 * Clears this container by removing all child components.
 	 */
 	public void clear() {
-		List<RelationType<?>> rParamTypes =
-			CollectionUtil.map(aComponents, c -> c.type());
+		List<RelationType<?>> paramTypes =
+			CollectionUtil.map(components, c -> c.type());
 
-		fragment().removeInteractionParameters(rParamTypes);
-		aComponents.clear();
+		fragment().removeInteractionParameters(paramTypes);
+		components.clear();
 	}
 
 	/**
@@ -116,7 +113,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return The collection of components
 	 */
 	public List<UiComponent<?, ?>> getComponents() {
-		return new ArrayList<>(aComponents);
+		return new ArrayList<>(components);
 	}
 
 	/**
@@ -124,13 +121,13 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * that is not occupied by components. The handler will receive this
 	 * container instance as it's argument.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final C onClickInContainerArea(Consumer<C> rEventHandler) {
+	public final C onClickInContainerArea(Consumer<C> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept((C) this));
+			v -> eventHandler.accept((C) this));
 	}
 
 	/**
@@ -149,19 +146,19 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 */
 	@Override
 	protected void applyProperties() {
-		if (!bBuilt) {
-			buildContent(aContainerBuilder);
-			bBuilt = true;
+		if (!built) {
+			buildContent(containerBuilder);
+			built = true;
 		}
 
 		// apply layout first so it can add styles to the container before
 		// applying them
-		rLayout.applyTo(this);
+		layout.applyTo(this);
 
 		super.applyProperties();
 
-		for (UiComponent<?, ?> rChild : aComponents) {
-			rChild.applyProperties();
+		for (UiComponent<?, ?> child : components) {
+			child.applyProperties();
 		}
 	}
 
@@ -173,13 +170,13 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @see UiComponent#attachTo(UiContainer)
 	 */
 	@Override
-	protected void attachTo(UiContainer<?> rParent) {
-		InteractionFragment rParentFragment = rParent.fragment();
+	protected void attachTo(UiContainer<?> parent) {
+		InteractionFragment parentFragment = parent.fragment();
 
-		rParentFragment.addInputParameters(type());
-		rParentFragment.addSubFragment(type(), fragment());
+		parentFragment.addInputParameters(type());
+		parentFragment.addSubFragment(type(), fragment());
 
-		rParent.addComponent(this);
+		parent.addComponent(this);
 	}
 
 	/**
@@ -195,9 +192,9 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * <p>The default implementation of this method does nothing.</p>
 	 *
-	 * @param rBuilder The builder to create the container UI with
+	 * @param builder The builder to create the container UI with
 	 */
-	protected void buildContent(UiBuilder<?> rBuilder) {
+	protected void buildContent(UiBuilder<?> builder) {
 	}
 
 	/**
@@ -208,9 +205,9 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 *
-	 * @param rComponent The component that has been added
+	 * @param component The component that has been added
 	 */
-	protected void componentAdded(UiComponent<?, ?> rComponent) {
+	protected void componentAdded(UiComponent<?, ?> component) {
 	}
 
 	/**
@@ -218,11 +215,10 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * implementation resets the layout for recalculation.
 	 */
 	protected void componentListChanged() {
-		if (bBuilt) {
+		if (built) {
 			// if components are added after the initial building the layout
 			// needs to be reprocessed
-			rLayout.reset(rLayout.getRows().size(),
-				rLayout.getColumns().size());
+			layout.reset(layout.getRows().size(), layout.getColumns().size());
 		}
 	}
 
@@ -232,7 +228,7 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return The layout
 	 */
 	protected UiLayout getLayout() {
-		return rLayout;
+		return layout;
 	}
 
 	/**
@@ -242,28 +238,28 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return TRUE if the container content has been built
 	 */
 	protected final boolean isBuilt() {
-		return bBuilt;
+		return built;
 	}
 
 	/**
 	 * Removes a component from this container.
 	 *
-	 * @param rComponent The component to remove
+	 * @param component The component to remove
 	 */
-	protected void remove(UiComponent<?, ?> rComponent) {
-		fragment().removeInteractionParameters(rComponent.type());
-		aComponents.remove(rComponent);
+	protected void remove(UiComponent<?, ?> component) {
+		fragment().removeInteractionParameters(component.type());
+		components.remove(component);
 	}
 
 	/**
 	 * Internal method to add a component to this container.
 	 *
-	 * @param rComponent The component to add
+	 * @param component The component to add
 	 */
-	void addComponent(UiComponent<?, ?> rComponent) {
-		aComponents.add(rComponent);
-		rLayout.addComponent(rComponent);
-		componentAdded(rComponent);
+	void addComponent(UiComponent<?, ?> component) {
+		components.add(component);
+		layout.addComponent(component);
+		componentAdded(component);
 
 		componentListChanged();
 	}
@@ -274,36 +270,36 @@ public abstract class UiContainer<C extends UiContainer<C>>
 	 * @return The list of this container's components
 	 */
 	List<UiComponent<?, ?>> getComponentList() {
-		return aComponents;
+		return components;
 	}
 
 	/**
 	 * Internal method to place a component before another component. Publicly
 	 * available through {@link UiComponent#placeBefore(UiComponent)}.
 	 *
-	 * @param rBeforeComponent The component to insert before
-	 * @param rComponent       The component to place before the other
+	 * @param beforeComponent The component to insert before
+	 * @param component       The component to place before the other
 	 * @throws IllegalArgumentException If the given component is not found in
 	 *                                  the parent container
 	 */
-	void placeComponentBefore(UiComponent<?, ?> rBeforeComponent,
-		UiComponent<?, ?> rComponent) {
-		int nIndex = aComponents.indexOf(rBeforeComponent);
+	void placeComponentBefore(UiComponent<?, ?> beforeComponent,
+		UiComponent<?, ?> component) {
+		int index = components.indexOf(beforeComponent);
 
-		if (nIndex < 0) {
+		if (index < 0) {
 			throw new IllegalArgumentException(
 				"Component to place before must be in the same container");
 		}
 
-		aComponents.remove(rComponent);
-		aComponents.add(nIndex, rComponent);
+		components.remove(component);
+		components.add(index, component);
 
-		List<RelationType<?>> rParams = fragment().getInteractionParameters();
+		List<RelationType<?>> params = fragment().getInteractionParameters();
 
-		RelationType<?> rComponentParam = rComponent.type();
+		RelationType<?> componentParam = component.type();
 
-		rParams.remove(rComponentParam);
-		rParams.add(rParams.indexOf(rBeforeComponent.type()), rComponentParam);
+		params.remove(componentParam);
+		params.add(params.indexOf(beforeComponent.type()), componentParam);
 
 		componentListChanged();
 	}

@@ -17,9 +17,7 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.expression.Function;
-
 import de.esoco.process.ProcessStep;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
@@ -71,7 +69,7 @@ public final class SwitchStep extends ProcessStep {
 		RelationTypes.init(SwitchStep.class);
 	}
 
-	private String sDefaultNextStep = null;
+	private String defaultNextStep = null;
 
 	/**
 	 * Initializes the step parameters.
@@ -96,28 +94,28 @@ public final class SwitchStep extends ProcessStep {
 	@Override
 	protected void execute() {
 		@SuppressWarnings("unchecked")
-		Function<Object, Object> fTargetSelector =
+		Function<Object, Object> targetSelector =
 			(Function<Object, Object>) checkParameter(SWITCH_TARGET_SELECTOR);
 
-		Object rSwitchValue = getParameter(checkParameter(SWITCH_PARAM));
+		Object switchValue = getParameter(checkParameter(SWITCH_PARAM));
 
-		if (rSwitchValue != null) {
-			Object rNextStep = fTargetSelector.evaluate(rSwitchValue);
-			String sSwitchTargetStep = null;
+		if (switchValue != null) {
+			Object nextStep = targetSelector.evaluate(switchValue);
+			String switchTargetStep = null;
 
-			if (sDefaultNextStep == null) {
-				sDefaultNextStep = getNextStep();
+			if (defaultNextStep == null) {
+				defaultNextStep = getNextStep();
 			}
 
-			if (rNextStep instanceof Class) {
-				sSwitchTargetStep = ((Class<?>) rNextStep).getSimpleName();
-			} else if (rNextStep != null) {
-				sSwitchTargetStep = rNextStep.toString();
+			if (nextStep instanceof Class) {
+				switchTargetStep = ((Class<?>) nextStep).getSimpleName();
+			} else if (nextStep != null) {
+				switchTargetStep = nextStep.toString();
 			}
 
-			setNextStep(sSwitchTargetStep);
-		} else if (sDefaultNextStep != null) {
-			setNextStep(sDefaultNextStep);
+			setNextStep(switchTargetStep);
+		} else if (defaultNextStep != null) {
+			setNextStep(defaultNextStep);
 		}
 	}
 

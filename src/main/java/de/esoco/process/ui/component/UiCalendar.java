@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.data.element.DateDataElement.DateInputType;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiDateInputField;
 
@@ -33,19 +32,19 @@ public class UiCalendar extends UiDateInputField<UiCalendar> {
 	/**
 	 * Creates a new instance with the current date as it's value.
 	 *
-	 * @param rParent rContainer The parent container
+	 * @param parent container The parent container
 	 */
-	public UiCalendar(UiContainer<?> rParent) {
-		this(rParent, null);
+	public UiCalendar(UiContainer<?> parent) {
+		this(parent, null);
 	}
 
 	/**
 	 * Creates a new instance for a particular date.
 	 *
-	 * @param rContainer The parent container
-	 * @param rDate      The initial date to display
+	 * @param container The parent container
+	 * @param date      The initial date to display
 	 */
-	public UiCalendar(UiContainer<?> rContainer, Date rDate) {
-		super(rContainer, rDate, DateInputType.CALENDAR);
+	public UiCalendar(UiContainer<?> container, Date date) {
+		super(container, date, DateInputType.CALENDAR);
 	}
 }

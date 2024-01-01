@@ -376,15 +376,15 @@ public enum UiFontAwesomeIcon implements UiIconSupplier {
 	WINE_GLASS_ALT('\uF5CE'), WON_SIGN('\uF159'), WRENCH('\uF0AD'),
 	X_RAY('\uF497'), YEN_SIGN('\uF157');
 
-	private final char cFontChar;
+	private final char fontChar;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param cFontChar The character code in the font awesome icon font.
+	 * @param fontChar The character code in the font awesome icon font.
 	 */
-	private UiFontAwesomeIcon(char cFontChar) {
-		this.cFontChar = cFontChar;
+	UiFontAwesomeIcon(char fontChar) {
+		this.fontChar = fontChar;
 	}
 
 	/**
@@ -394,7 +394,7 @@ public enum UiFontAwesomeIcon implements UiIconSupplier {
 	 * @return The character code
 	 */
 	public final char getFontChar() {
-		return cFontChar;
+		return fontChar;
 	}
 
 	/**

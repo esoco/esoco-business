@@ -31,15 +31,15 @@ public interface TabularDocumentWriter<T> {
 	/**
 	 * The available date type formats
 	 */
-	public enum DateFormat {DATE, DATE_TIME}
+	enum DateFormat {DATE, DATE_TIME}
 
 	/**
 	 * Adds a value object to the current position in the document. NULL values
 	 * will be handled as an empty celll.
 	 *
-	 * @param rItem The value to add
+	 * @param item The value to add
 	 */
-	public void addValue(Object rItem);
+	void addValue(Object item);
 
 	/**
 	 * Generates and/or returns the resulting document.
@@ -47,19 +47,19 @@ public interface TabularDocumentWriter<T> {
 	 * @return The resulting document
 	 * @throws Exception if the document creation fails
 	 */
-	public T createDocument() throws Exception;
+	T createDocument() throws Exception;
 
 	/**
 	 * Returns the file type of the generated document.
 	 *
 	 * @return The file type
 	 */
-	public FileType getFileType();
+	FileType getFileType();
 
 	/**
 	 * Indicates that a new row should be started at the current position of
 	 * the
 	 * document.
 	 */
-	public void newRow();
+	void newRow();
 }

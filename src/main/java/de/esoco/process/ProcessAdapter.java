@@ -32,8 +32,8 @@ public abstract class ProcessAdapter implements ProcessListener {
 	 * @see ProcessListener#processCanceled(Process)
 	 */
 	@Override
-	public void processCanceled(Process rProcess) {
-		processEnded(rProcess);
+	public void processCanceled(Process process) {
+		processEnded(process);
 	}
 
 	/**
@@ -42,45 +42,45 @@ public abstract class ProcessAdapter implements ProcessListener {
 	 * {@link #processFinished(Process)} methods. It is recommended that
 	 * subclasses override either these methods or only this method.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processEnded(Process rProcess) {
+	public void processEnded(Process process) {
 	}
 
 	/**
 	 * @see ProcessListener#processFailed(Process)
 	 */
 	@Override
-	public void processFailed(Process rProcess) {
-		processEnded(rProcess);
+	public void processFailed(Process process) {
+		processEnded(process);
 	}
 
 	/**
 	 * @see ProcessListener#processFinished(Process)
 	 */
 	@Override
-	public void processFinished(Process rProcess) {
-		processEnded(rProcess);
+	public void processFinished(Process process) {
+		processEnded(process);
 	}
 
 	/**
 	 * @see ProcessListener#processResumed(Process)
 	 */
 	@Override
-	public void processResumed(Process rProcess) {
+	public void processResumed(Process process) {
 	}
 
 	/**
 	 * @see ProcessListener#processStarted(Process)
 	 */
 	@Override
-	public void processStarted(Process rProcess) {
+	public void processStarted(Process process) {
 	}
 
 	/**
 	 * @see ProcessListener#processSuspended(Process)
 	 */
 	@Override
-	public void processSuspended(Process rProcess) {
+	public void processSuspended(Process process) {
 	}
 }

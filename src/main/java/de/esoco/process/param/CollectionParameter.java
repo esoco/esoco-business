@@ -19,12 +19,11 @@ package de.esoco.process.param;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
-import org.obrel.core.RelationType;
 
 /**
  * A parameter subclass that wraps parameters with a collection datatype.
@@ -38,9 +37,9 @@ public class CollectionParameter<T, C extends Collection<T>,
 	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public CollectionParameter(InteractionFragment rFragment,
-		RelationType<C> rParamType) {
-		super(rFragment, rParamType);
+	public CollectionParameter(InteractionFragment fragment,
+		RelationType<C> paramType) {
+		super(fragment, paramType);
 	}
 
 	/**
@@ -49,9 +48,9 @@ public class CollectionParameter<T, C extends Collection<T>,
 	 * @see ProcessFragment#setAllowedElements(RelationType, Collection)
 	 */
 	@SuppressWarnings("unchecked")
-	public P allowElements(Collection<T> rValues) {
+	public P allowElements(Collection<T> values) {
 		fragment().annotateParameter(type(), null,
-			ProcessRelationTypes.ALLOWED_VALUES, rValues);
+			ProcessRelationTypes.ALLOWED_VALUES, values);
 
 		return (P) this;
 	}
@@ -78,9 +77,9 @@ public class CollectionParameter<T, C extends Collection<T>,
 		 * @see CollectionParameter#CollectionParameter(InteractionFragment,
 		 * RelationType)
 		 */
-		public ListParameter(InteractionFragment rFragment,
-			RelationType<List<T>> rParamType) {
-			super(rFragment, rParamType);
+		public ListParameter(InteractionFragment fragment,
+			RelationType<List<T>> paramType) {
+			super(fragment, paramType);
 		}
 	}
 
@@ -96,9 +95,9 @@ public class CollectionParameter<T, C extends Collection<T>,
 		 * @see CollectionParameter#CollectionParameter(InteractionFragment,
 		 * RelationType)
 		 */
-		public SetParameter(InteractionFragment rFragment,
-			RelationType<Set<T>> rParamType) {
-			super(rFragment, rParamType);
+		public SetParameter(InteractionFragment fragment,
+			RelationType<Set<T>> paramType) {
+			super(fragment, paramType);
 		}
 	}
 }

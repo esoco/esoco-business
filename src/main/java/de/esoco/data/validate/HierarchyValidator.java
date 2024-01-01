@@ -31,17 +31,17 @@ public class HierarchyValidator implements Validator<HierarchicalDataObject>,
 
 	private static final long serialVersionUID = 1L;
 
-	private List<HierarchicalDataObject> rValues;
+	private List<HierarchicalDataObject> values;
 
 	/**
 	 * Creates a new instance that uses zero-based continuous integer values
 	 * for
 	 * the identification of the data objects.
 	 *
-	 * @param rValues The hierarchical data objects allowed by this instance
+	 * @param values The hierarchical data objects allowed by this instance
 	 */
-	public HierarchyValidator(List<HierarchicalDataObject> rValues) {
-		this.rValues = rValues;
+	public HierarchyValidator(List<HierarchicalDataObject> values) {
+		this.values = values;
 	}
 
 	/**
@@ -54,18 +54,18 @@ public class HierarchyValidator implements Validator<HierarchicalDataObject>,
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		HierarchyValidator rOther = (HierarchyValidator) rObj;
+		HierarchyValidator other = (HierarchyValidator) obj;
 
-		return rValues.equals(rOther.rValues);
+		return values.equals(other.values);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class HierarchyValidator implements Validator<HierarchicalDataObject>,
 	 */
 	@Override
 	public final List<HierarchicalDataObject> getValues() {
-		return rValues;
+		return values;
 	}
 
 	/**
@@ -81,14 +81,14 @@ public class HierarchyValidator implements Validator<HierarchicalDataObject>,
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * rValues.hashCode();
+		return 37 * values.hashCode();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(HierarchicalDataObject rObject) {
+	public boolean isValid(HierarchicalDataObject object) {
 		// always return true because the object must be from the validated set
 		return true;
 	}

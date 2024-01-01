@@ -25,7 +25,6 @@ import de.esoco.lib.property.HasId;
 import de.esoco.lib.property.Indexed;
 
 import java.io.Serializable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,28 +46,28 @@ public class HierarchicalDataObject
 	private static final long serialVersionUID = 1L;
 
 	// the fields must be package accessible for the custom field serializer
-	String sId;
+	String id;
 
-	int nIndex;
+	int index;
 
-	boolean bEditable;
+	boolean editable;
 
-	List<String> rValues;
+	List<String> values;
 
-	Collection<String> rFlags;
+	Collection<String> flags;
 
-	DataModel<DataModel<String>> aChildren;
+	DataModel<DataModel<String>> children;
 
 	/**
 	 * Creates a new readonly instance without children or flags and an
 	 * index of
 	 * zero.
 	 *
-	 * @param sId     This object's ID
-	 * @param rValues The attribute values
+	 * @param id     This object's ID
+	 * @param values The attribute values
 	 */
-	public HierarchicalDataObject(String sId, List<String> rValues) {
-		this(sId, 0, rValues, false, null);
+	public HierarchicalDataObject(String id, List<String> values) {
+		this(id, 0, values, false, null);
 	}
 
 	/**
@@ -76,40 +75,39 @@ public class HierarchicalDataObject
 	 * not
 	 * be copied but will be used directly.
 	 *
-	 * @param sId       The object's ID
-	 * @param nIndex    The index of this object
-	 * @param rValues   The attribute values
-	 * @param bEditable FALSE to mark the instance as readonly
-	 * @param rFlags    The string flags for the object or NULL for none
+	 * @param id       The object's ID
+	 * @param index    The index of this object
+	 * @param values   The attribute values
+	 * @param editable FALSE to mark the instance as readonly
+	 * @param flags    The string flags for the object or NULL for none
 	 */
-	public HierarchicalDataObject(String sId, int nIndex, List<String> rValues,
-		boolean bEditable, Collection<String> rFlags) {
-		this.sId = sId;
-		this.nIndex = nIndex;
-		this.bEditable = bEditable;
-		this.rValues = rValues;
-		this.rFlags = rFlags;
+	public HierarchicalDataObject(String id, int index, List<String> values,
+		boolean editable, Collection<String> flags) {
+		this.id = id;
+		this.index = index;
+		this.editable = editable;
+		this.values = values;
+		this.flags = flags;
 	}
 
 	/**
 	 * Creates a new instance. The reference arguments will not be copied but
 	 * will be used directly.
 	 *
-	 * @param sId       The object's ID
-	 * @param nIndex    The index of this object
-	 * @param rValues   The attribute values
-	 * @param bEditable FALSE to mark the instance as readonly
-	 * @param rFlags    The string flags for the object or NULL for none
-	 * @param rChildren The list of child objects (NULL or empty for none)
+	 * @param id       The object's ID
+	 * @param index    The index of this object
+	 * @param values   The attribute values
+	 * @param editable FALSE to mark the instance as readonly
+	 * @param flags    The string flags for the object or NULL for none
+	 * @param children The list of child objects (NULL or empty for none)
 	 */
-	public HierarchicalDataObject(String sId, int nIndex, List<String> rValues,
-		boolean bEditable, Collection<String> rFlags,
-		List<DataModel<String>> rChildren) {
-		this(sId, nIndex, rValues, bEditable, rFlags);
+	public HierarchicalDataObject(String id, int index, List<String> values,
+		boolean editable, Collection<String> flags,
+		List<DataModel<String>> children) {
+		this(id, index, values, editable, flags);
 
-		if (rChildren != null) {
-			this.aChildren =
-				new ListDataModel<DataModel<String>>("", rChildren);
+		if (children != null) {
+			this.children = new ListDataModel<DataModel<String>>("", children);
 		}
 	}
 
@@ -117,29 +115,29 @@ public class HierarchicalDataObject
 	 * Creates a new instance. The reference arguments will not be copied but
 	 * will be used directly.
 	 *
-	 * @param sId       The object's ID
-	 * @param nIndex    The index of this object
-	 * @param rValues   The attribute values
-	 * @param bEditable FALSE to mark the instance as readonly
-	 * @param rFlags    The string flags for the object or NULL for none
-	 * @param rChildren The child data model (NULL or empty for none)
+	 * @param id       The object's ID
+	 * @param index    The index of this object
+	 * @param values   The attribute values
+	 * @param editable FALSE to mark the instance as readonly
+	 * @param flags    The string flags for the object or NULL for none
+	 * @param children The child data model (NULL or empty for none)
 	 */
-	public HierarchicalDataObject(String sId, int nIndex, List<String> rValues,
-		boolean bEditable, Collection<String> rFlags,
-		DataModel<DataModel<String>> rChildren) {
-		this(sId, nIndex, rValues, bEditable, rFlags);
+	public HierarchicalDataObject(String id, int index, List<String> values,
+		boolean editable, Collection<String> flags,
+		DataModel<DataModel<String>> children) {
+		this(id, index, values, editable, flags);
 
-		this.aChildren = rChildren;
+		this.children = children;
 	}
 
 	/**
 	 * Clear a certain flag in this instance.
 	 *
-	 * @param sFlag The flag to clear
+	 * @param flag The flag to clear
 	 */
-	public final void clearFlag(String sFlag) {
-		if (rFlags != null) {
-			rFlags.remove(sFlag);
+	public final void clearFlag(String flag) {
+		if (flags != null) {
+			flags.remove(flag);
 		}
 	}
 
@@ -147,22 +145,21 @@ public class HierarchicalDataObject
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object rObject) {
-		if (this == rObject) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (rObject == null || getClass() != rObject.getClass()) {
+		if (object == null || getClass() != object.getClass()) {
 			return false;
 		}
 
-		HierarchicalDataObject rOther = (HierarchicalDataObject) rObject;
+		HierarchicalDataObject other = (HierarchicalDataObject) object;
 
-		return sId.equals(rOther.sId) && rValues.equals(rOther.rValues) &&
-			getFlags().equals(rOther.getFlags()) &&
-			bEditable == rOther.bEditable &&
-			(aChildren == null && rOther.aChildren == null ||
-				aChildren != null && aChildren.equals(rOther.aChildren));
+		return id.equals(other.id) && values.equals(other.values) &&
+			getFlags().equals(other.getFlags()) && editable == other.editable &&
+			(children == null && other.children == null ||
+				children != null && children.equals(other.children));
 	}
 
 	/**
@@ -170,15 +167,15 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public DataModel<DataModel<String>> getChildModels() {
-		return aChildren;
+		return children;
 	}
 
 	/**
 	 * @see HierarchicalDataModel#getElement(int)
 	 */
 	@Override
-	public String getElement(int nIndex) {
-		return rValues.get(nIndex);
+	public String getElement(int index) {
+		return values.get(index);
 	}
 
 	/**
@@ -186,7 +183,7 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public int getElementCount() {
-		return rValues.size();
+		return values.size();
 	}
 
 	/**
@@ -194,7 +191,7 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public final Collection<String> getFlags() {
-		return rFlags != null ? rFlags : Collections.<String>emptySet();
+		return flags != null ? flags : Collections.emptySet();
 	}
 
 	/**
@@ -202,7 +199,7 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public final String getId() {
-		return sId;
+		return id;
 	}
 
 	/**
@@ -210,15 +207,15 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public int getIndex() {
-		return nIndex;
+		return index;
 	}
 
 	/**
 	 * @see Flags#hasFlag(Object)
 	 */
 	@Override
-	public final boolean hasFlag(String sFlag) {
-		return getFlags().contains(sFlag);
+	public final boolean hasFlag(String flag) {
+		return getFlags().contains(flag);
 	}
 
 	/**
@@ -230,11 +227,11 @@ public class HierarchicalDataObject
 		int result = 1;
 
 		result =
-			prime * result + ((aChildren == null) ? 0 : aChildren.hashCode());
-		result = prime * result + (bEditable ? 1231 : 1237);
+			prime * result + ((children == null) ? 0 : children.hashCode());
+		result = prime * result + (editable ? 1231 : 1237);
 		result = prime * result + getFlags().hashCode();
-		result = prime * result + ((rValues == null) ? 0 : rValues.hashCode());
-		result = prime * result + ((sId == null) ? 0 : sId.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 
 		return result;
 	}
@@ -244,7 +241,7 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public boolean isEditable() {
-		return bEditable;
+		return editable;
 	}
 
 	/**
@@ -252,20 +249,20 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public Iterator<String> iterator() {
-		return rValues.iterator();
+		return values.iterator();
 	}
 
 	/**
 	 * Sets a certain flag in this instance.
 	 *
-	 * @param sFlag The flag to set
+	 * @param flag The flag to set
 	 */
-	public final void setFlag(String sFlag) {
-		if (rFlags == null) {
-			rFlags = new HashSet<String>();
+	public final void setFlag(String flag) {
+		if (flags == null) {
+			flags = new HashSet<String>();
 		}
 
-		rFlags.add(sFlag);
+		flags.add(flag);
 	}
 
 	/**
@@ -273,6 +270,6 @@ public class HierarchicalDataObject
 	 */
 	@Override
 	public String toString() {
-		return "HierarchicalDataObject" + rValues;
+		return "HierarchicalDataObject" + values;
 	}
 }

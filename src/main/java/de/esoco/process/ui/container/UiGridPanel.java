@@ -31,11 +31,11 @@ public class UiGridPanel extends UiLayoutContainer<UiGridPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent  The parent container
-	 * @param nRows    The number of layout rows
-	 * @param nColumns The number of layout columns
+	 * @param parent  The parent container
+	 * @param rows    The number of layout rows
+	 * @param columns The number of layout columns
 	 */
-	public UiGridPanel(UiContainer<?> rParent, int nRows, int nColumns) {
-		super(rParent, new UiGridLayout(nRows, nColumns));
+	public UiGridPanel(UiContainer<?> parent, int rows, int columns) {
+		super(parent, new UiGridLayout(rows, columns));
 	}
 }

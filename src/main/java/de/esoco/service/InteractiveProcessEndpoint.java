@@ -79,17 +79,17 @@ public class InteractiveProcessEndpoint extends HttpEndpoint {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param eMethod       The request method
-		 * @param sRequestUrl   The request URL
-		 * @param rResponseType The datatype of the request response
+		 * @param method       The request method
+		 * @param requestUrl   The request URL
+		 * @param responseType The datatype of the request response
 		 */
-		ProcessRequest(HttpRequestMethod eMethod, String sRequestUrl,
-			Class<R> rResponseType) {
-			super(sRequestUrl, null, eMethod, "/api/" + sRequestUrl,
+		ProcessRequest(HttpRequestMethod method, String requestUrl,
+			Class<R> responseType) {
+			super(requestUrl, null, method, "/api/" + requestUrl,
 				data -> data != null ? data.toJson() : "",
-				sResponse -> ReflectUtil
-					.newInstance(rResponseType)
-					.fromJson(sResponse));
+				response -> ReflectUtil
+					.newInstance(responseType)
+					.fromJson(response));
 		}
 	}
 }

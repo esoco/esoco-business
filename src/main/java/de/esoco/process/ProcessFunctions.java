@@ -20,7 +20,6 @@ import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.function.GetElement;
 import de.esoco.lib.expression.function.SetElement;
-
 import org.obrel.core.RelationType;
 
 /**
@@ -41,23 +40,23 @@ public class ProcessFunctions {
 	 * Returns a new function instance which returns a certain process
 	 * parameter.
 	 *
-	 * @param rType The type of the process parameter to return
+	 * @param type The type of the process parameter to return
 	 * @return A new function instance
 	 */
-	public static <T> Function<Process, T> getParameter(RelationType<T> rType) {
-		return new GetParameter<T>(rType);
+	public static <T> Function<Process, T> getParameter(RelationType<T> type) {
+		return new GetParameter<T>(type);
 	}
 
 	/**
 	 * Returns a new function instance which sets a certain process parameter.
 	 *
-	 * @param rType  The type of the parameter to set
-	 * @param rValue The parameter value to set
+	 * @param type  The type of the parameter to set
+	 * @param value The parameter value to set
 	 * @return A new function instance
 	 */
 	public static <V> BinaryFunction<Process, V, Process> setParameter(
-		RelationType<V> rType, V rValue) {
-		return new SetParameter<V>(rType, rValue);
+		RelationType<V> type, V value) {
+		return new SetParameter<V>(type, value);
 	}
 
 	/**
@@ -71,18 +70,18 @@ public class ProcessFunctions {
 		 * Creates a new instance that accesses a particular single-type
 		 * relation.
 		 *
-		 * @param rType The single-relation type to access
+		 * @param type The single-relation type to access
 		 */
-		public GetParameter(RelationType<T> rType) {
-			super(rType, "GetParameter[%s]");
+		public GetParameter(RelationType<T> type) {
+			super(type, "GetParameter[%s]");
 		}
 
 		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected T getElementValue(Process rProcess, RelationType<T> rType) {
-			return rProcess.getParameter(rType);
+		protected T getElementValue(Process process, RelationType<T> type) {
+			return process.getParameter(type);
 		}
 	}
 
@@ -96,20 +95,20 @@ public class ProcessFunctions {
 		/**
 		 * Creates a new instance that sets a particular relation.
 		 *
-		 * @param rType  The type of the relation to set
-		 * @param rValue The relation value to set
+		 * @param type  The type of the relation to set
+		 * @param value The relation value to set
 		 */
-		public SetParameter(RelationType<T> rType, T rValue) {
-			super(rType, rValue, "SetParameter[%s]");
+		public SetParameter(RelationType<T> type, T value) {
+			super(type, value, "SetParameter[%s]");
 		}
 
 		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(RelationType<T> rType, Process rProcess,
-			T rValue) {
-			rProcess.setParameter(rType, rValue);
+		protected void setElementValue(RelationType<T> type, Process process,
+			T value) {
+			process.setParameter(type, value);
 		}
 	}
 }

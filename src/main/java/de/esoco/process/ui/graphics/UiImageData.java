@@ -17,16 +17,12 @@
 package de.esoco.process.ui.graphics;
 
 import de.esoco.data.MimeType;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiImageDefinition;
 
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
-
 import java.nio.charset.StandardCharsets;
-
 import java.util.Base64;
 import java.util.function.Supplier;
 
@@ -42,19 +38,19 @@ import static de.esoco.lib.property.ContentProperties.IMAGE;
  */
 public class UiImageData extends UiImageDefinition<UiImageData> {
 
-	private MimeType eMimeType;
+	private final MimeType mimeType;
 
-	private Supplier<String> fImageData;
+	private final Supplier<String> imageData;
 
 	/**
 	 * Creates a new instance from binary image data. The data will be Base64
 	 * encoded.
 	 *
-	 * @param eMimeType  The MIME type of the image
-	 * @param rImageData The binary image data
+	 * @param mimeType  The MIME type of the image
+	 * @param imageData The binary image data
 	 */
-	public UiImageData(MimeType eMimeType, byte[] rImageData) {
-		this(eMimeType, Base64.getEncoder().encodeToString(rImageData));
+	public UiImageData(MimeType mimeType, byte[] imageData) {
+		this(mimeType, Base64.getEncoder().encodeToString(imageData));
 	}
 
 	/**
@@ -63,12 +59,12 @@ public class UiImageData extends UiImageDefinition<UiImageData> {
 	 * displayed. That allows this constructor to be used for lazy
 	 * initialization of images.
 	 *
-	 * @param eMimeType  The MIME type of the image
-	 * @param fImageData The function that provides the image data
+	 * @param mimeType  The MIME type of the image
+	 * @param imageData The function that provides the image data
 	 */
-	public UiImageData(MimeType eMimeType, Supplier<String> fImageData) {
-		this.eMimeType = eMimeType;
-		this.fImageData = fImageData;
+	public UiImageData(MimeType mimeType, Supplier<String> imageData) {
+		this.mimeType = mimeType;
+		this.imageData = imageData;
 	}
 
 	/**
@@ -77,73 +73,73 @@ public class UiImageData extends UiImageDefinition<UiImageData> {
 	 * description. In the latter case the MIME type must be
 	 * {@link MimeType#IMAGE_SVG}.
 	 *
-	 * @param eMimeType  The MIME type of the image
-	 * @param sImageData The image data string
+	 * @param mimeType  The MIME type of the image
+	 * @param imageData The image data string
 	 */
-	public UiImageData(MimeType eMimeType, String sImageData) {
-		this(eMimeType, () -> sImageData);
+	public UiImageData(MimeType mimeType, String imageData) {
+		this(mimeType, () -> imageData);
 	}
 
 	/**
 	 * Factory method to return a new instance for a Base64 encoded GIF image.
 	 *
-	 * @param sBase64Data The Base64 encoded GIF image data
+	 * @param base64Data The Base64 encoded GIF image data
 	 * @return A new image data instance
 	 */
-	public static UiImageData gif(String sBase64Data) {
-		return new UiImageData(MimeType.IMAGE_GIF, sBase64Data);
+	public static UiImageData gif(String base64Data) {
+		return new UiImageData(MimeType.IMAGE_GIF, base64Data);
 	}
 
 	/**
 	 * Factory method to return a new instance for a Base64 encoded JPEG image.
 	 *
-	 * @param sBase64Data The Base64 encoded JPEG image data
+	 * @param base64Data The Base64 encoded JPEG image data
 	 * @return A new image data instance
 	 */
-	public static UiImageData jpg(String sBase64Data) {
-		return new UiImageData(MimeType.IMAGE_JPEG, sBase64Data);
+	public static UiImageData jpg(String base64Data) {
+		return new UiImageData(MimeType.IMAGE_JPEG, base64Data);
 	}
 
 	/**
 	 * Factory method to return a new instance for a Base64 encoded PNG image.
 	 *
-	 * @param sBase64Data The Base64 encoded PNG image data
+	 * @param base64Data The Base64 encoded PNG image data
 	 * @return A new image data instance
 	 */
-	public static UiImageData png(String sBase64Data) {
-		return new UiImageData(MimeType.IMAGE_PNG, sBase64Data);
+	public static UiImageData png(String base64Data) {
+		return new UiImageData(MimeType.IMAGE_PNG, base64Data);
 	}
 
 	/**
 	 * Factory method to return a new instance for an SVG image.
 	 *
-	 * @param sSvgImage The SVG image string
+	 * @param svgImage The SVG image string
 	 * @return A new image data instance
 	 */
-	public static UiImageData svg(String sSvgImage) {
-		return new UiImageData(MimeType.IMAGE_SVG, sSvgImage);
+	public static UiImageData svg(String svgImage) {
+		return new UiImageData(MimeType.IMAGE_SVG, svgImage);
 	}
 
 	/**
 	 * @see UiImageDefinition#applyPropertiesTo(UiComponent)
 	 */
 	@Override
-	protected void applyPropertiesTo(UiComponent<?, ?> rComponent) {
-		StringBuilder aDataUri = new StringBuilder("d:data:");
-		String sImageData = fImageData.get();
+	protected void applyPropertiesTo(UiComponent<?, ?> component) {
+		StringBuilder dataUri = new StringBuilder("d:data:");
+		String image = imageData.get();
 
-		aDataUri.append(eMimeType.getDefinition());
+		dataUri.append(mimeType.getDefinition());
 
-		if (eMimeType == MimeType.IMAGE_SVG) {
-			sImageData = encodeSvg(sImageData);
+		if (mimeType == MimeType.IMAGE_SVG) {
+			image = encodeSvg(image);
 		} else {
-			aDataUri.append(";base64");
+			dataUri.append(";base64");
 		}
 
-		aDataUri.append(',').append(sImageData);
+		dataUri.append(',').append(image);
 
-		set(IMAGE, aDataUri.toString());
-		super.applyPropertiesTo(rComponent);
+		set(IMAGE, dataUri.toString());
+		super.applyPropertiesTo(component);
 	}
 
 	/**
@@ -152,19 +148,18 @@ public class UiImageData extends UiImageDefinition<UiImageData> {
 	 * @return The MIME type
 	 */
 	protected final MimeType getMimeType() {
-		return eMimeType;
+		return mimeType;
 	}
 
 	/**
 	 * Encodes an SVG image data string for use in a data URI.
 	 *
-	 * @param sData The SVG image data to encode
+	 * @param data The SVG image data to encode
 	 * @return The encoded string
 	 */
-	private String encodeSvg(String sData) {
+	private String encodeSvg(String data) {
 		try {
-			sData = URLEncoder.encode(sData,
-				StandardCharsets.UTF_8.toString());
+			data = URLEncoder.encode(data, StandardCharsets.UTF_8.toString());
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}
@@ -174,7 +169,7 @@ public class UiImageData extends UiImageDefinition<UiImageData> {
 		// removes newlines, then puts spaces, equal signs, colons, and
 		// slashes back in; finally replaces quotes with apostrophes (may
 		// break certain SVGs)
-		sData = sData
+		data = data
 			.replaceAll("\n", "")
 			.replaceAll("\\+", " ")
 			.replaceAll("%3D", "=")
@@ -182,6 +177,6 @@ public class UiImageData extends UiImageDefinition<UiImageData> {
 			.replaceAll("%2F", "/")
 			.replaceAll("%22", "'");
 
-		return sData;
+		return data;
 	}
 }

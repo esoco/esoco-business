@@ -18,9 +18,7 @@ package de.esoco.process.ui.component;
 
 import de.esoco.data.element.BigDecimalDataElement;
 import de.esoco.data.element.BigDecimalDataElement.DisplayStyle;
-
 import de.esoco.lib.property.HasValue;
-
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiNumberInputField;
@@ -41,22 +39,22 @@ public class UiDecimalField
 	 *
 	 * @see UiNumberInputField#UiNumberInputField(UiContainer, Class, Number)
 	 */
-	public UiDecimalField(UiContainer<?> rContainer, BigDecimal rValue) {
-		super(rContainer, BigDecimal.class, rValue);
+	public UiDecimalField(UiContainer<?> container, BigDecimal value) {
+		super(container, BigDecimal.class, value);
 	}
 
 	/**
 	 * Sets the display style for the big decimal value.
 	 *
-	 * @param eDisplayStyle The display style
+	 * @param displayStyle The display style
 	 * @return This instance for fluent invocation
 	 */
-	public UiDecimalField displayAs(DisplayStyle eDisplayStyle) {
-		if (eDisplayStyle == DisplayStyle.MULTI_FORMAT) {
+	public UiDecimalField displayAs(DisplayStyle displayStyle) {
+		if (displayStyle == DisplayStyle.MULTI_FORMAT) {
 			fragment().get(ProcessRelationTypes.INPUT_PARAMS).remove(type());
 		}
 
-		return set(BigDecimalDataElement.DISPLAY_STYLE, eDisplayStyle);
+		return set(BigDecimalDataElement.DISPLAY_STYLE, displayStyle);
 	}
 
 	/**
@@ -71,7 +69,7 @@ public class UiDecimalField
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setValue(BigDecimal rValue) {
-		setValueImpl(rValue);
+	public void setValue(BigDecimal value) {
+		setValueImpl(value);
 	}
 }

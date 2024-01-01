@@ -17,11 +17,10 @@
 package de.esoco.entity;
 
 import de.esoco.lib.expression.Function;
-
-import java.util.Collection;
-
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
+
+import java.util.Collection;
 
 /**
  * A function that converts an entity into a formatted string value.
@@ -30,71 +29,70 @@ import org.obrel.type.StandardTypes;
  */
 public class EntityFormat<E extends Entity> implements Function<E, String> {
 
-	private final String sNullString;
+	private final String nullString;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sNullString The string to be displayed if the input entity is
-	 *                    NULL
+	 * @param nullString The string to be displayed if the input entity is NULL
 	 */
-	public EntityFormat(String sNullString) {
-		this.sNullString = sNullString;
+	public EntityFormat(String nullString) {
+		this.nullString = nullString;
 	}
 
 	/**
 	 * Formats an entity in to a describing string.
 	 *
-	 * @param rEntity The entity to format
+	 * @param entity The entity to format
 	 * @return The resulting string
 	 */
-	public static String toString(Entity rEntity) {
-		EntityDefinition<?> rDefinition = rEntity.getDefinition();
-		RelationType<String> rNameAttr = rDefinition.getNameAttribute();
+	public static String toString(Entity entity) {
+		EntityDefinition<?> definition = entity.getDefinition();
+		RelationType<String> nameAttr = definition.getNameAttribute();
 
-		Collection<RelationType<?>> rAttributes = rDefinition.getAttributes();
-		String sResult = null;
+		Collection<RelationType<?>> attributes = definition.getAttributes();
+		String result = null;
 
-		if (rNameAttr != null) {
-			sResult = rEntity.get(rNameAttr);
+		if (nameAttr != null) {
+			result = entity.get(nameAttr);
 
-			String sFirstName = rEntity.get(StandardTypes.FIRST_NAME);
+			String firstName = entity.get(StandardTypes.FIRST_NAME);
 
-			if (sFirstName != null && sFirstName.length() > 0) {
-				sResult = sFirstName + " " + sResult;
+			if (firstName != null && firstName.length() > 0) {
+				result = firstName + " " + result;
 			}
-		} else if (rAttributes.contains(StandardTypes.INFO)) {
-			String sInfo = rEntity.get(StandardTypes.INFO);
+		} else if (attributes.contains(StandardTypes.INFO)) {
+			String info = entity.get(StandardTypes.INFO);
 
-			if (sInfo != null && sInfo.length() > 0) {
-				sResult = sInfo;
+			if (info != null && info.length() > 0) {
+				result = info;
 			}
 		} else {
-			RelationType<Enum<?>> rTypeAttribute = rEntity.getTypeAttribute();
+			RelationType<Enum<?>> typeAttribute = entity.getTypeAttribute();
 
-			if (rTypeAttribute != null) {
-				Enum<?> eType = rEntity.get(rTypeAttribute);
+			if (typeAttribute != null) {
+				Enum<?> type = entity.get(typeAttribute);
 
-				if (eType != null) {
-					sResult = eType.name();
+				if (type != null) {
+					result = type.name();
 				}
 			}
 		}
 
-		return sResult != null ? sResult : "";
+		return result != null ? result : "";
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String evaluate(E rEntity) {
-		String sResult = sNullString;
+	public String evaluate(E entity) {
+		String result = nullString;
 
-		if (rEntity != null) {
-			sResult = toString(rEntity);
+		if (entity != null) {
+			result = toString(entity);
 		}
 
-		return sResult;
+		return result;
 	}
 }

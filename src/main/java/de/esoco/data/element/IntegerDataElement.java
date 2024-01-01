@@ -30,44 +30,44 @@ public class IntegerDataElement extends DataElement<Integer> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Integer aValue;
+	private Integer value;
 
 	/**
 	 * Creates a new read-only instance with a certain name and value.
 	 *
-	 * @param sName  The name of this element
-	 * @param nValue The initial value
+	 * @param name  The name of this element
+	 * @param value The initial value
 	 */
-	public IntegerDataElement(String sName, int nValue) {
-		this(sName, nValue, null, null);
+	public IntegerDataElement(String name, int value) {
+		this(name, value, null, null);
 	}
 
 	/**
 	 * Creates a new instance with a certain initial value and validator.
 	 *
-	 * @param sName      The name of this element
-	 * @param nValue     The initial value
-	 * @param rValidator The validator for the value or NULL for none
-	 * @param rFlags     The optional flags for this data element
+	 * @param name      The name of this element
+	 * @param value     The initial value
+	 * @param validator The validator for the value or NULL for none
+	 * @param flags     The optional flags for this data element
 	 */
-	public IntegerDataElement(String sName, int nValue,
-		Validator<? super Integer> rValidator, Set<Flag> rFlags) {
-		this(sName, Integer.valueOf(nValue), rValidator, rFlags);
+	public IntegerDataElement(String name, int value,
+		Validator<? super Integer> validator, Set<Flag> flags) {
+		this(name, Integer.valueOf(value), validator, flags);
 	}
 
 	/**
 	 * Creates a new instance with a certain initial value and validator.
 	 *
-	 * @param sName      The name of this element
-	 * @param rValue     The initial value
-	 * @param rValidator The validator for the value or NULL for none
-	 * @param rFlags     The optional flags for this data element
+	 * @param name      The name of this element
+	 * @param value     The initial value
+	 * @param validator The validator for the value or NULL for none
+	 * @param flags     The optional flags for this data element
 	 */
-	public IntegerDataElement(String sName, Integer rValue,
-		Validator<? super Integer> rValidator, Set<Flag> rFlags) {
-		super(sName, rValidator, rFlags);
+	public IntegerDataElement(String name, Integer value,
+		Validator<? super Integer> validator, Set<Flag> flags) {
+		super(name, validator, flags);
 
-		this.aValue = rValue;
+		this.value = value;
 	}
 
 	/**
@@ -80,9 +80,9 @@ public class IntegerDataElement extends DataElement<Integer> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntegerDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (IntegerDataElement) super.copy(eMode, rCopyProperties);
+	public IntegerDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (IntegerDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -90,18 +90,18 @@ public class IntegerDataElement extends DataElement<Integer> {
 	 */
 	@Override
 	public final Integer getValue() {
-		return aValue;
+		return value;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStringValue(String sValue) {
-		if (sValue == null || sValue.isEmpty()) {
+	public void setStringValue(String value) {
+		if (value == null || value.isEmpty()) {
 			setValue(null);
 		} else {
-			setValue(Integer.valueOf(sValue));
+			setValue(Integer.valueOf(value));
 		}
 	}
 
@@ -117,7 +117,7 @@ public class IntegerDataElement extends DataElement<Integer> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(Integer rNewValue) {
-		aValue = rNewValue;
+	protected void updateValue(Integer newValue) {
+		value = newValue;
 	}
 }

@@ -19,7 +19,6 @@ package de.esoco.process.step.entity;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityIterator;
 import de.esoco.entity.EntityPredicates;
-
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.ButtonStyle;
@@ -33,19 +32,17 @@ import de.esoco.process.param.Parameter;
 import de.esoco.process.param.ParameterList;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StoragePredicates.SortPredicate;
 import de.esoco.storage.StorageRelationTypes;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.property.LayoutProperties.ICON_SIZE;
@@ -78,50 +75,50 @@ public class EntityList<E extends Entity,
 	private static final Collection<String> DEFAULT_ALLOWED_LIST_SIZES =
 		Arrays.asList("5", "10", "20", "25", "50");
 
-	private final Class<E> rEntityType;
+	private final Class<E> entityType;
 
-	private final Class<I> rItemType;
+	private final Class<I> itemType;
 
-	private Predicate<? super E> pDefaultCriteria;
+	private final List<E> visibleEntities = new ArrayList<>();
 
-	private Predicate<? super E> pExtraCriteria = null;
+	private final EntityListNavigation navigation;
 
-	private Predicate<? super E> pAllCriteria = null;
+	private final EntityListItemList itemList;
 
-	private String sGlobalFilter = null;
-
-	private ListLayoutStyle eListLayoutStyle = null;
-
-	private SortPredicate<? super E> pSortColumn;
-
-	private List<E> aVisibleEntities = new ArrayList<>();
-
-	private int nEntityCount = 0;
-
-	private int nFirstEntity = 0;
-
-	private int nPageSize = 10;
-
-	private boolean bInitialQuery = false;
-
-	private Collection<String> aAllowedListSizes = DEFAULT_ALLOWED_LIST_SIZES;
-
-	private EntityListNavigation aNavigation;
-
-	private EntityListItemList aItemList;
-
-	private I rSelectedItem = null;
-
-	private EntityListHeader<E> rHeader;
-
-	private ParameterList aItemListPanel;
-
-	private ParameterList aNavigationPanel;
-
-	private RelationType<String>[] rGlobalFilterAttributes;
-
-	private Collection<EntitySelectionListener<E>> aSelectionListeners =
+	private final Collection<EntitySelectionListener<E>> selectionListeners =
 		new LinkedHashSet<>();
+
+	private Predicate<? super E> defaultCriteria;
+
+	private Predicate<? super E> extraCriteria = null;
+
+	private Predicate<? super E> allCriteria = null;
+
+	private String globalFilter = null;
+
+	private ListLayoutStyle listLayoutStyle = null;
+
+	private SortPredicate<? super E> sortColumn;
+
+	private int entityCount = 0;
+
+	private int firstEntity = 0;
+
+	private int pageSize = 10;
+
+	private boolean initialQuery = false;
+
+	private Collection<String> allowedListSizes = DEFAULT_ALLOWED_LIST_SIZES;
+
+	private I selectedItem = null;
+
+	private EntityListHeader<E> header;
+
+	private ParameterList itemListPanel;
+
+	private ParameterList navigationPanel;
+
+	private RelationType<String>[] globalFilterAttributes;
 
 	/**
 	 * Creates a new instance without criteria that doesn't perform an initial
@@ -129,11 +126,11 @@ public class EntityList<E extends Entity,
 	 * {@link #setDefaultCriteria(Predicate)}
 	 * or {@link #update()} to perform the first query.
 	 *
-	 * @param rEntityType The entity type to be displayed in this list
-	 * @param rItemType   The type of the list items
+	 * @param entityType The entity type to be displayed in this list
+	 * @param itemType   The type of the list items
 	 */
-	public EntityList(Class<E> rEntityType, Class<I> rItemType) {
-		this(rEntityType, rItemType, null, null, false);
+	public EntityList(Class<E> entityType, Class<I> itemType) {
+		this(entityType, itemType, null, null, false);
 	}
 
 	/**
@@ -143,46 +140,46 @@ public class EntityList<E extends Entity,
 	 * has
 	 * completed or, if FALSE on the first call to {@link #update()}.
 	 *
-	 * @param rEntityType      The entity type to be displayed in this list
-	 * @param rItemType        The type of the list items
-	 * @param pDefaultCriteria The optional default criteria or NULL to query
-	 *                         all entities
-	 * @param pSortColumn      The sort predicate for the initial sort
-	 *                            column or
-	 *                         NULL for none
-	 * @param bInitialQuery    TRUE if a initial query should be performed
-	 *                         automatically
+	 * @param entityType      The entity type to be displayed in this list
+	 * @param itemType        The type of the list items
+	 * @param defaultCriteria The optional default criteria or NULL to query
+	 *                          all
+	 *                        entities
+	 * @param sortColumn      The sort predicate for the initial sort column or
+	 *                        NULL for none
+	 * @param initialQuery    TRUE if a initial query should be performed
+	 *                        automatically
 	 */
-	public EntityList(Class<E> rEntityType, Class<I> rItemType,
-		Predicate<? super E> pDefaultCriteria,
-		SortPredicate<? super E> pSortColumn, boolean bInitialQuery) {
-		this.rItemType = rItemType;
-		this.rEntityType = rEntityType;
-		this.pDefaultCriteria = pDefaultCriteria;
-		this.pSortColumn = pSortColumn;
-		this.bInitialQuery = bInitialQuery;
+	public EntityList(Class<E> entityType, Class<I> itemType,
+		Predicate<? super E> defaultCriteria,
+		SortPredicate<? super E> sortColumn, boolean initialQuery) {
+		this.itemType = itemType;
+		this.entityType = entityType;
+		this.defaultCriteria = defaultCriteria;
+		this.sortColumn = sortColumn;
+		this.initialQuery = initialQuery;
 
-		aNavigation = new EntityListNavigation();
-		aItemList = new EntityListItemList();
+		navigation = new EntityListNavigation();
+		itemList = new EntityListItemList();
 	}
 
 	/**
 	 * Register an entity selection listener.
 	 *
-	 * @param rListener The listener to register
+	 * @param listener The listener to register
 	 */
-	public void addSelectionListener(EntitySelectionListener<E> rListener) {
-		aSelectionListeners.add(rListener);
+	public void addSelectionListener(EntitySelectionListener<E> listener) {
+		selectionListeners.add(listener);
 	}
 
 	/**
 	 * Clears this list by removing all entities and updating the display.
 	 */
 	public void clear() {
-		aVisibleEntities.clear();
-		aItemList.update();
-		aNavigation.update();
-		aNavigationPanel.hide();
+		visibleEntities.clear();
+		itemList.update();
+		navigation.update();
+		navigationPanel.hide();
 	}
 
 	/**
@@ -191,7 +188,7 @@ public class EntityList<E extends Entity,
 	 * @return The default criteria
 	 */
 	public final Predicate<? super E> getDefaultCriteria() {
-		return pDefaultCriteria;
+		return defaultCriteria;
 	}
 
 	/**
@@ -200,7 +197,7 @@ public class EntityList<E extends Entity,
 	 * @return The entityType value
 	 */
 	public final Class<E> getEntityType() {
-		return rEntityType;
+		return entityType;
 	}
 
 	/**
@@ -209,7 +206,7 @@ public class EntityList<E extends Entity,
 	 * @return The extra criteria
 	 */
 	public final Predicate<? super E> getExtraCriteria() {
-		return pExtraCriteria;
+		return extraCriteria;
 	}
 
 	/**
@@ -218,7 +215,7 @@ public class EntityList<E extends Entity,
 	 * @return The global filter string or NULL for none
 	 */
 	public final String getGlobalFilter() {
-		return sGlobalFilter;
+		return globalFilter;
 	}
 
 	/**
@@ -227,7 +224,7 @@ public class EntityList<E extends Entity,
 	 * @return The item list
 	 */
 	public final List<I> getItems() {
-		return aItemList.aItems;
+		return itemList.items;
 	}
 
 	/**
@@ -236,8 +233,8 @@ public class EntityList<E extends Entity,
 	 * @return The list layout style
 	 */
 	public final ListLayoutStyle getListLayoutStyle() {
-		return eListLayoutStyle != null ?
-		       eListLayoutStyle :
+		return listLayoutStyle != null ?
+		       listLayoutStyle :
 		       fragmentParam().get(LIST_LAYOUT_STYLE);
 	}
 
@@ -248,7 +245,7 @@ public class EntityList<E extends Entity,
 	 * @return The current page size
 	 */
 	public final int getPageSize() {
-		return nPageSize;
+		return pageSize;
 	}
 
 	/**
@@ -257,7 +254,7 @@ public class EntityList<E extends Entity,
 	 * @return The selected entity or NULL for none
 	 */
 	public final E getSelectedEntity() {
-		return rSelectedItem != null ? rSelectedItem.getEntity() : null;
+		return selectedItem != null ? selectedItem.getEntity() : null;
 	}
 
 	/**
@@ -266,7 +263,7 @@ public class EntityList<E extends Entity,
 	 * @return The selected item or NULL for none
 	 */
 	public final I getSelectedItem() {
-		return rSelectedItem;
+		return selectedItem;
 	}
 
 	/**
@@ -275,7 +272,7 @@ public class EntityList<E extends Entity,
 	 * @return The current sort column predicate (NULL for none)
 	 */
 	public final SortPredicate<? super E> getSortColumn() {
-		return pSortColumn;
+		return sortColumn;
 	}
 
 	/**
@@ -285,18 +282,18 @@ public class EntityList<E extends Entity,
 	public void init() {
 		layout(LayoutType.FLOW).style(EntityList.class.getSimpleName());
 
-		if (eListLayoutStyle != null) {
-			fragmentParam().set(LIST_LAYOUT_STYLE, eListLayoutStyle);
+		if (listLayoutStyle != null) {
+			fragmentParam().set(LIST_LAYOUT_STYLE, listLayoutStyle);
 		}
 
-		if (rHeader != null) {
+		if (header != null) {
 			panel(this::initHeaderPanel);
 		}
 
-		aItemListPanel = panel(aItemList);
-		aNavigationPanel = panel(aNavigation).hide();
+		itemListPanel = panel(itemList);
+		navigationPanel = panel(navigation).hide();
 
-		aItemListPanel.inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
+		itemListPanel.inherit(LIST_LAYOUT_STYLE, MULTI_SELECTION);
 	}
 
 	/**
@@ -304,8 +301,8 @@ public class EntityList<E extends Entity,
 	 */
 	@Override
 	public void initComplete() throws Exception {
-		if (bInitialQuery) {
-			if (pAllCriteria == null) {
+		if (initialQuery) {
+			if (allCriteria == null) {
 				updateQuery();
 			} else {
 				queryEntities();
@@ -316,21 +313,21 @@ public class EntityList<E extends Entity,
 	/**
 	 * Removes an entity selection listener.
 	 *
-	 * @param rListener The listener to remove
+	 * @param listener The listener to remove
 	 */
-	public void removeSelectionListener(EntitySelectionListener<?> rListener) {
-		aSelectionListeners.remove(rListener);
+	public void removeSelectionListener(EntitySelectionListener<?> listener) {
+		selectionListeners.remove(listener);
 	}
 
 	/**
 	 * Sets the default criteria for this instance. This will also update the
 	 * display.
 	 *
-	 * @param pDefaultCriteria The new default criteria
+	 * @param defaultCriteria The new default criteria
 	 * @throws StorageException If updating the list fails
 	 */
-	public void setDefaultCriteria(Predicate<? super E> pDefaultCriteria) {
-		this.pDefaultCriteria = pDefaultCriteria;
+	public void setDefaultCriteria(Predicate<? super E> defaultCriteria) {
+		this.defaultCriteria = defaultCriteria;
 
 		updateQuery();
 	}
@@ -340,10 +337,10 @@ public class EntityList<E extends Entity,
 	 * together with the default criteria and the text filter set through
 	 * {@link #setGlobalFilter(String)}.
 	 *
-	 * @param pCriteria sThe filter predicate or NULL to reset
+	 * @param criteria The filter predicate or NULL to reset
 	 */
-	public void setExtraCriteria(Predicate<? super E> pCriteria) {
-		this.pExtraCriteria = pCriteria;
+	public void setExtraCriteria(Predicate<? super E> criteria) {
+		this.extraCriteria = criteria;
 
 		updateQuery();
 	}
@@ -353,22 +350,22 @@ public class EntityList<E extends Entity,
 	 * all attributes set with
 	 * {@link #setGlobalFilterAttributes(RelationType...)}.
 	 *
-	 * @param sFilter The filter string or NULL or empty for no filter
+	 * @param filter The filter string or NULL or empty for no filter
 	 */
-	public void setGlobalFilter(String sFilter) {
-		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
+	public void setGlobalFilter(String filter) {
+		globalFilter = !filter.isEmpty() ? filter : null;
 		updateQuery();
 	}
 
 	/**
 	 * Sets the attributes to be considered by the global filter.
 	 *
-	 * @param rFilterAttributes The new filter attributes
+	 * @param filterAttributes The new filter attributes
 	 */
 	@SafeVarargs
 	public final void setGlobalFilterAttributes(
-		RelationType<String>... rFilterAttributes) {
-		this.rGlobalFilterAttributes = rFilterAttributes;
+		RelationType<String>... filterAttributes) {
+		this.globalFilterAttributes = filterAttributes;
 	}
 
 	/**
@@ -376,19 +373,19 @@ public class EntityList<E extends Entity,
 	 * must be invoked before this fragment is initialized or otherwise the
 	 * header will not be displayed.
 	 *
-	 * @param rHeader The new list header
+	 * @param header The new list header
 	 */
-	public void setListHeader(EntityListHeader<E> rHeader) {
-		this.rHeader = rHeader;
+	public void setListHeader(EntityListHeader<E> header) {
+		this.header = header;
 	}
 
 	/**
 	 * Sets the list layout style.
 	 *
-	 * @param eListLayoutStyle The style
+	 * @param listLayoutStyle The style
 	 */
-	public final void setListLayoutStyle(ListLayoutStyle eListLayoutStyle) {
-		this.eListLayoutStyle = eListLayoutStyle;
+	public final void setListLayoutStyle(ListLayoutStyle listLayoutStyle) {
+		this.listLayoutStyle = listLayoutStyle;
 	}
 
 	/**
@@ -396,10 +393,10 @@ public class EntityList<E extends Entity,
 	 * page
 	 * size value.
 	 *
-	 * @param rPageSize The new page size
+	 * @param pageSize The new page size
 	 */
-	public final void setPageSize(int rPageSize) {
-		nPageSize = rPageSize;
+	public final void setPageSize(int pageSize) {
+		pageSize = pageSize;
 
 		updateQuery();
 	}
@@ -407,38 +404,38 @@ public class EntityList<E extends Entity,
 	/**
 	 * Sets the currently selected list item.
 	 *
-	 * @param rItem The new selection
+	 * @param item The new selection
 	 */
 	@SuppressWarnings("unchecked")
-	public void setSelection(EntityListItem<?> rItem) {
-		if (rSelectedItem != rItem) {
-			if (rSelectedItem != null) {
-				rSelectedItem.setSelected(false);
+	public void setSelection(EntityListItem<?> item) {
+		if (selectedItem != item) {
+			if (selectedItem != null) {
+				selectedItem.setSelected(false);
 			}
 
-			rSelectedItem = (I) rItem;
+			selectedItem = (I) item;
 
-			if (rSelectedItem != null) {
-				rSelectedItem.setSelected(true);
+			if (selectedItem != null) {
+				selectedItem.setSelected(true);
 			}
 
-			aItemListPanel.set(rSelectedItem != null ?
-			                   aItemList.aItems.indexOf(rSelectedItem) :
-			                   -1, CURRENT_SELECTION);
+			itemListPanel.set(selectedItem != null ?
+			                  itemList.items.indexOf(selectedItem) :
+			                  -1, CURRENT_SELECTION);
 		}
 
-		for (EntitySelectionListener<E> rListener : aSelectionListeners) {
-			rListener.onSelection(getSelectedEntity());
+		for (EntitySelectionListener<E> listener : selectionListeners) {
+			listener.onSelection(getSelectedEntity());
 		}
 	}
 
 	/**
 	 * Sets the sort predicate for the column to sort by.
 	 *
-	 * @param pSortColumn The sort predicate or NULL for none
+	 * @param sortColumn The sort predicate or NULL for none
 	 */
-	public final void setSortColumn(SortPredicate<? super E> pSortColumn) {
-		this.pSortColumn = pSortColumn;
+	public final void setSortColumn(SortPredicate<? super E> sortColumn) {
+		this.sortColumn = sortColumn;
 		updateQuery();
 	}
 
@@ -463,22 +460,22 @@ public class EntityList<E extends Entity,
 	 * @return The new list item
 	 */
 	protected I createListItem() {
-		return ReflectUtil.newInstance(rItemType);
+		return ReflectUtil.newInstance(itemType);
 	}
 
 	/**
 	 * Initializes the header panel of this list if a header has been set with
 	 * {@link #setListHeader(EntityListHeader)}.
 	 *
-	 * @param rHeaderPanel The header panel fragment
+	 * @param headerPanel The header panel fragment
 	 */
-	protected void initHeaderPanel(InteractionFragment rHeaderPanel) {
-		rHeaderPanel
+	protected void initHeaderPanel(InteractionFragment headerPanel) {
+		headerPanel
 			.layout(LayoutType.LIST)
 			.resid("EntityListHeaderPanel")
-			.set(LIST_LAYOUT_STYLE, rHeader.getHeaderType());
+			.set(LIST_LAYOUT_STYLE, header.getHeaderType());
 
-		rHeaderPanel.panel(rHeader);
+		headerPanel.panel(header);
 	}
 
 	/**
@@ -488,46 +485,47 @@ public class EntityList<E extends Entity,
 	 * @throws StorageException If the query fails
 	 */
 	void queryEntities() throws StorageException {
-		Predicate<E> pCriteria = Predicates.and(pAllCriteria, pSortColumn);
+		Predicate<E> criteria = Predicates.and(allCriteria, sortColumn);
 
-		QueryPredicate<E> qEntities =
-			new QueryPredicate<>(rEntityType, pCriteria);
+		QueryPredicate<E> queryEntities =
+			new QueryPredicate<>(entityType, criteria);
 
-		qEntities.set(StorageRelationTypes.QUERY_OFFSET, nFirstEntity);
-		qEntities.set(StorageRelationTypes.QUERY_LIMIT, nPageSize);
+		queryEntities.set(StorageRelationTypes.QUERY_OFFSET, firstEntity);
+		queryEntities.set(StorageRelationTypes.QUERY_LIMIT, pageSize);
 
-		try (EntityIterator<E> aEntities = new EntityIterator<>(qEntities)) {
-			int nCount = nPageSize;
+		try (EntityIterator<E> entities =
+			new EntityIterator<>(queryEntities)) {
+			int count = pageSize;
 
-			nEntityCount = aEntities.size();
+			entityCount = entities.size();
 
-			if (nFirstEntity + nPageSize > nEntityCount) {
-				nFirstEntity = Math.max(0, nEntityCount - nPageSize);
+			if (firstEntity + pageSize > entityCount) {
+				firstEntity = Math.max(0, entityCount - pageSize);
 			}
 
-			aVisibleEntities.clear();
+			visibleEntities.clear();
 
-			while (nCount-- > 0 && aEntities.hasNext()) {
-				aVisibleEntities.add(aEntities.next());
+			while (count-- > 0 && entities.hasNext()) {
+				visibleEntities.add(entities.next());
 			}
 		}
 
 		setSelection(null);
-		aItemList.update();
-		aNavigation.update();
-		aNavigationPanel.show();
+		itemList.update();
+		navigation.update();
+		navigationPanel.show();
 	}
 
 	/**
 	 * Sets the allowed list sizes that can be selected from a drop-down.
 	 *
-	 * @param rAllowedSizes The selectable list sizes
+	 * @param allowedSizes The selectable list sizes
 	 */
-	final void setAllowedListSizes(int[] rAllowedSizes) {
-		aAllowedListSizes = new ArrayList<>(rAllowedSizes.length);
+	final void setAllowedListSizes(int[] allowedSizes) {
+		allowedListSizes = new ArrayList<>(allowedSizes.length);
 
-		for (int nSize : rAllowedSizes) {
-			aAllowedListSizes.add(Integer.toString(nSize));
+		for (int size : allowedSizes) {
+			allowedListSizes.add(Integer.toString(size));
 		}
 	}
 
@@ -535,23 +533,22 @@ public class EntityList<E extends Entity,
 	 * Builds the full query criteria.
 	 */
 	private void updateQuery() {
-		Predicate<? super E> pGlobalFilter;
+		Predicate<? super E> newFilter;
 
-		if (sGlobalFilter != null && sGlobalFilter.startsWith("=") &&
-			rGlobalFilterAttributes.length == 1) {
-			pGlobalFilter = rGlobalFilterAttributes[0].is(
-				equalTo(sGlobalFilter.substring(1)));
+		if (globalFilter != null && globalFilter.startsWith("=") &&
+			globalFilterAttributes.length == 1) {
+			newFilter = globalFilterAttributes[0].is(
+				equalTo(globalFilter.substring(1)));
 		} else {
-			pGlobalFilter =
-				EntityPredicates.createWildcardFilter(sGlobalFilter,
-				rGlobalFilterAttributes);
+			newFilter = EntityPredicates.createWildcardFilter(globalFilter,
+				globalFilterAttributes);
 		}
 
-		pAllCriteria = Predicates.and(pDefaultCriteria, pExtraCriteria);
-		pAllCriteria = Predicates.and(pAllCriteria, pGlobalFilter);
+		allCriteria = Predicates.and(defaultCriteria, extraCriteria);
+		allCriteria = Predicates.and(allCriteria, newFilter);
 
 		try {
-			nFirstEntity = 0;
+			firstEntity = 0;
 
 			if (isInitialized()) {
 				queryEntities();
@@ -567,43 +564,43 @@ public class EntityList<E extends Entity,
 	 *
 	 * @author eso
 	 */
-	public static interface EntityListItem<E extends Entity> {
+	public interface EntityListItem<E extends Entity> {
 
 		/**
 		 * Returns the entity of this list item.
 		 *
 		 * @return The item entity
 		 */
-		public E getEntity();
+		E getEntity();
 
 		/**
 		 * Checks whether this item is currently selected.
 		 *
 		 * @return The selected state
 		 */
-		public boolean isSelected();
+		boolean isSelected();
 
 		/**
 		 * Sets the default style of this item. This style should always be
 		 * applied if the style of an item needs to be reset.
 		 *
-		 * @param sStyle The new default style
+		 * @param style The new default style
 		 */
-		public void setDefaultStyle(String sStyle);
+		void setDefaultStyle(String style);
 
 		/**
 		 * Sets the selected state of this item
 		 *
-		 * @param bSelected The new selected state
+		 * @param selected The new selected state
 		 */
-		public void setSelected(boolean bSelected);
+		void setSelected(boolean selected);
 
 		/**
 		 * Updates the entity that is displayed by this instance.
 		 *
-		 * @param rEntity The new Entity
+		 * @param entity The new Entity
 		 */
-		public void updateEntity(E rEntity);
+		void updateEntity(E entity);
 	}
 
 	/**
@@ -611,14 +608,14 @@ public class EntityList<E extends Entity,
 	 *
 	 * @author eso
 	 */
-	public static interface EntitySelectionListener<E extends Entity> {
+	public interface EntitySelectionListener<E extends Entity> {
 
 		/**
 		 * Will be invoked if an entity is (de-) selected.
 		 *
-		 * @param rEntity The selected entity or NULL for none
+		 * @param entity The selected entity or NULL for none
 		 */
-		public void onSelection(E rEntity);
+		void onSelection(E entity);
 	}
 
 	/**
@@ -630,7 +627,7 @@ public class EntityList<E extends Entity,
 
 		private static final long serialVersionUID = 1L;
 
-		private List<I> aItems = new ArrayList<>();
+		private final List<I> items = new ArrayList<>();
 
 		/**
 		 * {@inheritDoc}
@@ -654,16 +651,16 @@ public class EntityList<E extends Entity,
 		void update() {
 			updateItemList();
 
-			int nVisibleItems = Math.min(aVisibleEntities.size(), nPageSize);
+			int visibleItems = Math.min(visibleEntities.size(), pageSize);
 
-			for (int i = 0; i < nPageSize; i++) {
-				I rItem = aItems.get(i);
+			for (int i = 0; i < pageSize; i++) {
+				I item = items.get(i);
 
-				if (i < nVisibleItems) {
-					rItem.updateEntity(aVisibleEntities.get(i));
-					rItem.fragmentParam().show();
+				if (i < visibleItems) {
+					item.updateEntity(visibleEntities.get(i));
+					item.fragmentParam().show();
 				} else {
-					rItem.fragmentParam().hide();
+					item.fragmentParam().hide();
 				}
 			}
 		}
@@ -673,26 +670,26 @@ public class EntityList<E extends Entity,
 		 * current page size.
 		 */
 		void updateItemList() {
-			int nCurrentSize = aItems.size();
+			int currentSize = items.size();
 
-			if (nCurrentSize < nPageSize) {
-				for (int i = nCurrentSize; i < nPageSize; i++) {
-					I aItem = createListItem();
+			if (currentSize < pageSize) {
+				for (int i = currentSize; i < pageSize; i++) {
+					I item = createListItem();
 
-					aItems.add(aItem);
-					aItem.setDefaultStyle(i % 2 == 1 ? "odd" : "even");
-					addSubFragment("Entity" + i, aItem);
-					aItem.fragmentParam().hide();
+					items.add(item);
+					item.setDefaultStyle(i % 2 == 1 ? "odd" : "even");
+					addSubFragment("Entity" + i, item);
+					item.fragmentParam().hide();
 				}
-			} else if (nCurrentSize > nPageSize) {
-				for (int i = aItems.size() - 1; i >= nPageSize; i--) {
-					I rItem = aItems.remove(i);
+			} else if (currentSize > pageSize) {
+				for (int i = items.size() - 1; i >= pageSize; i--) {
+					I item = items.remove(i);
 
-					if (rItem == rSelectedItem) {
+					if (item == selectedItem) {
 						setSelection(null);
 					}
 
-					removeSubFragment(rItem);
+					removeSubFragment(item);
 				}
 			}
 		}
@@ -707,13 +704,13 @@ public class EntityList<E extends Entity,
 
 		private static final long serialVersionUID = 1L;
 
-		private Parameter<String> aNavPosition;
+		private Parameter<String> navPosition;
 
-		private Parameter<String> aListSizeDropDown;
+		private Parameter<String> listSizeDropDown;
 
-		private Parameter<PagingNavigation> aLeftPagingButtons;
+		private Parameter<PagingNavigation> leftPagingButtons;
 
-		private Parameter<PagingNavigation> aRightPagingButtons;
+		private Parameter<PagingNavigation> rightPagingButtons;
 
 		/**
 		 * {@inheritDoc}
@@ -722,29 +719,29 @@ public class EntityList<E extends Entity,
 		public void init() throws Exception {
 			layout(LayoutType.TABLE);
 
-			if (aAllowedListSizes.size() > 1) {
-				String sPageSize = Integer.toString(nPageSize);
+			if (allowedListSizes.size() > 1) {
+				String pageSizeText = Integer.toString(pageSize);
 
-				aListSizeDropDown =
-					dropDown("EntityListPageSize", aAllowedListSizes)
-						.value(sPageSize)
+				listSizeDropDown =
+					dropDown("EntityListPageSize", allowedListSizes)
+						.value(pageSizeText)
 						.input()
 						.onUpdate(new ValueEventHandler<String>() {
 							@Override
-							public void handleValueUpdate(String sPageSize)
+							public void handleValueUpdate(String pageSize)
 								throws Exception {
-								changePageSize(sPageSize);
+								changePageSize(pageSize);
 							}
 						});
 			}
 
-			aLeftPagingButtons =
+			leftPagingButtons =
 				pagingButtons("LeftPaging", PagingNavigation.FIRST_PAGE,
 					PagingNavigation.PREVIOUS_PAGE).sameRow();
 
-			aNavPosition = label("").resid("EntityListPosition").sameRow();
+			navPosition = label("").resid("EntityListPosition").sameRow();
 
-			aRightPagingButtons =
+			rightPagingButtons =
 				pagingButtons("RightPaging", PagingNavigation.NEXT_PAGE,
 					PagingNavigation.LAST_PAGE).sameRow();
 
@@ -754,14 +751,14 @@ public class EntityList<E extends Entity,
 		/**
 		 * Changes the number of displayed list items.
 		 *
-		 * @param sNewSize The new number of list items
+		 * @param newSize The new number of list items
 		 * @throws StorageException If updating the list fails
 		 */
-		void changePageSize(String sNewSize) throws StorageException {
-			nPageSize = Integer.parseInt(sNewSize);
+		void changePageSize(String newSize) throws StorageException {
+			pageSize = Integer.parseInt(newSize);
 
-			if (nFirstEntity + nPageSize > nEntityCount) {
-				nFirstEntity = Math.max(0, nEntityCount - nPageSize);
+			if (firstEntity + pageSize > entityCount) {
+				firstEntity = Math.max(0, entityCount - pageSize);
 			}
 
 			queryEntities();
@@ -770,27 +767,27 @@ public class EntityList<E extends Entity,
 		/**
 		 * Handles the paging navigation.
 		 *
-		 * @param eNavigation The navigation action
+		 * @param navigation The navigation action
 		 * @throws StorageException If updating the list fails
 		 */
-		void navigate(PagingNavigation eNavigation) throws StorageException {
-			int nMax = Math.max(0, nEntityCount - nPageSize);
+		void navigate(PagingNavigation navigation) throws StorageException {
+			int max = Math.max(0, entityCount - pageSize);
 
-			switch (eNavigation) {
+			switch (navigation) {
 				case FIRST_PAGE:
-					nFirstEntity = 0;
+					firstEntity = 0;
 					break;
 
 				case PREVIOUS_PAGE:
-					nFirstEntity = Math.max(0, nFirstEntity - nPageSize);
+					firstEntity = Math.max(0, firstEntity - pageSize);
 					break;
 
 				case NEXT_PAGE:
-					nFirstEntity = Math.min(nMax, nFirstEntity + nPageSize);
+					firstEntity = Math.min(max, firstEntity + pageSize);
 					break;
 
 				case LAST_PAGE:
-					nFirstEntity = nMax;
+					firstEntity = max;
 					break;
 			}
 
@@ -803,50 +800,49 @@ public class EntityList<E extends Entity,
 		 */
 		@SuppressWarnings("boxing")
 		void update() {
-			boolean bShowControls = nEntityCount > nPageSize;
-			String sPosition = "";
+			boolean showControls = entityCount > pageSize;
+			String position = "";
 
-			if (nEntityCount > 5) {
-				int nLast = Math.min(nFirstEntity + aItemList.aItems.size(),
-					nEntityCount);
+			if (entityCount > 5) {
+				int last =
+					Math.min(firstEntity + itemList.items.size(), entityCount);
 
-				sPosition = String.format("$$%d - %d {$lblPositionOfCount} %d",
-					nFirstEntity + 1, nLast, nEntityCount);
-			} else if (nEntityCount == 0) {
-				sPosition =
-					"$lbl" + EntityList.this.getClass().getSimpleName();
+				position = String.format("$$%d - %d {$lblPositionOfCount} %d",
+					firstEntity + 1, last, entityCount);
+			} else if (entityCount == 0) {
+				position = "$lbl" + EntityList.this.getClass().getSimpleName();
 
-				if (pExtraCriteria != null || sGlobalFilter != null) {
-					sPosition += "NoMatch";
+				if (extraCriteria != null || globalFilter != null) {
+					position += "NoMatch";
 				} else {
-					sPosition += "Empty";
+					position += "Empty";
 				}
 			}
 
-			aListSizeDropDown.setVisible(bShowControls);
-			aLeftPagingButtons.setVisible(bShowControls);
-			aRightPagingButtons.setVisible(bShowControls);
-			aNavPosition.setVisible(nEntityCount == 0 || nEntityCount > 5);
+			listSizeDropDown.setVisible(showControls);
+			leftPagingButtons.setVisible(showControls);
+			rightPagingButtons.setVisible(showControls);
+			navPosition.setVisible(entityCount == 0 || entityCount > 5);
 
-			aNavPosition.value(sPosition);
+			navPosition.value(position);
 		}
 
 		/**
 		 * Creates a navigation buttons parameter for the given values.
 		 *
-		 * @param sName          The name of the parameter
-		 * @param rAllowedValues The allowed button values
+		 * @param name          The name of the parameter
+		 * @param allowedValues The allowed button values
 		 * @return The new parameter
 		 */
-		private Parameter<PagingNavigation> pagingButtons(String sName,
-			PagingNavigation... rAllowedValues) {
-			Parameter<PagingNavigation> aNavigation =
-				param(sName, PagingNavigation.class);
+		private Parameter<PagingNavigation> pagingButtons(String name,
+			PagingNavigation... allowedValues) {
+			Parameter<PagingNavigation> navigation =
+				param(name, PagingNavigation.class);
 
-			return aNavigation
+			return navigation
 				.resid(PagingNavigation.class.getSimpleName())
 				.label("")
-				.buttons(rAllowedValues)
+				.buttons(allowedValues)
 				.buttonStyle(ButtonStyle.ICON)
 				.images()
 				.set(ICON_SIZE, RelativeScale.SMALL)

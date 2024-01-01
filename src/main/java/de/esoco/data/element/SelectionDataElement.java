@@ -18,7 +18,6 @@ package de.esoco.data.element;
 
 import de.esoco.data.validate.SelectionValidator;
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.property.PropertyName;
 
@@ -46,27 +45,26 @@ public class SelectionDataElement extends StringDataElement {
 	 * {@link SelectionValidator} that is initialized with the given data and
 	 * columns.
 	 *
-	 * @param sName    The name of this element
-	 * @param rData    The data objects to be displayed and selected from
-	 * @param rColumns The data columns to be displayed
+	 * @param name    The name of this element
+	 * @param data    The data objects to be displayed and selected from
+	 * @param columns The data columns to be displayed
 	 */
-	public SelectionDataElement(String sName,
-		List<HierarchicalDataObject> rData, List<ColumnDefinition> rColumns) {
-		this(sName, NO_SELECTION, new SelectionValidator(rData, rColumns),
-			null);
+	public SelectionDataElement(String name, List<HierarchicalDataObject> data,
+		List<ColumnDefinition> columns) {
+		this(name, NO_SELECTION, new SelectionValidator(data, columns), null);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName             The name of this element
-	 * @param sInitialSelection The initial selection ID
-	 * @param rValidator        The validator defining the selectable elements
-	 * @param rFlags            The optional flags for this data element
+	 * @param name             The name of this element
+	 * @param initialSelection The initial selection ID
+	 * @param validator        The validator defining the selectable elements
+	 * @param flags            The optional flags for this data element
 	 */
-	public SelectionDataElement(String sName, String sInitialSelection,
-		Validator<? super String> rValidator, Set<Flag> rFlags) {
-		super(sName, sInitialSelection, rValidator, rFlags);
+	public SelectionDataElement(String name, String initialSelection,
+		Validator<? super String> validator, Set<Flag> flags) {
+		super(name, initialSelection, validator, flags);
 	}
 
 	/**
@@ -79,9 +77,9 @@ public class SelectionDataElement extends StringDataElement {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public SelectionDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (SelectionDataElement) super.copy(eMode, rCopyProperties);
+	public SelectionDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (SelectionDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**

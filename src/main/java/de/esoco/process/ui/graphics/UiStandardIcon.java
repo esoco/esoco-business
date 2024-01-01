@@ -32,17 +32,17 @@ public enum UiStandardIcon implements UiIconSupplier {
 	HELP, INFO, WARNING, FILE_DOWNLOAD, FILE_UPLOAD, HISTORY, MENU,
 	MORE_HORIZONTAL, MORE_VERTICAL, SEND, SETTINGS, UNDO;
 
-	private static Function<UiStandardIcon, UiIconSupplier> fIconMapping;
+	private static Function<UiStandardIcon, UiIconSupplier> iconMapping;
 
 	/**
 	 * Registers a mapping function that maps implementation icons to standard
 	 * icon constants.
 	 *
-	 * @param fMapping The icon mapping function
+	 * @param mapping The icon mapping function
 	 */
 	public static void registerIconMapping(
-		Function<UiStandardIcon, UiIconSupplier> fMapping) {
-		fIconMapping = fMapping;
+		Function<UiStandardIcon, UiIconSupplier> mapping) {
+		iconMapping = mapping;
 	}
 
 	/**
@@ -50,19 +50,19 @@ public enum UiStandardIcon implements UiIconSupplier {
 	 */
 	@Override
 	public UiIconName getIcon() {
-		UiIconName rIcon = null;
+		UiIconName icon = null;
 
-		if (fIconMapping != null) {
-			UiIconSupplier rIconSupplier = fIconMapping.apply(this);
+		if (iconMapping != null) {
+			UiIconSupplier iconSupplier = iconMapping.apply(this);
 
-			if (rIconSupplier != null) {
-				rIcon = rIconSupplier.getIcon();
+			if (iconSupplier != null) {
+				icon = iconSupplier.getIcon();
 			}
 		} else {
 			assert false :
 				"No standard icon mapping available. Icon mapping registered?";
 		}
 
-		return rIcon;
+		return icon;
 	}
 }

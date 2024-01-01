@@ -47,7 +47,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 * component.
 	 */
 	public enum TimetableDisplayStyle {
-		DAY, MONTH, AGENDA;
+		DAY, MONTH, AGENDA
 	}
 
 	/**
@@ -116,25 +116,25 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<DateDataElement> aDataElements = new ArrayList<>();
+	private List<DateDataElement> dataElements = new ArrayList<>();
 
-	private InteractionType eInteractionType;
+	private InteractionType interactionType;
 
-	private HasProperties rSelection;
+	private HasProperties selection;
 
-	private HasProperties rInteractionData;
+	private HasProperties interactionData;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName     The name of this element
-	 * @param rElements The date data
+	 * @param name     The name of this element
+	 * @param elements The date data
 	 */
-	public DateListDataElement(String sName,
-		Collection<DateDataElement> rElements) {
-		super(sName, null, null);
+	public DateListDataElement(String name,
+		Collection<DateDataElement> elements) {
+		super(name, null, null);
 
-		aDataElements.addAll(rElements);
+		dataElements.addAll(elements);
 	}
 
 	/**
@@ -154,9 +154,9 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateListDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (DateListDataElement) super.copy(eMode, rCopyProperties);
+	public DateListDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (DateListDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -171,7 +171,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 * @see #getInteractionType()
 	 */
 	public final HasProperties getInteractionData() {
-		return rInteractionData;
+		return interactionData;
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 * @return The interaction type
 	 */
 	public final InteractionType getInteractionType() {
-		return eInteractionType;
+		return interactionType;
 	}
 
 	/**
@@ -202,28 +202,28 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 * @return The selection properties or NULL for none
 	 */
 	public final HasProperties getSelection() {
-		return rSelection;
+		return selection;
 	}
 
 	/**
 	 * Sets the type of an interaction that occurred and the associated data.
 	 *
-	 * @param eType The type of interaction that occurred
-	 * @param rData The properties containing the interaction-specific data
+	 * @param type The type of interaction that occurred
+	 * @param data The properties containing the interaction-specific data
 	 */
-	public final void setInteraction(InteractionType eType,
-		HasProperties rData) {
-		eInteractionType = eType;
-		rInteractionData = rData;
+	public final void setInteraction(InteractionType type,
+		HasProperties data) {
+		interactionType = type;
+		interactionData = data;
 	}
 
 	/**
 	 * Returns the properties object for the currently selected element.
 	 *
-	 * @param rSelection The selection properties or NULL for none
+	 * @param selection The selection properties or NULL for none
 	 */
-	public final void setSelection(HasProperties rSelection) {
-		this.rSelection = rSelection;
+	public final void setSelection(HasProperties selection) {
+		this.selection = selection;
 	}
 
 	/**
@@ -231,7 +231,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 */
 	@Override
 	protected List<DateDataElement> getList() {
-		return aDataElements;
+		return dataElements;
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class DateListDataElement extends ListDataElement<DateDataElement> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<DateDataElement> rNewElements) {
-		aDataElements = rNewElements;
+	protected void updateValue(List<DateDataElement> newElements) {
+		dataElements = newElements;
 	}
 }

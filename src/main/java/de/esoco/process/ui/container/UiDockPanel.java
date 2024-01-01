@@ -17,7 +17,6 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.Orientation;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayoutContainer;
 import de.esoco.process.ui.layout.UiDockLayout;
@@ -32,10 +31,10 @@ public class UiDockPanel extends UiLayoutContainer<UiDockPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent      The parent container
-	 * @param eOrientation bVertical TRUE for vertical orientation
+	 * @param parent      The parent container
+	 * @param orientation vertical TRUE for vertical orientation
 	 */
-	public UiDockPanel(UiContainer<?> rParent, Orientation eOrientation) {
-		super(rParent, new UiDockLayout(eOrientation, false));
+	public UiDockPanel(UiContainer<?> parent, Orientation orientation) {
+		super(parent, new UiDockLayout(orientation, false));
 	}
 }

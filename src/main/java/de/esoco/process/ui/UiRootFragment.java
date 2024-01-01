@@ -36,19 +36,19 @@ public class UiRootFragment extends InteractionFragment {
 
 	private static final long serialVersionUID = 1L;
 
-	private UiLayout rRootViewLayout;
+	private final UiLayout rootViewLayout;
 
-	private Consumer<UiBuilder<?>> fRootViewBuilder;
+	private Consumer<UiBuilder<?>> rootViewBuilder;
 
-	private UiRootView aRootView;
+	private UiRootView rootView;
 
 	/**
 	 * Creates a new instance with a specific root view layout.
 	 *
-	 * @param rLayout The root view layout
+	 * @param layout The root view layout
 	 */
-	public UiRootFragment(UiLayout rLayout) {
-		rRootViewLayout = rLayout;
+	public UiRootFragment(UiLayout layout) {
+		rootViewLayout = layout;
 	}
 
 	/**
@@ -56,12 +56,12 @@ public class UiRootFragment extends InteractionFragment {
 	 * builder function. The builder function will be invoked from the method
 	 * {@link #buildUserInterface(UiRootView)}.
 	 *
-	 * @param rLayout  The root view layout
-	 * @param fBuilder The function that builds the root view
+	 * @param layout  The root view layout
+	 * @param builder The function that builds the root view
 	 */
-	public UiRootFragment(UiLayout rLayout, Consumer<UiBuilder<?>> fBuilder) {
-		rRootViewLayout = rLayout;
-		fRootViewBuilder = fBuilder;
+	public UiRootFragment(UiLayout layout, Consumer<UiBuilder<?>> builder) {
+		rootViewLayout = layout;
+		rootViewBuilder = builder;
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class UiRootFragment extends InteractionFragment {
 	 */
 	@Override
 	public void prepareInteraction() throws Exception {
-		aRootView.applyProperties();
+		rootView.applyProperties();
 	}
 
 	/**
@@ -87,11 +87,11 @@ public class UiRootFragment extends InteractionFragment {
 	 * been
 	 * set with {@link #UiRootFragment(UiLayout, Consumer)}.
 	 *
-	 * @param rRootView The root view
+	 * @param rootView The root view
 	 */
-	protected void buildUserInterface(UiRootView rRootView) {
-		if (fRootViewBuilder != null) {
-			fRootViewBuilder.accept(rRootView.builder());
+	protected void buildUserInterface(UiRootView rootView) {
+		if (rootViewBuilder != null) {
+			rootViewBuilder.accept(rootView.builder());
 		}
 	}
 
@@ -105,20 +105,20 @@ public class UiRootFragment extends InteractionFragment {
 	 * @return The fragment's root view
 	 */
 	protected UiRootView createRootView() {
-		UiLayout rViewLayout = getRootViewLayout();
+		UiLayout viewLayout = getRootViewLayout();
 
 		// make sure that the layout will be applied. This needed for fragments
 		// that invoked directly as process steps if process navigation occurs
-		rViewLayout.setModified(true);
+		viewLayout.setModified(true);
 
-		UiRootView aRootView = new UiRootView(this, rViewLayout) {
+		UiRootView rootView = new UiRootView(this, viewLayout) {
 			@Override
-			protected void buildContent(UiBuilder<?> rBuilder) {
+			protected void buildContent(UiBuilder<?> builder) {
 				buildUserInterface(this);
 			}
 		};
 
-		return aRootView;
+		return rootView;
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class UiRootFragment extends InteractionFragment {
 	 * @return The root view layout
 	 */
 	protected UiLayout getRootViewLayout() {
-		return rRootViewLayout;
+		return rootViewLayout;
 	}
 
 	/**
@@ -138,6 +138,6 @@ public class UiRootFragment extends InteractionFragment {
 	 */
 	@Override
 	protected void initComplete() throws Exception {
-		aRootView = createRootView().show();
+		rootView = createRootView().show();
 	}
 }

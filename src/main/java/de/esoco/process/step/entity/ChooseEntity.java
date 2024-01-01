@@ -18,32 +18,26 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.DialogFragment.DialogActionListener;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
-
-import java.util.List;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
-import static de.esoco.entity.EntityPredicates.forEntity;
+import java.util.List;
 
+import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.HIDDEN;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -81,53 +75,52 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 		RelationTypes.init(ChooseEntity.class);
 	}
 
-	private List<RelationType<?>> aInteractionParams =
-		CollectionUtil.<RelationType<?>>listOf(CURRENT_CHOOSE_ENTITY,
-			CHOOSE_ENTITY_ACTION);
+	private final List<RelationType<?>> interactionParams =
+		CollectionUtil.listOf(CURRENT_CHOOSE_ENTITY, CHOOSE_ENTITY_ACTION);
 
-	private List<RelationType<?>> aInputParams =
-		CollectionUtil.<RelationType<?>>listOf(CHOOSE_ENTITY_ACTION);
+	private final List<RelationType<?>> inputParams =
+		CollectionUtil.listOf(CHOOSE_ENTITY_ACTION);
 
-	private RelationType<E> rTargetParam;
+	private final RelationType<E> targetParam;
 
-	private SelectEntity<E> aSelectEntity;
+	private final SelectEntity<E> selectEntity;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rTargetParam        The parameter to store the selected entity in
-	 * @param pSelectableEntities The class of the entity type to select
-	 * @param pSortOrder          A predicate defining the sorting of the
-	 *                            entities or NULL for the default order
-	 * @param rQueryAttributes    The entity attributes to display
-	 * @param bValidateSelection  TRUE to validate that an entity has been
-	 *                            selected; FALSE to allow no selection (i.e. a
-	 *                            NULL value) without a validation error
+	 * @param targetParam        The parameter to store the selected entity in
+	 * @param selectableEntities The class of the entity type to select
+	 * @param sortOrder          A predicate defining the sorting of the
+	 *                           entities or NULL for the default order
+	 * @param queryAttributes    The entity attributes to display
+	 * @param validateSelection  TRUE to validate that an entity has been
+	 *                           selected; FALSE to allow no selection (i.e. a
+	 *                           NULL value) without a validation error
 	 */
-	public ChooseEntity(RelationType<E> rTargetParam,
-		Predicate<? super E> pSelectableEntities,
-		Predicate<? super Entity> pSortOrder,
-		List<Function<? super E, ?>> rQueryAttributes,
-		boolean bValidateSelection) {
-		this.rTargetParam = rTargetParam;
+	public ChooseEntity(RelationType<E> targetParam,
+		Predicate<? super E> selectableEntities,
+		Predicate<? super Entity> sortOrder,
+		List<Function<? super E, ?>> queryAttributes,
+		boolean validateSelection) {
+		this.targetParam = targetParam;
 
 		@SuppressWarnings("unchecked")
-		QueryPredicate<E> qSelectableEntities =
-			forEntity((Class<E>) rTargetParam.getTargetType(),
-				pSelectableEntities);
+		QueryPredicate<E> querySelectableEntities =
+			forEntity((Class<E>) targetParam.getTargetType(),
+				selectableEntities);
 
-		aSelectEntity = new SelectEntity<E>(qSelectableEntities, pSortOrder,
-			rQueryAttributes, bValidateSelection);
+		selectEntity = new SelectEntity<E>(querySelectableEntities, sortOrder,
+			queryAttributes, validateSelection);
 	}
 
 	/**
 	 * @see InteractionFragment#enableEdit(boolean)
 	 */
 	@Override
-	public void enableEdit(boolean bEnable) {
-		super.enableEdit(bEnable);
+	public void enableEdit(boolean enable) {
+		super.enableEdit(enable);
 
-		if (bEnable) {
+		if (enable) {
 			clearUIFlag(HIDDEN, CHOOSE_ENTITY_ACTION);
 		} else {
 			setUIFlag(HIDDEN, CHOOSE_ENTITY_ACTION);
@@ -139,7 +132,7 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -147,34 +140,34 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		if (rInteractionParam == CHOOSE_ENTITY_ACTION) {
+		if (interactionParam == CHOOSE_ENTITY_ACTION) {
 			switch (getParameter(CHOOSE_ENTITY_ACTION)) {
 				case REMOVE:
-					setParameter(rTargetParam, null);
+					setParameter(targetParam, null);
 					updateEntityDisplay();
 					break;
 
 				case SELECT:
 
-					String sPrefix = getClass().getSimpleName();
+					String prefix = getClass().getSimpleName();
 
-					sPrefix += rTargetParam.getSimpleName();
-					sPrefix = TextConvert.uppercaseIdentifier(sPrefix) + "_";
+					prefix += targetParam.getSimpleName();
+					prefix = TextConvert.uppercaseIdentifier(prefix) + "_";
 					setParameter(SelectEntity.SELECTED_ENTITY,
-						getParameter(rTargetParam));
+						getParameter(targetParam));
 					removeUIProperties(SelectEntity.SELECTED_ENTITY,
 						CURRENT_SELECTION);
 
-					showDialog(sPrefix, aSelectEntity, this, DialogAction.OK,
+					showDialog(prefix, selectEntity, this, DialogAction.OK,
 						DialogAction.CANCEL);
 					break;
 			}
@@ -202,11 +195,11 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void onDialogAction(DialogAction eAction) {
-		if (eAction == DialogAction.OK) {
-			E rEntity = (E) getParameter(SelectEntity.SELECTED_ENTITY);
+	public void onDialogAction(DialogAction action) {
+		if (action == DialogAction.OK) {
+			E entity = (E) getParameter(SelectEntity.SELECTED_ENTITY);
 
-			setParameter(rTargetParam, rEntity);
+			setParameter(targetParam, entity);
 			updateEntityDisplay();
 		}
 	}
@@ -215,9 +208,9 @@ public class ChooseEntity<E extends Entity> extends InteractionFragment
 	 * Updates the entity display.
 	 */
 	public void updateEntityDisplay() {
-		Entity rEntity = getParameter(rTargetParam);
+		Entity entity = getParameter(targetParam);
 
 		setParameter(CURRENT_CHOOSE_ENTITY,
-			rEntity != null ? EntityFunctions.format(rEntity) : "$lblNoValue");
+			entity != null ? EntityFunctions.format(entity) : "$lblNoValue");
 	}
 }

@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ContentType;
-
 import de.esoco.process.ui.UiContainer;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
@@ -34,8 +33,8 @@ public class UiFileUpload extends UiButton {
 	 *
 	 * @see UiButton#UiButton(UiContainer, String)
 	 */
-	public UiFileUpload(UiContainer<?> rParent, String sLabel) {
-		super(rParent, sLabel);
+	public UiFileUpload(UiContainer<?> parent, String label) {
+		super(parent, label);
 
 		set(CONTENT_TYPE, ContentType.FILE_UPLOAD);
 	}

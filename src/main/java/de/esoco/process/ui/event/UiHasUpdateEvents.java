@@ -38,8 +38,8 @@ public interface UiHasUpdateEvents<T, C extends UiComponent<T, ?>> {
 	 * the
 	 * new component value.
 	 *
-	 * @param rEventHandler The event handler to be invoked
+	 * @param eventHandler The event handler to be invoked
 	 * @return The component the handler has been registered on
 	 */
-	public C onUpdate(Consumer<T> rEventHandler);
+	C onUpdate(Consumer<T> eventHandler);
 }

@@ -36,13 +36,13 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sText   The initial component text
+	 * @param parent The parent container
+	 * @param text   The initial component text
 	 */
-	public UiTextComponent(UiContainer<?> rParent, String sText) {
-		super(rParent, String.class);
+	public UiTextComponent(UiContainer<?> parent, String text) {
+		super(parent, String.class);
 
-		setText(sText);
+		setText(text);
 		set(HIDE_LABEL);
 	}
 
@@ -58,25 +58,25 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	 * Sets the text value of this component so that it will be rendered as
 	 * HTML. The value can be queried with {@link #getText()}.
 	 *
-	 * @param sHtml The HTML text
+	 * @param html The HTML text
 	 * @return This instance for fluent invocation
 	 */
-	public C html(String sHtml) {
+	public C html(String html) {
 		set(CONTENT_TYPE, ContentType.HTML);
 
-		return setValueImpl(sHtml);
+		return setValueImpl(html);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C resid(String sResourceId) {
-		if (sResourceId != null) {
-			label("$lbl" + sResourceId);
+	public C resid(String resourceId) {
+		if (resourceId != null) {
+			label("$lbl" + resourceId);
 		}
 
-		return super.resid(sResourceId);
+		return super.resid(resourceId);
 	}
 
 	/**
@@ -85,10 +85,9 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	 * @see #setHtml(String)
 	 * @see #setFormattedText(String, String...)
 	 */
-	public void setFormattedHtml(String sTemplate,
-		String... rFormatArguments) {
-		setHtml(sTemplate);
-		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	public void setFormattedHtml(String template, String... formatArguments) {
+		setHtml(template);
+		set(FORMAT_ARGUMENTS, Arrays.asList(formatArguments));
 	}
 
 	/**
@@ -97,42 +96,41 @@ public abstract class UiTextComponent<C extends UiTextComponent<C>>
 	 * strings
 	 * allowed as format arguments.
 	 *
-	 * @param sTemplate        The format template
-	 * @param rFormatArguments The format arguments
+	 * @param template        The format template
+	 * @param formatArguments The format arguments
 	 */
-	public void setFormattedText(String sTemplate,
-		String... rFormatArguments) {
-		setText(sTemplate);
-		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	public void setFormattedText(String template, String... formatArguments) {
+		setText(template);
+		set(FORMAT_ARGUMENTS, Arrays.asList(formatArguments));
 	}
 
 	/**
 	 * Sets the text value of this component so that it will be rendered as
 	 * HTML. The value can be queried with {@link #getText()}.
 	 *
-	 * @param sHtml The HTML text
+	 * @param html The HTML text
 	 */
-	public void setHtml(String sHtml) {
-		html(sHtml);
+	public void setHtml(String html) {
+		html(html);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText) {
-		text(sText);
+	public void setText(String text) {
+		text(text);
 	}
 
 	/**
 	 * Sets the text of this component.
 	 *
-	 * @param sText The new text
+	 * @param text The new text
 	 * @return This instance for fluent invocation
 	 */
-	public C text(String sText) {
+	public C text(String text) {
 		remove(CONTENT_TYPE);
 
-		return setValueImpl(sText);
+		return setValueImpl(text);
 	}
 }

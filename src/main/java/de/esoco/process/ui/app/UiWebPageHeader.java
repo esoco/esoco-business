@@ -30,9 +30,9 @@ public class UiWebPageHeader extends UiComposite<UiWebPageHeader> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent the parent container
+	 * @param parent the parent container
 	 */
-	public UiWebPageHeader(UiContainer<?> rParent) {
-		super(rParent, new UiHeaderLayout());
+	public UiWebPageHeader(UiContainer<?> parent) {
+		super(parent, new UiHeaderLayout());
 	}
 }

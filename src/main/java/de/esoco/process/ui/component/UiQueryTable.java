@@ -17,19 +17,17 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
 import de.esoco.process.ui.UiTextInputField;
 import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.event.UiHasUpdateEvents;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StoragePredicates;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,12 +35,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.obrel.core.RelationType;
-
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ATTRIBUTES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_QUERY_PREDICATE;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
-
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 
 /**
@@ -60,8 +55,8 @@ public class UiQueryTable<E extends Entity>
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiQueryTable(UiContainer<?> rContainer, Class<E> rEntityType) {
-		super(rContainer, rEntityType);
+	public UiQueryTable(UiContainer<?> container, Class<E> entityType) {
+		super(container, entityType);
 
 		// the existence of a query predicate initiates the table rendering
 		setQuery(null);
@@ -90,53 +85,53 @@ public class UiQueryTable<E extends Entity>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiQueryTable<E> onAction(Consumer<E> rEventHandler) {
-		return onSelectionConfirmed(rEventHandler);
+	public UiQueryTable<E> onAction(Consumer<E> eventHandler) {
+		return onSelectionConfirmed(eventHandler);
 	}
 
 	/**
 	 * Sets the event handler for selection events of this table.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final UiQueryTable<E> onSelection(Consumer<E> rEventHandler) {
+	public final UiQueryTable<E> onSelection(Consumer<E> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * Sets the event handler for selection confirmed events (e.g. by double
 	 * click) of this table.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
 	public final UiQueryTable<E> onSelectionConfirmed(
-		Consumer<E> rEventHandler) {
+		Consumer<E> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiQueryTable<E> onUpdate(Consumer<E> rEventHandler) {
-		return onSelection(rEventHandler);
+	public UiQueryTable<E> onUpdate(Consumer<E> eventHandler) {
+		return onSelection(eventHandler);
 	}
 
 	/**
 	 * Sets the default query order for a single attribute. For complex order
 	 * criteria see {@link #setOrderBy(Predicate)}.
 	 *
-	 * @param rOrderAttribute The entity attribute to order the query by
-	 * @param bAscending      TRUE for ascending, FALSE for descending ordering
+	 * @param orderAttribute The entity attribute to order the query by
+	 * @param ascending      TRUE for ascending, FALSE for descending ordering
 	 * @return This instance for fluent invocation
 	 */
-	public UiQueryTable<E> orderBy(RelationType<?> rOrderAttribute,
-		boolean bAscending) {
-		setOrderBy(StoragePredicates.sortBy(rOrderAttribute, bAscending));
+	public UiQueryTable<E> orderBy(RelationType<?> orderAttribute,
+		boolean ascending) {
+		setOrderBy(StoragePredicates.sortBy(orderAttribute, ascending));
 
 		return this;
 	}
@@ -144,17 +139,16 @@ public class UiQueryTable<E extends Entity>
 	/**
 	 * Sets the storage query criteria of this table.
 	 *
-	 * @param pCriteria The query criteria to apply (NULL for none)
+	 * @param criteria The query criteria to apply (NULL for none)
 	 * @return This instance for fluent invocation
 	 */
-	public UiQueryTable<E> query(Predicate<? super E> pCriteria) {
+	public UiQueryTable<E> query(Predicate<? super E> criteria) {
 		@SuppressWarnings("unchecked")
-		QueryPredicate<E> pQuery =
-			new QueryPredicate<E>((Class<E>) type().getTargetType(),
-				pCriteria);
+		QueryPredicate<E> query =
+			new QueryPredicate<E>((Class<E>) type().getTargetType(), criteria);
 
 		fragment().annotateParameter(type(), null, ENTITY_QUERY_PREDICATE,
-			pQuery);
+			query);
 
 		return this;
 	}
@@ -165,8 +159,8 @@ public class UiQueryTable<E extends Entity>
 	 * @see #setColumns(Collection)
 	 */
 	@SafeVarargs
-	public final void setColumns(Function<? super E, ?>... rAttributes) {
-		setColumns(Arrays.asList(rAttributes));
+	public final void setColumns(Function<? super E, ?>... attributes) {
+		setColumns(Arrays.asList(attributes));
 	}
 
 	/**
@@ -179,23 +173,23 @@ public class UiQueryTable<E extends Entity>
 	 * that extracts the name from an entity reference (e.g. <code>
 	 * NAME.from(OTHER_ENTITY)</code>).
 	 *
-	 * @param rColumnAttributes The entity attribute access functions
+	 * @param columnAttributes The entity attribute access functions
 	 */
 	@SuppressWarnings("unchecked")
 	public void setColumns(
-		Collection<Function<? super E, ?>> rColumnAttributes) {
-		List<Function<? super Entity, ?>> rGenericAttributes = null;
+		Collection<Function<? super E, ?>> columnAttributes) {
+		List<Function<? super Entity, ?>> genericAttributes = null;
 
-		if (rColumnAttributes != null && rColumnAttributes.size() > 0) {
-			rGenericAttributes = new ArrayList<Function<? super Entity, ?>>();
+		if (columnAttributes != null && columnAttributes.size() > 0) {
+			genericAttributes = new ArrayList<Function<? super Entity, ?>>();
 
-			for (Function<? super E, ?> rFunction : rColumnAttributes) {
-				rGenericAttributes.add((Function<? super Entity, ?>) rFunction);
+			for (Function<? super E, ?> function : columnAttributes) {
+				genericAttributes.add((Function<? super Entity, ?>) function);
 			}
 		}
 
 		fragment().annotateParameter(type(), null, ENTITY_ATTRIBUTES,
-			rGenericAttributes);
+			genericAttributes);
 	}
 
 	/**
@@ -203,42 +197,41 @@ public class UiQueryTable<E extends Entity>
 	 * order criteria. For ordering by a single entity attribute see method
 	 * {@link #setOrderBy(RelationType, boolean)}.
 	 *
-	 * @param pOrder The sort order criteria (NULL for none)
+	 * @param order The sort order criteria (NULL for none)
 	 */
-	public void setOrderBy(Predicate<? super Entity> pOrder) {
+	public void setOrderBy(Predicate<? super Entity> order) {
 		fragment().annotateParameter(type(), null, ENTITY_SORT_PREDICATE,
-			pOrder);
+			order);
 	}
 
 	/**
 	 * Sets the default query order for a single attribute. For complex order
 	 * criteria see {@link #setOrderBy(Predicate)}.
 	 *
-	 * @param rOrderAttribute The entity attribute to order the query by
-	 * @param bAscending      TRUE for ascending, FALSE for descending ordering
+	 * @param orderAttribute The entity attribute to order the query by
+	 * @param ascending      TRUE for ascending, FALSE for descending ordering
 	 */
-	public void setOrderBy(RelationType<?> rOrderAttribute,
-		boolean bAscending) {
-		orderBy(rOrderAttribute, bAscending);
+	public void setOrderBy(RelationType<?> orderAttribute, boolean ascending) {
+		orderBy(orderAttribute, ascending);
 	}
 
 	/**
 	 * Sets the storage query criteria of this table.
 	 *
-	 * @param pCriteria The query criteria to apply (NULL for none)
+	 * @param criteria The query criteria to apply (NULL for none)
 	 */
-	public void setQuery(Predicate<? super E> pCriteria) {
-		query(pCriteria);
+	public void setQuery(Predicate<? super E> criteria) {
+		query(criteria);
 	}
 
 	/**
 	 * Sets (or clears) the currently selected entity.
 	 *
-	 * @param rValue The new selection or NULL for none
+	 * @param value The new selection or NULL for none
 	 */
 	@SuppressWarnings("boxing")
-	public void setSelection(E rValue) {
-		setValueImpl(rValue);
+	public void setSelection(E value) {
+		setValueImpl(value);
 
 		// reset selection index for recalculation
 		set(CURRENT_SELECTION, -1);

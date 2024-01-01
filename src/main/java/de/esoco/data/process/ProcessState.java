@@ -18,7 +18,6 @@ package de.esoco.data.process;
 
 import de.esoco.data.element.DataElement;
 import de.esoco.data.element.DataElementList;
-
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.text.TextConvert;
 
@@ -41,7 +40,7 @@ public class ProcessState extends ProcessDescription {
 	/**
 	 * An enumeration of the process execution modes.
 	 */
-	public static enum ProcessExecutionMode {
+	public enum ProcessExecutionMode {
 		EXECUTE, RELOAD, ROLLBACK, CANCEL
 	}
 
@@ -65,7 +64,7 @@ public class ProcessState extends ProcessDescription {
 	 *     control needs to be displayed.</li>
 	 * </ul>
 	 */
-	public static enum ProcessStateFlag {
+	public enum ProcessStateFlag {
 		ROLLBACK, AUTO_CONTINUE, FINAL_STEP, HAS_IMMEDIATE_INTERACTION
 	}
 
@@ -85,26 +84,25 @@ public class ProcessState extends ProcessDescription {
 	private static final long serialVersionUID = 1L;
 
 	// fields are package protected to be accessible by custom field serializer
-	int nProcessId;
+	int processId;
 
-	String sProcessInfo;
+	String processInfo;
 
-	String sCurrentStep;
+	String currentStep;
 
-	List<DataElementList> rViewParams;
+	List<DataElementList> viewParams;
 
-	List<ProcessState> rSpawnProcesses;
+	List<ProcessState> spawnProcesses;
 
-	ProcessExecutionMode eExecutionMode;
+	ProcessExecutionMode executionMode;
 
-	InteractionEventType eInteractionEventType;
+	InteractionEventType interactionEventType;
 
-	DataElement<?> rInteractionElement;
+	DataElement<?> interactionElement;
 
-	List<DataElement<?>> rInteractionParams;
+	List<DataElement<?>> interactionParams;
 
-	Set<ProcessStateFlag> rCurrentStepFlags =
-		Collections.<ProcessStateFlag>emptySet();
+	Set<ProcessStateFlag> currentStepFlags = Collections.emptySet();
 
 	/**
 	 * Creates a new instance for a finished process without any further
@@ -113,37 +111,36 @@ public class ProcessState extends ProcessDescription {
 	 * @see #ProcessState(ProcessDescription, int, String, String, List, List,
 	 * List, Set)
 	 */
-	public ProcessState(ProcessDescription rDescription, int nProcessId,
-		String sProcessInfo) {
-		this(rDescription, nProcessId, sProcessInfo, null, null, null, null,
-			Collections.<ProcessStateFlag>emptySet());
+	public ProcessState(ProcessDescription description, int processId,
+		String processInfo) {
+		this(description, processId, processInfo, null, null, null, null,
+			Collections.emptySet());
 	}
 
 	/**
 	 * Creates an copy instance for process interactions.
 	 *
-	 * @param rOriginalState      The original process state
-	 * @param eEventType          The interaction event type
-	 * @param rInteractionElement The data element that caused the interaction
-	 * @param rModifiedParams     The parameters that have been modified since
-	 *                            the last interaction
+	 * @param originalState      The original process state
+	 * @param eventType          The interaction event type
+	 * @param interactionElement The data element that caused the interaction
+	 * @param modifiedParams     The parameters that have been modified since
+	 *                           the last interaction
 	 */
-	public ProcessState(ProcessState rOriginalState,
-		InteractionEventType eEventType, DataElement<?> rInteractionElement,
-		List<DataElement<?>> rModifiedParams) {
-		super(rOriginalState.getName(), null,
-			rOriginalState.getDescriptionId(),
+	public ProcessState(ProcessState originalState,
+		InteractionEventType eventType, DataElement<?> interactionElement,
+		List<DataElement<?>> modifiedParams) {
+		super(originalState.getName(), null, originalState.getDescriptionId(),
 			false);
 
-		this.nProcessId = rOriginalState.nProcessId;
-		this.eInteractionEventType = eEventType;
-		this.rInteractionParams = new ArrayList<>(rModifiedParams.size());
-		this.rInteractionElement = rInteractionElement != null ?
-		                           rInteractionElement.copy(CopyMode.FLAT) :
-		                           null;
+		this.processId = originalState.processId;
+		this.interactionEventType = eventType;
+		this.interactionParams = new ArrayList<>(modifiedParams.size());
+		this.interactionElement = interactionElement != null ?
+		                          interactionElement.copy(CopyMode.FLAT) :
+		                          null;
 
-		for (DataElement<?> rElement : rModifiedParams) {
-			rInteractionParams.add(rElement.copy(CopyMode.FLAT));
+		for (DataElement<?> element : modifiedParams) {
+			interactionParams.add(element.copy(CopyMode.FLAT));
 		}
 	}
 
@@ -151,33 +148,31 @@ public class ProcessState extends ProcessDescription {
 	 * Creates a new instance by copying the data from another process
 	 * description (or state) and specific process state attributes.
 	 *
-	 * @param rDescription       The process description or state
-	 * @param nProcessId         The ID of the described process
-	 * @param sProcessInfo       An information string describing the process
-	 * @param sCurrentStep       The name of the currently executed process
-	 *                           step
-	 * @param rInteractionParams The interaction parameter data elements
-	 * @param rViewParams        The optional view parameter data elements
-	 *                              (NULL
-	 *                           for none)
-	 * @param rSpawnProcesses    An optional list of new processes to be
-	 *                           displayed by the client (NULL for none)
-	 * @param rCurrentStepFlags  The flags for the current step
+	 * @param description       The process description or state
+	 * @param processId         The ID of the described process
+	 * @param processInfo       An information string describing the process
+	 * @param currentStep       The name of the currently executed process step
+	 * @param interactionParams The interaction parameter data elements
+	 * @param viewParams        The optional view parameter data elements (NULL
+	 *                          for none)
+	 * @param spawnProcesses    An optional list of new processes to be
+	 *                          displayed by the client (NULL for none)
+	 * @param currentStepFlags  The flags for the current step
 	 */
-	public ProcessState(ProcessDescription rDescription, int nProcessId,
-		String sProcessInfo, String sCurrentStep,
-		List<DataElement<?>> rInteractionParams,
-		List<DataElementList> rViewParams, List<ProcessState> rSpawnProcesses,
-		Set<ProcessStateFlag> rCurrentStepFlags) {
-		super(rDescription);
+	public ProcessState(ProcessDescription description, int processId,
+		String processInfo, String currentStep,
+		List<DataElement<?>> interactionParams,
+		List<DataElementList> viewParams, List<ProcessState> spawnProcesses,
+		Set<ProcessStateFlag> currentStepFlags) {
+		super(description);
 
-		this.nProcessId = nProcessId;
-		this.sCurrentStep = sCurrentStep;
-		this.sProcessInfo = sProcessInfo;
-		this.rInteractionParams = rInteractionParams;
-		this.rViewParams = rViewParams;
-		this.rSpawnProcesses = rSpawnProcesses;
-		this.rCurrentStepFlags = rCurrentStepFlags;
+		this.processId = processId;
+		this.currentStep = currentStep;
+		this.processInfo = processInfo;
+		this.interactionParams = interactionParams;
+		this.viewParams = viewParams;
+		this.spawnProcesses = spawnProcesses;
+		this.currentStepFlags = currentStepFlags;
 	}
 
 	/**
@@ -193,7 +188,7 @@ public class ProcessState extends ProcessDescription {
 	 * interaction
 	 */
 	public final boolean canRollback() {
-		return rCurrentStepFlags.contains(ProcessStateFlag.ROLLBACK);
+		return currentStepFlags.contains(ProcessStateFlag.ROLLBACK);
 	}
 
 	/**
@@ -202,7 +197,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return The currently executed process step
 	 */
 	public final String getCurrentStep() {
-		return sCurrentStep;
+		return currentStep;
 	}
 
 	/**
@@ -211,7 +206,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return The process execution mode
 	 */
 	public final ProcessState.ProcessExecutionMode getExecutionMode() {
-		return eExecutionMode;
+		return executionMode;
 	}
 
 	/**
@@ -224,7 +219,7 @@ public class ProcessState extends ProcessDescription {
 	 * for a non-interactive re-execution of the process
 	 */
 	public final DataElement<?> getInteractionElement() {
-		return rInteractionElement;
+		return interactionElement;
 	}
 
 	/**
@@ -234,7 +229,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return TRUE for an action event, FALSE for a continuous selection event
 	 */
 	public final InteractionEventType getInteractionEventType() {
-		return eInteractionEventType;
+		return interactionEventType;
 	}
 
 	/**
@@ -245,9 +240,9 @@ public class ProcessState extends ProcessDescription {
 	 * for none)
 	 */
 	public List<DataElement<?>> getInteractionParams() {
-		return rInteractionParams != null ?
-		       rInteractionParams :
-		       Collections.<DataElement<?>>emptyList();
+		return interactionParams != null ?
+		       interactionParams :
+		       Collections.emptyList();
 	}
 
 	/**
@@ -256,7 +251,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return The process ID
 	 */
 	public final int getProcessId() {
-		return nProcessId;
+		return processId;
 	}
 
 	/**
@@ -265,7 +260,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return The process information
 	 */
 	public final String getProcessInfo() {
-		return sProcessInfo;
+		return processInfo;
 	}
 
 	/**
@@ -276,9 +271,9 @@ public class ProcessState extends ProcessDescription {
 	 * (empty for none)
 	 */
 	public List<ProcessState> getSpawnProcesses() {
-		return rSpawnProcesses != null ?
-		       rSpawnProcesses :
-		       Collections.<ProcessState>emptyList();
+		return spawnProcesses != null ?
+		       spawnProcesses :
+		       Collections.emptyList();
 	}
 
 	/**
@@ -288,9 +283,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return A list containing the view parameter data elements
 	 */
 	public List<DataElementList> getViewParams() {
-		return rViewParams != null ?
-		       rViewParams :
-		       Collections.<DataElementList>emptyList();
+		return viewParams != null ? viewParams : Collections.emptyList();
 	}
 
 	/**
@@ -302,7 +295,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return TRUE if immediate execution parameters are present
 	 */
 	public final boolean hasImmedidateInteraction() {
-		return rCurrentStepFlags.contains(
+		return currentStepFlags.contains(
 			ProcessStateFlag.HAS_IMMEDIATE_INTERACTION);
 	}
 
@@ -313,7 +306,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return The auto continue flag
 	 */
 	public final boolean isAutoContinue() {
-		return rCurrentStepFlags.contains(ProcessStateFlag.AUTO_CONTINUE);
+		return currentStepFlags.contains(ProcessStateFlag.AUTO_CONTINUE);
 	}
 
 	/**
@@ -323,7 +316,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return TRUE for the final interactive step
 	 */
 	public final boolean isFinalStep() {
-		return rCurrentStepFlags.contains(ProcessStateFlag.FINAL_STEP);
+		return currentStepFlags.contains(ProcessStateFlag.FINAL_STEP);
 	}
 
 	/**
@@ -334,7 +327,7 @@ public class ProcessState extends ProcessDescription {
 	 * @return TRUE if the process is finished
 	 */
 	public boolean isFinished() {
-		return sCurrentStep == null;
+		return currentStep == null;
 	}
 
 	/**
@@ -342,19 +335,19 @@ public class ProcessState extends ProcessDescription {
 	 * clients to
 	 * send the process execution mode to the server.
 	 *
-	 * @param rExecutionMode The new execution mode
+	 * @param executionMode The new execution mode
 	 */
-	public final void setExecutionMode(ProcessExecutionMode rExecutionMode) {
-		this.eExecutionMode = rExecutionMode;
+	public final void setExecutionMode(ProcessExecutionMode executionMode) {
+		this.executionMode = executionMode;
 	}
 
 	/**
 	 * Updates the ID of the process.
 	 *
-	 * @param nProcessId The new process id
+	 * @param processId The new process id
 	 */
-	public final void setProcessId(int nProcessId) {
-		this.nProcessId = nProcessId;
+	public final void setProcessId(int processId) {
+		this.processId = processId;
 	}
 
 	/**
@@ -363,7 +356,7 @@ public class ProcessState extends ProcessDescription {
 	@Override
 	@SuppressWarnings("boxing")
 	public String toString() {
-		return TextConvert.format("%s-%s[%s]", getName(), nProcessId,
-			sCurrentStep);
+		return TextConvert.format("%s-%s[%s]", getName(), processId,
+			currentStep);
 	}
 }

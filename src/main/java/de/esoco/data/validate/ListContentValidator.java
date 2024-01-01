@@ -28,15 +28,15 @@ public class ListContentValidator<T> implements Validator<List<T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Validator<? super T> rElementValidator;
+	private Validator<? super T> elementValidator;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rElementValidator The validator for the list elements
+	 * @param elementValidator The validator for the list elements
 	 */
-	public ListContentValidator(Validator<? super T> rElementValidator) {
-		this.rElementValidator = rElementValidator;
+	public ListContentValidator(Validator<? super T> elementValidator) {
+		this.elementValidator = elementValidator;
 	}
 
 	/**
@@ -49,13 +49,13 @@ public class ListContentValidator<T> implements Validator<List<T>> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(List<T> rList) {
-		if (rList == null) {
+	public boolean isValid(List<T> list) {
+		if (list == null) {
 			return false;
 		}
 
-		for (T rElement : rList) {
-			if (!rElementValidator.isValid(rElement)) {
+		for (T element : list) {
+			if (!elementValidator.isValid(element)) {
 				return false;
 			}
 		}

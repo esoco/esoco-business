@@ -18,7 +18,6 @@ package de.esoco.process.step;
 
 import de.esoco.lib.event.GenericEvent;
 import de.esoco.lib.property.InteractionEventType;
-
 import org.obrel.core.RelationType;
 
 /**
@@ -29,25 +28,25 @@ import org.obrel.core.RelationType;
  */
 public final class InteractionEvent extends GenericEvent<RelationType<?>> {
 
-	private Interaction rInteraction;
+	private final Interaction interaction;
 
-	private InteractionEventType eEventType;
+	private final InteractionEventType eventType;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rInteraction          The Interaction. The context of the event.
-	 * @param rInteractionParameter The interaction parameter on which this
-	 *                              event occurred.
-	 * @param eEventType            The type of event that occurred.
+	 * @param interaction          The Interaction. The context of the event.
+	 * @param interactionParameter The interaction parameter on which this
+	 *                                event
+	 *                             occurred.
+	 * @param eventType            The type of event that occurred.
 	 */
-	public InteractionEvent(Interaction rInteraction,
-		RelationType<?> rInteractionParameter,
-		InteractionEventType eEventType) {
-		super(rInteractionParameter);
+	public InteractionEvent(Interaction interaction,
+		RelationType<?> interactionParameter, InteractionEventType eventType) {
+		super(interactionParameter);
 
-		this.rInteraction = rInteraction;
-		this.eEventType = eEventType;
+		this.interaction = interaction;
+		this.eventType = eventType;
 	}
 
 	/**
@@ -60,7 +59,7 @@ public final class InteractionEvent extends GenericEvent<RelationType<?>> {
 	 * the event source lived when the event initially occurred on it.
 	 */
 	public Interaction getContext() {
-		return rInteraction;
+		return interaction;
 	}
 
 	/**
@@ -69,6 +68,6 @@ public final class InteractionEvent extends GenericEvent<RelationType<?>> {
 	 * @return The type of event that occurred.
 	 */
 	public InteractionEventType getType() {
-		return eEventType;
+		return eventType;
 	}
 }

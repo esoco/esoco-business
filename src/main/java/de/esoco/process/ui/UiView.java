@@ -30,11 +30,11 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent view
-	 * @param rLayout The view layout
+	 * @param parent The parent view
+	 * @param layout The view layout
 	 */
-	public UiView(UiView<?> rParent, UiLayout rLayout) {
-		super(rParent, rLayout);
+	public UiView(UiView<?> parent, UiLayout layout) {
+		super(parent, layout);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	 * @see de.esoco.process.ui.UiComponent#placeBefore(UiComponent)
 	 */
 	@Override
-	public V placeBefore(UiComponent<?, ?> rBeforeComponent) {
+	public V placeBefore(UiComponent<?, ?> beforeComponent) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -60,23 +60,23 @@ public abstract class UiView<V extends UiView<V>> extends UiLayoutContainer<V>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTitle(String sTitle) {
-		title(sTitle);
+	public void setTitle(String title) {
+		title(title);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public abstract V setVisible(boolean bVisible);
+	public abstract V setVisible(boolean visible);
 
 	/**
 	 * Fluent variant of {@link #setTitle(String)}.
 	 *
-	 * @param sTitle The view title
+	 * @param title The view title
 	 * @return This instance
 	 */
-	public V title(String sTitle) {
-		return set(StandardProperties.TITLE, sTitle);
+	public V title(String title) {
+		return set(StandardProperties.TITLE, title);
 	}
 }

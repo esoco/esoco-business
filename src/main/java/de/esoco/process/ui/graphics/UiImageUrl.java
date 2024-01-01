@@ -32,9 +32,9 @@ public class UiImageUrl extends UiImageDefinition<UiImageUrl> {
 	 * application-relative or absolute, in which case it must start with
 	 * http:// (or https://).
 	 *
-	 * @param sUrl The image URL
+	 * @param url The image URL
 	 */
-	public UiImageUrl(String sUrl) {
-		set(IMAGE, "f:" + sUrl);
+	public UiImageUrl(String url) {
+		set(IMAGE, "f:" + url);
 	}
 }

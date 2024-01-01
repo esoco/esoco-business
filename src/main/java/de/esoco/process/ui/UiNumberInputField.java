@@ -28,12 +28,12 @@ public abstract class UiNumberInputField<T extends Number,
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
-	 * @param rValue    The initial value
+	 * @param parent   The parent container
+	 * @param datatype The value datatype
+	 * @param value    The initial value
 	 */
-	public UiNumberInputField(UiContainer<?> rParent, Class<T> rDatatype,
-		T rValue) {
-		super(rParent, rDatatype, rValue);
+	public UiNumberInputField(UiContainer<?> parent, Class<T> datatype,
+		T value) {
+		super(parent, datatype, value);
 	}
 }

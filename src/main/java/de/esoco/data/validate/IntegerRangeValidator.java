@@ -26,19 +26,19 @@ public class IntegerRangeValidator implements Validator<Integer> {
 
 	private static final long serialVersionUID = 1L;
 
-	private int nMin;
+	private int min;
 
-	private int nMax;
+	private int max;
 
 	/**
 	 * Creates a new instance that tests against a certain integer range.
 	 *
-	 * @param nMin The minimal value (inclusive)
-	 * @param nMax The maximal value (inclusive)
+	 * @param min The minimal value (inclusive)
+	 * @param max The maximal value (inclusive)
 	 */
-	public IntegerRangeValidator(int nMin, int nMax) {
-		this.nMin = nMin;
-		this.nMax = nMax;
+	public IntegerRangeValidator(int min, int max) {
+		this.min = min;
+		this.max = max;
 	}
 
 	/**
@@ -51,18 +51,18 @@ public class IntegerRangeValidator implements Validator<Integer> {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		IntegerRangeValidator rOther = (IntegerRangeValidator) rObj;
+		IntegerRangeValidator other = (IntegerRangeValidator) obj;
 
-		return nMin == rOther.nMin && nMax == rOther.nMax;
+		return min == other.min && max == other.max;
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class IntegerRangeValidator implements Validator<Integer> {
 	 * @return The maximum value
 	 */
 	public final int getMaximum() {
-		return nMax;
+		return max;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class IntegerRangeValidator implements Validator<Integer> {
 	 * @return The minimum value
 	 */
 	public final int getMinimum() {
-		return nMin;
+		return min;
 	}
 
 	/**
@@ -88,16 +88,14 @@ public class IntegerRangeValidator implements Validator<Integer> {
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * nMin + nMax;
+		return 37 * min + max;
 	}
 
 	/**
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(Integer rValue) {
-		int nValue = rValue.intValue();
-
-		return nMin <= nValue && nValue <= nMax;
+	public boolean isValid(Integer value) {
+		return min <= value && value <= max;
 	}
 }

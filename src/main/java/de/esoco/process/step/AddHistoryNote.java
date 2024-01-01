@@ -18,39 +18,33 @@ package de.esoco.process.step;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
-
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 import de.esoco.history.HistoryRecord.HistoryType;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.InteractiveInputMode;
-
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessRelationTypes;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import static de.esoco.history.HistoryManager.DEFAULT_HISTORY_NOTE_TEMPLATES;
 import static de.esoco.history.HistoryManager.HISTORY_NOTE_TEMPLATES;
-
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 import static de.esoco.lib.property.LayoutProperties.ROWS;
 import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
-
 import static de.esoco.process.ProcessRelationTypes.CONFIGURATION;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
-
 import static org.obrel.core.RelationTypes.newFlagType;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -119,7 +113,7 @@ public class AddHistoryNote extends Interaction {
 		RelationTypes.init(AddHistoryNote.class);
 	}
 
-	private Map<String, String> aNoteTemplateMap;
+	private Map<String, String> noteTemplateMap;
 
 	/**
 	 * Creates a new instance.
@@ -146,27 +140,27 @@ public class AddHistoryNote extends Interaction {
 	 */
 	@Override
 	protected void execute() throws Exception {
-		RelationType<?> rInteractionParam = getInteractiveInputParameter();
+		RelationType<?> interactionParam = getInteractiveInputParameter();
 
-		if (rInteractionParam == HISTORY_NOTE_TEMPLATE) {
-			String sTitle = getParameter(HISTORY_NOTE_TEMPLATE);
+		if (interactionParam == HISTORY_NOTE_TEMPLATE) {
+			String title = getParameter(HISTORY_NOTE_TEMPLATE);
 
-			if (sTitle != null) {
-				setParameter(HISTORY_NOTE_TITLE, sTitle);
-				setParameter(HISTORY_NOTE_VALUE, aNoteTemplateMap.get(sTitle));
+			if (title != null) {
+				setParameter(HISTORY_NOTE_TITLE, title);
+				setParameter(HISTORY_NOTE_VALUE, noteTemplateMap.get(title));
 			}
-		} else if (rInteractionParam == null) {
-			List<Entity> rTargets = getHistoryTargets();
-			String sTitle = getParameter(HISTORY_NOTE_TITLE);
+		} else if (interactionParam == null) {
+			List<Entity> targets = getHistoryTargets();
+			String title = getParameter(HISTORY_NOTE_TITLE);
 
-			if (sTitle != null && sTitle.length() > 0) {
-				String sValue = getParameter(HISTORY_NOTE_VALUE);
+			if (title != null && title.length() > 0) {
+				String value = getParameter(HISTORY_NOTE_VALUE);
 
-				sValue = sTitle + '\n' + sValue;
+				value = title + '\n' + value;
 
-				Entity rOrigin = getProcessUser();
+				Entity origin = getProcessUser();
 
-				storeNotes(rOrigin, rTargets, sValue);
+				storeNotes(origin, targets, value);
 
 				setParameter(HISTORY_NOTE_TITLE, null);
 				setParameter(HISTORY_NOTE_VALUE, null);
@@ -179,18 +173,18 @@ public class AddHistoryNote extends Interaction {
 	 */
 	@Override
 	protected void prepareParameters() throws Exception {
-		List<Entity> rTargets = getHistoryTargets();
+		List<Entity> targets = getHistoryTargets();
 
-		aNoteTemplateMap = new LinkedHashMap<String, String>();
+		noteTemplateMap = new LinkedHashMap<String, String>();
 
-		int nCount = rTargets.size();
+		int count = targets.size();
 
 		setParameter(HISTORY_NOTE_TARGETS,
-			CollectionUtil.toString(rTargets, EntityFunctions.formatEntity(""),
+			CollectionUtil.toString(targets, EntityFunctions.formatEntity(""),
 				", "));
 
-		if (nCount > 1) {
-			setUIProperty(Math.min(nCount / 2, 5), ROWS, HISTORY_NOTE_TARGETS);
+		if (count > 1) {
+			setUIProperty(Math.min(count / 2, 5), ROWS, HISTORY_NOTE_TARGETS);
 		}
 
 		setUIProperty(RESOURCE_ID, "HistoryNoteValue", HISTORY_NOTE_VALUE);
@@ -199,25 +193,25 @@ public class AddHistoryNote extends Interaction {
 		setUIProperty(INTERACTIVE_INPUT_MODE, InteractiveInputMode.CONTINUOUS,
 			HISTORY_NOTE_TEMPLATE);
 
-		ProvidesConfiguration rConfiguration = getParameter(CONFIGURATION);
+		ProvidesConfiguration configuration = getParameter(CONFIGURATION);
 
-		if (rConfiguration != null) {
-			Map<String, String> rHistoryTemplateMap =
-				rConfiguration.getConfigValue(HISTORY_NOTE_TEMPLATES, null);
+		if (configuration != null) {
+			Map<String, String> historyTemplateMap =
+				configuration.getConfigValue(HISTORY_NOTE_TEMPLATES, null);
 
-			if (rHistoryTemplateMap != null) {
-				parseTemplates(aNoteTemplateMap, rHistoryTemplateMap.get(
+			if (historyTemplateMap != null) {
+				parseTemplates(noteTemplateMap, historyTemplateMap.get(
 					getProcess().get(StandardTypes.NAME)));
-				parseTemplates(aNoteTemplateMap,
-					rHistoryTemplateMap.get(DEFAULT_HISTORY_NOTE_TEMPLATES));
+				parseTemplates(noteTemplateMap,
+					historyTemplateMap.get(DEFAULT_HISTORY_NOTE_TEMPLATES));
 			} else {
-				aNoteTemplateMap.put("Interne Änderung", "");
-				aNoteTemplateMap.put("DNS-Änderung", "Alt:\nNeu:");
-				aNoteTemplateMap.put("Kundenkontakt", "");
+				noteTemplateMap.put("Interne Änderung", "");
+				noteTemplateMap.put("DNS-Änderung", "Alt:\nNeu:");
+				noteTemplateMap.put("Kundenkontakt", "");
 			}
 		}
 
-		setAllowedValues(HISTORY_NOTE_TEMPLATE, aNoteTemplateMap.keySet());
+		setAllowedValues(HISTORY_NOTE_TEMPLATE, noteTemplateMap.keySet());
 
 		if (!hasFlagParameter(HISTORY_NOTE_OPTIONAL)) {
 			setParameterNotEmptyValidations(HISTORY_NOTE_TITLE);
@@ -227,15 +221,15 @@ public class AddHistoryNote extends Interaction {
 	/**
 	 * Stores history notes on a list of target entities.
 	 *
-	 * @param rOrigin  The origin of the note
-	 * @param rTargets The target entities
-	 * @param sNote    The note string
+	 * @param origin  The origin of the note
+	 * @param targets The target entities
+	 * @param note    The note string
 	 * @throws Exception If storing a history record fails
 	 */
-	protected void storeNotes(Entity rOrigin, List<? extends Entity> rTargets,
-		String sNote) throws Exception {
-		for (Entity rTarget : rTargets) {
-			HistoryManager.record(HistoryType.NOTE, rOrigin, rTarget, sNote);
+	protected void storeNotes(Entity origin, List<? extends Entity> targets,
+		String note) throws Exception {
+		for (Entity target : targets) {
+			HistoryManager.record(HistoryType.NOTE, origin, target, note);
 		}
 	}
 
@@ -247,56 +241,56 @@ public class AddHistoryNote extends Interaction {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<Entity> getHistoryTargets() throws ProcessException {
-		List<Entity> rTargets = getParameter(HISTORY_TARGETS);
+		List<Entity> targets = getParameter(HISTORY_TARGETS);
 
-		if (rTargets == null || rTargets.isEmpty()) {
-			RelationType<? extends List<? extends Entity>>
-				rHistoryTargetsParam = getParameter(HISTORY_TARGETS_PARAM);
+		if (targets == null || targets.isEmpty()) {
+			RelationType<? extends List<? extends Entity>> historyTargetsParam =
+				getParameter(HISTORY_TARGETS_PARAM);
 
-			if (rHistoryTargetsParam != null) {
-				rTargets = (List<Entity>) getParameter(rHistoryTargetsParam);
+			if (historyTargetsParam != null) {
+				targets = (List<Entity>) getParameter(historyTargetsParam);
 			}
 
-			if (rTargets == null || rTargets.isEmpty()) {
-				Entity rTarget = getParameter(HistoryRecord.TARGET);
+			if (targets == null || targets.isEmpty()) {
+				Entity target = getParameter(HistoryRecord.TARGET);
 
-				if (rTarget == null) {
-					rTarget =
+				if (target == null) {
+					target =
 						getParameter(checkParameter(HISTORY_TARGET_PARAM));
 
-					if (rTarget == null) {
+					if (target == null) {
 						throw new ProcessException(this,
 							"MissingHistoryNoteTarget");
 					}
 				}
 
-				rTargets = Arrays.asList(rTarget);
+				targets = Collections.singletonList(target);
 			}
 		}
 
-		return rTargets;
+		return targets;
 	}
 
 	/**
 	 * Parses a raw template string into a map.
 	 *
-	 * @param rTemplateMap  The target template map
-	 * @param sRawTemplates The raw templates string to parse
+	 * @param templateMap  The target template map
+	 * @param rawTemplates The raw templates string to parse
 	 */
-	private void parseTemplates(Map<String, String> rTemplateMap,
-		String sRawTemplates) {
-		if (sRawTemplates != null) {
-			String[] aTemplates = sRawTemplates.split("\n");
+	private void parseTemplates(Map<String, String> templateMap,
+		String rawTemplates) {
+		if (rawTemplates != null) {
+			String[] templates = rawTemplates.split("\n");
 
-			for (String sTemplate : aTemplates) {
-				int nSeparator = sTemplate.indexOf('|');
-				String sTitle = sTemplate.substring(0, nSeparator);
-				String sValue = sTemplate.substring(nSeparator + 1);
+			for (String template : templates) {
+				int separator = template.indexOf('|');
+				String title = template.substring(0, separator);
+				String value = template.substring(separator + 1);
 
-				sValue = sValue.replaceAll("\r", "");
-				sValue = sValue.replaceAll("\\$n", "\n");
+				value = value.replaceAll("\r", "");
+				value = value.replaceAll("\\$n", "\n");
 
-				rTemplateMap.put(sTitle, sValue);
+				templateMap.put(title, value);
 			}
 		}
 	}

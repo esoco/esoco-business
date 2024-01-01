@@ -19,14 +19,12 @@ package de.esoco.process;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ViewDisplayType;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.VERTICAL_ALIGN;
@@ -47,21 +45,21 @@ public class ViewFragment extends InteractionFragment {
 		RelationTypes.init(ViewFragment.class);
 	}
 
-	private final String sParamBaseName;
+	private final String paramBaseName;
 
-	private final String sViewFragmentParamStyle;
+	private final String viewFragmentParamStyle;
 
-	private final InteractionFragment rContentFragment;
+	private final InteractionFragment contentFragment;
 
-	private final ViewDisplayType eViewDisplayType;
+	private final ViewDisplayType viewDisplayType;
 
-	private RelationType<List<RelationType<?>>> aViewFragmentParam;
+	private RelationType<List<RelationType<?>>> viewFragmentParam;
 
-	private RelationType<List<RelationType<?>>> aViewContentParam;
+	private RelationType<List<RelationType<?>>> viewContentParam;
 
-	private List<RelationType<?>> aInteractionParams = new ArrayList<>();
+	private final List<RelationType<?>> interactionParams = new ArrayList<>();
 
-	private List<RelationType<?>> aInputParams = new ArrayList<>();
+	private final List<RelationType<?>> inputParams = new ArrayList<>();
 
 	/**
 	 * Creates a new view fragment with a certain name and optional content
@@ -71,32 +69,30 @@ public class ViewFragment extends InteractionFragment {
 	 * that is separated by underscores. If the pattern doesn't contain a
 	 * placeholder it will be used as a prefix.
 	 *
-	 * @param sParamNameTemplate The string format pattern for the
-	 *                              generation of
-	 *                           the view fragment parameter names. If NULL a
-	 *                           template will be generated from the class name
-	 *                           of the content fragment
-	 * @param rContentFragment   The fragment that contains the view content
-	 * @param eViewDisplayType   How the view should be displayed
+	 * @param paramNameTemplate The string format pattern for the generation of
+	 *                          the view fragment parameter names. If NULL a
+	 *                          template will be generated from the class name
+	 *                          of the content fragment
+	 * @param contentFragment   The fragment that contains the view content
+	 * @param viewDisplayType   How the view should be displayed
 	 */
-	public ViewFragment(String sParamNameTemplate,
-		InteractionFragment rContentFragment,
-		ViewDisplayType eViewDisplayType) {
-		if (sParamNameTemplate == null) {
-			sParamNameTemplate = TextConvert.uppercaseIdentifier(
-				rContentFragment.getClass().getSimpleName());
+	public ViewFragment(String paramNameTemplate,
+		InteractionFragment contentFragment, ViewDisplayType viewDisplayType) {
+		if (paramNameTemplate == null) {
+			paramNameTemplate = TextConvert.uppercaseIdentifier(
+				contentFragment.getClass().getSimpleName());
 		}
 
-		if (!sParamNameTemplate.contains("%s")) {
-			sParamNameTemplate += "_%s";
+		if (!paramNameTemplate.contains("%s")) {
+			paramNameTemplate += "_%s";
 		}
 
-		this.rContentFragment = rContentFragment;
-		this.eViewDisplayType = eViewDisplayType;
+		this.contentFragment = contentFragment;
+		this.viewDisplayType = viewDisplayType;
 
-		sParamBaseName = String.format(sParamNameTemplate, getViewType(true));
-		sViewFragmentParamStyle =
-			TextConvert.capitalize(sParamBaseName, "", false);
+		paramBaseName = String.format(paramNameTemplate, getViewType(true));
+		viewFragmentParamStyle =
+			TextConvert.capitalize(paramBaseName, "", false);
 	}
 
 	/**
@@ -104,7 +100,7 @@ public class ViewFragment extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -112,7 +108,7 @@ public class ViewFragment extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
@@ -121,16 +117,16 @@ public class ViewFragment extends InteractionFragment {
 	 * @return The view content parameter
 	 */
 	public final RelationType<List<RelationType<?>>> getViewContentParam() {
-		return aViewContentParam;
+		return viewContentParam;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		if (rInteractionParam == fragmentParam().type()) {
+		if (interactionParam == fragmentParam().type()) {
 			// will happen on update event if AUTO_HIDE flag is present
 			hide();
 		}
@@ -140,7 +136,7 @@ public class ViewFragment extends InteractionFragment {
 	 * Hides this view.
 	 */
 	public void hide() {
-		getParent().removeViewFragment(aViewFragmentParam);
+		getParent().removeViewFragment(viewFragmentParam);
 	}
 
 	/**
@@ -148,20 +144,20 @@ public class ViewFragment extends InteractionFragment {
 	 */
 	@Override
 	public void init() throws Exception {
-		String sBaseName = getResourceBaseName();
+		String baseName = getResourceBaseName();
 
-		setUIFlag(HIDE_LABEL, aViewContentParam, aViewFragmentParam);
+		setUIFlag(HIDE_LABEL, viewContentParam, viewFragmentParam);
 
-		setUIProperty(RESOURCE_ID, sBaseName, aViewFragmentParam);
-		setUIProperty(RESOURCE_ID, sBaseName + "Content", aViewContentParam);
-		setUIProperty(VIEW_DISPLAY_TYPE, eViewDisplayType, aViewFragmentParam);
+		setUIProperty(RESOURCE_ID, baseName, viewFragmentParam);
+		setUIProperty(RESOURCE_ID, baseName + "Content", viewContentParam);
+		setUIProperty(VIEW_DISPLAY_TYPE, viewDisplayType, viewFragmentParam);
 
-		if (sViewFragmentParamStyle != null) {
-			setUIProperty(STYLE, sViewFragmentParamStyle, aViewFragmentParam);
+		if (viewFragmentParamStyle != null) {
+			setUIProperty(STYLE, viewFragmentParamStyle, viewFragmentParam);
 		}
 
-		if (rContentFragment != null) {
-			addSubFragment(aViewContentParam, rContentFragment);
+		if (contentFragment != null) {
+			addSubFragment(viewContentParam, contentFragment);
 		}
 	}
 
@@ -169,22 +165,22 @@ public class ViewFragment extends InteractionFragment {
 	 * Initializes the parameters of the parent fragment to display the dialog
 	 * for this fragment.
 	 *
-	 * @param rParent The parent fragment to display the dialog in
+	 * @param parent The parent fragment to display the dialog in
 	 */
-	public void show(InteractionFragment rParent) {
-		aViewFragmentParam =
-			rParent.getTemporaryListType(sParamBaseName, RelationType.class);
+	public void show(InteractionFragment parent) {
+		viewFragmentParam =
+			parent.getTemporaryListType(paramBaseName, RelationType.class);
 
-		attach(rParent.getProcessStep(), aViewFragmentParam);
-		markInputParams(true, aViewFragmentParam);
+		attach(parent.getProcessStep(), viewFragmentParam);
+		markInputParams(true, viewFragmentParam);
 
-		aViewContentParam = getTemporaryListType(sParamBaseName + "_CONTENT",
+		viewContentParam = getTemporaryListType(paramBaseName + "_CONTENT",
 			RelationType.class);
 
-		aInteractionParams.add(aViewContentParam);
-		addExtraViewInteractionParams(sParamBaseName);
+		interactionParams.add(viewContentParam);
+		addExtraViewInteractionParams(paramBaseName);
 
-		rParent.addViewFragment(aViewFragmentParam, this);
+		parent.addViewFragment(viewFragmentParam, this);
 	}
 
 	/**
@@ -192,10 +188,10 @@ public class ViewFragment extends InteractionFragment {
 	 * interaction
 	 * parameters to this instance. The default implementation does nothing.
 	 *
-	 * @param sParamBaseName The base name for temporary parameters of this
-	 *                       instance
+	 * @param paramBaseName The base name for temporary parameters of this
+	 *                      instance
 	 */
-	protected void addExtraViewInteractionParams(String sParamBaseName) {
+	protected void addExtraViewInteractionParams(String paramBaseName) {
 	}
 
 	/**
@@ -207,38 +203,37 @@ public class ViewFragment extends InteractionFragment {
 	 * @return The resource ID base name
 	 */
 	protected String getResourceBaseName() {
-		String sBaseName = getViewType(false);
+		String baseName = getViewType(false);
 
-		if (rContentFragment != null) {
-			sBaseName =
-				rContentFragment.getClass().getSimpleName() + sBaseName;
+		if (contentFragment != null) {
+			baseName = contentFragment.getClass().getSimpleName() + baseName;
 		}
 
-		return sBaseName;
+		return baseName;
 	}
 
 	/**
 	 * Returns the type of this view fragment. By default this will be the name
 	 * of the view implementation class without any 'Fragment' suffix.
 	 *
-	 * @param bUpperCase TRUE to return an upper case identifier, FALSE for
-	 *                   camel case
+	 * @param upperCase TRUE to return an upper case identifier, FALSE for
+	 *                     camel
+	 *                  case
 	 * @return The view type string
 	 */
-	protected String getViewType(boolean bUpperCase) {
-		String sBaseName;
+	protected String getViewType(boolean upperCase) {
+		String baseName;
 
-		sBaseName = getClass().getSimpleName();
+		baseName = getClass().getSimpleName();
 
-		int nSuffixPos = sBaseName.indexOf("Fragment");
+		int suffixPos = baseName.indexOf("Fragment");
 
-		if (nSuffixPos > 0) {
-			sBaseName = sBaseName.substring(0, nSuffixPos);
+		if (suffixPos > 0) {
+			baseName = baseName.substring(0, suffixPos);
 		}
 
-		return bUpperCase ?
-		       TextConvert.uppercaseIdentifier(sBaseName) :
-		       sBaseName;
+		return upperCase ? TextConvert.uppercaseIdentifier(baseName) :
+		       baseName;
 	}
 
 	/**
@@ -249,11 +244,11 @@ public class ViewFragment extends InteractionFragment {
 	 */
 	@Override
 	protected void initComplete() throws Exception {
-		Alignment eViewAlignment =
-			getUIProperty(VERTICAL_ALIGN, aViewContentParam);
+		Alignment viewAlignment =
+			getUIProperty(VERTICAL_ALIGN, viewContentParam);
 
-		if (eViewAlignment != null) {
-			setUIProperty(VERTICAL_ALIGN, eViewAlignment, aViewFragmentParam);
+		if (viewAlignment != null) {
+			setUIProperty(VERTICAL_ALIGN, viewAlignment, viewFragmentParam);
 		}
 	}
 }

@@ -17,7 +17,6 @@
 package de.esoco.data;
 
 import de.esoco.lib.expression.Function;
-
 import org.obrel.core.RelatedObject;
 
 /**
@@ -29,31 +28,31 @@ import org.obrel.core.RelatedObject;
  */
 public class DownloadData extends RelatedObject {
 
-	private final String sFileName;
+	private final String fileName;
 
-	private final FileType eFileType;
+	private final FileType fileType;
 
-	private final Function<FileType, ?> fDataGenerator;
+	private final Function<FileType, ?> dataGenerator;
 
-	private final boolean bRemoveAfterDownload;
+	private final boolean removeAfterDownload;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sFileName            The name of the download to return to the
-	 *                             client
-	 * @param eFileType            The content MIME type of the data
-	 * @param fDataGenerator       A function that will create or return the
-	 *                             download data upon evaluation
-	 * @param bRemoveAfterDownload If TRUE the download data should be removed
-	 *                             directly after it has been downloaded
+	 * @param fileName            The name of the download to return to the
+	 *                            client
+	 * @param fileType            The content MIME type of the data
+	 * @param dataGenerator       A function that will create or return the
+	 *                            download data upon evaluation
+	 * @param removeAfterDownload If TRUE the download data should be removed
+	 *                            directly after it has been downloaded
 	 */
-	public DownloadData(String sFileName, FileType eFileType,
-		Function<FileType, ?> fDataGenerator, boolean bRemoveAfterDownload) {
-		this.sFileName = sFileName;
-		this.eFileType = eFileType;
-		this.fDataGenerator = fDataGenerator;
-		this.bRemoveAfterDownload = bRemoveAfterDownload;
+	public DownloadData(String fileName, FileType fileType,
+		Function<FileType, ?> dataGenerator, boolean removeAfterDownload) {
+		this.fileName = fileName;
+		this.fileType = fileType;
+		this.dataGenerator = dataGenerator;
+		this.removeAfterDownload = removeAfterDownload;
 	}
 
 	/**
@@ -62,7 +61,7 @@ public class DownloadData extends RelatedObject {
 	 * @return The download data
 	 */
 	public final Object createData() {
-		return fDataGenerator.evaluate(eFileType);
+		return dataGenerator.evaluate(fileType);
 	}
 
 	/**
@@ -71,7 +70,7 @@ public class DownloadData extends RelatedObject {
 	 * @return The file name
 	 */
 	public final String getFileName() {
-		return sFileName;
+		return fileName;
 	}
 
 	/**
@@ -80,7 +79,7 @@ public class DownloadData extends RelatedObject {
 	 * @return The file type
 	 */
 	public final FileType getFileType() {
-		return eFileType;
+		return fileType;
 	}
 
 	/**
@@ -90,6 +89,6 @@ public class DownloadData extends RelatedObject {
 	 * @return TRUE if the data should be removed after download
 	 */
 	public final boolean isRemoveAfterDownload() {
-		return bRemoveAfterDownload;
+		return removeAfterDownload;
 	}
 }

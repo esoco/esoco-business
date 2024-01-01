@@ -40,16 +40,16 @@ public abstract class UiSingleSelectionList<T,
 	 * through the {@link #setListValues(java.util.Collection) setListValues}
 	 * methods.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list values
-	 * @param eStyle    The list style
+	 * @param parent   The parent container
+	 * @param datatype The datatype of the list values
+	 * @param style    The list style
 	 */
-	public UiSingleSelectionList(UiContainer<?> rParent, Class<T> rDatatype,
-		ListStyle eStyle) {
-		super(rParent, rDatatype, eStyle);
+	public UiSingleSelectionList(UiContainer<?> parent, Class<T> datatype,
+		ListStyle style) {
+		super(parent, datatype, style);
 
-		if (rDatatype.isEnum()) {
-			setListValues(rDatatype.getEnumConstants());
+		if (datatype.isEnum()) {
+			setListValues(datatype.getEnumConstants());
 		} else {
 			// set empty list to force rendering as a list
 			setListValues(new ArrayList<>());
@@ -68,31 +68,30 @@ public abstract class UiSingleSelectionList<T,
 	/**
 	 * Sets the values to be displayed in this list.
 	 *
-	 * @param rValues The list values
+	 * @param values The list values
 	 */
 	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues) {
-		fragment().setAllowedValues(type(), rValues);
+	public void setListValues(T... values) {
+		fragment().setAllowedValues(type(), values);
 	}
 
 	/**
 	 * Sets a collection of values to be displayed in this list.
 	 *
-	 * @param rValues The list values
+	 * @param values The list values
 	 */
-	public void setListValues(Collection<T> rValues) {
-		fragment().setAllowedValues(type(), rValues);
+	public void setListValues(Collection<T> values) {
+		fragment().setAllowedValues(type(), values);
 	}
 
 	/**
 	 * Sets a value that should be displayed as a placeholder for the choice of
 	 * no list selection. This represents a NULL value of the component.
 	 *
-	 * @param sValue The string value to display as the "no selection"
-	 *                  choice or
-	 *               NULL to not provide this choice
+	 * @param value The string value to display as the "no selection" choice or
+	 *              NULL to not provide this choice
 	 */
-	public void setNoSelectionValue(String sValue) {
-		set(NULL_VALUE, sValue);
+	public void setNoSelectionValue(String value) {
+		set(NULL_VALUE, value);
 	}
 }

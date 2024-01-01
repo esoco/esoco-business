@@ -17,7 +17,6 @@
 package de.esoco.process.ui.app;
 
 import de.esoco.lib.property.Orientation;
-
 import de.esoco.process.ui.UiContainer;
 
 import java.util.Collection;
@@ -34,20 +33,20 @@ public class UiSideMenu<T> extends UiNavMenu<T> {
 	/**
 	 * Creates a new instance without preset menu items.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiSideMenu(UiContainer<?> rParent) {
-		this(rParent, null);
+	public UiSideMenu(UiContainer<?> parent) {
+		this(parent, null);
 	}
 
 	/**
 	 * Creates a new instance with preset menu items.
 	 *
-	 * @param rParent    The parent container
-	 * @param rMenuItems The initial menu items
+	 * @param parent    The parent container
+	 * @param menuItems The initial menu items
 	 */
-	public UiSideMenu(UiContainer<?> rParent, Collection<T> rMenuItems) {
-		super(rParent, rMenuItems);
+	public UiSideMenu(UiContainer<?> parent, Collection<T> menuItems) {
+		super(parent, menuItems);
 
 		set(ORIENTATION, Orientation.VERTICAL);
 	}

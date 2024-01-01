@@ -17,7 +17,6 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiSwitchPanel;
@@ -33,10 +32,10 @@ public class UiStackPanel extends UiSwitchPanel<UiStackPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiStackPanel(UiContainer<?> rParent) {
-		super(rParent, new StackLayout());
+	public UiStackPanel(UiContainer<?> parent) {
+		super(parent, new StackLayout());
 	}
 
 	/**

@@ -18,7 +18,6 @@ package de.esoco.process;
 
 import de.esoco.data.process.ProcessDescription;
 import de.esoco.data.process.ProcessState;
-
 import org.obrel.core.Relatable;
 
 /**
@@ -37,14 +36,15 @@ public interface ProcessExecutor {
 	 * <p>If the initialization parameters are not NULL they will all be copied
 	 * onto the new process, overriding any existing parameters.</p>
 	 *
-	 * @param rDescription The description of the process to execute
-	 * @param rInitParams  Optional process initialization parameters or NULL
-	 *                     for none
+	 * @param description The description of the process to execute
+	 * @param initParams  Optional process initialization parameters or NULL
+	 *                      for
+	 *                    none
 	 * @return The resulting process state or NULL if the process has already
 	 * been finished by a previous execution.
 	 * @throws Exception Any kind of exception can occur if the process
 	 *                   execution fails
 	 */
-	ProcessState executeProcess(ProcessDescription rDescription,
-		Relatable rInitParams) throws Exception;
+	ProcessState executeProcess(ProcessDescription description,
+		Relatable initParams) throws Exception;
 }

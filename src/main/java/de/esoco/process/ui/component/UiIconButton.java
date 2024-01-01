@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ButtonStyle;
-
 import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.graphics.UiIconSupplier;
@@ -35,13 +34,13 @@ public class UiIconButton extends UiButtonControl<String, UiIconButton> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rIcon   The icon
+	 * @param parent The parent container
+	 * @param icon   The icon
 	 */
-	public UiIconButton(UiContainer<?> rParent, UiIconSupplier rIcon) {
-		super(rParent, String.class);
+	public UiIconButton(UiContainer<?> parent, UiIconSupplier icon) {
+		super(parent, String.class);
 
-		icon(rIcon);
+		icon(icon);
 		set(HIDE_LABEL);
 		set(BUTTON_STYLE, ButtonStyle.ICON);
 
@@ -54,11 +53,11 @@ public class UiIconButton extends UiButtonControl<String, UiIconButton> {
 	/**
 	 * Sets the icon of this button.
 	 *
-	 * @param rIconSupplier The button icon
+	 * @param iconSupplier The button icon
 	 * @return This instance for fluent invocation
 	 */
 	@Override
-	public UiIconButton icon(UiIconSupplier rIconSupplier) {
-		return super.icon(rIconSupplier);
+	public UiIconButton icon(UiIconSupplier iconSupplier) {
+		return super.icon(iconSupplier);
 	}
 }

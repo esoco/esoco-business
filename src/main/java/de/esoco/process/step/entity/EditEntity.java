@@ -17,14 +17,12 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.data.element.DateDataElement.DateInputType;
-
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDefinition;
 import de.esoco.entity.EntityDefinition.DisplayMode;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.ExtraAttribute;
 import de.esoco.entity.ExtraAttributes;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
@@ -35,12 +33,14 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.process.step.DialogFragment.DialogAction;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,17 +52,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
-
 import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
-
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
 import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTE_FLAG;
-
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
@@ -79,9 +72,7 @@ import static de.esoco.lib.property.StyleProperties.HIERARCHICAL;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 import static de.esoco.lib.property.StyleProperties.STYLE;
 import static de.esoco.lib.property.StyleProperties.TABLE_ROWS;
-
 import static de.esoco.storage.StoragePredicates.sortBy;
-
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
@@ -153,55 +144,55 @@ public class EditEntity extends InteractionFragment {
 		RelationTypes.init(EditEntity.class);
 	}
 
-	private RelationType<Entity> rEditedEntityParam;
+	private final RelationType<Entity> editedEntityParam;
 
-	private Entity rEditedEntity;
+	private Entity editedEntity;
 
-	private Collection<String> aExtraAttrKeys;
+	private final Collection<String> extraAttrKeys;
 
-	private RelationType<?> rCurrentExtraAttrKey = null;
+	private RelationType<?> currentExtraAttrKey = null;
 
-	private RelationType<AttributesAction> aAttrActionParam;
+	private RelationType<AttributesAction> attrActionParam;
 
-	private RelationType<?> rExtraAttrListParam;
+	private RelationType<?> extraAttrListParam;
 
-	private Map<RelationType<?>, RelationType<?>> aEntityAttrParamsMap =
+	private final Map<RelationType<?>, RelationType<?>> entityAttrParamsMap =
 		new HashMap<RelationType<?>, RelationType<?>>();
 
-	private List<RelationType<?>> aInteractionParams =
+	private final List<RelationType<?>> interactionParams =
 		new ArrayList<RelationType<?>>();
 
-	private List<RelationType<?>> aInputParams =
+	private final List<RelationType<?>> inputParams =
 		new ArrayList<RelationType<?>>();
 
 	/**
 	 * Creates a new instance that edits the entity in a certain process
 	 * parameter.
 	 *
-	 * @param rEntityParam The parameter containing the entity to edit
+	 * @param entityParam The parameter containing the entity to edit
 	 */
-	public EditEntity(RelationType<Entity> rEntityParam) {
-		rEditedEntityParam = rEntityParam;
-		aExtraAttrKeys = collectExtraAttributeKeys();
+	public EditEntity(RelationType<Entity> entityParam) {
+		editedEntityParam = entityParam;
+		extraAttrKeys = collectExtraAttributeKeys();
 	}
 
 	/**
 	 * Determines the temporary parameter name prefix for a certain entity.
 	 *
-	 * @param rEntity The entity
+	 * @param entity The entity
 	 * @return The parameter name prefix
 	 */
-	public static String getParameterPrefix(Entity rEntity) {
-		String sEntityPrefix;
+	public static String getParameterPrefix(Entity entity) {
+		String entityPrefix;
 
-		if (rEntity.isPersistent()) {
-			sEntityPrefix = rEntity.getGlobalId();
+		if (entity.isPersistent()) {
+			entityPrefix = entity.getGlobalId();
 		} else {
-			sEntityPrefix = rEntity.getClass().getSimpleName();
-			sEntityPrefix = TextConvert.capitalizedIdentifier(sEntityPrefix);
+			entityPrefix = entity.getClass().getSimpleName();
+			entityPrefix = TextConvert.capitalizedIdentifier(entityPrefix);
 		}
 
-		return sEntityPrefix + "_";
+		return entityPrefix + "_";
 	}
 
 	/**
@@ -209,7 +200,7 @@ public class EditEntity extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -217,19 +208,19 @@ public class EditEntity extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
 	 * @see InteractionFragment#handleInteraction(RelationType)
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
 		setParameter(EDIT_ENTITY_ERROR_MESSAGE, "");
 
 		try {
-			handleInteractionParam(rInteractionParam);
+			handleInteractionParam(interactionParam);
 		} catch (Exception e) {
 			setParameter(EDIT_ENTITY_ERROR_MESSAGE, "ERR: " + e.getMessage());
 			e.printStackTrace();
@@ -241,7 +232,7 @@ public class EditEntity extends InteractionFragment {
 	 */
 	@Override
 	public void init() throws Exception {
-		setEntity(rEditedEntity);
+		setEntity(editedEntity);
 	}
 
 	/**
@@ -249,14 +240,14 @@ public class EditEntity extends InteractionFragment {
 	 */
 	@Override
 	public void prepareInteraction() throws Exception {
-		Entity rNewEntity = get(rEditedEntityParam);
+		Entity newEntity = get(editedEntityParam);
 
-		if (rNewEntity == null) {
-			rNewEntity = checkParameter(rEditedEntityParam);
+		if (newEntity == null) {
+			newEntity = checkParameter(editedEntityParam);
 		}
 
-		if (rNewEntity != rEditedEntity) {
-			setEntity(rNewEntity);
+		if (newEntity != editedEntity) {
+			setEntity(newEntity);
 		}
 	}
 
@@ -266,278 +257,277 @@ public class EditEntity extends InteractionFragment {
 	 * @return The new collection
 	 */
 	private Collection<String> collectExtraAttributeKeys() {
-		List<RelationType<?>> aExtraAttrs = new ArrayList<RelationType<?>>(
+		List<RelationType<?>> extraAttrs = new ArrayList<RelationType<?>>(
 			RelationType.getRelationTypes(
 				r -> r.hasFlag(EXTRA_ATTRIBUTE_FLAG)));
 
-		List<String> aKeys =
-			CollectionUtil.map(aExtraAttrs, RelationType::getSimpleName);
+		List<String> keys =
+			CollectionUtil.map(extraAttrs, RelationType::getSimpleName);
 
-		aKeys.add(StandardTypes.INFO.getSimpleName());
-		Collections.sort(aKeys);
+		keys.add(StandardTypes.INFO.getSimpleName());
+		Collections.sort(keys);
 
-		return aKeys;
+		return keys;
 	}
 
 	/**
 	 * Creates and sets the process parameters for the entity attributes.
 	 *
-	 * @param sPrefix    The prefix for the parameter names
-	 * @param rEntityDef The entity attributes
+	 * @param prefix    The prefix for the parameter names
+	 * @param entityDef The entity attributes
 	 * @return A new list containing the attribute process parameters
 	 */
 	@SuppressWarnings("unchecked")
-	private List<RelationType<?>> createAttributeParameters(String sPrefix,
-		EntityDefinition<?> rEntityDef) {
-		Collection<RelationType<?>> rAttributes = rEntityDef.getAttributes();
-		RelationType<Number> rIdAttr = rEntityDef.getIdAttribute();
+	private List<RelationType<?>> createAttributeParameters(String prefix,
+		EntityDefinition<?> entityDef) {
+		Collection<RelationType<?>> attributes = entityDef.getAttributes();
+		RelationType<Number> idAttr = entityDef.getIdAttribute();
 
-		List<RelationType<?>> aAttrTabParams =
-			new ArrayList<RelationType<?>>(rAttributes.size());
+		List<RelationType<?>> attrTabParams =
+			new ArrayList<RelationType<?>>(attributes.size());
 
-		aAttrActionParam = getTemporaryParameterType(sPrefix + "ATTR_ACTION",
+		attrActionParam = getTemporaryParameterType(prefix + "ATTR_ACTION",
 			AttributesAction.class);
 
-		for (RelationType<?> rAttr : rAttributes) {
-			String sAttrName = rAttr.getSimpleName();
-			Class<Object> rTargetType = (Class<Object>) rAttr.getTargetType();
+		for (RelationType<?> attr : attributes) {
+			String attrName = attr.getSimpleName();
+			Class<Object> targetType = (Class<Object>) attr.getTargetType();
 
-			RelationType<Object> aAttrParam =
-				getTemporaryParameterType(sPrefix + sAttrName, rTargetType);
+			RelationType<Object> attrParam =
+				getTemporaryParameterType(prefix + attrName, targetType);
 
-			aAttrTabParams.add(aAttrParam);
-			setParameter(aAttrParam, rEditedEntity.get(rAttr));
-			setAttributeProperties(rEditedEntity, aAttrParam, sAttrName);
+			attrTabParams.add(attrParam);
+			setParameter(attrParam, editedEntity.get(attr));
+			setAttributeProperties(editedEntity, attrParam, attrName);
 
-			if (rAttr == rIdAttr) {
-				if (rEditedEntity.isPersistent()) {
-					aInputParams.remove(aAttrParam);
+			if (attr == idAttr) {
+				if (editedEntity.isPersistent()) {
+					inputParams.remove(attrParam);
 				} else {
-					aAttrParam.set(MetaTypes.OPTIONAL);
+					attrParam.set(MetaTypes.OPTIONAL);
 				}
 			}
 
-			aEntityAttrParamsMap.put(rAttr, aAttrParam);
-			setUIProperty(STYLE, "EntityAttribute", aAttrParam);
-			setUIProperty(HTML_WIDTH, "100%", aAttrParam);
+			entityAttrParamsMap.put(attr, attrParam);
+			setUIProperty(STYLE, "EntityAttribute", attrParam);
+			setUIProperty(HTML_WIDTH, "100%", attrParam);
 		}
 
-		if (aAttrTabParams.size() > 0) {
-			aAttrTabParams.add(1, aAttrActionParam);
-			aInputParams.add(aAttrActionParam);
+		if (attrTabParams.size() > 0) {
+			attrTabParams.add(1, attrActionParam);
+			inputParams.add(attrActionParam);
 
-			setUIFlag(SAME_ROW, aAttrActionParam);
-			setUIFlag(HAS_IMAGES, aAttrActionParam);
-			setUIProperty(RESOURCE_ID, "AttrAction", aAttrActionParam);
+			setUIFlag(SAME_ROW, attrActionParam);
+			setUIFlag(HAS_IMAGES, attrActionParam);
+			setUIProperty(RESOURCE_ID, "AttrAction", attrActionParam);
 
-			setImmediateAction(aAttrActionParam);
+			setImmediateAction(attrActionParam);
 		}
 
-		return aAttrTabParams;
+		return attrTabParams;
 	}
 
 	/**
 	 * Creates a process parameter for a certain entity child attribute.
 	 *
-	 * @param sPrefix    The prefix for the parameter name
-	 * @param rParentDef The entity definition of the parent
-	 * @param rChildAttr The child attribute
+	 * @param prefix    The prefix for the parameter name
+	 * @param parentDef The entity definition of the parent
+	 * @param childAttr The child attribute
 	 * @return The new process parameter type
 	 */
 	private RelationType<List<RelationType<?>>> createChildParameter(
-		String sPrefix, EntityDefinition<?> rParentDef,
-		RelationType<List<Entity>> rChildAttr) {
-		String sChildName = rChildAttr.getSimpleName();
+		String prefix, EntityDefinition<?> parentDef,
+		RelationType<List<Entity>> childAttr) {
+		String childName = childAttr.getSimpleName();
 
 		@SuppressWarnings("unchecked")
-		Class<Entity> rChildType =
-			(Class<Entity>) rChildAttr.get(ELEMENT_DATATYPE);
+		Class<Entity> childType =
+			(Class<Entity>) childAttr.get(ELEMENT_DATATYPE);
 
-		EntityDefinition<Entity> rChildDef =
-			EntityManager.getEntityDefinition(rChildType);
+		EntityDefinition<Entity> childDef =
+			EntityManager.getEntityDefinition(childType);
 
 		@SuppressWarnings("boxing")
-		QueryPredicate<Entity> qChildren = forEntity(rChildType,
-			ifAttribute(rChildDef.getParentAttribute(rParentDef),
-				equalTo(rEditedEntity.getId())));
+		QueryPredicate<Entity> children = forEntity(childType,
+			ifAttribute(childDef.getParentAttribute(parentDef),
+				equalTo(editedEntity.getId())));
 
-		List<Function<? super Entity, ?>> aColumns =
+		List<Function<? super Entity, ?>> columns =
 			new ArrayList<Function<? super Entity, ?>>();
 
-		for (RelationType<?> rAttr : rChildDef.getDisplayAttributes(
+		for (RelationType<?> attr : childDef.getDisplayAttributes(
 			DisplayMode.COMPACT)) {
-			aColumns.add(rAttr);
+			columns.add(attr);
 		}
 
-		RelationType<List<RelationType<?>>> aChildTabParam =
-			createDetailTabParameter(sPrefix + sChildName, rChildType,
-				qChildren, null, aColumns, CHILD_TABLE_ROWS);
+		RelationType<List<RelationType<?>>> childTabParam =
+			createDetailTabParameter(prefix + childName, childType, children,
+				null, columns, CHILD_TABLE_ROWS);
 
-		setResourceId(sChildName, aChildTabParam);
+		setResourceId(childName, childTabParam);
 
-		return aChildTabParam;
+		return childTabParam;
 	}
 
 	/**
 	 * Creates a temporary parameter type for a detail tab of an entity which
 	 * displays subordinate entities of the edited entity.
 	 *
-	 * @param sBaseName       The base name for the temporary parameters
-	 * @param qDetail         The query for the detail elements
-	 * @param pSortOrder      The optional sort order predicate
-	 * @param aColumns        The query columns
-	 * @param nTableRows      The number of table rows to display
-	 * @param rAllowedActions The allowed detail actions
+	 * @param baseName       The base name for the temporary parameters
+	 * @param detail         The query for the detail elements
+	 * @param sortOrder      The optional sort order predicate
+	 * @param columns        The query columns
+	 * @param tableRows      The number of table rows to display
+	 * @param allowedActions The allowed detail actions
 	 * @return The temporary detail parameter
 	 */
 	private <E extends Entity> RelationType<List<RelationType<?>>> createDetailTabParameter(
-		String sBaseName, Class<E> rDetailType, QueryPredicate<E> qDetail,
-		Predicate<? super Entity> pSortOrder,
-		List<Function<? super E, ?>> aColumns, int nTableRows,
-		DetailAction... rAllowedActions) {
-		RelationType<List<RelationType<?>>> aTabParam =
-			getTemporarySubPanelParameter(sBaseName + "_TAB", false);
+		String baseName, Class<E> detailType, QueryPredicate<E> detail,
+		Predicate<? super Entity> sortOrder,
+		List<Function<? super E, ?>> columns, int tableRows,
+		DetailAction... allowedActions) {
+		RelationType<List<RelationType<?>>> tabParam =
+			getTemporarySubPanelParameter(baseName + "_TAB", false);
 
-		RelationType<E> aListParam =
-			getTemporaryParameterType(sBaseName + "_LIST", rDetailType);
+		RelationType<E> listParam =
+			getTemporaryParameterType(baseName + "_LIST", detailType);
 
-		RelationType<DetailAction> aActionParam =
-			getTemporaryParameterType(sBaseName + "_ACTION",
+		RelationType<DetailAction> actionParam =
+			getTemporaryParameterType(baseName + "_ACTION",
 				DetailAction.class);
 
-		List<RelationType<?>> aChildParams = new ArrayList<RelationType<?>>();
+		List<RelationType<?>> childParams = new ArrayList<RelationType<?>>();
 
-		aListParam.set(TAB_ACTION_PARAM, aActionParam);
-		aActionParam.set(TAB_LIST_PARAM, aListParam);
+		listParam.set(TAB_ACTION_PARAM, actionParam);
+		actionParam.set(TAB_LIST_PARAM, listParam);
 
-		aChildParams.add(aListParam);
-		aChildParams.add(aActionParam);
+		childParams.add(listParam);
+		childParams.add(actionParam);
 
-		setParameter(aTabParam, aChildParams);
-		aInputParams.addAll(aChildParams);
+		setParameter(tabParam, childParams);
+		inputParams.addAll(childParams);
 
-		setUIFlag(HIDE_LABEL, aListParam);
-		setUIFlag(SAME_ROW, aActionParam);
-		setUIFlag(HAS_IMAGES, aActionParam);
+		setUIFlag(HIDE_LABEL, listParam);
+		setUIFlag(SAME_ROW, actionParam);
+		setUIFlag(HAS_IMAGES, actionParam);
 
-		setUIProperty(nTableRows, TABLE_ROWS, aListParam);
-		setUIProperty(-1, CURRENT_SELECTION, aListParam);
-		setUIProperty(HTML_HEIGHT, "100%", aListParam);
+		setUIProperty(tableRows, TABLE_ROWS, listParam);
+		setUIProperty(-1, CURRENT_SELECTION, listParam);
+		setUIProperty(HTML_HEIGHT, "100%", listParam);
 
 		setUIProperty(RESOURCE_ID,
-			TextConvert.toPlural(rDetailType.getSimpleName()), aListParam);
+			TextConvert.toPlural(detailType.getSimpleName()), listParam);
 		setUIProperty(RESOURCE_ID, DetailAction.class.getSimpleName(),
-			aActionParam);
+			actionParam);
 
-		setImmediateAction(aActionParam, rAllowedActions);
-		setInteractive(InteractiveInputMode.CONTINUOUS, aListParam);
-		disableElements(aActionParam, DetailAction.EDIT, DetailAction.DELETE);
+		setImmediateAction(actionParam, allowedActions);
+		setInteractive(InteractiveInputMode.CONTINUOUS, listParam);
+		disableElements(actionParam, DetailAction.EDIT, DetailAction.DELETE);
 
-		annotateForEntityQuery(aListParam, qDetail, pSortOrder, aColumns);
+		annotateForEntityQuery(listParam, detail, sortOrder, columns);
 
-		return aTabParam;
+		return tabParam;
 	}
 
 	/**
 	 * Creates and adds the process parameters for the current entity.
 	 */
 	private void createEntityParameters() {
-		EntityDefinition<?> rEntityDef = rEditedEntity.getDefinition();
+		EntityDefinition<?> entityDef = editedEntity.getDefinition();
 
-		boolean bPersistent = rEditedEntity.isPersistent();
-		boolean bChildEdit = rEditedEntityParam == EDITED_ENTITY_CHILD;
-		String sEntityPrefix = getParameterPrefix(rEditedEntity);
+		boolean persistent = editedEntity.isPersistent();
+		boolean childEdit = editedEntityParam == EDITED_ENTITY_CHILD;
+		String entityPrefix = getParameterPrefix(editedEntity);
 
-		Collection<RelationType<List<Entity>>> rChildAttributes =
-			rEntityDef.getChildAttributes();
+		Collection<RelationType<List<Entity>>> childAttributes =
+			entityDef.getChildAttributes();
 
-		RelationType<List<RelationType<?>>> aEntityTabsParam =
-			getTemporarySubPanelParameter(sEntityPrefix + "TABS", true);
+		RelationType<List<RelationType<?>>> entityTabsParam =
+			getTemporarySubPanelParameter(entityPrefix + "TABS", true);
 
-		RelationType<List<RelationType<?>>> aAttrTabParam =
-			getTemporarySubPanelParameter(sEntityPrefix + "ATTRIBUTES", false);
+		RelationType<List<RelationType<?>>> attrTabParam =
+			getTemporarySubPanelParameter(entityPrefix + "ATTRIBUTES", false);
 
-		List<RelationType<?>> aTabParams =
-			new ArrayList<RelationType<?>>(rChildAttributes.size() + 2);
+		List<RelationType<?>> tabParams =
+			new ArrayList<RelationType<?>>(childAttributes.size() + 2);
 
-		aTabParams.add(aAttrTabParam);
+		tabParams.add(attrTabParam);
 
-		List<RelationType<?>> aAttrParams =
-			createAttributeParameters(sEntityPrefix, rEntityDef);
+		List<RelationType<?>> attrParams =
+			createAttributeParameters(entityPrefix, entityDef);
 
-		if (bPersistent && !bChildEdit) {
-			for (RelationType<List<Entity>> rChildAttr : rChildAttributes) {
-				RelationType<List<RelationType<?>>> aChildParameter =
-					createChildParameter(sEntityPrefix, rEntityDef,
-						rChildAttr);
+		if (persistent && !childEdit) {
+			for (RelationType<List<Entity>> childAttr : childAttributes) {
+				RelationType<List<RelationType<?>>> childParameter =
+					createChildParameter(entityPrefix, entityDef, childAttr);
 
-				aTabParams.add(aChildParameter);
+				tabParams.add(childParameter);
 			}
 		}
 
-		if (bPersistent) {
-			RelationType<List<RelationType<?>>> rExtraAttrParam =
-				createExtraAttributesParameter(sEntityPrefix);
+		if (persistent) {
+			RelationType<List<RelationType<?>>> extraAttrParam =
+				createExtraAttributesParameter(entityPrefix);
 
-			rExtraAttrListParam = getParameter(rExtraAttrParam).get(0);
-			aTabParams.add(rExtraAttrParam);
+			extraAttrListParam = getParameter(extraAttrParam).get(0);
+			tabParams.add(extraAttrParam);
 		}
 
-		setParameter(aEntityTabsParam, aTabParams);
-		setParameter(aAttrTabParam, aAttrParams);
+		setParameter(entityTabsParam, tabParams);
+		setParameter(attrTabParam, attrParams);
 
-		aInteractionParams.add(aEntityTabsParam);
-		aInteractionParams.add(EDIT_ENTITY_ERROR_MESSAGE);
+		interactionParams.add(entityTabsParam);
+		interactionParams.add(EDIT_ENTITY_ERROR_MESSAGE);
 
-		aInputParams.add(aEntityTabsParam);
-		aInputParams.addAll(aTabParams);
+		inputParams.add(entityTabsParam);
+		inputParams.addAll(tabParams);
 
 		setUIFlag(HIDE_LABEL, EDIT_ENTITY_ERROR_MESSAGE);
 
-		setResourceId("EditEntityTabs", aEntityTabsParam);
-		setResourceId("EntityAttributes", aAttrTabParam);
+		setResourceId("EditEntityTabs", entityTabsParam);
+		setResourceId("EntityAttributes", attrTabParam);
 
-		markInputParams(true, aInputParams);
+		markInputParams(true, inputParams);
 	}
 
 	/**
 	 * Creates a process parameter for an entities extra attributes.
 	 *
-	 * @param sPrefix The prefix for the parameter name
+	 * @param prefix The prefix for the parameter name
 	 * @return The new process parameter type
 	 */
 	private RelationType<List<RelationType<?>>> createExtraAttributesParameter(
-		String sPrefix) {
-		String sBaseName = sPrefix + "XA";
+		String prefix) {
+		String baseName = prefix + "XA";
 
-		List<Function<? super ExtraAttribute, ?>> aColumns =
+		List<Function<? super ExtraAttribute, ?>> columns =
 			new ArrayList<Function<? super ExtraAttribute, ?>>();
 
-		QueryPredicate<ExtraAttribute> qExtraAttr =
+		QueryPredicate<ExtraAttribute> extraAttr =
 			forEntity(ExtraAttribute.class, ifAttribute(ExtraAttribute.ENTITY,
-				equalTo(rEditedEntity.getGlobalId())));
+				equalTo(editedEntity.getGlobalId())));
 
-		aColumns.add(ExtraAttribute.KEY);
-		aColumns.add(ExtraAttribute.VALUE);
+		columns.add(ExtraAttribute.KEY);
+		columns.add(ExtraAttribute.VALUE);
 
-		RelationType<List<RelationType<?>>> aExtraAttrTabParam =
-			createDetailTabParameter(sBaseName, ExtraAttribute.class,
-				qExtraAttr, sortBy(ExtraAttribute.KEY), aColumns,
-				CHILD_TABLE_ROWS, DetailAction.DELETE);
+		RelationType<List<RelationType<?>>> extraAttrTabParam =
+			createDetailTabParameter(baseName, ExtraAttribute.class, extraAttr,
+				sortBy(ExtraAttribute.KEY), columns, CHILD_TABLE_ROWS,
+				DetailAction.DELETE);
 
-		setResourceId("ExtraAttributes", aExtraAttrTabParam);
+		setResourceId("ExtraAttributes", extraAttrTabParam);
 
-		List<RelationType<?>> rExtraAttrParams =
-			getParameter(aExtraAttrTabParam);
+		List<RelationType<?>> extraAttrParams =
+			getParameter(extraAttrTabParam);
 
-		RelationType<?> rExtraAttrListParam = rExtraAttrParams.get(0);
+		RelationType<?> extraAttrListParam = extraAttrParams.get(0);
 
-		List<RelationType<?>> rExtraAttrEditParams =
-			Arrays.<RelationType<?>>asList(EXTRA_ATTR_KEY, EXTRA_ATTR_ACTION,
+		List<RelationType<?>> extraAttrEditParams =
+			Arrays.asList(EXTRA_ATTR_KEY, EXTRA_ATTR_ACTION,
 				EXTRA_ATTR_VALUE);
 
-		rExtraAttrParams.addAll(rExtraAttrEditParams);
-		aInputParams.addAll(rExtraAttrEditParams);
+		extraAttrParams.addAll(extraAttrEditParams);
+		inputParams.addAll(extraAttrEditParams);
 
 		setImmediateAction(EXTRA_ATTR_ACTION);
 
@@ -545,16 +535,16 @@ public class EditEntity extends InteractionFragment {
 		setUIFlag(SAME_ROW, EXTRA_ATTR_ACTION);
 		setUIFlag(HAS_IMAGES, EXTRA_ATTR_ACTION);
 		setUIProperty(-1, ROWS, EXTRA_ATTR_VALUE);
-		setUIProperty(2, COLUMN_SPAN, rExtraAttrListParam, EXTRA_ATTR_VALUE);
+		setUIProperty(2, COLUMN_SPAN, extraAttrListParam, EXTRA_ATTR_VALUE);
 		setUIProperty(LIST_STYLE, ListStyle.DROP_DOWN, EXTRA_ATTR_KEY);
 		setUIProperty(HTML_WIDTH, "100%", EXTRA_ATTR_KEY);
-		setAllowedValues(EXTRA_ATTR_KEY, aExtraAttrKeys);
+		setAllowedValues(EXTRA_ATTR_KEY, extraAttrKeys);
 
 		setParameter(EXTRA_ATTR_KEY,
-			CollectionUtil.firstElementOf(aExtraAttrKeys));
+			CollectionUtil.firstElementOf(extraAttrKeys));
 		setParameter(EXTRA_ATTR_VALUE, "");
 
-		return aExtraAttrTabParam;
+		return extraAttrTabParam;
 	}
 
 	/**
@@ -563,51 +553,51 @@ public class EditEntity extends InteractionFragment {
 	 * to hide the parameter's label and for hierarchical evaluation of the
 	 * panel's parameters.
 	 *
-	 * @param sName              The name of the temporary parameter type
-	 * @param bDisplayAsTabPanel TRUE to display the new parameter as a tab
-	 *                           panel, FALSE for a normal panel
+	 * @param name              The name of the temporary parameter type
+	 * @param displayAsTabPanel TRUE to display the new parameter as a tab
+	 *                          panel, FALSE for a normal panel
 	 * @return The new temporary parameter type
 	 */
 	private RelationType<List<RelationType<?>>> getTemporarySubPanelParameter(
-		String sName, boolean bDisplayAsTabPanel) {
-		RelationType<List<RelationType<?>>> aParam =
-			getTemporaryListType(sName, RelationType.class);
+		String name, boolean displayAsTabPanel) {
+		RelationType<List<RelationType<?>>> param =
+			getTemporaryListType(name, RelationType.class);
 
-		if (bDisplayAsTabPanel) {
-			setLayout(LayoutType.TABS, aParam);
+		if (displayAsTabPanel) {
+			setLayout(LayoutType.TABS, param);
 		}
 
-		setUIFlag(HIERARCHICAL, aParam);
-		setUIFlag(HIDE_LABEL, aParam);
+		setUIFlag(HIERARCHICAL, param);
+		setUIFlag(HIDE_LABEL, param);
 
-		return aParam;
+		return param;
 	}
 
 	/**
 	 * Performs a detail action for a certain entity list parameter.
 	 *
-	 * @param eDetailAction The detail action
-	 * @param rListParam    The entity list parameter
+	 * @param detailAction The detail action
+	 * @param listParam    The entity list parameter
 	 * @throws Exception If displaying the edit dialog fails
 	 */
-	private void handleDetailAction(DetailAction eDetailAction,
-		RelationType<? extends Entity> rListParam) throws Exception {
-		switch (eDetailAction) {
+	private void handleDetailAction(DetailAction detailAction,
+		RelationType<? extends Entity> listParam) throws Exception {
+		switch (detailAction) {
 			case DELETE:
 				showMessageBox("$msgDeleteEntityChild", "#imWarning", null,
 					DialogAction.OK, DialogAction.CANCEL);
 				break;
 
 			case EDIT:
-				showEditChildDialog(getParameter(rListParam));
+				showEditChildDialog(getParameter(listParam));
 				break;
 
 			case NEW:
 
-				Class<?> rChildType = rListParam.getTargetType();
+				Class<?> childType = listParam.getTargetType();
 
 				showEditChildDialog(
-					(Entity) ReflectUtil.newInstance(rChildType));
+					(Entity) ReflectUtil.newInstance(childType));
 				break;
 
 			default:
@@ -618,37 +608,37 @@ public class EditEntity extends InteractionFragment {
 	/**
 	 * Handles the (de-) selection in a detail tab panel.
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 */
-	private void handleDetailSelection(RelationType<?> rInteractionParam) {
-		Object rParamValue = getParameter(rInteractionParam);
-		Class<?> rParamDatatype = rInteractionParam.getTargetType();
+	private void handleDetailSelection(RelationType<?> interactionParam) {
+		Object paramValue = getParameter(interactionParam);
+		Class<?> paramDatatype = interactionParam.getTargetType();
 
-		RelationType<DetailAction> rTabActionParam =
-			rInteractionParam.get(TAB_ACTION_PARAM);
+		RelationType<DetailAction> tabActionParam =
+			interactionParam.get(TAB_ACTION_PARAM);
 
-		if (rParamValue != null) {
-			disableElements(rTabActionParam);
+		if (paramValue != null) {
+			disableElements(tabActionParam);
 
-			if (rParamDatatype == ExtraAttribute.class) {
-				ExtraAttribute rExtraAttr = (ExtraAttribute) rParamValue;
+			if (paramDatatype == ExtraAttribute.class) {
+				ExtraAttribute extraAttr = (ExtraAttribute) paramValue;
 
-				rCurrentExtraAttrKey = rExtraAttr.get(ExtraAttribute.KEY);
+				currentExtraAttrKey = extraAttr.get(ExtraAttribute.KEY);
 
-				Object rValue = rExtraAttr.get(ExtraAttribute.VALUE);
+				Object value = extraAttr.get(ExtraAttribute.VALUE);
 
 				setParameter(EXTRA_ATTR_KEY,
-					rCurrentExtraAttrKey.getSimpleName());
-				setParameter(EXTRA_ATTR_VALUE, Conversions.asString(rValue));
+					currentExtraAttrKey.getSimpleName());
+				setParameter(EXTRA_ATTR_VALUE, Conversions.asString(value));
 
 				setUIFlag(DISABLED, EXTRA_ATTR_KEY);
 			}
 		} else {
-			disableElements(rTabActionParam, DetailAction.EDIT,
+			disableElements(tabActionParam, DetailAction.EDIT,
 				DetailAction.DELETE);
 
-			if (rParamDatatype == ExtraAttribute.class) {
-				rCurrentExtraAttrKey = null;
+			if (paramDatatype == ExtraAttribute.class) {
+				currentExtraAttrKey = null;
 				setParameter(EXTRA_ATTR_VALUE, "");
 
 				clearUIFlag(DISABLED, EXTRA_ATTR_KEY);
@@ -659,25 +649,25 @@ public class EditEntity extends InteractionFragment {
 	/**
 	 * Performs the actual interaction handling (without error handling).
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 * @throws TransactionException If storing an entity fails
 	 * @throws StorageException     If accessing storage data fails
 	 * @throws Exception            If displaying the edit dialog fails
 	 */
-	private void handleInteractionParam(RelationType<?> rInteractionParam)
+	private void handleInteractionParam(RelationType<?> interactionParam)
 		throws Exception {
-		Class<?> rParamDatatype = rInteractionParam.getTargetType();
+		Class<?> paramDatatype = interactionParam.getTargetType();
 
-		if (rInteractionParam == aAttrActionParam) {
-			if (getParameter(rInteractionParam) == AttributesAction.SAVE) {
+		if (interactionParam == attrActionParam) {
+			if (getParameter(interactionParam) == AttributesAction.SAVE) {
 				updateAndStoreEditedEntity();
 			}
-		} else if (Entity.class.isAssignableFrom(rParamDatatype)) {
-			handleDetailSelection(rInteractionParam);
-		} else if (rParamDatatype == DetailAction.class) {
-			handleDetailAction((DetailAction) getParameter(rInteractionParam),
-				rInteractionParam.get(TAB_LIST_PARAM));
-		} else if (rParamDatatype == ExtraAttrAction.class) {
+		} else if (Entity.class.isAssignableFrom(paramDatatype)) {
+			handleDetailSelection(interactionParam);
+		} else if (paramDatatype == DetailAction.class) {
+			handleDetailAction((DetailAction) getParameter(interactionParam),
+				interactionParam.get(TAB_LIST_PARAM));
+		} else if (paramDatatype == ExtraAttrAction.class) {
 			updateAndStoreExtraAttribute();
 			setParameter(EXTRA_ATTR_VALUE, "");
 		}
@@ -686,50 +676,50 @@ public class EditEntity extends InteractionFragment {
 	/**
 	 * Sets the UI properties for a certain entity attribute parameter.
 	 *
-	 * @param rEntity    The entity
-	 * @param rAttrParam The attribute parameter
-	 * @param sAttrName  The name of the attribute
+	 * @param entity    The entity
+	 * @param attrParam The attribute parameter
+	 * @param attrName  The name of the attribute
 	 */
-	private void setAttributeProperties(Entity rEntity,
-		RelationType<?> rAttrParam, String sAttrName) {
-		Class<?> rDatatype = rAttrParam.getTargetType();
+	private void setAttributeProperties(Entity entity,
+		RelationType<?> attrParam, String attrName) {
+		Class<?> datatype = attrParam.getTargetType();
 
-		setUIProperty(RESOURCE_ID, rEntity.getClass().getSimpleName() +
-			TextConvert.capitalizedIdentifier(sAttrName), rAttrParam);
+		setUIProperty(RESOURCE_ID, entity.getClass().getSimpleName() +
+			TextConvert.capitalizedIdentifier(attrName), attrParam);
 
-		if (Enum.class.isAssignableFrom(rDatatype)) {
-			setUIProperty(RESOURCE_ID, rDatatype.getSimpleName(), rAttrParam);
-			setUIProperty(LIST_STYLE, ListStyle.DROP_DOWN, rAttrParam);
-		} else if (Date.class.isAssignableFrom(rDatatype)) {
+		if (Enum.class.isAssignableFrom(datatype)) {
+			setUIProperty(RESOURCE_ID, datatype.getSimpleName(), attrParam);
+			setUIProperty(LIST_STYLE, ListStyle.DROP_DOWN, attrParam);
+		} else if (Date.class.isAssignableFrom(datatype)) {
 			setUIProperty(DATE_INPUT_TYPE, DateInputType.INPUT_FIELD,
-				rAttrParam);
+				attrParam);
 		}
 
-		if (!Entity.class.isAssignableFrom(rDatatype)) {
-			aInputParams.add(rAttrParam);
+		if (!Entity.class.isAssignableFrom(datatype)) {
+			inputParams.add(attrParam);
 		}
 	}
 
 	/**
 	 * Sets the entity to be displayed by this instance.
 	 *
-	 * @param rNewEntity The entity
+	 * @param newEntity The entity
 	 */
-	private void setEntity(Entity rNewEntity) {
-		rEditedEntity = rNewEntity;
+	private void setEntity(Entity newEntity) {
+		editedEntity = newEntity;
 
-		for (RelationType<?> rAttrParam : aEntityAttrParamsMap.values()) {
-			removeTemporaryParameterType(rAttrParam);
+		for (RelationType<?> attrParam : entityAttrParamsMap.values()) {
+			removeTemporaryParameterType(attrParam);
 		}
 
-		aEntityAttrParamsMap.clear();
-		aInteractionParams.clear();
-		aInputParams.clear();
+		entityAttrParamsMap.clear();
+		interactionParams.clear();
+		inputParams.clear();
 
-		if (rEditedEntity != null) {
+		if (editedEntity != null) {
 			createEntityParameters();
 		} else {
-			aInteractionParams.add(StandardTypes.INFO);
+			interactionParams.add(StandardTypes.INFO);
 			setParameter(StandardTypes.INFO, "$msgSelectEntity");
 
 			setUIProperty(LABEL, "", StandardTypes.INFO);
@@ -739,13 +729,13 @@ public class EditEntity extends InteractionFragment {
 	/**
 	 * Sets an entity-specific resource ID for the given parameter.
 	 *
-	 * @param sName  The name to generate the resource ID from
-	 * @param rParam The parameter to set the resource ID for
+	 * @param name  The name to generate the resource ID from
+	 * @param param The parameter to set the resource ID for
 	 */
-	private void setResourceId(String sName, RelationType<?> rParam) {
-		sName = TextConvert.capitalizedIdentifier(sName);
+	private void setResourceId(String name, RelationType<?> param) {
+		name = TextConvert.capitalizedIdentifier(name);
 
-		setUIProperty(RESOURCE_ID, sName, rParam);
+		setUIProperty(RESOURCE_ID, name, param);
 	}
 
 	/**
@@ -753,52 +743,52 @@ public class EditEntity extends InteractionFragment {
 	 * it to
 	 * be displayed in a dialog.
 	 *
-	 * @param rChild The entity to be edited
+	 * @param child The entity to be edited
 	 */
-	private void showEditChildDialog(Entity rChild) throws Exception {
-		EditEntity aEditChildFragment = new EditEntity(EDITED_ENTITY_CHILD);
+	private void showEditChildDialog(Entity child) throws Exception {
+		EditEntity editChildFragment = new EditEntity(EDITED_ENTITY_CHILD);
 
-		showDialog(getParameterPrefix(rChild), aEditChildFragment, null,
+		showDialog(getParameterPrefix(child), editChildFragment, null,
 			DialogAction.CLOSE);
 
-		aEditChildFragment.set(EDITED_ENTITY_CHILD, rChild);
-		aEditChildFragment.set(EDITED_ENTITY_PARENT, rEditedEntity);
+		editChildFragment.set(EDITED_ENTITY_CHILD, child);
+		editChildFragment.set(EDITED_ENTITY_PARENT, editedEntity);
 	}
 
 	/**
 	 * Updates the the edited entity from the input parameters and stores it.
 	 */
 	private void updateAndStoreEditedEntity() throws TransactionException {
-		for (Entry<RelationType<?>, RelationType<?>> rAttrParam :
-			aEntityAttrParamsMap.entrySet()) {
+		for (Entry<RelationType<?>, RelationType<?>> attrParam :
+			entityAttrParamsMap.entrySet()) {
 			@SuppressWarnings("unchecked")
-			RelationType<Object> rAttr =
-				(RelationType<Object>) rAttrParam.getKey();
+			RelationType<Object> attr =
+				(RelationType<Object>) attrParam.getKey();
 
-			Object rNewValue = getParameter(rAttrParam.getValue());
-			Object rOldValue = rEditedEntity.get(rAttr);
+			Object newValue = getParameter(attrParam.getValue());
+			Object oldValue = editedEntity.get(attr);
 
 			// do not replace NULL values with empty strings
-			if (rOldValue != null ||
-				(rNewValue != null && rNewValue.toString().length() > 0)) {
-				rEditedEntity.set(rAttr, rNewValue);
+			if (oldValue != null ||
+				(newValue != null && newValue.toString().length() > 0)) {
+				editedEntity.set(attr, newValue);
 			}
 		}
 
-		if (!rEditedEntity.isPersistent()) {
-			Entity rParent = get(EDITED_ENTITY_PARENT);
+		if (!editedEntity.isPersistent()) {
+			Entity parent = get(EDITED_ENTITY_PARENT);
 
-			if (rParent == null) {
-				rParent = getParameter(EDITED_ENTITY_PARENT);
+			if (parent == null) {
+				parent = getParameter(EDITED_ENTITY_PARENT);
 			}
 
-			if (rParent != null) {
-				for (RelationType<List<Entity>> rChildAttr : rParent
+			if (parent != null) {
+				for (RelationType<List<Entity>> childAttr : parent
 					.getDefinition()
 					.getChildAttributes()) {
-					if (rEditedEntity.getClass() ==
-						rChildAttr.get(ELEMENT_DATATYPE)) {
-						rParent.addChild(rChildAttr, rEditedEntity);
+					if (editedEntity.getClass() ==
+						childAttr.get(ELEMENT_DATATYPE)) {
+						parent.addChild(childAttr, editedEntity);
 
 						break;
 					}
@@ -806,7 +796,7 @@ public class EditEntity extends InteractionFragment {
 			}
 		}
 
-		EntityManager.storeEntity(rEditedEntity, getProcessUser());
+		EntityManager.storeEntity(editedEntity, getProcessUser());
 	}
 
 	/**
@@ -819,19 +809,19 @@ public class EditEntity extends InteractionFragment {
 	@SuppressWarnings("unchecked")
 	private void updateAndStoreExtraAttribute()
 		throws StorageException, TransactionException {
-		String sRawValue = getParameter(EXTRA_ATTR_VALUE);
-		RelationType<?> rKey = rCurrentExtraAttrKey;
+		String rawValue = getParameter(EXTRA_ATTR_VALUE);
+		RelationType<?> key = currentExtraAttrKey;
 
-		if (rKey == null) {
-			rKey = RelationType.valueOf(
+		if (key == null) {
+			key = RelationType.valueOf(
 				ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE + "." +
 					getParameter(EXTRA_ATTR_KEY));
 		}
 
-		Object rValue = Conversions.parseValue(sRawValue, rKey);
+		Object value = Conversions.parseValue(rawValue, key);
 
-		rEditedEntity.setExtraAttribute((RelationType<Object>) rKey, rValue);
-		EntityManager.storeEntity(rEditedEntity, getProcessUser());
-		markParameterAsModified(rExtraAttrListParam);
+		editedEntity.setExtraAttribute((RelationType<Object>) key, value);
+		EntityManager.storeEntity(editedEntity, getProcessUser());
+		markParameterAsModified(extraAttrListParam);
 	}
 }

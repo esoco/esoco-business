@@ -18,7 +18,6 @@ package de.esoco.data.element;
 
 import de.esoco.data.validate.HasValueList;
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -123,43 +122,43 @@ public abstract class DataElement<T> extends StringProperties {
 
 	private static final long serialVersionUID = 1L;
 
-	private String sName;
+	private String name;
 
-	private Validator<? super T> rValidator;
+	private Validator<? super T> validator;
 
 	// these fields are not included in serialization because they are only
 	// used
 	// locally on the client and/or server
-	private transient DataElementList rParent = null;
+	private transient DataElementList parent = null;
 
-	private transient String sResourceId = null;
+	private transient String resourceId = null;
 
-	private transient boolean bModified = false;
+	private transient boolean modified = false;
 
-	private boolean bImmutable = false;
+	private boolean immutable = false;
 
-	private boolean bOptional = false;
+	private boolean optional = false;
 
-	private boolean bSelected = false;
+	private boolean selected = false;
 
 	/**
 	 * Creates a new instance with a certain name and validator. The validator
 	 * object will be used to validate any value that is set through the method
 	 * {@link #setValue(Object)}.
 	 *
-	 * @param sName      The name of this data element
-	 * @param rValidator The validator for new values or NULL for none
-	 * @param rFlags     The optional flags for this data element or NULL for
-	 *                   none
+	 * @param name      The name of this data element
+	 * @param validator The validator for new values or NULL for none
+	 * @param flags     The optional flags for this data element or NULL for
+	 *                  none
 	 */
-	public DataElement(String sName, Validator<? super T> rValidator,
-		Set<Flag> rFlags) {
-		this.sName = sName;
-		this.rValidator = rValidator;
+	public DataElement(String name, Validator<? super T> validator,
+		Set<Flag> flags) {
+		this.name = name;
+		this.validator = validator;
 
-		if (rFlags != null) {
-			bImmutable = rFlags.contains(Flag.IMMUTABLE);
-			bOptional = rFlags.contains(Flag.OPTIONAL);
+		if (flags != null) {
+			immutable = flags.contains(Flag.IMMUTABLE);
+			optional = flags.contains(Flag.OPTIONAL);
 		}
 	}
 
@@ -174,44 +173,44 @@ public abstract class DataElement<T> extends StringProperties {
 	 * The name will be composed from the simple name of the value's datatype
 	 * class and the capitalized string representation of the value.
 	 *
-	 * @param rValue The value to create the item name for
+	 * @param value The value to create the item name for
 	 * @return The resulting item string (an empty string for a NULL value)
 	 */
-	public static String createItemName(Object rValue) {
-		StringBuilder aItem = new StringBuilder();
+	public static String createItemName(Object value) {
+		StringBuilder item = new StringBuilder();
 
-		if (rValue != null) {
-			Class<? extends Object> rDatatype = rValue.getClass();
-			String sClassName = rDatatype.getSimpleName();
+		if (value != null) {
+			Class<? extends Object> datatype = value.getClass();
+			String className = datatype.getSimpleName();
 
 			// replace empty name of anonymous classes with name of parent
 			// class
-			if (sClassName.isEmpty()) {
-				sClassName = rDatatype.getSuperclass().getSimpleName();
+			if (className.isEmpty()) {
+				className = datatype.getSuperclass().getSimpleName();
 			}
 
-			aItem.append(sClassName);
-			aItem.append(TextConvert.capitalizedIdentifier(rValue.toString()));
+			item.append(className);
+			item.append(TextConvert.capitalizedIdentifier(value.toString()));
 		}
 
-		return aItem.toString();
+		return item.toString();
 	}
 
 	/**
 	 * Creates an item resource string for a certain value.
 	 *
-	 * @param rValue The value
+	 * @param value The value
 	 * @return The resulting item string (an empty string for a NULL value)
 	 */
-	public static String createItemResource(Object rValue) {
-		StringBuilder aItem = new StringBuilder();
+	public static String createItemResource(Object value) {
+		StringBuilder item = new StringBuilder();
 
-		if (rValue != null) {
-			aItem.append(ITEM_RESOURCE_PREFIX);
-			aItem.append(createItemName(rValue));
+		if (value != null) {
+			item.append(ITEM_RESOURCE_PREFIX);
+			item.append(createItemName(value));
 		}
 
-		return aItem.toString();
+		return item.toString();
 	}
 
 	/**
@@ -224,17 +223,17 @@ public abstract class DataElement<T> extends StringProperties {
 	/**
 	 * Reads the attributes of this data element from the given data reader.
 	 *
-	 * @param rReader The data reader
+	 * @param reader The data reader
 	 */
-	public static void readFrom(DataReader rReader) {
+	public static void readFrom(DataReader reader) {
 	}
 
 	/**
 	 * Reads the attributes of this data element from the given data reader.
 	 *
-	 * @param rWriter rReader The data reader
+	 * @param writer reader The data reader
 	 */
-	public static void writeTo(DataWriter rWriter) {
+	public static void writeTo(DataWriter writer) {
 	}
 
 	/**
@@ -264,59 +263,58 @@ public abstract class DataElement<T> extends StringProperties {
 	 * with the concrete return type and cast the result of <code>
 	 * super.copy()</code> to that type.</p>
 	 *
-	 * @param eMode           The copy mode
-	 * @param rCopyProperties An optional list of properties to copy. If not
-	 *                        provided all properties will be copied (unless
-	 *                        the
-	 *                        mode is {@link CopyMode#PLACEHOLDER})
+	 * @param mode           The copy mode
+	 * @param copyProperties An optional list of properties to copy. If not
+	 *                       provided all properties will be copied (unless the
+	 *                       mode is {@link CopyMode#PLACEHOLDER})
 	 * @return The copied instance
 	 */
 	@SuppressWarnings("unchecked")
-	public DataElement<T> copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		DataElement<T> aCopy = newInstance();
+	public DataElement<T> copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		DataElement<T> copy = newInstance();
 
-		copyAttributes(aCopy, eMode);
+		copyAttributes(copy, mode);
 
-		if (eMode == CopyMode.FULL || eMode == CopyMode.FLAT) {
-			copyValue(aCopy);
+		if (mode == CopyMode.FULL || mode == CopyMode.FLAT) {
+			copyValue(copy);
 		}
 
-		if (eMode != CopyMode.PLACEHOLDER) {
-			if (rCopyProperties.length == 0) {
-				aCopy.setProperties(this, true);
+		if (mode != CopyMode.PLACEHOLDER) {
+			if (copyProperties.length == 0) {
+				copy.setProperties(this, true);
 			} else {
-				for (PropertyName<?> rProperty : rCopyProperties) {
-					aCopy.setProperty((PropertyName<Object>) rProperty,
-						(Object) getProperty(rProperty, null));
+				for (PropertyName<?> property : copyProperties) {
+					copy.setProperty((PropertyName<Object>) property,
+						getProperty(property, null));
 				}
 			}
 		}
 
-		return aCopy;
+		return copy;
 	}
 
 	/**
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (!super.equals(rObj) || getClass() != rObj.getClass()) {
+		if (!super.equals(obj) || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		DataElement<?> rOther = (DataElement<?>) rObj;
+		DataElement<?> other = (DataElement<?>) obj;
 
-		return Objects.equals(sName, rOther.sName) && hasEqualValueAs(rOther) &&
-			bImmutable == rOther.bImmutable && bModified == rOther.bModified &&
-			bOptional == rOther.bOptional && bSelected == rOther.bSelected &&
-			Objects.equals(sResourceId, rOther.sResourceId) &&
-			Objects.equals(rValidator, rOther.rValidator) &&
-			Objects.equals(rParent, rOther.rParent);
+		return Objects.equals(name, other.name) && hasEqualValueAs(other) &&
+			immutable == other.immutable && modified == other.modified &&
+			optional == other.optional && selected == other.selected &&
+			Objects.equals(resourceId, other.resourceId) &&
+			Objects.equals(validator, other.validator) &&
+			Objects.equals(parent, other.parent);
 	}
 
 	/**
@@ -327,8 +325,8 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The allowed values
 	 */
 	public List<?> getAllowedValues() {
-		return rValidator instanceof HasValueList ?
-		       ((HasValueList<?>) rValidator).getValues() :
+		return validator instanceof HasValueList ?
+		       ((HasValueList<?>) validator).getValues() :
 		       null;
 	}
 
@@ -340,7 +338,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The element validator
 	 */
 	public Validator<?> getElementValidator() {
-		return rValidator;
+		return validator;
 	}
 
 	/**
@@ -349,7 +347,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The data element's name
 	 */
 	public final String getName() {
-		return sName;
+		return name;
 	}
 
 	/**
@@ -360,7 +358,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The parent element or NULL for none
 	 */
 	public final DataElementList getParent() {
-		return rParent;
+		return parent;
 	}
 
 	/**
@@ -370,16 +368,16 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The full element path
 	 */
 	public final String getPath() {
-		StringBuilder aPath = new StringBuilder();
-		DataElement<?> rElement = this;
+		StringBuilder path = new StringBuilder();
+		DataElement<?> element = this;
 
 		do {
-			aPath.insert(0, PATH_SEPARATOR_CHAR);
-			aPath.insert(1, rElement.getName());
-			rElement = rElement.getParent();
-		} while (rElement != null);
+			path.insert(0, PATH_SEPARATOR_CHAR);
+			path.insert(1, element.getName());
+			element = element.getParent();
+		} while (element != null);
 
-		return aPath.toString();
+		return path.toString();
 	}
 
 	/**
@@ -400,19 +398,19 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The resource ID for this element
 	 */
 	public final String getResourceId() {
-		if (sResourceId == null) {
-			sResourceId = getProperty(RESOURCE_ID, null);
+		if (resourceId == null) {
+			resourceId = getProperty(RESOURCE_ID, null);
 
-			if (sResourceId == null) {
-				sResourceId = createResourceId();
+			if (resourceId == null) {
+				resourceId = createResourceId();
 			}
 
-			if (rParent != null) {
-				sResourceId = rParent.getChildResourceIdPrefix() + sResourceId;
+			if (parent != null) {
+				resourceId = parent.getChildResourceIdPrefix() + resourceId;
 			}
 		}
 
-		return sResourceId;
+		return resourceId;
 	}
 
 	/**
@@ -427,15 +425,15 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The root element or NULL for none
 	 */
 	public final DataElementList getRoot() {
-		DataElementList rRoot = rParent;
+		DataElementList root = parent;
 
-		if (rRoot != null) {
-			while (rRoot.getParent() != null) {
-				rRoot = rRoot.getParent();
+		if (root != null) {
+			while (root.getParent() != null) {
+				root = root.getParent();
 			}
 		}
 
-		return rRoot;
+		return root;
 	}
 
 	/**
@@ -444,7 +442,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The simple data element name
 	 */
 	public final String getSimpleName() {
-		return TextConvert.lastElementOf(sName);
+		return TextConvert.lastElementOf(name);
 	}
 
 	/**
@@ -453,7 +451,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The validator or NULL if this element is read-only
 	 */
 	public final Validator<? super T> getValidator() {
-		return rValidator;
+		return validator;
 	}
 
 	/**
@@ -473,7 +471,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * sName.hashCode() + getValueHashCode();
+		return 37 * name.hashCode() + getValueHashCode();
 	}
 
 	/**
@@ -486,7 +484,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * be modified
 	 */
 	public final boolean isImmutable() {
-		return bImmutable;
+		return immutable;
 	}
 
 	/**
@@ -495,7 +493,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return TRUE if the element value has changed
 	 */
 	public final boolean isModified() {
-		return bModified;
+		return modified;
 	}
 
 	/**
@@ -508,7 +506,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * be modified
 	 */
 	public final boolean isOptional() {
-		return bOptional;
+		return optional;
 	}
 
 	/**
@@ -519,7 +517,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return TRUE if this element is selected
 	 */
 	public boolean isSelected() {
-		return bSelected;
+		return selected;
 	}
 
 	/**
@@ -533,14 +531,13 @@ public abstract class DataElement<T> extends StringProperties {
 	 * invalid. Therefore applications can use this method to verify values
 	 * before setting them (e.g. when performing input validation).
 	 *
-	 * @param rValidator The validator to check the value with or NULL for none
-	 * @param rValue     The value to check
+	 * @param validator The validator to check the value with or NULL for none
+	 * @param value     The value to check
 	 * @return TRUE if the value is valid for this data element
 	 */
-	public <V> boolean isValidValue(Validator<? super V> rValidator,
-		V rValue) {
-		return rValidator == null || (rValue == null && isOptional()) ||
-			rValidator.isValid(rValue);
+	public <V> boolean isValidValue(Validator<? super V> validator, V value) {
+		return validator == null || (value == null && isOptional()) ||
+			validator.isValid(value);
 	}
 
 	/**
@@ -553,12 +550,12 @@ public abstract class DataElement<T> extends StringProperties {
 	/**
 	 * Removes a property from this element.
 	 *
-	 * @param rName The property name
+	 * @param name The property name
 	 */
 	@Override
-	public void removeProperty(PropertyName<?> rName) {
-		if (hasProperty(rName)) {
-			super.removeProperty(rName);
+	public void removeProperty(PropertyName<?> name) {
+		if (hasProperty(name)) {
+			super.removeProperty(name);
 			setModified(true);
 		}
 	}
@@ -566,26 +563,26 @@ public abstract class DataElement<T> extends StringProperties {
 	/**
 	 * Sets the modified state of this element.
 	 *
-	 * @param bModified The new modified state
+	 * @param modified The new modified state
 	 */
-	public void setModified(boolean bModified) {
-		this.bModified = bModified;
+	public void setModified(boolean modified) {
+		this.modified = modified;
 	}
 
 	/**
 	 * Sets a certain property of this data element and mark it as modified if
 	 * the value has changed.
 	 *
-	 * @param rName     The name of the property
-	 * @param rNewValue The property value
+	 * @param name     The name of the property
+	 * @param newValue The property value
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <P> void setProperty(PropertyName<P> rName, P rNewValue) {
-		P rCurrentValue = getProperty(rName, null);
+	public <P> void setProperty(PropertyName<P> name, P newValue) {
+		P currentValue = getProperty(name, null);
 
-		if (!Objects.equals(rCurrentValue, rNewValue)) {
-			super.setProperty(rName, rNewValue);
+		if (!Objects.equals(currentValue, newValue)) {
+			super.setProperty(name, newValue);
 			setModified(true);
 		}
 	}
@@ -593,10 +590,10 @@ public abstract class DataElement<T> extends StringProperties {
 	/**
 	 * Sets the selected state of this element.
 	 *
-	 * @param bSelected The new selected state
+	 * @param selected The new selected state
 	 */
-	public void setSelected(boolean bSelected) {
-		this.bSelected = bSelected;
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 		setModified(true);
 	}
 
@@ -605,21 +602,21 @@ public abstract class DataElement<T> extends StringProperties {
 	 * want to support the setting of string values in parallel to their native
 	 * datatype. The default implementation always throws a runtime exception.
 	 *
-	 * @param sValue The new string value
+	 * @param value The new string value
 	 * @throws UnsupportedOperationException If not overridden
 	 */
-	public void setStringValue(String sValue) {
+	public void setStringValue(String value) {
 		throw new UnsupportedOperationException(
-			"Cannot convert " + sValue + " for " + this);
+			"Cannot convert " + value + " for " + this);
 	}
 
 	/**
 	 * Sets the validator of this element.
 	 *
-	 * @param rValidator The new validator
+	 * @param validator The new validator
 	 */
-	public final void setValidator(Validator<? super T> rValidator) {
-		this.rValidator = rValidator;
+	public final void setValidator(Validator<? super T> validator) {
+		this.validator = validator;
 	}
 
 	/**
@@ -627,17 +624,17 @@ public abstract class DataElement<T> extends StringProperties {
 	 * exception
 	 * will be thrown. See the method {@link #isImmutable()} for details.
 	 *
-	 * @param rNewValue The new element value
+	 * @param newValue The new element value
 	 * @throws UnsupportedOperationException If this element is read only
 	 */
-	public final void setValue(T rNewValue) {
+	public final void setValue(T newValue) {
 		checkImmutable();
-		checkValidValue(rValidator, rNewValue);
+		checkValidValue(validator, newValue);
 
-		T rCurrentValue = getValue();
+		T currentValue = getValue();
 
-		if (!valuesEqual(rCurrentValue, rNewValue)) {
-			updateValue(rNewValue);
+		if (!valuesEqual(currentValue, newValue)) {
+			updateValue(newValue);
 			setModified(true);
 		}
 	}
@@ -645,26 +642,26 @@ public abstract class DataElement<T> extends StringProperties {
 	/**
 	 * Creates a string that describes this element for debugging purposes.
 	 *
-	 * @param sIndent            The indentation of the returned string
-	 * @param bIncludeProperties TRUE to include the properties, FALSE to omit
+	 * @param indent            The indentation of the returned string
+	 * @param includeProperties TRUE to include the properties, FALSE to omit
 	 * @return The debug description
 	 */
-	public String toDebugString(String sIndent, boolean bIncludeProperties) {
-		StringBuilder aDebugString = new StringBuilder(sIndent);
+	public String toDebugString(String indent, boolean includeProperties) {
+		StringBuilder debugString = new StringBuilder(indent);
 
-		aDebugString.append(getSimpleName());
-		aDebugString.append('(');
-		aDebugString.append(bImmutable ? 'I' : '_');
-		aDebugString.append(bModified ? 'M' : '_');
-		aDebugString.append(bOptional ? 'O' : '_');
-		aDebugString.append(bSelected ? 'S' : '_');
-		aDebugString.append(')');
+		debugString.append(getSimpleName());
+		debugString.append('(');
+		debugString.append(immutable ? 'I' : '_');
+		debugString.append(modified ? 'M' : '_');
+		debugString.append(optional ? 'O' : '_');
+		debugString.append(selected ? 'S' : '_');
+		debugString.append(')');
 
-		if (bIncludeProperties) {
-			aDebugString.append(getPropertyMap());
+		if (includeProperties) {
+			debugString.append(getPropertyMap());
 		}
 
-		return aDebugString.toString();
+		return debugString.toString();
 	}
 
 	/**
@@ -674,7 +671,7 @@ public abstract class DataElement<T> extends StringProperties {
 	 */
 	@Override
 	public String toString() {
-		return sName + "[" + getValue() + "]";
+		return name + "[" + getValue() + "]";
 	}
 
 	/**
@@ -696,17 +693,17 @@ public abstract class DataElement<T> extends StringProperties {
 	 * exception if not. Invokes {@link #isValidValue(Validator, Object)} to
 	 * validate the given value.
 	 *
-	 * @param rValidator The validator to check the value with or NULL for none
-	 * @param rValue     The value to check
+	 * @param validator The validator to check the value with or NULL for none
+	 * @param value     The value to check
 	 * @throws IllegalArgumentException If the given value is not valid for
 	 * this
 	 *                                  element
 	 */
-	protected final <V> void checkValidValue(Validator<? super V> rValidator,
-		V rValue) {
-		if (!isValidValue(rValidator, rValue)) {
+	protected final <V> void checkValidValue(Validator<? super V> validator,
+		V value) {
+		if (!isValidValue(validator, value)) {
 			throw new IllegalArgumentException(
-				"Invalid value for " + this + ": " + rValue);
+				"Invalid value for " + this + ": " + value);
 		}
 	}
 
@@ -716,25 +713,25 @@ public abstract class DataElement<T> extends StringProperties {
 	 * should override this method to copy their attributes after invoking
 	 * super.
 	 *
-	 * @param rTarget   The target to copy the attributes to
-	 * @param eCopyMode The copy mode
+	 * @param target   The target to copy the attributes to
+	 * @param copyMode The copy mode
 	 */
-	protected void copyAttributes(DataElement<T> rTarget, CopyMode eCopyMode) {
-		rTarget.sName = sName;
+	protected void copyAttributes(DataElement<T> target, CopyMode copyMode) {
+		target.name = name;
 
-		if (eCopyMode == CopyMode.PLACEHOLDER) {
+		if (copyMode == CopyMode.PLACEHOLDER) {
 			// make sure that a placeholder cannot be modified
-			rTarget.bImmutable = true;
+			target.immutable = true;
 		} else {
-			rTarget.bImmutable = bImmutable;
-			rTarget.bOptional = bOptional;
-			rTarget.bSelected = bSelected;
-			rTarget.bModified = bModified;
+			target.immutable = immutable;
+			target.optional = optional;
+			target.selected = selected;
+			target.modified = modified;
 		}
 
-		if (eCopyMode == CopyMode.FULL || eCopyMode == CopyMode.FLAT) {
-			rTarget.rValidator = rValidator;
-			rTarget.sResourceId = sResourceId;
+		if (copyMode == CopyMode.FULL || copyMode == CopyMode.FLAT) {
+			target.validator = validator;
+			target.resourceId = resourceId;
 		}
 	}
 
@@ -747,10 +744,10 @@ public abstract class DataElement<T> extends StringProperties {
 	 * implement the copying as needed. They can assume that the target object
 	 * is of exactly the same type as their own.
 	 *
-	 * @param aCopy The copied data element to copy the value into
+	 * @param copy The copied data element to copy the value into
 	 */
-	protected void copyValue(DataElement<T> aCopy) {
-		aCopy.updateValue(getValue());
+	protected void copyValue(DataElement<T> copy) {
+		copy.updateValue(getValue());
 	}
 
 	/**
@@ -761,15 +758,15 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The resource ID string
 	 */
 	protected String createResourceId() {
-		String sResId = TextConvert.lastElementOf(sName);
+		String resId = TextConvert.lastElementOf(name);
 
-		if (sResId.startsWith(ANONYMOUS_ELEMENT_PREFIX)) {
-			sResId = "";
+		if (resId.startsWith(ANONYMOUS_ELEMENT_PREFIX)) {
+			resId = "";
 		} else {
-			sResId = TextConvert.capitalizedIdentifier(sResId);
+			resId = TextConvert.capitalizedIdentifier(resId);
 		}
 
-		return sResId;
+		return resId;
 	}
 
 	/**
@@ -779,9 +776,9 @@ public abstract class DataElement<T> extends StringProperties {
 	 * @return The value hash code
 	 */
 	protected int getValueHashCode() {
-		Object rValue = getValue();
+		Object value = getValue();
 
-		return (rValue != null ? rValue.hashCode() : 0);
+		return (value != null ? value.hashCode() : 0);
 	}
 
 	/**
@@ -789,12 +786,13 @@ public abstract class DataElement<T> extends StringProperties {
 	 * element. Can be overridden by subclasses that have a non-standard
 	 * internal structure.
 	 *
-	 * @param rOther The other data element which will always be of the same
-	 *               type as this instance
+	 * @param other The other data element which will always be of the same
+	 *                 type
+	 *              as this instance
 	 * @return TRUE if the value are equal
 	 */
-	protected boolean hasEqualValueAs(final DataElement<?> rOther) {
-		return Objects.equals(getValue(), rOther.getValue());
+	protected boolean hasEqualValueAs(final DataElement<?> other) {
+		return Objects.equals(getValue(), other.getValue());
 	}
 
 	/**
@@ -820,9 +818,9 @@ public abstract class DataElement<T> extends StringProperties {
 	 * been initialized correctly (validator = NULL) this method should then be
 	 * reached.
 	 *
-	 * @param rNewValue The new value for this element
+	 * @param newValue The new value for this element
 	 */
-	protected abstract void updateValue(T rNewValue);
+	protected abstract void updateValue(T newValue);
 
 	/**
 	 * Checks two values for equality. The default implementation invokes the
@@ -841,18 +839,18 @@ public abstract class DataElement<T> extends StringProperties {
 	/**
 	 * Package-internal method to set the parent of this element.
 	 *
-	 * @param rNewParent The new parent element
+	 * @param newParent The new parent element
 	 */
-	final void setParent(DataElementList rNewParent) {
-		rParent = rNewParent;
+	final void setParent(DataElementList newParent) {
+		parent = newParent;
 	}
 
 	/**
 	 * Package-internal method to set the resource ID.
 	 *
-	 * @param sResourceId The resource ID
+	 * @param resourceId The resource ID
 	 */
-	final void setResourceId(String sResourceId) {
-		this.sResourceId = sResourceId;
+	final void setResourceId(String resourceId) {
+		this.resourceId = resourceId;
 	}
 }

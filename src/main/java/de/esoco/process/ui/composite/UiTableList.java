@@ -17,7 +17,6 @@
 package de.esoco.process.ui.composite;
 
 import de.esoco.data.element.DataElement;
-
 import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataProvider;
@@ -29,7 +28,6 @@ import de.esoco.lib.property.SortDirection;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextAttribute;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiComposite;
@@ -49,10 +47,12 @@ import de.esoco.process.ui.graphics.UiMaterialIcon;
 import de.esoco.process.ui.layout.UiColumnGridLayout;
 import de.esoco.process.ui.layout.UiFlowLayout;
 import de.esoco.process.ui.style.UiStyle;
+import org.obrel.core.Relatable;
+import org.obrel.core.RelationType;
+import org.obrel.type.StandardTypes;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,16 +63,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.obrel.core.Relatable;
-import org.obrel.core.RelationType;
-import org.obrel.type.StandardTypes;
-
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMN_SPAN;
 import static de.esoco.lib.property.LayoutProperties.RELATIVE_WIDTH;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
-
 import static de.esoco.process.ProcessRelationTypes.CLIENT_LOCALE;
 
 /**
@@ -86,43 +81,43 @@ import static de.esoco.process.ProcessRelationTypes.CLIENT_LOCALE;
 public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	implements HasSelection<UiTableList<T>.Row> {
 
-	private DataProvider<T> rDataProvider;
+	private final UiListPanel headerPanel;
 
-	private UiListPanel aHeaderPanel;
+	private final Item headerItem;
 
-	private Item aHeaderItem;
+	private final UiContainer<?> tableHeader;
 
-	private UiContainer<?> aTableHeader;
+	private final UiListPanel dataList;
 
-	private UiListPanel aDataList;
+	private final UiContainer<?> emptyTableInfo;
 
-	private UiContainer<?> aEmptyTableInfo;
+	private final List<Column<?>> columns = new ArrayList<>();
 
-	private Row rSelectedRow = null;
+	private final List<Row> rows = new ArrayList<>();
 
-	private String sColumnPrefix = null;
+	private DataProvider<T> dataProvider;
 
-	private Column<?> rSortColumn = null;
+	private Row selectedRow = null;
 
-	private List<Column<?>> aColumns = new ArrayList<>();
+	private String columnPrefix = null;
 
-	private List<Row> aRows = new ArrayList<>();
+	private Column<?> sortColumn = null;
 
-	private BiConsumer<UiBuilder<?>, T> fRowContentBuilder;
+	private BiConsumer<UiBuilder<?>, T> rowContentBuilder;
 
-	private Consumer<Column<?>> fHandleColumnSelection;
+	private Consumer<Column<?>> handleColumnSelection;
 
-	private Consumer<Row> fHandleRowSelection;
+	private Consumer<Row> handleRowSelection;
 
 	/**
 	 * Creates a new instance with rows that can be expanded by selecting their
 	 * header area. Expanding an item will reveal the item content and hide any
 	 * other previously expanded item content.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiTableList(UiContainer<?> rParent) {
-		this(rParent, null);
+	public UiTableList(UiContainer<?> parent) {
+		this(parent, null);
 	}
 
 	/**
@@ -130,27 +125,27 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * header area. Expanding an item will reveal the item content and hide any
 	 * other previously expanded item content.
 	 *
-	 * @param rParent      The parent container
-	 * @param oExpandStyle The expand style
+	 * @param parent      The parent container
+	 * @param expandStyle The expand style
 	 */
-	public UiTableList(UiContainer<?> rParent,
-		Option<ExpandableListStyle> oExpandStyle) {
-		super(rParent, new UiFlowLayout());
+	public UiTableList(UiContainer<?> parent,
+		Option<ExpandableListStyle> expandStyle) {
+		super(parent, new UiFlowLayout());
 
-		aHeaderPanel = new UiListPanel(this);
-		aHeaderItem = aHeaderPanel.addItem();
-		aTableHeader = aHeaderItem
+		headerPanel = new UiListPanel(this);
+		headerItem = headerPanel.addItem();
+		tableHeader = headerItem
 			.createHeaderPanel(new UiColumnGridLayout())
 			.getContainer();
-		aDataList = new UiListPanel(this, oExpandStyle);
-		aEmptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
+		dataList = new UiListPanel(this, expandStyle);
+		emptyTableInfo = new UiLayoutPanel(this, new UiFlowLayout());
 
-		aEmptyTableInfo.hide();
+		emptyTableInfo.hide();
 
-		aHeaderPanel
+		headerPanel
 			.style()
 			.addStyleName(UiTableList.class.getSimpleName() + "Header");
-		aDataList
+		dataList
 			.style()
 			.addStyleName(UiTableList.class.getSimpleName() + "Data");
 	}
@@ -158,33 +153,33 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	/**
 	 * Adds a column to this table.
 	 *
-	 * @param fGetColumnData A function that retrieves the column value of a
-	 *                       table cell from a row data object
+	 * @param getColumnData A function that retrieves the column value of a
+	 *                      table cell from a row data object
 	 * @return The new column
 	 */
-	public <V> Column<V> addColumn(Function<? super T, V> fGetColumnData) {
-		Objects.requireNonNull(fGetColumnData);
+	public <V> Column<V> addColumn(Function<? super T, V> getColumnData) {
+		Objects.requireNonNull(getColumnData);
 
-		Column<V> aColumn = createColumn(fGetColumnData);
+		Column<V> column = createColumn(getColumnData);
 
-		aColumns.add(aColumn);
+		columns.add(column);
 
-		for (Row rRow : aRows) {
-			rRow.addColumnComponent(aColumn);
+		for (Row row : rows) {
+			row.addColumnComponent(column);
 		}
 
-		return aColumn;
+		return column;
 	}
 
 	/**
 	 * Adds multiple columns at once.
 	 *
-	 * @param rColumnDataReaders The
+	 * @param columnDataReaders The
 	 */
 	@SuppressWarnings("unchecked")
-	public void addColumns(Function<? super T, ?>... rColumnDataReaders) {
-		for (Function<? super T, ?> fGetColumnData : rColumnDataReaders) {
-			addColumn(fGetColumnData);
+	public void addColumns(Function<? super T, ?>... columnDataReaders) {
+		for (Function<? super T, ?> getColumnData : columnDataReaders) {
+			addColumn(getColumnData);
 		}
 	}
 
@@ -198,12 +193,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * builder's container and only add a single component. If it needs a more
 	 * complex UI it should add a container with the required layout.</p>
 	 *
-	 * @param fCreateEmtpyTableInfo A consumer that receives a builder for the
-	 *                              empty table info area
+	 * @param createEmtpyTableInfo A consumer that receives a builder for the
+	 *                             empty table info area
 	 */
-	public void addEmptyTableInfo(
-		Consumer<UiBuilder<?>> fCreateEmtpyTableInfo) {
-		fCreateEmtpyTableInfo.accept(aEmptyTableInfo.builder());
+	public void addEmptyTableInfo(Consumer<UiBuilder<?>> createEmtpyTableInfo) {
+		createEmtpyTableInfo.accept(emptyTableInfo.builder());
 	}
 
 	/**
@@ -213,22 +207,23 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * is rendered for the first time because it needs to modify the styles of
 	 * the header components to support expansion.
 	 *
-	 * @param rLayout The layout of the expanded header content panel the
-	 *                builder is created for
+	 * @param layout The layout of the expanded header content panel the
+	 *                  builder
+	 *               is created for
 	 * @return The container for the expanded header content
 	 */
-	public UiContainer<?> addExpandedHeader(UiLayout rLayout) {
-		aHeaderPanel.expandStyle(Option.of(ExpandableListStyle.EXPAND));
+	public UiContainer<?> addExpandedHeader(UiLayout layout) {
+		headerPanel.expandStyle(Option.of(ExpandableListStyle.EXPAND));
 
-		UiIconButton aIndicator = aTableHeader
+		UiIconButton indicator = tableHeader
 			.builder()
 			.addIconButton(UiMaterialIcon.MORE_VERT)
 			.tooltip("ttExpandedListHeader");
 
-		aIndicator.style().styleName("ExpandableHeaderIndicator");
-		aIndicator.cell().colSpan(1);
+		indicator.style().styleName("ExpandableHeaderIndicator");
+		indicator.cell().colSpan(1);
 
-		return aHeaderItem.builder().addPanel(rLayout);
+		return headerItem.builder().addPanel(layout);
 	}
 
 	/**
@@ -237,7 +232,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * @return The column list
 	 */
 	public List<Column<?>> getColumns() {
-		return aColumns;
+		return columns;
 	}
 
 	/**
@@ -246,7 +241,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * @return The table row data provider
 	 */
 	public final DataProvider<T> getData() {
-		return rDataProvider;
+		return dataProvider;
 	}
 
 	/**
@@ -255,7 +250,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * @return The data row list
 	 */
 	public List<Row> getRows() {
-		return aRows;
+		return rows;
 	}
 
 	/**
@@ -265,7 +260,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	@Override
 	public Row getSelection() {
-		return rSelectedRow;
+		return selectedRow;
 	}
 
 	/**
@@ -274,12 +269,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * it's
 	 * argument.
 	 *
-	 * @param fHandleColumnSelection The column selection handler
+	 * @param handleColumnSelection The column selection handler
 	 * @return This instance
 	 */
 	public UiTableList<T> onColumnSelection(
-		Consumer<Column<?>> fHandleColumnSelection) {
-		this.fHandleColumnSelection = fHandleColumnSelection;
+		Consumer<Column<?>> handleColumnSelection) {
+		this.handleColumnSelection = handleColumnSelection;
 
 		return this;
 	}
@@ -288,11 +283,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * Registers a listener for row selections (i.e. clicks on rows). The
 	 * listener will be invoked with the respective row as it's argument.
 	 *
-	 * @param fHandleRowSelection The row selection handler
+	 * @param handleRowSelection The row selection handler
 	 * @return This instance
 	 */
-	public UiTableList<T> onRowSelection(Consumer<Row> fHandleRowSelection) {
-		this.fHandleRowSelection = fHandleRowSelection;
+	public UiTableList<T> onRowSelection(Consumer<Row> handleRowSelection) {
+		this.handleRowSelection = handleRowSelection;
 
 		return this;
 	}
@@ -300,20 +295,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	/**
 	 * Removes a certain row from this table.
 	 *
-	 * @param rRow The row to remove
+	 * @param row The row to remove
 	 */
-	public void removeRow(Row rRow) {
-		aDataList.removeItem(rRow.rRowItem);
-		aRows.remove(rRow);
+	public void removeRow(Row row) {
+		dataList.removeItem(row.rowItem);
+		rows.remove(row);
 	}
 
 	/**
 	 * Sets the prefix to be used for column titles.
 	 *
-	 * @param sPrefix The column title prefix
+	 * @param prefix The column title prefix
 	 */
-	public void setColumnPrefix(String sPrefix) {
-		sColumnPrefix = sPrefix;
+	public void setColumnPrefix(String prefix) {
+		columnPrefix = prefix;
 	}
 
 	/**
@@ -323,17 +318,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * table should have been performed already (e.g. settings columns or an
 	 * expanded row builder).
 	 *
-	 * @param rRowDataProvider The data provider that returns the table rows
+	 * @param rowDataProvider The data provider that returns the table rows
 	 */
-	public void setData(DataProvider<T> rRowDataProvider) {
-		Objects.requireNonNull(rRowDataProvider);
+	public void setData(DataProvider<T> rowDataProvider) {
+		Objects.requireNonNull(rowDataProvider);
 
-		aDataList.clear();
-		aRows.clear();
-		rDataProvider = rRowDataProvider;
+		dataList.clear();
+		rows.clear();
+		dataProvider = rowDataProvider;
 
-		for (Column<?> rColumn : aColumns) {
-			rColumn.dataAvailable(rDataProvider);
+		for (Column<?> column : columns) {
+			column.dataAvailable(dataProvider);
 		}
 
 		// only update if the container has been built already, otherwise leave
@@ -357,28 +352,28 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * builder for the row content container and the data object of the
 	 * row.</p>
 	 *
-	 * @param fBuilder The builder for the row content
+	 * @param builder The builder for the row content
 	 */
-	public void setExpandedRowBuilder(BiConsumer<UiBuilder<?>, T> fBuilder) {
-		fRowContentBuilder = fBuilder;
+	public void setExpandedRowBuilder(BiConsumer<UiBuilder<?>, T> builder) {
+		rowContentBuilder = builder;
 	}
 
 	/**
 	 * Sets the selection to a certain row.
 	 *
-	 * @param rRow The row to select or NULL for no selection
+	 * @param row The row to select or NULL for no selection
 	 */
 	@Override
-	public void setSelection(Row rRow) {
-		handleRowSelection(rRow, false);
+	public void setSelection(Row row) {
+		handleRowSelection(row, false);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void buildContent(UiBuilder<?> rBuilder) {
-		if (rDataProvider != null) {
+	protected void buildContent(UiBuilder<?> builder) {
+		if (dataProvider != null) {
 			updateData();
 		}
 	}
@@ -389,65 +384,64 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * own column subclasses, e.g. to handle special formatting or value
 	 * parsing.
 	 *
-	 * @param fGetColumnData The column data access function
+	 * @param getColumnData The column data access function
 	 * @return The new column instance
 	 */
-	protected <V> Column<V> createColumn(
-		Function<? super T, V> fGetColumnData) {
-		return new Column<>(aTableHeader, fGetColumnData);
+	protected <V> Column<V> createColumn(Function<? super T, V> getColumnData) {
+		return new Column<>(tableHeader, getColumnData);
 	}
 
 	/**
 	 * Creates a new row. Subclasses can override this method to return their
 	 * own row subclasses, e.g. to handle the row content.
 	 *
-	 * @param rItem    The row item
-	 * @param rRowData The row data
+	 * @param item    The row item
+	 * @param rowData The row data
 	 * @return A new row instance
 	 */
-	protected Row createRow(Item rItem, T rRowData) {
-		return new Row(rItem, rRowData);
+	protected Row createRow(Item item, T rowData) {
+		return new Row(item, rowData);
 	}
 
 	/**
 	 * Update the rows of this table. This will also adjust the number of table
 	 * rows (i.e. add or remove rows) to match the size of the given data set.
 	 *
-	 * @param nFirstRow The index of the first row to display
-	 * @param nCount    The number of rows to display
+	 * @param firstRow The index of the first row to display
+	 * @param count    The number of rows to display
 	 */
-	protected void displayRows(int nFirstRow, int nCount) {
-		int nRowIndex = 0;
+	protected void displayRows(int firstRow, int count) {
+		int rowIndex = 0;
 
-		for (T rRowData : rDataProvider.getData(nFirstRow, nCount)) {
-			if (nRowIndex < aRows.size()) {
-				Row rRow = aRows.get(nRowIndex);
+		for (T rowData : dataProvider.getData(firstRow, count)) {
+			if (rowIndex < rows.size()) {
+				Row row = rows.get(rowIndex);
 
-				rRow.update(rRowData);
+				row.update(rowData);
 
-				if (fRowContentBuilder != null) {
+				if (rowContentBuilder != null) {
 					// rebuild content if now row subclass with a method
 					// updateExpandedContent is used
-					rRow.rRowItem.remove(rRow.aContentPanel);
-					rRow.initContent();
+					row.rowItem.remove(row.contentPanel);
+					row.initContent();
 				}
 			} else {
-				Row aRow = createRow(aDataList.addItem(), rRowData);
+				Row row = createRow(dataList.addItem(), rowData);
 
-				aRows.add(aRow);
-				aRow.setIndex(nRowIndex);
-				aRow.initContent();
+				rows.add(row);
+				row.setIndex(rowIndex);
+				row.initContent();
 			}
 
-			nRowIndex++;
+			rowIndex++;
 		}
 
-		while (nRowIndex < aRows.size()) {
-			removeRow(aRows.get(nRowIndex));
+		while (rowIndex < rows.size()) {
+			removeRow(rows.get(rowIndex));
 		}
 
-		aEmptyTableInfo.setVisible(
-			aRows.size() == 0 && aEmptyTableInfo.getComponents().size() > 0);
+		emptyTableInfo.setVisible(
+			rows.size() == 0 && emptyTableInfo.getComponents().size() > 0);
 	}
 
 	/**
@@ -458,34 +452,34 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 * table.
 	 */
 	protected void updateData() {
-		displayRows(0, rDataProvider.size());
+		displayRows(0, dataProvider.size());
 	}
 
 	/**
 	 * Handles the selection event of a certain row.
 	 *
-	 * @param rRow       The selected row
-	 * @param bFireEvent TRUE to notify a row selection listener if available
+	 * @param row       The selected row
+	 * @param fireEvent TRUE to notify a row selection listener if available
 	 */
-	void handleRowSelection(Row rRow, boolean bFireEvent) {
-		if (rSelectedRow != rRow) {
-			if (rSelectedRow != null) {
-				rSelectedRow.setSelected(false);
+	void handleRowSelection(Row row, boolean fireEvent) {
+		if (selectedRow != row) {
+			if (selectedRow != null) {
+				selectedRow.setSelected(false);
 			}
 
-			rSelectedRow = rRow;
+			selectedRow = row;
 
-			if (rSelectedRow != null) {
-				rSelectedRow.setSelected(true);
-				rSelectedRow.updateExpandedContent();
+			if (selectedRow != null) {
+				selectedRow.setSelected(true);
+				selectedRow.updateExpandedContent();
 			}
 
-			aDataList.set(rSelectedRow != null ? rSelectedRow.getIndex() : -1,
+			dataList.set(selectedRow != null ? selectedRow.getIndex() : -1,
 				CURRENT_SELECTION);
 		}
 
-		if (bFireEvent && fHandleRowSelection != null) {
-			fHandleRowSelection.accept(rRow);
+		if (fireEvent && handleRowSelection != null) {
+			handleRowSelection.accept(row);
 		}
 	}
 
@@ -496,27 +490,27 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public class Column<V> extends UiComposite<Column<V>> {
 
-		private Function<? super T, V> fGetColumnData;
+		private final Function<? super T, V> getColumnData;
 
-		private Class<? super V> rDatatype;
+		private final UiLink columnTitle;
 
-		private Class<?> rDisplayDatatype;
+		private final UiStyle componentStyle = new UiStyle();
 
-		private Function<UiBuilder<?>, UiComponent<?, ?>> fDisplayFactory;
+		private Class<? super V> datatype;
 
-		private BiConsumer<UiComponent<?, ?>, V> fDisplayUpdate;
+		private Class<?> displayDatatype;
 
-		private UiLink aColumnTitle;
+		private Function<UiBuilder<?>, UiComponent<?, ?>> displayFactory;
 
-		private SortDirection eInitialSortDirection;
+		private BiConsumer<UiComponent<?, ?>, V> displayUpdate;
 
-		private Function<V, String> fValueFormat;
+		private SortDirection initialSortDirection;
 
-		private UiStyle aComponentStyle = new UiStyle();
+		private Function<V, String> valueFormat;
 
-		private Consumer<V> fActionHandler;
+		private Consumer<V> actionHandler;
 
-		private Consumer<V> fUpdateHandler;
+		private Consumer<V> updateHandler;
 
 		/**
 		 * Creates a new instance that retrieves the column value from a row
@@ -528,22 +522,21 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * like
 		 * sorting and value formatting may not be available.
 		 *
-		 * @param rParent        The parent container
-		 * @param fGetColumnData A function that retrieves the column value
-		 *                             from
-		 *                       a row data object
+		 * @param parent        The parent container
+		 * @param getColumnData A function that retrieves the column value from
+		 *                      a row data object
 		 */
 		@SuppressWarnings("unchecked")
-		Column(UiContainer<?> rParent, Function<? super T, V> fGetColumnData) {
-			super(rParent, new UiFlowLayout());
+		Column(UiContainer<?> parent, Function<? super T, V> getColumnData) {
+			super(parent, new UiFlowLayout());
 
-			this.fGetColumnData = fGetColumnData;
+			this.getColumnData = getColumnData;
 
-			if (fGetColumnData instanceof RelationType) {
-				datatype(((RelationType<V>) fGetColumnData).getTargetType());
+			if (getColumnData instanceof RelationType) {
+				datatype(((RelationType<V>) getColumnData).getTargetType());
 			}
 
-			aColumnTitle = new UiLink(this, "")
+			columnTitle = new UiLink(this, "")
 				.set(NO_EVENT_PROPAGATION)
 				.onClick(v -> handleColumnSelection());
 		}
@@ -555,7 +548,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @return The component style
 		 */
 		public UiStyle componentStyle() {
-			return aComponentStyle;
+			return componentStyle;
 		}
 
 		/**
@@ -563,11 +556,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * instance of {@link RelationType} the datatype will be determined
 		 * automatically.
 		 *
-		 * @param rDatatype The column datatype class
+		 * @param datatype The column datatype class
 		 * @return This instance
 		 */
-		public Column<V> datatype(Class<? super V> rDatatype) {
-			this.rDatatype = rDatatype;
+		public Column<V> datatype(Class<? super V> datatype) {
+			this.datatype = datatype;
 
 			return this;
 		}
@@ -584,12 +577,12 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * method {@link #updateWith(BiConsumer)} also needs to be invoked to
 		 * set an update function.
 		 *
-		 * @param fDisplayFactory The display component factory function
+		 * @param displayFactory The display component factory function
 		 * @return This instance
 		 */
 		public Column<V> displayWith(
-			Function<UiBuilder<?>, UiComponent<?, ?>> fDisplayFactory) {
-			this.fDisplayFactory = fDisplayFactory;
+			Function<UiBuilder<?>, UiComponent<?, ?>> displayFactory) {
+			this.displayFactory = displayFactory;
 
 			return this;
 		}
@@ -602,11 +595,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * values
 		 * which will be rendered as an empty cell.
 		 *
-		 * @param fValueFormat A function that formats values as a string
+		 * @param valueFormat A function that formats values as a string
 		 * @return This instance
 		 */
-		public Column<V> formatWith(Function<V, String> fValueFormat) {
-			this.fValueFormat = fValueFormat;
+		public Column<V> formatWith(Function<V, String> valueFormat) {
+			this.valueFormat = valueFormat;
 
 			return this;
 		}
@@ -614,11 +607,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/**
 		 * Returns the value of this column from a data object.
 		 *
-		 * @param rDataObject The data object
+		 * @param dataObject The data object
 		 * @return The column value (can be NULL)
 		 */
-		public V getColumnValue(T rDataObject) {
-			return fGetColumnData.apply(rDataObject);
+		public V getColumnValue(T dataObject) {
+			return getColumnData.apply(dataObject);
 		}
 
 		/**
@@ -629,13 +622,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * This must be used in conjunction with {@link #displayWith(Function)}
 		 * because the default column components don't produce events.
 		 *
-		 * @param fHandler The event handler
+		 * @param handler The event handler
 		 * @return This instance
 		 * @see #displayWith(Function)
 		 * @see #onUpdate(Consumer)
 		 */
-		public Column<V> onAction(Consumer<V> fHandler) {
-			fActionHandler = fHandler;
+		public Column<V> onAction(Consumer<V> handler) {
+			actionHandler = handler;
 
 			return this;
 		}
@@ -648,13 +641,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * This must be used in conjunction with {@link #displayWith(Function)}
 		 * because the default column components don't produce events.
 		 *
-		 * @param fHandler The event handler
+		 * @param handler The event handler
 		 * @return This instance
 		 * @see #displayWith(Function)
 		 * @see #onAction(Consumer)
 		 */
-		public Column<V> onUpdate(Consumer<V> fHandler) {
-			fUpdateHandler = fHandler;
+		public Column<V> onUpdate(Consumer<V> handler) {
+			updateHandler = handler;
 
 			return this;
 		}
@@ -662,24 +655,24 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/**
 		 * Sets the title of this column.
 		 *
-		 * @param sTitle The new column title
+		 * @param title The new column title
 		 */
-		public void setTitle(String sTitle) {
-			aColumnTitle.setText(sTitle);
+		public void setTitle(String title) {
+			columnTitle.setText(title);
 		}
 
 		/**
 		 * Applies or removes sorting of this column in the given direction.
 		 *
-		 * @param eDirection The sort direction or NULL to remove explicit
-		 *                   sorting
+		 * @param direction The sort direction or NULL to remove explicit
+		 *                  sorting
 		 * @return This instance
 		 */
-		public Column<V> sort(SortDirection eDirection) {
-			if (rDataProvider == null) {
-				eInitialSortDirection = eDirection;
+		public Column<V> sort(SortDirection direction) {
+			if (dataProvider == null) {
+				initialSortDirection = direction;
 			} else {
-				setSorting(eDirection);
+				setSorting(direction);
 			}
 
 			return this;
@@ -719,13 +712,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * their
 		 * own display components through {@link #displayWith(Function)}.
 		 *
-		 * @param fDisplayUpdate A binary consumer that updates the given
-		 *                       component with a new column value
+		 * @param displayUpdate A binary consumer that updates the given
+		 *                      component with a new column value
 		 * @return This instance
 		 */
 		public Column<V> updateWith(
-			BiConsumer<UiComponent<?, ?>, V> fDisplayUpdate) {
-			this.fDisplayUpdate = fDisplayUpdate;
+			BiConsumer<UiComponent<?, ?>, V> displayUpdate) {
+			this.displayUpdate = displayUpdate;
 
 			return this;
 		}
@@ -733,11 +726,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/**
 		 * Sets the relative width of this column.
 		 *
-		 * @param eWidth The relative size constant for the column width
+		 * @param width The relative size constant for the column width
 		 * @return This instance for concatenation
 		 */
-		public final Column<V> width(RelativeSize eWidth) {
-			return set(RELATIVE_WIDTH, eWidth);
+		public final Column<V> width(RelativeSize width) {
+			return set(RELATIVE_WIDTH, width);
 		}
 
 		/**
@@ -745,60 +738,60 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * columns. The number must be less or equal to the total number of
 		 * layout columns available (see {@link UiLayout#getColumns()}).
 		 *
-		 * @param nGridColumns The number of layout columns this column should
-		 *                     span
+		 * @param gridColumns The number of layout columns this column should
+		 *                    span
 		 * @return This instance for concatenation
 		 */
-		public final Column<V> width(int nGridColumns) {
-			return set(nGridColumns, COLUMN_SPAN);
+		public final Column<V> width(int gridColumns) {
+			return set(gridColumns, COLUMN_SPAN);
 		}
 
 		/**
 		 * Adds a display component for this column and the corresponding value
 		 * in a certain data object.
 		 *
-		 * @param rBuilder The builder to create the component with
-		 * @param fData    A function that provides access to the data object
+		 * @param builder The builder to create the component with
+		 * @param data    A function that provides access to the data object
 		 * @return The new component
 		 */
-		protected UiComponent<?, ?> addDisplayComponent(UiBuilder<?> rBuilder,
-			Supplier<T> fData) {
-			UiComponent<?, ?> aComponent = null;
+		protected UiComponent<?, ?> addDisplayComponent(UiBuilder<?> builder,
+			Supplier<T> data) {
+			UiComponent<?, ?> component = null;
 
-			if (fDisplayFactory != null) {
-				aComponent = fDisplayFactory.apply(rBuilder);
+			if (displayFactory != null) {
+				component = displayFactory.apply(builder);
 			} else {
-				Class<?> rComponentDatatype =
-					rDisplayDatatype != null ? rDisplayDatatype : rDatatype;
+				Class<?> componentDatatype =
+					displayDatatype != null ? displayDatatype : datatype;
 
-				if (rComponentDatatype != null) {
-					if (rComponentDatatype.isEnum() ||
+				if (componentDatatype != null) {
+					if (componentDatatype.isEnum() ||
 						UiIconSupplier.class.isAssignableFrom(
-							rComponentDatatype)) {
-						aComponent = rBuilder.addIcon(null);
+							componentDatatype)) {
+						component = builder.addIcon(null);
 					}
 				}
 
-				if (aComponent == null) {
-					aComponent = rBuilder.addLabel("");
+				if (component == null) {
+					component = builder.addLabel("");
 				}
 			}
 
-			if (fActionHandler != null &&
-				aComponent instanceof UiHasActionEvents) {
-				((UiHasActionEvents<?, ?>) aComponent).onAction(
-					v -> fActionHandler.accept(getColumnValue(fData.get())));
+			if (actionHandler != null &&
+				component instanceof UiHasActionEvents) {
+				((UiHasActionEvents<?, ?>) component).onAction(
+					v -> actionHandler.accept(getColumnValue(data.get())));
 			}
 
-			if (fUpdateHandler != null &&
-				aComponent instanceof UiHasUpdateEvents) {
-				((UiHasUpdateEvents<?, ?>) aComponent).onUpdate(
-					v -> fUpdateHandler.accept(getColumnValue(fData.get())));
+			if (updateHandler != null &&
+				component instanceof UiHasUpdateEvents) {
+				((UiHasUpdateEvents<?, ?>) component).onUpdate(
+					v -> updateHandler.accept(getColumnValue(data.get())));
 			}
 
-			updateDisplay(aComponent, fData.get());
+			updateDisplay(component, data.get());
 
-			return aComponent;
+			return component;
 		}
 
 		/**
@@ -818,51 +811,50 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/**
 		 * Will be notified when the table data is available.
 		 *
-		 * @param rDataProvider The table data provider
+		 * @param dataProvider The table data provider
 		 */
-		protected void dataAvailable(DataProvider<T> rDataProvider) {
-			if (eInitialSortDirection != null) {
-				setSorting(eInitialSortDirection);
+		protected void dataAvailable(DataProvider<T> dataProvider) {
+			if (initialSortDirection != null) {
+				setSorting(initialSortDirection);
 			}
 		}
 
 		/**
 		 * Formats a value into a string representation.
 		 *
-		 * @param rValue The value to format
+		 * @param value The value to format
 		 * @return The formatted string
 		 */
-		protected String formatAsString(V rValue) {
-			String sValue = null;
+		protected String formatAsString(V value) {
+			String valueText = null;
 
-			if (fValueFormat != null) {
-				sValue = fValueFormat.apply(rValue);
-			} else if (rValue != null) {
-				if (rValue.getClass().isEnum()) {
-					sValue = DataElement.createItemResource(rValue);
-				} else if (rValue instanceof Date) {
-					Locale rLocale = fragment().getParameter(CLIENT_LOCALE);
+			if (valueFormat != null) {
+				valueText = valueFormat.apply(value);
+			} else if (value != null) {
+				if (value.getClass().isEnum()) {
+					valueText = DataElement.createItemResource(value);
+				} else if (value instanceof Date) {
+					Locale locale = fragment().getParameter(CLIENT_LOCALE);
 
-					DateFormat rDateFormat =
+					DateFormat dateFormat =
 						SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT,
-							rLocale);
+							locale);
 
 					// on first format of a data assign a formatting function
 					// that will be used subsequently
-					fValueFormat =
-						v -> v != null ? rDateFormat.format(v) : null;
+					valueFormat = v -> v != null ? dateFormat.format(v) : null;
 
-					sValue = fValueFormat.apply(rValue);
+					valueText = valueFormat.apply(value);
 				} else {
-					sValue = rValue.toString();
+					valueText = value.toString();
 				}
 			}
 
-			if (sValue == null) {
-				sValue = " ";
+			if (valueText == null) {
+				valueText = " ";
 			}
 
-			return sValue;
+			return valueText;
 		}
 
 		/**
@@ -880,8 +872,8 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		protected void handleColumnSelection() {
 			setSorting(nextSortDirection());
 
-			if (fHandleColumnSelection != null) {
-				fHandleColumnSelection.accept(this);
+			if (handleColumnSelection != null) {
+				handleColumnSelection.accept(this);
 			}
 		}
 
@@ -890,21 +882,20 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * argument component must be one that has been created by the method
 		 * {@link #addDisplayComponent(UiBuilder, Supplier)}.
 		 *
-		 * @param rComponent  The component to update
-		 * @param rDataObject The data object to read the update value from
+		 * @param component  The component to update
+		 * @param dataObject The data object to read the update value from
 		 */
-		protected void updateDisplay(UiComponent<?, ?> rComponent,
-			T rDataObject) {
-			V rValue = getColumnValue(rDataObject);
+		protected void updateDisplay(UiComponent<?, ?> component,
+			T dataObject) {
+			V value = getColumnValue(dataObject);
 
-			if (fDisplayUpdate != null) {
-				fDisplayUpdate.accept(rComponent, rValue);
+			if (displayUpdate != null) {
+				displayUpdate.accept(component, value);
 			} else {
-				if (rComponent instanceof UiIcon) {
-					updateIcon((UiIcon) rComponent, rValue);
-				} else if (rComponent instanceof TextAttribute) {
-					((TextAttribute) rComponent).setText(
-						formatAsString(rValue));
+				if (component instanceof UiIcon) {
+					updateIcon((UiIcon) component, value);
+				} else if (component instanceof TextAttribute) {
+					((TextAttribute) component).setText(formatAsString(value));
 				}
 			}
 		}
@@ -912,21 +903,21 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/**
 		 * Updates an icon component from a column value.
 		 *
-		 * @param rIcon  The icon component
-		 * @param rValue The column value
+		 * @param icon  The icon component
+		 * @param value The column value
 		 */
-		protected void updateIcon(UiIcon rIcon, V rValue) {
-			if (rValue instanceof UiIconSupplier) {
-				rIcon.setIcon(((UiIconSupplier) rValue).getIcon());
+		protected void updateIcon(UiIcon icon, V value) {
+			if (value instanceof UiIconSupplier) {
+				icon.setIcon(((UiIconSupplier) value).getIcon());
 			} else {
-				UiImageResource rIconResource = null;
+				UiImageResource iconResource = null;
 
-				if (rValue != null) {
-					rIconResource = new UiImageResource(
-						"$im" + DataElement.createItemName(rValue));
+				if (value != null) {
+					iconResource = new UiImageResource(
+						"$im" + DataElement.createItemName(value));
 				}
 
-				rIcon.setIcon(rIconResource);
+				icon.setIcon(iconResource);
 			}
 		}
 
@@ -934,17 +925,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * Checks whether the table data can be filtered by this column.
 		 */
 		boolean allowsFiltering() {
-			return rDatatype != null && rDataProvider != null &&
-				rDataProvider instanceof HasAttributeFilter;
+			return datatype != null && dataProvider != null &&
+				dataProvider instanceof HasAttributeFilter;
 		}
 
 		/**
 		 * Checks whether the table data can be sorted by this column.
 		 */
 		boolean allowsSorting() {
-			return rDatatype != null && rDataProvider != null &&
-				Comparable.class.isAssignableFrom(rDatatype) &&
-				rDataProvider instanceof HasAttributeSorting;
+			return datatype != null && dataProvider != null &&
+				Comparable.class.isAssignableFrom(datatype) &&
+				dataProvider instanceof HasAttributeSorting;
 		}
 
 		/**
@@ -955,53 +946,53 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 */
 		@SuppressWarnings("unchecked")
 		SortDirection nextSortDirection() {
-			SortDirection eSortDirection = null;
+			SortDirection sortDirection = null;
 
 			if (allowsSorting()) {
-				eSortDirection =
-					((HasAttributeSorting<T>) rDataProvider).getSortDirection(
-						fGetColumnData);
+				sortDirection =
+					((HasAttributeSorting<T>) dataProvider).getSortDirection(
+						getColumnData);
 
-				if (eSortDirection == null) {
-					eSortDirection = SortDirection.ASCENDING;
-				} else if (eSortDirection == SortDirection.ASCENDING) {
-					eSortDirection = SortDirection.DESCENDING;
+				if (sortDirection == null) {
+					sortDirection = SortDirection.ASCENDING;
+				} else if (sortDirection == SortDirection.ASCENDING) {
+					sortDirection = SortDirection.DESCENDING;
 				} else {
-					eSortDirection = null;
+					sortDirection = null;
 				}
 			}
 
-			return eSortDirection;
+			return sortDirection;
 		}
 
 		/**
 		 * Sets the sorting of this column.
 		 *
-		 * @param eDirection The sort direction or NULL to remove sorting
+		 * @param direction The sort direction or NULL to remove sorting
 		 */
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		void setSorting(SortDirection eDirection) {
+		void setSorting(SortDirection direction) {
 			if (allowsSorting()) {
-				String sColumnStyle = "";
+				String columnStyle = "";
 
-				if (eDirection == SortDirection.ASCENDING) {
-					sColumnStyle = "sort ascending";
-				} else if (eDirection == SortDirection.DESCENDING) {
-					sColumnStyle = "sort descending";
+				if (direction == SortDirection.ASCENDING) {
+					columnStyle = "sort ascending";
+				} else if (direction == SortDirection.DESCENDING) {
+					columnStyle = "sort descending";
 				}
 
-				if (rSortColumn != null && rSortColumn != this) {
-					Column rPrevCol = rSortColumn;
+				if (sortColumn != null && sortColumn != this) {
+					Column prevCol = sortColumn;
 
-					rSortColumn = null;
-					rPrevCol.setSorting(null);
+					sortColumn = null;
+					prevCol.setSorting(null);
 				}
 
-				((HasAttributeSorting<T>) rDataProvider).applySorting(
-					(Function<T, Comparable>) fGetColumnData, eDirection);
+				((HasAttributeSorting<T>) dataProvider).applySorting(
+					(Function<T, Comparable>) getColumnData, direction);
 
-				aColumnTitle.style().styleName(sColumnStyle);
-				rSortColumn = this;
+				columnTitle.style().styleName(columnStyle);
+				sortColumn = this;
 				updateData();
 			}
 		}
@@ -1011,30 +1002,28 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * the resource ID or, if not availabe, the data access function.
 		 */
 		private void applyColumnTitle() {
-			String sTitle = aColumnTitle.getText();
+			String title = columnTitle.getText();
 
-			if (sTitle == null || sTitle.isEmpty()) {
-				sTitle = get(RESOURCE_ID);
+			if (title == null || title.isEmpty()) {
+				title = get(RESOURCE_ID);
 
-				if (sTitle != null) {
-					sTitle = ColumnDefinition.STD_COLUMN_PREFIX + sTitle;
-				} else if (fGetColumnData instanceof RelationType) {
-					String sPrefix = sColumnPrefix != null ?
-					                 sColumnPrefix :
-					                 ColumnDefinition.STD_COLUMN_PREFIX;
+				if (title != null) {
+					title = ColumnDefinition.STD_COLUMN_PREFIX + title;
+				} else if (getColumnData instanceof RelationType) {
+					String prefix = columnPrefix != null ?
+					                columnPrefix :
+					                ColumnDefinition.STD_COLUMN_PREFIX;
 
-					sTitle =
-						((RelationType<?>) fGetColumnData).getSimpleName();
-					sTitle =
-						sPrefix + TextConvert.capitalizedIdentifier(sTitle);
-				} else if (fGetColumnData instanceof Relatable) {
-					sTitle =
-						((Relatable) fGetColumnData).get(StandardTypes.NAME);
+					title = ((RelationType<?>) getColumnData).getSimpleName();
+					title = prefix + TextConvert.capitalizedIdentifier(title);
+				} else if (getColumnData instanceof Relatable) {
+					title =
+						((Relatable) getColumnData).get(StandardTypes.NAME);
 				} else {
-					sTitle = fGetColumnData.toString();
+					title = getColumnData.toString();
 				}
 
-				aColumnTitle.setText(sTitle);
+				columnTitle.setText(title);
 			}
 		}
 	}
@@ -1046,34 +1035,34 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 	 */
 	public class Row extends UiComposite<Row> {
 
-		private Item rRowItem;
+		private final Item rowItem;
 
-		private T rRowData;
+		private T rowData;
 
-		private int nRowIndex;
+		private int rowIndex;
 
-		private boolean bSelected = false;
+		private boolean selected = false;
 
-		private UiLayoutPanel aContentPanel;
+		private UiLayoutPanel contentPanel;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rRowItem The item to place the row in
-		 * @param rRowData The row data object
+		 * @param rowItem The item to place the row in
+		 * @param rowData The row data object
 		 */
-		protected Row(Item rRowItem, T rRowData) {
-			super(rRowItem.getHeader().getContainer(),
+		protected Row(Item rowItem, T rowData) {
+			super(rowItem.getHeader().getContainer(),
 				new UiColumnGridLayout());
 
-			this.rRowItem = rRowItem;
-			this.rRowData = rRowData;
+			this.rowItem = rowItem;
+			this.rowData = rowData;
 
-			for (Column<?> rColumn : aColumns) {
-				addColumnComponent(rColumn);
+			for (Column<?> column : columns) {
+				addColumnComponent(column);
 			}
 
-			rRowItem
+			rowItem
 				.getHeader()
 				.getContainer()
 				.onClickInContainerArea(v -> handleRowSelection(this, true));
@@ -1085,7 +1074,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @return The row data object
 		 */
 		public final T getData() {
-			return rRowData;
+			return rowData;
 		}
 
 		/**
@@ -1094,7 +1083,7 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @return The row index
 		 */
 		public final int getIndex() {
-			return nRowIndex;
+			return rowIndex;
 		}
 
 		/**
@@ -1103,16 +1092,16 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * @return The selection state
 		 */
 		public final boolean isSelected() {
-			return bSelected;
+			return selected;
 		}
 
 		/**
 		 * Sets this row's selection state.
 		 *
-		 * @param bSelected The selection state
+		 * @param selected The selection state
 		 */
-		public final void setSelected(boolean bSelected) {
-			this.bSelected = bSelected;
+		public final void setSelected(boolean selected) {
+			this.selected = selected;
 			setRowItemStyle();
 		}
 
@@ -1122,34 +1111,34 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		@Override
 		public UiStyle style() {
 			// redirect to the item style
-			return rRowItem.style();
+			return rowItem.style();
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public UiStyle style(UiStyle rStyle) {
+		public UiStyle style(UiStyle style) {
 			// redirect to the item style
-			return rRowItem.style(rStyle);
+			return rowItem.style(style);
 		}
 
 		/**
 		 * Updates this row from a new row data object.
 		 *
-		 * @param rRowData The new row data object
+		 * @param rowData The new row data object
 		 */
-		public void update(T rRowData) {
-			this.rRowData = rRowData;
+		public void update(T rowData) {
+			this.rowData = rowData;
 
-			List<UiComponent<?, ?>> rComponents = getComponents();
-			int nIndex = 0;
+			List<UiComponent<?, ?>> components = getComponents();
+			int index = 0;
 
-			for (Column<?> rColumn : aColumns) {
-				rColumn.updateDisplay(rComponents.get(nIndex++), rRowData);
+			for (Column<?> column : columns) {
+				column.updateDisplay(components.get(index++), rowData);
 			}
 
-			if (bSelected) {
+			if (selected) {
 				updateExpandedContent();
 			}
 		}
@@ -1157,10 +1146,10 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		/**
 		 * Adds a row component for a certain column.
 		 *
-		 * @param rColumn The column to add the component for
+		 * @param column The column to add the component for
 		 */
-		protected void addColumnComponent(Column<?> rColumn) {
-			rColumn.addDisplayComponent(builder(), this::getData);
+		protected void addColumnComponent(Column<?> column) {
+			column.addDisplayComponent(builder(), this::getData);
 		}
 
 		/**
@@ -1170,22 +1159,22 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		protected void applyProperties() {
 			super.applyProperties();
 
-			int nIndex = 0;
+			int index = 0;
 
-			for (Column<?> rColumn : aColumns) {
-				UiComponent<?, ?> rComponent = getComponents().get(nIndex++);
+			for (Column<?> column : columns) {
+				UiComponent<?, ?> component = getComponents().get(index++);
 
-				RelativeSize eColumnWidth = rColumn.get(RELATIVE_WIDTH);
-				Integer rColumnSpan = rColumn.get(COLUMN_SPAN);
+				RelativeSize columnWidth = column.get(RELATIVE_WIDTH);
+				Integer columnSpan = column.get(COLUMN_SPAN);
 
-				rColumn.componentStyle().applyPropertiesTo(rComponent);
+				column.componentStyle().applyPropertiesTo(component);
 
-				if (eColumnWidth != null) {
-					rComponent.set(RELATIVE_WIDTH, eColumnWidth);
+				if (columnWidth != null) {
+					component.set(RELATIVE_WIDTH, columnWidth);
 				}
 
-				if (rColumnSpan != null && rColumnSpan.intValue() > 0) {
-					rComponent.set(rColumnSpan.intValue(), COLUMN_SPAN);
+				if (columnSpan != null && columnSpan.intValue() > 0) {
+					component.set(columnSpan.intValue(), COLUMN_SPAN);
 				}
 			}
 		}
@@ -1222,11 +1211,11 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * builder if one has been set through the method
 		 * {@link UiTableList#setExpandedRowBuilder(BiConsumer)}.</p>
 		 *
-		 * @param rBuilder The builder to build the content with
+		 * @param builder The builder to build the content with
 		 */
-		protected void initExpandedContent(UiBuilder<?> rBuilder) {
-			if (fRowContentBuilder != null) {
-				fRowContentBuilder.accept(rBuilder, rRowData);
+		protected void initExpandedContent(UiBuilder<?> builder) {
+			if (rowContentBuilder != null) {
+				rowContentBuilder.accept(builder, rowData);
 			}
 		}
 
@@ -1246,17 +1235,17 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * overridden by subclasses.
 		 */
 		final void initContent() {
-			aContentPanel = rRowItem.builder().addPanel(getContentLayout());
-			initExpandedContent(aContentPanel.builder());
+			contentPanel = rowItem.builder().addPanel(getContentLayout());
+			initExpandedContent(contentPanel.builder());
 		}
 
 		/**
 		 * Internal method to set the index of this row in the table list.
 		 *
-		 * @param nIndex The new index
+		 * @param index The new index
 		 */
-		void setIndex(int nIndex) {
-			nRowIndex = nIndex;
+		void setIndex(int index) {
+			rowIndex = index;
 			setRowItemStyle();
 		}
 
@@ -1264,13 +1253,13 @@ public class UiTableList<T> extends UiComposite<UiTableList<T>>
 		 * Sets the style of the parent item according to the row state.
 		 */
 		private void setRowItemStyle() {
-			String sItemStyle = nRowIndex % 2 == 1 ? "odd" : "even";
+			String itemStyle = rowIndex % 2 == 1 ? "odd" : "even";
 
-			if (bSelected) {
-				sItemStyle += " selected";
+			if (selected) {
+				itemStyle += " selected";
 			}
 
-			rRowItem.style().styleName(sItemStyle);
+			rowItem.style().styleName(itemStyle);
 		}
 	}
 }

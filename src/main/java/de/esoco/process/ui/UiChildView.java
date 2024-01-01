@@ -21,13 +21,11 @@ import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LayoutProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
+import org.obrel.core.RelationType;
 
 import java.util.List;
 
-import org.obrel.core.RelationType;
-
 import static de.esoco.lib.property.StyleProperties.AUTO_HIDE;
-
 import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
 
 /**
@@ -37,21 +35,21 @@ import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
  */
 public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V> {
 
-	private Runnable rCloseHandler;
+	private Runnable closeHandler;
 
 	/**
 	 * Creates a new instance and shows it.
 	 *
 	 * @see UiView#UiView(UiView, UiLayout)
 	 */
-	public UiChildView(UiView<?> rParent, UiLayout rLayout,
-		ViewDisplayType eViewType) {
-		super(rParent, rLayout);
+	public UiChildView(UiView<?> parent, UiLayout layout,
+		ViewDisplayType viewType) {
+		super(parent, layout);
 
 		getParent().fragment().addViewFragment(type(), fragment());
 		fragment().get(VIEW_PARAMS).remove(type());
 
-		setViewType(eViewType);
+		setViewType(viewType);
 	}
 
 	/**
@@ -78,12 +76,12 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V> {
 	/**
 	 * Adds a handler that will be invoked when this view is closed.
 	 *
-	 * @param rCloseHandler The handler to be invoked if the view is closed
+	 * @param closeHandler The handler to be invoked if the view is closed
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public V onClose(Runnable rCloseHandler) {
-		this.rCloseHandler = rCloseHandler;
+	public V onClose(Runnable closeHandler) {
+		this.closeHandler = closeHandler;
 
 		return (V) this;
 	}
@@ -95,14 +93,14 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V> {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public V setVisible(boolean bVisible) {
-		RelationType<List<RelationType<?>>> rViewParam = type();
+	public V setVisible(boolean visible) {
+		RelationType<List<RelationType<?>>> viewParam = type();
 
-		if (bVisible) {
-			fragment().get(VIEW_PARAMS).add(rViewParam);
+		if (visible) {
+			fragment().get(VIEW_PARAMS).add(viewParam);
 			applyProperties();
 		} else {
-			getParent().fragment().removeViewFragment(rViewParam);
+			getParent().fragment().removeViewFragment(viewParam);
 		}
 
 		return (V) this;
@@ -115,29 +113,29 @@ public abstract class UiChildView<V extends UiChildView<V>> extends UiView<V> {
 	 * @see UiContainer#attachTo(UiContainer)
 	 */
 	@Override
-	protected void attachTo(UiContainer<?> rParent) {
+	protected void attachTo(UiContainer<?> parent) {
 	}
 
 	/**
 	 * Set the type of this view
 	 *
-	 * @param eViewType The view type
+	 * @param viewType The view type
 	 */
-	protected void setViewType(ViewDisplayType eViewType) {
-		set(LayoutProperties.VIEW_DISPLAY_TYPE, eViewType);
+	protected void setViewType(ViewDisplayType viewType) {
+		set(LayoutProperties.VIEW_DISPLAY_TYPE, viewType);
 	}
 
 	/**
 	 * Handles close events for this view.
 	 */
 	private void handleCloseView() {
-		if (rCloseHandler != null) {
-			rCloseHandler.run();
+		if (closeHandler != null) {
+			closeHandler.run();
 		}
 
-		Boolean rAutoHide = get(AUTO_HIDE);
+		Boolean autoHide = get(AUTO_HIDE);
 
-		if (rAutoHide != null && rAutoHide.booleanValue()) {
+		if (autoHide != null && autoHide.booleanValue()) {
 			hide();
 		}
 	}

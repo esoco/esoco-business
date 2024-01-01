@@ -18,7 +18,6 @@ package de.esoco.entity;
 
 import de.esoco.lib.manage.TransactionManager;
 import de.esoco.lib.manage.Transactional;
-
 import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
@@ -39,17 +38,17 @@ import de.esoco.storage.StorageManager;
 public class EntityTransaction implements Transactional {
 
 	// flag that can be set by package test classes to enable the test mode
-	private static boolean bTestMode = false;
+	private static boolean testMode = false;
 
-	private Entity rEntity;
+	private Entity entity;
 
 	/**
 	 * Creates a new transaction for a particular entity.
 	 *
-	 * @param rEntity The entity to wrap into the transaction
+	 * @param entity The entity to wrap into the transaction
 	 */
-	public EntityTransaction(Entity rEntity) {
-		this.rEntity = rEntity;
+	public EntityTransaction(Entity entity) {
+		this.entity = entity;
 	}
 
 	/**
@@ -60,7 +59,7 @@ public class EntityTransaction implements Transactional {
 	 * any changes.
 	 */
 	static void activateTestMode() {
-		bTestMode = true;
+		testMode = true;
 	}
 
 	/**
@@ -72,19 +71,19 @@ public class EntityTransaction implements Transactional {
 	 */
 	@Override
 	public void commit() throws StorageException {
-		Storage rStorage = StorageManager.getStorage(rEntity.getClass());
+		Storage storage = StorageManager.getStorage(entity.getClass());
 
-		rStorage.store(rEntity);
+		storage.store(entity);
 
-		if (!bTestMode) {
+		if (!testMode) {
 			// do not add in test mode to prevent commit during test
 			// the transaction will release the storage after  use, so it is
 			// not
 			// necessary to have a finally block with a release call here
-			TransactionManager.addTransactionElement(rStorage);
+			TransactionManager.addTransactionElement(storage);
 		}
 
-		rEntity = null;
+		entity = null;
 	}
 
 	/**
@@ -92,6 +91,6 @@ public class EntityTransaction implements Transactional {
 	 */
 	@Override
 	public void rollback() {
-		rEntity = null;
+		entity = null;
 	}
 }

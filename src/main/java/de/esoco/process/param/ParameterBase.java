@@ -18,7 +18,6 @@ package de.esoco.process.param;
 
 import de.esoco.data.FileType;
 import de.esoco.data.element.DataElementList;
-
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
@@ -37,12 +36,17 @@ import de.esoco.lib.property.RelativeScale;
 import de.esoco.lib.property.RelativeSize;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
-
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.Relatable;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationEvent;
+import org.obrel.core.RelationType;
+import org.obrel.filter.RelationCoupling;
+import org.obrel.type.ListenerTypes;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,13 +54,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import org.obrel.core.Relatable;
-import org.obrel.core.Relation;
-import org.obrel.core.RelationEvent;
-import org.obrel.core.RelationType;
-import org.obrel.filter.RelationCoupling;
-import org.obrel.type.ListenerTypes;
 
 import static de.esoco.lib.expression.Predicates.not;
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
@@ -105,7 +102,7 @@ import static de.esoco.lib.property.StyleProperties.STYLE;
 public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	extends ParameterWrapper<T, P> {
 
-	private static int nNextFinishActionId = 0;
+	private static int nextFinishActionId = 0;
 
 	/**
 	 * Creates a new instance for a certain fragment and parameter relation
@@ -121,12 +118,12 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * subclass, e.g. to include some kind of self-reference (which is not
 	 * possible while invoking the super constructor).</p>
 	 *
-	 * @param rFragment  The fragment to handle the parameter for
-	 * @param rParamType The parameter relation type to handle
+	 * @param fragment  The fragment to handle the parameter for
+	 * @param paramType The parameter relation type to handle
 	 */
-	public ParameterBase(InteractionFragment rFragment,
-		RelationType<T> rParamType) {
-		super(rFragment, rParamType);
+	public ParameterBase(InteractionFragment fragment,
+		RelationType<T> paramType) {
+		super(fragment, paramType);
 	}
 
 	/**
@@ -144,41 +141,41 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets the property {@link LayoutProperties#HORIZONTAL_ALIGN}.
 	 *
-	 * @param eAlignment The alignment
+	 * @param alignment The alignment
 	 * @return This instance for concatenation
 	 */
-	public final P alignHorizontal(Alignment eAlignment) {
-		return set(HORIZONTAL_ALIGN, eAlignment);
+	public final P alignHorizontal(Alignment alignment) {
+		return set(HORIZONTAL_ALIGN, alignment);
 	}
 
 	/**
 	 * Sets the property {@link LayoutProperties#ICON_ALIGN}.
 	 *
-	 * @param eAlignment The alignment of the icon
+	 * @param alignment The alignment of the icon
 	 * @return This instance for concatenation
 	 */
-	public final P alignIcon(Alignment eAlignment) {
-		return set(ICON_ALIGN, eAlignment);
+	public final P alignIcon(Alignment alignment) {
+		return set(ICON_ALIGN, alignment);
 	}
 
 	/**
 	 * Sets the property {@link LayoutProperties#TEXT_ALIGN}.
 	 *
-	 * @param eAlignment The alignment
+	 * @param alignment The alignment
 	 * @return This instance for concatenation
 	 */
-	public final P alignText(Alignment eAlignment) {
-		return set(TEXT_ALIGN, eAlignment);
+	public final P alignText(Alignment alignment) {
+		return set(TEXT_ALIGN, alignment);
 	}
 
 	/**
 	 * Sets the property {@link LayoutProperties#VERTICAL_ALIGN}.
 	 *
-	 * @param eAlignment The alignment
+	 * @param alignment The alignment
 	 * @return This instance for concatenation
 	 */
-	public final P alignVertical(Alignment eAlignment) {
-		return set(VERTICAL_ALIGN, eAlignment);
+	public final P alignVertical(Alignment alignment) {
+		return set(VERTICAL_ALIGN, alignment);
 	}
 
 	/**
@@ -199,8 +196,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
-	public final P allow(T... rValues) {
-		rFragment.setAllowedValues(rParamType, rValues);
+	public final P allow(T... values) {
+		fragment.setAllowedValues(paramType, values);
 
 		return (P) this;
 	}
@@ -211,8 +208,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @see ProcessFragment#setAllowedValues(RelationType, Object...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final P allow(Collection<T> rValues) {
-		rFragment.setAllowedValues(rParamType, rValues);
+	public final P allow(Collection<T> values) {
+		fragment.setAllowedValues(paramType, values);
 
 		return (P) this;
 	}
@@ -223,11 +220,11 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * will be displayed as an additional selectable value along with the
 	 * allowed values. This sets the {@link ContentProperties#NULL_VALUE}.
 	 *
-	 * @param sNullValueItem The descriptive string for the NULL value item
+	 * @param nullValueItem The descriptive string for the NULL value item
 	 * @return This instance for concatenation
 	 */
-	public final P allowNull(String sNullValueItem) {
-		return set(NULL_VALUE, sNullValueItem);
+	public final P allowNull(String nullValueItem) {
+		return set(NULL_VALUE, nullValueItem);
 	}
 
 	/**
@@ -236,23 +233,23 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @return The allowed values (can be NULL)
 	 */
 	public Collection<T> allowedValues() {
-		return rFragment.getAllowedValues(rParamType);
+		return fragment.getAllowedValues(paramType);
 	}
 
 	/**
 	 * Sets an annotation on the relation of this parameter. The relation must
 	 * exist already or else a {@link NullPointerException} will occur.
 	 *
-	 * @param rAnnotationType The relation type of the annotation
-	 * @param rValue          The annotation value
+	 * @param annotationType The relation type of the annotation
+	 * @param value          The annotation value
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final <A> P annotate(RelationType<A> rAnnotationType, A rValue) {
-		Relation<T> rParamRelation =
-			rFragment.getProcess().getRelation(rParamType);
+	public final <A> P annotate(RelationType<A> annotationType, A value) {
+		Relation<T> paramRelation =
+			fragment.getProcess().getRelation(paramType);
 
-		rParamRelation.annotate(rAnnotationType, rValue);
+		paramRelation.annotate(annotationType, value);
 
 		return (P) this;
 	}
@@ -260,12 +257,12 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Mark this parameter to be displayed with a certain button style.
 	 *
-	 * @param eButtonStyle The button style
+	 * @param buttonStyle The button style
 	 * @return This instance for concatenation
 	 * @see #buttons(Object...)
 	 */
-	public final P buttonStyle(ButtonStyle eButtonStyle) {
-		return set(BUTTON_STYLE, eButtonStyle);
+	public final P buttonStyle(ButtonStyle buttonStyle) {
+		return set(BUTTON_STYLE, buttonStyle);
 	}
 
 	/**
@@ -276,24 +273,24 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * allowed values. This will also add this parameter as an input parameter
 	 * to the fragment.
 	 *
-	 * @param rAllowedValues Optionally the allowed values for this parameter
-	 *                       (NULL or empty for the default)
+	 * @param allowedValues Optionally the allowed values for this parameter
+	 *                      (NULL or empty for the default)
 	 * @return This instance for concatenation
 	 */
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
-	public final P buttons(T... rAllowedValues) {
+	public final P buttons(T... allowedValues) {
 		interactive(ListStyle.IMMEDIATE);
 		hideLabel();
 
-		if (rAllowedValues != null && rAllowedValues.length > 0) {
-			allow(rAllowedValues);
-			set(rAllowedValues.length, COLUMNS);
+		if (allowedValues != null && allowedValues.length > 0) {
+			allow(allowedValues);
+			set(allowedValues.length, COLUMNS);
 		} else {
-			int nValueCount = rFragment.getAllowedValues(rParamType).size();
+			int valueCount = fragment.getAllowedValues(paramType).size();
 
-			if (nValueCount > 0) {
-				set(nValueCount, COLUMNS);
+			if (valueCount > 0) {
+				set(valueCount, COLUMNS);
 			}
 		}
 
@@ -303,42 +300,42 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Checks whether the value of this parameter fulfills a certain condition.
 	 *
-	 * @param pValueCondition The predicate that checks the condition
+	 * @param valueCondition The predicate that checks the condition
 	 * @return TRUE if the condition is fulfilled
 	 */
 	@SuppressWarnings("boxing")
-	public boolean check(Predicate<? super T> pValueCondition) {
-		return pValueCondition.evaluate(value());
+	public boolean check(Predicate<? super T> valueCondition) {
+		return valueCondition.evaluate(value());
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#COLUMN_SPAN}.
 	 *
-	 * @param nColumns the number of columns to span.
+	 * @param columns the number of columns to span.
 	 * @return This instance for concatenation
 	 */
-	public final P colSpan(int nColumns) {
-		return set(nColumns, COLUMN_SPAN);
+	public final P colSpan(int columns) {
+		return set(columns, COLUMN_SPAN);
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#COLUMNS}.
 	 *
-	 * @param nColumns the number of columns.
+	 * @param columns the number of columns.
 	 * @return This instance for concatenation
 	 */
-	public final P columns(int nColumns) {
-		return set(nColumns, COLUMNS);
+	public final P columns(int columns) {
+		return set(columns, COLUMNS);
 	}
 
 	/**
 	 * Sets the content type of this parameter.
 	 *
-	 * @param eContentType The content type
+	 * @param contentType The content type
 	 * @return This instance for concatenation
 	 */
-	public final P content(ContentType eContentType) {
-		return set(CONTENT_TYPE, eContentType);
+	public final P content(ContentType contentType) {
+		return set(CONTENT_TYPE, contentType);
 	}
 
 	/**
@@ -348,14 +345,15 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * step validations that are performed on transitions to another step work
 	 * correctly.
 	 *
-	 * @param bContinue TRUE to continue process execution, FALSE to stay in
-	 *                    the
-	 *                  current step and wait for further interactions
+	 * @param continueOnInterations TRUE to continue process execution,
+	 *                                 FALSE to
+	 *                              stay in the current step and wait for
+	 *                              further interactions
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P continueOnInteraction(boolean bContinue) {
-		fragment().setContinueOnInteraction(bContinue, type());
+	public final P continueOnInteraction(boolean continueOnInterations) {
+		fragment().setContinueOnInteraction(continueOnInterations, type());
 
 		return (P) this;
 	}
@@ -380,13 +378,13 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Consumer, Supplier)
 	 */
 	@SuppressWarnings("unchecked")
-	public P couple(Consumer<T> fUpdateTarget, Supplier<T> fQuerySource) {
-		RelationCoupling<T> aCoupling =
-			RelationCoupling.couple(rFragment.getProcess(), rParamType,
-				fUpdateTarget, fQuerySource);
+	public P couple(Consumer<T> updateTarget, Supplier<T> querySource) {
+		RelationCoupling<T> coupling =
+			RelationCoupling.couple(fragment.getProcess(), paramType,
+				updateTarget, querySource);
 
-		rFragment.addCleanupAction("RemoveCoupling_" + nNextFinishActionId++,
-			f -> aCoupling.remove());
+		fragment.addCleanupAction("RemoveCoupling_" + nextFinishActionId++,
+			f -> coupling.remove());
 
 		return (P) this;
 	}
@@ -395,36 +393,35 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Couples the relation of this parameter with another relation in a
 	 * relatable object.
 	 *
-	 * @param rCoupledRelatable The coupled relatable
-	 * @param rCoupledType      The relation type to couple this parameter with
+	 * @param coupledRelatable The coupled relatable
+	 * @param coupledType      The relation type to couple this parameter with
 	 * @return This instance for concatenation
 	 */
-	public P couple(Relatable rCoupledRelatable,
-		RelationType<T> rCoupledType) {
-		RelationAccessor<T> aAccessor =
-			new RelationAccessor<>(rCoupledRelatable, rCoupledType);
+	public P couple(Relatable coupledRelatable, RelationType<T> coupledType) {
+		RelationAccessor<T> accessor =
+			new RelationAccessor<>(coupledRelatable, coupledType);
 
-		return couple(aAccessor, aAccessor);
+		return couple(accessor, accessor);
 	}
 
 	/**
 	 * Sets a CSS style property for the parameter.
 	 *
-	 * @param sCssProperty The name of the CSS property
-	 * @param sValue       The value of the CSS property or NULL to clear
+	 * @param cssProperty The name of the CSS property
+	 * @param value       The value of the CSS property or NULL to clear
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P css(String sCssProperty, String sValue) {
-		Map<String, String> rCssStyles =
-			rFragment.getUIProperty(CSS_STYLES, rParamType);
+	public final P css(String cssProperty, String value) {
+		Map<String, String> cssStyles =
+			fragment.getUIProperty(CSS_STYLES, paramType);
 
-		if (rCssStyles == null) {
-			rCssStyles = new HashMap<>();
+		if (cssStyles == null) {
+			cssStyles = new HashMap<>();
 		}
 
-		rCssStyles.put(sCssProperty, sValue != null ? sValue : "");
-		set(CSS_STYLES, rCssStyles);
+		cssStyles.put(cssProperty, value != null ? value : "");
+		set(CSS_STYLES, cssStyles);
 
 		return (P) this;
 	}
@@ -437,7 +434,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	@SuppressWarnings("unchecked")
 	public P display() {
-		rFragment.addDisplayParameters(rParamType);
+		fragment.addDisplayParameters(paramType);
 
 		return (P) this;
 	}
@@ -445,16 +442,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets a general validation for this parameter.
 	 *
-	 * @param pValueConstraint The constraint that must be valid
-	 * @param sErrorMessage    The error message to be displayed for the
-	 *                         parameter in the case of a constraint violation
+	 * @param valueConstraint The constraint that must be valid
+	 * @param errorMessage    The error message to be displayed for the
+	 *                        parameter in the case of a constraint violation
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P ensure(Predicate<? super T> pValueConstraint,
-		String sErrorMessage) {
-		rFragment.setParameterValidation(type(), sErrorMessage,
-			not(pValueConstraint));
+	public P ensure(Predicate<? super T> valueConstraint,
+		String errorMessage) {
+		fragment.setParameterValidation(type(), errorMessage,
+			not(valueConstraint));
 
 		return (P) this;
 	}
@@ -466,7 +463,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	@SuppressWarnings("unchecked")
 	public P ensureNotEmpty() {
-		rFragment.setParameterNotEmptyValidations(type());
+		fragment.setParameterNotEmptyValidations(type());
 
 		return (P) this;
 	}
@@ -475,31 +472,31 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Sets the pixel width of an element in the UI property
 	 * {@link LayoutProperties#WIDTH}.
 	 *
-	 * @param nHeight nWidth The width
+	 * @param height width The width
 	 * @return This instance for concatenation
 	 */
-	public final P height(int nHeight) {
-		return set(nHeight, HEIGHT);
+	public final P height(int height) {
+		return set(height, HEIGHT);
 	}
 
 	/**
 	 * Sets the UI property {@link LayoutProperties#RELATIVE_WIDTH}.
 	 *
-	 * @param eHeight sWidth The relative width constant
+	 * @param height width The relative width constant
 	 * @return This instance for concatenation
 	 */
-	public final P height(RelativeSize eHeight) {
-		return set(RELATIVE_HEIGHT, eHeight);
+	public final P height(RelativeSize height) {
+		return set(RELATIVE_HEIGHT, height);
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#HTML_HEIGHT}.
 	 *
-	 * @param sHeight The HTML height string
+	 * @param height The HTML height string
 	 * @return This instance for concatenation
 	 */
-	public final P height(String sHeight) {
-		return set(HTML_HEIGHT, sHeight);
+	public final P height(String height) {
+		return set(HTML_HEIGHT, height);
 	}
 
 	/**
@@ -514,26 +511,25 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets the UI property {@link ContentProperties#ICON}.
 	 *
-	 * @param rIconIdentifier An identifier that describes the icon to display;
-	 *                        will be converted to a string and should
-	 *                        typically
-	 *                        either be a string of an enum constant
+	 * @param iconIdentifier An identifier that describes the icon to display;
+	 *                       will be converted to a string and should typically
+	 *                       either be a string of an enum constant
 	 * @return This instance for concatenation
 	 */
-	public final P icon(Object rIconIdentifier) {
-		return set(ICON, rIconIdentifier.toString());
+	public final P icon(Object iconIdentifier) {
+		return set(ICON, iconIdentifier.toString());
 	}
 
 	/**
 	 * Sets both UI properties {@link ContentProperties#ICON} and
 	 * {@link LayoutProperties#ICON_SIZE}.
 	 *
-	 * @param rIconIdentifier The icon identifier ({@link #icon(Object)})
-	 * @param eSize           The relative size of the icon
+	 * @param iconIdentifier The icon identifier ({@link #icon(Object)})
+	 * @param size           The relative size of the icon
 	 * @return This instance for concatenation
 	 */
-	public final P icon(Object rIconIdentifier, RelativeScale eSize) {
-		return icon(rIconIdentifier).iconSize(eSize);
+	public final P icon(Object iconIdentifier, RelativeScale size) {
+		return icon(iconIdentifier).iconSize(size);
 	}
 
 	/**
@@ -541,22 +537,22 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * {@link LayoutProperties#ICON_ALIGN}. Not all types of {@link Alignment}
 	 * may be supported in an UI implementation.
 	 *
-	 * @param rIconIdentifier The icon identifier ({@link #icon(Object)})
-	 * @param eAlignment      The position alignment of the icon
+	 * @param iconIdentifier The icon identifier ({@link #icon(Object)})
+	 * @param alignment      The position alignment of the icon
 	 * @return This instance for concatenation
 	 */
-	public final P icon(Object rIconIdentifier, Alignment eAlignment) {
-		return icon(rIconIdentifier).alignIcon(eAlignment);
+	public final P icon(Object iconIdentifier, Alignment alignment) {
+		return icon(iconIdentifier).alignIcon(alignment);
 	}
 
 	/**
 	 * Sets the property {@link LayoutProperties#ICON_SIZE}.
 	 *
-	 * @param eSize The relative size of the icon
+	 * @param size The relative size of the icon
 	 * @return This instance for concatenation
 	 */
-	public final P iconSize(RelativeScale eSize) {
-		return set(ICON_SIZE, eSize);
+	public final P iconSize(RelativeScale size) {
+		return set(ICON_SIZE, size);
 	}
 
 	/**
@@ -571,13 +567,13 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Transfers certain properties from the parent fragment to this parameter.
 	 *
-	 * @param rProperties The properties to transfer
+	 * @param properties The properties to transfer
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public final P inherit(PropertyName<?>... rProperties) {
-		for (PropertyName rProperty : rProperties) {
-			set(rProperty, rFragment.fragmentParam().get(rProperty));
+	public final P inherit(PropertyName<?>... properties) {
+		for (PropertyName property : properties) {
+			set(property, fragment.fragmentParam().get(property));
 		}
 
 		return (P) this;
@@ -596,11 +592,11 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets the interactive input mode for this parameter.
 	 *
-	 * @param eInputMode The interactive input mode
+	 * @param inputMode The interactive input mode
 	 * @return This instance for concatenation
 	 */
-	public final P interactive(InteractiveInputMode eInputMode) {
-		rFragment.setInteractive(eInputMode, rParamType);
+	public final P interactive(InteractiveInputMode inputMode) {
+		fragment.setInteractive(inputMode, paramType);
 
 		return input();
 	}
@@ -609,11 +605,11 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Sets a parameter with a list of allowed values to be displayed in a
 	 * certain interactive list style.
 	 *
-	 * @param eListStyle The style in which to display the allowed values
+	 * @param listStyle The style in which to display the allowed values
 	 * @return This instance for concatenation
 	 */
-	public final P interactive(ListStyle eListStyle) {
-		rFragment.setInteractive(rParamType, null, eListStyle);
+	public final P interactive(ListStyle listStyle) {
+		fragment.setInteractive(paramType, null, listStyle);
 
 		return input();
 	}
@@ -623,18 +619,18 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 *
 	 * @see #get(PropertyName)
 	 */
-	public final boolean is(PropertyName<Boolean> rFlagProperty) {
-		return get(rFlagProperty) == Boolean.TRUE;
+	public final boolean is(PropertyName<Boolean> flagProperty) {
+		return get(flagProperty) == Boolean.TRUE;
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#LABEL}.
 	 *
-	 * @param sLabel sWidth The label string
+	 * @param label width The label string
 	 * @return This instance for concatenation
 	 */
-	public final P label(String sLabel) {
-		return set(LABEL, sLabel);
+	public final P label(String label) {
+		return set(LABEL, label);
 	}
 
 	/**
@@ -642,12 +638,12 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * the given parameter is rendered in a panel (like {@link DataElementList}
 	 * or buttons).
 	 *
-	 * @param eLayout The panel layout
+	 * @param layout The panel layout
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P layout(LayoutType eLayout) {
-		set(UserInterfaceProperties.LAYOUT, eLayout);
+	public P layout(LayoutType layout) {
+		set(UserInterfaceProperties.LAYOUT, layout);
 
 		return (P) this;
 	}
@@ -659,7 +655,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	@SuppressWarnings("unchecked")
 	public final P modified() {
-		rFragment.markParameterAsModified(rParamType);
+		fragment.markParameterAsModified(paramType);
 
 		return (P) this;
 	}
@@ -680,37 +676,36 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets a simple event handler for action events of this parameter.
 	 *
-	 * @param rEventHandler The event handler to be invoked on an event
+	 * @param eventHandler The event handler to be invoked on an event
 	 * @return This instance for concatenation
 	 */
-	public final P onAction(ValueEventHandler<T> rEventHandler) {
+	public final P onAction(ValueEventHandler<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			rEventHandler);
+			eventHandler);
 	}
 
 	/**
 	 * Registers an event handler that will be notified of changes of this
 	 * parameter's relation.
 	 *
-	 * @param rEventHandler The event handler to register
+	 * @param eventHandler The event handler to register
 	 * @return This instance for concatenation
 	 * @see Relation#addUpdateListener(EventHandler)
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onChange(
-		final EventHandler<RelationEvent<T>> rEventHandler) {
-		Relation<T> rRelation = rFragment.getParameterRelation(rParamType);
+	public final P onChange(final EventHandler<RelationEvent<T>> eventHandler) {
+		Relation<T> relation = fragment.getParameterRelation(paramType);
 
-		if (rRelation == null) {
-			rRelation = rFragment.setParameter(rParamType, null);
+		if (relation == null) {
+			relation = fragment.setParameter(paramType, null);
 		}
 
-		rRelation.addUpdateListener(rEventHandler);
+		relation.addUpdateListener(eventHandler);
 
 		// cleanup action: remove parameter change listener if step is left
-		rFragment.addCleanupAction(
-			"RemoveChangeListener_" + nNextFinishActionId++,
-			f -> removeChangeListener(rEventHandler));
+		fragment.addCleanupAction(
+			"RemoveChangeListener_" + nextFinishActionId++,
+			f -> removeChangeListener(eventHandler));
 
 		return (P) this;
 	}
@@ -720,7 +715,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * invoked if events have been enabled for this parameter with one of the
 	 * corresponding methods.
 	 *
-	 * @param rEventHandler The event handler to register
+	 * @param eventHandler The event handler to register
 	 * @return This instance for concatenation
 	 * @see #interactive(InteractiveInputMode)
 	 * @see #interactive(ListStyle)
@@ -729,8 +724,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @see #allEvents()
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onEvent(InteractionHandler rEventHandler) {
-		rFragment.setParameterInteractionHandler(rParamType, rEventHandler);
+	public final P onEvent(InteractionHandler eventHandler) {
+		fragment.setParameterInteractionHandler(paramType, eventHandler);
 
 		return (P) this;
 	}
@@ -738,23 +733,23 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets a simple event handler for action events of this parameter.
 	 *
-	 * @param rEventHandler The event handler to be invoked on an event
+	 * @param eventHandler The event handler to be invoked on an event
 	 * @return This instance for concatenation
 	 */
-	public final P onFocusLost(ValueEventHandler<T> rEventHandler) {
+	public final P onFocusLost(ValueEventHandler<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
-			rEventHandler);
+			eventHandler);
 	}
 
 	/**
 	 * Sets an event handler for update events of this parameter.
 	 *
-	 * @param rEventHandler The event handler to be invoked on an event
+	 * @param eventHandler The event handler to be invoked on an event
 	 * @return This instance for concatenation
 	 */
-	public final P onUpdate(ValueEventHandler<T> rEventHandler) {
+	public final P onUpdate(ValueEventHandler<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			rEventHandler);
+			eventHandler);
 	}
 
 	/**
@@ -764,46 +759,46 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * processed by the process interaction the generated download URL will be
 	 * removed from the parameter.
 	 *
-	 * @param sFileName          The file name of the download
-	 * @param eFileType          The file type of the download
-	 * @param fDownloadGenerator The function that generates the download data
+	 * @param fileName          The file name of the download
+	 * @param fileType          The file type of the download
+	 * @param downloadGenerator The function that generates the download data
 	 * @throws Exception If the download preparation fails
 	 */
-	public void prepareDownload(String sFileName, FileType eFileType,
-		Function<FileType, ?> fDownloadGenerator) {
-		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
+	public void prepareDownload(String fileName, FileType fileType,
+		Function<FileType, ?> downloadGenerator) {
+		initiateDownload(this, fileName, fileType, downloadGenerator);
 	}
 
 	/**
 	 * Sets the UI properties {@link LayoutProperties#SMALL_COLUMN_SPAN} and
 	 * {@link LayoutProperties#MEDIUM_COLUMN_SPAN}.
 	 *
-	 * @param nSmall  the number of columns to span in small-size layouts
-	 * @param nMedium the number of columns to span in medium-size layouts
+	 * @param small  the number of columns to span in small-size layouts
+	 * @param medium the number of columns to span in medium-size layouts
 	 * @return This instance for concatenation
 	 */
-	public final P responsiveColSpans(int nSmall, int nMedium) {
-		return set(nSmall, SMALL_COLUMN_SPAN).set(nMedium, MEDIUM_COLUMN_SPAN);
+	public final P responsiveColSpans(int small, int medium) {
+		return set(small, SMALL_COLUMN_SPAN).set(medium, MEDIUM_COLUMN_SPAN);
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#ROW_SPAN}.
 	 *
-	 * @param nRows the number of rows to span.
+	 * @param rows the number of rows to span.
 	 * @return This instance for concatenation
 	 */
-	public final P rowSpan(int nRows) {
-		return set(nRows, ROW_SPAN);
+	public final P rowSpan(int rows) {
+		return set(rows, ROW_SPAN);
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#ROWS}.
 	 *
-	 * @param nRows the number of rows.
+	 * @param rows the number of rows.
 	 * @return This instance for concatenation
 	 */
-	public final P rows(int nRows) {
-		return set(nRows, ROWS);
+	public final P rows(int rows) {
+		return set(rows, ROWS);
 	}
 
 	/**
@@ -820,35 +815,35 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * Marks this parameter to be displayed in the same row as the previous
 	 * parameter with a certain column span in a grid or table layout.
 	 *
-	 * @param nColumnSpan The number of columns that the parameter UI should
-	 *                    span
+	 * @param columnSpan The number of columns that the parameter UI should
+	 *                   span
 	 * @return This instance for concatenation
 	 */
-	public final P sameRow(int nColumnSpan) {
-		return sameRow().colSpan(nColumnSpan);
+	public final P sameRow(int columnSpan) {
+		return sameRow().colSpan(columnSpan);
 	}
 
 	/**
 	 * Marks this parameter to be displayed in the same row as the previous
 	 * parameter with a certain width in a grid layout.
 	 *
-	 * @param eColumnWidth The relative width of the parameter UI in a grid
-	 *                     layout
+	 * @param columnWidth The relative width of the parameter UI in a grid
+	 *                    layout
 	 * @return This instance for concatenation
 	 */
-	public final P sameRow(RelativeSize eColumnWidth) {
-		return sameRow().width(eColumnWidth);
+	public final P sameRow(RelativeSize columnWidth) {
+		return sameRow().width(columnWidth);
 	}
 
 	/**
 	 * Invokes {@link #width(String)} and {@link #height(String)}.
 	 *
-	 * @param sWidth  The HTML width string
-	 * @param sHeight The HTML height string
+	 * @param width  The HTML width string
+	 * @param height The HTML height string
 	 * @return This instance for concatenation
 	 */
-	public final P size(String sWidth, String sHeight) {
-		return width(sWidth).height(sHeight);
+	public final P size(String width, String height) {
+		return width(width).height(height);
 	}
 
 	/**
@@ -863,23 +858,23 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#STYLE}.
 	 *
-	 * @param sStyle The style name(s)
+	 * @param style The style name(s)
 	 * @return This instance for concatenation
 	 */
-	public final P style(String sStyle) {
-		return set(STYLE, sStyle);
+	public final P style(String style) {
+		return set(STYLE, style);
 	}
 
 	/**
 	 * Appends a parameter to the row of this one. This is the same as invoking
 	 * the method {@link #sameRow()} on the argument parameter.
 	 *
-	 * @param rParameter The parameter to add to the current row
+	 * @param parameter The parameter to add to the current row
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public P then(ParameterBase<?, ?> rParameter) {
-		rParameter.sameRow();
+	public P then(ParameterBase<?, ?> parameter) {
+		parameter.sameRow();
 
 		return (P) this;
 	}
@@ -889,17 +884,17 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 */
 	@Override
 	public String toString() {
-		return String.format("%s(%s)", rParamType.getSimpleName(), value());
+		return String.format("%s(%s)", paramType.getSimpleName(), value());
 	}
 
 	/**
 	 * Sets the UI property {@link UserInterfaceProperties#TOOLTIP}.
 	 *
-	 * @param sTooltip sWidth The tooltip string
+	 * @param tooltip width The tooltip string
 	 * @return This instance for concatenation
 	 */
-	public final P tooltip(String sTooltip) {
-		return set(TOOLTIP, sTooltip);
+	public final P tooltip(String tooltip) {
+		return set(TOOLTIP, tooltip);
 	}
 
 	/**
@@ -907,15 +902,16 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * constraint.
 	 * If not an exception will be thrown.
 	 *
-	 * @param pValueConstraint The constraint to be validated
-	 * @param sErrorMessage    The error message to be displayed for the
-	 *                         parameter in the case of a constraint violation
+	 * @param valueConstraint The constraint to be validated
+	 * @param errorMessage    The error message to be displayed for the
+	 *                        parameter in the case of a constraint violation
 	 * @return This instance for concatenation
 	 * @throws InvalidParametersException If the constraint is violated
 	 */
-	public P validate(Predicate<? super T> pValueConstraint,
-		String sErrorMessage) throws InvalidParametersException {
-		return validate(pValueConstraint, sErrorMessage, null);
+	public P validate(Predicate<? super T> valueConstraint,
+		String errorMessage)
+		throws InvalidParametersException {
+		return validate(valueConstraint, errorMessage, null);
 	}
 
 	/**
@@ -923,28 +919,27 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * constraint.
 	 * If not an exception will be thrown.
 	 *
-	 * @param pValueConstraint The constraint to be validated
-	 * @param sErrorMessage    The error message to be displayed for the
-	 *                         parameter in the case of a constraint violation
-	 * @param rRunOnViolation  A runnable to be executed if the constraint is
-	 *                         violated
+	 * @param valueConstraint The constraint to be validated
+	 * @param errorMessage    The error message to be displayed for the
+	 *                        parameter in the case of a constraint violation
+	 * @param runOnViolation  A runnable to be executed if the constraint is
+	 *                        violated
 	 * @return This instance for concatenation
 	 * @throws InvalidParametersException If the constraint is violated
 	 */
 	@SuppressWarnings("unchecked")
-	public P validate(Predicate<? super T> pValueConstraint,
-		String sErrorMessage, Runnable rRunOnViolation)
-		throws InvalidParametersException {
-		if (!check(pValueConstraint)) {
-			if (rRunOnViolation != null) {
-				rRunOnViolation.run();
+	public P validate(Predicate<? super T> valueConstraint,
+		String errorMessage,
+		Runnable runOnViolation) throws InvalidParametersException {
+		if (!check(valueConstraint)) {
+			if (runOnViolation != null) {
+				runOnViolation.run();
 			}
 
 			fragment().validationError(
-				Collections.<RelationType<?>, String>singletonMap(type(),
-					sErrorMessage));
+				Collections.singletonMap(type(), errorMessage));
 
-			throw new InvalidParametersException(fragment(), sErrorMessage,
+			throw new InvalidParametersException(fragment(), errorMessage,
 				type());
 		}
 
@@ -957,7 +952,7 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @see ProcessFragment#getParameter(RelationType)
 	 */
 	public final T value() {
-		return rFragment.getParameter(rParamType);
+		return fragment.getParameter(paramType);
 	}
 
 	/**
@@ -966,8 +961,8 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	 * @see ProcessFragment#setParameter(RelationType, Object)
 	 */
 	@SuppressWarnings("unchecked")
-	public final P value(T rValue) {
-		rFragment.setParameter(rParamType, rValue);
+	public final P value(T value) {
+		fragment.setParameter(paramType, value);
 
 		return (P) this;
 	}
@@ -975,51 +970,51 @@ public abstract class ParameterBase<T, P extends ParameterBase<T, P>>
 	/**
 	 * Sets the UI property {@link LayoutProperties#HTML_WIDTH}.
 	 *
-	 * @param sWidth The HTML width string
+	 * @param width The HTML width string
 	 * @return This instance for concatenation
 	 */
-	public final P width(String sWidth) {
-		return set(HTML_WIDTH, sWidth);
+	public final P width(String width) {
+		return set(HTML_WIDTH, width);
 	}
 
 	/**
 	 * Sets the UI property {@link LayoutProperties#RELATIVE_WIDTH}.
 	 *
-	 * @param eWidth The relative width constant
+	 * @param width The relative width constant
 	 * @return This instance for concatenation
 	 */
-	public final P width(RelativeSize eWidth) {
-		return set(RELATIVE_WIDTH, eWidth);
+	public final P width(RelativeSize width) {
+		return set(RELATIVE_WIDTH, width);
 	}
 
 	/**
 	 * Sets the pixel width of an element in the UI property
 	 * {@link LayoutProperties#WIDTH}.
 	 *
-	 * @param nWidth The width
+	 * @param width The width
 	 * @return This instance for concatenation
 	 */
-	public final P width(int nWidth) {
-		return set(nWidth, WIDTH);
+	public final P width(int width) {
+		return set(width, WIDTH);
 	}
 
 	/**
 	 * Removes an parameter update listener that had been set with
 	 * {@link #onChange(EventHandler)}.
 	 *
-	 * @param rEventHandler The event listener to remove
+	 * @param eventHandler The event listener to remove
 	 * @return This instance for concatenation
 	 * @see #onChange(EventHandler)
 	 */
 	@SuppressWarnings("unchecked")
 	private final P removeChangeListener(
-		EventHandler<RelationEvent<T>> rEventHandler) {
-		Relation<T> rRelation = rFragment.getParameterRelation(rParamType);
+		EventHandler<RelationEvent<T>> eventHandler) {
+		Relation<T> relation = fragment.getParameterRelation(paramType);
 
-		if (rRelation != null) {
-			rRelation
+		if (relation != null) {
+			relation
 				.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
-				.remove(rEventHandler);
+				.remove(eventHandler);
 		}
 
 		return (P) this;

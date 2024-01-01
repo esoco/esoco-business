@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextFieldStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
@@ -35,8 +34,8 @@ public class UiSearchField extends UiTextInputField<UiSearchField> {
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiSearchField(UiContainer<?> rContainer, String sText) {
-		super(rContainer, sText);
+	public UiSearchField(UiContainer<?> container, String text) {
+		super(container, text);
 
 		set(StyleProperties.TEXT_FIELD_STYLE, TextFieldStyle.SEARCH);
 	}

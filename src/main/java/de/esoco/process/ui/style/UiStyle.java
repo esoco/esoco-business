@@ -20,7 +20,6 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.Color;
 import de.esoco.lib.property.HasCssName;
 import de.esoco.lib.property.StyleProperties;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiElement;
 
@@ -36,7 +35,7 @@ import static de.esoco.lib.property.StyleProperties.STYLE;
  */
 public class UiStyle extends UiElement<UiStyle> {
 
-	private String sDefaultStyleName;
+	private String defaultStyleName;
 
 	/**
 	 * Creates an empty instance.
@@ -47,75 +46,75 @@ public class UiStyle extends UiElement<UiStyle> {
 	/**
 	 * Creates a new instance from an existing style.
 	 *
-	 * @param rStyle The style to copy the properties from
+	 * @param style The style to copy the properties from
 	 */
-	public UiStyle(UiStyle rStyle) {
-		super(rStyle);
+	public UiStyle(UiStyle style) {
+		super(style);
 	}
 
 	/**
 	 * Adds an additional style name to an existing style name and returns the
 	 * corresponding string.
 	 *
-	 * @param sStyleName      The existing style name (NULL or empty for none)
-	 * @param sAdditionalName The style name to add
+	 * @param styleName      The existing style name (NULL or empty for none)
+	 * @param additionalName The style name to add
 	 * @return The resulting style name (may be empty but will never be NULL)
 	 */
-	public static String addStyleName(String sStyleName,
-		String sAdditionalName) {
-		if (sStyleName != null && sStyleName.length() > 0) {
-			if (sAdditionalName.length() > 0) {
-				sStyleName += " " + sAdditionalName;
+	public static String addStyleName(String styleName,
+		String additionalName) {
+		if (styleName != null && styleName.length() > 0) {
+			if (additionalName.length() > 0) {
+				styleName += " " + additionalName;
 			}
 		} else {
-			sStyleName = sAdditionalName;
+			styleName = additionalName;
 		}
 
-		return sStyleName;
+		return styleName;
 	}
 
 	/**
 	 * Adds a style name to the current style name.
 	 *
-	 * @param sAdditionalName The style name to add
+	 * @param additionalName The style name to add
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle addStyleName(String sAdditionalName) {
-		return styleName(addStyleName(get(STYLE, ""), sAdditionalName));
+	public final UiStyle addStyleName(String additionalName) {
+		return styleName(addStyleName(get(STYLE, ""), additionalName));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent) {
-		super.applyPropertiesTo(rComponent);
+	public void applyPropertiesTo(UiComponent<?, ?> component) {
+		super.applyPropertiesTo(component);
 
-		String sFullStyle = addStyleName(sDefaultStyleName, get(STYLE, ""));
+		String fullStyle = addStyleName(defaultStyleName, get(STYLE, ""));
 
-		if (sFullStyle.length() > 0) {
-			rComponent.set(STYLE, sFullStyle);
+		if (fullStyle.length() > 0) {
+			component.set(STYLE, fullStyle);
 		}
 	}
 
 	/**
 	 * Sets the background color.
 	 *
-	 * @param rColor The HTML color string
+	 * @param color The HTML color string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle backgroundColor(Color rColor) {
-		return css("backgroundColor", rColor.toHtml());
+	public final UiStyle backgroundColor(Color color) {
+		return css("backgroundColor", color.toHtml());
 	}
 
 	/**
 	 * Sets the component border.
 	 *
-	 * @param sBorder The HTML border definition string
+	 * @param border The HTML border definition string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle border(String sBorder) {
-		return css("border", sBorder);
+	public final UiStyle border(String border) {
+		return css("border", border);
 	}
 
 	/**
@@ -129,27 +128,27 @@ public class UiStyle extends UiElement<UiStyle> {
 	 * null checks to prevent adding empty CSS values (e.g. from
 	 * NULL-initialized variables).</p>
 	 *
-	 * @param sPropertyName The name of the CSS property
-	 * @param sValue        The value of the CSS property or NULL to clear
+	 * @param propertyName The name of the CSS property
+	 * @param value        The value of the CSS property or NULL to clear
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle css(String sPropertyName, String sValue) {
-		Map<String, String> rCssStyles = get(StyleProperties.CSS_STYLES, null);
+	public final UiStyle css(String propertyName, String value) {
+		Map<String, String> cssStyles = get(StyleProperties.CSS_STYLES, null);
 
-		if (rCssStyles != null) {
+		if (cssStyles != null) {
 			// prevent adding unnecessary empty values
-			if (sValue == null && !rCssStyles.containsKey(sPropertyName)) {
+			if (value == null && !cssStyles.containsKey(propertyName)) {
 				return this;
 			}
 		} else {
-			rCssStyles = new HashMap<>();
+			cssStyles = new HashMap<>();
 		}
 
 		// if value is NULL (= clear property) put an empty string instead
 		// of removing or else existing values will not be overwritten on
 		// the client side
-		rCssStyles.put(sPropertyName, sValue != null ? sValue : "");
-		set(StyleProperties.CSS_STYLES, rCssStyles);
+		cssStyles.put(propertyName, value != null ? value : "");
+		set(StyleProperties.CSS_STYLES, cssStyles);
 
 		return this;
 	}
@@ -157,12 +156,12 @@ public class UiStyle extends UiElement<UiStyle> {
 	/**
 	 * Applies a CSS property.
 	 *
-	 * @param sPropertyName The name of the CSS property to apply
-	 * @param rValue        The property value to apply or NULL to clear
+	 * @param propertyName The name of the CSS property to apply
+	 * @param value        The property value to apply or NULL to clear
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle css(String sPropertyName, HasCssName rValue) {
-		return css(sPropertyName, rValue != null ? rValue.getCssName() : null);
+	public final UiStyle css(String propertyName, HasCssName value) {
+		return css(propertyName, value != null ? value.getCssName() : null);
 	}
 
 	/**
@@ -170,11 +169,11 @@ public class UiStyle extends UiElement<UiStyle> {
 	 * name
 	 * can consist of multiple words that are separated by spaces.
 	 *
-	 * @param sStyleName The new default style name
+	 * @param styleName The new default style name
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle defaultStyleName(String sStyleName) {
-		sDefaultStyleName = sStyleName;
+	public final UiStyle defaultStyleName(String styleName) {
+		defaultStyleName = styleName;
 
 		return this;
 	}
@@ -182,32 +181,32 @@ public class UiStyle extends UiElement<UiStyle> {
 	/**
 	 * Sets the font size.
 	 *
-	 * @param nSize The size value
-	 * @param eUnit The size unit
+	 * @param size The size value
+	 * @param unit The size unit
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle fontSize(int nSize, SizeUnit eUnit) {
-		return css("fontSize", eUnit.getHtmlSize(nSize));
+	public final UiStyle fontSize(int size, SizeUnit unit) {
+		return css("fontSize", unit.getHtmlSize(size));
 	}
 
 	/**
 	 * Sets the font weight.
 	 *
-	 * @param sWeight The font weight HTML value
+	 * @param weight The font weight HTML value
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle fontWeight(String sWeight) {
-		return css("fontWeight", sWeight);
+	public final UiStyle fontWeight(String weight) {
+		return css("fontWeight", weight);
 	}
 
 	/**
 	 * Sets the foreground color.
 	 *
-	 * @param rColor The HTML color string
+	 * @param color The HTML color string
 	 * @return This instance for fluent invocation
 	 */
-	public UiStyle foregroundColor(Color rColor) {
-		return css("color", rColor.toHtml());
+	public UiStyle foregroundColor(Color color) {
+		return css("color", color.toHtml());
 	}
 
 	/**
@@ -216,71 +215,71 @@ public class UiStyle extends UiElement<UiStyle> {
 	 * @return The style name (empty string for none)
 	 */
 	public final String getStyleName() {
-		String sStyle = get(STYLE, "");
+		String style = get(STYLE, "");
 
-		return sStyle != null ? sStyle : "";
+		return style != null ? style : "";
 	}
 
 	/**
 	 * Sets the height of a text line in the component.
 	 *
-	 * @param nHeight The height value
-	 * @param eUnit   The height unit
+	 * @param height The height value
+	 * @param unit   The height unit
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle lineHeight(int nHeight, SizeUnit eUnit) {
-		return css("lineHeight", eUnit.getHtmlSize(nHeight));
+	public final UiStyle lineHeight(int height, SizeUnit unit) {
+		return css("lineHeight", unit.getHtmlSize(height));
 	}
 
 	/**
 	 * Sets the component margin.
 	 *
-	 * @param sMargin sPadding The HTML margin definition string
+	 * @param margin padding The HTML margin definition string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle margin(String sMargin) {
-		return css("margin", sMargin);
+	public final UiStyle margin(String margin) {
+		return css("margin", margin);
 	}
 
 	/**
 	 * Sets the component padding.
 	 *
-	 * @param sPadding The HTML padding definition string
+	 * @param padding The HTML padding definition string
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle padding(String sPadding) {
-		return css("padding", sPadding);
+	public final UiStyle padding(String padding) {
+		return css("padding", padding);
 	}
 
 	/**
 	 * Sets the style name. The style name can consist of multiple words that
 	 * are separated by spaces.
 	 *
-	 * @param sStyleName The style name
+	 * @param styleName The style name
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle styleName(String sStyleName) {
-		return set(STYLE, sStyleName);
+	public final UiStyle styleName(String styleName) {
+		return set(STYLE, styleName);
 	}
 
 	/**
 	 * Sets the horizontal alignment of text in the component.
 	 *
-	 * @param eTextAlignment The horizontal text alignment
+	 * @param textAlignment The horizontal text alignment
 	 * @return This instance for fluent invocation
 	 */
-	public final UiStyle textAlign(Alignment eTextAlignment) {
-		return css("textAlign", mapTextAlignment(eTextAlignment));
+	public final UiStyle textAlign(Alignment textAlignment) {
+		return css("textAlign", mapTextAlignment(textAlignment));
 	}
 
 	/**
 	 * Maps an alignment value to the corresponding CSS text alignment value.
 	 *
-	 * @param eAlignment The alignment to map
+	 * @param alignment The alignment to map
 	 * @return The CSS text alignment value
 	 */
-	private String mapTextAlignment(Alignment eAlignment) {
-		switch (eAlignment) {
+	private String mapTextAlignment(Alignment alignment) {
+		switch (alignment) {
 			case BEGIN:
 				return "start";
 
@@ -294,7 +293,7 @@ public class UiStyle extends UiElement<UiStyle> {
 				return "justify";
 
 			default:
-				throw new AssertionError("Undefined: " + eAlignment);
+				throw new AssertionError("Undefined: " + alignment);
 		}
 	}
 }

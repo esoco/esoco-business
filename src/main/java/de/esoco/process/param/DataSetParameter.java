@@ -18,11 +18,8 @@ package de.esoco.process.param;
 
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DataSetDataElement.LegendPosition;
-
 import de.esoco.lib.model.DataSet;
-
 import de.esoco.process.step.InteractionFragment;
-
 import org.obrel.core.RelationType;
 
 import static de.esoco.data.element.DataSetDataElement.CHART_3D;
@@ -40,29 +37,29 @@ public class DataSetParameter<T, D extends DataSet<T>>
 	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public DataSetParameter(InteractionFragment rFragment,
-		RelationType<D> rParamType) {
-		super(rFragment, rParamType);
+	public DataSetParameter(InteractionFragment fragment,
+		RelationType<D> paramType) {
+		super(fragment, paramType);
 	}
 
 	/**
 	 * Sets the chart type.
 	 *
-	 * @param eChartType eLegendPosition The chart type
+	 * @param chartType legendPosition The chart type
 	 * @return This parameter instance for concatenation
 	 */
-	public DataSetParameter<T, D> chartType(ChartType eChartType) {
-		return set(CHART_TYPE, eChartType);
+	public DataSetParameter<T, D> chartType(ChartType chartType) {
+		return set(CHART_TYPE, chartType);
 	}
 
 	/**
 	 * Enables the chart legend and sets it'S position.
 	 *
-	 * @param eLegendPosition The legend position
+	 * @param legendPosition The legend position
 	 * @return This parameter instance for concatenation
 	 */
-	public DataSetParameter<T, D> legend(LegendPosition eLegendPosition) {
-		return set(CHART_LEGEND_POSITION, eLegendPosition);
+	public DataSetParameter<T, D> legend(LegendPosition legendPosition) {
+		return set(CHART_LEGEND_POSITION, legendPosition);
 	}
 
 	/**

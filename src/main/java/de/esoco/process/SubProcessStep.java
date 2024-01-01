@@ -28,9 +28,9 @@ public class SubProcessStep extends ProcessStep {
 
 	private static final long serialVersionUID = 1L;
 
-	private Process aSubProcess = null;
+	private Process subProcess = null;
 
-	private boolean bCanRollbackSubProcess = true;
+	private boolean canRollbackSubProcess = true;
 
 	/**
 	 * Creates a new instance.
@@ -56,16 +56,16 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	protected boolean canRollback() {
-		boolean bCanRollback = bCanRollbackSubProcess && aSubProcess != null;
+		boolean canRollback = canRollbackSubProcess && subProcess != null;
 
-		if (bCanRollback) {
-			ProcessStep rFirstStep = aSubProcess.getFirstStep();
+		if (canRollback) {
+			ProcessStep firstStep = subProcess.getFirstStep();
 
-			bCanRollback = rFirstStep != aSubProcess.getCurrentStep() &&
-				aSubProcess.canRollbackTo(rFirstStep);
+			canRollback = firstStep != subProcess.getCurrentStep() &&
+				subProcess.canRollbackTo(firstStep);
 		}
 
-		return bCanRollback;
+		return canRollback;
 	}
 
 	/**
@@ -76,8 +76,8 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	protected void cancel() throws ProcessException {
-		if (aSubProcess != null) {
-			aSubProcess.cancel();
+		if (subProcess != null) {
+			subProcess.cancel();
 		}
 	}
 
@@ -99,14 +99,14 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	protected boolean needsInteraction() throws Exception {
-		if (aSubProcess == null || aSubProcess.isFinished()) {
-			ProcessDefinition rSubProcessDefinition =
+		if (subProcess == null || subProcess.isFinished()) {
+			ProcessDefinition subProcessDefinition =
 				checkParameter(SUB_PROCESS_DEFINITION);
 
-			aSubProcess = rSubProcessDefinition.createProcess();
+			subProcess = subProcessDefinition.createProcess();
 
 			if (!hasFlagParameter(SUB_PROCESS_SEPARATE_CONTEXT)) {
-				aSubProcess.setContext(getProcess());
+				subProcess.setContext(getProcess());
 			}
 		}
 
@@ -131,13 +131,13 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	protected void rollback() throws ProcessException {
-		ProcessStep rFirstStep = aSubProcess.getFirstStep();
+		ProcessStep firstStep = subProcess.getFirstStep();
 
-		if (rFirstStep != aSubProcess.getCurrentStep()) {
-			aSubProcess.rollbackTo(rFirstStep);
+		if (firstStep != subProcess.getCurrentStep()) {
+			subProcess.rollbackTo(firstStep);
 		}
 
-		aSubProcess = null;
+		subProcess = null;
 	}
 
 	/**
@@ -148,8 +148,8 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	boolean canRollbackToPreviousInteraction() {
-		return aSubProcess != null &&
-			aSubProcess.canRollbackToPreviousInteraction();
+		return subProcess != null &&
+			subProcess.canRollbackToPreviousInteraction();
 	}
 
 	/**
@@ -159,11 +159,11 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	ProcessStep getInteractionStep() {
-		if (aSubProcess == null) {
+		if (subProcess == null) {
 			throw new IllegalStateException("No current interaction");
 		}
 
-		return aSubProcess.getInteractionStep();
+		return subProcess.getInteractionStep();
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class SubProcessStep extends ProcessStep {
 	 */
 	@Override
 	void rollbackToPreviousInteraction() throws ProcessException {
-		aSubProcess.rollbackToPreviousInteraction();
+		subProcess.rollbackToPreviousInteraction();
 	}
 
 	/**
@@ -185,23 +185,23 @@ public class SubProcessStep extends ProcessStep {
 	 * @throws ProcessException If the execution fails
 	 */
 	private boolean executeSubProcess() throws ProcessException {
-		if (!aSubProcess.getCurrentStep().canRollback()) {
+		if (!subProcess.getCurrentStep().canRollback()) {
 			// if a step cannot be rolled back the whole sub-process cannot
 			// be rolled back subsequently; therefore assign only if FALSE
-			bCanRollbackSubProcess = false;
+			canRollbackSubProcess = false;
 		}
 
-		aSubProcess.execute();
+		subProcess.execute();
 
-		boolean bFinished = aSubProcess.isFinished();
+		boolean finished = subProcess.isFinished();
 
-		if (bFinished) {
-			aSubProcess.setContext(null);
-			aSubProcess = null;
+		if (finished) {
+			subProcess.setContext(null);
+			subProcess = null;
 		}
 
 		// If the sub-process stops but has not finished it has stopped at an
 		// intermediate step which requires an interaction
-		return bFinished;
+		return finished;
 	}
 }

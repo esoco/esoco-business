@@ -17,7 +17,6 @@
 package de.esoco.process.ui.composite;
 
 import de.esoco.lib.property.Alignment;
-
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
@@ -40,51 +39,49 @@ import static de.esoco.lib.property.ContentProperties.TOOLTIP;
  */
 public class UiThumbnail extends UiComposite<UiThumbnail> {
 
-	private UiImage aImage;
+	private final UiImage image;
 
-	private UiImageDefinition<?> rFullImageDef;
+	private UiImageDefinition<?> fullImageDef;
 
 	/**
 	 * Creates a new instance that displays a down-scaled image as the
 	 * thumbnail
 	 * with a default width of 300 pixels.
 	 *
-	 * @param rParent The parent container
-	 * @param rImage  The image to display
+	 * @param parent The parent container
+	 * @param image  The image to display
 	 */
-	public UiThumbnail(UiContainer<?> rParent, UiImageDefinition<?> rImage) {
-		this(rParent, rImage, rImage);
+	public UiThumbnail(UiContainer<?> parent, UiImageDefinition<?> image) {
+		this(parent, image, image);
 	}
 
 	/**
 	 * Creates a new instance that displays a thumbnail with a default width of
 	 * 300 pixels.
 	 *
-	 * @param rParent     The parent container
-	 * @param rThumbImage The thumbnail image to display
-	 * @param rFullImage  The full image to display if the the thumbnail is
-	 *                    selected
+	 * @param parent     The parent container
+	 * @param thumbImage The thumbnail image to display
+	 * @param fullImage  The full image to display if the the thumbnail is
+	 *                   selected
 	 */
-	public UiThumbnail(UiContainer<?> rParent,
-		UiImageDefinition<?> rThumbImage,
-		UiImageDefinition<?> rFullImage) {
-		super(rParent, new UiInlineLayout());
+	public UiThumbnail(UiContainer<?> parent, UiImageDefinition<?> thumbImage,
+		UiImageDefinition<?> fullImage) {
+		super(parent, new UiInlineLayout());
 
-		this.rFullImageDef = rFullImage;
+		this.fullImageDef = fullImage;
 
-		aImage =
-			builder().addImage(rThumbImage).onClick(this::displayImageView);
+		image = builder().addImage(thumbImage).onClick(this::displayImageView);
 		width(300);
 	}
 
 	/**
 	 * Sets the caption of the thumbnail image.
 	 *
-	 * @param sCaption The image caption
+	 * @param caption The image caption
 	 * @return This instance
 	 */
-	public UiThumbnail caption(String sCaption) {
-		aImage.setCaption(sCaption);
+	public UiThumbnail caption(String caption) {
+		image.setCaption(caption);
 
 		return this;
 	}
@@ -95,32 +92,32 @@ public class UiThumbnail extends UiComposite<UiThumbnail> {
 	 * {@link #setImages(UiImageDefinition, UiImageDefinition)}
 	 * can be used.
 	 *
-	 * @param rImage The component's image.
+	 * @param imageDef The component's image.
 	 */
-	public void setImage(UiImageDefinition<?> rImage) {
-		aImage.setImage(rImage);
-		rFullImageDef = rImage;
+	public void setImage(UiImageDefinition<?> imageDef) {
+		image.setImage(imageDef);
+		fullImageDef = imageDef;
 	}
 
 	/**
 	 * Sets the images for this thumbnail.
 	 *
-	 * @param rThumbImage The thumbnail image to display
-	 * @param rFullImage  The full image to display if the the thumbnail is
-	 *                    selected
+	 * @param thumbImage The thumbnail image to display
+	 * @param fullImage  The full image to display if the the thumbnail is
+	 *                   selected
 	 */
-	public void setImages(UiImageDefinition<?> rThumbImage,
-		UiImageDefinition<?> rFullImage) {
-		aImage.setImage(rThumbImage);
-		rFullImageDef = rFullImage;
+	public void setImages(UiImageDefinition<?> thumbImage,
+		UiImageDefinition<?> fullImage) {
+		image.setImage(thumbImage);
+		fullImageDef = fullImage;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiThumbnail tooltip(String sTooltip) {
-		aImage.tooltip(sTooltip);
+	public UiThumbnail tooltip(String tooltip) {
+		image.tooltip(tooltip);
 
 		return this;
 	}
@@ -128,11 +125,11 @@ public class UiThumbnail extends UiComposite<UiThumbnail> {
 	/**
 	 * Sets the width of the thumbnail image in pixels.
 	 *
-	 * @param nPixelWidth The width in pixels
+	 * @param pixelWidth The width in pixels
 	 * @return This instance
 	 */
-	public UiThumbnail width(int nPixelWidth) {
-		cell().width(nPixelWidth, SizeUnit.PIXEL);
+	public UiThumbnail width(int pixelWidth) {
+		cell().width(pixelWidth, SizeUnit.PIXEL);
 
 		return this;
 	}
@@ -141,23 +138,20 @@ public class UiThumbnail extends UiComposite<UiThumbnail> {
 	 * Displays the full-size image if the thumbnail image is clicked.
 	 */
 	private void displayImageView() {
-		UiPopupView aImageView =
+		UiPopupView imageView =
 			new UiPopupView(getView(), new UiColumnGridLayout(), true);
 
-		aImageView.builder().addTitle(aImage.get(LABEL));
-		aImageView
+		imageView.builder().addTitle(image.get(LABEL));
+		imageView
 			.builder()
 			.addIconButton(UiStandardIcon.CLOSE)
-			.onClick(v -> aImageView.hide())
+			.onClick(v -> imageView.hide())
 			.cell()
 			.colSpan(1)
 			.alignHorizontal(Alignment.END);
-		aImageView.getLayout().nextRow();
-		aImageView
-			.builder()
-			.addImage(rFullImageDef)
-			.tooltip(aImage.get(TOOLTIP));
+		imageView.getLayout().nextRow();
+		imageView.builder().addImage(fullImageDef).tooltip(image.get(TOOLTIP));
 
-		aImageView.center().autoHide().show();
+		imageView.center().autoHide().show();
 	}
 }

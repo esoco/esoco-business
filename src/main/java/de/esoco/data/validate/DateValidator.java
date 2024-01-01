@@ -29,20 +29,20 @@ public class DateValidator implements Validator<Date> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Date rStartDate;
+	private Date startDate;
 
-	private Date rEndDate;
+	private Date endDate;
 
 	/**
 	 * Creates a new instance that tests against a certain date range.
 	 *
-	 * @param rStartDate The start date to test against or NULL for no
-	 *                   limitation
-	 * @param rEndDate   The end date to test against or NULL for no limitation
+	 * @param startDate The start date to test against or NULL for no
+	 *                  limitation
+	 * @param endDate   The end date to test against or NULL for no limitation
 	 */
-	public DateValidator(Date rStartDate, Date rEndDate) {
-		this.rStartDate = rStartDate;
-		this.rEndDate = rEndDate;
+	public DateValidator(Date startDate, Date endDate) {
+		this.startDate = startDate;
+		this.endDate = endDate;
 	}
 
 	/**
@@ -55,19 +55,19 @@ public class DateValidator implements Validator<Date> {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		DateValidator rOther = (DateValidator) rObj;
+		DateValidator other = (DateValidator) obj;
 
-		return Objects.equals(rStartDate, rOther.rStartDate) &&
-			Objects.equals(rEndDate, rOther.rEndDate);
+		return Objects.equals(startDate, other.startDate) &&
+			Objects.equals(endDate, other.endDate);
 	}
 
 	/**
@@ -75,16 +75,16 @@ public class DateValidator implements Validator<Date> {
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * (rStartDate != null ? rStartDate.hashCode() : 1) +
-			(rEndDate != null ? rEndDate.hashCode() : 0);
+		return 37 * (startDate != null ? startDate.hashCode() : 1) +
+			(endDate != null ? endDate.hashCode() : 0);
 	}
 
 	/**
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(Date rDate) {
-		return (rStartDate == null || rDate.compareTo(rStartDate) >= 0) &&
-			(rEndDate == null || rDate.compareTo(rEndDate) <= 0);
+	public boolean isValid(Date date) {
+		return (startDate == null || date.compareTo(startDate) >= 0) &&
+			(endDate == null || date.compareTo(endDate) <= 0);
 	}
 }

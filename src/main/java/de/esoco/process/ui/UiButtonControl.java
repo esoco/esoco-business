@@ -17,17 +17,14 @@
 package de.esoco.process.ui;
 
 import de.esoco.data.FileType;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ui.event.UiHasActionEvents;
+import org.obrel.core.RelationType;
 
 import java.util.Collection;
 import java.util.function.Consumer;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
 
@@ -44,9 +41,8 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	 *
 	 * @see UiControl#UiControl(UiContainer, RelationType)
 	 */
-	public UiButtonControl(UiContainer<?> rParent,
-		RelationType<T> rParamType) {
-		super(rParent, rParamType);
+	public UiButtonControl(UiContainer<?> parent, RelationType<T> paramType) {
+		super(parent, paramType);
 	}
 
 	/**
@@ -54,9 +50,8 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	 *
 	 * @see UiControl#UiControl(UiContainer, Class)
 	 */
-	public UiButtonControl(UiContainer<?> rParent,
-		Class<? super T> rDatatype) {
-		super(rParent, rDatatype);
+	public UiButtonControl(UiContainer<?> parent, Class<? super T> datatype) {
+		super(parent, datatype);
 	}
 
 	/**
@@ -69,46 +64,46 @@ public abstract class UiButtonControl<T, C extends UiButtonControl<T, C>>
 	 * parameter. A typical usage would look like this:
 	 *
 	 * <pre>
-	 * aButton.onClick(v -> initiateDownload(sFileName,
-	 * eFileType,
-	 * fDownloadGenerator));
+	 * button.onClick(v -> initiateDownload(fileName,
+	 * fileType,
+	 * downloadGenerator));
 	 * </pre>
 	 *
-	 * @param sFileName          The file name of the download
-	 * @param eFileType          The file type of the download
-	 * @param fDownloadGenerator The function that generated the download data
+	 * @param fileName          The file name of the download
+	 * @param fileType          The file type of the download
+	 * @param downloadGenerator The function that generated the download data
 	 * @throws RuntimeProcessException If the download preparation fails
 	 */
-	public void initiateDownload(String sFileName, FileType eFileType,
-		Function<FileType, ?> fDownloadGenerator) {
-		initiateDownload(this, sFileName, eFileType, fDownloadGenerator);
+	public void initiateDownload(String fileName, FileType fileType,
+		Function<FileType, ?> downloadGenerator) {
+		initiateDownload(this, fileName, fileType, downloadGenerator);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C onAction(Consumer<T> rEventHandler) {
-		return onClick(rEventHandler);
+	public C onAction(Consumer<T> eventHandler) {
+		return onClick(eventHandler);
 	}
 
 	/**
 	 * Sets the event handler for click events on buttons.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final C onClick(Consumer<T> rEventHandler) {
+	public final C onClick(Consumer<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * Checks whether the columns should be set to the number of buttons.
 	 */
-	void checkSetColumns(Collection<?> rNewButtons) {
+	void checkSetColumns(Collection<?> newButtons) {
 		if (!has(COLUMNS)) {
-			set(rNewButtons.size(), COLUMNS);
+			set(newButtons.size(), COLUMNS);
 		}
 	}
 }

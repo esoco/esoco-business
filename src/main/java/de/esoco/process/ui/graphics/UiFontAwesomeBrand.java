@@ -148,15 +148,15 @@ public enum UiFontAwesomeBrand implements UiIconSupplier {
 	YANDEX_INTERNATIONAL('\uF414'), YELP('\uF1E9'), YOAST('\uF2B1'),
 	YOUTUBE('\uF167'), YOUTUBE_SQUARE('\uF431');
 
-	private final char cFontChar;
+	private final char fontChar;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param cFontChar The character code in the font awesome icon font.
+	 * @param fontChar The character code in the font awesome icon font.
 	 */
-	private UiFontAwesomeBrand(char cFontChar) {
-		this.cFontChar = cFontChar;
+	UiFontAwesomeBrand(char fontChar) {
+		this.fontChar = fontChar;
 	}
 
 	/**
@@ -166,7 +166,7 @@ public enum UiFontAwesomeBrand implements UiIconSupplier {
 	 * @return The character code
 	 */
 	public final char getFontChar() {
-		return cFontChar;
+		return fontChar;
 	}
 
 	/**

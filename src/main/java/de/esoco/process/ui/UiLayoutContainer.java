@@ -28,11 +28,11 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rLayout The layout of this panel
+	 * @param parent The parent container
+	 * @param layout The layout of this panel
 	 */
-	public UiLayoutContainer(UiContainer<?> rParent, UiLayout rLayout) {
-		super(rParent, rLayout);
+	public UiLayoutContainer(UiContainer<?> parent, UiLayout layout) {
+		super(parent, layout);
 	}
 
 	/**
@@ -48,10 +48,10 @@ public abstract class UiLayoutContainer<C extends UiLayoutContainer<C>>
 	/**
 	 * Removes a component from this container.
 	 *
-	 * @param rComponent The component to remove
+	 * @param component The component to remove
 	 */
 	@Override
-	public void remove(UiComponent<?, ?> rComponent) {
-		super.remove(rComponent);
+	public void remove(UiComponent<?, ?> component) {
+		super.remove(component);
 	}
 }

@@ -17,14 +17,12 @@
 package de.esoco.process.ui;
 
 import de.esoco.data.element.DateDataElement.DateInputType;
-
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.DateAttribute;
 
 import java.util.Date;
 
 import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
-
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 
 /**
@@ -38,15 +36,15 @@ public abstract class UiDateInputField<C extends UiDateInputField<C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent rContainer The parent fragment
-	 * @param rDate   The initial date value
-	 * @param eType   The type of date input
+	 * @param parent container The parent fragment
+	 * @param date   The initial date value
+	 * @param type   The type of date input
 	 */
-	protected UiDateInputField(UiContainer<?> rParent, Date rDate,
-		DateInputType eType) {
-		super(rParent, Date.class, rDate);
+	protected UiDateInputField(UiContainer<?> parent, Date date,
+		DateInputType type) {
+		super(parent, Date.class, date);
 
-		set(DATE_INPUT_TYPE, eType);
+		set(DATE_INPUT_TYPE, type);
 	}
 
 	/**
@@ -61,8 +59,8 @@ public abstract class UiDateInputField<C extends UiDateInputField<C>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setDate(Date rDate) {
-		fragment().setParameter(type(), rDate);
+	public void setDate(Date date) {
+		fragment().setParameter(type(), date);
 	}
 
 	/**

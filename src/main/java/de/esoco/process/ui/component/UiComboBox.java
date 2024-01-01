@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.TextAttribute;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
@@ -35,29 +34,29 @@ public class UiComboBox extends UiTextInputField<UiComboBox>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sText   The initial text
+	 * @param parent The parent container
+	 * @param text   The initial text
 	 */
-	public UiComboBox(UiContainer<?> rParent, String sText) {
-		super(rParent, sText);
+	public UiComboBox(UiContainer<?> parent, String text) {
+		super(parent, text);
 	}
 
 	/**
 	 * Sets the values to be displayed as suggestions for the input field.
 	 *
-	 * @param rValues The suggested values
+	 * @param values The suggested values
 	 */
-	public void setSuggestions(String... rValues) {
-		fragment().setAllowedValues(type(), rValues);
+	public void setSuggestions(String... values) {
+		fragment().setAllowedValues(type(), values);
 	}
 
 	/**
 	 * Sets a collection of values to be displayed as suggestions for the input
 	 * field.
 	 *
-	 * @param rValues The suggested values
+	 * @param values The suggested values
 	 */
-	public void setSuggestions(Collection<String> rValues) {
-		fragment().setAllowedValues(type(), rValues);
+	public void setSuggestions(Collection<String> values) {
+		fragment().setAllowedValues(type(), values);
 	}
 }

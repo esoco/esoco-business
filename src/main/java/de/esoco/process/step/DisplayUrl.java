@@ -16,16 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process.step;
 
-import static org.obrel.core.RelationTypes.newType;
-
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.InteractiveInputMode;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.net.URL;
 import java.util.List;
-
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
@@ -36,6 +33,7 @@ import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
+import static org.obrel.core.RelationTypes.newType;
 
 /**
  * A fragment that displays a website. The address of the website must be passed
@@ -76,37 +74,37 @@ public class DisplayUrl extends InteractionFragment {
 	/**
 	 * The URL to display in this fragment.
 	 */
-	private RelationType<URL> aUrlParameter;
+	private RelationType<URL> urlParameter;
 
 	/**
 	 * The parameter containing the URL input field.
 	 */
-	private RelationType<String> aUrlInputParameter;
+	private RelationType<String> urlInputParameter;
 
 	/**
 	 * The parameter containing the fragment's browser frame.
 	 */
-	private RelationType<String> aBrowserFrameParameter;
+	private RelationType<String> browserFrameParameter;
 
 	/**
 	 * The actions for the URL
 	 */
-	private RelationType<UrlAction> aUrlAction;
+	private RelationType<UrlAction> urlAction;
 
 	/**
 	 * The browser frame URL for opening in a separate browser tab.
 	 */
-	private RelationType<String> aOpenUrlParameter;
+	private RelationType<String> openUrlParameter;
 
-	private URL rUrl;
+	private URL url;
 
-	private URL rInputUrl;
+	private URL inputUrl;
 
-	private UrlChangeListener rUrlChangeListener;
+	private UrlChangeListener urlChangeListener;
 
-	private List<RelationType<?>> aInteractionParams;
+	private List<RelationType<?>> interactionParams;
 
-	private List<RelationType<?>> aInputParams;
+	private List<RelationType<?>> inputParams;
 
 	/**
 	 * Creates a new instance.
@@ -117,12 +115,12 @@ public class DisplayUrl extends InteractionFragment {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rUrl               The URL to display
-	 * @param rUrlChangeListener A {@link UrlChangeListener}
+	 * @param url               The URL to display
+	 * @param urlChangeListener A {@link UrlChangeListener}
 	 */
-	public DisplayUrl(URL rUrl, UrlChangeListener rUrlChangeListener) {
-		this.rUrl = rUrl;
-		this.rUrlChangeListener = rUrlChangeListener;
+	public DisplayUrl(URL url, UrlChangeListener urlChangeListener) {
+		this.url = url;
+		this.urlChangeListener = urlChangeListener;
 	}
 
 	/**
@@ -130,7 +128,7 @@ public class DisplayUrl extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -138,7 +136,7 @@ public class DisplayUrl extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
@@ -147,37 +145,37 @@ public class DisplayUrl extends InteractionFragment {
 	 * @return The current URL
 	 */
 	public URL getURL() {
-		return getParameter(aUrlParameter);
+		return getParameter(urlParameter);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		String sUrl = getParameter(aUrlInputParameter);
+		String url = getParameter(urlInputParameter);
 
-		if (rInteractionParam == aUrlInputParameter) {
-			updateUrl(sUrl);
-		} else if (rInteractionParam == aUrlAction) {
-			switch (getParameter(aUrlAction)) {
+		if (interactionParam == urlInputParameter) {
+			updateUrl(url);
+		} else if (interactionParam == urlAction) {
+			switch (getParameter(urlAction)) {
 				case BROWSE:
-					updateUrl(sUrl);
+					updateUrl(url);
 					break;
 
 				case RESTORE:
-					updateUrl(rInputUrl);
+					updateUrl(inputUrl);
 					break;
 
 				case SAVE:
 
-					URL rNewUrl = new URL(updateUrl(sUrl));
+					URL newUrl = new URL(updateUrl(url));
 
-					setParameter(aUrlParameter, rNewUrl);
+					setParameter(urlParameter, newUrl);
 
-					if (rUrlChangeListener != null) {
-						rUrlChangeListener.onUrlChanged(rNewUrl);
+					if (urlChangeListener != null) {
+						urlChangeListener.onUrlChanged(newUrl);
 					}
 
 					break;
@@ -190,40 +188,40 @@ public class DisplayUrl extends InteractionFragment {
 	 */
 	@Override
 	public void init() {
-		rInputUrl = getParameter(aUrlParameter);
+		inputUrl = getParameter(urlParameter);
 
-		updateUrl(rInputUrl);
+		updateUrl(inputUrl);
 
-		setUIFlag(SAME_ROW, aUrlAction, aOpenUrlParameter);
-		setUIFlag(HAS_IMAGES, aUrlAction, aOpenUrlParameter);
-		setUIFlag(HIDE_LABEL, aBrowserFrameParameter, aUrlAction,
-			aUrlInputParameter);
+		setUIFlag(SAME_ROW, urlAction, openUrlParameter);
+		setUIFlag(HAS_IMAGES, urlAction, openUrlParameter);
+		setUIFlag(HIDE_LABEL, browserFrameParameter, urlAction,
+			urlInputParameter);
 
-		setUIProperty(HTML_WIDTH, "100%", aBrowserFrameParameter,
-			aUrlInputParameter);
-		setUIProperty(HTML_HEIGHT, "100%", aBrowserFrameParameter);
-		setUIProperty(3, COLUMNS, aUrlAction);
-		setUIProperty(3, COLUMN_SPAN, aBrowserFrameParameter);
+		setUIProperty(HTML_WIDTH, "100%", browserFrameParameter,
+			urlInputParameter);
+		setUIProperty(HTML_HEIGHT, "100%", browserFrameParameter);
+		setUIProperty(3, COLUMNS, urlAction);
+		setUIProperty(3, COLUMN_SPAN, browserFrameParameter);
 
 		setUIProperty(CONTENT_TYPE, ContentType.WEBSITE,
-			aBrowserFrameParameter);
+			browserFrameParameter);
 		setUIProperty(CONTENT_TYPE, ContentType.ABSOLUTE_URL,
-			aOpenUrlParameter);
+			openUrlParameter);
 
 		setUIProperty(INTERACTIVE_INPUT_MODE, InteractiveInputMode.ACTION,
-			aUrlInputParameter);
+			urlInputParameter);
 
-		setImmediateAction(aUrlAction);
+		setImmediateAction(urlAction);
 	}
 
 	/**
 	 * Sets the current URL of this instance.
 	 *
-	 * @param rUrl The new URL
+	 * @param url The new URL
 	 */
-	public void setURL(URL rUrl) {
-		this.rUrl = rUrl;
-		setParameter(aUrlParameter, rUrl);
+	public void setURL(URL url) {
+		this.url = url;
+		setParameter(urlParameter, url);
 	}
 
 	/**
@@ -231,20 +229,19 @@ public class DisplayUrl extends InteractionFragment {
 	 */
 	@Override
 	public void setup() {
-		aUrlParameter = getNamedTmpParameterType("URL", URL.class);
-		aUrlInputParameter = getNamedTmpParameterType("UrlInput",
-			String.class);
-		aBrowserFrameParameter =
+		urlParameter = getNamedTmpParameterType("URL", URL.class);
+		urlInputParameter = getNamedTmpParameterType("UrlInput", String.class);
+		browserFrameParameter =
 			getNamedTmpParameterType("BrowserFrame", String.class);
-		aUrlAction = getNamedTmpParameterType("UrlAction", UrlAction.class);
-		aOpenUrlParameter = getNamedTmpParameterType("OpenUrl", String.class);
+		urlAction = getNamedTmpParameterType("UrlAction", UrlAction.class);
+		openUrlParameter = getNamedTmpParameterType("OpenUrl", String.class);
 
-		aInputParams = staticParams(aUrlInputParameter, aUrlAction);
-		aInteractionParams =
-			staticParams(aUrlInputParameter, aUrlAction, aOpenUrlParameter,
-				aBrowserFrameParameter);
+		inputParams = staticParams(urlInputParameter, urlAction);
+		interactionParams =
+			staticParams(urlInputParameter, urlAction, openUrlParameter,
+				browserFrameParameter);
 
-		setParameter(aUrlParameter, rUrl);
+		setParameter(urlParameter, url);
 	}
 
 	/**
@@ -253,50 +250,50 @@ public class DisplayUrl extends InteractionFragment {
 	 * @see InteractionFragment#afterInteraction(RelationType)
 	 */
 	@Override
-	protected void afterInteraction(RelationType<?> rInteractionParam) {
-		URL rNewUrl = getParameter(aUrlParameter);
+	protected void afterInteraction(RelationType<?> interactionParam) {
+		URL newUrl = getParameter(urlParameter);
 
-		if ((rNewUrl == null && rInputUrl != null) ||
-			rNewUrl != null && !rNewUrl.equals(rInputUrl)) {
-			rInputUrl = rNewUrl;
-			updateUrl(rInputUrl);
+		if ((newUrl == null && inputUrl != null) ||
+			newUrl != null && !newUrl.equals(inputUrl)) {
+			inputUrl = newUrl;
+			updateUrl(inputUrl);
 		}
 	}
 
 	/**
 	 * Updates the URL input field and the browser frame to the given URL.
 	 *
-	 * @param rUrl The new URL
+	 * @param url The new URL
 	 */
-	private void updateUrl(URL rUrl) {
-		updateUrl(rUrl != null ? rUrl.toString() : null);
+	private void updateUrl(URL url) {
+		updateUrl(url != null ? url.toString() : null);
 	}
 
 	/**
 	 * Updates the URL input field and the browser frame to the given URL
 	 * string.
 	 *
-	 * @param sUrl The new URL string
+	 * @param url The new URL string
 	 * @return The URL, modified if necessary
 	 */
-	private String updateUrl(String sUrl) {
-		setParameter(aUrlInputParameter, sUrl);
+	private String updateUrl(String url) {
+		setParameter(urlInputParameter, url);
 
-		if (sUrl == null) {
-			sUrl = EMPTY_PAGE_URL;
+		if (url == null) {
+			url = EMPTY_PAGE_URL;
 		} else {
-			String sUrlLowercase = sUrl.toLowerCase();
+			String urlLowercase = url.toLowerCase();
 
-			if (!(sUrlLowercase.startsWith("http://") ||
-				sUrlLowercase.startsWith("https://"))) {
-				sUrl = "http://" + sUrl;
+			if (!(urlLowercase.startsWith("http://") ||
+				urlLowercase.startsWith("https://"))) {
+				url = "http://" + url;
 			}
 		}
 
-		setParameter(aBrowserFrameParameter, sUrl);
-		setParameter(aOpenUrlParameter, sUrl);
+		setParameter(browserFrameParameter, url);
+		setParameter(openUrlParameter, url);
 
-		return sUrl;
+		return url;
 	}
 
 	/**
@@ -309,8 +306,8 @@ public class DisplayUrl extends InteractionFragment {
 		/**
 		 * Called, if the URL changes
 		 *
-		 * @param rNewUrl The new URL value
+		 * @param newUrl The new URL value
 		 */
-		public void onUrlChanged(URL rNewUrl);
+		void onUrlChanged(URL newUrl);
 	}
 }

@@ -26,33 +26,33 @@ import org.obrel.core.RelatedObject;
  */
 public class StorageAdapterId extends RelatedObject {
 
-	private String sId;
+	private final String id;
 
 	/**
 	 * Creates a new instance from a string ID.
 	 *
-	 * @param sId The identifier string
+	 * @param id The identifier string
 	 */
-	public StorageAdapterId(String sId) {
-		this.sId = sId;
+	public StorageAdapterId(String id) {
+		this.id = id;
 	}
 
 	/**
 	 * Creates a new instance from a numeric ID.
 	 *
-	 * @param nId The ID
+	 * @param id The ID
 	 */
-	public StorageAdapterId(long nId) {
-		this(Long.toString(nId));
+	public StorageAdapterId(long id) {
+		this(Long.toString(id));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		return rObj == this || rObj != null && rObj.getClass() == getClass() &&
-			sId.equals(((StorageAdapterId) rObj).sId);
+	public boolean equals(Object obj) {
+		return obj == this || obj != null && obj.getClass() == getClass() &&
+			id.equals(((StorageAdapterId) obj).id);
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class StorageAdapterId extends RelatedObject {
 	 */
 	@Override
 	public int hashCode() {
-		return sId.hashCode();
+		return id.hashCode();
 	}
 
 	/**
@@ -68,6 +68,6 @@ public class StorageAdapterId extends RelatedObject {
 	 */
 	@Override
 	public String toString() {
-		return sId;
+		return id;
 	}
 }

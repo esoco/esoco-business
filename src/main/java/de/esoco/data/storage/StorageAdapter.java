@@ -18,7 +18,6 @@ package de.esoco.data.storage;
 
 import de.esoco.data.element.QueryResultElement;
 import de.esoco.data.element.StringDataElement;
-
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.model.DataModel;
 import de.esoco.lib.property.StorageProperties;
@@ -38,7 +37,7 @@ public interface StorageAdapter {
 	 *
 	 * @return A list of column definitions (may be NULL)
 	 */
-	public List<ColumnDefinition> getColumns();
+	List<ColumnDefinition> getColumns();
 
 	/**
 	 * An optional operation that returns the current query criteria of this
@@ -51,17 +50,17 @@ public interface StorageAdapter {
 	 * executed
 	 * yet
 	 */
-	public Object getCurrentQueryCriteria();
+	Object getCurrentQueryCriteria();
 
 	/**
 	 * Must be implemented by subclasses to perform a query. The query
 	 * parameters data element must contain the mandatory query properties from
 	 * {@link StorageProperties}.
 	 *
-	 * @param rQueryParams A data element containing the query parameters
+	 * @param queryParams A data element containing the query parameters
 	 * @return A query result data element
 	 * @throws Exception If executing the query fails
 	 */
-	public QueryResultElement<DataModel<String>> performQuery(
-		StringDataElement rQueryParams) throws Exception;
+	QueryResultElement<DataModel<String>> performQuery(
+		StringDataElement queryParams) throws Exception;
 }

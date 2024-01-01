@@ -18,11 +18,9 @@ package de.esoco.process.step;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-
 import de.esoco.process.Process;
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessStep;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
@@ -74,7 +72,7 @@ public final class BranchStep extends ProcessStep {
 		RelationTypes.init(BranchStep.class);
 	}
 
-	private String sNoBranchTarget;
+	private String noBranchTarget;
 
 	/**
 	 * Initializes the step parameters.
@@ -102,14 +100,14 @@ public final class BranchStep extends ProcessStep {
 	@SuppressWarnings("boxing")
 	protected void execute() throws ProcessException {
 		@SuppressWarnings("unchecked")
-		Predicate<Object> pCondition =
+		Predicate<Object> condition =
 			(Predicate<Object>) checkParameter(BRANCH_CONDITION);
 
-		RelationType<?> rBranchParam = getParameter(BRANCH_PARAM);
-		String sBranchTarget = getParameter(BRANCH_TARGET);
-		String sNextStep;
+		RelationType<?> branchParam = getParameter(BRANCH_PARAM);
+		String branchTarget = getParameter(BRANCH_TARGET);
+		String nextStep;
 
-		if (pCondition != Predicates.alwaysTrue() && rBranchParam == null &&
+		if (condition != Predicates.alwaysTrue() && branchParam == null &&
 			!hasRelation(BRANCH_PARAM)) {
 			throw new ProcessException(this,
 				String.format("Parameter %s not set", BRANCH_PARAM));
@@ -120,16 +118,16 @@ public final class BranchStep extends ProcessStep {
 				String.format("Parameter %s not set", BRANCH_TARGET));
 		}
 
-		Object rBranchValue =
-			rBranchParam != null ? getParameter(rBranchParam) : null;
+		Object branchValue =
+			branchParam != null ? getParameter(branchParam) : null;
 
-		if (pCondition.evaluate(rBranchValue)) {
-			sNextStep = sBranchTarget;
+		if (condition.evaluate(branchValue)) {
+			nextStep = branchTarget;
 		} else {
-			sNextStep = sNoBranchTarget;
+			nextStep = noBranchTarget;
 		}
 
-		super.setNextStep(sNextStep);
+		super.setNextStep(nextStep);
 	}
 
 	/**
@@ -145,12 +143,12 @@ public final class BranchStep extends ProcessStep {
 	 * Overridden to store the name of the step to be invoked if no branching
 	 * occurs.
 	 *
-	 * @param sNextStep The next step to be invoked if no branching occurs
+	 * @param nextStep The next step to be invoked if no branching occurs
 	 */
 	@Override
-	protected void setNextStep(String sNextStep) {
-		super.setNextStep(sNextStep);
+	protected void setNextStep(String nextStep) {
+		super.setNextStep(nextStep);
 
-		sNoBranchTarget = sNextStep;
+		noBranchTarget = nextStep;
 	}
 }

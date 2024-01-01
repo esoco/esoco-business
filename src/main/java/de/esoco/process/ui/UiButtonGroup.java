@@ -18,13 +18,12 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.HasSelection;
 import de.esoco.lib.property.ListStyle;
+import org.obrel.core.RelationType;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
@@ -40,49 +39,49 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent    The parent container
-	 * @param rDatatype  The datatype of the component value
-	 * @param eListStyle The style for the rendering of the buttons
+	 * @param parent    The parent container
+	 * @param datatype  The datatype of the component value
+	 * @param listStyle The style for the rendering of the buttons
 	 */
 	@SuppressWarnings("unchecked")
-	public UiButtonGroup(UiContainer<?> rParent, Class<? super T> rDatatype,
-		ListStyle eListStyle) {
-		super(rParent, rDatatype);
+	public UiButtonGroup(UiContainer<?> parent, Class<? super T> datatype,
+		ListStyle listStyle) {
+		super(parent, datatype);
 
-		set(LIST_STYLE, eListStyle);
+		set(LIST_STYLE, listStyle);
 
-		if (rDatatype.isEnum()) {
-			addButtons((T[]) rDatatype.getEnumConstants());
+		if (datatype.isEnum()) {
+			addButtons((T[]) datatype.getEnumConstants());
 		}
 	}
 
 	/**
 	 * Adds certain buttons.
 	 *
-	 * @param rButtonLabels The labels of the buttons to add
+	 * @param buttonLabels The labels of the buttons to add
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C addButtons(T... rButtonLabels) {
-		return addButtons(Arrays.asList(rButtonLabels));
+	public C addButtons(T... buttonLabels) {
+		return addButtons(Arrays.asList(buttonLabels));
 	}
 
 	/**
 	 * Adds a collection of buttons.
 	 *
-	 * @param rButtonLabels The collection of button labels to add
+	 * @param buttonLabels The collection of button labels to add
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C addButtons(Collection<T> rButtonLabels) {
-		Collection<T> rAllowedValues = fragment().getAllowedValues(type());
+	public C addButtons(Collection<T> buttonLabels) {
+		Collection<T> allowedValues = fragment().getAllowedValues(type());
 
-		if (rAllowedValues != null) {
-			rAllowedValues.addAll(rButtonLabels);
-			checkSetColumns(rAllowedValues);
+		if (allowedValues != null) {
+			allowedValues.addAll(buttonLabels);
+			checkSetColumns(allowedValues);
 		} else {
-			fragment().setAllowedValues(type(), rButtonLabels);
-			checkSetColumns(rButtonLabels);
+			fragment().setAllowedValues(type(), buttonLabels);
+			checkSetColumns(buttonLabels);
 		}
 
 		return (C) this;
@@ -91,18 +90,17 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param rDisabledButtons rDisabledElements A collection of the
-	 *                            elements to
-	 *                         disable
+	 * @param disabledButtons disabledElements A collection of the elements to
+	 *                        disable
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C disableButtons(Collection<T> rDisabledButtons) {
-		RelationType<T> rParamType = type();
+	public C disableButtons(Collection<T> disabledButtons) {
+		RelationType<T> paramType = type();
 
-		fragment().disableElements(rParamType,
-			(Class<T>) rParamType.getTargetType(),
-			fragment().getAllowedValues(type()), rDisabledButtons);
+		fragment().disableElements(paramType,
+			(Class<T>) paramType.getTargetType(),
+			fragment().getAllowedValues(type()), disabledButtons);
 
 		return (C) this;
 	}
@@ -110,12 +108,12 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param rDisabledButtons rDisabledElements The elements to disable
+	 * @param disabledButtons disabledElements The elements to disable
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C disableButtons(T... rDisabledButtons) {
-		return disableButtons(Arrays.asList(rDisabledButtons));
+	public C disableButtons(T... disabledButtons) {
+		return disableButtons(Arrays.asList(disabledButtons));
 	}
 
 	/**
@@ -145,33 +143,33 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	/**
 	 * Selects a certain button.
 	 *
-	 * @param rValue The enum value of the button to select
+	 * @param value The enum value of the button to select
 	 * @return This instance
 	 */
-	public C select(T rValue) {
-		return setValueImpl(rValue);
+	public C select(T value) {
+		return setValueImpl(value);
 	}
 
 	/**
 	 * Sets the buttons to be displayed.
 	 *
-	 * @param rButtonLabels The labels of the displayed buttons
+	 * @param buttonLabels The labels of the displayed buttons
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C setButtons(T... rButtonLabels) {
-		return setButtons(Arrays.asList(rButtonLabels));
+	public C setButtons(T... buttonLabels) {
+		return setButtons(Arrays.asList(buttonLabels));
 	}
 
 	/**
 	 * Sets the buttons to be displayed.
 	 *
-	 * @param rButtonLabels A stream containing the labels of the displayed
-	 *                      buttons
+	 * @param buttonLabels A stream containing the labels of the displayed
+	 *                     buttons
 	 * @return This instance
 	 */
-	public C setButtons(Stream<T> rButtonLabels) {
-		return setButtons(rButtonLabels.collect(Collectors.toList()));
+	public C setButtons(Stream<T> buttonLabels) {
+		return setButtons(buttonLabels.collect(Collectors.toList()));
 	}
 
 	/**
@@ -180,13 +178,13 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	 * This can also be used to remove the current buttons by setting an empty
 	 * collection.
 	 *
-	 * @param rNewButtons The new collection of button labels
+	 * @param newButtons The new collection of button labels
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C setButtons(Collection<T> rNewButtons) {
-		fragment().setAllowedValues(type(), rNewButtons);
-		checkSetColumns(rNewButtons);
+	public C setButtons(Collection<T> newButtons) {
+		fragment().setAllowedValues(type(), newButtons);
+		checkSetColumns(newButtons);
 
 		return (C) this;
 	}
@@ -196,10 +194,10 @@ public abstract class UiButtonGroup<T, C extends UiButtonGroup<T, C>>
 	 * this instance this either needs to be a single value or a collection of
 	 * values.
 	 *
-	 * @param rNewSelection The new selection
+	 * @param newSelection The new selection
 	 */
 	@Override
-	public void setSelection(T rNewSelection) {
-		select(rNewSelection);
+	public void setSelection(T newSelection) {
+		select(newSelection);
 	}
 }

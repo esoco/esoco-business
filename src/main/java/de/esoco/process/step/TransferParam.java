@@ -19,7 +19,6 @@ package de.esoco.process.step;
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
@@ -82,25 +81,23 @@ public class TransferParam extends ProcessStep {
 	@Override
 	@SuppressWarnings({ "boxing", "unchecked" })
 	protected void execute() throws ProcessException {
-		RelationType<?> rSource =
+		RelationType<?> source =
 			checkParameter(ProcessRelationTypes.SOURCE_PARAM);
-		RelationType<?> rTarget =
+		RelationType<?> target =
 			checkParameter(ProcessRelationTypes.TARGET_PARAM);
 
-		Object rValue = getParameter(rSource);
-		boolean bMove = getParameter(TRANSFER_PARAM_MOVE);
+		Object value = getParameter(source);
+		boolean move = getParameter(TRANSFER_PARAM_MOVE);
 
-		if (!rTarget
-			.getTargetType()
-			.isAssignableFrom(rSource.getTargetType())) {
+		if (!target.getTargetType().isAssignableFrom(source.getTargetType())) {
 			throw new ProcessException(this,
 				"Incompatible source and target parameter datatypes");
 		}
 
-		setParameter((RelationType<Object>) rTarget, rValue);
+		setParameter((RelationType<Object>) target, value);
 
-		if (bMove) {
-			deleteParameters(rSource);
+		if (move) {
+			deleteParameters(source);
 		}
 	}
 
@@ -113,14 +110,13 @@ public class TransferParam extends ProcessStep {
 	@SuppressWarnings({ "unchecked" })
 	protected void rollback() throws Exception {
 		if (hasFlagParameter(TRANSFER_PARAM_MOVE)) {
-			RelationType<?> rSource =
+			RelationType<?> source =
 				getParameter(ProcessRelationTypes.SOURCE_PARAM);
-			RelationType<?> rTarget =
+			RelationType<?> target =
 				getParameter(ProcessRelationTypes.TARGET_PARAM);
 
-			setParameter((RelationType<Object>) rSource,
-				getParameter(rTarget));
-			deleteParameters(rTarget);
+			setParameter((RelationType<Object>) source, getParameter(target));
+			deleteParameters(target);
 		}
 	}
 }

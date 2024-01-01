@@ -18,7 +18,6 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.SingleSelection;
-
 import de.esoco.process.ui.container.UiLayoutPanel;
 
 import java.util.function.Consumer;
@@ -40,23 +39,23 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rLayout The panel layout
+	 * @param parent The parent container
+	 * @param layout The panel layout
 	 */
-	public UiSwitchPanel(UiContainer<?> rParent, UiLayout rLayout) {
-		super(rParent, rLayout);
+	public UiSwitchPanel(UiContainer<?> parent, UiLayout layout) {
+		super(parent, layout);
 	}
 
 	/**
 	 * Adds a panel with a particular layout as a new page of this switch
 	 * panel.
 	 *
-	 * @param sTitle  The page title
-	 * @param eLayout The panel layout
+	 * @param title  The page title
+	 * @param layout The panel layout
 	 * @return The page panel to allow further invocations
 	 */
-	public UiLayoutPanel addPage(String sTitle, UiLayout eLayout) {
-		return addPage(sTitle, c -> c.builder().addPanel(eLayout));
+	public UiLayoutPanel addPage(String title, UiLayout layout) {
+		return addPage(title, c -> c.builder().addPanel(layout));
 	}
 
 	/**
@@ -64,22 +63,22 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	 * this switch panel. The component must be a child of this container or
 	 * else an exception will be thrown.
 	 *
-	 * @param sTitle  The page title
-	 * @param fCreate A factory function that receives this panel as it's input
-	 *                and returns a child component for the new page
+	 * @param title  The page title
+	 * @param create A factory function that receives this panel as it's input
+	 *               and returns a child component for the new page
 	 * @return The page component to allow further invocations
 	 * @throws IllegalArgumentException If the given component has a different
 	 *                                  parent than this container
 	 */
-	public <T, V extends UiComponent<T, V>> V addPage(String sTitle,
-		Function<UiContainer<?>, ? extends V> fCreate) {
-		V rPageComponent = fCreate.apply(this).set(LABEL, sTitle);
+	public <T, V extends UiComponent<T, V>> V addPage(String title,
+		Function<UiContainer<?>, ? extends V> create) {
+		V pageComponent = create.apply(this).set(LABEL, title);
 
-		assert rPageComponent.getParent() == this :
-			String.format("Component %s has other parent: ", rPageComponent,
-				rPageComponent.getParent());
+		assert pageComponent.getParent() == this :
+			String.format("Component %s has other parent: ", pageComponent,
+				pageComponent.getParent());
 
-		return rPageComponent;
+		return pageComponent;
 	}
 
 	/**
@@ -96,9 +95,9 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	 */
 	@Override
 	public int getSelectionIndex() {
-		Integer rSelectionIndex = get(CURRENT_SELECTION);
+		Integer selectionIndex = get(CURRENT_SELECTION);
 
-		return rSelectionIndex != null ? rSelectionIndex.intValue() : 0;
+		return selectionIndex != null ? selectionIndex.intValue() : 0;
 	}
 
 	/**
@@ -107,13 +106,13 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	 * the
 	 * current selection index or the selected page component.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P onSelection(Consumer<P> rEventHandler) {
+	public final P onSelection(Consumer<P> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			v -> rEventHandler.accept((P) this));
+			v -> eventHandler.accept((P) this));
 	}
 
 	/**
@@ -121,7 +120,7 @@ public class UiSwitchPanel<P extends UiSwitchPanel<P>>
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public void setSelection(int nIndex) {
-		set(CURRENT_SELECTION, nIndex);
+	public void setSelection(int index) {
+		set(CURRENT_SELECTION, index);
 	}
 }

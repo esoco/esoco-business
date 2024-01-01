@@ -17,14 +17,13 @@
 package de.esoco.process.step;
 
 import de.esoco.process.ViewFragment;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static de.esoco.lib.property.UserInterfaceProperties.ROW_SPAN;
@@ -49,18 +48,18 @@ public class MessageBoxFragment extends DialogFragment {
 	 * initialization of these parameters including UI properties must be done
 	 * by the invoking code before invoking the message box.
 	 *
-	 * @param sMessage       The message to display
-	 * @param sIcon          The resource name for the message box icon
-	 * @param rDialogActions The actions to be displayed as the dialog buttons
-	 * @param rExtraParams   Optional extra parameters to be displayed in the
-	 *                       message box
+	 * @param message       The message to display
+	 * @param icon          The resource name for the message box icon
+	 * @param dialogActions The actions to be displayed as the dialog buttons
+	 * @param extraParams   Optional extra parameters to be displayed in the
+	 *                      message box
 	 */
-	public MessageBoxFragment(String sMessage, String sIcon,
-		Collection<DialogAction> rDialogActions,
-		RelationType<?>... rExtraParams) {
+	public MessageBoxFragment(String message, String icon,
+		Collection<DialogAction> dialogActions,
+		RelationType<?>... extraParams) {
 		super("%s_" + PREFIX_COUNTER++,
-			new MessageBoxContent(sMessage, sIcon, rExtraParams), true, null,
-			rDialogActions);
+			new MessageBoxContent(message, icon, extraParams), true, null,
+			dialogActions);
 	}
 
 	/**
@@ -82,34 +81,33 @@ public class MessageBoxFragment extends DialogFragment {
 
 		private static final long serialVersionUID = 1L;
 
-		private List<RelationType<?>> aInteractionParams = new ArrayList<>();
+		private final List<RelationType<?>> interactionParams = new ArrayList<>();
 
-		private List<RelationType<?>> aInputParams = Collections.emptyList();
+		private final List<RelationType<?>> inputParams = Collections.emptyList();
 
-		private String sMessage;
+		private final String message;
 
-		private String sIcon;
+		private final String icon;
 
-		private List<RelationType<?>> rExtraParams;
+		private final List<RelationType<?>> extraParams;
 
-		private RelationType<String> aContentMessageParam;
+		private RelationType<String> contentMessageParam;
 
-		private RelationType<String> aContentIconParam;
+		private RelationType<String> contentIconParam;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param sMessage     The message to display
-		 * @param sIcon        The resource name for the message box icon
-		 * @param rExtraParams Optional extra parameters to be displayed in
-		 *                           this
-		 *                     fragment
+		 * @param message     The message to display
+		 * @param icon        The resource name for the message box icon
+		 * @param extraParams Optional extra parameters to be displayed in this
+		 *                    fragment
 		 */
-		public MessageBoxContent(String sMessage, String sIcon,
-			RelationType<?>... rExtraParams) {
-			this.sMessage = sMessage;
-			this.sIcon = sIcon;
-			this.rExtraParams = Arrays.asList(rExtraParams);
+		public MessageBoxContent(String message, String icon,
+			RelationType<?>... extraParams) {
+			this.message = message;
+			this.icon = icon;
+			this.extraParams = Arrays.asList(extraParams);
 		}
 
 		/**
@@ -117,7 +115,7 @@ public class MessageBoxFragment extends DialogFragment {
 		 */
 		@Override
 		public List<RelationType<?>> getInputParameters() {
-			return aInputParams;
+			return inputParams;
 		}
 
 		/**
@@ -125,7 +123,7 @@ public class MessageBoxFragment extends DialogFragment {
 		 */
 		@Override
 		public List<RelationType<?>> getInteractionParameters() {
-			return aInteractionParams;
+			return interactionParams;
 		}
 
 		/**
@@ -133,20 +131,19 @@ public class MessageBoxFragment extends DialogFragment {
 		 */
 		@Override
 		public void init() throws Exception {
-			setUIFlag(SAME_ROW, aContentMessageParam);
-			setUIFlag(HIDE_LABEL, aContentIconParam, aContentMessageParam);
+			setUIFlag(SAME_ROW, contentMessageParam);
+			setUIFlag(HIDE_LABEL, contentIconParam, contentMessageParam);
 
-			if (rExtraParams.size() > 0) {
-				setUIProperty(rExtraParams.size() + 1, ROW_SPAN,
-					aContentIconParam);
+			if (extraParams.size() > 0) {
+				setUIProperty(extraParams.size() + 1, ROW_SPAN,
+					contentIconParam);
 			}
 
-			setUIProperty(STYLE, "MessageBoxText", aContentMessageParam);
-			setUIProperty(TOOLTIP, "", aContentMessageParam,
-				aContentIconParam);
+			setUIProperty(STYLE, "MessageBoxText", contentMessageParam);
+			setUIProperty(TOOLTIP, "", contentMessageParam, contentIconParam);
 
-			setParameter(aContentMessageParam, sMessage);
-			setParameter(aContentIconParam, sIcon);
+			setParameter(contentMessageParam, message);
+			setParameter(contentIconParam, icon);
 		}
 
 		/**
@@ -154,15 +151,15 @@ public class MessageBoxFragment extends DialogFragment {
 		 */
 		@Override
 		public void setup() {
-			aContentMessageParam =
+			contentMessageParam =
 				getTemporaryParameterType("MESSAGE_BOX_MESSAGE", String.class);
 
-			aContentIconParam =
+			contentIconParam =
 				getTemporaryParameterType("MESSAGE_BOX_ICON", String.class);
 
-			aInteractionParams.add(aContentIconParam);
-			aInteractionParams.add(aContentMessageParam);
-			aInteractionParams.addAll(rExtraParams);
+			interactionParams.add(contentIconParam);
+			interactionParams.add(contentMessageParam);
+			interactionParams.addAll(extraParams);
 		}
 	}
 }

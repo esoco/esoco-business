@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.TextAttribute;
-
 import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
@@ -41,13 +40,13 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sLabel  The link label
+	 * @param parent The parent container
+	 * @param label  The link label
 	 */
-	public UiButton(UiContainer<?> rParent, String sLabel) {
-		super(rParent, String.class);
+	public UiButton(UiContainer<?> parent, String label) {
+		super(parent, String.class);
 
-		setText(sLabel);
+		setText(label);
 		buttonStyle(ButtonStyle.DEFAULT);
 		set(HIDE_LABEL);
 	}
@@ -55,11 +54,11 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	/**
 	 * Sets the button style.
 	 *
-	 * @param eStyle The new style
+	 * @param style The new style
 	 * @return This instance
 	 */
-	public UiButton buttonStyle(ButtonStyle eStyle) {
-		return set(BUTTON_STYLE, eStyle);
+	public UiButton buttonStyle(ButtonStyle style) {
+		return set(BUTTON_STYLE, style);
 	}
 
 	/**
@@ -76,24 +75,24 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	 * subclass of {@link UiImageDefinition} setting an icon will replace any
 	 * previously set image and vice versa.
 	 *
-	 * @param rIconSupplier The button icon
+	 * @param iconSupplier The button icon
 	 * @return This instance
 	 */
 	@Override
-	public UiButton icon(UiIconSupplier rIconSupplier) {
-		return super.icon(rIconSupplier);
+	public UiButton icon(UiIconSupplier iconSupplier) {
+		return super.icon(iconSupplier);
 	}
 
 	/**
 	 * Sets the button image. If both image and text are set both may be
 	 * displayed but that depends on the client-side UI toolkit.
 	 *
-	 * @param rImage The button image
+	 * @param image The button image
 	 * @return This instance
 	 */
 	@Override
-	public UiButton image(UiImageDefinition<?> rImage) {
-		return super.image(rImage);
+	public UiButton image(UiImageDefinition<?> image) {
+		return super.image(image);
 	}
 
 	/**
@@ -102,20 +101,19 @@ public class UiButton extends UiButtonControl<String, UiButton>
 	 * strings
 	 * allowed as format arguments.
 	 *
-	 * @param sTemplate        The format template
-	 * @param rFormatArguments The format arguments
+	 * @param template        The format template
+	 * @param formatArguments The format arguments
 	 */
-	public void setFormattedText(String sTemplate,
-		String... rFormatArguments) {
-		setText(sTemplate);
-		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	public void setFormattedText(String template, String... formatArguments) {
+		setText(template);
+		set(FORMAT_ARGUMENTS, Arrays.asList(formatArguments));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText) {
-		setValueImpl(sText);
+	public void setText(String text) {
+		setValueImpl(text);
 	}
 }

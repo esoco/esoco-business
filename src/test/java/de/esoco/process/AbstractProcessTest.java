@@ -58,33 +58,32 @@ public class AbstractProcessTest {
 	 * of the given process (or the current process step if the process has not
 	 * finished yet) yield TRUE.
 	 *
-	 * @param aProcess The process to assert
+	 * @param process The process to assert
 	 */
 	@SuppressWarnings("boxing")
-	public static void assertPostconditions(Process aProcess) {
-		Set<Entry<RelationType<?>, Predicate<?>>> rConditions;
+	public static void assertPostconditions(Process process) {
+		Set<Entry<RelationType<?>, Predicate<?>>> conditions;
 
-		if (aProcess.isFinished()) {
-			rConditions = aProcess.get(POSTCONDITIONS).entrySet();
+		if (process.isFinished()) {
+			conditions = process.get(POSTCONDITIONS).entrySet();
 		} else {
-			rConditions =
-				aProcess.getCurrentStep().get(POSTCONDITIONS).entrySet();
+			conditions =
+				process.getCurrentStep().get(POSTCONDITIONS).entrySet();
 		}
 
-		for (Map.Entry<RelationType<?>, Predicate<?>> e : rConditions) {
-			RelationType<?> rType = e.getKey();
+		for (Map.Entry<RelationType<?>, Predicate<?>> e : conditions) {
+			RelationType<?> type = e.getKey();
 
 			@SuppressWarnings("unchecked")
-			Predicate<Object> rPredicate = (Predicate<Object>) e.getValue();
+			Predicate<Object> predicate = (Predicate<Object>) e.getValue();
 
-			if (rPredicate != null) {
-				Object rValue = aProcess.getParameter(rType);
+			if (predicate != null) {
+				Object value = process.getParameter(type);
 
-				assertTrue(rPredicate.evaluate(rValue),
-					"Expected: " + rType + " " + rPredicate + " but is " +
-						rValue);
+				assertTrue(predicate.evaluate(value),
+					"Expected: " + type + " " + predicate + " but is " + value);
 			} else {
-				assertFalse(aProcess.hasParameter(rType), rType + " exists");
+				assertFalse(process.hasParameter(type), type + " exists");
 			}
 		}
 	}
@@ -108,24 +107,24 @@ public class AbstractProcessTest {
 	 * postconditions that are set on the process definition will always be
 	 * checked after the process has finished execution completely.</p>
 	 *
-	 * @param rProcessDefinition The definition of the process to execute
+	 * @param processDefinition The definition of the process to execute
 	 * @return The finished process
 	 * @throws ProcessException If executing the process fails
 	 */
-	protected Process executeProcess(ProcessDefinition rProcessDefinition)
+	protected Process executeProcess(ProcessDefinition processDefinition)
 		throws ProcessException {
-		Process aProcess = rProcessDefinition.createProcess();
+		Process process = processDefinition.createProcess();
 
 		// add TEST_PROCESS as self-reference so that predicates can be applied
 		// to the process itself
-		aProcess.setParameter(TEST_PROCESS, aProcess);
+		process.setParameter(TEST_PROCESS, process);
 
 		do {
-			aProcess.execute();
+			process.execute();
 
-			assertPostconditions(aProcess);
-		} while (!aProcess.isFinished());
+			assertPostconditions(process);
+		} while (!process.isFinished());
 
-		return aProcess;
+		return process;
 	}
 }

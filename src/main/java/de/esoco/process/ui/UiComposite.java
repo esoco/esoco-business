@@ -29,10 +29,10 @@ public abstract class UiComposite<C extends UiComposite<C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rLayout The layout of this panel
+	 * @param parent The parent container
+	 * @param layout The layout of this panel
 	 */
-	public UiComposite(UiContainer<?> rParent, UiLayout rLayout) {
-		super(rParent, rLayout);
+	public UiComposite(UiContainer<?> parent, UiLayout layout) {
+		super(parent, layout);
 	}
 }

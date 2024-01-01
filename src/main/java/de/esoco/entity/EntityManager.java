@@ -17,10 +17,8 @@
 package de.esoco.entity;
 
 import de.esoco.data.SessionManager;
-
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord.HistoryType;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.comm.Endpoint;
 import de.esoco.lib.comm.EndpointFunction;
@@ -34,7 +32,6 @@ import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.service.ModificationSyncEndpoint.SyncData;
-
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.QueryResult;
@@ -45,6 +42,13 @@ import de.esoco.storage.StorageManager.MappingFactory;
 import de.esoco.storage.StorageMapping;
 import de.esoco.storage.StorageRelationTypes;
 import de.esoco.storage.StorageRuntimeException;
+import org.obrel.core.ObjectRelations;
+import org.obrel.core.Relatable;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.ListenerType;
+import org.obrel.type.ListenerTypes;
+import org.obrel.type.MetaTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,14 +71,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.obrel.core.ObjectRelations;
-import org.obrel.core.Relatable;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.ListenerType;
-import org.obrel.type.ListenerTypes;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
 import static de.esoco.entity.EntityRelationTypes.CACHE_ENTITY;
@@ -90,7 +86,6 @@ import static de.esoco.entity.EntityRelationTypes.MASTER_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.NO_ENTITY_LOCKING;
 import static de.esoco.entity.EntityRelationTypes.PARENT_ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
-
 import static de.esoco.lib.comm.CommunicationRelationTypes.ENDPOINT_ADDRESS;
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
@@ -100,10 +95,8 @@ import static de.esoco.lib.expression.Predicates.untilCountDown;
 import static de.esoco.lib.service.ModificationSyncEndpoint.releaseLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.requestLock;
 import static de.esoco.lib.service.ModificationSyncEndpoint.syncRequest;
-
 import static de.esoco.storage.StoragePredicates.like;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
-
 import static org.obrel.type.MetaTypes.MODIFIED;
 
 /**
@@ -128,10 +121,10 @@ public class EntityManager {
 	private static final String MSG_ENTITY_LOCKED =
 		"Entity %s already locked by %s";
 
-	private static final Map<String, Class<? extends Entity>>
-		aIdPrefixRegistry = new HashMap<String, Class<? extends Entity>>();
+	private static final Map<String, Class<? extends Entity>> idPrefixRegistry =
+		new HashMap<String, Class<? extends Entity>>();
 
-	private static final MultiLevelCache<String, Entity> aEntityCache =
+	private static final MultiLevelCache<String, Entity> entityCache =
 		createEntityCache();
 
 	/**
@@ -142,11 +135,11 @@ public class EntityManager {
 	private static final EntityCache<Entity> NO_CACHE =
 		new EntityCache<Entity>() {
 			@Override
-			public void cacheEntity(Entity rEntity) {
+			public void cacheEntity(Entity entity) {
 			}
 
 			@Override
-			public Entity getEntity(long nId) {
+			public Entity getEntity(long id) {
 				return null;
 			}
 		};
@@ -158,43 +151,45 @@ public class EntityManager {
 	private static final ListenerType<StoreListener, Entity> STORE_LISTENERS =
 		ListenerTypes.newListenerType((l, e) -> l.entityStored(e));
 
-	private static final ThreadLocal<String> aEntityModificationContextId =
+	private static final ThreadLocal<String> entityModificationContextId =
 		new ThreadLocal<>();
 
-	private static final ThreadLocal<Relatable> aEntityModificationContext =
+	private static final ThreadLocal<Relatable> entityModificationContext =
 		new ThreadLocal<>();
 
-	private static SessionManager rSessionManager = null;
+	private static final Lock cacheLock = new ReentrantLock();
 
-	private static boolean bEntityModificationTracking = true;
-
-	private static boolean bAutomaticChangeLogging = true;
-
-	private static boolean bUsePluralStorageNames = false;
-
-	private static Lock aCacheLock = new ReentrantLock();
-
-	private static String sEntitySyncClientId;
-
-	private static String sEntitySyncContext;
-
-	private static Optional<Endpoint> rEntitySyncEndpoint = Optional.empty();
-
-	private static boolean bSyncServiceEnabled = false;
-
-	private static Set<Class<? extends Entity>> aDeleteEnabledEntities =
+	private static final Set<Class<? extends Entity>> deleteEnabledEntities =
 		new HashSet<>();
 
-	private static Map<String, Entity> aModifiedEntities = new HashMap<>();
+	private static final Map<String, Entity> modifiedEntities =
+		new HashMap<>();
 
-	private static Map<String, Predicate<? super Entity>>
-		aModificationLockRules = new HashMap<>();
+	private static final Map<String, Predicate<? super Entity>>
+		modificationLockRules = new HashMap<>();
 
-	private static Map<Class<? extends Entity>, EntityCache<? extends Entity>>
-		aEntityCacheMap = new HashMap<>();
+	private static final Map<Class<? extends Entity>, EntityCache<?
+		extends Entity>>
+		entityCacheMap = new HashMap<>();
 
-	private static Map<Class<? extends Entity>, EntityDefinition<?>>
-		aEntityDefinitions = new HashMap<>();
+	private static final Map<Class<? extends Entity>, EntityDefinition<?>>
+		entityDefinitions = new HashMap<>();
+
+	private static SessionManager sessionManager = null;
+
+	private static boolean entityModificationTracking = true;
+
+	private static boolean automaticChangeLogging = true;
+
+	private static boolean usePluralStorageNames = false;
+
+	private static String entitySyncClientId;
+
+	private static String entitySyncContext;
+
+	private static Optional<Endpoint> entitySyncEndpoint = Optional.empty();
+
+	private static boolean syncServiceEnabled = false;
 
 	static {
 		RelationTypes.init(EntityManager.class);
@@ -210,51 +205,51 @@ public class EntityManager {
 	 * Extends the given {@link Predicate} to also match the Entity-prefix if
 	 * the given entity class is not NULL.
 	 *
-	 * @param rEntityClass The entity class which prefix to match
-	 * @param pExtraAttr   The {@link Predicate} to extend.
+	 * @param entityClass The entity class which prefix to match
+	 * @param extraAttr   The {@link Predicate} to extend.
 	 * @return The extended {@link Predicate}
 	 */
 	private static <E extends Entity> Predicate<Relatable> addEntityPrefixPredicate(
-		Class<E> rEntityClass, Predicate<Relatable> pExtraAttr) {
-		if (rEntityClass != null) {
-			String sIdPrefix = getEntityDefinition(rEntityClass).getIdPrefix();
+		Class<E> entityClass, Predicate<Relatable> extraAttr) {
+		if (entityClass != null) {
+			String idPrefix = getEntityDefinition(entityClass).getIdPrefix();
 
-			pExtraAttr =
-				pExtraAttr.and(ExtraAttribute.ENTITY.is(like(sIdPrefix + "%")));
+			extraAttr =
+				extraAttr.and(ExtraAttribute.ENTITY.is(like(idPrefix + "%")));
 		}
 
-		return pExtraAttr;
+		return extraAttr;
 	}
 
 	/**
 	 * Adds a listener that will be notified if an entity is stored through the
 	 * entity manager.
 	 *
-	 * @param rListener The listener to add
+	 * @param listener The listener to add
 	 */
-	public static void addStoreListener(StoreListener rListener) {
-		getStoreListeners().add(rListener);
+	public static void addStoreListener(StoreListener listener) {
+		getStoreListeners().add(listener);
 	}
 
 	/**
 	 * Recursively assigns the child entities in a list to their parent
 	 * entities.
 	 *
-	 * @param rParent          The parent entity
-	 * @param rAllChildren     The list of all (remaining) children
-	 * @param rParentAttribute The parent attribute of the children
-	 * @param rChildAttribute  The child attribute of the parent
+	 * @param parent          The parent entity
+	 * @param allChildren     The list of all (remaining) children
+	 * @param parentAttribute The parent attribute of the children
+	 * @param childAttribute  The child attribute of the parent
 	 */
-	private static <C extends Entity> void assignChildren(C rParent,
-		List<C> rAllChildren, RelationType<C> rParentAttribute,
-		RelationType<List<C>> rChildAttribute) {
-		List<C> rChildren =
-			findDirectChildren(rParent, rAllChildren, rParentAttribute,
-				rChildAttribute);
+	private static <C extends Entity> void assignChildren(C parent,
+		List<C> allChildren, RelationType<C> parentAttribute,
+		RelationType<List<C>> childAttribute) {
+		List<C> children =
+			findDirectChildren(parent, allChildren, parentAttribute,
+				childAttribute);
 
-		for (C rChild : rChildren) {
-			assignChildren(rChild, rAllChildren, rParentAttribute,
-				rChildAttribute);
+		for (C child : children) {
+			assignChildren(child, allChildren, parentAttribute,
+				childAttribute);
 		}
 	}
 
@@ -267,7 +262,7 @@ public class EntityManager {
 	 * <p>The tracking of entity modifications is based on the current
 	 * modification context that will be set (and cleared) by other framework
 	 * classes through the method
-	 * {@link #setEntityModificationContext(String, Relatable)}. If no
+	 * {@link #setEntityModificationContext(String, Relatable, boolean)}. If no
 	 * modification context is available the ID of the currently active session
 	 * will be used instead if an instance of the {@link SessionManager}
 	 * interface had been set during application initialization with
@@ -279,35 +274,35 @@ public class EntityManager {
 	 * multiple elements of an entity hierarchy are marked for modification at
 	 * the same time.</p>
 	 *
-	 * @param rEntity The entity to be modified
+	 * @param entity The entity to be modified
 	 * @throws ConcurrentModificationException If the entity is already being
 	 *                                         modified by another session
 	 */
-	static synchronized void beginEntityModification(Entity rEntity) {
-		if (bEntityModificationTracking && rEntity.isPersistent() &&
-			!rEntity.hasFlag(NO_ENTITY_LOCKING)) {
-			String sContextId = getEntityModificationContextId();
-			String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
-			String sEntityId = rEntity.getGlobalId();
+	static synchronized void beginEntityModification(Entity entity) {
+		if (entityModificationTracking && entity.isPersistent() &&
+			!entity.hasFlag(NO_ENTITY_LOCKING)) {
+			String contextId = getEntityModificationContextId();
+			String handle = entity.get(ENTITY_MODIFICATION_HANDLE);
+			String entityId = entity.getGlobalId();
 
-			if (sHandle == null && !aModifiedEntities.containsKey(sEntityId)) {
-				checkModificationLockRules(rEntity, sContextId);
-				trySyncEndpointLock(rEntity);
+			if (handle == null && !modifiedEntities.containsKey(entityId)) {
+				checkModificationLockRules(entity, contextId);
+				trySyncEndpointLock(entity);
 
-				Relatable rContext = aEntityModificationContext.get();
+				Relatable context = entityModificationContext.get();
 
-				rEntity.set(ENTITY_MODIFICATION_HANDLE, sContextId);
+				entity.set(ENTITY_MODIFICATION_HANDLE, contextId);
 
-				if (rContext != null) {
-					rContext
+				if (context != null) {
+					context
 						.get(CONTEXT_MODIFIED_ENTITIES)
-						.put(sEntityId, rEntity);
+						.put(entityId, entity);
 				}
 
-				aModifiedEntities.put(sEntityId, rEntity);
-			} else if (sHandle == null || !sHandle.equals(sContextId)) {
-				throwConcurrentEntityModification(rEntity,
-					MSG_CONCURRENT_MODIFICATION, rEntity, sContextId, sHandle);
+				modifiedEntities.put(entityId, entity);
+			} else if (handle == null || !handle.equals(contextId)) {
+				throwConcurrentEntityModification(entity,
+					MSG_CONCURRENT_MODIFICATION, entity, contextId, handle);
 			}
 		}
 	}
@@ -322,19 +317,19 @@ public class EntityManager {
 	 * so that it will be removed from the cache if it is no longer referenced
 	 * by application code.
 	 *
-	 * @param rEntity The entity to cache
+	 * @param entity The entity to cache
 	 */
-	public static <E extends Entity> void cacheEntity(E rEntity) {
-		if (rEntity != null && rEntity.isRoot()) {
+	public static <E extends Entity> void cacheEntity(E entity) {
+		if (entity != null && entity.isRoot()) {
 			@SuppressWarnings("unchecked")
-			EntityCache<E> rCache =
-				(EntityCache<E>) aEntityCacheMap.get(rEntity.getClass());
+			EntityCache<E> cache =
+				(EntityCache<E>) entityCacheMap.get(entity.getClass());
 
-			if (rCache != null) {
-				rCache.cacheEntity(rEntity);
+			if (cache != null) {
+				cache.cacheEntity(entity);
 			} else {
-				aEntityCache.put(getGlobalEntityId(rEntity), rEntity);
-				rEntity.set(CACHE_ENTITY);
+				entityCache.put(getGlobalEntityId(entity), entity);
+				entity.set(CACHE_ENTITY);
 			}
 		}
 	}
@@ -343,54 +338,53 @@ public class EntityManager {
 	 * Checks whether an entity is already cached and either replaces it with
 	 * the cached version or places it into the entity cache.
 	 *
-	 * @param rEntity The entity to check
+	 * @param entity The entity to check
 	 * @return Either an already cached instance of the entity or the now
 	 * cached
 	 * entity
 	 */
-	static <E extends Entity> E checkCaching(E rEntity) {
-		aCacheLock.lock();
+	static <E extends Entity> E checkCaching(E entity) {
+		cacheLock.lock();
 
 		try {
 			@SuppressWarnings("unchecked")
-			E rCachedEntity =
-				(E) getCachedEntity(rEntity.getClass(), rEntity.getId());
+			E cachedEntity =
+				(E) getCachedEntity(entity.getClass(), entity.getId());
 
-			if (rCachedEntity != null) {
+			if (cachedEntity != null) {
 				// use cache entity if available to preserve already
 				// loaded entity hierarchies
-				rEntity = rCachedEntity;
+				entity = cachedEntity;
 			} else {
-				cacheEntity(rEntity);
+				cacheEntity(entity);
 			}
 		} finally {
-			aCacheLock.unlock();
+			cacheLock.unlock();
 		}
 
-		return rEntity;
+		return entity;
 	}
 
 	/**
 	 * Checks the modification lock rules that have been registered through the
 	 * method {@link #setEntityModificationLock(String, Predicate)}.
 	 *
-	 * @param rEntity    The entity that is about to be modified
-	 * @param sContextId The ID of the modification context that tries to
-	 *                      modify
-	 *                   the entity
+	 * @param entity    The entity that is about to be modified
+	 * @param contextId The ID of the modification context that tries to modify
+	 *                  the entity
 	 */
 	@SuppressWarnings("boxing")
-	private static void checkModificationLockRules(Entity rEntity,
-		String sContextId) {
-		for (Entry<String, Predicate<? super Entity>> rLockRule :
-			aModificationLockRules.entrySet()) {
-			String sLockContextID = rLockRule.getKey();
+	private static void checkModificationLockRules(Entity entity,
+		String contextId) {
+		for (Entry<String, Predicate<? super Entity>> lockRule :
+			modificationLockRules.entrySet()) {
+			String lockContextID = lockRule.getKey();
 
-			if (!sContextId.equals(sLockContextID) &&
-				rLockRule.getValue().evaluate(rEntity)) {
-				throwConcurrentEntityModification(rEntity,
-					MSG_ENTITY_MODFICATION_LOCKED, rEntity, sContextId,
-					sLockContextID);
+			if (!contextId.equals(lockContextID) &&
+				lockRule.getValue().evaluate(entity)) {
+				throwConcurrentEntityModification(entity,
+					MSG_ENTITY_MODFICATION_LOCKED, entity, contextId,
+					lockContextID);
 			}
 		}
 	}
@@ -404,60 +398,58 @@ public class EntityManager {
 	 * <p>This method is intended to be used internally by the framework only.
 	 * </p>
 	 *
-	 * @param sContextId The ID of the entity modification context to check
-	 * @param rContext   The {@link Relatable} object that serves as the
-	 *                   context
+	 * @param contextId The ID of the entity modification context to check
+	 * @param context   The {@link Relatable} object that serves as the context
 	 */
-	public static void checkUnsavedEntityModifications(String sContextId,
-		Relatable rContext) {
+	public static void checkUnsavedEntityModifications(String contextId,
+		Relatable context) {
 		// copy map to prevent concurrent modification from resetEntity which
 		// in tun invokes endEntityModification
-		Map<String, Entity> rEntities =
-			new LinkedHashMap<>(rContext.get(CONTEXT_MODIFIED_ENTITIES));
+		Map<String, Entity> entities =
+			new LinkedHashMap<>(context.get(CONTEXT_MODIFIED_ENTITIES));
 
-		for (Entity rEntity : rEntities.values()) {
-			if (rEntity.isModified()) {
+		for (Entity entity : entities.values()) {
+			if (entity.isModified()) {
 				try {
 					Log.infof(
 						"Entity %s modified by %s but not stored, reverting",
-						rEntity, rEntity.get(ENTITY_MODIFICATION_HANDLE));
-					resetEntity(rEntity);
+						entity, entity.get(ENTITY_MODIFICATION_HANDLE));
+					resetEntity(entity);
 				} catch (Exception e) {
-					Log.warnf(e, "Could not revert entity %s", rEntity);
+					Log.warnf(e, "Could not revert entity %s", entity);
 				}
 			} else {
-				Log.errorf("Entity %s not removed from context %s", rEntity,
-					sContextId);
+				Log.errorf("Entity %s not removed from context %s", entity,
+					contextId);
 			}
 
-			aModifiedEntities.remove(rEntity.getGlobalId());
+			modifiedEntities.remove(entity.getGlobalId());
 		}
 
-		rContext.get(CONTEXT_MODIFIED_ENTITIES).clear();
+		context.get(CONTEXT_MODIFIED_ENTITIES).clear();
 	}
 
 	/**
 	 * Collects all entities in a hierarchy of entities that match a certain
 	 * predicate by descending the entity tree at a certain child attribute.
 	 *
-	 * @param rEntities       The list of root entities to start searching at
-	 * @param rChildAttribute The child attribute to descend the hierarchy at
-	 * @param rPredicate      The predicate to evaluate the entities with
+	 * @param entities       The list of root entities to start searching at
+	 * @param childAttribute The child attribute to descend the hierarchy at
+	 * @param predicate      The predicate to evaluate the entities with
 	 * @return A new list containing the resulting entities (may be empty but
 	 * will never be NULL)
 	 */
-	public static <E extends Entity> List<E> collectDownwards(List<E> rEntities,
-		RelationType<List<E>> rChildAttribute,
-		Predicate<? super E> rPredicate) {
-		List<E> aResult = CollectionUtil.collect(rEntities, rPredicate);
+	public static <E extends Entity> List<E> collectDownwards(List<E> entities,
+		RelationType<List<E>> childAttribute, Predicate<? super E> predicate) {
+		List<E> result = CollectionUtil.collect(entities, predicate);
 
-		for (E rEntity : rEntities) {
-			aResult.addAll(
-				collectDownwards(rEntity.get(rChildAttribute), rChildAttribute,
-					rPredicate));
+		for (E entity : entities) {
+			result.addAll(
+				collectDownwards(entity.get(childAttribute), childAttribute,
+					predicate));
 		}
 
-		return aResult;
+		return result;
 	}
 
 	/**
@@ -467,106 +459,103 @@ public class EntityManager {
 	 */
 	@SuppressWarnings("boxing")
 	private static MultiLevelCache<String, Entity> createEntityCache() {
-		int nFirstLevel = 50;
-		int nSecondLevel = 500;
-		int nThirdLevel = 5000;
+		int firstLevel = 50;
+		int secondLevel = 500;
+		int thirdLevel = 5000;
 
-		String sCacheSizes = System.getProperty("entity_cache_sizes", null);
+		String cacheSizes = System.getProperty("entity_cache_sizes", null);
 
-		if (sCacheSizes != null) {
+		if (cacheSizes != null) {
 			try {
-				String[] aSizes = sCacheSizes.split("-");
+				String[] sizes = cacheSizes.split("-");
 
-				nFirstLevel = Integer.parseInt(aSizes[0]);
-				nSecondLevel = Integer.parseInt(aSizes[1]);
-				nThirdLevel = Integer.parseInt(aSizes[2]);
+				firstLevel = Integer.parseInt(sizes[0]);
+				secondLevel = Integer.parseInt(sizes[1]);
+				thirdLevel = Integer.parseInt(sizes[2]);
 
-				Log.infof("Entity cache levels: %d, %d, %d", nFirstLevel,
-					nSecondLevel, nThirdLevel);
+				Log.infof("Entity cache levels: %d, %d, %d", firstLevel,
+					secondLevel, thirdLevel);
 			} catch (Exception e) {
-				Log.warn(
-					"Invalid entity cache size definition: " + sCacheSizes);
+				Log.warn("Invalid entity cache size definition: " + cacheSizes);
 			}
 		}
 
-		return new MultiLevelCache<String, Entity>(nFirstLevel, nSecondLevel,
-			nThirdLevel);
+		return new MultiLevelCache<String, Entity>(firstLevel, secondLevel,
+			thirdLevel);
 	}
 
 	/**
 	 * Creates a query predicate from a mapping of attribute relation types to
 	 * attribute predicates.
 	 *
-	 * @param rCriteraMap The mapping from attribute relation types to
-	 *                       attribute
-	 *                    predicates
-	 * @param bAnd        TRUE for an AND concatenation of the attribute
-	 *                    predicates, FALSE for OR
+	 * @param criteraMap The mapping from attribute relation types to attribute
+	 *                   predicates
+	 * @param and        TRUE for an AND concatenation of the attribute
+	 *                   predicates, FALSE for OR
 	 * @return The resulting query predicate
 	 */
 	@SuppressWarnings("unchecked")
 	private static <E extends Entity> Predicate<E> createQueryPredicate(
-		Map<RelationType<?>, Predicate<?>> rCriteraMap, boolean bAnd) {
-		Predicate<E> pCriteria = null;
+		Map<RelationType<?>, Predicate<?>> criteraMap, boolean and) {
+		Predicate<E> criteria = null;
 
-		for (Entry<RelationType<?>, Predicate<?>> rEntry :
-			rCriteraMap.entrySet()) {
-			RelationType<Object> rAttribute =
-				(RelationType<Object>) rEntry.getKey();
+		for (Entry<RelationType<?>, Predicate<?>> entry :
+			criteraMap.entrySet()) {
+			RelationType<Object> attribute =
+				(RelationType<Object>) entry.getKey();
 
-			Predicate<Object> pCriterion =
-				(Predicate<Object>) rEntry.getValue();
+			Predicate<Object> criterion = (Predicate<Object>) entry.getValue();
 
-			if (bAnd) {
-				pCriteria = Predicates.and(pCriteria,
-					ifAttribute(rAttribute, pCriterion));
+			if (and) {
+				criteria =
+					Predicates.and(criteria, ifAttribute(attribute,
+						criterion));
 			} else {
-				pCriteria = Predicates.or(pCriteria,
-					ifAttribute(rAttribute, pCriterion));
+				criteria =
+					Predicates.or(criteria, ifAttribute(attribute, criterion));
 			}
 		}
 
-		return pCriteria;
+		return criteria;
 	}
 
 	/**
 	 * Deletes the given {@link Entity} from the database. Children attached to
 	 * this {@link Entity} are <b>not</b> deleted.
 	 *
-	 * @param rEntity The {@link Entity} to delete from the database.
+	 * @param entity The {@link Entity} to delete from the database.
 	 * @throws StorageException     If accessing the storage fails
 	 * @throws TransactionException If the deletion fails
 	 * @see #delete(Entity, boolean)
 	 */
-	public static void delete(Entity rEntity)
+	public static void delete(Entity entity)
 		throws StorageException, TransactionException {
-		delete(rEntity, false);
+		delete(entity, false);
 	}
 
 	/**
 	 * Deletes the given {@link Entity} and all of its children from the
 	 * database.
 	 *
-	 * @param rEntity         The entity to delete.
-	 * @param bDeleteChildren TRUE if all children of the given entity
-	 *                           should be
-	 *                        deleted as well, FALSE otherwise.
+	 * @param entity         The entity to delete.
+	 * @param deleteChildren TRUE if all children of the given entity should be
+	 *                       deleted as well, FALSE otherwise.
 	 * @throws StorageException     If accessing the storage fails
 	 * @throws TransactionException If the deletion fails
 	 */
-	public static void delete(Entity rEntity, boolean bDeleteChildren)
+	public static void delete(Entity entity, boolean deleteChildren)
 		throws StorageException, TransactionException {
-		Storage rStorage = StorageManager.getStorage(rEntity.getClass());
+		Storage storage = StorageManager.getStorage(entity.getClass());
 
 		TransactionManager.begin();
-		TransactionManager.addTransactionElement(rStorage);
+		TransactionManager.addTransactionElement(storage);
 
 		try {
-			if (bDeleteChildren) {
-				deleteChildren(rEntity, rStorage);
+			if (deleteChildren) {
+				deleteChildren(entity, storage);
 			}
 
-			rStorage.delete(rEntity);
+			storage.delete(entity);
 			TransactionManager.commit();
 		} catch (Exception e) {
 			TransactionManager.rollback();
@@ -579,19 +568,18 @@ public class EntityManager {
 	 * Deletes all given {@link Entity Entities} from the database. This does
 	 * <b>not</b> delete any child entities that a entity might have
 	 *
-	 * @param rEntities The {@link Entity Entities} to delete from the
-	 *                  database.
+	 * @param entities The {@link Entity Entities} to delete from the database.
 	 * @throws StorageException     If accessing the storage fails
 	 * @throws TransactionException If the deletion fails
 	 * @see #deleteAll(Collection, boolean)
 	 */
-	public static void deleteAll(Collection<Entity> rEntities)
+	public static void deleteAll(Collection<Entity> entities)
 		throws StorageException, TransactionException {
 		TransactionManager.begin();
 
 		try {
-			for (Entity rEntity : rEntities) {
-				delete(rEntity, false);
+			for (Entity entity : entities) {
+				delete(entity, false);
 			}
 
 			TransactionManager.commit();
@@ -605,20 +593,20 @@ public class EntityManager {
 	/**
 	 * Deletes all given {@link Entity Entities} from the database. This does
 	 * <b>also</b> delete any child entities that a entity might have if
-	 * bDeleteChildren is TRUE.
+	 * deleteChildren is TRUE.
 	 *
-	 * @param rEntities       rEntities The {@link Entity Entities} to delete
-	 *                        from the database.
-	 * @param bDeleteChildren TRUE if child entities of an entity should be
-	 *                        deleted as well.
+	 * @param entities       entities The {@link Entity Entities} to delete
+	 *                          from
+	 *                       the database.
+	 * @param deleteChildren TRUE if child entities of an entity should be
+	 *                       deleted as well.
 	 * @throws StorageException     If accessing the storage fails
 	 * @throws TransactionException If the deletion fails
 	 */
-	public static <E extends Entity> void deleteAll(Collection<E> rEntities,
-		boolean bDeleteChildren) throws StorageException,
-		TransactionException {
-		for (Entity rEntity : rEntities) {
-			delete(rEntity, bDeleteChildren);
+	public static <E extends Entity> void deleteAll(Collection<E> entities,
+		boolean deleteChildren) throws StorageException, TransactionException {
+		for (Entity entity : entities) {
+			delete(entity, deleteChildren);
 		}
 	}
 
@@ -626,23 +614,23 @@ public class EntityManager {
 	 * Deletes the children of the given {@link Entity} if any from the
 	 * database. Ten entity itself is not deleted.
 	 *
-	 * @param rEntity  The {@link Entity}
-	 * @param rStorage The {@link Storage} from which to delete the entity. The
-	 *                 storage is expected to be initialized and attached to a
-	 *                 transaction.
+	 * @param entity  The {@link Entity}
+	 * @param storage The {@link Storage} from which to delete the entity. The
+	 *                storage is expected to be initialized and attached to a
+	 *                transaction.
 	 * @throws StorageException if deleting the children fails
 	 */
-	private static void deleteChildren(Entity rEntity, Storage rStorage)
+	private static void deleteChildren(Entity entity, Storage storage)
 		throws StorageException {
-		Collection<RelationType<List<Entity>>> rChildAttributes =
-			rEntity.getDefinition().getChildAttributes();
+		Collection<RelationType<List<Entity>>> childAttributes =
+			entity.getDefinition().getChildAttributes();
 
-		for (RelationType<List<Entity>> rChildAttribute : rChildAttributes) {
-			List<Entity> rChildEntities = rEntity.get(rChildAttribute);
+		for (RelationType<List<Entity>> childAttribute : childAttributes) {
+			List<Entity> childEntities = entity.get(childAttribute);
 
-			for (Entity rChildEntity : rChildEntities) {
-				deleteChildren(rChildEntity, rStorage);
-				rStorage.delete(rChildEntity);
+			for (Entity childEntity : childEntities) {
+				deleteChildren(childEntity, storage);
+				storage.delete(childEntity);
 			}
 		}
 	}
@@ -651,13 +639,13 @@ public class EntityManager {
 	 * Disables the caching of a certain entity type. The given entity class
 	 * must be of the exact type for which the caching shall be disabled.
 	 *
-	 * @param rEntityClasses The entity type to disabled caching for
+	 * @param entityClasses The entity type to disabled caching for
 	 */
 	@SafeVarargs
 	public static void disableCaching(
-		Class<? extends Entity>... rEntityClasses) {
-		for (Class<? extends Entity> rClass : rEntityClasses) {
-			aEntityCacheMap.put(rClass, NO_CACHE);
+		Class<? extends Entity>... entityClasses) {
+		for (Class<? extends Entity> type : entityClasses) {
+			entityCacheMap.put(type, NO_CACHE);
 		}
 	}
 
@@ -666,12 +654,12 @@ public class EntityManager {
 	 * has been invoked it is no longer possible to invoke the method
 	 * {@link #delete(Entity, boolean)} for the given entity type.
 	 *
-	 * @param rEntityClass The type for which to disable the deletion
+	 * @param entityClass The type for which to disable the deletion
 	 * @see #enableDeletionOf(Class)
 	 * @see #isDeletionEnabledFor(Class)
 	 */
-	public static void disableDeletionOf(Class<? extends Entity> rEntityClass) {
-		aDeleteEnabledEntities.remove(rEntityClass);
+	public static void disableDeletionOf(Class<? extends Entity> entityClass) {
+		deleteEnabledEntities.remove(entityClass);
 	}
 
 	/**
@@ -679,12 +667,12 @@ public class EntityManager {
 	 * once before the method {@link #delete(Entity, boolean)} can be invoked
 	 * for the given entity type.
 	 *
-	 * @param rEntityClass The type for which to enable the deletion
+	 * @param entityClass The type for which to enable the deletion
 	 * @see #disableDeletionOf(Class)
 	 * @see #isDeletionEnabledFor(Class)
 	 */
-	public static void enableDeletionOf(Class<? extends Entity> rEntityClass) {
-		aDeleteEnabledEntities.add(rEntityClass);
+	public static void enableDeletionOf(Class<? extends Entity> entityClass) {
+		deleteEnabledEntities.add(entityClass);
 	}
 
 	/**
@@ -692,35 +680,35 @@ public class EntityManager {
 	 * call
 	 * to {@link #beginEntityModification(Entity)}.
 	 *
-	 * @param rEntity The entity to be modified
+	 * @param entity The entity to be modified
 	 */
-	static synchronized void endEntityModification(Entity rEntity) {
-		if (bEntityModificationTracking &&
-			rEntity.hasRelation(ENTITY_MODIFICATION_HANDLE)) {
-			String sContextId = getEntityModificationContextId();
-			String sHandle = rEntity.get(ENTITY_MODIFICATION_HANDLE);
+	static synchronized void endEntityModification(Entity entity) {
+		if (entityModificationTracking &&
+			entity.hasRelation(ENTITY_MODIFICATION_HANDLE)) {
+			String contextId = getEntityModificationContextId();
+			String handle = entity.get(ENTITY_MODIFICATION_HANDLE);
 
-			if (!sHandle.equals(sContextId)) {
-				throwConcurrentEntityModification(rEntity,
-					MSG_CONCURRENT_MODIFICATION, rEntity, sContextId, sHandle);
+			if (!handle.equals(contextId)) {
+				throwConcurrentEntityModification(entity,
+					MSG_CONCURRENT_MODIFICATION, entity, contextId, handle);
 			}
 
-			trySyncEndpointRelease(rEntity);
+			trySyncEndpointRelease(entity);
 
-			Relatable rContext = aEntityModificationContext.get();
-			String sEntityId = rEntity.getGlobalId();
+			Relatable context = entityModificationContext.get();
+			String entityId = entity.getGlobalId();
 
-			if (rContext != null) {
-				Entity rContextEntity =
-					rContext.get(CONTEXT_MODIFIED_ENTITIES).remove(sEntityId);
+			if (context != null) {
+				Entity contextEntity =
+					context.get(CONTEXT_MODIFIED_ENTITIES).remove(entityId);
 
-				if (rContextEntity != null) {
-					rContext.get(CONTEXT_UPDATED_ENTITIES).add(rContextEntity);
+				if (contextEntity != null) {
+					context.get(CONTEXT_UPDATED_ENTITIES).add(contextEntity);
 				}
 			}
 
-			rEntity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
-			aModifiedEntities.remove(sEntityId);
+			entity.deleteRelation(ENTITY_MODIFICATION_HANDLE);
+			modifiedEntities.remove(entityId);
 		}
 	}
 
@@ -730,27 +718,25 @@ public class EntityManager {
 	 * stops
 	 * the query as soon as the predicate evaluates to FALSE.
 	 *
-	 * @param qEntities      The query predicate for the entities to evaluate
-	 * @param pStopCondition An optional predicate that defines a stop
-	 *                          condition
-	 *                       by evaluating to FALSE or NULL for none
-	 * @param fAction        A function to evaluate each queried entity
+	 * @param entities      The query predicate for the entities to evaluate
+	 * @param stopCondition An optional predicate that defines a stop condition
+	 *                      by evaluating to FALSE or NULL for none
+	 * @param action        A function to evaluate each queried entity
 	 * @throws StorageException If the storage access fails
 	 */
 	@SuppressWarnings("boxing")
 	public static <E extends Entity> void evaluateEntities(
-		QueryPredicate<E> qEntities, Predicate<? super E> pStopCondition,
-		Action<? super E> fAction) throws StorageException {
-		try (EntityIterator<E> aIterator = new EntityIterator<>(qEntities)) {
-			while (aIterator.hasNext()) {
-				E rEntity = aIterator.next();
+		QueryPredicate<E> entities, Predicate<? super E> stopCondition,
+		Action<? super E> action) throws StorageException {
+		try (EntityIterator<E> iterator = new EntityIterator<>(entities)) {
+			while (iterator.hasNext()) {
+				E entity = iterator.next();
 
-				if (pStopCondition != null &&
-					!pStopCondition.evaluate(rEntity)) {
+				if (stopCondition != null && !stopCondition.evaluate(entity)) {
 					break;
 				}
 
-				fAction.evaluate(rEntity);
+				action.evaluate(entity);
 			}
 		} catch (StorageRuntimeException e) {
 			throw e.getCause();
@@ -763,24 +749,24 @@ public class EntityManager {
 	 * and thus considerably speeds up the querying of extra attributes for
 	 * larger sets of entities.
 	 *
-	 * @param rEntities The entities to fetch the extra attributes for
+	 * @param entities The entities to fetch the extra attributes for
 	 * @throws StorageException If querying the extra attributes fails
 	 */
 	public static void fetchExtraAttributes(
-		Collection<? extends Entity> rEntities) throws StorageException {
-		QueryPredicate<ExtraAttribute> qExtraAttributes =
+		Collection<? extends Entity> entities) throws StorageException {
+		QueryPredicate<ExtraAttribute> extraAttributes =
 			forEntity(ExtraAttribute.class, ExtraAttribute.OWNER
 				.is(equalTo(null))
-				.and(ExtraAttribute.ENTITY.is(elementOf(rEntities))));
+				.and(ExtraAttribute.ENTITY.is(elementOf(entities))));
 
-		forEach(qExtraAttributes, rXA -> rXA
+		forEach(extraAttributes, xA -> xA
 			.get(ExtraAttribute.ENTITY)
 			.get(EXTRA_ATTRIBUTE_MAP)
-			.put(rXA.get(ExtraAttribute.KEY).toString(), rXA));
+			.put(xA.get(ExtraAttribute.KEY).toString(), xA));
 
-		for (Entity rEntity : rEntities) {
-			if (!rEntity.hasRelation(EXTRA_ATTRIBUTES_READ)) {
-				rEntity.set(EXTRA_ATTRIBUTES_READ);
+		for (Entity entity : entities) {
+			if (!entity.hasRelation(EXTRA_ATTRIBUTES_READ)) {
+				entity.set(EXTRA_ATTRIBUTES_READ);
 			}
 		}
 	}
@@ -788,57 +774,57 @@ public class EntityManager {
 	/**
 	 * Fetches the complete child hierarchy of a parent entity.
 	 *
-	 * @param rParent         The parent entity
-	 * @param rChildAttribute The child attribute to fetch the hierarchy of
+	 * @param parent         The parent entity
+	 * @param childAttribute The child attribute to fetch the hierarchy of
 	 * @throws StorageException If reading a child fails
 	 */
 	@SuppressWarnings("unchecked")
 	public static <P extends Entity, C extends Entity> void fetchHierarchy(
-		P rParent, RelationType<List<C>> rChildAttribute)
+		P parent, RelationType<List<C>> childAttribute)
 		throws StorageException {
-		EntityDefinition<C> rChildDef =
-			(EntityDefinition<C>) rChildAttribute.get(STORAGE_MAPPING);
-		RelationType<P> rChildMasterAttribute =
-			(RelationType<P>) rChildDef.getMasterAttribute();
-		RelationType<C> rChildParentAttribute =
-			(RelationType<C>) rChildDef.getParentAttribute();
+		EntityDefinition<C> childDef =
+			(EntityDefinition<C>) childAttribute.get(STORAGE_MAPPING);
+		RelationType<P> childMasterAttribute =
+			(RelationType<P>) childDef.getMasterAttribute();
+		RelationType<C> childParentAttribute =
+			(RelationType<C>) childDef.getParentAttribute();
 
-		if (rChildMasterAttribute == null) {
+		if (childMasterAttribute == null) {
 			throw new UnsupportedOperationException(
 				"fetchHierarchy() is only " + "possible for master-detail " +
 					"relations");
 		}
 
 		// remove from cache to prevent inconsistencies
-		removeCachedEntity(rParent);
+		removeCachedEntity(parent);
 
-		Class<C> rChildType = rChildDef.getMappedType();
-		Storage rStorage = StorageManager.getStorage(rChildType);
-		List<C> rAllChildren = new ArrayList<>();
+		Class<C> childType = childDef.getMappedType();
+		Storage storage = StorageManager.getStorage(childType);
+		List<C> allChildren = new ArrayList<>();
 
-		QueryPredicate<C> qChildren = forEntity(rChildType,
-			ifAttribute(rChildMasterAttribute, equalTo(rParent)));
+		QueryPredicate<C> queryChildren = forEntity(childType,
+			ifAttribute(childMasterAttribute, equalTo(parent)));
 
-		try (Query<C> rQuery = rStorage.query(qChildren)) {
-			QueryResult<C> rResult = rQuery.execute();
+		try (Query<C> query = storage.query(queryChildren)) {
+			QueryResult<C> result = query.execute();
 
-			while (rResult.hasNext()) {
-				rAllChildren.add(rResult.next());
+			while (result.hasNext()) {
+				allChildren.add(result.next());
 			}
 		} finally {
-			rStorage.release();
+			storage.release();
 		}
 
-		List<C> rChildren =
-			findDirectChildren(rParent, rAllChildren, rChildMasterAttribute,
-				rChildAttribute);
+		List<C> children =
+			findDirectChildren(parent, allChildren, childMasterAttribute,
+				childAttribute);
 
-		for (C rChild : rChildren) {
-			assignChildren(rChild, rAllChildren, rChildParentAttribute,
-				rChildAttribute);
+		for (C child : children) {
+			assignChildren(child, allChildren, childParentAttribute,
+				childAttribute);
 		}
 
-		cacheEntity(rParent);
+		cacheEntity(parent);
 	}
 
 	/**
@@ -846,47 +832,48 @@ public class EntityManager {
 	 * parent and sets them as the children of the parent and removes the found
 	 * entities from the input list.
 	 *
-	 * @param rParent          The parent entity
-	 * @param rAllChildren     The list of all children
-	 * @param rParentAttribute The parent attribute of the children
-	 * @param rChildAttribute  The child attribute of the parent
+	 * @param parent          The parent entity
+	 * @param allChildren     The list of all children
+	 * @param parentAttribute The parent attribute of the children
+	 * @param childAttribute  The child attribute of the parent
 	 * @return The list of children found
 	 */
 	@SuppressWarnings({ "unchecked", "boxing" })
 	private static <P extends Entity, C extends Entity> List<C> findDirectChildren(
-		P rParent, List<C> rAllChildren, RelationType<P> rParentAttribute,
-		RelationType<List<C>> rChildAttribute) {
-		EntityDefinition<P> rParentDef =
-			(EntityDefinition<P>) rParent.getDefinition();
-		EntityDefinition<C> rChildDef =
-			(EntityDefinition<C>) rChildAttribute.get(STORAGE_MAPPING);
+		P parent, List<C> allChildren, RelationType<P> parentAttribute,
+		RelationType<List<C>> childAttribute) {
+		EntityDefinition<P> parentDef =
+			(EntityDefinition<P>) parent.getDefinition();
+		EntityDefinition<C> childDef =
+			(EntityDefinition<C>) childAttribute.get(STORAGE_MAPPING);
 
-		Predicate<Relatable> pChildren;
+		Predicate<Relatable> childCriteria;
 
-		if (rParentDef == rChildDef || rChildDef.getMasterAttribute() == null) {
-			pChildren = ifRelation(PARENT_ENTITY_ID, equalTo(rParent.getId()));
+		if (parentDef == childDef || childDef.getMasterAttribute() == null) {
+			childCriteria =
+				ifRelation(PARENT_ENTITY_ID, equalTo(parent.getId()));
 		} else {
-			pChildren =
-				ifRelation(MASTER_ENTITY_ID, equalTo(rParent.getId())).and(
+			childCriteria =
+				ifRelation(MASTER_ENTITY_ID, equalTo(parent.getId())).and(
 					ifRelation(PARENT_ENTITY_ID, isNull()));
 		}
 
-		List<C> rChildren = CollectionUtil.collect(rAllChildren, pChildren);
+		List<C> children = CollectionUtil.collect(allChildren, childCriteria);
 
-		for (C rChild : rChildren) {
+		for (C child : children) {
 			// prevent setting of modified flag
-			rChild.set(MetaTypes.INITIALIZING);
+			child.set(MetaTypes.INITIALIZING);
 
 			// parent attribute must be NULL to prevent exception in
 			// initChildren()
-			rChild.set(rParentAttribute, null);
+			child.set(parentAttribute, null);
 		}
 
-		rParent.set(rChildAttribute, rChildren);
-		rParentDef.initChildren(rParent, rChildren, rChildDef, true);
-		rAllChildren.removeAll(rChildren);
+		parent.set(childAttribute, children);
+		parentDef.initChildren(parent, children, childDef, true);
+		allChildren.removeAll(children);
 
-		return rChildren;
+		return children;
 	}
 
 	/**
@@ -894,56 +881,55 @@ public class EntityManager {
 	 * hierarchy of entities by descending the entity tree at a certain child
 	 * attribute.
 	 *
-	 * @param rEntities       The list of root entities to start searching at
-	 * @param rChildAttribute The child attribute to descend the hierarchy at
-	 * @param rPredicate      The predicate to evaluate the entities with
+	 * @param entities       The list of root entities to start searching at
+	 * @param childAttribute The child attribute to descend the hierarchy at
+	 * @param predicate      The predicate to evaluate the entities with
 	 * @return The first matching entity or NULL if none could be found
 	 */
-	public static <E extends Entity> E findDownwards(List<E> rEntities,
-		RelationType<List<E>> rChildAttribute,
-		Predicate<? super E> rPredicate) {
-		E rResult = CollectionUtil.find(rEntities, rPredicate);
+	public static <E extends Entity> E findDownwards(List<E> entities,
+		RelationType<List<E>> childAttribute, Predicate<? super E> predicate) {
+		E result = CollectionUtil.find(entities, predicate);
 
-		if (rResult == null) {
-			int nCount = rEntities.size();
+		if (result == null) {
+			int count = entities.size();
 
-			for (int i = 0; i < nCount && rResult == null; i++) {
-				List<E> rChildren = rEntities.get(i).get(rChildAttribute);
+			for (int i = 0; i < count && result == null; i++) {
+				List<E> children = entities.get(i).get(childAttribute);
 
-				if (rChildren != null) {
-					rResult =
-						findDownwards(rChildren, rChildAttribute, rPredicate);
+				if (children != null) {
+					result = findDownwards(children, childAttribute,
+						predicate);
 				}
 			}
 		}
 
-		return rResult;
+		return result;
 	}
 
 	/**
 	 * Invokes an action on all entities of a certain query.
 	 *
-	 * @param qEntities The query predicate for the entities
-	 * @param fAction   An action to evaluate each queried entity with
+	 * @param entities The query predicate for the entities
+	 * @param action   An action to evaluate each queried entity with
 	 * @throws StorageException If the storage access fails
 	 */
-	public static <E extends Entity> void forEach(QueryPredicate<E> qEntities,
-		Action<? super E> fAction) throws StorageException {
-		evaluateEntities(qEntities, null, fAction);
+	public static <E extends Entity> void forEach(QueryPredicate<E> entities,
+		Action<? super E> action) throws StorageException {
+		evaluateEntities(entities, null, action);
 	}
 
 	/**
 	 * Invokes an action on all entities that match the given criteria.
 	 *
-	 * @param rEntityType qEntities The query predicate for the entities
-	 * @param pCriteria   The query criteria
-	 * @param fAction     An action to evaluate each queried entity with
+	 * @param entityType entities The query predicate for the entities
+	 * @param criteria   The query criteria
+	 * @param action     An action to evaluate each queried entity with
 	 * @throws StorageException If the storage access fails
 	 */
-	public static <E extends Entity> void forEach(Class<E> rEntityType,
-		Predicate<? super E> pCriteria, Action<? super E> fAction)
+	public static <E extends Entity> void forEach(Class<E> entityType,
+		Predicate<? super E> criteria, Action<? super E> action)
 		throws StorageException {
-		forEach(new QueryPredicate<>(rEntityType, pCriteria), fAction);
+		forEach(new QueryPredicate<>(entityType, criteria), action);
 	}
 
 	/**
@@ -953,7 +939,7 @@ public class EntityManager {
 	 * cache levels
 	 */
 	public static int[] getCacheCapacity() {
-		return aEntityCache.getCapacity();
+		return entityCache.getCapacity();
 	}
 
 	/**
@@ -962,17 +948,17 @@ public class EntityManager {
 	 * @return The cache usage description
 	 */
 	public static String getCacheUsage() {
-		return aEntityCache.getUsage();
+		return entityCache.getUsage();
 	}
 
 	/**
 	 * Returns the cached entity for a particular global entity ID.
 	 *
-	 * @param sGlobalEntityId The global entity ID
+	 * @param globalEntityId The global entity ID
 	 * @return The corresponding entity or NULL for none
 	 */
-	public static Entity getCachedEntity(String sGlobalEntityId) {
-		return aEntityCache.get(sGlobalEntityId);
+	public static Entity getCachedEntity(String globalEntityId) {
+		return entityCache.get(globalEntityId);
 	}
 
 	/**
@@ -980,106 +966,105 @@ public class EntityManager {
 	 * cache. If no entity with the given ID exists in the cache NULL will be
 	 * returned.
 	 *
-	 * @param rEntityClass The entity type to lookup in the cache
-	 * @param nEntityId    The ID of the entity to lookup in the cache
+	 * @param entityClass The entity type to lookup in the cache
+	 * @param entityId    The ID of the entity to lookup in the cache
 	 * @return The cached entity or NULL for none
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E extends Entity> E getCachedEntity(Class<E> rEntityClass,
-		long nEntityId) {
-		EntityCache<?> rCache = aEntityCacheMap.get(rEntityClass);
-		Entity rResult = null;
+	public static <E extends Entity> E getCachedEntity(Class<E> entityClass,
+		long entityId) {
+		EntityCache<?> cache = entityCacheMap.get(entityClass);
+		Entity result = null;
 
-		if (rCache != null) {
-			rResult = rCache.getEntity(nEntityId);
+		if (cache != null) {
+			result = cache.getEntity(entityId);
 		} else {
-			String sId = getGlobalEntityId(rEntityClass, nEntityId);
+			String id = getGlobalEntityId(entityClass, entityId);
 
-			rResult = getCachedEntity(sId);
+			result = getCachedEntity(id);
 		}
 
-		return (E) rResult;
+		return (E) result;
 	}
 
 	/**
 	 * Returns the distinct values of an entity attribute for a certain entity
 	 * query.
 	 *
-	 * @param rAttribute The entity attribute
-	 * @param qEntities  The query predicate for the entities
+	 * @param attribute The entity attribute
+	 * @param entities  The query predicate for the entities
 	 * @return A new collection containing the distinct entity attribute values
 	 * @throws StorageException If performing the query fails
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, E extends Entity> Collection<T> getDistinct(
-		RelationType<T> rAttribute, QueryPredicate<E> qEntities)
+		RelationType<T> attribute, QueryPredicate<E> entities)
 		throws StorageException {
-		Class<E> rQueryType = qEntities.getQueryType();
-		Storage rStorage = StorageManager.getStorage(rQueryType);
-		Collection<T> aDistinctValues = null;
+		Class<E> queryType = entities.getQueryType();
+		Storage storage = StorageManager.getStorage(queryType);
+		Collection<T> distinctValues = null;
 
-		try (Query<E> rQuery = rStorage.query(qEntities)) {
-			aDistinctValues = (Collection<T>) rQuery.getDistinct(rAttribute);
+		try (Query<E> query = storage.query(entities)) {
+			distinctValues = (Collection<T>) query.getDistinct(attribute);
 		} finally {
-			rStorage.release();
+			storage.release();
 		}
 
-		return aDistinctValues;
+		return distinctValues;
 	}
 
 	/**
 	 * Returns the number of entities that correspond to certain query
 	 * criteria.
 	 *
-	 * @param rEntityClass The entity type to query
-	 * @param rCriteria    The criteria to search the entities by
+	 * @param entityClass The entity type to query
+	 * @param criteria    The criteria to search the entities by
 	 * @return The number of entities matching the given criteria
 	 * @throws StorageException If accessing the storage fails
 	 */
-	public static <E extends Entity> int getEntityCount(Class<E> rEntityClass,
-		Predicate<? super E> rCriteria) throws StorageException {
-		Storage rStorage = StorageManager.getStorage(rEntityClass);
-		int nCount;
+	public static <E extends Entity> int getEntityCount(Class<E> entityClass,
+		Predicate<? super E> criteria) throws StorageException {
+		Storage storage = StorageManager.getStorage(entityClass);
+		int count;
 
 		try {
-			Query<E> rQuery =
-				rStorage.query(forEntity(rEntityClass, rCriteria));
+			Query<E> query = storage.query(forEntity(entityClass, criteria));
 
-			nCount = rQuery.size();
+			count = query.size();
 
-			rQuery.close();
+			query.close();
 		} finally {
-			rStorage.release();
+			storage.release();
 		}
 
-		return nCount;
+		return count;
 	}
 
 	/**
 	 * Returns the entity definition for a certain entity type.
 	 *
-	 * @param rEntityClass The class to return the entity definition for
+	 * @param entityClass The class to return the entity definition for
 	 * @return The entity definition for the given type or NULL if none exists
 	 */
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity> EntityDefinition<E> getEntityDefinition(
-		Class<E> rEntityClass) {
-		EntityDefinition<E> rDefinition =
-			(EntityDefinition<E>) aEntityDefinitions.get(rEntityClass);
+		Class<E> entityClass) {
+		EntityDefinition<E> definition =
+			(EntityDefinition<E>) entityDefinitions.get(entityClass);
 
-		if (rDefinition == null) {
+		if (definition == null) {
 			if (StorageManager.getMappingFactory(Entity.class) == null) {
 				// if not yet initialized do now to register the mapping
 				// factory
 				init();
 			}
 
-			rDefinition =
-				(EntityDefinition<E>) StorageManager.getMapping(rEntityClass);
-			aEntityDefinitions.put(rEntityClass, rDefinition);
+			definition =
+				(EntityDefinition<E>) StorageManager.getMapping(entityClass);
+			entityDefinitions.put(entityClass, definition);
 		}
 
-		return rDefinition;
+		return definition;
 	}
 
 	/**
@@ -1089,17 +1074,17 @@ public class EntityManager {
 	 * @return The context ID
 	 */
 	private static String getEntityModificationContextId() {
-		String sContextId = aEntityModificationContextId.get();
+		String contextId = entityModificationContextId.get();
 
-		if (sContextId == null && rSessionManager != null) {
-			sContextId = rSessionManager.getSessionId();
+		if (contextId == null && sessionManager != null) {
+			contextId = sessionManager.getSessionId();
 		}
 
-		if (sContextId == null) {
-			sContextId = Thread.currentThread().getName();
+		if (contextId == null) {
+			contextId = Thread.currentThread().getName();
 		}
 
-		return sContextId;
+		return contextId;
 	}
 
 	/**
@@ -1112,40 +1097,40 @@ public class EntityManager {
 	 * @return An optional containing the sync service endpoint if present
 	 */
 	public static final Optional<Endpoint> getEntitySyncEndpoint() {
-		return rEntitySyncEndpoint;
+		return entitySyncEndpoint;
 	}
 
 	/**
 	 * Returns a global string identifier for a certain entity.
 	 *
-	 * @param rEntity The entity to return the global ID for
+	 * @param entity The entity to return the global ID for
 	 * @return The global entity ID
 	 * @throws IllegalArgumentException If no valid ID can be created for the
 	 *                                  given entity
 	 */
-	public static String getGlobalEntityId(Entity rEntity) {
-		long nEntityId = rEntity.getId();
+	public static String getGlobalEntityId(Entity entity) {
+		long entityId = entity.getId();
 
-		if (nEntityId < 0) {
+		if (entityId < 0) {
 			throw new IllegalArgumentException(
-				"Entity ID not defined: " + rEntity);
+				"Entity ID not defined: " + entity);
 		}
 
-		return getGlobalEntityId(rEntity.getClass(), nEntityId);
+		return getGlobalEntityId(entity.getClass(), entityId);
 	}
 
 	/**
 	 * Returns a global string identifier for the combination of a certain
 	 * entity definition and numeric ID.
 	 *
-	 * @param rEntityClass The entity class
-	 * @param nEntityId    The entity ID
+	 * @param entityClass The entity class
+	 * @param entityId    The entity ID
 	 * @return The global entity ID for the given parameters
 	 */
-	public static String getGlobalEntityId(Class<? extends Entity> rEntityClass,
-		long nEntityId) {
-		return getEntityDefinition(rEntityClass).getIdPrefix() +
-			GLOBAL_ID_PREFIX_SEPARATOR + nEntityId;
+	public static String getGlobalEntityId(Class<? extends Entity> entityClass,
+		long entityId) {
+		return getEntityDefinition(entityClass).getIdPrefix() +
+			GLOBAL_ID_PREFIX_SEPARATOR + entityId;
 	}
 
 	/**
@@ -1155,7 +1140,7 @@ public class EntityManager {
 	 * @return A mapping from context IDs to rule predicates
 	 */
 	public static Map<String, Predicate<? super Entity>> getModificationLockRules() {
-		return aModificationLockRules;
+		return modificationLockRules;
 	}
 
 	/**
@@ -1166,7 +1151,7 @@ public class EntityManager {
 	 * @return The mapping of the modified entities
 	 */
 	public static final Map<String, Entity> getModifiedEntities() {
-		return aModifiedEntities;
+		return modifiedEntities;
 	}
 
 	/**
@@ -1175,26 +1160,26 @@ public class EntityManager {
 	 * topmost
 	 * parent. The list will always at least contain the argument entity.
 	 *
-	 * @param rEntity The entity to return the parent hierarchy of
+	 * @param entity The entity to return the parent hierarchy of
 	 * @return The list of parent entities with the argument entity as the last
 	 * element
 	 */
-	public static <E extends Entity> List<E> getParentHierarchy(E rEntity) {
+	public static <E extends Entity> List<E> getParentHierarchy(E entity) {
 		@SuppressWarnings("unchecked")
-		RelationType<E> rParentAttribute =
-			(RelationType<E>) rEntity.getDefinition().getParentAttribute();
+		RelationType<E> parentAttribute =
+			(RelationType<E>) entity.getDefinition().getParentAttribute();
 
-		List<E> aHierarchy = new ArrayList<E>();
+		List<E> hierarchy = new ArrayList<E>();
 
-		aHierarchy.add(rEntity);
+		hierarchy.add(entity);
 
-		if (rParentAttribute != null) {
-			while ((rEntity = rEntity.get(rParentAttribute)) != null) {
-				aHierarchy.add(0, rEntity);
+		if (parentAttribute != null) {
+			while ((entity = entity.get(parentAttribute)) != null) {
+				hierarchy.add(0, entity);
 			}
 		}
 
-		return aHierarchy;
+		return hierarchy;
 	}
 
 	/**
@@ -1203,7 +1188,7 @@ public class EntityManager {
 	 * @return The registered entity types
 	 */
 	public static Collection<Class<? extends Entity>> getRegisteredEntityTypes() {
-		return Collections.unmodifiableCollection(aIdPrefixRegistry.values());
+		return Collections.unmodifiableCollection(idPrefixRegistry.values());
 	}
 
 	/**
@@ -1223,8 +1208,8 @@ public class EntityManager {
 	 * @see #init(Collection)
 	 */
 	@SafeVarargs
-	public static void init(Class<? extends Entity>... rEntityClasses) {
-		init(Arrays.asList(rEntityClasses));
+	public static void init(Class<? extends Entity>... entityClasses) {
+		init(Arrays.asList(entityClasses));
 	}
 
 	/**
@@ -1234,18 +1219,17 @@ public class EntityManager {
 	 * classes used by the application. From these the entity definitions will
 	 * be initialized so that entity lookups by global IDs are possible.
 	 *
-	 * @param rEntityClasses The entity classes used by the application (can be
-	 *                       NULL for none)
+	 * @param entityClasses The entity classes used by the application (can be
+	 *                      NULL for none)
 	 */
-	public static void init(
-		Collection<Class<? extends Entity>> rEntityClasses) {
+	public static void init(Collection<Class<? extends Entity>> entityClasses) {
 		EntityRelationTypes.init();
 		StorageManager.registerMappingFactory(Entity.class,
 			new EntityDefinitionFactory());
 
-		if (rEntityClasses != null) {
-			for (Class<? extends Entity> rClass : rEntityClasses) {
-				getEntityDefinition(rClass);
+		if (entityClasses != null) {
+			for (Class<? extends Entity> entityType : entityClasses) {
+				getEntityDefinition(entityType);
 			}
 		}
 
@@ -1259,7 +1243,7 @@ public class EntityManager {
 	 * Invalidates the global entity cache.
 	 */
 	public static void invalidateCache() {
-		aEntityCache.clear();
+		entityCache.clear();
 	}
 
 	/**
@@ -1269,33 +1253,33 @@ public class EntityManager {
 	 * @return The automatic change logging state
 	 */
 	public static final boolean isAutomaticChangeLogging() {
-		return bAutomaticChangeLogging;
+		return automaticChangeLogging;
 	}
 
 	/**
 	 * Returns the caching enabled for.
 	 *
-	 * @param rEntityClass The caching enabled for
+	 * @param entityClass The caching enabled for
 	 * @return The caching enabled for
 	 */
 	public static boolean isCachingEnabledFor(
-		Class<? extends Entity> rEntityClass) {
-		return aEntityCacheMap.get(rEntityClass) != NO_CACHE;
+		Class<? extends Entity> entityClass) {
+		return entityCacheMap.get(entityClass) != NO_CACHE;
 	}
 
 	/**
 	 * Checks whether the deletion of entities is enabled for a certain entity
 	 * type.
 	 *
-	 * @param rEntityClass The entity type to check
+	 * @param entityClass The entity type to check
 	 * @return TRUE if the deletion of entities with the given type is allowed
 	 * @see #enableDeletionOf(Class)
 	 * @see #disableDeletionOf(Class)
 	 * @see #delete(Entity, boolean)
 	 */
 	public static boolean isDeletionEnabledFor(
-		Class<? extends Entity> rEntityClass) {
-		return aDeleteEnabledEntities.contains(rEntityClass);
+		Class<? extends Entity> entityClass) {
+		return deleteEnabledEntities.contains(entityClass);
 	}
 
 	/**
@@ -1305,7 +1289,7 @@ public class EntityManager {
 	 * @return TRUE if the entity sync service is enabled
 	 */
 	public static boolean isEntitySyncServiceEnabled() {
-		return bSyncServiceEnabled;
+		return syncServiceEnabled;
 	}
 
 	/**
@@ -1316,45 +1300,44 @@ public class EntityManager {
 	 * @return TRUE if storage names are derived as plural
 	 */
 	public static final boolean isUsePluralStorageNames() {
-		return bUsePluralStorageNames;
+		return usePluralStorageNames;
 	}
 
 	/**
 	 * Queries a list of entities that are identified by certain search
 	 * criteria.
 	 *
-	 * @param qEntities rEntityClass The entity type to query
-	 * @param nMax      The maximum number of entities to read
+	 * @param entityCriteria entityClass The entity type to query
+	 * @param max            The maximum number of entities to read
 	 * @return A list of entities for the given criteria (may be empty but will
 	 * never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
 	public static <E extends Entity> List<E> queryEntities(
-		QueryPredicate<E> qEntities, final int nMax) throws StorageException {
-		List<E> aEntities = new ArrayList<E>();
-
-		evaluateEntities(qEntities, untilCountDown(nMax),
-			e -> aEntities.add(e));
-
-		return aEntities;
-	}
-
-	/**
-	 * Queries a list of entities that are identified by certain search
-	 * criteria.
-	 *
-	 * @param rEntityClass The entity type to query
-	 * @param pCriteria    The criteria to search the entities by or NULL for
-	 *                     none
-	 * @param nMax         The maximum number of entities to read
-	 * @return A list of entities for the given criteria (may be empty but will
-	 * never be NULL)
-	 * @throws StorageException If the storage access fails
-	 */
-	public static <E extends Entity> List<E> queryEntities(
-		Class<E> rEntityClass, Predicate<? super E> pCriteria, int nMax)
+		QueryPredicate<E> entityCriteria, final int max)
 		throws StorageException {
-		return queryEntities(forEntity(rEntityClass, pCriteria), nMax);
+		List<E> entities = new ArrayList<E>();
+
+		evaluateEntities(entityCriteria, untilCountDown(max), entities::add);
+
+		return entities;
+	}
+
+	/**
+	 * Queries a list of entities that are identified by certain search
+	 * criteria.
+	 *
+	 * @param entityClass The entity type to query
+	 * @param criteria    The criteria to search the entities by or NULL for
+	 *                    none
+	 * @param max         The maximum number of entities to read
+	 * @return A list of entities for the given criteria (may be empty but will
+	 * never be NULL)
+	 * @throws StorageException If the storage access fails
+	 */
+	public static <E extends Entity> List<E> queryEntities(Class<E> entityClass,
+		Predicate<? super E> criteria, int max) throws StorageException {
+		return queryEntities(forEntity(entityClass, criteria), max);
 	}
 
 	/**
@@ -1368,21 +1351,23 @@ public class EntityManager {
 	 * <p>Uses the method {@link #queryEntities(Class, Predicate, int)} to
 	 * perform the actual query.</p>
 	 *
-	 * @param rEntityClass The entity type to query
-	 * @param rCriteraMap  The mapping from attribute relation types to
-	 *                     attribute predicates
-	 * @param nMax         The maximum number of entities to read
-	 * @param bAnd         TRUE for an AND concatenation of the attribute
-	 *                     predicates, FALSE for OR
+	 * @param entityClass The entity type to query
+	 * @param criteraMap  The mapping from attribute relation types to
+	 *                       attribute
+	 *                    predicates
+	 * @param max         The maximum number of entities to read
+	 * @param and         TRUE for an AND concatenation of the attribute
+	 *                    predicates, FALSE for OR
 	 * @return A list of entities for the given criteria (may be empty but will
 	 * never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
-	public static <E extends Entity> List<E> queryEntities(
-		Class<E> rEntityClass, Map<RelationType<?>, Predicate<?>> rCriteraMap,
-		int nMax, boolean bAnd) throws StorageException {
-		return queryEntities(rEntityClass,
-			createQueryPredicate(rCriteraMap, bAnd), nMax);
+	public static <E extends Entity> List<E> queryEntities(Class<E> entityClass,
+		Map<RelationType<?>, Predicate<?>> criteraMap, int max, boolean and)
+		throws StorageException {
+		return queryEntities(entityClass, createQueryPredicate(criteraMap,
+				and),
+			max);
 	}
 
 	/**
@@ -1390,19 +1375,19 @@ public class EntityManager {
 	 * value. See the {@link #queryEntities(Class, Predicate, int)} method for
 	 * more information.
 	 *
-	 * @param rEntityClass The entity type to query
-	 * @param rAttribute   The attribute to search for
-	 * @param rValue       The attribute value to search for
-	 * @param nMax         The maximum number of entities to read
+	 * @param entityClass The entity type to query
+	 * @param attribute   The attribute to search for
+	 * @param value       The attribute value to search for
+	 * @param max         The maximum number of entities to read
 	 * @return A list of entities for the given criteria (may be empty but will
 	 * never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
 	public static <E extends Entity, T> List<E> queryEntities(
-		Class<E> rEntityClass, RelationType<T> rAttribute, T rValue, int nMax)
+		Class<E> entityClass, RelationType<T> attribute, T value, int max)
 		throws StorageException {
-		return queryEntities(rEntityClass,
-			ifAttribute(rAttribute, equalTo(rValue)), nMax);
+		return queryEntities(entityClass,
+			ifAttribute(attribute, equalTo(value)), max);
 	}
 
 	/**
@@ -1413,44 +1398,46 @@ public class EntityManager {
 	 * extra attributes shall be queried the predicate should include the
 	 * predicate {@link ExtraAttribute#HAS_NO_OWNER}.
 	 *
-	 * @param pExtraAttributes The criteria to search the extra attributes by
-	 * @param nMax             The maximum number of entities to read
+	 * @param extraAttributeCriteria The criteria to search the extra
+	 *                                  attributes
+	 *                               by
+	 * @param max                    The maximum number of entities to read
 	 * @return A collection of the distinct entities that have matching extra
-	 * attributes (may be empty but will never be NULL)
+	 * attributes (maybe empty but will never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
 	public static Collection<Entity> queryEntitiesByExtraAttribute(
-		Predicate<? super ExtraAttribute> pExtraAttributes, int nMax)
+		Predicate<? super ExtraAttribute> extraAttributeCriteria, int max)
 		throws StorageException {
-		List<ExtraAttribute> aExtraAttributes =
-			queryEntities(ExtraAttribute.class, pExtraAttributes, nMax);
+		List<ExtraAttribute> extraAttributes =
+			queryEntities(ExtraAttribute.class, extraAttributeCriteria, max);
 
-		Set<Entity> aResult = new HashSet<Entity>(aExtraAttributes.size());
+		Set<Entity> result = new HashSet<>(extraAttributes.size());
 
-		for (ExtraAttribute rExtraAttribute : aExtraAttributes) {
-			aResult.add(rExtraAttribute.get(ExtraAttribute.ENTITY));
+		for (ExtraAttribute extraAttribute : extraAttributes) {
+			result.add(extraAttribute.get(ExtraAttribute.ENTITY));
 		}
 
-		return aResult;
+		return result;
 	}
 
 	/**
 	 * Queries a list of entities that have a particular extra attribute with
 	 * the given value.
 	 *
-	 * @param rExtraAttributeKey   The extra attribute key to search for
-	 * @param rExtraAttributeValue The value of the extra attribute with the
-	 *                             given key
-	 * @param nMax                 The maximum number of entities to read
+	 * @param extraAttributeKey   The extra attribute key to search for
+	 * @param extraAttributeValue The value of the extra attribute with the
+	 *                            given key
+	 * @param max                 The maximum number of entities to read
 	 * @return A collection of the distinct entities that have a matching extra
-	 * attribute (may be empty but will never be NULL)
+	 * attribute (maybe empty but will never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
 	public static <T> Collection<Entity> queryEntitiesByExtraAttribute(
-		RelationType<T> rExtraAttributeKey, T rExtraAttributeValue, int nMax)
+		RelationType<T> extraAttributeKey, T extraAttributeValue, int max)
 		throws StorageException {
-		return queryEntitiesByExtraAttribute(null, rExtraAttributeKey,
-			rExtraAttributeValue, nMax);
+		return queryEntitiesByExtraAttribute(null, extraAttributeKey,
+			extraAttributeValue, max);
 	}
 
 	/**
@@ -1458,26 +1445,26 @@ public class EntityManager {
 	 * extra
 	 * attribute.The attributes value is not important.
 	 *
-	 * @param rEntityClass       The class of the entity to query
-	 * @param rExtraAttributeKey The extra attribute key to search for
-	 * @param nMax               The maximum number of entities to read
+	 * @param entityClass       The class of the entity to query
+	 * @param extraAttributeKey The extra attribute key to search for
+	 * @param max               The maximum number of entities to read
 	 * @return A collection of the distinct entities that have a matching extra
 	 * attribute (may be empty but will never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
 	public static <E extends Entity, T> Collection<E> queryEntitiesByExtraAttribute(
-		Class<E> rEntityClass, RelationType<T> rExtraAttributeKey, int nMax)
+		Class<E> entityClass, RelationType<T> extraAttributeKey, int max)
 		throws StorageException {
-		Predicate<Relatable> pExtraAttr = ExtraAttribute.HAS_NO_OWNER.and(
-			ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)));
+		Predicate<Relatable> extraAttr = ExtraAttribute.HAS_NO_OWNER.and(
+			ExtraAttribute.KEY.is(equalTo(extraAttributeKey)));
 
-		pExtraAttr = addEntityPrefixPredicate(rEntityClass, pExtraAttr);
+		extraAttr = addEntityPrefixPredicate(entityClass, extraAttr);
 
 		@SuppressWarnings("unchecked")
-		Collection<E> aEntities =
-			(Collection<E>) queryEntitiesByExtraAttribute(pExtraAttr, nMax);
+		Collection<E> entities =
+			(Collection<E>) queryEntitiesByExtraAttribute(extraAttr, max);
 
-		return aEntities;
+		return entities;
 	}
 
 	/**
@@ -1485,31 +1472,31 @@ public class EntityManager {
 	 * extra
 	 * attribute with the given key and value.
 	 *
-	 * @param rEntityClass         The class of the entity to query
-	 * @param rExtraAttributeKey   The extra attribute key to search for
-	 * @param rExtraAttributeValue The value of the extra attribute with the
-	 *                             given key
-	 * @param nMax                 The maximum number of entities to read
+	 * @param entityClass         The class of the entity to query
+	 * @param extraAttributeKey   The extra attribute key to search for
+	 * @param extraAttributeValue The value of the extra attribute with the
+	 *                            given key
+	 * @param max                 The maximum number of entities to read
 	 * @return A collection of the distinct entities that have a matching extra
 	 * attribute (may be empty but will never be NULL)
 	 * @throws StorageException If the storage access fails
 	 */
 	public static <E extends Entity, T> Collection<E> queryEntitiesByExtraAttribute(
-		Class<E> rEntityClass, RelationType<T> rExtraAttributeKey,
-		T rExtraAttributeValue, int nMax) throws StorageException {
-		String sValue = Conversions.asString(rExtraAttributeValue);
+		Class<E> entityClass, RelationType<T> extraAttributeKey,
+		T extraAttributeValue, int max) throws StorageException {
+		String value = Conversions.asString(extraAttributeValue);
 
-		Predicate<Relatable> pExtraAttr = ExtraAttribute.HAS_NO_OWNER
-			.and(ExtraAttribute.KEY.is(equalTo(rExtraAttributeKey)))
-			.and(ExtraAttribute.VALUE.is(equalTo(sValue)));
+		Predicate<Relatable> extraAttr = ExtraAttribute.HAS_NO_OWNER
+			.and(ExtraAttribute.KEY.is(equalTo(extraAttributeKey)))
+			.and(ExtraAttribute.VALUE.is(equalTo(value)));
 
-		pExtraAttr = addEntityPrefixPredicate(rEntityClass, pExtraAttr);
+		extraAttr = addEntityPrefixPredicate(entityClass, extraAttr);
 
 		@SuppressWarnings("unchecked")
-		Collection<E> aEntities =
-			(Collection<E>) queryEntitiesByExtraAttribute(pExtraAttr, nMax);
+		Collection<E> entities =
+			(Collection<E>) queryEntitiesByExtraAttribute(extraAttr, max);
 
-		return aEntities;
+		return entities;
 	}
 
 	/**
@@ -1520,7 +1507,7 @@ public class EntityManager {
 	 * method
 	 * {@link #getGlobalEntityId(Entity)}.
 	 *
-	 * @param sGlobalEntityId The global entity ID to query the entity for
+	 * @param globalEntityId The global entity ID to query the entity for
 	 * @return The entity for the given ID or NULL if none could be found
 	 * @throws StorageException         If the storage query fails
 	 * @throws IllegalArgumentException If the given entity ID is invalid
@@ -1528,31 +1515,29 @@ public class EntityManager {
 	 *                                  registered for the given ID or if the
 	 *                                  query yields more than one entity
 	 */
-	public static Entity queryEntity(String sGlobalEntityId)
+	public static Entity queryEntity(String globalEntityId)
 		throws StorageException {
-		Entity rEntity;
-		String[] aIdElements =
-			sGlobalEntityId.split(GLOBAL_ID_PREFIX_SEPARATOR);
+		Entity entity;
+		String[] idElements = globalEntityId.split(GLOBAL_ID_PREFIX_SEPARATOR);
 
-		if (aIdElements.length != 2 || aIdElements[0].length() == 0 ||
-			aIdElements[1].length() == 0) {
+		if (idElements.length != 2 || idElements[0].isEmpty() ||
+			idElements[1].isEmpty()) {
 			throw new IllegalArgumentException(
-				"Invalid entity ID: " + sGlobalEntityId);
+				"Invalid entity ID: " + globalEntityId);
 		}
 
-		String sIdPrefix = aIdElements[0];
-		String sEntityId = aIdElements[1];
-		Class<? extends Entity> rEntityClass =
-			aIdPrefixRegistry.get(sIdPrefix);
+		String idPrefix = idElements[0];
+		String entityId = idElements[1];
+		Class<? extends Entity> entityClass = idPrefixRegistry.get(idPrefix);
 
-		if (rEntityClass == null) {
+		if (entityClass == null) {
 			throw new IllegalStateException(
-				"No entity registered for ID prefix " + sIdPrefix);
+				"No entity registered for ID prefix " + idPrefix);
 		}
 
-		rEntity = queryEntity(rEntityClass, Integer.parseInt(sEntityId));
+		entity = queryEntity(entityClass, Integer.parseInt(entityId));
 
-		return rEntity;
+		return entity;
 	}
 
 	/**
@@ -1563,24 +1548,24 @@ public class EntityManager {
 	 * into
 	 * the cache for later queries.
 	 *
-	 * @param rEntityClass The entity type to query
-	 * @param nEntityId    The global entity ID to query the entity for
+	 * @param entityClass The entity type to query
+	 * @param entityId    The global entity ID to query the entity for
 	 * @return The entity for the given ID or NULL if none could be found
 	 * @throws StorageException      If the storage access fails
 	 * @throws IllegalStateException If the query yields more than one entity
 	 */
 	@SuppressWarnings("boxing")
-	public static <E extends Entity> E queryEntity(Class<E> rEntityClass,
-		long nEntityId) throws StorageException {
-		E rEntity = getCachedEntity(rEntityClass, nEntityId);
+	public static <E extends Entity> E queryEntity(Class<E> entityClass,
+		long entityId) throws StorageException {
+		E entity = getCachedEntity(entityClass, entityId);
 
-		if (rEntity == null) {
-			rEntity = queryEntity(rEntityClass,
-				getEntityDefinition(rEntityClass).getIdAttribute(),
-				Long.valueOf(nEntityId), true);
+		if (entity == null) {
+			entity = queryEntity(entityClass,
+				getEntityDefinition(entityClass).getIdAttribute(), entityId,
+				true);
 		}
 
-		return rEntity;
+		return entity;
 	}
 
 	/**
@@ -1590,30 +1575,30 @@ public class EntityManager {
 	 * parameter is TRUE and the storage query yields more than one entity an
 	 * {@link IllegalStateException} will be thrown.
 	 *
-	 * @param rEntityClass    The entity type to query
-	 * @param pCriteria       The criteria to search by
-	 * @param bFailOnMultiple If TRUE the call fails if multiple entities are
-	 *                        found for the given criteria
+	 * @param entityClass    The entity type to query
+	 * @param criteria       The criteria to search by
+	 * @param failOnMultiple If TRUE the call fails if multiple entities are
+	 *                       found for the given criteria
 	 * @return The entity for the given criteria or NULL if none could be found
 	 * @throws StorageException      If the storage access fails
 	 * @throws IllegalStateException If the boolean parameter is TRUE and the
 	 *                               query yields more than one entity
 	 */
-	public static <E extends Entity> E queryEntity(Class<E> rEntityClass,
-		Predicate<? super E> pCriteria, boolean bFailOnMultiple)
+	public static <E extends Entity> E queryEntity(Class<E> entityClass,
+		Predicate<? super E> criteria, boolean failOnMultiple)
 		throws StorageException {
-		int nCount = bFailOnMultiple ? 2 : 1;
-		List<E> rEntities = queryEntities(rEntityClass, pCriteria, nCount);
-		int nSize = rEntities.size();
+		int count = failOnMultiple ? 2 : 1;
+		List<E> entities = queryEntities(entityClass, criteria, count);
+		int size = entities.size();
 
-		if (nSize > 1) {
+		if (size > 1) {
 			throw new IllegalStateException(
-				"Multiple entities for " + pCriteria);
+				"Multiple entities for " + criteria);
 		}
 
-		E rEntity = nSize > 0 ? rEntities.get(0) : null;
+		E entity = size > 0 ? entities.get(0) : null;
 
-		return rEntity;
+		return entity;
 	}
 
 	/**
@@ -1621,11 +1606,11 @@ public class EntityManager {
 	 * the method {@link #queryEntity(Class, Predicate, boolean)} for more
 	 * information.
 	 *
-	 * @param rEntityClass    The entity type to query
-	 * @param rAttribute      The attribute to search for
-	 * @param rValue          The attribute value to search for
-	 * @param bFailOnMultiple If TRUE the call fails if multiple entities are
-	 *                        found for the given criteria
+	 * @param entityClass    The entity type to query
+	 * @param attribute      The attribute to search for
+	 * @param value          The attribute value to search for
+	 * @param failOnMultiple If TRUE the call fails if multiple entities are
+	 *                       found for the given criteria
 	 * @return The entity for the given attribute value or NULL if none
 	 * could be
 	 * found
@@ -1633,11 +1618,11 @@ public class EntityManager {
 	 * @throws IllegalStateException If the boolean parameter is TRUE and the
 	 *                               query yields more than one entity
 	 */
-	public static <T, E extends Entity> E queryEntity(Class<E> rEntityClass,
-		RelationType<T> rAttribute, T rValue, boolean bFailOnMultiple)
+	public static <T, E extends Entity> E queryEntity(Class<E> entityClass,
+		RelationType<T> attribute, T value, boolean failOnMultiple)
 		throws StorageException {
-		return queryEntity(rEntityClass,
-			ifAttribute(rAttribute, equalTo(rValue)), bFailOnMultiple);
+		return queryEntity(entityClass, ifAttribute(attribute, equalTo(value)),
+			failOnMultiple);
 	}
 
 	/**
@@ -1646,13 +1631,13 @@ public class EntityManager {
 	 * the
 	 * actual query.
 	 *
-	 * @param rEntityClass    The entity type to query
-	 * @param rCriteraMap     The mapping from attribute relation types to
-	 *                        attribute predicates
-	 * @param bAnd            TRUE for an AND catenation of the attribute
-	 *                        predicates, FALSE for OR
-	 * @param bFailOnMultiple If TRUE the call fails if multiple entities are
-	 *                        found for the given criteria
+	 * @param entityClass    The entity type to query
+	 * @param criteraMap     The mapping from attribute relation types to
+	 *                       attribute predicates
+	 * @param and            TRUE for an AND catenation of the attribute
+	 *                       predicates, FALSE for OR
+	 * @param failOnMultiple If TRUE the call fails if multiple entities are
+	 *                       found for the given criteria
 	 * @return The entity for the given attribute value or NULL if none
 	 * could be
 	 * found
@@ -1660,11 +1645,11 @@ public class EntityManager {
 	 * @throws IllegalStateException If the fail on multiple parameter is TRUE
 	 *                               and the query yields more than one entity
 	 */
-	public static <T, E extends Entity> E queryEntity(Class<E> rEntityClass,
-		Map<RelationType<?>, Predicate<?>> rCriteraMap, boolean bAnd,
-		boolean bFailOnMultiple) throws StorageException {
-		return queryEntity(rEntityClass,
-			createQueryPredicate(rCriteraMap, bAnd), bFailOnMultiple);
+	public static <T, E extends Entity> E queryEntity(Class<E> entityClass,
+		Map<RelationType<?>, Predicate<?>> criteraMap, boolean and,
+		boolean failOnMultiple) throws StorageException {
+		return queryEntity(entityClass, createQueryPredicate(criteraMap, and),
+			failOnMultiple);
 	}
 
 	/**
@@ -1673,10 +1658,10 @@ public class EntityManager {
 	 * @see #queryEntityByExtraAttribute(Class, RelationType, Object, boolean)
 	 */
 	public static <T> Entity queryEntityByExtraAttribute(
-		RelationType<T> rExtraAttributeKey, T rExtraAttributeValue,
-		boolean bFailOnMultiple) throws StorageException {
-		return queryEntityByExtraAttribute(null, rExtraAttributeKey,
-			rExtraAttributeValue, bFailOnMultiple);
+		RelationType<T> extraAttributeKey, T extraAttributeValue,
+		boolean failOnMultiple) throws StorageException {
+		return queryEntityByExtraAttribute(null, extraAttributeKey,
+			extraAttributeValue, failOnMultiple);
 	}
 
 	/**
@@ -1690,139 +1675,136 @@ public class EntityManager {
 	 * as an inconsistency and therefore result in an exception being thrown.
 	 * This parameter should in most cases be set to TRUE.
 	 *
-	 * @param rEntityClass         The class of the entity to query
-	 * @param rExtraAttributeKey   The extra attribute key to search for
-	 * @param rExtraAttributeValue The value of the extra attribute with the
-	 *                             given key
-	 * @param bFailOnMultiple      If TRUE the call fails if multiple entities
-	 *                             are found for the given criteria
+	 * @param entityClass         The class of the entity to query
+	 * @param extraAttributeKey   The extra attribute key to search for
+	 * @param extraAttributeValue The value of the extra attribute with the
+	 *                            given key
+	 * @param failOnMultiple      If TRUE the call fails if multiple entities
+	 *                            are found for the given criteria
 	 * @return The entity that has the given extra attribute or NULL for none
 	 * @throws StorageException      If the storage access fails
 	 * @throws IllegalStateException If the boolean parameter is TRUE and the
 	 *                               query yields more than one entity
 	 */
 	public static <E extends Entity, T> E queryEntityByExtraAttribute(
-		Class<E> rEntityClass, RelationType<T> rExtraAttributeKey,
-		T rExtraAttributeValue, boolean bFailOnMultiple)
-		throws StorageException {
-		Collection<E> rEntities =
-			queryEntitiesByExtraAttribute(rEntityClass, rExtraAttributeKey,
-				rExtraAttributeValue, bFailOnMultiple ? 2 : 1);
+		Class<E> entityClass, RelationType<T> extraAttributeKey,
+		T extraAttributeValue, boolean failOnMultiple) throws StorageException {
+		Collection<E> entities =
+			queryEntitiesByExtraAttribute(entityClass, extraAttributeKey,
+				extraAttributeValue, failOnMultiple ? 2 : 1);
 
-		int nSize = rEntities.size();
+		int size = entities.size();
 
-		if (bFailOnMultiple && nSize > 1) {
+		if (failOnMultiple && size > 1) {
 			throw new IllegalStateException(String.format(
 				"Multiple entities for " + "extra attribute %s with value %s",
-				rExtraAttributeKey, rExtraAttributeValue));
+				extraAttributeKey, extraAttributeValue));
 		}
 
-		return nSize > 0 ? rEntities.iterator().next() : null;
+		return size > 0 ? entities.iterator().next() : null;
 	}
 
 	/**
 	 * Registers an entity cache for a certain entity class.
 	 *
-	 * @param rEntityClass The entity class to register the cache for
-	 * @param rCache       The cache instance for the given entity class
+	 * @param entityClass The entity class to register the cache for
+	 * @param cache       The cache instance for the given entity class
 	 */
 	public static <E extends Entity> void registerEntityCache(
-		Class<E> rEntityClass, EntityCache<E> rCache) {
-		aEntityCacheMap.put(rEntityClass, rCache);
+		Class<E> entityClass, EntityCache<E> cache) {
+		entityCacheMap.put(entityClass, cache);
 	}
 
 	/**
 	 * Registers a certain entity definition to be used for a certain sub-type
 	 * of the corresponding entity.
 	 *
-	 * @param rSubType    The entity sub-class
-	 * @param rDefinition The entity definition to register for the given type
+	 * @param subType    The entity sub-class
+	 * @param definition The entity definition to register for the given type
 	 */
 	static <E extends Entity> void registerEntitySubType(
-		Class<? extends E> rSubType, EntityDefinition<E> rDefinition) {
-		aEntityDefinitions.put(rSubType, rDefinition);
+		Class<? extends E> subType, EntityDefinition<E> definition) {
+		entityDefinitions.put(subType, definition);
 	}
 
 	/**
 	 * Internal method to register an entity type with the manager.
 	 *
-	 * @param rEntityClass The class to register
-	 * @param rDefinition  The entity definition for the entity class
+	 * @param entityClass The class to register
+	 * @param definition  The entity definition for the entity class
 	 * @throws IllegalArgumentException If either the entity name or the ID
 	 *                                  prefix of the given entity definition
 	 *                                  has been registered already
 	 */
 	static <E extends Entity> void registerEntityType(
-		Class<? extends E> rEntityClass, EntityDefinition<E> rDefinition) {
-		if (aIdPrefixRegistry.containsValue(rEntityClass)) {
+		Class<? extends E> entityClass, EntityDefinition<E> definition) {
+		if (idPrefixRegistry.containsValue(entityClass)) {
 			throw new IllegalArgumentException(
-				"Duplicate entity registration: " + rEntityClass);
+				"Duplicate entity registration: " + entityClass);
 		}
 
-		String sIdPrefix = rDefinition.getIdPrefix();
+		String idPrefix = definition.getIdPrefix();
 
-		Class<? extends Entity> rExistingClass =
-			aIdPrefixRegistry.get(sIdPrefix);
+		Class<? extends Entity> existingClass = idPrefixRegistry.get(idPrefix);
 
-		if (rExistingClass == null) {
-			aIdPrefixRegistry.put(sIdPrefix, rEntityClass);
-		} else if (!rExistingClass.isAssignableFrom(rEntityClass)) {
+		if (existingClass == null) {
+			idPrefixRegistry.put(idPrefix, entityClass);
+		} else if (!existingClass.isAssignableFrom(entityClass)) {
 			throw new IllegalArgumentException(String.format(
 				"Duplicate entity ID prefix %s for class %s; " +
-					"already defined in %s", sIdPrefix, rEntityClass,
-				aIdPrefixRegistry.get(sIdPrefix)));
+					"already defined in %s", idPrefix, entityClass,
+				idPrefixRegistry.get(idPrefix)));
 		}
 	}
 
 	/**
 	 * Removes an entity from the cache.
 	 *
-	 * @param rEntity The entity to remove
+	 * @param entity The entity to remove
 	 */
-	public static void removeCachedEntity(Entity rEntity) {
-		removeCachedEntity(getGlobalEntityId(rEntity));
+	public static void removeCachedEntity(Entity entity) {
+		removeCachedEntity(getGlobalEntityId(entity));
 	}
 
 	/**
 	 * Removes an entity with a certain ID from the cache.
 	 *
-	 * @param sId The global ID of the entity to remove
+	 * @param id The global ID of the entity to remove
 	 */
-	public static void removeCachedEntity(String sId) {
-		Entity rRemovedEntity = aEntityCache.remove(sId);
+	public static void removeCachedEntity(String id) {
+		Entity removedEntity = entityCache.remove(id);
 
-		if (rRemovedEntity != null) {
-			rRemovedEntity.set(CACHE_ENTITY, Boolean.FALSE);
+		if (removedEntity != null) {
+			removedEntity.set(CACHE_ENTITY, Boolean.FALSE);
 		}
 	}
 
 	/**
 	 * Removes an entity cache registration for a certain entity class.
 	 *
-	 * @param rEntityClass The entity class to remove the cache for
+	 * @param entityClass The entity class to remove the cache for
 	 */
 	public static <E extends Entity> void removeEntityCache(
-		Class<E> rEntityClass) {
-		aEntityCacheMap.remove(rEntityClass);
+		Class<E> entityClass) {
+		entityCacheMap.remove(entityClass);
 	}
 
 	/**
 	 * Removes an entity modification context that has been set previously with
 	 * {@link #setEntityModificationContext(String, Relatable, boolean)}.
 	 *
-	 * @param sContextId      The ID of the entity modification context
-	 * @param bIgnoreExisting TRUE to ignore any different existing context
+	 * @param contextId      The ID of the entity modification context
+	 * @param ignoreExisting TRUE to ignore any different existing context
 	 */
-	public static void removeEntityModificationContext(String sContextId,
-		boolean bIgnoreExisting) {
-		if (sContextId.equals(aEntityModificationContextId.get())) {
-			aEntityModificationContext.remove();
-			aEntityModificationContextId.remove();
-		} else if (!bIgnoreExisting) {
-			assert false :
+	public static void removeEntityModificationContext(String contextId,
+		boolean ignoreExisting) {
+		if (contextId.equals(entityModificationContextId.get())) {
+			entityModificationContext.remove();
+			entityModificationContextId.remove();
+		} else
+			assert ignoreExisting :
 				String.format("Modification context mismatch: %s != %s",
-					sContextId, aEntityModificationContextId);
-		}
+					contextId, entityModificationContextId);
 	}
 
 	/**
@@ -1830,23 +1812,23 @@ public class EntityManager {
 	 * removed rule is returned so that the caller could concatenate it into a
 	 * new rule and set the combined rule again if necessary.
 	 *
-	 * @param sContextId The ID of the entity modification context
+	 * @param contextId The ID of the entity modification context
 	 * @return The removed rule or NULL for none
 	 * @see #setEntityModificationLock(String, Predicate)
 	 */
 	public static Predicate<? super Entity> removeEntityModificationLock(
-		String sContextId) {
-		return aModificationLockRules.remove(sContextId);
+		String contextId) {
+		return modificationLockRules.remove(contextId);
 	}
 
 	/**
 	 * Removes a store listener. See {@link #addStoreListener(StoreListener)}
 	 * for details.
 	 *
-	 * @param rListener The listener to remove
+	 * @param listener The listener to remove
 	 */
-	public static void removeStoreListener(StoreListener rListener) {
-		getStoreListeners().remove(rListener);
+	public static void removeStoreListener(StoreListener listener) {
+		getStoreListeners().remove(listener);
 	}
 
 	/**
@@ -1854,27 +1836,27 @@ public class EntityManager {
 	 * attributes and references of the given entity to their persistent values
 	 * and all other relations to their default values.
 	 *
-	 * @param rEntity The entity to reset
+	 * @param entity The entity to reset
 	 * @throws StorageException If retrieving the persistent entity state fails
 	 */
-	public static void resetEntity(Entity rEntity) throws StorageException {
-		String sId = rEntity.getGlobalId();
+	public static void resetEntity(Entity entity) throws StorageException {
+		String id = entity.getGlobalId();
 
-		aCacheLock.lock();
+		cacheLock.lock();
 
 		try {
 			// remove entity from cache to force a re-fetching
-			removeCachedEntity(sId);
-			endEntityModification(rEntity);
+			removeCachedEntity(id);
+			endEntityModification(entity);
 
 			// fetch (and cache) current state from storage
-			Entity aStoredEntity = queryEntity(sId);
+			Entity storedEntity = queryEntity(id);
 
 			// synchronize the existing entity with the persistent state to
 			// remove any modifications and update existing references
-			ObjectRelations.syncRelations(rEntity, aStoredEntity);
+			ObjectRelations.syncRelations(entity, storedEntity);
 		} finally {
-			aCacheLock.unlock();
+			cacheLock.unlock();
 		}
 	}
 
@@ -1885,20 +1867,20 @@ public class EntityManager {
 	 * <p>This method is intended to be used internally by the framework only.
 	 * </p>
 	 *
-	 * @param rContext The {@link Relatable} object that serves as the context
+	 * @param context The {@link Relatable} object that serves as the context
 	 */
-	public static void resetEntityModifications(Relatable rContext) {
-		Set<Entity> rEntities = rContext.get(CONTEXT_UPDATED_ENTITIES);
+	public static void resetEntityModifications(Relatable context) {
+		Set<Entity> entities = context.get(CONTEXT_UPDATED_ENTITIES);
 
-		for (Entity rEntity : rEntities) {
+		for (Entity entity : entities) {
 			try {
-				resetEntity(rEntity);
+				resetEntity(entity);
 			} catch (Exception e) {
-				Log.warnf(e, "Could not reset entity %s", rEntity);
+				Log.warnf(e, "Could not reset entity %s", entity);
 			}
 		}
 
-		rEntities.clear();
+		entities.clear();
 	}
 
 	/**
@@ -1908,10 +1890,10 @@ public class EntityManager {
 	 * contains information about the change. The default value is TRUE and it
 	 * should only be set to FALSE for special purposes like bulk insertions.
 	 *
-	 * @param bEnabled The new state of the automatic change history logging
+	 * @param enabled The new state of the automatic change history logging
 	 */
-	public static final void setAutomaticChangeLogging(boolean bEnabled) {
-		bAutomaticChangeLogging = bEnabled;
+	public static final void setAutomaticChangeLogging(boolean enabled) {
+		automaticChangeLogging = enabled;
 	}
 
 	/**
@@ -1924,14 +1906,14 @@ public class EntityManager {
 	 * is permanent, entities in that level will never be removed
 	 * automatically.
 	 *
-	 * @param nFirstLevel  The capacity of the permanent cache level
-	 * @param nSecondLevel The capacity of the softly referenced cache level
-	 * @param nThirdLevel  nSecondLevel The capacity of the weakly referenced
-	 *                     cache level
+	 * @param firstLevel  The capacity of the permanent cache level
+	 * @param secondLevel The capacity of the softly referenced cache level
+	 * @param thirdLevel  secondLevel The capacity of the weakly referenced
+	 *                    cache level
 	 */
-	public static void setCacheCapacity(int nFirstLevel, int nSecondLevel,
-		int nThirdLevel) {
-		aEntityCache.setCapacity(nFirstLevel, nSecondLevel, nThirdLevel);
+	public static void setCacheCapacity(int firstLevel, int secondLevel,
+		int thirdLevel) {
+		entityCache.setCapacity(firstLevel, secondLevel, thirdLevel);
 	}
 
 	/**
@@ -1947,29 +1929,28 @@ public class EntityManager {
 	 * <p>This method is intended to be used internally by the framework only.
 	 * </p>
 	 *
-	 * @param sContextId    A unique ID of the entity modification context
-	 * @param rContext      A relatable object that serves as the context
-	 * @param bKeepExisting TRUE to keep an existing modification context or
-	 *                      FALSE to throw a
-	 *                      {@link ConcurrentModificationException} if a
-	 *                      context
-	 *                      has already been set for the current thread.
+	 * @param contextId    A unique ID of the entity modification context
+	 * @param context      A relatable object that serves as the context
+	 * @param keepExisting TRUE to keep an existing modification context or
+	 *                     FALSE to throw a
+	 *                     {@link ConcurrentModificationException} if a context
+	 *                     has already been set for the current thread.
 	 */
-	public static void setEntityModificationContext(String sContextId,
-		Relatable rContext, boolean bKeepExisting) {
-		assert sContextId != null && rContext != null;
+	public static void setEntityModificationContext(String contextId,
+		Relatable context, boolean keepExisting) {
+		assert contextId != null && context != null;
 
-		String sExistingContext = aEntityModificationContextId.get();
+		String existingContext = entityModificationContextId.get();
 
-		if (sExistingContext == null) {
-			aEntityModificationContextId.set(sContextId);
-			aEntityModificationContext.set(rContext);
-		} else if (!bKeepExisting) {
-			String sMessage = String.format(
+		if (existingContext == null) {
+			entityModificationContextId.set(contextId);
+			entityModificationContext.set(context);
+		} else if (!keepExisting) {
+			String message = String.format(
 				"Modification context already set to %s " +
-					"(tried to set to %s)", sExistingContext, sContextId);
+					"(tried to set to %s)", existingContext, contextId);
 
-			throw new ConcurrentModificationException(sMessage);
+			throw new ConcurrentModificationException(message);
 		}
 	}
 
@@ -1994,21 +1975,21 @@ public class EntityManager {
 	 * invoke {@link #removeEntityModificationLock(String)} to clear the
 	 * modification rule.</p>
 	 *
-	 * @param sContextId the ID of the entity modification context
-	 * @param pRule      The new locked entity rule
+	 * @param contextId the ID of the entity modification context
+	 * @param rule      The new locked entity rule
 	 */
-	public static void setEntityModificationLock(String sContextId,
-		Predicate<? super Entity> pRule) {
-		aModificationLockRules.put(sContextId, pRule);
+	public static void setEntityModificationLock(String contextId,
+		Predicate<? super Entity> rule) {
+		modificationLockRules.put(contextId, rule);
 	}
 
 	/**
 	 * Enables or disables the automatic entity modification tracking.
 	 *
-	 * @param bEnabled The new modification tracking state
+	 * @param enabled The new modification tracking state
 	 */
-	public static void setEntityModificationTracking(boolean bEnabled) {
-		bEntityModificationTracking = bEnabled;
+	public static void setEntityModificationTracking(boolean enabled) {
+		entityModificationTracking = enabled;
 	}
 
 	/**
@@ -2020,47 +2001,47 @@ public class EntityManager {
 	 * can be queried with {@link #isEntitySyncServiceEnabled()} and controlled
 	 * with {@link #setEntitySyncServiceEnabled(boolean)}.
 	 *
-	 * @param sSyncClientId A unique identifier of the sync service client
-	 * @param sSyncContext  The application context to sync entities in
-	 * @param rSyncEndpoint The entity sync service endpoint (may be NULL to
-	 *                      deactivate)
+	 * @param syncClientId A unique identifier of the sync service client
+	 * @param syncContext  The application context to sync entities in
+	 * @param syncEndpoint The entity sync service endpoint (may be NULL to
+	 *                     deactivate)
 	 */
-	public static void setEntitySyncService(String sSyncClientId,
-		String sSyncContext, Endpoint rSyncEndpoint) {
-		sEntitySyncClientId = sSyncClientId;
-		sEntitySyncContext = sSyncContext;
-		rEntitySyncEndpoint = Optional.ofNullable(rSyncEndpoint);
-		bSyncServiceEnabled = rEntitySyncEndpoint.isPresent();
+	public static void setEntitySyncService(String syncClientId,
+		String syncContext, Endpoint syncEndpoint) {
+		entitySyncClientId = syncClientId;
+		entitySyncContext = syncContext;
+		entitySyncEndpoint = Optional.ofNullable(syncEndpoint);
+		syncServiceEnabled = entitySyncEndpoint.isPresent();
 	}
 
 	/**
 	 * Enables or disables the usage of the remote entity sync service for
 	 * entity locking.
 	 *
-	 * @param bEnabled TRUE to enabled usage of the entity sync service
+	 * @param enabled TRUE to enabled usage of the entity sync service
 	 */
-	public static void setEntitySyncServiceEnabled(boolean bEnabled) {
-		bSyncServiceEnabled = bEnabled;
+	public static void setEntitySyncServiceEnabled(boolean enabled) {
+		syncServiceEnabled = enabled;
 	}
 
 	/**
 	 * Sets the session manager to be used for user identification and
 	 * context-based caching.
 	 *
-	 * @param rManager The new session manager
+	 * @param manager The new session manager
 	 */
-	public static void setSessionManager(SessionManager rManager) {
-		rSessionManager = rManager;
+	public static void setSessionManager(SessionManager manager) {
+		sessionManager = manager;
 	}
 
 	/**
 	 * Globally defines whether storage names (e.g. JDBC table names) should be
 	 * derived from entity names as singular (default) or plural.
 	 *
-	 * @param bPlural TRUE to use plural storage names
+	 * @param plural TRUE to use plural storage names
 	 */
-	public static final void setUsePluralStorageNames(boolean bPlural) {
-		bUsePluralStorageNames = bPlural;
+	public static final void setUsePluralStorageNames(boolean plural) {
+		usePluralStorageNames = plural;
 	}
 
 	/**
@@ -2070,8 +2051,8 @@ public class EntityManager {
 	 */
 	public static void shutdown() {
 		getStoreListeners().clear();
-		aEntityCache.clear();
-		aIdPrefixRegistry.clear();
+		entityCache.clear();
+		idPrefixRegistry.clear();
 		TransactionManager.shutdown();
 		StorageManager.shutdown();
 	}
@@ -2081,8 +2062,8 @@ public class EntityManager {
 	 *
 	 * @see #storeEntity(Entity, Entity, boolean)
 	 */
-	public static void store(Entity rEntity) throws TransactionException {
-		storeEntity(rEntity, null);
+	public static void store(Entity entity) throws TransactionException {
+		storeEntity(entity, null);
 	}
 
 	/**
@@ -2090,9 +2071,9 @@ public class EntityManager {
 	 *
 	 * @see #storeEntity(Entity, Entity, boolean)
 	 */
-	public static void storeEntity(Entity rEntity, Entity rChangeOrigin)
+	public static void storeEntity(Entity entity, Entity changeOrigin)
 		throws TransactionException {
-		storeEntity(rEntity, rChangeOrigin, false);
+		storeEntity(entity, changeOrigin, false);
 	}
 
 	/**
@@ -2115,102 +2096,103 @@ public class EntityManager {
 	 * appear in the list after the argument entity and inside the same
 	 * transaction.</p>
 	 *
-	 * @param rEntity       The entity to store
-	 * @param rChangeOrigin The entity to be stored as the history origin
-	 * @param bHistoryGroup TRUE to record the the entity change inside a
-	 *                      history group
+	 * @param entity       The entity to store
+	 * @param changeOrigin The entity to be stored as the history origin
+	 * @param historyGroup TRUE to record the the entity change inside a
+	 *                        history
+	 *                     group
 	 * @throws TransactionException If the entity storage transaction fails
 	 */
-	public static void storeEntity(Entity rEntity, Entity rChangeOrigin,
-		boolean bHistoryGroup) throws TransactionException {
-		Entity rStoreEntity = rEntity;
-		List<Entity> rDependentEntities = null;
+	public static void storeEntity(Entity entity, Entity changeOrigin,
+		boolean historyGroup) throws TransactionException {
+		Entity storeEntity = entity;
+		List<Entity> dependentEntities = null;
 
-		if (rEntity.hasRelation(DEPENDENT_STORE_ENTITIES)) {
+		if (entity.hasRelation(DEPENDENT_STORE_ENTITIES)) {
 			// get dependent entities before checking the hierarchy and delete
 			// the relation before storing to prevent recursions
-			rDependentEntities = rEntity.get(DEPENDENT_STORE_ENTITIES);
-			rEntity.deleteRelation(DEPENDENT_STORE_ENTITIES);
+			dependentEntities = entity.get(DEPENDENT_STORE_ENTITIES);
+			entity.deleteRelation(DEPENDENT_STORE_ENTITIES);
 		}
 
-		rEntity = rEntity.checkForHierarchyUpdate();
+		entity = entity.checkForHierarchyUpdate();
 
-		boolean bNewEntity = !rEntity.isPersistent();
-		Storage rStorage = StorageManager.getStorage(rEntity.getClass());
+		boolean newEntity = !entity.isPersistent();
+		Storage storage = StorageManager.getStorage(entity.getClass());
 
 		TransactionManager.begin();
 
 		try {
-			String sChange = null;
-			boolean bHasChanges = false;
+			String change = null;
+			boolean hasChanges = false;
 
-			TransactionManager.addTransactionElement(rStorage);
+			TransactionManager.addTransactionElement(storage);
 
-			if (bAutomaticChangeLogging) {
-				if (rEntity.hasChangeLogging()) {
-					sChange = rEntity.createChangeDescription();
-					bHasChanges = (sChange != null && sChange.length() > 0);
+			if (automaticChangeLogging) {
+				if (entity.hasChangeLogging()) {
+					change = entity.createChangeDescription();
+					hasChanges = (change != null && change.length() > 0);
 				} else {
 					// delete flag after skipping of change log
-					rEntity.deleteRelation(SKIP_NEXT_CHANGE_LOGGING);
+					entity.deleteRelation(SKIP_NEXT_CHANGE_LOGGING);
 				}
 			}
 
-			rEntity.set(ENTITY_STORE_ORIGIN, rChangeOrigin);
+			entity.set(ENTITY_STORE_ORIGIN, changeOrigin);
 
-			if (bHasChanges ||
-				(!bAutomaticChangeLogging && rEntity.hasFlag(MODIFIED))) {
-				rEntity.set(LAST_CHANGE, new Date());
+			if (hasChanges ||
+				(!automaticChangeLogging && entity.hasFlag(MODIFIED))) {
+				entity.set(LAST_CHANGE, new Date());
 			}
 
-			if (bHistoryGroup) {
-				String sGroup = "Store " + rEntity;
+			if (historyGroup) {
+				String group = "Store " + entity;
 
-				HistoryManager.begin(rChangeOrigin, rEntity, sGroup);
+				HistoryManager.begin(changeOrigin, entity, group);
 			}
 
-			rStorage.store(rEntity);
+			storage.store(entity);
 
-			if (rStoreEntity != rEntity && rStoreEntity.hasFlag(MODIFIED)) {
+			if (storeEntity != entity && storeEntity.hasFlag(MODIFIED)) {
 				// store original entity if still modified to make changes
 				// persistent even if the parent hierarchy doesn't contain it
 				// in the case of not cached entities
 				// TODO: check if still necessary
-				rStorage.store(rStoreEntity);
+				storage.store(storeEntity);
 			}
 
-			if (bHasChanges) {
+			if (hasChanges) {
 				// history must be stored after the entity to prevent endless
 				// recursion because of the entity reference in the record
-				if (bNewEntity) {
+				if (newEntity) {
 					@SuppressWarnings("boxing")
-					String sNewId = String.format("<NEW:%s>", rEntity.getId());
+					String newId = String.format("<NEW:%s>", entity.getId());
 
-					sChange = sChange.replaceFirst("<NEW>", sNewId);
+					change = change.replaceFirst("<NEW>", newId);
 				}
 
-				HistoryManager.record(HistoryType.CHANGE, rChangeOrigin,
-					rEntity, sChange);
+				HistoryManager.record(HistoryType.CHANGE, changeOrigin, entity,
+					change);
 			}
 
-			if (rDependentEntities != null) {
-				for (Entity rDependentEntity : rDependentEntities) {
-					storeEntity(rDependentEntity, rChangeOrigin, false);
+			if (dependentEntities != null) {
+				for (Entity dependentEntity : dependentEntities) {
+					storeEntity(dependentEntity, changeOrigin, false);
 				}
 			}
 
-			if (bHistoryGroup) {
+			if (historyGroup) {
 				HistoryManager.commit(false);
-				bHistoryGroup = false;
+				historyGroup = false;
 			}
 
 			TransactionManager.commit();
-			cacheEntity(rEntity);
+			cacheEntity(entity);
 
-			STORE_LISTENERS.notifyListeners(EntityManager.class, rEntity);
-			rEntity.deleteRelation(ENTITY_STORE_ORIGIN);
+			STORE_LISTENERS.notifyListeners(EntityManager.class, entity);
+			entity.deleteRelation(ENTITY_STORE_ORIGIN);
 		} catch (Exception e) {
-			if (bHistoryGroup) {
+			if (historyGroup) {
 				HistoryManager.rollback();
 			}
 
@@ -2224,7 +2206,7 @@ public class EntityManager {
 				throw new TransactionException("Could not store entity", e);
 			}
 		} finally {
-			rStorage.release();
+			storage.release();
 		}
 	}
 
@@ -2236,63 +2218,62 @@ public class EntityManager {
 	 * try-with-resource
 	 * block to ensure the stream is closed correctly.
 	 *
-	 * @param qEntities The entity query
+	 * @param entities The entity query
 	 * @return A stream of entities
 	 */
 	public static <E extends Entity> Stream<E> stream(
-		QueryPredicate<E> qEntities) {
-		EntityIterator<E> aIterator = new EntityIterator<>(qEntities);
-		Spliterator<E> aSpliterator =
-			Spliterators.spliterator(aIterator, (long) aIterator.size(), 0);
+		QueryPredicate<E> entities) {
+		EntityIterator<E> iterator = new EntityIterator<>(entities);
+		Spliterator<E> spliterator =
+			Spliterators.spliterator(iterator, iterator.size(), 0);
 
 		return StreamSupport
-			.stream(aSpliterator, false)
-			.onClose(() -> aIterator.close());
+			.stream(spliterator, false)
+			.onClose(() -> iterator.close());
 	}
 
 	/**
 	 * Throws a {@link ConcurrentEntityModificationException} initialized with
 	 * the given parameters.
 	 *
-	 * @param rEntity        The entity for which to throw the exception
-	 * @param sMessageFormat The message format string
-	 * @param rMessageArgs   The message format arguments
+	 * @param entity        The entity for which to throw the exception
+	 * @param messageFormat The message format string
+	 * @param messageArgs   The message format arguments
 	 */
-	private static void throwConcurrentEntityModification(Entity rEntity,
-		String sMessageFormat, Object... rMessageArgs)
+	private static void throwConcurrentEntityModification(Entity entity,
+		String messageFormat, Object... messageArgs)
 		throws ConcurrentEntityModificationException {
-		sMessageFormat = String.format(sMessageFormat, rMessageArgs);
+		messageFormat = String.format(messageFormat, messageArgs);
 
-		throw new ConcurrentEntityModificationException(rEntity,
-			sMessageFormat);
+		throw new ConcurrentEntityModificationException(entity, messageFormat);
 	}
 
 	/**
 	 * Checks whether a synchronization endpoint is available and if so, tries
 	 * to register an entity lock on it.
 	 *
-	 * @param rEntity The entity to lock
+	 * @param entity The entity to lock
 	 */
-	static void trySyncEndpointLock(Entity rEntity) {
-		if (bSyncServiceEnabled && rEntitySyncEndpoint.isPresent()) {
-			String sResponse = "";
+	static void trySyncEndpointLock(Entity entity) {
+		if (syncServiceEnabled && entitySyncEndpoint.isPresent()) {
+			String response = "";
 
 			try {
-				EndpointFunction<SyncData, String> fRequestLock =
-					requestLock().from(rEntitySyncEndpoint.get());
+				EndpointFunction<SyncData, String> requestLock =
+					requestLock().from(entitySyncEndpoint.get());
 
-				sResponse = fRequestLock.send(
-					syncRequest(sEntitySyncClientId, sEntitySyncContext,
-						rEntity.getGlobalId()));
+				response = requestLock.send(
+					syncRequest(entitySyncClientId, entitySyncContext,
+						entity.getGlobalId()));
 			} catch (Exception e) {
 				// just log but continue with local lock mechanism
 				Log.errorf(e, "Error communicating with sync endpoint at %s",
-					rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
+					entitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
 			}
 
-			if (!"".equals(sResponse)) {
-				throwConcurrentEntityModification(rEntity, MSG_ENTITY_LOCKED,
-					rEntity, sResponse);
+			if (!"".equals(response)) {
+				throwConcurrentEntityModification(entity, MSG_ENTITY_LOCKED,
+					entity, response);
 			}
 		}
 	}
@@ -2301,25 +2282,25 @@ public class EntityManager {
 	 * Checks whether a synchronization endpoint is available and if so,
 	 * releases an entity lock from it.
 	 *
-	 * @param rEntity The entity to unlock
+	 * @param entity The entity to unlock
 	 */
-	static void trySyncEndpointRelease(Entity rEntity) {
-		if (bSyncServiceEnabled && rEntitySyncEndpoint.isPresent()) {
+	static void trySyncEndpointRelease(Entity entity) {
+		if (syncServiceEnabled && entitySyncEndpoint.isPresent()) {
 			try {
-				EndpointFunction<SyncData, String> fReleaseLock =
-					releaseLock().from(rEntitySyncEndpoint.get());
+				EndpointFunction<SyncData, String> releaseLock =
+					releaseLock().from(entitySyncEndpoint.get());
 
-				String sResponse = fReleaseLock.send(
-					syncRequest(sEntitySyncClientId, sEntitySyncContext,
-						rEntity.getGlobalId()));
+				String response = releaseLock.send(
+					syncRequest(entitySyncClientId, entitySyncContext,
+						entity.getGlobalId()));
 
-				if (!"".equals(sResponse)) {
+				if (!"".equals(response)) {
 					Log.warnf("Releasing entity lock for %s failed: %s",
-						rEntity.getGlobalId(), sResponse);
+						entity.getGlobalId(), response);
 				}
 			} catch (Exception e) {
 				Log.warnf(e, "Error communicating with sync endpoint at %s",
-					rEntitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
+					entitySyncEndpoint.get().get(ENDPOINT_ADDRESS));
 			}
 		}
 	}
@@ -2330,15 +2311,15 @@ public class EntityManager {
 	 *
 	 * @author eso
 	 */
-	public static interface StoreListener {
+	public interface StoreListener {
 
 		/**
 		 * Will be invoked after an entity has been stored through the entity
 		 * manager.
 		 *
-		 * @param rEntity The entity that has been stored
+		 * @param entity The entity that has been stored
 		 */
-		public void entityStored(Entity rEntity);
+		void entityStored(Entity entity);
 	}
 
 	/**
@@ -2352,7 +2333,7 @@ public class EntityManager {
 		/**
 		 * Implemented to create a new instance of {@link EntityDefinition}. It
 		 * first tries to create an instance of an inner class named
-		 * 'Definition' (i.e. of the class rType.getName() + "$Definition"). If
+		 * 'Definition' (i.e. of the class type.getName() + "$Definition"). If
 		 * it exists it must have a no-argument constructor. If not a standard
 		 * entity definition will be created and returned.
 		 *
@@ -2360,27 +2341,27 @@ public class EntityManager {
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public StorageMapping<Entity, ?, ?> createMapping(Class<Entity> rType) {
-			EntityDefinition<? extends Entity> aResult =
-				aEntityDefinitions.get(rType);
+		public StorageMapping<Entity, ?, ?> createMapping(Class<Entity> type) {
+			EntityDefinition<? extends Entity> result =
+				entityDefinitions.get(type);
 
-			if (aResult == null) {
+			if (result == null) {
 				try {
-					String sDefinitionClass = rType.getName() + "$Definition";
+					String definitionClass = type.getName() + "$Definition";
 
-					Class<EntityDefinition<Entity>> rTypeDefinitionClass =
+					Class<EntityDefinition<Entity>> entityDefinitionClass =
 						(Class<EntityDefinition<Entity>>) Class.forName(
-							sDefinitionClass);
+							definitionClass);
 
-					aResult = ReflectUtil.newInstance(rTypeDefinitionClass);
+					result = ReflectUtil.newInstance(entityDefinitionClass);
 				} catch (ClassNotFoundException e) {
-					aResult = new EntityDefinition<Entity>(rType, null);
+					result = new EntityDefinition<Entity>(type, null);
 				}
 
-				aEntityDefinitions.put(rType, aResult);
+				entityDefinitions.put(type, result);
 			}
 
-			return (StorageMapping<Entity, ?, ?>) aResult;
+			return (StorageMapping<Entity, ?, ?>) result;
 		}
 	}
 }

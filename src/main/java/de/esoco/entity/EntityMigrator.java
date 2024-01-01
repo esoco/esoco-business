@@ -22,12 +22,12 @@ import de.esoco.lib.logging.Log;
 import de.esoco.lib.logging.LogLevel;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.reflect.ReflectUtil;
-
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryResult;
 import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityPredicates.forEntity;
 
@@ -51,35 +49,35 @@ import static de.esoco.entity.EntityPredicates.forEntity;
 public class EntityMigrator<S extends Entity, T extends Entity>
 	implements Function<S, T> {
 
-	private static Set<Entity> aMigratedEntities = new HashSet<Entity>();
+	private static final Set<Entity> migratedEntities = new HashSet<Entity>();
 
-	private final Class<S> rSourceType;
+	private final Class<S> sourceType;
 
-	private final Class<T> rTargetType;
+	private final Class<T> targetType;
 
 	private final Map<RelationType<?>, Function<? super Entity, ?>>
-		aAttributeRules =
+		attributeRules =
 		new LinkedHashMap<RelationType<?>, Function<? super Entity, ?>>();
 
 	private final Map<RelationType<? extends List<? extends Entity>>,
 		EntityMigrator<?, ?>>
-		aChildMigrators =
+		childMigrators =
 		new LinkedHashMap<RelationType<? extends List<? extends Entity>>,
 			EntityMigrator<?, ?>>();
 
-	private boolean bVerbose = false;
+	private boolean verbose = false;
 
-	private T aTarget;
+	private T target;
 
 	/**
 	 * Creates a new instance for certain source and target entity definition.
 	 *
-	 * @param rSourceType The source entity definition
-	 * @param rTargetType The target entity definition
+	 * @param sourceType The source entity definition
+	 * @param targetType The target entity definition
 	 */
-	public EntityMigrator(Class<S> rSourceType, Class<T> rTargetType) {
-		this.rSourceType = rSourceType;
-		this.rTargetType = rTargetType;
+	public EntityMigrator(Class<S> sourceType, Class<T> targetType) {
+		this.sourceType = sourceType;
+		this.targetType = targetType;
 	}
 
 	/**
@@ -90,9 +88,9 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	public T evaluate(S rSource) {
+	public T evaluate(S source) {
 		try {
-			return migrateEntity(rSource);
+			return migrateEntity(source);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -104,76 +102,75 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * @return The target type class
 	 */
 	public Class<T> getTargetType() {
-		return rTargetType;
+		return targetType;
 	}
 
 	/**
 	 * Migrates a certain set of entities according to the rules of this
 	 * instance.
 	 *
-	 * @param rCriteria The criteria to limit the migrated entities or NULL for
-	 *                  all entities of the source type
+	 * @param criteria The criteria to limit the migrated entities or NULL for
+	 *                 all entities of the source type
 	 * @throws Exception If the migration fails
 	 */
 	@SuppressWarnings("boxing")
-	public void migrateEntities(Predicate<? super Entity> rCriteria)
+	public void migrateEntities(Predicate<? super Entity> criteria)
 		throws Exception {
-		Storage rSourceStorage = StorageManager.getStorage(rSourceType);
-		Storage rTargetStorage = StorageManager.getStorage(rTargetType);
+		Storage sourceStorage = StorageManager.getStorage(sourceType);
+		Storage targetStorage = StorageManager.getStorage(targetType);
 
-		Query<S> aQuery =
-			rSourceStorage.query(forEntity(rSourceType, rCriteria));
-		QueryResult<S> aEntities = aQuery.execute();
+		Query<S> query = sourceStorage.query(forEntity(sourceType, criteria));
+		QueryResult<S> entities = query.execute();
 
-		int nCount = aQuery.size();
-		int nStep = nCount / 50 + 1;
+		int count = query.size();
+		int step = count / 50 + 1;
 
 		if (Log.isLevelEnabled(LogLevel.INFO) ||
 			Log.isLevelEnabled(LogLevel.DEBUG) ||
 			Log.isLevelEnabled(LogLevel.TRACE)) {
 			// disable progress display
-			nStep = nCount + 1;
+			step = count + 1;
 		}
 
 		try {
 			init();
 
-			System.out.printf("Migrating %s to %s [%d]\n", rSourceType,
-				rTargetType, nCount);
+			System.out.printf("Migrating %s to %s [%d]\n", sourceType,
+				targetType, count);
 
-			while (aEntities.hasNext()) {
-				S aSourceEntity = aEntities.next();
-				T aTargetEntity = migrateEntity(aSourceEntity);
+			while (entities.hasNext()) {
+				S sourceEntity = entities.next();
+				T targetEntity = migrateEntity(sourceEntity);
 
-				if (aTargetEntity != null) {
-					if (bVerbose) {
-						System.out.printf("Migrated: \n");
-						aSourceEntity.printHierarchy(System.out);
-						System.out.printf("To: \n");
-						aTargetEntity.printHierarchy(System.out);
+				if (targetEntity != null) {
+					if (verbose) {
+						System.out.print("Migrated: \n");
+						sourceEntity.printHierarchy(System.out);
+						System.out.print("To: \n");
+						targetEntity.printHierarchy(System.out);
 					}
 
-					aMigratedEntities.add(aTargetEntity);
-					storeEntity(aTargetEntity);
-					afterStore(aTargetEntity, aSourceEntity);
-				} else if (bVerbose) {
-					System.out.printf("Skipped: " + aSourceEntity);
+					migratedEntities.add(targetEntity);
+					storeEntity(targetEntity);
+					afterStore(targetEntity, sourceEntity);
+				} else if (verbose) {
+					System.out.printf("Skipped: " + sourceEntity);
 				}
 
-				if (!bVerbose && (nCount-- % nStep) == 0) {
+				if (!verbose && (count-- % step) == 0) {
 					System.out.print("+");
 				}
 			}
 
-			System.out.printf("\n");
+			System.out.print("\n");
 
 			finish();
 		} finally {
 			try {
-				aQuery.close();
+				query.close();
 			} finally {
-				rSourceStorage.release();
-				rTargetStorage.release();
+				sourceStorage.release();
+				targetStorage.release();
 			}
 		}
 	}
@@ -183,7 +180,7 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * subclass may return NULL to omit certain source entities from the
 	 * migration.
 	 *
-	 * @param rSource The entity to migrate
+	 * @param source The entity to migrate
 	 * @return The resulting entity of the target definition or NULL if the
 	 * entity shall not be migrated
 	 * @throws StorageException     If retrieving an entity from a storage
@@ -191,16 +188,16 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * @throws TransactionException If the transaction for storing the target
 	 *                              entity fails
 	 */
-	public T migrateEntity(S rSource)
+	public T migrateEntity(S source)
 		throws StorageException, TransactionException {
-		assert rSource.getClass() == rSourceType;
+		assert source.getClass() == sourceType;
 
-		aTarget = ReflectUtil.newInstance(rTargetType);
+		target = ReflectUtil.newInstance(targetType);
 
-		migrateAttributes(rSource, aTarget);
-		migrateChildren(rSource, aTarget);
+		migrateAttributes(source, target);
+		migrateChildren(source, target);
 
-		return aTarget;
+		return target;
 	}
 
 	/**
@@ -209,26 +206,25 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * generates the global string ID of the referenced entity from the source
 	 * entity. If it is NULL the given target attribute will be ignored.
 	 *
-	 * @param rTargetAttribute The attribute of the target entity to set
-	 * @param rRule            A rule that creates the ID of the referenced
-	 *                         entity or NULL to ignore the attribute
+	 * @param targetAttribute The attribute of the target entity to set
+	 * @param rule            A rule that creates the ID of the referenced
+	 *                        entity or NULL to ignore the attribute
 	 */
-	public void setArbitraryEntityReferenceRule(
-		RelationType<?> rTargetAttribute,
-		Function<? super Entity, String> rRule) {
-		aAttributeRules.put(rTargetAttribute, rRule);
+	public void setArbitraryEntityReferenceRule(RelationType<?> targetAttribute,
+		Function<? super Entity, String> rule) {
+		attributeRules.put(targetAttribute, rule);
 	}
 
 	/**
 	 * Sets a simple copy migration rule for a particular set of source and
 	 * target attributes.
 	 *
-	 * @param rSourceAttribute The source attribute to copy
-	 * @param rTargetAttribute The target attribute to set
+	 * @param sourceAttribute The source attribute to copy
+	 * @param targetAttribute The target attribute to set
 	 */
-	public <A> void setAttributeCopyRule(RelationType<A> rSourceAttribute,
-		RelationType<A> rTargetAttribute) {
-		setAttributeRule(rTargetAttribute, rSourceAttribute);
+	public <A> void setAttributeCopyRule(RelationType<A> sourceAttribute,
+		RelationType<A> targetAttribute) {
+		setAttributeRule(targetAttribute, sourceAttribute);
 	}
 
 	/**
@@ -237,14 +233,13 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * attribute value from the source entity. If it is NULL the given target
 	 * attribute will be ignored.
 	 *
-	 * @param rTargetAttribute The attribute of the target entity to set
-	 * @param rRule            A rule that creates the target attribute
-	 *                            value or
-	 *                         NULL to ignore the attribute
+	 * @param targetAttribute The attribute of the target entity to set
+	 * @param rule            A rule that creates the target attribute value or
+	 *                        NULL to ignore the attribute
 	 */
-	public <A> void setAttributeRule(RelationType<A> rTargetAttribute,
-		Function<? super Entity, A> rRule) {
-		aAttributeRules.put(rTargetAttribute, rRule);
+	public <A> void setAttributeRule(RelationType<A> targetAttribute,
+		Function<? super Entity, A> rule) {
+		attributeRules.put(targetAttribute, rule);
 	}
 
 	/**
@@ -253,14 +248,15 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * migrator is set to NULL the children of the given type will be ignored
 	 * during the migration.
 	 *
-	 * @param rTargetChildAttribute The target child attribute to migrate
-	 * @param rMigrator             The child migrator or NULL to ignore
-	 *                              children of this type
+	 * @param targetChildAttribute The target child attribute to migrate
+	 * @param migrator             The child migrator or NULL to ignore
+	 *                                children
+	 *                             of this type
 	 */
 	public void setChildMigrator(
-		RelationType<? extends List<? extends Entity>> rTargetChildAttribute,
-		EntityMigrator<?, ?> rMigrator) {
-		aChildMigrators.put(rTargetChildAttribute, rMigrator);
+		RelationType<? extends List<? extends Entity>> targetChildAttribute,
+		EntityMigrator<?, ?> migrator) {
+		childMigrators.put(targetChildAttribute, migrator);
 	}
 
 	/**
@@ -269,13 +265,13 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * creates the integer ID of the referenced entity from the source entity.
 	 * If it is NULL the given target attribute will be ignored.
 	 *
-	 * @param rTargetAttribute The attribute of the target entity to set
-	 * @param rRule            A rule that creates the ID of the referenced
-	 *                         entity or NULL to ignore the attribute
+	 * @param targetAttribute The attribute of the target entity to set
+	 * @param rule            A rule that creates the ID of the referenced
+	 *                        entity or NULL to ignore the attribute
 	 */
-	public void setEntityReferenceRule(RelationType<?> rTargetAttribute,
-		Function<? super Entity, Integer> rRule) {
-		aAttributeRules.put(rTargetAttribute, rRule);
+	public void setEntityReferenceRule(RelationType<?> targetAttribute,
+		Function<? super Entity, Integer> rule) {
+		attributeRules.put(targetAttribute, rule);
 	}
 
 	/**
@@ -283,11 +279,11 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * shortcut for invoking {@link #setAttributeRule(RelationType, Function)}
 	 * with a rule value of NULL.
 	 *
-	 * @param rAttributes The target attributes to be ignored
+	 * @param attributes The target attributes to be ignored
 	 */
-	public void setIgnoredAttributes(RelationType<?>... rAttributes) {
-		for (RelationType<?> rAttribute : rAttributes) {
-			setAttributeRule(rAttribute, null);
+	public void setIgnoredAttributes(RelationType<?>... attributes) {
+		for (RelationType<?> attribute : attributes) {
+			setAttributeRule(attribute, null);
 		}
 	}
 
@@ -296,24 +292,24 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * and target entities processed during migration will be output to the
 	 * console. The default value is FALSE.
 	 *
-	 * @param bVerbose TRUE for verbose mode, FALSE for quiet mode
+	 * @param verbose TRUE for verbose mode, FALSE for quiet mode
 	 */
-	public void setVerbose(boolean bVerbose) {
-		this.bVerbose = bVerbose;
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 	/**
 	 * Can be overridden when there is need to perform any action on the newly
 	 * stored entity.
 	 *
-	 * @param rTarget The migrated and stored entity
-	 * @param rSource The entity that has been migrated
+	 * @param target The migrated and stored entity
+	 * @param source The entity that has been migrated
 	 * @throws StorageException     If retrieving an entity from a storage
 	 *                              fails
 	 * @throws TransactionException If the transaction for storing an entity
 	 *                              fails
 	 */
-	protected void afterStore(T rTarget, S rSource)
+	protected void afterStore(T target, S source)
 		throws StorageException, TransactionException {
 	}
 
@@ -345,64 +341,63 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * Migrates the attributes from a source entity to the target entity
 	 * according to the defined migration rules.
 	 *
-	 * @param rSource The source entity
-	 * @param rTarget The target entity
+	 * @param source The source entity
+	 * @param target The target entity
 	 * @throws StorageException If retrieving an entity from a storage fails
 	 */
 	@SuppressWarnings({ "boxing", "unchecked" })
-	protected void migrateAttributes(S rSource, T rTarget)
+	protected void migrateAttributes(S source, T target)
 		throws StorageException {
-		Set<RelationType<?>> aAttributes = new HashSet<RelationType<?>>(
-			EntityManager.getEntityDefinition(rTargetType).getAttributes());
+		Set<RelationType<?>> attributes = new HashSet<RelationType<?>>(
+			EntityManager.getEntityDefinition(targetType).getAttributes());
 
-		for (Entry<RelationType<?>, Function<? super Entity, ?>> rEntry :
-			aAttributeRules.entrySet()) {
-			RelationType<?> rAttribute = rEntry.getKey();
-			Function<? super Entity, ?> rRule = rEntry.getValue();
+		for (Entry<RelationType<?>, Function<? super Entity, ?>> entry :
+			attributeRules.entrySet()) {
+			RelationType<?> attribute = entry.getKey();
+			Function<? super Entity, ?> rule = entry.getValue();
 
-			if (rRule != null) {
-				Object rValue = rRule.evaluate(rSource);
-				Class<?> rAttrType = rAttribute.getTargetType();
+			if (rule != null) {
+				Object value = rule.evaluate(source);
+				Class<?> attrType = attribute.getTargetType();
 
-				if (Entity.class.isAssignableFrom(rAttrType)) {
-					if (rValue instanceof String) {
-						Entity rEntity =
-							EntityManager.queryEntity((String) rValue);
+				if (Entity.class.isAssignableFrom(attrType)) {
+					if (value instanceof String) {
+						Entity entity =
+							EntityManager.queryEntity((String) value);
 
-						if (rEntity == null) {
+						if (entity == null) {
 							throw new IllegalStateException(String.format(
 								"Could not find referenced entity %s with ID" +
-									" " + "%s", rAttrType, rValue));
+									" " + "%s", attrType, value));
 						}
 
-						rValue = rEntity;
-					} else if (rValue instanceof Integer) {
-						int nId = ((Integer) rValue).intValue();
+						value = entity;
+					} else if (value instanceof Integer) {
+						int id = ((Integer) value).intValue();
 
-						if (nId > 0) {
-							rValue = EntityManager.queryEntity(
-								(Class<Entity>) rAttrType, nId);
+						if (id > 0) {
+							value = EntityManager.queryEntity(
+								(Class<Entity>) attrType, id);
 
-							if (rValue == null) {
+							if (value == null) {
 								throw new IllegalStateException(String.format(
 									"Could not find referenced entity %s " +
-										"with" +
-										" " + "ID %d", rAttrType, nId));
+										"with" + " " + "ID %d", attrType, id));
 							}
 						} else {
-							rValue = null;
+							value = null;
 						}
 					}
 				}
 
-				rTarget.set((RelationType<Object>) rAttribute, rValue);
+				target.set((RelationType<Object>) attribute, value);
 			}
 
-			aAttributes.remove(rAttribute);
+			attributes.remove(attribute);
 		}
 
-		if (aAttributes.size() > 0) {
-			Log.warn("Unconverted attributes: " + aAttributes);
+		if (attributes.size() > 0) {
+			Log.warn("Unconverted attributes: " + attributes);
 		}
 	}
 
@@ -410,87 +405,85 @@ public class EntityMigrator<S extends Entity, T extends Entity>
 	 * Migrates the child entities from a source entity to the target entity
 	 * according to the defined migration rules.
 	 *
-	 * @param rSource The source entity
-	 * @param rTarget The target entity
+	 * @param source The source entity
+	 * @param target The target entity
 	 * @throws StorageException     If retrieving an entity from a storage
 	 *                              fails
 	 * @throws TransactionException If storing an entity fails
 	 */
-	protected void migrateChildren(Entity rSource, Entity rTarget)
+	protected void migrateChildren(Entity source, Entity target)
 		throws StorageException, TransactionException {
-		Set<RelationType<?>> aChildAttributes = new HashSet<RelationType<?>>(
-			EntityManager
-				.getEntityDefinition(rTargetType)
-				.getChildAttributes());
+		Set<RelationType<?>> childAttributes = new HashSet<RelationType<?>>(
+			EntityManager.getEntityDefinition(targetType).getChildAttributes());
 
 		for (Entry<RelationType<? extends List<? extends Entity>>,
-			EntityMigrator<?, ?>> rEntry : aChildMigrators.entrySet()) {
+			EntityMigrator<?, ?>> entry : childMigrators.entrySet()) {
 			@SuppressWarnings("unchecked")
-			RelationType<List<Entity>> rTargetChildAttr =
-				(RelationType<List<Entity>>) rEntry.getKey();
+			RelationType<List<Entity>> targetChildAttr =
+				(RelationType<List<Entity>>) entry.getKey();
 
 			@SuppressWarnings("unchecked")
-			EntityMigrator<Entity, Entity> rChildMigrator =
-				(EntityMigrator<Entity, Entity>) rEntry.getValue();
+			EntityMigrator<Entity, Entity> childMigrator =
+				(EntityMigrator<Entity, Entity>) entry.getValue();
 
-			if (rChildMigrator != null) {
+			if (childMigrator != null) {
 				@SuppressWarnings("unchecked")
-				EntityDefinition<Entity> rSourceDef =
+				EntityDefinition<Entity> sourceDef =
 					(EntityDefinition<Entity>) EntityManager.getEntityDefinition(
-						rSourceType);
+						sourceType);
 
-				Collection<Entity> rSourceChildren =
-					rSourceDef.getChildren(rSource,
+				Collection<Entity> sourceChildren =
+					sourceDef.getChildren(source,
 						EntityManager.getEntityDefinition(
-							rChildMigrator.rSourceType));
+							childMigrator.sourceType));
 
-				List<Entity> aTargetChildren =
-					new ArrayList<Entity>(rSourceChildren.size());
+				List<Entity> targetChildren =
+					new ArrayList<Entity>(sourceChildren.size());
 
-				for (Entity rSourceChild : rSourceChildren) {
-					Entity aTargetChild =
-						rChildMigrator.migrateEntity(rSourceChild);
+				for (Entity sourceChild : sourceChildren) {
+					Entity targetChild =
+						childMigrator.migrateEntity(sourceChild);
 
-					if (aTargetChild != null) {
-						aTargetChildren.add(aTargetChild);
+					if (targetChild != null) {
+						targetChildren.add(targetChild);
 					}
 				}
 
-				if (aTargetChildren.size() > 0) {
-					Entity[] aEntities = new Entity[aTargetChildren.size()];
+				if (targetChildren.size() > 0) {
+					Entity[] entities = new Entity[targetChildren.size()];
 
-					rTarget.addChildren(rTargetChildAttr,
-						aTargetChildren.toArray(aEntities));
+					target.addChildren(targetChildAttr,
+						targetChildren.toArray(entities));
 				}
 			}
 
-			aChildAttributes.remove(rTargetChildAttr);
+			childAttributes.remove(targetChildAttr);
 		}
 
-		if (aChildAttributes.size() > 0) {
-			Log.warn("Unconverted children: " + aChildAttributes);
+		if (childAttributes.size() > 0) {
+			Log.warn("Unconverted children: " + childAttributes);
 		}
 	}
 
 	/**
 	 * Stores an entity in the target storage.
 	 *
-	 * @param rEntity The entity to store
+	 * @param entity The entity to store
 	 * @throws StorageException If storing the entity fails
 	 */
-	protected void storeEntity(Entity rEntity) throws StorageException {
-		Storage rTargetStorage = StorageManager.getStorage(rTargetType);
+	protected void storeEntity(Entity entity) throws StorageException {
+		Storage targetStorage = StorageManager.getStorage(targetType);
 
 		// always store the parent to update child references if necessary
-		while (rEntity.getParent() != null) {
-			rEntity = rEntity.getParent();
+		while (entity.getParent() != null) {
+			entity = entity.getParent();
 		}
 
 		try {
-			rTargetStorage.store(rEntity);
-			EntityManager.cacheEntity(rEntity);
+			targetStorage.store(entity);
+			EntityManager.cacheEntity(entity);
 		} finally {
-			rTargetStorage.release();
+			targetStorage.release();
 		}
 	}
 }

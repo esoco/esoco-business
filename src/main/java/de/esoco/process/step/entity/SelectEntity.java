@@ -20,24 +20,22 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDefinition;
 import de.esoco.entity.EntityDefinition.DisplayMode;
 import de.esoco.entity.EntityManager;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.process.step.DialogFragment;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.storage.QueryPredicate;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
-import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+import static de.esoco.lib.property.UserInterfaceProperties.HIDE_LABEL;
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -63,41 +61,41 @@ public class SelectEntity<E extends Entity> extends InteractionFragment {
 	private static final long serialVersionUID = 1L;
 
 	private static final List<RelationType<?>> INTERACTION_PARAMS =
-		Arrays.<RelationType<?>>asList(SELECTED_ENTITY);
+		Collections.singletonList(SELECTED_ENTITY);
 
 	private static final List<RelationType<?>> INPUT_PARAMS =
-		Arrays.<RelationType<?>>asList(SELECTED_ENTITY);
+		Collections.singletonList(SELECTED_ENTITY);
 
 	static {
 		RelationTypes.init(SelectEntity.class);
 	}
 
-	List<Function<? super E, ?>> rAttributes;
+	List<Function<? super E, ?>> attributes;
 
-	private QueryPredicate<E> qSelectableEntities;
+	private final QueryPredicate<E> selectableEntities;
 
-	private Predicate<? super Entity> pSortOrder;
+	private final Predicate<? super Entity> sortOrder;
 
-	private boolean bValidateSelection;
+	private final boolean validateSelection;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param qSelectableEntities The class of the entity type to select
-	 * @param pSortOrder          A predicate defining the sorting of the
-	 *                            entities or NULL for the default order
-	 * @param rAttributes         The entity attributes to display
-	 * @param bValidateSelection  TRUE to validate that an entity has been
-	 *                            selected; FALSE to allow no selection (i.e. a
-	 *                            NULL value) without a validation error
+	 * @param selectableEntities The class of the entity type to select
+	 * @param sortOrder          A predicate defining the sorting of the
+	 *                           entities or NULL for the default order
+	 * @param attributes         The entity attributes to display
+	 * @param validateSelection  TRUE to validate that an entity has been
+	 *                           selected; FALSE to allow no selection (i.e. a
+	 *                           NULL value) without a validation error
 	 */
-	public SelectEntity(QueryPredicate<E> qSelectableEntities,
-		Predicate<? super Entity> pSortOrder,
-		List<Function<? super E, ?>> rAttributes, boolean bValidateSelection) {
-		this.qSelectableEntities = qSelectableEntities;
-		this.pSortOrder = pSortOrder;
-		this.rAttributes = rAttributes;
-		this.bValidateSelection = bValidateSelection;
+	public SelectEntity(QueryPredicate<E> selectableEntities,
+		Predicate<? super Entity> sortOrder,
+		List<Function<? super E, ?>> attributes, boolean validateSelection) {
+		this.selectableEntities = selectableEntities;
+		this.sortOrder = sortOrder;
+		this.attributes = attributes;
+		this.validateSelection = validateSelection;
 	}
 
 	/**
@@ -120,13 +118,13 @@ public class SelectEntity<E extends Entity> extends InteractionFragment {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		if (rInteractionParam == SELECTED_ENTITY) {
-			InteractionFragment rParent = getParent();
+		if (interactionParam == SELECTED_ENTITY) {
+			InteractionFragment parent = getParent();
 
-			if (rParent instanceof DialogFragment) {
-				((DialogFragment) rParent).finishDialog(
+			if (parent instanceof DialogFragment) {
+				((DialogFragment) parent).finishDialog(
 					DialogFragment.DialogAction.OK);
 			}
 		}
@@ -148,34 +146,33 @@ public class SelectEntity<E extends Entity> extends InteractionFragment {
 	 */
 	@Override
 	public Map<RelationType<?>, String> validateParameters(
-		boolean bOnInteraction) {
-		Map<RelationType<?>, String> rInvalidParams =
-			super.validateParameters(bOnInteraction);
+		boolean onInteraction) {
+		Map<RelationType<?>, String> invalidParams =
+			super.validateParameters(onInteraction);
 
-		if (bValidateSelection && !bOnInteraction &&
+		if (validateSelection && !onInteraction &&
 			getParameter(SELECTED_ENTITY) == null) {
-			rInvalidParams.put(SELECTED_ENTITY, MSG_PARAM_NOT_SET);
+			invalidParams.put(SELECTED_ENTITY, MSG_PARAM_NOT_SET);
 		}
 
-		return rInvalidParams;
+		return invalidParams;
 	}
 
 	/**
 	 * Initializes the entity query.
 	 */
 	private void initEntityQuery() {
-		if (rAttributes == null) {
-			EntityDefinition<E> rDef = EntityManager.getEntityDefinition(
-				qSelectableEntities.getQueryType());
+		if (attributes == null) {
+			EntityDefinition<E> def = EntityManager.getEntityDefinition(
+				selectableEntities.getQueryType());
 
-			List<RelationType<?>> rDisplayAttr =
-				rDef.getDisplayAttributes(DisplayMode.COMPACT);
+			List<RelationType<?>> displayAttr =
+				def.getDisplayAttributes(DisplayMode.COMPACT);
 
-			rAttributes = new ArrayList<Function<? super E, ?>>(rDisplayAttr);
+			attributes = new ArrayList<Function<? super E, ?>>(displayAttr);
 		}
 
-		annotateForEntityQuery(SELECTED_ENTITY, qSelectableEntities,
-			pSortOrder,
-			rAttributes);
+		annotateForEntityQuery(SELECTED_ENTITY, selectableEntities, sortOrder,
+			attributes);
 	}
 }

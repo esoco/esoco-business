@@ -26,17 +26,17 @@ public class RegExValidator implements Validator<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private String sPattern;
+	private String pattern;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sPattern The regular expression pattern to validate against
+	 * @param pattern The regular expression pattern to validate against
 	 */
-	public RegExValidator(String sPattern) {
-		assert sPattern != null;
+	public RegExValidator(String pattern) {
+		assert pattern != null;
 
-		this.sPattern = sPattern;
+		this.pattern = pattern;
 	}
 
 	/**
@@ -49,18 +49,18 @@ public class RegExValidator implements Validator<String> {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		RegExValidator rOther = (RegExValidator) rObj;
+		RegExValidator other = (RegExValidator) obj;
 
-		return sPattern.equals(rOther.sPattern);
+		return pattern.equals(other.pattern);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class RegExValidator implements Validator<String> {
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * sPattern.hashCode();
+		return 37 * pattern.hashCode();
 	}
 
 	/**
@@ -78,8 +78,8 @@ public class RegExValidator implements Validator<String> {
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(String sValue) {
-		return sValue.matches(sPattern);
+	public boolean isValid(String value) {
+		return value.matches(pattern);
 	}
 
 	/**
@@ -88,6 +88,6 @@ public class RegExValidator implements Validator<String> {
 	 * @return The regular expression pattern
 	 */
 	protected final String getPattern() {
-		return sPattern;
+		return pattern;
 	}
 }

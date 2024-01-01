@@ -17,10 +17,8 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListLayoutStyle;
-
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EntityList.EntityListItem;
@@ -38,15 +36,15 @@ public abstract class AbstractEntityListItem<E extends Entity>
 
 	private static final long serialVersionUID = 1L;
 
-	private EntityList<?, ?> rEntityList;
+	private EntityList<?, ?> entityList;
 
-	private E rEntity = null;
+	private E entity = null;
 
-	private boolean bSelected = false;
+	private boolean selected = false;
 
-	private boolean bSimpleLayout;
+	private boolean simpleLayout;
 
-	private String sDefaultStyle;
+	private String defaultStyle;
 
 	/**
 	 * Creates a new instance.
@@ -61,7 +59,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	@Override
 	public final E getEntity() {
-		return rEntity;
+		return entity;
 	}
 
 	/**
@@ -69,7 +67,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	@Override
 	public void init() throws Exception {
-		layout(LayoutType.LIST_ITEM).style(sDefaultStyle);
+		layout(LayoutType.LIST_ITEM).style(defaultStyle);
 
 		initItemContent();
 	}
@@ -79,37 +77,37 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 */
 	@Override
 	public boolean isSelected() {
-		return bSelected;
+		return selected;
 	}
 
 	/**
 	 * Sets the default style.
 	 *
-	 * @param sStyle The new default style
+	 * @param style The new default style
 	 */
 	@Override
-	public void setDefaultStyle(String sStyle) {
-		sDefaultStyle = sStyle;
+	public void setDefaultStyle(String style) {
+		defaultStyle = style;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSelected(boolean bSelected) {
-		String sStyle = sDefaultStyle;
+	public void setSelected(boolean selected) {
+		String style = defaultStyle;
 
-		this.bSelected = bSelected;
+		this.selected = selected;
 
-		if (bSelected) {
-			sStyle += " selectedEntity";
+		if (selected) {
+			style += " selectedEntity";
 		}
 
-		fragmentParam().style(sStyle);
+		fragmentParam().style(style);
 
-		if (bSelected && !bSimpleLayout) {
+		if (selected && !simpleLayout) {
 			try {
-				updateContent(rEntity);
+				updateContent(entity);
 			} catch (Exception e) {
 				throw new RuntimeProcessException(this, e);
 			}
@@ -119,22 +117,22 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	/**
 	 * Updates the asset to be display by this instance.
 	 *
-	 * @param rEntity The asset for this item
+	 * @param entity The asset for this item
 	 */
 	@Override
-	public void updateEntity(E rEntity) {
-		this.rEntity = rEntity;
-		bSelected = false;
+	public void updateEntity(E entity) {
+		this.entity = entity;
+		selected = false;
 
 		try {
-			if (bSimpleLayout) {
-				updateContent(rEntity);
+			if (simpleLayout) {
+				updateContent(entity);
 			} else {
-				updateHeader(rEntity);
-				prepareContent(rEntity);
+				updateHeader(entity);
+				prepareContent(entity);
 
-				if (bSelected) {
-					updateContent(rEntity);
+				if (selected) {
+					updateContent(entity);
 				}
 			}
 		} catch (Exception e) {
@@ -146,14 +144,14 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * Internal method to create the event handling wrapper for the header
 	 * panel.
 	 *
-	 * @param rHeader The header panel fragment
+	 * @param header The header panel fragment
 	 */
-	protected void createHeaderPanel(InteractionFragment rHeader) {
-		rHeader
+	protected void createHeaderPanel(InteractionFragment header) {
+		header
 			.layout(LayoutType.HEADER)
 			.set(ACTION_EVENT_ON_ACTIVATION_ONLY)
 			.onAction(v -> handleItemSelection());
-		rHeader.panel(p -> initHeaderPanel(p));
+		header.panel(p -> initHeaderPanel(p));
 	}
 
 	/**
@@ -161,9 +159,9 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * this list item. The panel layout is pre-set to {@link LayoutType#GRID}
 	 * which can be overridden.
 	 *
-	 * @param rContentPanel The content panel fragment
+	 * @param contentPanel The content panel fragment
 	 */
-	protected abstract void initContentPanel(InteractionFragment rContentPanel);
+	protected abstract void initContentPanel(InteractionFragment contentPanel);
 
 	/**
 	 * Needs to be implemented to initialize the header panel of list items in
@@ -172,9 +170,9 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * panel layout is set to {@link LayoutType#GRID} which can be overridden.
 	 * The default implementation does nothing.
 	 *
-	 * @param rHeaderPanel The header panel fragment
+	 * @param headerPanel The header panel fragment
 	 */
-	protected void initHeaderPanel(InteractionFragment rHeaderPanel) {
+	protected void initHeaderPanel(InteractionFragment headerPanel) {
 	}
 
 	/**
@@ -188,7 +186,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	protected void initItemContent() {
 		fragmentParam().resid(getClass().getSimpleName());
 
-		if (!bSimpleLayout) {
+		if (!simpleLayout) {
 			panel(p -> createHeaderPanel(p));
 		}
 
@@ -201,7 +199,7 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * @return The simpleLayout value
 	 */
 	protected boolean isSimpleLayout() {
-		return bSimpleLayout;
+		return simpleLayout;
 	}
 
 	/**
@@ -214,10 +212,10 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * related
 	 * data.
 	 *
-	 * @param rEntity The entity to prepare the content from
+	 * @param entity The entity to prepare the content from
 	 * @throws Exception May throw any kind of exception on errors
 	 */
-	protected void prepareContent(E rEntity) throws Exception {
+	protected void prepareContent(E entity) throws Exception {
 	}
 
 	/**
@@ -227,17 +225,17 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * @see InteractionFragment#setParent(InteractionFragment)
 	 */
 	@Override
-	protected void setParent(InteractionFragment rParent) {
-		super.setParent(rParent);
+	protected void setParent(InteractionFragment parent) {
+		super.setParent(parent);
 
-		if (rParent != null) {
-			rEntityList = (EntityList<?, ?>) rParent.getParent();
+		if (parent != null) {
+			entityList = (EntityList<?, ?>) parent.getParent();
 
-			ListLayoutStyle eListLayout =
-				rParent.fragmentParam().get(LIST_LAYOUT_STYLE);
+			ListLayoutStyle listLayout =
+				parent.fragmentParam().get(LIST_LAYOUT_STYLE);
 
-			bSimpleLayout =
-				(eListLayout == null || eListLayout == ListLayoutStyle.SIMPLE);
+			simpleLayout =
+				(listLayout == null || listLayout == ListLayoutStyle.SIMPLE);
 		}
 	}
 
@@ -249,10 +247,10 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * of in {@link #prepareContent(Entity)} so that it is not invoked for each
 	 * item without the data being displayed.
 	 *
-	 * @param rEntity The new entity to update the parameters from
+	 * @param entity The new entity to update the parameters from
 	 * @throws Exception May throw any kind of exception on errors
 	 */
-	protected void updateContent(E rEntity) throws Exception {
+	protected void updateContent(E entity) throws Exception {
 	}
 
 	/**
@@ -261,16 +259,16 @@ public abstract class AbstractEntityListItem<E extends Entity>
 	 * other than {@link ListLayoutStyle#SIMPLE}). The default implementation
 	 * does nothing.
 	 *
-	 * @param rEntity The new entity to update the parameters from
+	 * @param entity The new entity to update the parameters from
 	 * @throws Exception May throw any kind of exception on errors
 	 */
-	protected void updateHeader(E rEntity) throws Exception {
+	protected void updateHeader(E entity) throws Exception {
 	}
 
 	/**
 	 * Handles the selection event for an item.
 	 */
 	void handleItemSelection() {
-		rEntityList.setSelection(this);
+		entityList.setSelection(this);
 	}
 }

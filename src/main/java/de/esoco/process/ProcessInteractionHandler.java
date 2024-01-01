@@ -28,10 +28,10 @@ public interface ProcessInteractionHandler {
 	 * process step. The process parameters for the interaction can be queried
 	 * from the given process step.
 	 *
-	 * @param rProcessStep The process step to perform the interaction for
+	 * @param processStep The process step to perform the interaction for
 	 * @throws Exception Any kind of exception may be thrown if the interaction
 	 *                   fails
 	 */
-	public void performInteraction(ProcessFragment rProcessStep)
+	void performInteraction(ProcessFragment processStep)
 		throws Exception;
 }

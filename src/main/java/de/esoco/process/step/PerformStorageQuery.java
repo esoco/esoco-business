@@ -17,11 +17,9 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.expression.Function;
-
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ProcessStep;
-
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.QueryResult;
@@ -29,7 +27,6 @@ import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
 import de.esoco.storage.StorageRelationTypes;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
@@ -37,12 +34,10 @@ import static de.esoco.process.ProcessRelationTypes.PROGRESS;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_DESCRIPTION;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_MAXIMUM;
 import static de.esoco.process.ProcessRelationTypes.TARGET_PARAM;
-
 import static de.esoco.storage.StorageRelationTypes.STORAGE_QUERY;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_QUERY_PREDICATE;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_QUERY_RESULT;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_QUERY_SIZE;
-
 import static org.obrel.core.RelationTypes.newRelationType;
 
 /**
@@ -110,15 +105,15 @@ public class PerformStorageQuery extends ProcessStep {
 	 */
 	@Override
 	protected void cleanup() {
-		Query<?> rQuery = getParameter(STORAGE_QUERY);
+		Query<?> query = getParameter(STORAGE_QUERY);
 
-		if (rQuery != null) {
-			Storage rStorage = rQuery.getStorage();
+		if (query != null) {
+			Storage storage = query.getStorage();
 
 			try {
-				rQuery.close();
+				query.close();
 			} finally {
-				rStorage.release();
+				storage.release();
 				deleteParameters(STORAGE_QUERY, STORAGE_QUERY_RESULT);
 			}
 		}
@@ -130,50 +125,51 @@ public class PerformStorageQuery extends ProcessStep {
 	@Override
 	@SuppressWarnings("boxing")
 	protected void execute() throws StorageException, ProcessException {
-		Query<?> rQuery = getParameter(STORAGE_QUERY);
-		QueryResult<?> rQueryResult = getParameter(STORAGE_QUERY_RESULT);
+		Query<?> query = getParameter(STORAGE_QUERY);
+		QueryResult<?> queryResult = getParameter(STORAGE_QUERY_RESULT);
 
-		Function<Object, String> fProgressFormat =
+		Function<Object, String> progressFormat =
 			getParameter(QUERY_PROGRESS_FORMAT);
 
-		if (rQueryResult == null) {
-			QueryPredicate<?> pQuery = checkParameter(STORAGE_QUERY_PREDICATE);
+		if (queryResult == null) {
+			QueryPredicate<?> queryCriteria =
+				checkParameter(STORAGE_QUERY_PREDICATE);
 
 			// create a new storage because multiple invocations may occur from
 			// different threads if the process contains a progress display
 			// interaction
-			Storage rStorage =
-				StorageManager.newStorage(pQuery.getQueryType());
+			Storage storage =
+				StorageManager.newStorage(queryCriteria.getQueryType());
 
-			rQuery = rStorage.query(pQuery);
-			rQueryResult = rQuery.execute();
+			query = storage.query(queryCriteria);
+			queryResult = query.execute();
 
-			int nQuerySize = rQuery.size();
+			int querySize = query.size();
 
-			setParameter(STORAGE_QUERY, rQuery);
-			setParameter(STORAGE_QUERY_RESULT, rQueryResult);
-			setParameter(STORAGE_QUERY_SIZE, nQuerySize);
-			setParameter(PROGRESS_MAXIMUM, nQuerySize);
+			setParameter(STORAGE_QUERY, query);
+			setParameter(STORAGE_QUERY_RESULT, queryResult);
+			setParameter(STORAGE_QUERY_SIZE, querySize);
+			setParameter(PROGRESS_MAXIMUM, querySize);
 		}
 
-		Object rNextObject = null;
+		Object nextObject = null;
 
-		if (rQueryResult.hasNext()) {
-			rNextObject = rQueryResult.next();
+		if (queryResult.hasNext()) {
+			nextObject = queryResult.next();
 		}
 
 		@SuppressWarnings("unchecked")
-		RelationType<Object> rTargetParam =
+		RelationType<Object> targetParam =
 			(RelationType<Object>) checkParameter(TARGET_PARAM);
 
-		setParameter(rTargetParam, rNextObject);
+		setParameter(targetParam, nextObject);
 
-		if (rNextObject != null) {
+		if (nextObject != null) {
 			setParameter(PROGRESS, getParameter(PROGRESS) + 1);
 
-			if (fProgressFormat != null) {
+			if (progressFormat != null) {
 				setParameter(PROGRESS_DESCRIPTION,
-					fProgressFormat.evaluate(rNextObject));
+					progressFormat.evaluate(nextObject));
 			}
 		} else {
 			cleanup();

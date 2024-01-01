@@ -247,8 +247,8 @@ public enum UiMaterialIcon implements UiIconSupplier {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public UiIconSupplier apply(UiStandardIcon eStandardIcon) {
-			switch (eStandardIcon) {
+		public UiIconSupplier apply(UiStandardIcon standardIcon) {
+			switch (standardIcon) {
 				case NEXT:
 					return NAVIGATE_NEXT;
 
@@ -290,7 +290,7 @@ public enum UiMaterialIcon implements UiIconSupplier {
 
 				default:
 					try {
-						return valueOf(eStandardIcon.name());
+						return valueOf(standardIcon.name());
 					} catch (Exception e) {
 						return ERROR;
 					}

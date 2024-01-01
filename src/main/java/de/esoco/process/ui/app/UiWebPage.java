@@ -47,19 +47,19 @@ import static de.esoco.lib.property.StateProperties.TARGET_ID;
 public class UiWebPage extends UiComposite<UiWebPage> {
 
 	// global index for menu IDs
-	private static int nMenuId = 1;
+	private static int menuId = 1;
 
-	private Consumer<UiWebPage> fInitPage;
+	private final Consumer<UiWebPage> initPage;
 
-	private UiWebPageHeader aPageHeader;
+	private UiWebPageHeader pageHeader;
 
-	private UiWebPageContent aPageContent;
+	private UiWebPageContent pageContent;
 
-	private UiWebPageFooter aPageFooter;
+	private UiWebPageFooter pageFooter;
 
-	private UiTopMenu<?> aTopMenu;
+	private UiTopMenu<?> topMenu;
 
-	private UiSideMenu<?> aSideMenu;
+	private UiSideMenu<?> sideMenu;
 
 	/**
 	 * Creates a new instance for direct usage, i.e. without subclassing. The
@@ -67,23 +67,24 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * {@link #buildContent(UiBuilder)} method with this instance as the
 	 * argument after the page structure has been created.
 	 *
-	 * @param rParent   The parent container (typically a root view)
-	 * @param fInitPage A function that initializes the page after it's
-	 *                  structure has been created
+	 * @param parent   The parent container (typically a root view)
+	 * @param initPage A function that initializes the page after it's
+	 *                    structure
+	 *                 has been created
 	 */
-	public UiWebPage(UiContainer<?> rParent, Consumer<UiWebPage> fInitPage) {
-		super(rParent, new UiInlineLayout());
+	public UiWebPage(UiContainer<?> parent, Consumer<UiWebPage> initPage) {
+		super(parent, new UiInlineLayout());
 
-		this.fInitPage = fInitPage;
+		this.initPage = initPage;
 	}
 
 	/**
 	 * Constructor for subclassing.
 	 *
-	 * @param rParent The parent container (typically a root view)
+	 * @param parent The parent container (typically a root view)
 	 */
-	protected UiWebPage(UiContainer<?> rParent) {
-		this(rParent, null);
+	protected UiWebPage(UiContainer<?> parent) {
+		this(parent, null);
 	}
 
 	/**
@@ -97,22 +98,23 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 
 	/**
 	 * Adds a side navigation menu to this page. The actual menu creation is
-	 * done by invoking {@link #createSideMenu(UiContainer)}. Because menus
-	 * depend on other page components this call must be performed after the
-	 * page structure has been fully created (typically by extending the method
-	 * {@link #buildStructure()}).
+	 * done by invoking {@link #createSideMenu(UiContainer, Collection)}.
+	 * Because menus depend on other page components this call must be
+	 * performed
+	 * after the page structure has been fully created (typically by extending
+	 * the method {@link #buildStructure()}).
 	 *
-	 * @param rMenuItems The initial menu items to display
+	 * @param menuItems The initial menu items to display
 	 * @return The new top menu
 	 */
-	public <T> UiSideMenu<T> addSideMenu(Collection<T> rMenuItems) {
-		Objects.requireNonNull(aPageHeader);
+	public <T> UiSideMenu<T> addSideMenu(Collection<T> menuItems) {
+		Objects.requireNonNull(pageHeader);
 
-		UiSideMenu<T> aMenu = createSideMenu(aPageHeader, rMenuItems);
+		UiSideMenu<T> menu = createSideMenu(pageHeader, menuItems);
 
-		aSideMenu = aMenu;
+		sideMenu = menu;
 
-		return aMenu;
+		return menu;
 	}
 
 	/**
@@ -127,22 +129,22 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	/**
 	 * Adds a top navigation menu to this page. The actual menu creation is
 	 * done
-	 * by invoking {@link #createTopMenu(UiContainer)}. Because menus depend on
-	 * other page components this call must be performed after the page
-	 * structure has been fully created (typically by extending the method
-	 * {@link #buildStructure()}).
+	 * by invoking {@link #createTopMenu(UiContainer, Collection)}. Because
+	 * menus depend on other page components this call must be performed after
+	 * the page structure has been fully created (typically by extending the
+	 * method {@link #buildStructure()}).
 	 *
-	 * @param rMenuItems The initial menu items to display
+	 * @param menuItems The initial menu items to display
 	 * @return The new top menu
 	 */
-	public <T> UiTopMenu<T> addTopMenu(Collection<T> rMenuItems) {
-		Objects.requireNonNull(aPageHeader);
+	public <T> UiTopMenu<T> addTopMenu(Collection<T> menuItems) {
+		Objects.requireNonNull(pageHeader);
 
-		UiTopMenu<T> aMenu = createTopMenu(aPageHeader, rMenuItems);
+		UiTopMenu<T> menu = createTopMenu(pageHeader, menuItems);
 
-		aTopMenu = aMenu;
+		topMenu = menu;
 
-		return aMenu;
+		return menu;
 	}
 
 	/**
@@ -151,7 +153,7 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * @return The content container
 	 */
 	public UiWebPageContent getContent() {
-		return aPageContent;
+		return pageContent;
 	}
 
 	/**
@@ -160,7 +162,7 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * @return The page footer
 	 */
 	public UiWebPageFooter getFooter() {
-		return aPageFooter;
+		return pageFooter;
 	}
 
 	/**
@@ -169,7 +171,7 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * @return The page header
 	 */
 	public UiWebPageHeader getHeader() {
-		return aPageHeader;
+		return pageHeader;
 	}
 
 	/**
@@ -180,7 +182,7 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * @return The side menu or NULL for none
 	 */
 	public UiSideMenu<?> getSideMenu() {
-		return aSideMenu;
+		return sideMenu;
 	}
 
 	/**
@@ -190,7 +192,7 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * @return The top menu or NULL for none
 	 */
 	public UiTopMenu<?> getTopMenu() {
-		return aTopMenu;
+		return topMenu;
 	}
 
 	/**
@@ -200,18 +202,18 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * {@link #buildStructure()} method or perform additional initializations
 	 * (after building) by overriding{@link #initPage()}.
 	 *
-	 * @param rBuilder The parent container builder
+	 * @param builder The parent container builder
 	 */
 	@Override
-	protected void buildContent(UiBuilder<?> rBuilder) {
+	protected void buildContent(UiBuilder<?> builder) {
 		buildStructure();
 		initPage();
 
-		if (aTopMenu != null && aSideMenu != null) {
-			String sId = "PageMenu" + nMenuId++;
+		if (topMenu != null && sideMenu != null) {
+			String id = "PageMenu" + menuId++;
 
-			aSideMenu.id(sId);
-			aTopMenu.set(TARGET_ID, sId);
+			sideMenu.id(id);
+			topMenu.set(TARGET_ID, id);
 		}
 	}
 
@@ -219,20 +221,20 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * Builds the site structure.
 	 */
 	protected void buildStructure() {
-		aPageHeader = createHeader(this);
-		aPageContent = createContent(this);
-		aPageFooter = createFooter(this);
+		pageHeader = createHeader(this);
+		pageContent = createContent(this);
+		pageFooter = createFooter(this);
 	}
 
 	/**
 	 * Creates the page content container. Subclasses can override this to
 	 * return a subclass of {@link UiWebPageContent} if necessary.
 	 *
-	 * @param rParent The parent container to create the content in
+	 * @param parent The parent container to create the content in
 	 * @return The page header
 	 */
-	protected UiWebPageContent createContent(UiContainer<?> rParent) {
-		return new UiWebPageContent(rParent);
+	protected UiWebPageContent createContent(UiContainer<?> parent) {
+		return new UiWebPageContent(parent);
 	}
 
 	/**
@@ -240,22 +242,22 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * subclass
 	 * of {@link UiWebPageFooter} if necessary.
 	 *
-	 * @param rParent The parent container to create the footer in
+	 * @param parent The parent container to create the footer in
 	 * @return The page header
 	 */
-	protected UiWebPageFooter createFooter(UiContainer<?> rParent) {
-		return new UiWebPageFooter(rParent);
+	protected UiWebPageFooter createFooter(UiContainer<?> parent) {
+		return new UiWebPageFooter(parent);
 	}
 
 	/**
 	 * Creates the page header. Subclasses can override this to return a
 	 * subclass of {@link UiWebPageHeader} if necessary.
 	 *
-	 * @param rParent The parent container to create the header in
+	 * @param parent The parent container to create the header in
 	 * @return The page header
 	 */
-	protected UiWebPageHeader createHeader(UiContainer<?> rParent) {
-		return new UiWebPageHeader(rParent);
+	protected UiWebPageHeader createHeader(UiContainer<?> parent) {
+		return new UiWebPageHeader(parent);
 	}
 
 	/**
@@ -263,13 +265,13 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * {@link #addTopMenu(Collection)} and can be overridden to create a menu
 	 * subclass if necessary.
 	 *
-	 * @param rParent    The parent container of the menu
-	 * @param rMenuItems The initial menu items
+	 * @param parent    The parent container of the menu
+	 * @param menuItems The initial menu items
 	 * @return the new menu
 	 */
-	protected <T> UiSideMenu<T> createSideMenu(UiContainer<?> rParent,
-		Collection<T> rMenuItems) {
-		return new UiSideMenu<T>(rParent, rMenuItems);
+	protected <T> UiSideMenu<T> createSideMenu(UiContainer<?> parent,
+		Collection<T> menuItems) {
+		return new UiSideMenu<T>(parent, menuItems);
 	}
 
 	/**
@@ -277,13 +279,13 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * {@link #addTopMenu(Collection)} and can be overridden to create a menu
 	 * subclass if necessary.
 	 *
-	 * @param rParent    The parent container of the menu
-	 * @param rMenuItems The initial menu items
+	 * @param parent    The parent container of the menu
+	 * @param menuItems The initial menu items
 	 * @return the new menu
 	 */
-	protected <T> UiTopMenu<T> createTopMenu(UiContainer<?> rParent,
-		Collection<T> rMenuItems) {
-		return new UiTopMenu<T>(rParent, rMenuItems);
+	protected <T> UiTopMenu<T> createTopMenu(UiContainer<?> parent,
+		Collection<T> menuItems) {
+		return new UiTopMenu<T>(parent, menuItems);
 	}
 
 	/**
@@ -296,8 +298,8 @@ public class UiWebPage extends UiComposite<UiWebPage> {
 	 * {@link #addSideMenu(Collection)}.
 	 */
 	protected void initPage() {
-		if (fInitPage != null) {
-			fInitPage.accept(this);
+		if (initPage != null) {
+			initPage.accept(this);
 		}
 	}
 }

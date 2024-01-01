@@ -26,15 +26,15 @@ public interface AuthorizationCallback {
 	/**
 	 * Will be invoked if the authorization failed.
 	 *
-	 * @param eError The error exception
+	 * @param error The error exception
 	 */
-	public void authorizationFailure(Exception eError);
+	void authorizationFailure(Exception error);
 
 	/**
 	 * Will be invoked if the authorization was successful.
 	 *
-	 * @param sAccessToken The token that grants access to the authorized
-	 *                     resource
+	 * @param accessToken The token that grants access to the authorized
+	 *                    resource
 	 */
-	public void authorizationSuccess(String sAccessToken);
+	void authorizationSuccess(String accessToken);
 }

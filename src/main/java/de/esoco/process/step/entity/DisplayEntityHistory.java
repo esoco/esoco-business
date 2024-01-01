@@ -20,11 +20,9 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes.HierarchicalQueryMode;
-
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
 import de.esoco.history.HistoryRecord.HistoryType;
-
 import de.esoco.lib.datatype.DateRange;
 import de.esoco.lib.datatype.DateRange.StandardDateRange;
 import de.esoco.lib.event.EditListener;
@@ -38,16 +36,17 @@ import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Orientation;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
-
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.param.Parameter;
 import de.esoco.process.step.EditText;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
+import org.obrel.core.Relatable;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,13 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.obrel.core.Relatable;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-
 import static de.esoco.entity.EntityFunctions.formatEntity;
 import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
-
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.greaterOrEqual;
@@ -79,11 +73,8 @@ import static de.esoco.lib.property.StateProperties.DISABLED;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 import static de.esoco.lib.property.StyleProperties.ORIENTATION;
-
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
-
 import static de.esoco.storage.StoragePredicates.sortBy;
-
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
@@ -195,121 +186,119 @@ public class DisplayEntityHistory extends InteractionFragment
 		RelationTypes.init(DisplayEntityHistory.class);
 	}
 
-	private List<RelationType<?>> aInteractionParams =
+	private final List<RelationType<?>> interactionParams =
 		params(ENTITY_HISTORY, HistoryData.HISTORY_DATA_FRAGMENT);
 
-	private List<RelationType<?>> aInputParams = params(ENTITY_HISTORY);
+	private final List<RelationType<?>> inputParams = params(ENTITY_HISTORY);
 
-	private Entity rHistoryOrigin;
+	private final Entity historyOrigin;
 
-	private Entity rCurrentTarget;
+	private final HistoryData historyData;
 
-	private HistoryData aHistoryData;
+	private final boolean showRootTarget;
 
-	private boolean bShowRootTarget;
+	private final boolean showTarget;
 
-	private boolean bShowTarget;
+	private final Map<String, Entity> historyOrigins = new HashMap<>();
 
-	private Map<String, Entity> aHistoryOrigins = new HashMap<>();
+	private Entity currentTarget;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rHistoryOrigin   The origin entity of to always limit the history
-	 *                         to or NULL for all history
-	 * @param bNoteEditAllowed TRUE to allow the editing of existing history
-	 *                         notes
-	 * @param bShowRootTarget  TRUE to display the root target column
-	 * @param bShowTarget      TRUE to display the target column
+	 * @param historyOrigin   The origin entity of to always limit the history
+	 *                        to or NULL for all history
+	 * @param noteEditAllowed TRUE to allow the editing of existing history
+	 *                        notes
+	 * @param showRootTarget  TRUE to display the root target column
+	 * @param showTarget      TRUE to display the target column
 	 */
-	public DisplayEntityHistory(Entity rHistoryOrigin,
-		boolean bNoteEditAllowed,
-		boolean bShowRootTarget, boolean bShowTarget) {
-		this.rHistoryOrigin = rHistoryOrigin;
-		this.bShowRootTarget = bShowRootTarget;
-		this.bShowTarget = bShowTarget;
+	public DisplayEntityHistory(Entity historyOrigin, boolean noteEditAllowed,
+		boolean showRootTarget, boolean showTarget) {
+		this.historyOrigin = historyOrigin;
+		this.showRootTarget = showRootTarget;
+		this.showTarget = showTarget;
 
-		aHistoryData =
-			new HistoryData(this, bNoteEditAllowed, rHistoryOrigin == null);
+		historyData =
+			new HistoryData(this, noteEditAllowed, historyOrigin == null);
 	}
 
 	/**
 	 * A helper method that returns a list of history record attributes to be
 	 * used in a query.
 	 *
-	 * @param bIncludeRootTarget TRUE to
-	 *                           include{@link HistoryRecord#ROOT_TARGET}
-	 * @param bIncludeTarget     TRUE to include{@link HistoryRecord#TARGET}
+	 * @param includeRootTarget TRUE to
+	 *                          include{@link HistoryRecord#ROOT_TARGET}
+	 * @param includeTarget     TRUE to include{@link HistoryRecord#TARGET}
 	 * @return The list of history attributes
 	 */
 	public static List<Function<? super HistoryRecord, ?>> getHistoryQueryAttributes(
-		boolean bIncludeRootTarget, boolean bIncludeTarget) {
-		List<Function<? super HistoryRecord, ?>> aAttributes =
+		boolean includeRootTarget, boolean includeTarget) {
+		List<Function<? super HistoryRecord, ?>> attributes =
 			new ArrayList<Function<? super HistoryRecord, ?>>();
 
-		aAttributes.add(HistoryRecord.TIME);
-		aAttributes.add(HistoryRecord.TYPE);
+		attributes.add(HistoryRecord.TIME);
+		attributes.add(HistoryRecord.TYPE);
 
-		if (bIncludeRootTarget) {
-			aAttributes.add(HISTORY_ROOT_TARGET_FUNCTION);
+		if (includeRootTarget) {
+			attributes.add(HISTORY_ROOT_TARGET_FUNCTION);
 		}
 
-		if (bIncludeTarget) {
-			aAttributes.add(HISTORY_TARGET_FUNCTION);
+		if (includeTarget) {
+			attributes.add(HISTORY_TARGET_FUNCTION);
 		}
 
-		aAttributes.add(HistoryRecord.VALUE);
-		aAttributes.add(HISTORY_ORIGIN_FUNCTION);
+		attributes.add(HistoryRecord.VALUE);
+		attributes.add(HISTORY_ORIGIN_FUNCTION);
 
-		return aAttributes;
+		return attributes;
 	}
 
 	/**
 	 * Initializes the a history parameter with a history query for certain
 	 * targets.
 	 *
-	 * @param rProcessFragment The process fragment
-	 * @param rHistoryParam    The history parameter to initialize
-	 * @param rRootTargets     The target entities to query the history for
-	 * @param bIncludeTarget   TRUE to always include the history target column
-	 *                         or else only if multiple targets exist
-	 * @param rExcludedTypes   An optional list of excluded history record
-	 *                         types
+	 * @param processFragment The process fragment
+	 * @param historyParam    The history parameter to initialize
+	 * @param rootTargets     The target entities to query the history for
+	 * @param includeTarget   TRUE to always include the history target column
+	 *                        or else only if multiple targets exist
+	 * @param excludedTypes   An optional list of excluded history record types
 	 * @return The criteria predicate for the history record query
 	 */
 	public static Predicate<Relatable> initHistoryParameter(
-		ProcessFragment rProcessFragment,
-		RelationType<HistoryRecord> rHistoryParam,
-		Collection<Entity> rRootTargets, boolean bIncludeTarget,
-		HistoryType... rExcludedTypes) {
-		assert rRootTargets.size() > 0;
+		ProcessFragment processFragment,
+		RelationType<HistoryRecord> historyParam,
+		Collection<Entity> rootTargets, boolean includeTarget,
+		HistoryType... excludedTypes) {
+		assert rootTargets.size() > 0;
 
-		boolean bMultipleRootTargets = rRootTargets.size() > 1;
+		boolean multipleRootTargets = rootTargets.size() > 1;
 
-		List<Function<? super HistoryRecord, ?>> aAttributes =
-			getHistoryQueryAttributes(bMultipleRootTargets, bIncludeTarget);
+		List<Function<? super HistoryRecord, ?>> attributes =
+			getHistoryQueryAttributes(multipleRootTargets, includeTarget);
 
-		Predicate<Relatable> pHasTarget;
-		Predicate<Object> pTargets = elementOf(rRootTargets);
+		Predicate<Relatable> hasTarget;
+		Predicate<Object> targets = elementOf(rootTargets);
 
-		pHasTarget = HistoryRecord.ROOT_TARGET
-			.is(pTargets)
-			.or(HistoryRecord.TARGET.is(pTargets));
+		hasTarget = HistoryRecord.ROOT_TARGET
+			.is(targets)
+			.or(HistoryRecord.TARGET.is(targets));
 
-		if (rExcludedTypes != null && rExcludedTypes.length > 0) {
-			pHasTarget = pHasTarget.and(HistoryRecord.TYPE.is(
-				not(elementOf((Object[]) rExcludedTypes))));
+		if (excludedTypes != null && excludedTypes.length > 0) {
+			hasTarget = hasTarget.and(HistoryRecord.TYPE.is(
+				not(elementOf((Object[]) excludedTypes))));
 		}
 
-		QueryPredicate<HistoryRecord> qHistory =
-			new QueryPredicate<>(HistoryRecord.class, pHasTarget);
+		QueryPredicate<HistoryRecord> history =
+			new QueryPredicate<>(HistoryRecord.class, hasTarget);
 
-		qHistory.set(HIERARCHICAL_QUERY_MODE,
+		history.set(HIERARCHICAL_QUERY_MODE,
 			HierarchicalQueryMode.UNCONSTRAINED);
-		rProcessFragment.annotateForEntityQuery(rHistoryParam, qHistory,
-			sortBy(HistoryRecord.TIME, false), aAttributes);
+		processFragment.annotateForEntityQuery(historyParam, history,
+			sortBy(HistoryRecord.TIME, false), attributes);
 
-		return pHasTarget;
+		return hasTarget;
 	}
 
 	/**
@@ -317,7 +306,7 @@ public class DisplayEntityHistory extends InteractionFragment
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -325,23 +314,23 @@ public class DisplayEntityHistory extends InteractionFragment
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		if (rInteractionParam == ENTITY_HISTORY) {
-			HistoryRecord rHistoryRecord = getParameter(ENTITY_HISTORY);
+		if (interactionParam == ENTITY_HISTORY) {
+			HistoryRecord historyRecord = getParameter(ENTITY_HISTORY);
 
 			if (getParameter(INTERACTION_EVENT_TYPE) ==
 				InteractionEventType.ACTION) {
-				performHistoryRecordAction(rHistoryRecord);
+				performHistoryRecordAction(historyRecord);
 			} else {
-				aHistoryData.update(rHistoryRecord, true);
+				historyData.update(historyRecord, true);
 			}
 		}
 	}
@@ -351,18 +340,18 @@ public class DisplayEntityHistory extends InteractionFragment
 	 */
 	@Override
 	public void init() throws Exception {
-		addSubFragment(HistoryData.HISTORY_DATA_FRAGMENT, aHistoryData);
+		addSubFragment(HistoryData.HISTORY_DATA_FRAGMENT, historyData);
 
-		RelationType<List<RelationType<?>>> rFragmentParam =
+		RelationType<List<RelationType<?>>> fragmentParam =
 			getFragmentParameter();
 
-		setUIProperty(ORIENTATION, Orientation.VERTICAL, rFragmentParam);
+		setUIProperty(ORIENTATION, Orientation.VERTICAL, fragmentParam);
 		setUIProperty(UserInterfaceProperties.LAYOUT, LayoutType.SPLIT,
-			rFragmentParam);
+			fragmentParam);
 
 		setInteractive(InteractiveInputMode.BOTH, ENTITY_HISTORY);
 
-		setUIFlag(HIDE_LABEL, aInteractionParams);
+		setUIFlag(HIDE_LABEL, interactionParams);
 		setUIProperty(450, HEIGHT, ENTITY_HISTORY);
 	}
 
@@ -382,53 +371,53 @@ public class DisplayEntityHistory extends InteractionFragment
 	@Override
 	@SuppressWarnings("boxing")
 	public void update() {
-		Set<HistoryType> rHistoryTypes = getParameter(ENTITY_HISTORY_TYPES);
-		Predicate<Relatable> pHistory;
+		Set<HistoryType> historyTypes = getParameter(ENTITY_HISTORY_TYPES);
+		Predicate<Relatable> history;
 
-		Entity rTarget = getParameter(ENTITY_HISTORY_TARGET);
+		Entity target = getParameter(ENTITY_HISTORY_TARGET);
 
-		if (rCurrentTarget != rTarget) {
-			rCurrentTarget = rTarget;
+		if (currentTarget != target) {
+			currentTarget = target;
 
-			Parameter<String> rOrigin = param(ENTITY_HISTORY_ORIGIN);
+			Parameter<String> origin = param(ENTITY_HISTORY_ORIGIN);
 
 			param(ENABLE_HISTORY_ORIGIN).value(false);
-			rOrigin.setEnabled(false);
-			rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
+			origin.setEnabled(false);
+			origin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
 		}
 
-		if (rTarget != null || rHistoryOrigin != null ||
+		if (target != null || historyOrigin != null ||
 			!getParameter(ENTITY_HISTORY_ORIGINS).isEmpty()) {
-			if (rHistoryTypes == null || rHistoryTypes.size() == 0) {
-				rHistoryTypes = EnumSet.of(HistoryType.NOTE);
+			if (historyTypes == null || historyTypes.size() == 0) {
+				historyTypes = EnumSet.of(HistoryType.NOTE);
 			}
 
-			pHistory = HistoryRecord.TYPE.is(elementOf(rHistoryTypes));
-			pHistory = addTargetFilter(rTarget, pHistory);
-			pHistory = addDateRangeFilter(pHistory);
-			pHistory = addOriginFilter(pHistory);
+			history = HistoryRecord.TYPE.is(elementOf(historyTypes));
+			history = addTargetFilter(target, history);
+			history = addDateRangeFilter(history);
+			history = addOriginFilter(history);
 		} else {
 			// dummy query that yields no result if no target or origins have
 			// been set
-			pHistory = HistoryRecord.TARGET.is(equalTo("<NOTHING>"));
+			history = HistoryRecord.TARGET.is(equalTo("<NOTHING>"));
 		}
 
-		QueryPredicate<HistoryRecord> qHistory =
-			new QueryPredicate<>(HistoryRecord.class, pHistory);
+		QueryPredicate<HistoryRecord> queryHistory =
+			new QueryPredicate<>(HistoryRecord.class, history);
 
-		List<Function<? super HistoryRecord, ?>> aAttributes =
-			getHistoryQueryAttributes(bShowRootTarget, bShowTarget);
+		List<Function<? super HistoryRecord, ?>> attributes =
+			getHistoryQueryAttributes(showRootTarget, showTarget);
 
-		qHistory.set(HIERARCHICAL_QUERY_MODE,
+		queryHistory.set(HIERARCHICAL_QUERY_MODE,
 			getParameter(ENTITY_HISTORY_QUERY_MODE));
 
-		annotateForEntityQuery(ENTITY_HISTORY, qHistory,
-			sortBy(HistoryRecord.TIME, false), aAttributes);
+		annotateForEntityQuery(ENTITY_HISTORY, queryHistory,
+			sortBy(HistoryRecord.TIME, false), attributes);
 
 		setParameter(ENTITY_HISTORY, null);
 		setUIProperty(-1, CURRENT_SELECTION, ENTITY_HISTORY);
 
-		aHistoryData.update(null, true);
+		historyData.update(null, true);
 	}
 
 	/**
@@ -443,118 +432,116 @@ public class DisplayEntityHistory extends InteractionFragment
 	 * This method can be overridden by subclasses to react to an action event
 	 * for a certain history record. The default implementation does nothing.
 	 *
-	 * @param rHistoryRecord The history record for which the even occurred
+	 * @param historyRecord The history record for which the even occurred
 	 */
-	protected void performHistoryRecordAction(HistoryRecord rHistoryRecord) {
+	protected void performHistoryRecordAction(HistoryRecord historyRecord) {
 	}
 
 	/**
 	 * Adds a date range filter if the corresponding parameter is set.
 	 *
-	 * @param pHistory The filter predicate to amend
+	 * @param history The filter predicate to amend
 	 * @return The predicate, modified if necessary
 	 */
 	private Predicate<Relatable> addDateRangeFilter(
-		Predicate<Relatable> pHistory) {
-		StandardDateRange eSelectedDateRange =
+		Predicate<Relatable> history) {
+		StandardDateRange selectedDateRange =
 			getParameter(ENTITY_HISTORY_DATE);
 
-		if (eSelectedDateRange != null &&
-			eSelectedDateRange != StandardDateRange.NONE) {
-			DateRange aDateRange = DateRange.calculateFor(eSelectedDateRange);
+		if (selectedDateRange != null &&
+			selectedDateRange != StandardDateRange.NONE) {
+			DateRange dateRange = DateRange.calculateFor(selectedDateRange);
 
-			pHistory = pHistory.and(HistoryRecord.TIME
-				.is(greaterOrEqual(aDateRange.getStart()))
-				.and(HistoryRecord.TIME.is(lessThan(aDateRange.getEnd()))));
+			history = history.and(HistoryRecord.TIME
+				.is(greaterOrEqual(dateRange.getStart()))
+				.and(HistoryRecord.TIME.is(lessThan(dateRange.getEnd()))));
 		}
 
-		return pHistory;
+		return history;
 	}
 
 	/**
 	 * Adds a history origin filter to a predicate if necessary.
 	 *
-	 * @param pHistory The original filter predicate
+	 * @param history The original filter predicate
 	 * @return The predicate, modified if necessary
 	 */
-	private Predicate<Relatable> addOriginFilter(
-		Predicate<Relatable> pHistory) {
-		if (rHistoryOrigin != null) {
-			pHistory =
-				pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rHistoryOrigin)));
+	private Predicate<Relatable> addOriginFilter(Predicate<Relatable> history) {
+		if (historyOrigin != null) {
+			history =
+				history.and(HistoryRecord.ORIGIN.is(equalTo(historyOrigin)));
 		} else if (!param(ENTITY_HISTORY_ORIGIN).is(DISABLED)) {
-			String sSelectedOrigin = getParameter(ENTITY_HISTORY_ORIGIN);
+			String selectedOrigin = getParameter(ENTITY_HISTORY_ORIGIN);
 
-			if (ITEM_ENTITY_HISTORY_ORIGIN_ALL.equals(sSelectedOrigin)) {
-				List<Entity> rOrigins = getParameter(ENTITY_HISTORY_ORIGINS);
+			if (ITEM_ENTITY_HISTORY_ORIGIN_ALL.equals(selectedOrigin)) {
+				List<Entity> origins = getParameter(ENTITY_HISTORY_ORIGINS);
 
-				if (rOrigins.size() > 0) {
-					pHistory = pHistory.and(
-						HistoryRecord.ORIGIN.is(elementOf(rOrigins)));
+				if (origins.size() > 0) {
+					history = history.and(
+						HistoryRecord.ORIGIN.is(elementOf(origins)));
 				}
 
-				setHistoryOrigins(pHistory);
+				setHistoryOrigins(history);
 			} else {
-				Entity rOrigin = aHistoryOrigins.get(sSelectedOrigin);
+				Entity origin = historyOrigins.get(selectedOrigin);
 
-				pHistory =
-					pHistory.and(HistoryRecord.ORIGIN.is(equalTo(rOrigin)));
+				history =
+					history.and(HistoryRecord.ORIGIN.is(equalTo(origin)));
 			}
 		}
 
-		return pHistory;
+		return history;
 	}
 
 	/**
 	 * Adds a history target filter to a predicate if necessary.
 	 *
-	 * @param rTarget  The main target to display the history for
-	 * @param pHistory The original filter predicate
+	 * @param target  The main target to display the history for
+	 * @param history The original filter predicate
 	 * @return The predicate, modified if necessary
 	 */
-	private Predicate<Relatable> addTargetFilter(Entity rTarget,
-		Predicate<Relatable> pHistory) {
-		Predicate<Relatable> rTargetCriteria =
+	private Predicate<Relatable> addTargetFilter(Entity target,
+		Predicate<Relatable> history) {
+		Predicate<Relatable> targetCriteria =
 			getParameter(ENTITY_HISTORY_TARGET_CRITERIA);
 
-		if (rTargetCriteria != null) {
-			pHistory = pHistory.and(rTargetCriteria);
-		} else if (rTarget != null) {
-			Predicate<Object> pTarget = equalTo(rTarget);
+		if (targetCriteria != null) {
+			history = history.and(targetCriteria);
+		} else if (target != null) {
+			Predicate<Object> equalToTarget = equalTo(target);
 
-			pHistory = pHistory.and(HistoryRecord.ROOT_TARGET
-				.is(pTarget)
-				.or(HistoryRecord.TARGET.is(pTarget)));
+			history = history.and(HistoryRecord.ROOT_TARGET
+				.is(equalToTarget)
+				.or(HistoryRecord.TARGET.is(equalToTarget)));
 		}
 
-		return pHistory;
+		return history;
 	}
 
 	/**
 	 * Sets the selectable distinct history origins from a history query.
 	 *
-	 * @param pHistory The history filter predicate
+	 * @param history The history filter predicate
 	 */
-	private void setHistoryOrigins(Predicate<Relatable> pHistory) {
+	private void setHistoryOrigins(Predicate<Relatable> history) {
 		try {
-			Collection<Entity> rOrigins =
+			Collection<Entity> origins =
 				EntityManager.getDistinct(HistoryRecord.ORIGIN,
-					new QueryPredicate<>(HistoryRecord.class, pHistory));
+					new QueryPredicate<>(HistoryRecord.class, history));
 
-			aHistoryOrigins.clear();
+			historyOrigins.clear();
 
-			for (Entity rOrigin : rOrigins) {
-				if (rOrigin != null) {
-					aHistoryOrigins.put(EntityFunctions.format(rOrigin),
-						rOrigin);
+			for (Entity origin : origins) {
+				if (origin != null) {
+					historyOrigins.put(EntityFunctions.format(origin), origin);
 				}
 			}
 
-			List<String> aOriginNames =
-				new ArrayList<>(aHistoryOrigins.keySet());
+			List<String> originNames =
+				new ArrayList<>(historyOrigins.keySet());
 
-			aOriginNames.add(0, ITEM_ENTITY_HISTORY_ORIGIN_ALL);
-			setAllowedValues(ENTITY_HISTORY_ORIGIN, aOriginNames);
+			originNames.add(0, ITEM_ENTITY_HISTORY_ORIGIN_ALL);
+			setAllowedValues(ENTITY_HISTORY_ORIGIN, originNames);
 		} catch (StorageException e) {
 			throw new IllegalStateException(e);
 		}
@@ -584,74 +571,71 @@ public class DisplayEntityHistory extends InteractionFragment
 			RelationTypes.init(HistoryData.class);
 		}
 
-		private List<RelationType<?>> aInteractionParams =
+		private final List<RelationType<?>> interactionParams =
 			params(HISTORY_VALUE_FRAGMENT,
 				HistoryOptions.HISTORY_OPTIONS_FRAGMENT);
 
-		private List<RelationType<?>> aInputParams = params();
+		private final List<RelationType<?>> inputParams = params();
 
-		private boolean bNoteEditAllowed;
+		private final boolean noteEditAllowed;
 
-		private HistoryRecord rEditedHistoryNote;
+		private final HistoryOptions historyOptions;
 
-		private EditText aEditHistoryValue;
+		private HistoryRecord editedHistoryNote;
 
-		private HistoryOptions aHistoryOptions;
+		private EditText editHistoryValue;
 
-		private Entity rHistoryTarget;
+		private Entity historyTarget;
 
-		private Entity rHistoryRootTarget;
+		private Entity historyRootTarget;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rOptionsListener  A listener that will be notified of option
-		 *                          changes
-		 * @param bNoteEditAllowed  TRUE to allow the editing of history
-		 *                                records
-		 *                          of type {@link HistoryType#NOTE}
-		 * @param bShowOriginFilter TRUE to display a list of history
-		 *                                origins to
-		 *                          select from
+		 * @param optionsListener  A listener that will be notified of option
+		 *                         changes
+		 * @param noteEditAllowed  TRUE to allow the editing of history records
+		 *                         of type {@link HistoryType#NOTE}
+		 * @param showOriginFilter TRUE to display a list of history origins to
+		 *                         select from
 		 */
-		public HistoryData(Updatable rOptionsListener,
-			boolean bNoteEditAllowed,
-			boolean bShowOriginFilter) {
-			this.bNoteEditAllowed = bNoteEditAllowed;
+		public HistoryData(Updatable optionsListener, boolean noteEditAllowed,
+			boolean showOriginFilter) {
+			this.noteEditAllowed = noteEditAllowed;
 
-			aHistoryOptions =
-				new HistoryOptions(rOptionsListener, bShowOriginFilter);
+			historyOptions =
+				new HistoryOptions(optionsListener, showOriginFilter);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void editFinished(String sValue, EditAction eFinishAction) {
-			if (eFinishAction == EditAction.SAVE) {
+		public void editFinished(String value, EditAction finishAction) {
+			if (finishAction == EditAction.SAVE) {
 				try {
-					storeHistoryNote(sValue);
+					storeHistoryNote(value);
 				} catch (TransactionException e) {
 					throw new RuntimeProcessException(this, e);
 				}
 			}
 
-			rEditedHistoryNote = null;
+			editedHistoryNote = null;
 			update(getParameter(ENTITY_HISTORY), false);
 			setEnabled(true, ENTITY_HISTORY);
-			aHistoryOptions.enableEdit(true);
+			historyOptions.enableEdit(true);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void editStarted(String sValue) {
-			aHistoryOptions.enableEdit(false);
+		public void editStarted(String value) {
+			historyOptions.enableEdit(false);
 			setEnabled(false, ENTITY_HISTORY);
 
-			if (sValue != null) {
-				rEditedHistoryNote = getParameter(ENTITY_HISTORY);
+			if (value != null) {
+				editedHistoryNote = getParameter(ENTITY_HISTORY);
 			}
 		}
 
@@ -660,7 +644,7 @@ public class DisplayEntityHistory extends InteractionFragment
 		 */
 		@Override
 		public List<RelationType<?>> getInputParameters() {
-			return aInputParams;
+			return inputParams;
 		}
 
 		/**
@@ -668,7 +652,7 @@ public class DisplayEntityHistory extends InteractionFragment
 		 */
 		@Override
 		public List<RelationType<?>> getInteractionParameters() {
-			return aInteractionParams;
+			return interactionParams;
 		}
 
 		/**
@@ -676,16 +660,16 @@ public class DisplayEntityHistory extends InteractionFragment
 		 */
 		@Override
 		public void init() throws Exception {
-			rEditedHistoryNote = null;
+			editedHistoryNote = null;
 
-			aEditHistoryValue =
+			editHistoryValue =
 				new EditText(ENTITY_HISTORY_VALUE, this, true, false);
 
-			addSubFragment(HISTORY_VALUE_FRAGMENT, aEditHistoryValue);
+			addSubFragment(HISTORY_VALUE_FRAGMENT, editHistoryValue);
 			addSubFragment(HistoryOptions.HISTORY_OPTIONS_FRAGMENT,
-				aHistoryOptions);
+				historyOptions);
 
-			setUIFlag(HIDE_LABEL, aInteractionParams);
+			setUIFlag(HIDE_LABEL, interactionParams);
 			setUIFlag(SAME_ROW, HISTORY_VALUE_FRAGMENT,
 				HistoryOptions.HISTORY_OPTIONS_FRAGMENT);
 
@@ -698,41 +682,41 @@ public class DisplayEntityHistory extends InteractionFragment
 		/**
 		 * Updates the display and state for a certain history record.
 		 *
-		 * @param rRecord   The history record (NULL to clear)
-		 * @param bStopEdit TRUE if an active editor should be stopped
+		 * @param record   The history record (NULL to clear)
+		 * @param stopEdit TRUE if an active editor should be stopped
 		 */
-		public void update(HistoryRecord rRecord, boolean bStopEdit) {
-			if (bStopEdit && aEditHistoryValue != null &&
-				aEditHistoryValue.isEditing()) {
-				aEditHistoryValue.stopEditing(EditAction.SAVE);
+		public void update(HistoryRecord record, boolean stopEdit) {
+			if (stopEdit && editHistoryValue != null &&
+				editHistoryValue.isEditing()) {
+				editHistoryValue.stopEditing(EditAction.SAVE);
 			}
 
-			String sValue = "";
-			boolean bAllowEdit = false;
+			String value = "";
+			boolean allowEdit = false;
 
-			rHistoryTarget = getParameter(ENTITY_HISTORY_TARGET);
-			rHistoryRootTarget = getParameter(ENTITY_HISTORY_ROOT_TARGET);
+			historyTarget = getParameter(ENTITY_HISTORY_TARGET);
+			historyRootTarget = getParameter(ENTITY_HISTORY_ROOT_TARGET);
 
-			if (rRecord != null) {
-				sValue = rRecord.get(HistoryRecord.VALUE);
-				bAllowEdit =
-					rRecord.get(HistoryRecord.TYPE) == HistoryType.NOTE &&
-						(bNoteEditAllowed || getProcessUser().equals(
-							rRecord.get(HistoryRecord.ORIGIN)));
+			if (record != null) {
+				value = record.get(HistoryRecord.VALUE);
+				allowEdit =
+					record.get(HistoryRecord.TYPE) == HistoryType.NOTE &&
+						(noteEditAllowed || getProcessUser().equals(
+							record.get(HistoryRecord.ORIGIN)));
 			}
 
-			setParameter(ENTITY_HISTORY_VALUE, sValue);
+			setParameter(ENTITY_HISTORY_VALUE, value);
 
-			String sEditInfo = "";
+			String editInfo = "";
 
-			if (rHistoryTarget != null) {
-				sEditInfo = rHistoryTarget.getClass().getSimpleName() + ": " +
-					EntityFunctions.format(rHistoryTarget);
+			if (historyTarget != null) {
+				editInfo = historyTarget.getClass().getSimpleName() + ": " +
+					EntityFunctions.format(historyTarget);
 			}
 
-			if (aEditHistoryValue != null) {
-				aEditHistoryValue.setEditInfo(sEditInfo);
-				aEditHistoryValue.allowEdit(bAllowEdit);
+			if (editHistoryValue != null) {
+				editHistoryValue.setEditInfo(editInfo);
+				editHistoryValue.allowEdit(allowEdit);
 			}
 		}
 
@@ -742,18 +726,17 @@ public class DisplayEntityHistory extends InteractionFragment
 		 * {@link HistoryManager#record(HistoryType, Entity, Entity, String)},
 		 * an edited note will simply be stored.
 		 *
-		 * @param sValue The new value for the history note
+		 * @param value The new value for the history note
 		 */
-		private void storeHistoryNote(String sValue)
+		private void storeHistoryNote(String value)
 			throws TransactionException {
-			if (rEditedHistoryNote != null) {
-				rEditedHistoryNote.set(HistoryRecord.VALUE, sValue);
-				EntityManager.storeEntity(rEditedHistoryNote,
-					getProcessUser());
-				setParameter(ENTITY_HISTORY, rEditedHistoryNote);
+			if (editedHistoryNote != null) {
+				editedHistoryNote.set(HistoryRecord.VALUE, value);
+				EntityManager.storeEntity(editedHistoryNote, getProcessUser());
+				setParameter(ENTITY_HISTORY, editedHistoryNote);
 			} else {
 				HistoryManager.record(HistoryType.NOTE, getProcessUser(),
-					rHistoryTarget, rHistoryRootTarget, sValue, null, null);
+					historyTarget, historyRootTarget, value, null, null);
 			}
 
 			markParameterAsModified(ENTITY_HISTORY);
@@ -781,24 +764,22 @@ public class DisplayEntityHistory extends InteractionFragment
 			RelationTypes.init(HistoryOptions.class);
 		}
 
-		private Updatable rChangeListener;
+		private final Updatable changeListener;
 
-		private boolean bShowOriginFilter;
+		private final boolean showOriginFilter;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rChangeListener   An {@link Updatable} instance to be
-		 *                                notified
-		 *                          if the history options have been modified
-		 * @param bShowOriginFilter TRUE to display a list of history
-		 *                                origins to
-		 *                          select from
+		 * @param changeListener   An {@link Updatable} instance to be notified
+		 *                         if the history options have been modified
+		 * @param showOriginFilter TRUE to display a list of history origins to
+		 *                         select from
 		 */
-		public HistoryOptions(Updatable rChangeListener,
-			boolean bShowOriginFilter) {
-			this.rChangeListener = rChangeListener;
-			this.bShowOriginFilter = bShowOriginFilter;
+		public HistoryOptions(Updatable changeListener,
+			boolean showOriginFilter) {
+			this.changeListener = changeListener;
+			this.showOriginFilter = showOriginFilter;
 		}
 
 		/**
@@ -808,10 +789,10 @@ public class DisplayEntityHistory extends InteractionFragment
 		public void init() throws Exception {
 			checkAddHistoryTypeOptions();
 
-			Parameter<StandardDateRange> rDateRange =
+			Parameter<StandardDateRange> dateRange =
 				param(ENTITY_HISTORY_DATE);
 
-			rDateRange
+			dateRange
 				.input()
 				.colSpan(2)
 				.set(LIST_STYLE, ListStyle.DROP_DOWN)
@@ -826,10 +807,10 @@ public class DisplayEntityHistory extends InteractionFragment
 					StandardDateRange.LAST_QUARTER,
 					StandardDateRange.CURRENT_YEAR,
 					StandardDateRange.LAST_YEAR)
-				.onUpdate(v -> rChangeListener.update());
+				.onUpdate(v -> changeListener.update());
 
-			if (rDateRange.value() == null) {
-				rDateRange.value(StandardDateRange.NONE);
+			if (dateRange.value() == null) {
+				dateRange.value(StandardDateRange.NONE);
 			}
 
 			checkAddOriginFilter();
@@ -842,38 +823,37 @@ public class DisplayEntityHistory extends InteractionFragment
 		/**
 		 * Updates the display if the selected history types change.
 		 *
-		 * @param rNewTypes The new selected history types
+		 * @param newTypes The new selected history types
 		 */
-		private void changeHistoryTypes(Set<HistoryType> rNewTypes) {
-			param(ENTITY_HISTORY_TYPES).value(new LinkedHashSet<>(rNewTypes));
+		private void changeHistoryTypes(Set<HistoryType> newTypes) {
+			param(ENTITY_HISTORY_TYPES).value(new LinkedHashSet<>(newTypes));
 
-			rChangeListener.update();
+			changeListener.update();
 		}
 
 		/**
 		 * Adds the interactive history type options parameter if necessary.
 		 */
 		private void checkAddHistoryTypeOptions() {
-			Set<HistoryType> rHistoryTypes =
-				getParameter(ENTITY_HISTORY_TYPES);
+			Set<HistoryType> historyTypes = getParameter(ENTITY_HISTORY_TYPES);
 
-			if (rHistoryTypes != null && rHistoryTypes.size() > 1) {
-				EnumSet<HistoryType> aSelectedTypeOptions =
+			if (historyTypes != null && historyTypes.size() > 1) {
+				EnumSet<HistoryType> selectedTypeOptions =
 					EnumSet.of(HistoryType.NOTE);
 
-				SetParameter<HistoryType> aHistoryTypeParam =
+				SetParameter<HistoryType> historyTypeParam =
 					new SetParameter<>(this, HISTORY_TYPE_OPTIONS);
 
-				aHistoryTypeParam
+				historyTypeParam
 					.input()
 					.set(LIST_STYLE, ListStyle.DISCRETE)
 					.colSpan(2)
-					.allowElements(rHistoryTypes)
-					.value(aSelectedTypeOptions)
+					.allowElements(historyTypes)
+					.value(selectedTypeOptions)
 					.onAction(this::changeHistoryTypes);
 
 				param(ENTITY_HISTORY_TYPES).value(
-					new LinkedHashSet<>(aSelectedTypeOptions));
+					new LinkedHashSet<>(selectedTypeOptions));
 			}
 		}
 
@@ -881,7 +861,7 @@ public class DisplayEntityHistory extends InteractionFragment
 		 * Adds the history origin filter if enabled.
 		 */
 		private void checkAddOriginFilter() {
-			if (bShowOriginFilter) {
+			if (showOriginFilter) {
 				param(ENABLE_HISTORY_ORIGIN)
 					.label("")
 					.onAction(this::setOriginsEnabled);
@@ -892,25 +872,25 @@ public class DisplayEntityHistory extends InteractionFragment
 					.set(LIST_STYLE, ListStyle.DROP_DOWN)
 					.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL)
 					.allow(ITEM_ENTITY_HISTORY_ORIGIN_ALL)
-					.onUpdate(v -> rChangeListener.update());
+					.onUpdate(v -> changeListener.update());
 			}
 		}
 
 		/**
 		 * Sets the state of the history origins display.
 		 *
-		 * @param bEnable TRUE to enable
+		 * @param enable TRUE to enable
 		 */
-		private void setOriginsEnabled(boolean bEnable) {
-			Parameter<String> rOrigin = param(ENTITY_HISTORY_ORIGIN);
+		private void setOriginsEnabled(boolean enable) {
+			Parameter<String> origin = param(ENTITY_HISTORY_ORIGIN);
 
-			rOrigin.setEnabled(bEnable);
+			origin.setEnabled(enable);
 
-			if (!bEnable) {
-				rOrigin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
+			if (!enable) {
+				origin.value(ITEM_ENTITY_HISTORY_ORIGIN_ALL);
 			}
 
-			rChangeListener.update();
+			changeListener.update();
 		}
 	}
 }

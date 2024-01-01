@@ -18,9 +18,7 @@ package de.esoco.entity;
 
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.manage.TransactionException;
-
 import de.esoco.storage.StorageException;
-
 import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.ProvidesSettings;
 import org.obrel.core.Relatable;
@@ -28,7 +26,6 @@ import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
 
 import static de.esoco.lib.expression.Predicates.equalTo;
-
 import static org.obrel.core.RelationTypes.newType;
 
 /**
@@ -89,18 +86,18 @@ public class Configuration extends Entity
 	 * Copies the value of a certain settings value of a source entity to a
 	 * relatable target object.
 	 *
-	 * @param rOwner            The owner of the settings
-	 * @param rSettingExtraAttr The settings extra attribute
-	 * @param rTarget           The target object
+	 * @param owner            The owner of the settings
+	 * @param settingExtraAttr The settings extra attribute
+	 * @param target           The target object
 	 * @throws StorageException If retrieving the setting fails
 	 */
-	public static <T> void copySetting(Entity rOwner,
-		RelationType<T> rSettingExtraAttr, Relatable rTarget)
+	public static <T> void copySetting(Entity owner,
+		RelationType<T> settingExtraAttr, Relatable target)
 		throws StorageException {
-		T rValue = getSettingsValue(rOwner, rSettingExtraAttr, null);
+		T value = getSettingsValue(owner, settingExtraAttr, null);
 
-		if (rValue != null) {
-			rTarget.set(rSettingExtraAttr, rValue);
+		if (value != null) {
+			target.set(settingExtraAttr, value);
 		}
 	}
 
@@ -111,29 +108,29 @@ public class Configuration extends Entity
 	 * the name {@link #SETTINGS_CONFIG_NAME}. Only the name is specific about
 	 * this entity, in every other aspect it's a normal configuration entity.
 	 *
-	 * @param rOwner  The owner of the settings
-	 * @param bCreate TRUE to create the settings object if it doesn't exist
+	 * @param owner  The owner of the settings
+	 * @param create TRUE to create the settings object if it doesn't exist
 	 * @return The settings configuration object or NULL if none exists and
-	 * bCreate is FALSE
+	 * create is FALSE
 	 * @throws StorageException     If querying the configuration fails
 	 * @throws TransactionException If storing a new configuration entity fails
 	 * @see #getSettingsValue(RelationType, Object)
 	 */
-	public static Configuration getSettings(Entity rOwner, boolean bCreate)
+	public static Configuration getSettings(Entity owner, boolean create)
 		throws StorageException, TransactionException {
-		Configuration aConfig = EntityManager.queryEntity(Configuration.class,
-			IS_SETTINGS_CONFIG.and(OWNER.is(equalTo(rOwner))), true);
+		Configuration config = EntityManager.queryEntity(Configuration.class,
+			IS_SETTINGS_CONFIG.and(OWNER.is(equalTo(owner))), true);
 
-		if (aConfig == null && bCreate) {
-			aConfig = new Configuration();
+		if (config == null && create) {
+			config = new Configuration();
 
-			aConfig.set(NAME, SETTINGS_CONFIG_NAME);
-			aConfig.set(OWNER, rOwner);
+			config.set(NAME, SETTINGS_CONFIG_NAME);
+			config.set(OWNER, owner);
 
-			EntityManager.storeEntity(aConfig, rOwner);
+			EntityManager.storeEntity(config, owner);
 		}
 
-		return aConfig;
+		return config;
 	}
 
 	/**
@@ -143,30 +140,30 @@ public class Configuration extends Entity
 	 * returned by {@link #getSettingsValue(RelationType, Object)} or, if no
 	 * settings exist, the default value.
 	 *
-	 * @param rOwner            The owner of the settings
-	 * @param rSettingExtraAttr The settings extra attribute
-	 * @param rDefaultValue     The default value to return if no setting exist
+	 * @param owner            The owner of the settings
+	 * @param settingExtraAttr The settings extra attribute
+	 * @param defaultValue     The default value to return if no setting exist
 	 * @return The settings value or the default value if none exists
 	 * @throws StorageException If reading the extra attribute fails
 	 */
-	public static <T> T getSettingsValue(Entity rOwner,
-		RelationType<T> rSettingExtraAttr, T rDefaultValue)
+	public static <T> T getSettingsValue(Entity owner,
+		RelationType<T> settingExtraAttr, T defaultValue)
 		throws StorageException {
-		Configuration rSettings = null;
-		T rSettingsValue = rDefaultValue;
+		Configuration settings = null;
+		T settingsValue = defaultValue;
 
 		try {
-			rSettings = getSettings(rOwner, false);
+			settings = getSettings(owner, false);
 		} catch (TransactionException e) {
 			// cannot happen if the boolean argument of getSettings() is FALSE
 		}
 
-		if (rSettings != null) {
-			rSettingsValue =
-				rSettings.getSettingsValue(rSettingExtraAttr, rDefaultValue);
+		if (settings != null) {
+			settingsValue =
+				settings.getSettingsValue(settingExtraAttr, defaultValue);
 		}
 
-		return rSettingsValue;
+		return settingsValue;
 	}
 
 	/**
@@ -174,9 +171,9 @@ public class Configuration extends Entity
 	 *
 	 * @see #getSettingsValue(RelationType, Object)
 	 */
-	public static boolean hasSettingsFlag(Entity rOwner,
-		RelationType<Boolean> rSettingsExtraAttr) throws StorageException {
-		return getSettingsValue(rOwner, rSettingsExtraAttr, Boolean.FALSE) ==
+	public static boolean hasSettingsFlag(Entity owner,
+		RelationType<Boolean> settingsExtraAttr) throws StorageException {
+		return getSettingsValue(owner, settingsExtraAttr, Boolean.FALSE) ==
 			Boolean.TRUE;
 	}
 
@@ -191,18 +188,18 @@ public class Configuration extends Entity
 	 * @see ProvidesConfiguration#getConfigValue(RelationType, Object)
 	 */
 	@Override
-	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue) {
-		T rValue = getXA(rType, rDefaultValue);
+	public <T> T getConfigValue(RelationType<T> type, T defaultValue) {
+		T value = getXA(type, defaultValue);
 
-		if (rValue == rDefaultValue && !hasXA(rType)) {
-			Configuration rDefaults = get(DEFAULTS);
+		if (value == defaultValue && !hasXA(type)) {
+			Configuration defaults = get(DEFAULTS);
 
-			if (rDefaults != null) {
-				rValue = rDefaults.getConfigValue(rType, rDefaultValue);
+			if (defaults != null) {
+				value = defaults.getConfigValue(type, defaultValue);
 			}
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -213,16 +210,16 @@ public class Configuration extends Entity
 	 * recursively looks up non-existing settings from any parent configuration
 	 * set in the attribute {@link #DEFAULTS}.
 	 *
-	 * @param rSettingExtraAttr The settings extra attribute
-	 * @param rDefaultValue     The default value to return if no setting exist
+	 * @param settingExtraAttr The settings extra attribute
+	 * @param defaultValue     The default value to return if no setting exist
 	 * @return The settings value or the default value if none exists
 	 * @see #getSettings(Entity, boolean)
 	 * @see #setSettingsValue(RelationType, Object)
 	 */
 	@Override
-	public <T> T getSettingsValue(RelationType<T> rSettingExtraAttr,
-		T rDefaultValue) {
-		return getConfigValue(rSettingExtraAttr, rDefaultValue);
+	public <T> T getSettingsValue(RelationType<T> settingExtraAttr,
+		T defaultValue) {
+		return getConfigValue(settingExtraAttr, defaultValue);
 	}
 
 	/**
@@ -231,8 +228,8 @@ public class Configuration extends Entity
 	 * @see ProvidesConfiguration#setConfigValue(RelationType, Object)
 	 */
 	@Override
-	public <T> void setConfigValue(RelationType<T> rType, T rValue) {
-		setXA(rType, rValue);
+	public <T> void setConfigValue(RelationType<T> type, T value) {
+		setXA(type, value);
 	}
 
 	/**
@@ -242,14 +239,14 @@ public class Configuration extends Entity
 	 * method so that it can perform additional hierarchical or default
 	 * lookups.
 	 *
-	 * @param rSettingExtraAttr The settings extra attribute
-	 * @param rValue            The new settings value
+	 * @param settingExtraAttr The settings extra attribute
+	 * @param value            The new settings value
 	 * @see #getSettings(Entity, boolean)
 	 * @see #getSettingsValue(RelationType, Object)
 	 */
 	@Override
-	public <T> void setSettingsValue(RelationType<T> rSettingExtraAttr,
-		T rValue) {
-		setConfigValue(rSettingExtraAttr, rValue);
+	public <T> void setSettingsValue(RelationType<T> settingExtraAttr,
+		T value) {
+		setConfigValue(settingExtraAttr, value);
 	}
 }

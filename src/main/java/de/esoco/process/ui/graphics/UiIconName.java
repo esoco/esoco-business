@@ -19,7 +19,6 @@ package de.esoco.process.ui.graphics;
 import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.Color;
 import de.esoco.lib.property.RelativeScale;
-
 import de.esoco.process.ui.UiImageDefinition;
 
 import static de.esoco.lib.property.ContentProperties.ICON;
@@ -40,10 +39,10 @@ public class UiIconName extends UiImageDefinition<UiIconName>
 	 * representation that can be used to identify the icon. This is typically
 	 * an enum constant or a string.
 	 *
-	 * @param rIconIdentifier The icon identifier
+	 * @param iconIdentifier The icon identifier
 	 */
-	public UiIconName(Object rIconIdentifier) {
-		set(ICON, rIconIdentifier.toString());
+	public UiIconName(Object iconIdentifier) {
+		set(ICON, iconIdentifier.toString());
 	}
 
 	/**
@@ -61,11 +60,11 @@ public class UiIconName extends UiImageDefinition<UiIconName>
 	/**
 	 * Sets the icon's foreground color.
 	 *
-	 * @param rIconColor The foreground color
+	 * @param iconColor The foreground color
 	 * @return This instance
 	 */
-	public UiIconName color(Color rIconColor) {
-		set(ICON_COLOR, rIconColor);
+	public UiIconName color(Color iconColor) {
+		set(ICON_COLOR, iconColor);
 
 		return this;
 	}
@@ -83,11 +82,11 @@ public class UiIconName extends UiImageDefinition<UiIconName>
 	/**
 	 * Sets the icon's foreground color.
 	 *
-	 * @param eScale rIconColor The foreground color
+	 * @param scale iconColor The foreground color
 	 * @return This instance
 	 */
-	public UiIconName size(RelativeScale eScale) {
-		set(ICON_SIZE, eScale);
+	public UiIconName size(RelativeScale scale) {
+		set(ICON_SIZE, scale);
 
 		return this;
 	}

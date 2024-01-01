@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.LabelStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextComponent;
 
@@ -33,11 +32,11 @@ public class UiTitle extends UiTextComponent<UiTitle> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sText   The initial title text
+	 * @param parent The parent container
+	 * @param text   The initial title text
 	 */
-	public UiTitle(UiContainer<?> rParent, String sText) {
-		super(rParent, sText);
+	public UiTitle(UiContainer<?> parent, String text) {
+		super(parent, text);
 
 		set(LABEL_STYLE, LabelStyle.TITLE);
 	}

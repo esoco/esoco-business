@@ -33,21 +33,21 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	/**
 	 * Sets the horizontal alignment of this element.
 	 *
-	 * @param eAlignment The horizontal alignment
+	 * @param alignment The horizontal alignment
 	 * @return This instance for concatenation
 	 */
-	public E alignHorizontal(Alignment eAlignment) {
-		return set(HORIZONTAL_ALIGN, eAlignment);
+	public E alignHorizontal(Alignment alignment) {
+		return set(HORIZONTAL_ALIGN, alignment);
 	}
 
 	/**
 	 * Sets the vertical alignment value of this element.
 	 *
-	 * @param eAlignment The vertical alignment
+	 * @param alignment The vertical alignment
 	 * @return This instance for concatenation
 	 */
-	public E alignVertical(Alignment eAlignment) {
-		return set(VERTICAL_ALIGN, eAlignment);
+	public E alignVertical(Alignment alignment) {
+		return set(VERTICAL_ALIGN, alignment);
 	}
 
 	/**
@@ -57,9 +57,9 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 * @see UiLayout#ignoreProperties(PropertyName...)
 	 */
 	@Override
-	public void applyPropertiesTo(UiComponent<?, ?> rComponent) {
-		for (PropertyName<?> rProperty : getProperties().getPropertyNames()) {
-			applyProperty(rComponent, rProperty);
+	public void applyPropertiesTo(UiComponent<?, ?> component) {
+		for (PropertyName<?> property : getProperties().getPropertyNames()) {
+			applyProperty(component, property);
 		}
 	}
 
@@ -67,13 +67,13 @@ public abstract class UiLayoutElement<E extends UiLayoutElement<E>>
 	 * Applies a single property to a component if it doesn't exist already.
 	 * This is in a separate method to allow type-safe invocation.
 	 *
-	 * @param rComponent The component to apply the property to
-	 * @param rProperty  The name of the property to apply
+	 * @param component The component to apply the property to
+	 * @param property  The name of the property to apply
 	 */
-	protected <T> void applyProperty(UiComponent<?, ?> rComponent,
-		PropertyName<T> rProperty) {
-		if (!rComponent.has(rProperty)) {
-			rComponent.set(rProperty, get(rProperty, null));
+	protected <T> void applyProperty(UiComponent<?, ?> component,
+		PropertyName<T> property) {
+		if (!component.has(property)) {
+			component.set(property, get(property, null));
 		}
 	}
 }

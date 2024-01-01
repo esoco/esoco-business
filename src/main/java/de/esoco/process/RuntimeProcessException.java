@@ -30,32 +30,32 @@ public class RuntimeProcessException extends ProcessException {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep    The step in which the exception occurred
-	 * @param sMessage The error message
+	 * @param step    The step in which the exception occurred
+	 * @param message The error message
 	 */
-	public RuntimeProcessException(ProcessFragment rStep, String sMessage) {
-		this(rStep, sMessage, null);
+	public RuntimeProcessException(ProcessFragment step, String message) {
+		this(step, message, null);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep  The step in which the exception occurred
-	 * @param aCause The causing exception (may be NULL)
+	 * @param step  The step in which the exception occurred
+	 * @param cause The causing exception (may be NULL)
 	 */
-	public RuntimeProcessException(ProcessFragment rStep, Throwable aCause) {
-		this(rStep, null, aCause);
+	public RuntimeProcessException(ProcessFragment step, Throwable cause) {
+		this(step, null, cause);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep    The step in which the exception occurred
-	 * @param sMessage The error message
-	 * @param aCause   The causing exception (may be NULL)
+	 * @param step    The step in which the exception occurred
+	 * @param message The error message
+	 * @param cause   The causing exception (may be NULL)
 	 */
-	public RuntimeProcessException(ProcessFragment rStep, String sMessage,
-		Throwable aCause) {
-		super(rStep, sMessage, aCause);
+	public RuntimeProcessException(ProcessFragment step, String message,
+		Throwable cause) {
+		super(step, message, cause);
 	}
 }

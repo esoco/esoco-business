@@ -25,40 +25,40 @@ public class ProcessException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ProcessFragment rStep;
+	private final ProcessFragment step;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep    The step in which the exception occurred
-	 * @param sMessage The error message
+	 * @param step    The step in which the exception occurred
+	 * @param message The error message
 	 */
-	public ProcessException(ProcessFragment rStep, String sMessage) {
-		this(rStep, sMessage, null);
+	public ProcessException(ProcessFragment step, String message) {
+		this(step, message, null);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep  The step in which the exception occurred
-	 * @param aCause The causing exception (may be NULL)
+	 * @param step  The step in which the exception occurred
+	 * @param cause The causing exception (may be NULL)
 	 */
-	public ProcessException(ProcessFragment rStep, Throwable aCause) {
-		this(rStep, null, aCause);
+	public ProcessException(ProcessFragment step, Throwable cause) {
+		this(step, null, cause);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep    The step in which the exception occurred
-	 * @param sMessage The error message
-	 * @param aCause   The causing exception (may be NULL)
+	 * @param step    The step in which the exception occurred
+	 * @param message The error message
+	 * @param cause   The causing exception (may be NULL)
 	 */
-	public ProcessException(ProcessFragment rStep, String sMessage,
-		Throwable aCause) {
-		super(sMessage, aCause);
+	public ProcessException(ProcessFragment step, String message,
+		Throwable cause) {
+		super(message, cause);
 
-		this.rStep = rStep;
+		this.step = step;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class ProcessException extends RuntimeException {
 	 * @return The process step
 	 */
 	public final ProcessFragment getProcessStep() {
-		return rStep;
+		return step;
 	}
 
 	/**
@@ -77,12 +77,12 @@ public class ProcessException extends RuntimeException {
 	 * @return The root exception
 	 */
 	public Throwable getRootException() {
-		Throwable eRoot = this;
+		Throwable root = this;
 
-		while (eRoot.getCause() != null) {
-			eRoot = eRoot.getCause();
+		while (root.getCause() != null) {
+			root = root.getCause();
 		}
 
-		return eRoot;
+		return root;
 	}
 }

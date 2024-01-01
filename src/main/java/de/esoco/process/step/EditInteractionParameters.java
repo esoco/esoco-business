@@ -18,10 +18,9 @@ package de.esoco.process.step;
 
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Updatable;
+import org.obrel.core.RelationType;
 
 import java.util.List;
-
-import org.obrel.core.RelationType;
 
 /**
  * A fragment that allows to edit the elements of an interaction.
@@ -33,19 +32,19 @@ public class EditInteractionParameters extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
-	private List<RelationType<?>> rRootParams;
+	private final List<RelationType<?>> rootParams;
 
-	private InteractionParameterTree aElementTree;
+	private InteractionParameterTree elementTree;
 
-	private EditInteractionParameter aElementEditor;
+	private EditInteractionParameter elementEditor;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rRootParams The root fragment to edit
+	 * @param rootParams The root fragment to edit
 	 */
-	public EditInteractionParameters(List<RelationType<?>> rRootParams) {
-		this.rRootParams = rRootParams;
+	public EditInteractionParameters(List<RelationType<?>> rootParams) {
+		this.rootParams = rootParams;
 	}
 
 	/**
@@ -55,11 +54,11 @@ public class EditInteractionParameters extends InteractionFragment
 	public void init() throws Exception {
 		setLayout(LayoutType.SPLIT, getFragmentParameter());
 
-		aElementTree = new InteractionParameterTree(rRootParams);
-		aElementEditor = new EditInteractionParameter();
+		elementTree = new InteractionParameterTree(rootParams);
+		elementEditor = new EditInteractionParameter();
 
-		addSubFragment(aElementTree).width("300px");
-		addSubFragment(aElementEditor);
+		addSubFragment(elementTree).width("300px");
+		addSubFragment(elementEditor);
 	}
 
 	/**
@@ -83,7 +82,7 @@ public class EditInteractionParameters extends InteractionFragment
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void handleInteraction(RelationType<?> rInteractionParam)
+		public void handleInteraction(RelationType<?> interactionParam)
 			throws Exception {
 		}
 
@@ -108,15 +107,15 @@ public class EditInteractionParameters extends InteractionFragment
 
 		private static final long serialVersionUID = 1L;
 
-		private List<RelationType<?>> rRootParams;
+		private final List<RelationType<?>> rootParams;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rRootParams The root parameters to display in the tree
+		 * @param rootParams The root parameters to display in the tree
 		 */
-		public InteractionParameterTree(List<RelationType<?>> rRootParams) {
-			this.rRootParams = rRootParams;
+		public InteractionParameterTree(List<RelationType<?>> rootParams) {
+			this.rootParams = rootParams;
 		}
 
 		/**
@@ -125,7 +124,7 @@ public class EditInteractionParameters extends InteractionFragment
 		@Override
 		@SuppressWarnings("unused")
 		public void init() throws Exception {
-			for (RelationType<?> rParam : rRootParams) {
+			for (RelationType<?> param : rootParams) {
 			}
 		}
 	}

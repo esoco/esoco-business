@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.LabelStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextComponent;
 
@@ -33,31 +32,31 @@ public class UiLabel extends UiTextComponent<UiLabel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sText   The label text
+	 * @param parent The parent container
+	 * @param text   The label text
 	 */
-	public UiLabel(UiContainer<?> rParent, String sText) {
-		super(rParent, sText);
+	public UiLabel(UiContainer<?> parent, String text) {
+		super(parent, text);
 	}
 
 	/**
 	 * Fluent variant of {@link #setCaption(String)}.
 	 *
-	 * @param sCaption The caption label
+	 * @param caption The caption label
 	 * @return This instance
 	 */
-	public UiLabel caption(String sCaption) {
-		return label(sCaption);
+	public UiLabel caption(String caption) {
+		return label(caption);
 	}
 
 	/**
 	 * Fluent variant of {@link #setLabelStyle(LabelStyle)}.
 	 *
-	 * @param eStyle The label style
+	 * @param style The label style
 	 * @return This instance
 	 */
-	public UiLabel labelStyle(LabelStyle eStyle) {
-		set(LABEL_STYLE, eStyle);
+	public UiLabel labelStyle(LabelStyle style) {
+		set(LABEL_STYLE, style);
 
 		return this;
 	}
@@ -67,18 +66,18 @@ public class UiLabel extends UiTextComponent<UiLabel> {
 	 * supported by
 	 * the container layout).
 	 *
-	 * @param sCaption The caption label
+	 * @param caption The caption label
 	 */
-	public void setCaption(String sCaption) {
-		caption(sCaption);
+	public void setCaption(String caption) {
+		caption(caption);
 	}
 
 	/**
 	 * Sets the style of this label.
 	 *
-	 * @param eStyle The label style
+	 * @param style The label style
 	 */
-	public void setLabelStyle(LabelStyle eStyle) {
-		labelStyle(eStyle);
+	public void setLabelStyle(LabelStyle style) {
+		labelStyle(style);
 	}
 }

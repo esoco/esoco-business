@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiSingleSelectionList;
 import de.esoco.process.ui.event.UiHasActionEvents;
@@ -40,30 +39,30 @@ public class UiList<T> extends UiSingleSelectionList<T, UiList<T>>
 	 * through the {@link #setListValues(java.util.Collection) setListValues}
 	 * methods.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list values
+	 * @param parent   The parent container
+	 * @param datatype The datatype of the list values
 	 */
-	public UiList(UiContainer<?> rParent, Class<T> rDatatype) {
-		super(rParent, rDatatype, ListStyle.LIST);
+	public UiList(UiContainer<?> parent, Class<T> datatype) {
+		super(parent, datatype, ListStyle.LIST);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiList<T> onAction(Consumer<T> rEventHandler) {
-		return onSelectionConfirmed(rEventHandler);
+	public UiList<T> onAction(Consumer<T> eventHandler) {
+		return onSelectionConfirmed(eventHandler);
 	}
 
 	/**
 	 * Sets the event handler for selection confirmed events (e.g. by double
 	 * click) of this list.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final UiList<T> onSelectionConfirmed(Consumer<T> rEventHandler) {
+	public final UiList<T> onSelectionConfirmed(Consumer<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 }

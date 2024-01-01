@@ -18,14 +18,13 @@ package de.esoco.lib.comm;
 
 import de.esoco.lib.json.Json;
 import de.esoco.lib.text.TextConvert;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newType;
@@ -111,23 +110,23 @@ public class GraylogMessage extends RelatedObject {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rLevel        The severity level
-	 * @param sShortMessage The short message
-	 * @param sFullMessage  The full message or NULL for none
+	 * @param level        The severity level
+	 * @param shortMessage The short message
+	 * @param fullMessage  The full message or NULL for none
 	 */
 	@SuppressWarnings("boxing")
-	public GraylogMessage(Level rLevel, String sShortMessage,
-		String sFullMessage) {
-		assert rLevel != null && sShortMessage != null &&
-			sShortMessage.length() > 0;
+	public GraylogMessage(Level level, String shortMessage,
+		String fullMessage) {
+		assert
+			level != null && shortMessage != null && shortMessage.length() > 0;
 
 		set(TIMESTAMP, System.currentTimeMillis());
 		set(HOST, LOCALHOST);
-		set(LEVEL, rLevel);
-		set(SHORT_MESSAGE, sShortMessage);
+		set(LEVEL, level);
+		set(SHORT_MESSAGE, shortMessage);
 
-		if (sFullMessage != null) {
-			set(FULL_MESSAGE, sFullMessage);
+		if (fullMessage != null) {
+			set(FULL_MESSAGE, fullMessage);
 		}
 	}
 
@@ -137,62 +136,62 @@ public class GraylogMessage extends RelatedObject {
 	 * @return The JSON string for this message
 	 */
 	public String toJson() {
-		StringBuilder aJsonMessage = new StringBuilder("{\n");
+		StringBuilder jsonMessage = new StringBuilder("{\n");
 
-		for (Relation<?> rRelation : getRelations(null)) {
-			if (appendRelation(aJsonMessage, rRelation)) {
-				aJsonMessage.append(",\n");
+		for (Relation<?> relation : getRelations(null)) {
+			if (appendRelation(jsonMessage, relation)) {
+				jsonMessage.append(",\n");
 			}
 		}
 
 		// remove trailing ',\n'
-		aJsonMessage.setLength(aJsonMessage.length() - 2);
-		aJsonMessage.append("\n}\0");
+		jsonMessage.setLength(jsonMessage.length() - 2);
+		jsonMessage.append("\n}\0");
 
-		return aJsonMessage.toString();
+		return jsonMessage.toString();
 	}
 
 	/**
 	 * Appends a relation to a JSON string.
 	 *
-	 * @param rJsonMessage The string builder
-	 * @param rRelation    The relation
+	 * @param jsonMessage The string builder
+	 * @param relation    The relation
 	 * @return TRUE if a relation has been appended
 	 */
-	private boolean appendRelation(StringBuilder rJsonMessage,
-		Relation<?> rRelation) {
-		Object rValue = rRelation.getTarget();
-		boolean bHasValue = rValue != null;
+	private boolean appendRelation(StringBuilder jsonMessage,
+		Relation<?> relation) {
+		Object value = relation.getTarget();
+		boolean hasValue = value != null;
 
-		if (bHasValue) {
-			RelationType<?> rRelationType = rRelation.getType();
-			Class<?> rDatatype = rRelationType.getTargetType();
+		if (hasValue) {
+			RelationType<?> relationType = relation.getType();
+			Class<?> datatype = relationType.getTargetType();
 
-			rJsonMessage.append('\"');
-			rJsonMessage.append(rRelationType.getSimpleName().toLowerCase());
-			rJsonMessage.append("\":");
+			jsonMessage.append('\"');
+			jsonMessage.append(relationType.getSimpleName().toLowerCase());
+			jsonMessage.append("\":");
 
-			if (Number.class.isAssignableFrom(rDatatype)) {
-				if (rRelationType == TIMESTAMP) {
-					long nTimestamp = ((Long) rValue).longValue();
-					String sMilliseconds =
-						TextConvert.padLeft("" + (nTimestamp % 1000), 4, '0');
+			if (Number.class.isAssignableFrom(datatype)) {
+				if (relationType == TIMESTAMP) {
+					long timestamp = ((Long) value).longValue();
+					String milliseconds =
+						TextConvert.padLeft("" + (timestamp % 1000), 4, '0');
 
-					rJsonMessage.append(nTimestamp / 1000);
-					rJsonMessage.append('.');
-					rJsonMessage.append(sMilliseconds);
+					jsonMessage.append(timestamp / 1000);
+					jsonMessage.append('.');
+					jsonMessage.append(milliseconds);
 				} else {
-					rJsonMessage.append(rValue.toString());
+					jsonMessage.append(value);
 				}
-			} else if (rRelationType == LEVEL) {
-				rJsonMessage.append(((Level) rValue).ordinal());
+			} else if (relationType == LEVEL) {
+				jsonMessage.append(((Level) value).ordinal());
 			} else {
-				rJsonMessage.append('\"');
-				rJsonMessage.append(Json.escape(rValue.toString()));
-				rJsonMessage.append('\"');
+				jsonMessage.append('\"');
+				jsonMessage.append(Json.escape(value.toString()));
+				jsonMessage.append('\"');
 			}
 		}
 
-		return bHasValue;
+		return hasValue;
 	}
 }

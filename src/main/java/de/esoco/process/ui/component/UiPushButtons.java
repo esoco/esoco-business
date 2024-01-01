@@ -19,7 +19,6 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.StyleProperties;
-
 import de.esoco.process.ui.UiButtonGroup;
 import de.esoco.process.ui.UiContainer;
 
@@ -38,21 +37,21 @@ public class UiPushButtons<T> extends UiButtonGroup<T, UiPushButtons<T>> {
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as buttons.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list values
+	 * @param parent   The parent container
+	 * @param datatype The datatype of the list values
 	 */
-	public UiPushButtons(UiContainer<?> rParent, Class<T> rDatatype) {
-		super(rParent, rDatatype, ListStyle.IMMEDIATE);
+	public UiPushButtons(UiContainer<?> parent, Class<T> datatype) {
+		super(parent, datatype, ListStyle.IMMEDIATE);
 	}
 
 	/**
 	 * Sets the button style.
 	 *
-	 * @param eStyle The new style
+	 * @param style The new style
 	 * @return This instance
 	 */
-	public UiPushButtons<T> buttonStyle(ButtonStyle eStyle) {
-		return set(BUTTON_STYLE, eStyle);
+	public UiPushButtons<T> buttonStyle(ButtonStyle style) {
+		return set(BUTTON_STYLE, style);
 	}
 
 	/**

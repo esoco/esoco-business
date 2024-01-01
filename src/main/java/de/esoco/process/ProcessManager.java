@@ -17,14 +17,12 @@
 package de.esoco.process;
 
 import de.esoco.data.element.DataElement;
-
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
+import org.obrel.core.RelationTypes;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.obrel.core.RelationTypes;
 
 import static org.obrel.type.StandardTypes.NAME;
 
@@ -37,7 +35,7 @@ public final class ProcessManager {
 
 	private static final Map<Class<? extends ProcessDefinition>,
 		ProcessDefinition>
-		aProcessDefRegistry =
+		processDefRegistry =
 		new HashMap<Class<? extends ProcessDefinition>, ProcessDefinition>();
 
 	/**
@@ -49,66 +47,66 @@ public final class ProcessManager {
 	/**
 	 * Returns a process instance for a certain process definition class.
 	 *
-	 * @param rDefinitionClass The process definition class
+	 * @param definitionClass The process definition class
 	 * @return The corresponding process instance
 	 * @throws ProcessException If creating or retrieving the process instance
 	 *                          fails
 	 */
 	public static Process getProcess(
-		Class<? extends ProcessDefinition> rDefinitionClass)
+		Class<? extends ProcessDefinition> definitionClass)
 		throws ProcessException {
-		ProcessDefinition rDef = getProcessDefinition(rDefinitionClass);
+		ProcessDefinition def = getProcessDefinition(definitionClass);
 
-		return getProcess(rDef);
+		return getProcess(def);
 	}
 
 	/**
 	 * Returns a process instance for a certain process definition.
 	 *
-	 * @param rDefinition The process definition
+	 * @param definition The process definition
 	 * @return The corresponding process instance
 	 * @throws ProcessException If creating or retrieving the process instance
 	 *                          fails
 	 */
-	public static Process getProcess(ProcessDefinition rDefinition)
+	public static Process getProcess(ProcessDefinition definition)
 		throws ProcessException {
-		RelationTypes.init(rDefinition.getClass());
+		RelationTypes.init(definition.getClass());
 
-		return rDefinition.createProcess();
+		return definition.createProcess();
 	}
 
 	/**
 	 * Returns the process definition instance for a certain definition class.
 	 *
-	 * @param rDefinitionClass The process definition class
+	 * @param definitionClass The process definition class
 	 * @return The corresponding process definition
 	 */
 	public static <T extends ProcessDefinition> T getProcessDefinition(
-		Class<T> rDefinitionClass) {
+		Class<T> definitionClass) {
 		@SuppressWarnings("unchecked")
-		T rDef = (T) aProcessDefRegistry.get(rDefinitionClass);
+		T def = (T) processDefRegistry.get(definitionClass);
 
-		if (rDef == null) {
-			rDef = ReflectUtil.newInstance(rDefinitionClass);
+		if (def == null) {
+			def = ReflectUtil.newInstance(definitionClass);
 
-			aProcessDefRegistry.put(rDefinitionClass, rDef);
+			processDefRegistry.put(definitionClass, def);
 		}
 
-		return rDef;
+		return def;
 	}
 
 	/**
 	 * Returns a resource string for a certain process class. The returned
 	 * string will be prefixed with {@link DataElement#ITEM_RESOURCE_PREFIX}.
 	 *
-	 * @param rClass The process class
+	 * @param processType The process class
 	 * @return The resulting resource string
 	 */
 	public static String getProcessResource(
-		Class<? extends ProcessDefinition> rClass) {
-		String sName = getProcessDefinition(rClass).get(NAME);
+		Class<? extends ProcessDefinition> processType) {
+		String name = getProcessDefinition(processType).get(NAME);
 
 		return DataElement.ITEM_RESOURCE_PREFIX +
-			TextConvert.capitalizedIdentifier(sName);
+			TextConvert.capitalizedIdentifier(name);
 	}
 }

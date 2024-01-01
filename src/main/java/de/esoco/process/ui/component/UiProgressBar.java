@@ -18,12 +18,10 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.IntAttribute;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
-
 import static org.obrel.type.StandardTypes.MAXIMUM;
 import static org.obrel.type.StandardTypes.MINIMUM;
 
@@ -43,11 +41,11 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	 * toolkit it may be rendered as an infinite animation to show an
 	 * indeterminable progress.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 * @see #withBounds(int, int)
 	 */
-	public UiProgressBar(UiContainer<?> rParent) {
-		super(rParent, Integer.class);
+	public UiProgressBar(UiContainer<?> parent) {
+		super(parent, Integer.class);
 
 		set(CONTENT_TYPE, ContentType.PROGRESS);
 	}
@@ -55,11 +53,11 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	/**
 	 * Fluent variant of {@link #setCaption(String)}.
 	 *
-	 * @param sCaption The caption label
+	 * @param caption The caption label
 	 * @return This instance
 	 */
-	public UiProgressBar caption(String sCaption) {
-		return label(sCaption);
+	public UiProgressBar caption(String caption) {
+		return label(caption);
 	}
 
 	/**
@@ -93,40 +91,40 @@ public class UiProgressBar extends UiComponent<Integer, UiProgressBar>
 	 * supported by
 	 * the container layout).
 	 *
-	 * @param sCaption The caption label
+	 * @param caption The caption label
 	 */
-	public void setCaption(String sCaption) {
-		caption(sCaption);
+	public void setCaption(String caption) {
+		caption(caption);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setValue(int nValue) {
-		value(nValue);
+	public void setValue(int value) {
+		value(value);
 	}
 
 	/**
 	 * Sets the value of this instance.
 	 *
-	 * @param nValue The value
+	 * @param value The value
 	 * @return This instance
 	 */
-	public UiProgressBar value(int nValue) {
-		return setValueImpl(nValue);
+	public UiProgressBar value(int value) {
+		return setValueImpl(value);
 	}
 
 	/**
 	 * Sets the minimum and maximum values for the progress value. If not set
 	 * these values are initialized to 0 and 100, respectively.
 	 *
-	 * @param nMinimum The minimum integer value
-	 * @param nMaximum The maximum integer value
+	 * @param minimum The minimum integer value
+	 * @param maximum The maximum integer value
 	 * @return This instance
 	 */
-	public UiProgressBar withBounds(int nMinimum, int nMaximum) {
-		fragment().setParameterBounds(type(), nMinimum, nMaximum);
+	public UiProgressBar withBounds(int minimum, int maximum) {
+		fragment().setParameterBounds(type(), minimum, maximum);
 
 		return this;
 	}

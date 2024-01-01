@@ -17,10 +17,9 @@
 package de.esoco.process.param;
 
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
 
 import java.util.Collection;
-
-import org.obrel.core.RelationType;
 
 /**
  * A parameter wrapper with additional functions for enum values.
@@ -33,20 +32,20 @@ public class EnumParameter<E extends Enum<E>>
 	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public EnumParameter(InteractionFragment rFragment,
-		RelationType<E> rParamType) {
-		super(rFragment, rParamType);
+	public EnumParameter(InteractionFragment fragment,
+		RelationType<E> paramType) {
+		super(fragment, paramType);
 	}
 
 	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param rDisabledElements The elements to disable
+	 * @param disabledElements The elements to disable
 	 * @return This parameter instance
 	 */
 	@SuppressWarnings("unchecked")
-	public EnumParameter<E> disable(E... rDisabledElements) {
-		fragment().disableElements(type(), rDisabledElements);
+	public EnumParameter<E> disable(E... disabledElements) {
+		fragment().disableElements(type(), disabledElements);
 
 		return this;
 	}
@@ -54,11 +53,11 @@ public class EnumParameter<E extends Enum<E>>
 	/**
 	 * Disables certain values of the parameter enum.
 	 *
-	 * @param rDisabledElements A collection of the elements to disable
+	 * @param disabledElements A collection of the elements to disable
 	 * @return This parameter instance
 	 */
-	public EnumParameter<E> disable(Collection<E> rDisabledElements) {
-		fragment().disableElements(type(), rDisabledElements);
+	public EnumParameter<E> disable(Collection<E> disabledElements) {
+		fragment().disableElements(type(), disabledElements);
 
 		return this;
 	}

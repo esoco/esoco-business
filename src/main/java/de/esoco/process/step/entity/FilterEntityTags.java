@@ -20,7 +20,6 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
 import de.esoco.entity.ExtraAttribute;
-
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
@@ -29,14 +28,15 @@ import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.process.RuntimeProcessException;
+import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.param.EnumParameter;
 import de.esoco.process.param.Parameter;
 import de.esoco.process.param.ParameterList;
-import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.entity.EditEntityTags.TagEditListener;
-
 import de.esoco.storage.StorageException;
+import org.obrel.core.Relatable;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,19 +47,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.obrel.core.Relatable;
-import org.obrel.core.RelationType;
-
 import static de.esoco.entity.EntityFunctions.getEntityId;
 import static de.esoco.entity.EntityFunctions.getExtraAttributeValue;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_TAGS;
-
 import static de.esoco.lib.expression.CollectionFunctions.collectAllInto;
 import static de.esoco.lib.expression.CollectionFunctions.collectInto;
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.not;
-
 import static de.esoco.storage.StoragePredicates.like;
 
 /**
@@ -84,151 +79,151 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
-	private Class<E> rEntityType;
+	private final Entity tagOwner;
 
-	private Entity rTagOwner;
+	private final Runnable helpAction;
 
-	private TagFilterListener<E> rTagFilterListener;
+	private final String label;
 
-	private Runnable rHelpAction;
+	private final LayoutType layout;
 
-	private String sLabel;
+	private final boolean singleRow;
 
-	private LayoutType eLayout;
+	private Class<E> entityType;
 
-	private boolean bSingleRow;
+	private TagFilterListener<E> tagFilterListener;
 
-	private boolean bUseHeaderLabel = false;
+	private boolean useHeaderLabel = false;
 
-	private ButtonStyle eButtonStyle = ButtonStyle.DEFAULT;
+	private ButtonStyle buttonStyle = ButtonStyle.DEFAULT;
 
-	private SetParameter<String> aTagInput;
+	private SetParameter<String> tagInput;
 
-	private Parameter<TagFilterJoin> aFilterJoin;
+	private Parameter<TagFilterJoin> filterJoin;
 
-	private Parameter<Boolean> aFilterNegate;
+	private Parameter<Boolean> filterNegate;
 
-	private EnumParameter<TagFilterAction> aFilterAction;
+	private EnumParameter<TagFilterAction> filterAction;
 
-	private ParameterList aOptionsPanel;
+	private ParameterList optionsPanel;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rEntityType The type of entity to filter
-	 * @param rTagOwner   The owner of the tags to filter by or NULL to filter
-	 *                    global tags
-	 * @param eLayout     The layout for this fragment
-	 * @param rHelpAction A runnable object to be invoked if the user clicks on
-	 *                    the help button; if NULL no help button will be
-	 *                    displayed
+	 * @param entityType The type of entity to filter
+	 * @param tagOwner   The owner of the tags to filter by or NULL to filter
+	 *                   global tags
+	 * @param layout     The layout for this fragment
+	 * @param helpAction A runnable object to be invoked if the user clicks on
+	 *                   the help button; if NULL no help button will be
+	 *                   displayed
 	 */
-	public FilterEntityTags(Class<E> rEntityType, Entity rTagOwner,
-		LayoutType eLayout, Runnable rHelpAction) {
-		this(rEntityType, rTagOwner, null, rHelpAction, null, eLayout, true);
+	public FilterEntityTags(Class<E> entityType, Entity tagOwner,
+		LayoutType layout, Runnable helpAction) {
+		this(entityType, tagOwner, null, helpAction, null, layout, true);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rEntityType        The type of entity to filter
-	 * @param rTagOwner          The owner of the tags to filter by or NULL to
-	 *                           filter global tags
-	 * @param rTagFilterListener The listener for filter changes
-	 * @param sLabel             An optional label in this fragment (empty
-	 *                           string for none, NULL for the default)
+	 * @param entityType        The type of entity to filter
+	 * @param tagOwner          The owner of the tags to filter by or NULL to
+	 *                          filter global tags
+	 * @param tagFilterListener The listener for filter changes
+	 * @param label             An optional label in this fragment (empty
+	 *                             string
+	 *                          for none, NULL for the default)
 	 */
-	public FilterEntityTags(Class<E> rEntityType, Entity rTagOwner,
-		TagFilterListener<E> rTagFilterListener, String sLabel) {
-		this(rEntityType, rTagOwner, rTagFilterListener, null, sLabel,
+	public FilterEntityTags(Class<E> entityType, Entity tagOwner,
+		TagFilterListener<E> tagFilterListener, String label) {
+		this(entityType, tagOwner, tagFilterListener, null, label,
 			LayoutType.TABLE, true);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rEntityType        The type of entity to filter
-	 * @param rTagOwner          The owner of the tags to filter by or NULL to
-	 *                           filter global tags
-	 * @param rTagFilterListener The listener for filter changes
-	 * @param rHelpAction        A runnable object to be invoked if the user
-	 *                           clicks on the help button; if NULL no help
-	 *                           button will be displayed
-	 * @param sLabel             An optional label in this fragment (empty
-	 *                           string for none, NULL for the default)
-	 * @param eLayout            The layout for this fragment
-	 * @param bSingleRow         TRUE to display all elements in a single row
+	 * @param entityType        The type of entity to filter
+	 * @param tagOwner          The owner of the tags to filter by or NULL to
+	 *                          filter global tags
+	 * @param tagFilterListener The listener for filter changes
+	 * @param helpAction        A runnable object to be invoked if the user
+	 *                          clicks on the help button; if NULL no help
+	 *                          button will be displayed
+	 * @param label             An optional label in this fragment (empty
+	 *                             string
+	 *                          for none, NULL for the default)
+	 * @param layout            The layout for this fragment
+	 * @param singleRow         TRUE to display all elements in a single row
 	 */
-	public FilterEntityTags(Class<E> rEntityType, Entity rTagOwner,
-		TagFilterListener<E> rTagFilterListener, Runnable rHelpAction,
-		String sLabel, LayoutType eLayout, boolean bSingleRow) {
-		this.rEntityType = rEntityType;
-		this.rTagOwner = rTagOwner;
-		this.rTagFilterListener = rTagFilterListener;
-		this.rHelpAction = rHelpAction;
-		this.sLabel = sLabel;
-		this.eLayout = eLayout;
-		this.bSingleRow = bSingleRow;
+	public FilterEntityTags(Class<E> entityType, Entity tagOwner,
+		TagFilterListener<E> tagFilterListener, Runnable helpAction,
+		String label, LayoutType layout, boolean singleRow) {
+		this.entityType = entityType;
+		this.tagOwner = tagOwner;
+		this.tagFilterListener = tagFilterListener;
+		this.helpAction = helpAction;
+		this.label = label;
+		this.layout = layout;
+		this.singleRow = singleRow;
 	}
 
 	/**
 	 * Returns all tags that are stored for a certain entity type.
 	 *
-	 * @param rEntityType The entity class to return the tags for
-	 * @param rTagOwner   The owner entities of which to include additional
-	 *                       tags
-	 *                    or NULL for global tags only
+	 * @param entityType The entity class to return the tags for
+	 * @param tagOwner   The owner entities of which to include additional tags
+	 *                   or NULL for global tags only
 	 * @return A set containing the distinct tags of the given entity type
 	 * @throws StorageException If reading the tags fails
 	 */
 	public static Set<String> getAllEntityTags(
-		Class<? extends Entity> rEntityType, Entity rTagOwner)
+		Class<? extends Entity> entityType, Entity tagOwner)
 		throws StorageException {
-		Predicate<Relatable> pIsEntityTag =
-			getEntityTagsPredicate(rEntityType, rTagOwner);
+		Predicate<Relatable> isEntityTag =
+			getEntityTagsPredicate(entityType, tagOwner);
 
-		Set<String> aAllTags = new HashSet<>();
+		Set<String> allTags = new HashSet<>();
 
-		Action<ExtraAttribute> fCollect =
-			collectAllInto(aAllTags).from(getExtraAttributeValue(ENTITY_TAGS));
+		Action<ExtraAttribute> collect =
+			collectAllInto(allTags).from(getExtraAttributeValue(ENTITY_TAGS));
 
-		EntityManager.forEach(ExtraAttribute.class, pIsEntityTag, fCollect);
+		EntityManager.forEach(ExtraAttribute.class, isEntityTag, collect);
 
-		List<String> aSortedTags = new ArrayList<>(aAllTags);
+		List<String> sortedTags = new ArrayList<>(allTags);
 
-		Collections.sort(aSortedTags);
-		aAllTags = new LinkedHashSet<>(aSortedTags);
+		Collections.sort(sortedTags);
+		allTags = new LinkedHashSet<>(sortedTags);
 
-		return aAllTags;
+		return allTags;
 	}
 
 	/**
 	 * Returns a predicate that can be used to query all tag extra attributes
 	 * for the given entity type.
 	 *
-	 * @param rEntityType The entity class to return the predicate for
-	 * @param rTagOwner   An owner entity of which to include additional
-	 *                       tags or
-	 *                    NULL for global tags only
+	 * @param entityType The entity class to return the predicate for
+	 * @param tagOwner   An owner entity of which to include additional tags or
+	 *                   NULL for global tags only
 	 * @return A new predicate that matches all tags for the given entity type
 	 */
 	private static Predicate<Relatable> getEntityTagsPredicate(
-		Class<? extends Entity> rEntityType, Entity rTagOwner) {
-		String sIdPrefix =
-			EntityManager.getEntityDefinition(rEntityType).getIdPrefix();
+		Class<? extends Entity> entityType, Entity tagOwner) {
+		String idPrefix =
+			EntityManager.getEntityDefinition(entityType).getIdPrefix();
 
-		Predicate<Relatable> pHasTagOwner =
-			ExtraAttribute.OWNER.is(equalTo(rTagOwner));
+		Predicate<Relatable> hasTagOwner =
+			ExtraAttribute.OWNER.is(equalTo(tagOwner));
 
-		Predicate<Relatable> pExtraAttr =
-			ExtraAttribute.KEY.is(equalTo(ENTITY_TAGS)).and(pHasTagOwner);
+		Predicate<Relatable> extraAttr =
+			ExtraAttribute.KEY.is(equalTo(ENTITY_TAGS)).and(hasTagOwner);
 
-		Predicate<Object> pEntityPrefix =
-			like(sIdPrefix + EntityManager.GLOBAL_ID_PREFIX_SEPARATOR + "%");
+		Predicate<Object> entityPrefix =
+			like(idPrefix + EntityManager.GLOBAL_ID_PREFIX_SEPARATOR + "%");
 
-		pExtraAttr = pExtraAttr.and(ExtraAttribute.ENTITY.is(pEntityPrefix));
+		extraAttr = extraAttr.and(ExtraAttribute.ENTITY.is(entityPrefix));
 
-		return pExtraAttr;
+		return extraAttr;
 	}
 
 	/**
@@ -238,13 +233,13 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * which may be modified by the receiver
 	 */
 	public Set<String> getAllowedTags() {
-		LinkedHashSet<String> aAllowedTags = new LinkedHashSet<String>();
+		LinkedHashSet<String> allowedTags = new LinkedHashSet<String>();
 
-		if (aTagInput != null) {
-			aAllowedTags.addAll(aTagInput.allowedElements());
+		if (tagInput != null) {
+			allowedTags.addAll(tagInput.allowedElements());
 		}
 
-		return aAllowedTags;
+		return allowedTags;
 	}
 
 	/**
@@ -253,7 +248,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @return The entity type
 	 */
 	public Class<E> getEntityType() {
-		return rEntityType;
+		return entityType;
 	}
 
 	/**
@@ -264,77 +259,74 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * is empty
 	 */
 	public Set<Number> getFilteredEntityIds() throws StorageException {
-		Set<String> rFilterTags = aTagInput != null ?
-		                          aTagInput.value() :
-		                          Collections.<String>emptySet();
+		Set<String> filterTags =
+			tagInput != null ? tagInput.value() : Collections.emptySet();
 
-		Set<Number> aFilteredIds = null;
+		Set<Number> filteredIds = null;
 
-		if (rFilterTags.size() > 0) {
-			aFilteredIds = new HashSet<>();
+		if (filterTags.size() > 0) {
+			filteredIds = new HashSet<>();
 
-			Predicate<Relatable> pHasFilterTags = null;
+			Predicate<Relatable> hasFilterTags = null;
 
-			boolean bOr = (aFilterJoin.value() == TagFilterJoin.OR);
+			for (String tag : filterTags) {
+				Predicate<Relatable> hasTag;
 
-			for (String sTag : rFilterTags) {
-				Predicate<Relatable> pTag;
+				hasTag = ExtraAttribute.VALUE.is(like("%," + tag + ",%"));
+				hasTag = hasTag.or(ExtraAttribute.VALUE.is(like("%," + tag)));
+				hasTag = hasTag.or(ExtraAttribute.VALUE.is(like(tag + ",%")));
+				hasTag = hasTag.or(ExtraAttribute.VALUE.is(equalTo(tag)));
 
-				pTag = ExtraAttribute.VALUE.is(like("%," + sTag + ",%"));
-				pTag = pTag.or(ExtraAttribute.VALUE.is(like("%," + sTag)));
-				pTag = pTag.or(ExtraAttribute.VALUE.is(like(sTag + ",%")));
-				pTag = pTag.or(ExtraAttribute.VALUE.is(equalTo(sTag)));
-
-				if (bOr) {
-					pHasFilterTags = Predicates.or(pHasFilterTags, pTag);
+				if (filterJoin.value() == TagFilterJoin.OR) {
+					hasFilterTags = Predicates.or(hasFilterTags, hasTag);
 				} else {
-					pHasFilterTags = Predicates.and(pHasFilterTags, pTag);
+					hasFilterTags = Predicates.and(hasFilterTags, hasTag);
 				}
 			}
 
-			Predicate<Relatable> pIfEntityTag =
-				getEntityTagsPredicate(rEntityType, rTagOwner);
+			Predicate<Relatable> ifEntityTag =
+				getEntityTagsPredicate(entityType, tagOwner);
 
-			Action<Relatable> fCollect = collectInto(aFilteredIds).from(
+			Action<Relatable> collect = collectInto(filteredIds).from(
 				getEntityId().from(ExtraAttribute.ENTITY));
 
 			EntityManager.forEach(ExtraAttribute.class,
-				pIfEntityTag.and(pHasFilterTags), fCollect);
+				ifEntityTag.and(hasFilterTags), collect);
 		}
 
-		return aFilteredIds;
+		return filteredIds;
 	}
 
 	/**
 	 * Returns a predicate that filters the IDs of the this instance's entity
 	 * type that represents the current tag selection.
 	 *
-	 * @param rTagFilterAttr The entity ID or reference attribute to filter
+	 * @param tagFilterAttr The entity ID or reference attribute to filter
 	 * @return The predicate on the filtered entity IDs or NULL if no tags are
 	 * filtered
 	 * @throws StorageException If determining the filtered entity IDs fails
 	 */
 	@SuppressWarnings("boxing")
 	public Predicate<Entity> getFilteredIdsPredicate(
-		RelationType<?> rTagFilterAttr) throws StorageException {
-		Predicate<Entity> pTagFilter = null;
-		Set<Number> rFilteredIds = getFilteredEntityIds();
+		RelationType<?> tagFilterAttr) throws StorageException {
+		Predicate<Entity> tagFilter = null;
+		Set<Number> filteredIds = getFilteredEntityIds();
 
-		if (rFilteredIds != null) {
-			if (rFilteredIds.size() > 0) {
-				Predicate<Object> pHasFilteredId = elementOf(rFilteredIds);
+		if (filteredIds != null) {
+			if (filteredIds.size() > 0) {
+				Predicate<Object> hasFilteredId = elementOf(filteredIds);
 
 				if (isNegateFilter()) {
-					pHasFilteredId = not(pHasFilteredId);
+					hasFilteredId = not(hasFilteredId);
 				}
 
-				pTagFilter = rTagFilterAttr.is(pHasFilteredId);
+				tagFilter = tagFilterAttr.is(hasFilteredId);
 			} else {
-				pTagFilter = rTagFilterAttr.is(equalTo(-1));
+				tagFilter = tagFilterAttr.is(equalTo(-1));
 			}
 		}
 
-		return pTagFilter;
+		return tagFilter;
 	}
 
 	/**
@@ -344,7 +336,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @return A new collection containing the tag strings
 	 */
 	public Collection<String> getFilteredTags() {
-		return new LinkedHashSet<>(aTagInput.value());
+		return new LinkedHashSet<>(tagInput.value());
 	}
 
 	/**
@@ -353,7 +345,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @return The current tag filter listener or NULL for none
 	 */
 	public final TagFilterListener<E> getTagFilterListener() {
-		return rTagFilterListener;
+		return tagFilterListener;
 	}
 
 	/**
@@ -362,7 +354,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @return The tag owner entity
 	 */
 	public final Entity getTagOwner() {
-		return rTagOwner;
+		return tagOwner;
 	}
 
 	/**
@@ -372,33 +364,32 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	public void init() throws StorageException {
 		clearInteractionParameters();
 
-		layout(eLayout).resid("FilterEntityTagsFragment");
+		layout(layout).resid("FilterEntityTagsFragment");
 
-		Set<String> rAllTags = getAllEntityTags(rEntityType, rTagOwner);
+		Set<String> allTags = getAllEntityTags(entityType, tagOwner);
 
-		aTagInput = inputTags(rAllTags)
+		tagInput = inputTags(allTags)
 			.resid("FilterEntityTags")
-			.onUpdate(a -> rTagFilterListener.filterTagsChanged(this));
+			.onUpdate(a -> tagFilterListener.filterTagsChanged(this));
 
-		if (bUseHeaderLabel) {
-			aTagInput.set(StyleProperties.HEADER_LABEL);
+		if (useHeaderLabel) {
+			tagInput.set(StyleProperties.HEADER_LABEL);
 		}
 
-		aOptionsPanel = panel(this::initOptionsPanel);
+		optionsPanel = panel(this::initOptionsPanel);
 
-		aOptionsPanel
-			.alignHorizontal(Alignment.BEGIN)
-			.style("TagFilterOptions");
+		optionsPanel.alignHorizontal(Alignment.BEGIN).style(
+			"TagFilterOptions");
 
-		if (bSingleRow) {
-			aOptionsPanel.sameRow(5);
+		if (singleRow) {
+			optionsPanel.sameRow(5);
 		}
 
-		if (sLabel != null) {
-			if (sLabel.length() > 0) {
-				aTagInput.label(sLabel);
+		if (label != null) {
+			if (label.length() > 0) {
+				tagInput.label(label);
 			} else {
-				aTagInput.hideLabel();
+				tagInput.hideLabel();
 			}
 		}
 	}
@@ -410,36 +401,36 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	@SuppressWarnings("boxing")
 	public boolean isNegateFilter() {
-		return aFilterNegate.value();
+		return filterNegate.value();
 	}
 
 	/**
 	 * Sets the button style to be used for the fragment buttons.
 	 *
-	 * @param eStyle The new button style
+	 * @param style The new button style
 	 */
-	public final void setButtonStyle(ButtonStyle eStyle) {
-		eButtonStyle = eStyle;
+	public final void setButtonStyle(ButtonStyle style) {
+		buttonStyle = style;
 	}
 
 	/**
 	 * Sets the entity type on which this tag filter operates.
 	 *
-	 * @param rEntityType The new entity type
+	 * @param entityType The new entity type
 	 * @throws StorageException If querying the allowed tags fails
 	 */
-	public void setEntityType(Class<E> rEntityType) throws StorageException {
-		this.rEntityType = rEntityType;
+	public void setEntityType(Class<E> entityType) throws StorageException {
+		this.entityType = entityType;
 		updateAllowedTags();
 	}
 
 	/**
 	 * Sets the listener for tag filter changes.
 	 *
-	 * @param rListener The new tag filter listener
+	 * @param listener The new tag filter listener
 	 */
-	public final void setTagFilterListener(TagFilterListener<E> rListener) {
-		rTagFilterListener = rListener;
+	public final void setTagFilterListener(TagFilterListener<E> listener) {
+		tagFilterListener = listener;
 	}
 
 	/**
@@ -447,17 +438,17 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * the
 	 * field instead of in front.
 	 *
-	 * @param bUseHeaderLabel TRUE to use a header label
+	 * @param useHeaderLabel TRUE to use a header label
 	 */
-	public final void setUseHeaderLabel(boolean bUseHeaderLabel) {
-		this.bUseHeaderLabel = bUseHeaderLabel;
+	public final void setUseHeaderLabel(boolean useHeaderLabel) {
+		this.useHeaderLabel = useHeaderLabel;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<String> tagsEdited(Set<String> aCurrentTags) {
+	public Set<String> tagsEdited(Set<String> currentTags) {
 		updateAllowedTags();
 
 		return getAllowedTags();
@@ -469,7 +460,7 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public void updateAllowedTags() {
 		try {
-			aTagInput.allowElements(getAllEntityTags(rEntityType, rTagOwner));
+			tagInput.allowElements(getAllEntityTags(entityType, tagOwner));
 		} catch (StorageException e) {
 			throw new RuntimeProcessException(this, e);
 		}
@@ -480,76 +471,76 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	@Override
 	protected void rollback() {
-		aTagInput = null;
+		tagInput = null;
 	}
 
 	/**
 	 * Handles a tag filter action.
 	 *
-	 * @param eAction The action to handle
+	 * @param action The action to handle
 	 */
-	private void handleFilterAction(TagFilterAction eAction) {
-		Set<String> rFilterTags = aTagInput.value();
+	private void handleFilterAction(TagFilterAction action) {
+		Set<String> filterTags = tagInput.value();
 
-		switch (eAction) {
+		switch (action) {
 			case HELP:
-				rHelpAction.run();
+				helpAction.run();
 				break;
 
 			case CLEAR:
-				rFilterTags.clear();
+				filterTags.clear();
 				break;
 
 			case REMOVE:
 
 				// remove the last element in the tag set
-				Iterator<String> rIterator = rFilterTags.iterator();
+				Iterator<String> iterator = filterTags.iterator();
 
-				if (rIterator.hasNext()) {
-					while (rIterator.hasNext()) {
-						rIterator.next();
+				if (iterator.hasNext()) {
+					while (iterator.hasNext()) {
+						iterator.next();
 					}
 
-					rIterator.remove();
+					iterator.remove();
 				}
 
 				break;
 		}
 
-		aTagInput.modified();
+		tagInput.modified();
 
-		rTagFilterListener.filterTagsChanged(this);
+		tagFilterListener.filterTagsChanged(this);
 	}
 
 	/**
 	 * Initializes the panel fragment containing the tag filter options.
 	 *
-	 * @param rPanel The panel fragment
+	 * @param panel The panel fragment
 	 */
-	private void initOptionsPanel(InteractionFragment rPanel) {
-		rPanel.layout(LayoutType.TABLE);
-		aFilterJoin = rPanel
+	private void initOptionsPanel(InteractionFragment panel) {
+		panel.layout(LayoutType.TABLE);
+		filterJoin = panel
 			.dropDown(TagFilterJoin.class)
 			.resid("TagFilterJoin")
 			.hideLabel()
-			.onUpdate(a -> rTagFilterListener.filterTagsChanged(this));
+			.onUpdate(a -> tagFilterListener.filterTagsChanged(this));
 
-		aFilterNegate = rPanel
+		filterNegate = panel
 			.checkBox("TagFilterNegate")
 			.sameRow()
-			.onAction(a -> rTagFilterListener.filterTagsChanged(this));
+			.onAction(a -> tagFilterListener.filterTagsChanged(this));
 
-		aFilterAction = rPanel
+		filterAction = panel
 			.imageButtons(TagFilterAction.class)
-			.buttonStyle(eButtonStyle)
+			.buttonStyle(buttonStyle)
 			.layout(LayoutType.TABLE)
 			.sameRow()
 			.columns(3)
 			.resid("TagFilterAction")
 			.onAction(this::handleFilterAction);
 
-		if (rHelpAction == null) {
-			aFilterAction
+		if (helpAction == null) {
+			filterAction
 				.columns(2)
 				.allow(TagFilterAction.REMOVE, TagFilterAction.CLEAR);
 		}
@@ -561,14 +552,14 @@ public class FilterEntityTags<E extends Entity> extends InteractionFragment
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface TagFilterListener<E extends Entity> {
+	public interface TagFilterListener<E extends Entity> {
 
 		/**
 		 * Will be invoked when the list of filter tags has changed.
 		 *
-		 * @param rFilter The entity tag filter instance in which the change
-		 *                occurred
+		 * @param filter The entity tag filter instance in which the change
+		 *               occurred
 		 */
-		public void filterTagsChanged(FilterEntityTags<E> rFilter);
+		void filterTagsChanged(FilterEntityTags<E> filter);
 	}
 }

@@ -22,12 +22,10 @@ import de.esoco.data.UploadHandler;
 import de.esoco.data.element.DataSetDataElement.ChartType;
 import de.esoco.data.element.DateDataElement.DateInputType;
 import de.esoco.data.element.SelectionDataElement;
-
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes.HierarchicalQueryMode;
 import de.esoco.entity.ExtraAttributes;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
@@ -45,7 +43,6 @@ import de.esoco.lib.property.StateProperties;
 import de.esoco.lib.property.Updatable;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.property.ViewDisplayType;
-
 import de.esoco.process.Process;
 import de.esoco.process.ProcessElement;
 import de.esoco.process.ProcessException;
@@ -70,10 +67,14 @@ import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiRootFragment;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+import org.obrel.filter.RelationCoupling;
+import org.obrel.type.MetaTypes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -88,17 +89,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import org.obrel.core.Relation;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.filter.RelationCoupling;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.data.element.DateDataElement.DATE_INPUT_TYPE;
-
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityRelationTypes.HIERARCHICAL_QUERY_MODE;
-
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.ContentProperties.URL;
 import static de.esoco.lib.property.LayoutProperties.LAYOUT;
@@ -108,11 +101,9 @@ import static de.esoco.lib.property.StyleProperties.CHECK_BOX_STYLE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LABEL_STYLE;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
-
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_UPDATE_LISTENERS;
 import static de.esoco.process.ProcessRelationTypes.VIEW_PARAMS;
-
 import static org.obrel.type.StandardTypes.ERROR_MESSAGE;
 
 /**
@@ -148,27 +139,27 @@ public abstract class InteractionFragment extends ProcessFragment
 
 	private static final long serialVersionUID = 1L;
 
-	private int nNextParameterId = 0;
+	private final List<RelationType<?>> interactionParams = new ArrayList<>();
 
-	private boolean bInitialized = false;
+	private final Set<RelationType<?>> inputParams = new HashSet<>();
 
-	private Interaction rProcessStep;
-
-	private InteractionFragment rParent;
-
-	private ParameterList rFragmentParam;
-
-	private List<RelationType<?>> aFragmentContinuationParams = null;
-
-	private List<RelationType<?>> aInteractionParams = new ArrayList<>();
-
-	private Set<RelationType<?>> aInputParams = new HashSet<>();
-
-	private Map<RelationType<?>, Function<?, String>> aParamValidations =
+	private final Map<RelationType<?>, Function<?, String>> paramValidations =
 		new HashMap<>();
 
-	private Map<RelationType<?>, Function<?, String>>
-		aParamInteractionValidations = new HashMap<>();
+	private final Map<RelationType<?>, Function<?, String>>
+		paramInteractionValidations = new HashMap<>();
+
+	private int nextParameterId = 0;
+
+	private boolean initialized = false;
+
+	private Interaction processStep;
+
+	private InteractionFragment parent;
+
+	private ParameterList fragmentParam;
+
+	private List<RelationType<?>> fragmentContinuationParams = null;
 
 	/**
 	 * Creates a new instance.
@@ -184,8 +175,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * implement {@link #abort()} instead.
 	 */
 	public final void abortFragment() {
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.abortFragment();
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.abortFragment();
 		}
 
 		executeCleanupActions();
@@ -203,21 +194,21 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * changes the interaction parameters of the process step instead of the
 	 * fragment.</p>
 	 *
-	 * @param rParams The interaction parameters to add
+	 * @param params The interaction parameters to add
 	 */
 	@Override
 	public void addDisplayParameters(
-		Collection<? extends RelationType<?>> rParams) {
-		List<RelationType<?>> rInteractionParams = getInteractionParameters();
+		Collection<? extends RelationType<?>> params) {
+		List<RelationType<?>> interactionParams = getInteractionParameters();
 
-		for (RelationType<?> rParam : rParams) {
-			markParameterAsModified(rParam);
+		for (RelationType<?> param : params) {
+			markParameterAsModified(param);
 
 			// do not add parameters that are displayed in panels because they
 			// are stored in the parameter list of the panel parameter
-			if (!isPanelParameter(rParam) &&
-				!rInteractionParams.contains(rParam)) {
-				rInteractionParams.add(rParam);
+			if (!isPanelParameter(param) &&
+				!interactionParams.contains(param)) {
+				interactionParams.add(param);
 				structureModified();
 			}
 		}
@@ -227,8 +218,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see #addInputParameters(Collection)
 	 */
 	@Override
-	public void addInputParameters(RelationType<?>... rParams) {
-		addInputParameters(Arrays.asList(rParams));
+	public void addInputParameters(RelationType<?>... params) {
+		addInputParameters(Arrays.asList(params));
 	}
 
 	/**
@@ -242,24 +233,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * changes the interaction parameters of the process step instead of the
 	 * fragment.</p>
 	 *
-	 * @param rParams The input parameters to add
+	 * @param params The input parameters to add
 	 * @see #addDisplayParameters(Collection)
 	 */
 	@Override
 	public void addInputParameters(
-		Collection<? extends RelationType<?>> rParams) {
-		addDisplayParameters(rParams);
-		markInputParams(true, rParams);
+		Collection<? extends RelationType<?>> params) {
+		addDisplayParameters(params);
+		markInputParams(true, params);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addPanelParameters(Collection<RelationType<?>> rPanelParams) {
-		super.addPanelParameters(rPanelParams);
+	public void addPanelParameters(Collection<RelationType<?>> panelParams) {
+		super.addPanelParameters(panelParams);
 
-		getInteractionParameters().removeAll(rPanelParams);
+		getInteractionParameters().removeAll(panelParams);
 		structureModified();
 	}
 
@@ -269,10 +260,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * remove a
 	 * listener it should be removed from the parameter set directly.
 	 *
-	 * @param rListener The listener to add
+	 * @param listener The listener to add
 	 */
-	public void addParameterUpdateListener(Updatable rListener) {
-		get(PARAM_UPDATE_LISTENERS).add(rListener);
+	public void addParameterUpdateListener(Updatable listener) {
+		get(PARAM_UPDATE_LISTENERS).add(listener);
 	}
 
 	/**
@@ -282,15 +273,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #addSubFragment(String, InteractionFragment)
 	 */
-	public ParameterList addSubFragment(InteractionFragment rSubFragment) {
-		Class<? extends InteractionFragment> rFragmentClass =
-			rSubFragment.getClass();
+	public ParameterList addSubFragment(InteractionFragment subFragment) {
+		Class<? extends InteractionFragment> fragmentClass =
+			subFragment.getClass();
 
-		String sFragmentName = rFragmentClass.isAnonymousClass() ?
-		                       null :
-		                       rFragmentClass.getSimpleName();
+		String fragmentName = fragmentClass.isAnonymousClass() ?
+		                      null :
+		                      fragmentClass.getSimpleName();
 
-		return addSubFragment(sFragmentName, rSubFragment);
+		return addSubFragment(fragmentName, subFragment);
 	}
 
 	/**
@@ -300,9 +291,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	public void addSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam,
-		InteractionFragment rSubFragment) {
-		addSubFragment(rFragmentParam, rSubFragment, true);
+		RelationType<List<RelationType<?>>> fragmentParam,
+		InteractionFragment subFragment) {
+		addSubFragment(fragmentParam, subFragment, true);
 	}
 
 	/**
@@ -313,16 +304,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * (which must be different for each new instance). The fragment class name
 	 * will also be set as the resource ID.
 	 *
-	 * @param nIndex       The fragment index
-	 * @param rSubFragment The fragment to add
+	 * @param index       The fragment index
+	 * @param subFragment The fragment to add
 	 * @return The wrapper for the fragment parameter
 	 * @see #addSubFragment(String, InteractionFragment)
 	 */
-	public ParameterList addSubFragment(int nIndex,
-		InteractionFragment rSubFragment) {
-		String sName = rSubFragment.getClass().getSimpleName();
+	public ParameterList addSubFragment(int index,
+		InteractionFragment subFragment) {
+		String name = subFragment.getClass().getSimpleName();
 
-		return addSubFragment(sName + nIndex, rSubFragment).resid(sName);
+		return addSubFragment(name + index, subFragment).resid(name);
 	}
 
 	/**
@@ -339,17 +330,17 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * typically
 	 * displayed without a label.
 	 *
-	 * @param sName        The name of the temporary fragment parameter
-	 * @param rSubFragment The fragment to add
+	 * @param name        The name of the temporary fragment parameter
+	 * @param subFragment The fragment to add
 	 * @return The wrapper for the fragment parameter
 	 */
-	public ParameterList addSubFragment(String sName,
-		InteractionFragment rSubFragment) {
-		ParameterList rSubFragmentParam = panel(sName).hideLabel();
+	public ParameterList addSubFragment(String name,
+		InteractionFragment subFragment) {
+		ParameterList subFragmentParam = panel(name).hideLabel();
 
-		addSubFragment(rSubFragmentParam.type(), rSubFragment);
+		addSubFragment(subFragmentParam.type(), subFragment);
 
-		return rSubFragmentParam;
+		return subFragmentParam;
 	}
 
 	/**
@@ -358,15 +349,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see #addSubFragment(RelationType, InteractionFragment)
 	 */
 	public void addViewFragment(
-		RelationType<List<RelationType<?>>> rViewFragmentParamType,
-		InteractionFragment rSubFragment) {
-		boolean bModified =
+		RelationType<List<RelationType<?>>> viewFragmentParamType,
+		InteractionFragment subFragment) {
+		boolean modified =
 			getProcessStep().isParameterModified(fragmentParam().type());
 
-		getRoot().addSubFragment(rViewFragmentParamType, rSubFragment, false);
-		get(VIEW_PARAMS).add(rViewFragmentParamType);
+		getRoot().addSubFragment(viewFragmentParamType, subFragment, false);
+		get(VIEW_PARAMS).add(viewFragmentParamType);
 
-		if (!bModified) {
+		if (!modified) {
 			getProcessStep().removeParameterModification(fragmentParam());
 		}
 	}
@@ -386,34 +377,34 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * given
 	 * process step and fragment parameter. Multiple invocations are possible.
 	 *
-	 * @param rProcessStep   The process step to attach this instance to
-	 * @param rFragmentParam The parameter this fragment will be stored in
+	 * @param processStep   The process step to attach this instance to
+	 * @param fragmentParam The parameter this fragment will be stored in
 	 */
-	public void attach(Interaction rProcessStep,
-		RelationType<List<RelationType<?>>> rFragmentParam) {
-		this.rFragmentParam = new ParameterList(this, rFragmentParam, true);
+	public void attach(Interaction processStep,
+		RelationType<List<RelationType<?>>> fragmentParam) {
+		this.fragmentParam = new ParameterList(this, fragmentParam, true);
 
 		// reset internal state in the case of re-invocation caused by process
 		// navigation
-		aInputParams.clear();
-		aInteractionParams.clear();
-		nNextParameterId = 0;
-		bInitialized = false;
+		inputParams.clear();
+		interactionParams.clear();
+		nextParameterId = 0;
+		initialized = false;
 
-		setProcessStep(rProcessStep);
+		setProcessStep(processStep);
 	}
 
 	/**
 	 * Returns a parameter that represents a single UI button with a text
 	 * label.
 	 *
-	 * @param sText The button text
+	 * @param text The button text
 	 * @return The new parameter
 	 */
-	public Parameter<String> button(String sText) {
+	public Parameter<String> button(String text) {
 		return param(String.class)
 			.input()
-			.value(sText)
+			.value(text)
 			.set(HIDE_LABEL)
 			.buttonStyle(ButtonStyle.DEFAULT);
 	}
@@ -421,11 +412,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	/**
 	 * Creates a parameter that displays interactive buttons from an enum.
 	 *
-	 * @param rEnumClass The enum class to create the buttons from
+	 * @param enumClass The enum class to create the buttons from
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> EnumParameter<E> buttons(Class<E> rEnumClass) {
-		return enumParam(rEnumClass).buttons();
+	public <E extends Enum<E>> EnumParameter<E> buttons(Class<E> enumClass) {
+		return enumParam(enumClass).buttons();
 	}
 
 	/**
@@ -433,71 +424,72 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * values
 	 * of an enum.
 	 *
-	 * @param rAllowedValues The enum values to create the buttons from (must
-	 *                       not be empty)
+	 * @param allowedValues The enum values to create the buttons from (must
+	 *                        not
+	 *                      be empty)
 	 * @return The new parameter
 	 */
 	@SafeVarargs
 	public final <E extends Enum<E>> EnumParameter<E> buttons(
-		E... rAllowedValues) {
-		return enumParam(getValueDatatype(rAllowedValues[0])).buttons(
-			rAllowedValues);
+		E... allowedValues) {
+		return enumParam(getValueDatatype(allowedValues[0])).buttons(
+			allowedValues);
 	}
 
 	/**
 	 * Create a parameter that displays a chart for a certain set of data.
 	 *
-	 * @param sName      The parameter name
-	 * @param eChartType The initial type of the chart
-	 * @param rDataSet   The data set for the chart
+	 * @param name      The parameter name
+	 * @param chartType The initial type of the chart
+	 * @param dataSet   The data set for the chart
 	 * @return The new parameter
 	 */
-	public <T, D extends DataSet<T>> DataSetParameter<T, D> chart(String sName,
-		ChartType eChartType, D rDataSet) {
+	public <T, D extends DataSet<T>> DataSetParameter<T, D> chart(String name,
+		ChartType chartType, D dataSet) {
 		@SuppressWarnings("unchecked")
-		RelationType<D> rParamType =
-			getTemporaryParameterType(sName, (Class<D>) rDataSet.getClass());
+		RelationType<D> paramType =
+			getTemporaryParameterType(name, (Class<D>) dataSet.getClass());
 
-		return new DataSetParameter<T, D>(this, rParamType)
-			.value(rDataSet)
-			.chartType(eChartType);
+		return new DataSetParameter<T, D>(this, paramType)
+			.value(dataSet)
+			.chartType(chartType);
 	}
 
 	/**
 	 * Creates a boolean parameter that displays a checkbox for the input of a
 	 * boolean value. The value will initially be set to FALSE.
 	 *
-	 * @param sName The name of the parameter (used for the checkbox label)
+	 * @param name The name of the parameter (used for the checkbox label)
 	 * @return The new parameter
 	 */
-	public Parameter<Boolean> checkBox(String sName) {
-		return flagParam(sName).input().hideLabel().value(Boolean.FALSE);
+	public Parameter<Boolean> checkBox(String name) {
+		return flagParam(name).input().hideLabel().value(Boolean.FALSE);
 	}
 
 	/**
 	 * Creates a boolean parameter that displays a checkbox for the input of a
 	 * boolean value with a certain style.
 	 *
-	 * @param sName  The name of the parameter (used for the checkbox label)
-	 * @param eStyle The checkbox style
+	 * @param name  The name of the parameter (used for the checkbox label)
+	 * @param style The checkbox style
 	 * @return The new parameter
 	 */
-	public Parameter<Boolean> checkBox(String sName, CheckBoxStyle eStyle) {
-		return checkBox(sName).set(CHECK_BOX_STYLE, eStyle);
+	public Parameter<Boolean> checkBox(String name, CheckBoxStyle style) {
+		return checkBox(name).set(CHECK_BOX_STYLE, style);
 	}
 
 	/**
 	 * Creates a parameter that displays checkboxes for the selection of
 	 * multiple enum values.
 	 *
-	 * @param rEnumClass The enum class to create the checkboxes parameter for
+	 * @param enumClass The enum class to create the checkboxes parameter for
 	 * @return The new parameter
 	 */
-	public <E extends Enum<E>> SetParameter<E> checkBoxes(Class<E> rEnumClass) {
-		SetParameter<E> aCheckBoxes =
-			setParam(rEnumClass.getSimpleName(), rEnumClass, true);
+	public <E extends Enum<E>> SetParameter<E> checkBoxes(Class<E> enumClass) {
+		SetParameter<E> checkBoxes =
+			setParam(enumClass.getSimpleName(), enumClass, true);
 
-		return aCheckBoxes
+		return checkBoxes
 			.input()
 			.set(LIST_STYLE, ListStyle.DISCRETE)
 			.layout(LayoutType.TABLE)
@@ -531,28 +523,27 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * and the property {@link UserInterfaceProperties#CURRENT_SELECTION} to
 	 * -1.
 	 *
-	 * @param rParam The parameter to clear the selection of
+	 * @param param The parameter to clear the selection of
 	 */
-	public void clearSelection(RelationType<?> rParam) {
-		Object rParamValue = getParameter(rParam);
-		boolean bClearSelection = (rParamValue != null);
+	public void clearSelection(RelationType<?> param) {
+		Object paramValue = getParameter(param);
+		boolean clearSelection = (paramValue != null);
 
 		if (SelectionDataElement.class.isAssignableFrom(
-			rParam.getTargetType())) {
-			SelectionDataElement rElement = (SelectionDataElement) rParamValue;
+			param.getTargetType())) {
+			SelectionDataElement element = (SelectionDataElement) paramValue;
 
-			if (!SelectionDataElement.NO_SELECTION.equals(
-				rElement.getValue())) {
-				rElement.setValue(SelectionDataElement.NO_SELECTION);
-				bClearSelection = true;
+			if (!SelectionDataElement.NO_SELECTION.equals(element.getValue())) {
+				element.setValue(SelectionDataElement.NO_SELECTION);
+				clearSelection = true;
 			}
 		} else {
-			setParameter(rParam, null);
+			setParameter(param, null);
 		}
 
 		// only clear selection if one exists to prevent unnecessary updates
-		if (bClearSelection) {
-			setUIProperty(-1, CURRENT_SELECTION, rParam);
+		if (clearSelection) {
+			setUIProperty(-1, CURRENT_SELECTION, param);
 		}
 	}
 
@@ -561,15 +552,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * combo box that combines an editable text box with a drop-down list of
 	 * value presets.
 	 *
-	 * @param sName         The name of the parameter
-	 * @param rPresetValues The preset values the user can select from
+	 * @param name         The name of the parameter
+	 * @param presetValues The preset values the user can select from
 	 * @return The new parameter
 	 */
-	public final Parameter<String> comboBox(String sName,
-		Collection<String> rPresetValues) {
-		return inputText(sName)
+	public final Parameter<String> comboBox(String name,
+		Collection<String> presetValues) {
+		return inputText(name)
 			.set(LIST_STYLE, ListStyle.EDITABLE)
-			.allow(rPresetValues);
+			.allow(presetValues);
 	}
 
 	/**
@@ -579,8 +570,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #param(String, Class)
 	 */
-	public Parameter<Date> dateParam(String sName) {
-		return param(sName, Date.class);
+	public Parameter<Date> dateParam(String name) {
+		return param(name, Date.class);
 	}
 
 	/**
@@ -589,8 +580,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see ProcessStep#deleteRelation(Relation)
 	 */
 	@Override
-	public void deleteRelation(Relation<?> rRelation) {
-		rProcessStep.deleteRelation(rRelation);
+	public void deleteRelation(Relation<?> relation) {
+		processStep.deleteRelation(relation);
 	}
 
 	/**
@@ -598,23 +589,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * is just a shortcut for the invocation of {@link #param(String, Class)}
 	 * with the name argument set to NULL.
 	 *
-	 * @param rDatatype The datatype of the values to display
+	 * @param datatype The datatype of the values to display
 	 * @return The parameter wrapper
 	 */
-	public <T> Parameter<T> display(Class<T> rDatatype) {
-		return param(null, rDatatype);
+	public <T> Parameter<T> display(Class<T> datatype) {
+		return param(null, datatype);
 	}
 
 	/**
 	 * Creates a new temporary parameter relation type for the selection of an
 	 * enum value from a drop down box.
 	 *
-	 * @param rEnumClass The enum class to display the values of
+	 * @param enumClass The enum class to display the values of
 	 * @return The new parameter
 	 */
-	public final <E extends Enum<E>> Parameter<E> dropDown(
-		Class<E> rEnumClass) {
-		return dropDown(rEnumClass.getSimpleName(), EnumSet.allOf(rEnumClass));
+	public final <E extends Enum<E>> Parameter<E> dropDown(Class<E> enumClass) {
+		return dropDown(enumClass.getSimpleName(), EnumSet.allOf(enumClass));
 	}
 
 	/**
@@ -624,20 +614,20 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * parameter
 	 * value.
 	 *
-	 * @param sName          The name of the parameter
-	 * @param rAllowedValues The values to be displayed in the drop down box
-	 *                       (must not be empty)
+	 * @param name          The name of the parameter
+	 * @param allowedValues The values to be displayed in the drop down box
+	 *                      (must not be empty)
 	 * @return The new parameter
 	 */
-	public final <T> Parameter<T> dropDown(String sName,
-		Collection<T> rAllowedValues) {
-		T rFirstValue = CollectionUtil.firstElementOf(rAllowedValues);
-		Class<T> rDatatype = getValueDatatype(rFirstValue);
+	public final <T> Parameter<T> dropDown(String name,
+		Collection<T> allowedValues) {
+		T firstValue = CollectionUtil.firstElementOf(allowedValues);
+		Class<T> datatype = getValueDatatype(firstValue);
 
-		return input(sName, rDatatype)
+		return input(name, datatype)
 			.set(LIST_STYLE, ListStyle.DROP_DOWN)
-			.value(rFirstValue)
-			.allow(rAllowedValues);
+			.value(firstValue)
+			.allow(allowedValues);
 	}
 
 	/**
@@ -648,13 +638,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * specific handling but should normally also call the superclass
 	 * implementation.
 	 *
-	 * @param bEnable TRUE to enable editing, FALSE to disable
+	 * @param enable TRUE to enable editing, FALSE to disable
 	 */
-	public void enableEdit(boolean bEnable) {
-		setEnabled(bEnable, getInputParameters());
+	public void enableEdit(boolean enable) {
+		setEnabled(enable, getInputParameters());
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.enableEdit(bEnable);
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.enableEdit(enable);
 		}
 	}
 
@@ -665,24 +655,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see #entityParam(String, Class)
 	 */
 	public <E extends Entity> EntityParameter<E> entityParam(
-		Class<E> rEntityType) {
-		return entityParam(rEntityType.getSimpleName(), rEntityType);
+		Class<E> entityType) {
+		return entityParam(entityType.getSimpleName(), entityType);
 	}
 
 	/**
 	 * Create a new parameter wrapper for entity process parameters.
 	 *
-	 * @param sName       The name of the parameter relation type
-	 * @param rEntityType The entity type for the parameter
+	 * @param name       The name of the parameter relation type
+	 * @param entityType The entity type for the parameter
 	 * @return the entity parameter wrapper
 	 * @see #param(String, Class)
 	 */
-	public <E extends Entity> EntityParameter<E> entityParam(String sName,
-		Class<E> rEntityType) {
-		RelationType<E> rParamType =
-			getTemporaryParameterType(sName, rEntityType);
+	public <E extends Entity> EntityParameter<E> entityParam(String name,
+		Class<E> entityType) {
+		RelationType<E> paramType = getTemporaryParameterType(name,
+			entityType);
 
-		return new EntityParameter<>(this, rParamType);
+		return new EntityParameter<>(this, paramType);
 	}
 
 	/**
@@ -694,9 +684,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #param(String, Class)
 	 */
-	public <E extends Enum<E>> EnumParameter<E> enumParam(Class<E> rEnumClass) {
+	public <E extends Enum<E>> EnumParameter<E> enumParam(Class<E> enumClass) {
 		return new EnumParameter<>(this,
-			getTemporaryParameterType(rEnumClass.getSimpleName(), rEnumClass));
+			getTemporaryParameterType(enumClass.getSimpleName(), enumClass));
 	}
 
 	/**
@@ -706,8 +696,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public void executeCleanupActions() {
 		super.executeCleanupActions();
 
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.executeCleanupActions();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.executeCleanupActions();
 		}
 	}
 
@@ -729,8 +719,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #param(String, Class)
 	 */
-	public Parameter<Boolean> flagParam(String sName) {
-		return param(sName, Boolean.class);
+	public Parameter<Boolean> flagParam(String name) {
+		return param(name, Boolean.class);
 	}
 
 	/**
@@ -741,7 +731,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return the parameter wrapper for the fragment parameter
 	 */
 	public ParameterList fragmentParam() {
-		return rFragmentParam;
+		return fragmentParam;
 	}
 
 	/**
@@ -750,8 +740,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see ProcessStep#get(RelationType)
 	 */
 	@Override
-	public <T> T get(RelationType<T> rType) {
-		return rProcessStep.get(rType);
+	public <T> T get(RelationType<T> type) {
+		return processStep.get(type);
 	}
 
 	/**
@@ -760,7 +750,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The fragment parameter
 	 */
 	public final RelationType<List<RelationType<?>>> getFragmentParameter() {
-		return rFragmentParam.type();
+		return fragmentParam.type();
 	}
 
 	/**
@@ -773,7 +763,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The list of this fragment's input parameters
 	 */
 	public Collection<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -786,7 +776,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The list of this fragment's interaction parameters
 	 */
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
@@ -795,8 +785,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see Interaction#getParameterInteractionHandler(RelationType)
 	 */
 	public InteractionHandler getParameterInteractionHandler(
-		RelationType<?> rParam) {
-		return getProcessStep().getParameterInteractionHandler(rParam);
+		RelationType<?> param) {
+		return getProcessStep().getParameterInteractionHandler(param);
 	}
 
 	/**
@@ -805,7 +795,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The parent fragment or NULL for a root fragment
 	 */
 	public final InteractionFragment getParent() {
-		return rParent;
+		return parent;
 	}
 
 	/**
@@ -813,7 +803,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	public Process getProcess() {
-		return rProcessStep.getProcess();
+		return processStep.getProcess();
 	}
 
 	/**
@@ -823,7 +813,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	public final Interaction getProcessStep() {
-		return rProcessStep;
+		return processStep;
 	}
 
 	/**
@@ -832,8 +822,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see ProcessStep#getRelation(RelationType)
 	 */
 	@Override
-	public <T> Relation<T> getRelation(RelationType<T> rType) {
-		return rProcessStep.getRelation(rType);
+	public <T> Relation<T> getRelation(RelationType<T> type) {
+		return processStep.getRelation(type);
 	}
 
 	/**
@@ -843,18 +833,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	public List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter) {
-		return rProcessStep.getRelations(rFilter);
+		Predicate<? super Relation<?>> filter) {
+		return processStep.getRelations(filter);
 	}
 
 	/**
 	 * Must be implemented by subclasses to handle interactions for this
 	 * fragment. The default implementation does nothing.
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
 	}
 
@@ -864,74 +854,72 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * from this fragment. The default implementation checks if the given
 	 * parameter is one of this fragment's interaction parameters.
 	 *
-	 * @param rInteractionParam The interaction parameter to check
+	 * @param interactionParam The interaction parameter to check
 	 * @return TRUE if the interaction was caused by a parameter of this
 	 * fragment
 	 */
-	public boolean hasInteraction(RelationType<?> rInteractionParam) {
-		return getInputParameters().contains(rInteractionParam);
+	public boolean hasInteraction(RelationType<?> interactionParam) {
+		return getInputParameters().contains(interactionParam);
 	}
 
 	/**
 	 * Creates a parameter for an empty label with the {@link LabelStyle#ICON}
 	 * that displays a certain icon.
 	 *
-	 * @param rIconIdentifier An identifier that describes the icon to display;
-	 *                        will be converted to a string and should
-	 *                        typically
-	 *                        either be a string of an enum constant
+	 * @param iconIdentifier An identifier that describes the icon to display;
+	 *                       will be converted to a string and should typically
+	 *                       either be a string of an enum constant
 	 * @return The new parameter
 	 */
-	public Parameter<String> icon(Object rIconIdentifier) {
-		return label("", LabelStyle.ICON).icon(rIconIdentifier);
+	public Parameter<String> icon(Object iconIdentifier) {
+		return label("", LabelStyle.ICON).icon(iconIdentifier);
 	}
 
 	/**
 	 * Creates a parameter that displays interactive buttons for certain enum
 	 * values as icons.
 	 *
-	 * @param rAllowedValues rEnumClass The enum class to create the buttons
-	 *                       from
+	 * @param allowedValues enumClass The enum class to create the buttons from
 	 * @return The new parameter
 	 */
 	@SafeVarargs
 	public final <E extends Enum<E>> EnumParameter<E> iconButtons(
-		E... rAllowedValues) {
-		return buttons(rAllowedValues).buttonStyle(ButtonStyle.ICON).images();
+		E... allowedValues) {
+		return buttons(allowedValues).buttonStyle(ButtonStyle.ICON).images();
 	}
 
 	/**
 	 * Creates a parameter that displays interactive buttons from an enum as
 	 * icons.
 	 *
-	 * @param rEnumClass The enum class to create the buttons from
+	 * @param enumClass The enum class to create the buttons from
 	 * @return The new parameter
 	 */
 	public <E extends Enum<E>> EnumParameter<E> iconButtons(
-		Class<E> rEnumClass) {
-		return buttons(rEnumClass).buttonStyle(ButtonStyle.ICON).images();
+		Class<E> enumClass) {
+		return buttons(enumClass).buttonStyle(ButtonStyle.ICON).images();
 	}
 
 	/**
 	 * Creates a parameter that displays an image.
 	 *
-	 * @param sImageName The image name
+	 * @param imageName The image name
 	 * @return The new parameter
 	 */
-	public Parameter<String> image(String sImageName) {
-		return label(sImageName, LabelStyle.IMAGE);
+	public Parameter<String> image(String imageName) {
+		return label(imageName, LabelStyle.IMAGE);
 	}
 
 	/**
 	 * Creates a parameter that displays interactive buttons from an enum with
 	 * images.
 	 *
-	 * @param rEnumClass The enum class to create the buttons from
+	 * @param enumClass The enum class to create the buttons from
 	 * @return The new parameter
 	 */
 	public <E extends Enum<E>> EnumParameter<E> imageButtons(
-		Class<E> rEnumClass) {
-		return buttons(rEnumClass).images();
+		Class<E> enumClass) {
+		return buttons(enumClass).images();
 	}
 
 	/**
@@ -946,37 +934,37 @@ public abstract class InteractionFragment extends ProcessFragment
 	/**
 	 * Initializes a parameter for the display of a storage query.
 	 *
-	 * @param rParam       The parameter to initialize the query for
-	 * @param rEntityClass The entity class to query
-	 * @param pCriteria    The query criteria the query criteria or NULL for
-	 *                     none
-	 * @param pSortOrder   The sort predicate or NULL for the default order
-	 * @param eMode        bHierarchical TRUE for a hierarchical query with a
-	 *                     tree-table display
-	 * @param rColumns     The columns to display
+	 * @param param       The parameter to initialize the query for
+	 * @param entityClass The entity class to query
+	 * @param criteria    The query criteria the query criteria or NULL for
+	 *                    none
+	 * @param sortOrder   The sort predicate or NULL for the default order
+	 * @param mode        hierarchical TRUE for a hierarchical query with a
+	 *                    tree-table display
+	 * @param columns     The columns to display
 	 * @return The generated query predicate
 	 */
 	public <E extends Entity> QueryPredicate<E> initQueryParameter(
-		RelationType<E> rParam, Class<E> rEntityClass,
-		Predicate<? super E> pCriteria, Predicate<? super Entity> pSortOrder,
-		HierarchicalQueryMode eMode, RelationType<?>... rColumns) {
-		QueryPredicate<E> qEntities = forEntity(rEntityClass, pCriteria);
+		RelationType<E> param, Class<E> entityClass,
+		Predicate<? super E> criteria, Predicate<? super Entity> sortOrder,
+		HierarchicalQueryMode mode, RelationType<?>... columns) {
+		QueryPredicate<E> entities = forEntity(entityClass, criteria);
 
-		qEntities.set(HIERARCHICAL_QUERY_MODE, eMode);
-		annotateForEntityQuery(rParam, qEntities, pSortOrder, rColumns);
+		entities.set(HIERARCHICAL_QUERY_MODE, mode);
+		annotateForEntityQuery(param, entities, sortOrder, columns);
 
-		return qEntities;
+		return entities;
 	}
 
 	/**
 	 * Creates an input parameter for a certain datatype. This method first
 	 * invokes {@link #param(RelationType)} and then {@link Parameter#input()}.
 	 *
-	 * @param rParam The parameter to wrap
+	 * @param param The parameter to wrap
 	 * @return A new parameter instance
 	 */
-	public <T> Parameter<T> input(RelationType<T> rParam) {
-		return param(rParam).input();
+	public <T> Parameter<T> input(RelationType<T> param) {
+		return param(param).input();
 	}
 
 	/**
@@ -986,23 +974,23 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * that no
 	 * label resource will be available.
 	 *
-	 * @param rDatatype The datatype class
+	 * @param datatype The datatype class
 	 * @return A new parameter instance
 	 */
-	public <T> Parameter<T> input(Class<T> rDatatype) {
-		return input(null, rDatatype).hideLabel();
+	public <T> Parameter<T> input(Class<T> datatype) {
+		return input(null, datatype).hideLabel();
 	}
 
 	/**
 	 * Creates an input parameter for a certain datatype. This method combines
 	 * {@link #param(String, Class)} and {@link Parameter#input()}.
 	 *
-	 * @param sName     The name of the input parameter
-	 * @param rDatatype The datatype class
+	 * @param name     The name of the input parameter
+	 * @param datatype The datatype class
 	 * @return A new parameter instance
 	 */
-	public <T> Parameter<T> input(String sName, Class<T> rDatatype) {
-		return param(sName, rDatatype).input();
+	public <T> Parameter<T> input(String name, Class<T> datatype) {
+		return param(name, datatype).input();
 	}
 
 	/**
@@ -1010,84 +998,84 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * that
 	 * is named like the original attribute relation type.
 	 *
-	 * @param rAttribute The attribute to edit
+	 * @param attribute The attribute to edit
 	 * @return The parameter wrapper
 	 */
 	public <E extends Entity, T> EntityAttributeParameter<E, T> inputAttr(
-		RelationType<T> rAttribute) {
-		return inputAttr(null, rAttribute);
+		RelationType<T> attribute) {
+		return inputAttr(null, attribute);
 	}
 
 	/**
 	 * Creates a new process parameter for the input of an entity attribute.
 	 *
-	 * @param sName      The name of the parameter
-	 * @param rAttribute The attribute to edit
+	 * @param name      The name of the parameter
+	 * @param attribute The attribute to edit
 	 * @return The parameter wrapper
 	 */
 	public <E extends Entity, T> EntityAttributeParameter<E, T> inputAttr(
-		String sName, RelationType<T> rAttribute) {
-		RelationType<T> rDerivedParam =
-			getTemporaryParameterType(sName, rAttribute);
+		String name, RelationType<T> attribute) {
+		RelationType<T> derivedParam =
+			getTemporaryParameterType(name, attribute);
 
-		EntityAttributeParameter<E, T> rParam =
-			new EntityAttributeParameter<>(this, rDerivedParam);
+		EntityAttributeParameter<E, T> param =
+			new EntityAttributeParameter<>(this, derivedParam);
 
-		return rParam.input();
+		return param.input();
 	}
 
 	/**
 	 * Creates a parameter for a date input field.
 	 *
-	 * @param sName The name of the input parameter
+	 * @param name The name of the input parameter
 	 * @return The label parameter
 	 */
-	public Parameter<Date> inputDate(String sName) {
-		return input(sName, Date.class).set(DATE_INPUT_TYPE,
+	public Parameter<Date> inputDate(String name) {
+		return input(name, Date.class).set(DATE_INPUT_TYPE,
 			DateInputType.INPUT_FIELD);
 	}
 
 	/**
 	 * Creates an anonymous parameter for a text input field.
 	 *
-	 * @param rPresetValues The preset values the user can select from
+	 * @param presetValues The preset values the user can select from
 	 * @return The label parameter
 	 */
-	public SetParameter<String> inputTags(Collection<String> rPresetValues) {
-		SetParameter<String> aSetParam = setParam(null, String.class, true);
+	public SetParameter<String> inputTags(Collection<String> presetValues) {
+		SetParameter<String> setParam = setParam(null, String.class, true);
 
-		return aSetParam
+		return setParam
 			.input()
 			.set(LIST_STYLE, ListStyle.EDITABLE)
-			.allowElements(rPresetValues);
+			.allowElements(presetValues);
 	}
 
 	/**
 	 * Creates an anonymous parameter for a text input field.
 	 *
-	 * @param sName The name of the input parameter
+	 * @param name The name of the input parameter
 	 * @return The label parameter
 	 */
-	public Parameter<String> inputText(String sName) {
-		return input(sName, String.class);
+	public Parameter<String> inputText(String name) {
+		return input(name, String.class);
 	}
 
 	/**
 	 * Creates an anonymous parameter for multi-line text input (a text area).
 	 *
-	 * @param sName The name of the input parameter
+	 * @param name The name of the input parameter
 	 * @return The label parameter
 	 */
-	public Parameter<String> inputTextLines(String sName) {
-		return inputText(sName).rows(-1);
+	public Parameter<String> inputTextLines(String name) {
+		return inputText(name).rows(-1);
 	}
 
 	/**
 	 * @see #insertInputParameters(RelationType, RelationType...)
 	 */
-	public void insertInputParameters(RelationType<?> rBeforeParam,
-		RelationType<?>... rParams) {
-		insertInputParameters(rBeforeParam, Arrays.asList(rParams));
+	public void insertInputParameters(RelationType<?> beforeParam,
+		RelationType<?>... params) {
+		insertInputParameters(beforeParam, Arrays.asList(params));
 	}
 
 	/**
@@ -1095,14 +1083,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * {@link #getInteractionParameters()} and {@link #getInputParameters()}.
 	 * These lists must therefore be mutable!
 	 *
-	 * @param rBeforeParam The parameter to insert the other parameters before
-	 * @param rParams      The parameters to add
+	 * @param beforeParam The parameter to insert the other parameters before
+	 * @param params      The parameters to add
 	 */
-	public void insertInputParameters(RelationType<?> rBeforeParam,
-		Collection<RelationType<?>> rParams) {
-		CollectionUtil.insert(getInteractionParameters(), rBeforeParam,
-			rParams);
-		getInputParameters().addAll(rParams);
+	public void insertInputParameters(RelationType<?> beforeParam,
+		Collection<RelationType<?>> params) {
+		CollectionUtil.insert(getInteractionParameters(), beforeParam, params);
+		getInputParameters().addAll(params);
 	}
 
 	/**
@@ -1112,8 +1099,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #param(String, Class)
 	 */
-	public Parameter<Integer> intParam(String sName) {
-		return param(sName, Integer.class);
+	public Parameter<Integer> intParam(String name) {
+		return param(name, Integer.class);
 	}
 
 	/**
@@ -1122,7 +1109,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return TRUE if the fragment is attached
 	 */
 	public boolean isAttached() {
-		return rProcessStep != null;
+		return processStep != null;
 	}
 
 	/**
@@ -1132,57 +1119,57 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return TRUE if this instance has been completely initialized
 	 */
 	public final boolean isInitialized() {
-		return bInitialized;
+		return initialized;
 	}
 
 	/**
 	 * Creates a parameter that displays a label string with the default label
 	 * style.
 	 *
-	 * @param sLabelText The label text
+	 * @param labelText The label text
 	 * @return The label parameter
 	 */
-	public Parameter<String> label(String sLabelText) {
-		return label(sLabelText, null);
+	public Parameter<String> label(String labelText) {
+		return label(labelText, null);
 	}
 
 	/**
 	 * Creates a new display parameter for a string value with a certain label
 	 * style.
 	 *
-	 * @param sLabelText The label text
-	 * @param eStyle     The style of the label
+	 * @param labelText The label text
+	 * @param style     The style of the label
 	 * @return The new parameter
 	 */
-	public Parameter<String> label(String sLabelText, LabelStyle eStyle) {
+	public Parameter<String> label(String labelText, LabelStyle style) {
 		return textParam(null)
-			.set(LABEL_STYLE, eStyle)
+			.set(LABEL_STYLE, style)
 			.hideLabel()
-			.value(sLabelText);
+			.value(labelText);
 	}
 
 	/**
 	 * Sets the layout of this fragment.
 	 *
-	 * @param eLayout The layout
+	 * @param layout The layout
 	 * @return The parameter list of this fragment for concatenation
 	 */
-	public ParameterList layout(LayoutType eLayout) {
-		return fragmentParam().layout(eLayout);
+	public ParameterList layout(LayoutType layout) {
+		return fragmentParam().layout(layout);
 	}
 
 	/**
 	 * Create a new temporary relation type with a {@link List} datatype and
 	 * returns a parameter wrapper for it.
 	 *
-	 * @param sName        The name of the relation type
-	 * @param rElementType The datatype of the list elements
+	 * @param name        The name of the relation type
+	 * @param elementType The datatype of the list elements
 	 * @return the parameter instance
 	 */
-	public <T> ListParameter<T> listParam(String sName,
-		Class<? super T> rElementType) {
+	public <T> ListParameter<T> listParam(String name,
+		Class<? super T> elementType) {
 		return new ListParameter<>(this,
-			getTemporaryListType(sName, rElementType));
+			getTemporaryListType(name, elementType));
 	}
 
 	/**
@@ -1195,14 +1182,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * implementations of {@link #abort()} and {@link #rollback()} to handle
 	 * process rollbacks.
 	 *
-	 * @param rEntity                 The entity to lock
-	 * @param sLockUnavailableMessage The message to display if the lock
-	 *                                couldn't be acquired
+	 * @param entity                 The entity to lock
+	 * @param lockUnavailableMessage The message to display if the lock
+	 *                                  couldn't
+	 *                               be acquired
 	 * @return TRUE if the lock could be acquired
 	 */
-	public boolean lockEntityForProcess(Entity rEntity,
-		String sLockUnavailableMessage) {
-		return lockEntity(rEntity, sLockUnavailableMessage, true);
+	public boolean lockEntityForProcess(Entity entity,
+		String lockUnavailableMessage) {
+		return lockEntity(entity, lockUnavailableMessage, true);
 	}
 
 	/**
@@ -1213,14 +1201,15 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * way. The lock can also be removed explicitly by calling
 	 * {@link #unlockEntity(Entity)}.
 	 *
-	 * @param rEntity                 The entity to lock
-	 * @param sLockUnavailableMessage The message to display if the lock
-	 *                                couldn't be acquired
+	 * @param entity                 The entity to lock
+	 * @param lockUnavailableMessage The message to display if the lock
+	 *                                  couldn't
+	 *                               be acquired
 	 * @return TRUE if the lock could be acquired
 	 */
-	public boolean lockEntityForStep(Entity rEntity,
-		String sLockUnavailableMessage) {
-		return lockEntity(rEntity, sLockUnavailableMessage, false);
+	public boolean lockEntityForStep(Entity entity,
+		String lockUnavailableMessage) {
+		return lockEntity(entity, lockUnavailableMessage, false);
 	}
 
 	/**
@@ -1230,8 +1219,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	public void markFragmentInputParams() {
 		get(INPUT_PARAMS).addAll(getInputParameters());
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.markFragmentInputParams();
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.markFragmentInputParams();
 		}
 	}
 
@@ -1241,42 +1230,42 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see ProcessElement#markInputParams(boolean, Collection)
 	 */
 	@Override
-	public void markInputParams(boolean bInput,
-		Collection<? extends RelationType<?>> rParams) {
-		Collection<RelationType<?>> rInputParams = getInputParameters();
+	public void markInputParams(boolean input,
+		Collection<? extends RelationType<?>> params) {
+		Collection<RelationType<?>> inputParams = getInputParameters();
 
-		for (RelationType<?> rParam : rParams) {
-			boolean bHasParam = rInputParams.contains(rParam);
+		for (RelationType<?> param : params) {
+			boolean hasParam = inputParams.contains(param);
 
-			if (!bHasParam && bInput) {
-				rInputParams.add(rParam);
-			} else if (bHasParam && !bInput) {
-				rInputParams.remove(rParam);
+			if (!hasParam && input) {
+				inputParams.add(param);
+			} else if (hasParam && !input) {
+				inputParams.remove(param);
 			}
 		}
 
-		super.markInputParams(bInput, rParams);
+		super.markInputParams(input, params);
 	}
 
 	/**
 	 * Marks a hierarchy of parameters as modified.
 	 *
-	 * @param rParams The list of root parameters
+	 * @param params The list of root parameters
 	 */
 	public void markParameterHierarchyAsModified(
-		Collection<RelationType<?>> rParams) {
-		for (RelationType<?> rParam : rParams) {
-			markParameterAsModified(rParam);
+		Collection<RelationType<?>> params) {
+		for (RelationType<?> param : params) {
+			markParameterAsModified(param);
 
-			if (Collection.class.isAssignableFrom(rParam.getTargetType())) {
-				if (rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
+			if (Collection.class.isAssignableFrom(param.getTargetType())) {
+				if (param.get(MetaTypes.ELEMENT_DATATYPE) ==
 					RelationType.class) {
 					@SuppressWarnings("unchecked")
-					Collection<RelationType<?>> rChildParams =
-						(Collection<RelationType<?>>) getParameter(rParam);
+					Collection<RelationType<?>> childParams =
+						(Collection<RelationType<?>>) getParameter(param);
 
-					if (rChildParams != null) {
-						markParameterHierarchyAsModified(rChildParams);
+					if (childParams != null) {
+						markParameterHierarchyAsModified(childParams);
 					}
 				}
 			}
@@ -1291,8 +1280,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	public void notifyParameterUpdateListeners() {
 		if (hasRelation(PARAM_UPDATE_LISTENERS)) {
-			for (Updatable rListener : get(PARAM_UPDATE_LISTENERS)) {
-				rListener.update();
+			for (Updatable listener : get(PARAM_UPDATE_LISTENERS)) {
+				listener.update();
 			}
 		}
 	}
@@ -1301,64 +1290,64 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Adds another fragment as a subordinate panel of this fragment. This is
 	 * just a semantic variant of {@link #addSubFragment(InteractionFragment)}.
 	 *
-	 * @param rPanelFragment The panel fragment to add
+	 * @param panelFragment The panel fragment to add
 	 * @return The parameter wrapper for the panel
 	 */
-	public ParameterList panel(InteractionFragment rPanelFragment) {
-		return addSubFragment(rPanelFragment);
+	public ParameterList panel(InteractionFragment panelFragment) {
+		return addSubFragment(panelFragment);
 	}
 
 	/**
 	 * Adds a new anonymous panel fragment with a grid layout.
 	 *
-	 * @param rInitializer The fragment initializer
+	 * @param initializer The fragment initializer
 	 * @return the parameter wrapper for the panel parameter
 	 * @see #panel(String, Initializer)
 	 */
-	public ParameterList panel(Initializer<InteractionFragment> rInitializer) {
-		return panel(null, LayoutType.GRID, rInitializer);
+	public ParameterList panel(Initializer<InteractionFragment> initializer) {
+		return panel(null, LayoutType.GRID, initializer);
 	}
 
 	/**
 	 * Creates a new temporary relation type for a list of relation types that
 	 * will be rendered in a panel without a separate fragment.
 	 *
-	 * @param sName The name of the parameter list
+	 * @param name The name of the parameter list
 	 * @return the parameter wrapper for the panel parameter
 	 */
-	public ParameterList panel(String sName) {
-		RelationType<List<RelationType<?>>> rListType =
-			getTemporaryListType(sName, RelationType.class);
+	public ParameterList panel(String name) {
+		RelationType<List<RelationType<?>>> listType =
+			getTemporaryListType(name, RelationType.class);
 
-		return new ParameterList(this, rListType, false).input();
+		return new ParameterList(this, listType, false).input();
 	}
 
 	/**
 	 * Adds a new named panel fragment with a grid layout.
 	 *
-	 * @param rInitializer The fragment initializer
+	 * @param initializer The fragment initializer
 	 * @return the parameter wrapper for the panel parameter
 	 * @see #panel(String, LayoutType, Initializer)
 	 */
-	public ParameterList panel(String sName,
-		Initializer<InteractionFragment> rInitializer) {
-		return panel(sName, LayoutType.GRID, rInitializer);
+	public ParameterList panel(String name,
+		Initializer<InteractionFragment> initializer) {
+		return panel(name, LayoutType.GRID, initializer);
 	}
 
 	/**
 	 * Adds a panel that contains components from the process UI API.
 	 *
-	 * @param rLayout     The UI layout of the panel
-	 * @param fBuildPanel A builder function that creates the panel components
+	 * @param layout     The UI layout of the panel
+	 * @param buildPanel A builder function that creates the panel components
 	 * @return the parameter wrapper for the panel parameter
 	 */
-	public ParameterList panel(UiLayout rLayout,
-		Consumer<UiBuilder<?>> fBuildPanel) {
+	public ParameterList panel(UiLayout layout,
+		Consumer<UiBuilder<?>> buildPanel) {
 		@SuppressWarnings("serial")
-		ParameterList aPanel =
-			addSubFragment(new UiRootFragment(rLayout, fBuildPanel));
+		ParameterList panel =
+			addSubFragment(new UiRootFragment(layout, buildPanel));
 
-		return aPanel;
+		return panel;
 	}
 
 	/**
@@ -1374,50 +1363,49 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * corresponding method in form of a method reference with an
 	 * {@link InteractionFragment} parameter.</p>
 	 *
-	 * @param sName        The name of the fragment parameter
-	 * @param ePanelLayout The layout of the panel fragment
-	 * @param rInitializer The fragment initializer
+	 * @param name        The name of the fragment parameter
+	 * @param panelLayout The layout of the panel fragment
+	 * @param initializer The fragment initializer
 	 * @return A new parameter wrapper for the panel parameter
 	 */
 	@SuppressWarnings("serial")
-	public ParameterList panel(String sName, LayoutType ePanelLayout,
-		final Initializer<InteractionFragment> rInitializer) {
-		ParameterList aPanel = addSubFragment(sName,
-			new InteractionFragment() {
+	public ParameterList panel(String name, LayoutType panelLayout,
+		final Initializer<InteractionFragment> initializer) {
+		ParameterList panel = addSubFragment(name, new InteractionFragment() {
 			@Override
 			public void init() throws Exception {
-				rInitializer.init(this);
+				initializer.init(this);
 			}
 		});
 
 		// only set if the panel hasn't set it's own layout (possible if it has
 		// been added to an existing fragment and then initialized immediately)
-		if (!aPanel.has(LAYOUT)) {
-			aPanel.layout(ePanelLayout);
+		if (!panel.has(LAYOUT)) {
+			panel.layout(panelLayout);
 		}
 
-		return aPanel;
+		return panel;
 	}
 
 	/**
 	 * Creates a new parameter wrapper for the given relation type in this
 	 * fragment.
 	 *
-	 * @param rParam The parameter to wrap
+	 * @param param The parameter to wrap
 	 * @return A new parameter instance
 	 */
-	public <T> Parameter<T> param(RelationType<T> rParam) {
-		return new Parameter<>(this, rParam);
+	public <T> Parameter<T> param(RelationType<T> param) {
+		return new Parameter<>(this, param);
 	}
 
 	/**
 	 * Returns a new anonymous parameter for a certain datatype.
 	 *
-	 * @param rDatatype The datatype class
+	 * @param datatype The datatype class
 	 * @return The new parameter wrapper
 	 */
-	public <T> Parameter<T> param(Class<? super T> rDatatype) {
-		return param(null, rDatatype);
+	public <T> Parameter<T> param(Class<? super T> datatype) {
+		return param(null, datatype);
 	}
 
 	/**
@@ -1425,26 +1413,27 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * relation type. If no matching temporary relation type exists already it
 	 * will be created.
 	 *
-	 * @param sName     The name of the parameter relation type
-	 * @param rDatatype The datatype class
+	 * @param name     The name of the parameter relation type
+	 * @param datatype The datatype class
 	 * @return the parameter wrapper
 	 */
-	public <T> Parameter<T> param(String sName, Class<? super T> rDatatype) {
-		RelationType<T> rParam = getTemporaryParameterType(sName, rDatatype);
+	public <T> Parameter<T> param(String name, Class<? super T> datatype) {
+		RelationType<T> param = getTemporaryParameterType(name, datatype);
 
-		return param(rParam).display();
+		return param(param).display();
 	}
 
 	/**
 	 * Returns a parameter for a derived temporary parameter type created by
 	 * {@link #getTemporaryParameterType(String, RelationType)}.
 	 *
-	 * @param rOriginalType The original relation type the new parameter is
-	 *                      based on
+	 * @param originalType The original relation type the new parameter is
+	 *                        based
+	 *                     on
 	 * @return A new parameter wrapper for the derived relation type
 	 */
-	public <T> Parameter<T> paramLike(RelationType<T> rOriginalType) {
-		return param(getTemporaryParameterType(null, rOriginalType));
+	public <T> Parameter<T> paramLike(RelationType<T> originalType) {
+		return param(getTemporaryParameterType(null, originalType));
 	}
 
 	/**
@@ -1463,12 +1452,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * selection of
 	 * multiple enum values
 	 *
-	 * @param rEnumClass The enum class to create the checkboxes for
+	 * @param enumClass The enum class to create the checkboxes for
 	 * @return The new parameter
 	 */
 	public <E extends Enum<E>> EnumParameter<E> radioButtons(
-		Class<E> rEnumClass) {
-		return enumParam(rEnumClass)
+		Class<E> enumClass) {
+		return enumParam(enumClass)
 			.input()
 			.set(LIST_STYLE, ListStyle.DISCRETE)
 			.hideLabel()
@@ -1480,19 +1469,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Re-queries an entity that is stored in certain a process parameter. If
 	 * the parameter is NULL it will be ignored.
 	 *
-	 * @param rEntityParam The parameter relation type under which the
-	 *                        entity is
-	 *                     stored
+	 * @param entityParam The parameter relation type under which the entity is
+	 *                    stored
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Entity> void reloadEntity(RelationType<E> rEntityParam) {
-		E rEntity = getParameter(rEntityParam);
+	public <E extends Entity> void reloadEntity(RelationType<E> entityParam) {
+		E entity = getParameter(entityParam);
 
-		if (rEntity != null) {
+		if (entity != null) {
 			try {
-				rEntity = (E) EntityManager.queryEntity(rEntity.getClass(),
-					rEntity.getId());
-				setParameter(rEntityParam, rEntity);
+				entity = (E) EntityManager.queryEntity(entity.getClass(),
+					entity.getId());
+				setParameter(entityParam, entity);
 			} catch (StorageException e) {
 				throw new ProcessException(this, e);
 			}
@@ -1508,13 +1496,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * the parent method changes the interaction parameters of the process
 	 * step.</p>
 	 *
-	 * @param rParams The parameters to remove
+	 * @param params The parameters to remove
 	 */
 	@Override
 	public void removeInteractionParameters(
-		Collection<RelationType<?>> rParams) {
-		getInteractionParameters().removeAll(rParams);
-		getInputParameters().removeAll(rParams);
+		Collection<RelationType<?>> params) {
+		getInteractionParameters().removeAll(params);
+		getInputParameters().removeAll(params);
 		structureModified();
 	}
 
@@ -1523,24 +1511,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	public InteractionFragment removeSubFragment(
-		RelationType<List<RelationType<?>>> rSubFragmentParamType) {
-		return removeSubFragment(rSubFragmentParamType, true);
+		RelationType<List<RelationType<?>>> subFragmentParamType) {
+		return removeSubFragment(subFragmentParamType, true);
 	}
 
 	/**
 	 * Removes the fragment of a child view from this fragment.
 	 *
-	 * @param rViewFragmentParamType The parameter type of the view fragment
+	 * @param viewFragmentParamType The parameter type of the view fragment
 	 */
 	public void removeViewFragment(
-		RelationType<List<RelationType<?>>> rViewFragmentParamType) {
-		boolean bModified =
+		RelationType<List<RelationType<?>>> viewFragmentParamType) {
+		boolean modified =
 			getProcessStep().isParameterModified(fragmentParam().type());
 
-		getRoot().removeSubFragment(rViewFragmentParamType, false);
-		get(VIEW_PARAMS).remove(rViewFragmentParamType);
+		getRoot().removeSubFragment(viewFragmentParamType, false);
+		get(VIEW_PARAMS).remove(viewFragmentParamType);
 
-		if (!bModified) {
+		if (!modified) {
 			getProcessStep().removeParameterModification(fragmentParam());
 		}
 	}
@@ -1551,58 +1539,58 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see ProcessStep#set(RelationType, Object)
 	 */
 	@Override
-	public <T> Relation<T> set(RelationType<T> rType, T rTarget) {
-		return rProcessStep.set(rType, rTarget);
+	public <T> Relation<T> set(RelationType<T> type, T target) {
+		return processStep.set(type, target);
 	}
 
 	/**
 	 * Overridden to remember the continuation parameters of this fragment.
 	 *
-	 * @see ProcessFragment#setContinueOnInteraction(boolean, RelationType...)
+	 * @see ProcessFragment#setContinueOnInteraction(boolean, RelationType[])
 	 */
 	@Override
-	public void setContinueOnInteraction(boolean bContinue,
-		RelationType<?>... rParams) {
-		List<RelationType<?>> aParamList = Arrays.asList(rParams);
+	public void setContinueOnInteraction(boolean continueOnInteration,
+		RelationType<?>... params) {
+		List<RelationType<?>> paramList = Arrays.asList(params);
 
-		if (bContinue) {
-			if (aFragmentContinuationParams == null) {
-				aFragmentContinuationParams = new ArrayList<RelationType<?>>();
+		if (continueOnInteration) {
+			if (fragmentContinuationParams == null) {
+				fragmentContinuationParams = new ArrayList<RelationType<?>>();
 			}
 
-			aFragmentContinuationParams.addAll(aParamList);
-		} else if (aFragmentContinuationParams != null) {
-			aFragmentContinuationParams.removeAll(aParamList);
+			fragmentContinuationParams.addAll(paramList);
+		} else if (fragmentContinuationParams != null) {
+			fragmentContinuationParams.removeAll(paramList);
 		}
 
-		super.setContinueOnInteraction(bContinue, rParams);
+		super.setContinueOnInteraction(continueOnInteration, params);
 	}
 
 	/**
 	 * Create a new temporary relation type with a {@link Set} datatype and
 	 * returns a parameter wrapper for it.
 	 *
-	 * @param sName        The name of the relation type
-	 * @param rElementType The datatype of the set elements
-	 * @param bOrdered     TRUE for a set that keeps the order of it's elements
+	 * @param name        The name of the relation type
+	 * @param elementType The datatype of the set elements
+	 * @param ordered     TRUE for a set that keeps the order of it's elements
 	 * @return the parameter instance
 	 */
-	public <T> SetParameter<T> setParam(String sName,
-		Class<? super T> rElementType, boolean bOrdered) {
+	public <T> SetParameter<T> setParam(String name,
+		Class<? super T> elementType, boolean ordered) {
 		return new SetParameter<>(this,
-			getTemporarySetType(sName, rElementType, bOrdered));
+			getTemporarySetType(name, elementType, ordered));
 	}
 
 	/**
 	 * Sets the interaction event handler for a certain process parameter.
 	 *
-	 * @param rParam              The parameter relation type
-	 * @param rInteractionHandler The interaction handler
+	 * @param param              The parameter relation type
+	 * @param interactionHandler The interaction handler
 	 */
-	public void setParameterInteractionHandler(RelationType<?> rParam,
-		InteractionHandler rInteractionHandler) {
-		getProcessStep().setParameterInteractionHandler(rParam,
-			rInteractionHandler);
+	public void setParameterInteractionHandler(RelationType<?> param,
+		InteractionHandler interactionHandler) {
+		getProcessStep().setParameterInteractionHandler(param,
+			interactionHandler);
 	}
 
 	/**
@@ -1618,31 +1606,31 @@ public abstract class InteractionFragment extends ProcessFragment
 	/**
 	 * Displays a confirmation message that can either be accepted or rejected.
 	 *
-	 * @param sMessage           The message to display
-	 * @param bYesNoQuestion     TRUE for YES and NO dialog buttons, FALSE for
-	 *                           OK and CANCEL
-	 * @param rRunOnComfirmation The code to be executed if the user accepts
-	 *                             the
-	 *                           message
+	 * @param message           The message to display
+	 * @param yesNoQuestion     TRUE for YES and NO dialog buttons, FALSE
+	 *                             for OK
+	 *                          and CANCEL
+	 * @param runOnComfirmation The code to be executed if the user accepts the
+	 *                          message
 	 * @return The message box fragment
 	 */
-	public MessageBoxFragment showConfirmationMessage(String sMessage,
-		boolean bYesNoQuestion, final Runnable rRunOnComfirmation) {
-		if (rRunOnComfirmation == null) {
+	public MessageBoxFragment showConfirmationMessage(String message,
+		boolean yesNoQuestion, final Runnable runOnComfirmation) {
+		if (runOnComfirmation == null) {
 			throw new IllegalArgumentException(
 				"Runnable parameter must not be NULL");
 		}
 
-		return showMessageBox(sMessage, MESSAGE_BOX_QUESTION_ICON,
+		return showMessageBox(message, MESSAGE_BOX_QUESTION_ICON,
 			new DialogActionListener() {
 				@Override
-				public void onDialogAction(DialogAction eAction) {
-					if (eAction == DialogAction.OK ||
-						eAction == DialogAction.YES) {
-						rRunOnComfirmation.run();
+				public void onDialogAction(DialogAction action) {
+					if (action == DialogAction.OK ||
+						action == DialogAction.YES) {
+						runOnComfirmation.run();
 					}
 				}
-			}, bYesNoQuestion ? DialogAction.YES_NO : DialogAction.OK_CANCEL);
+			}, yesNoQuestion ? DialogAction.YES_NO : DialogAction.OK_CANCEL);
 	}
 
 	/**
@@ -1651,11 +1639,11 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showDialog(String, InteractionFragment, boolean,
 	 * String, DialogActionListener, Collection)
 	 */
-	public DialogFragment showDialog(String sParamNameTemplate,
-		InteractionFragment rContentFragment,
-		DialogActionListener rDialogListener, DialogAction... rDialogActions) {
-		return showDialog(sParamNameTemplate, rContentFragment, true,
-			rDialogListener, Arrays.asList(rDialogActions));
+	public DialogFragment showDialog(String paramNameTemplate,
+		InteractionFragment contentFragment,
+		DialogActionListener dialogListener, DialogAction... dialogActions) {
+		return showDialog(paramNameTemplate, contentFragment, true,
+			dialogListener, Arrays.asList(dialogActions));
 	}
 
 	/**
@@ -1664,12 +1652,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showDialog(String, InteractionFragment, boolean,
 	 * String, DialogActionListener, Collection)
 	 */
-	public DialogFragment showDialog(String sParamNameTemplate,
-		InteractionFragment rContentFragment, boolean bModal,
-		DialogActionListener rDialogListener,
-		Collection<DialogAction> rDialogActions) {
-		return showDialog(sParamNameTemplate, rContentFragment, bModal, null,
-			rDialogListener, rDialogActions);
+	public DialogFragment showDialog(String paramNameTemplate,
+		InteractionFragment contentFragment, boolean modal,
+		DialogActionListener dialogListener,
+		Collection<DialogAction> dialogActions) {
+		return showDialog(paramNameTemplate, contentFragment, modal, null,
+			dialogListener, dialogActions);
 	}
 
 	/**
@@ -1684,30 +1672,31 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * instance
 	 * on a corresponding interaction.</p>
 	 *
-	 * @param sParamNameTemplate The name template to be used for generated
-	 *                           dialog parameter names or NULL to derive it
-	 *                           from the content fragment
-	 * @param rContentFragment   The fragment to be displayed as the dialog
-	 *                           content
-	 * @param bModal             TRUE for a modal view
-	 * @param sQuestion          A string (typically a question) that will be
-	 *                           displayed next to the dialog action buttons.
-	 * @param rDialogListener    The dialog action listener or NULL for none
-	 * @param rDialogActions     The actions to be displayed as the dialog
-	 *                           buttons
+	 * @param paramNameTemplate The name template to be used for generated
+	 *                          dialog parameter names or NULL to derive it
+	 *                          from
+	 *                          the content fragment
+	 * @param contentFragment   The fragment to be displayed as the dialog
+	 *                          content
+	 * @param modal             TRUE for a modal view
+	 * @param question          A string (typically a question) that will be
+	 *                          displayed next to the dialog action buttons.
+	 * @param dialogListener    The dialog action listener or NULL for none
+	 * @param dialogActions     The actions to be displayed as the dialog
+	 *                          buttons
 	 * @return The new dialog fragment instance
 	 */
-	public DialogFragment showDialog(String sParamNameTemplate,
-		InteractionFragment rContentFragment, boolean bModal, String sQuestion,
-		DialogActionListener rDialogListener,
-		Collection<DialogAction> rDialogActions) {
-		DialogFragment aDialog =
-			new DialogFragment(sParamNameTemplate, rContentFragment, bModal,
-				sQuestion, rDialogActions);
+	public DialogFragment showDialog(String paramNameTemplate,
+		InteractionFragment contentFragment, boolean modal, String question,
+		DialogActionListener dialogListener,
+		Collection<DialogAction> dialogActions) {
+		DialogFragment dialog =
+			new DialogFragment(paramNameTemplate, contentFragment, modal,
+				question, dialogActions);
 
-		showDialogImpl(aDialog, rDialogListener);
+		showDialogImpl(dialog, dialogListener);
 
-		return aDialog;
+		return dialog;
 	}
 
 	/**
@@ -1716,8 +1705,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showMessageBox(String, String,
 	 * DialogActionListener, Collection, RelationType...)
 	 */
-	public MessageBoxFragment showErrorMessage(String sMessage) {
-		return showMessageBox(sMessage, MESSAGE_BOX_ERROR_ICON, null,
+	public MessageBoxFragment showErrorMessage(String message) {
+		return showMessageBox(message, MESSAGE_BOX_ERROR_ICON, null,
 			DialogAction.OK);
 	}
 
@@ -1727,8 +1716,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showMessageBox(String, String,
 	 * DialogActionListener, Collection, RelationType...)
 	 */
-	public MessageBoxFragment showInfoMessage(String sMessage) {
-		return showMessageBox(sMessage, MESSAGE_BOX_INFO_ICON, null,
+	public MessageBoxFragment showInfoMessage(String message) {
+		return showMessageBox(message, MESSAGE_BOX_INFO_ICON, null,
 			DialogAction.OK);
 	}
 
@@ -1742,10 +1731,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showMessageBox(String, String,
 	 * DialogActionListener, Collection, RelationType...)
 	 */
-	public MessageBoxFragment showMessageBox(String sMessage, String sIcon,
-		DialogActionListener rDialogListener, DialogAction... rDialogActions) {
-		return showMessageBox(sMessage, sIcon, rDialogListener,
-			Arrays.asList(rDialogActions));
+	public MessageBoxFragment showMessageBox(String message, String icon,
+		DialogActionListener dialogListener, DialogAction... dialogActions) {
+		return showMessageBox(message, icon, dialogListener,
+			Arrays.asList(dialogActions));
 	}
 
 	/**
@@ -1760,27 +1749,26 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * of these parameters including UI properties must be done by the invoking
 	 * code before invoking the message box.</p>
 	 *
-	 * @param sMessage        The message to be displayed in the message box
-	 * @param sIcon           The resource name for an icon or NULL for the
-	 *                        standard icon.
-	 * @param rDialogListener The dialog action listener or NULL for none
-	 * @param rDialogActions  The actions to be displayed as the message box
-	 *                        buttons
-	 * @param rExtraParams    Optional extra parameters to be displayed in the
-	 *                        message box
+	 * @param message        The message to be displayed in the message box
+	 * @param icon           The resource name for an icon or NULL for the
+	 *                       standard icon.
+	 * @param dialogListener The dialog action listener or NULL for none
+	 * @param dialogActions  The actions to be displayed as the message box
+	 *                       buttons
+	 * @param extraParams    Optional extra parameters to be displayed in the
+	 *                       message box
 	 * @return The view fragment that has been created for the message box
 	 */
-	public MessageBoxFragment showMessageBox(String sMessage, String sIcon,
-		DialogActionListener rDialogListener,
-		Collection<DialogAction> rDialogActions,
-		RelationType<?>... rExtraParams) {
-		MessageBoxFragment aMessageBox =
-			new MessageBoxFragment(sMessage, sIcon, rDialogActions,
-				rExtraParams);
+	public MessageBoxFragment showMessageBox(String message, String icon,
+		DialogActionListener dialogListener,
+		Collection<DialogAction> dialogActions,
+		RelationType<?>... extraParams) {
+		MessageBoxFragment messageBox =
+			new MessageBoxFragment(message, icon, dialogActions, extraParams);
 
-		showDialogImpl(aMessageBox, rDialogListener);
+		showDialogImpl(messageBox, dialogListener);
 
-		return aMessageBox;
+		return messageBox;
 	}
 
 	/**
@@ -1790,9 +1778,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showDialog(String, InteractionFragment, boolean,
 	 * String, DialogActionListener, Collection)
 	 */
-	public DialogFragment showModalDialog(InteractionFragment rContentFragment,
-		Collection<DialogAction> rDialogActions) {
-		return showDialog(null, rContentFragment, true, null, rDialogActions);
+	public DialogFragment showModalDialog(InteractionFragment contentFragment,
+		Collection<DialogAction> dialogActions) {
+		return showDialog(null, contentFragment, true, null, dialogActions);
 	}
 
 	/**
@@ -1807,24 +1795,23 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * on the returned view fragment instance on a corresponding interaction.
 	 * </p>
 	 *
-	 * @param sParamNameTemplate The name template to be used for generated
-	 *                              view
-	 *                           parameter names
-	 * @param rContentFragment   The fragment to be displayed as the view
-	 *                           content
-	 * @param bModal             TRUE for a modal view
+	 * @param paramNameTemplate The name template to be used for generated view
+	 *                          parameter names
+	 * @param contentFragment   The fragment to be displayed as the view
+	 *                          content
+	 * @param modal             TRUE for a modal view
 	 * @return The new view fragment to provide access to it's method
 	 * {@link ViewFragment#hide()}
 	 */
-	public ViewFragment showView(String sParamNameTemplate,
-		InteractionFragment rContentFragment, boolean bModal) {
-		ViewFragment aViewFragment =
-			new ViewFragment(sParamNameTemplate, rContentFragment,
-				bModal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
+	public ViewFragment showView(String paramNameTemplate,
+		InteractionFragment contentFragment, boolean modal) {
+		ViewFragment viewFragment =
+			new ViewFragment(paramNameTemplate, contentFragment,
+				modal ? ViewDisplayType.MODAL_VIEW : ViewDisplayType.VIEW);
 
-		aViewFragment.show(this);
+		viewFragment.show(this);
 
-		return aViewFragment;
+		return viewFragment;
 	}
 
 	/**
@@ -1833,8 +1820,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @see InteractionFragment#showMessageBox(String, String,
 	 * DialogActionListener, Collection, RelationType...)
 	 */
-	public MessageBoxFragment showWarningMessage(String sMessage) {
-		return showMessageBox(sMessage, MESSAGE_BOX_WARNING_ICON, null,
+	public MessageBoxFragment showWarningMessage(String message) {
+		return showMessageBox(message, MESSAGE_BOX_WARNING_ICON, null,
 			DialogAction.OK);
 	}
 
@@ -1856,38 +1843,38 @@ public abstract class InteractionFragment extends ProcessFragment
 	 *
 	 * @see #param(String, Class)
 	 */
-	public Parameter<String> textParam(String sName) {
-		return param(sName, String.class);
+	public Parameter<String> textParam(String name) {
+		return param(name, String.class);
 	}
 
 	/**
 	 * Creates a parameter that displays a title string (i.e. with the style
 	 * {@link LabelStyle#TITLE}).
 	 *
-	 * @param sTitleText The title text
+	 * @param titleText The title text
 	 * @return The label parameter
 	 */
-	public Parameter<String> title(String sTitleText) {
-		return label(sTitleText, LabelStyle.TITLE);
+	public Parameter<String> title(String titleText) {
+		return label(titleText, LabelStyle.TITLE);
 	}
 
 	/**
 	 * Updates all coupled parameters by retrieving their values from the
 	 * coupled sources.
 	 *
-	 * @param bMarkParamsAsModified If TRUE all interaction parameters of this
-	 *                              fragment will be marked as modified
+	 * @param markParamsAsModified If TRUE all interaction parameters of this
+	 *                             fragment will be marked as modified
 	 * @see de.esoco.process.param.ParameterBase#couple(java.util.function.Consumer,
 	 * java.util.function.Supplier)
 	 */
-	public void updateAllCoupledParameters(boolean bMarkParamsAsModified) {
-		List<RelationType<?>> rInteractionParams = getInteractionParameters();
+	public void updateAllCoupledParameters(boolean markParamsAsModified) {
+		List<RelationType<?>> interactionParams = getInteractionParameters();
 
-		RelationCoupling.getAll(getProcess(), rInteractionParams);
+		RelationCoupling.getAll(getProcess(), interactionParams);
 
-		if (bMarkParamsAsModified) {
-			for (RelationType<?> rParam : rInteractionParams) {
-				markParameterAsModified(rParam);
+		if (markParamsAsModified) {
+			for (RelationType<?> param : interactionParams) {
+				markParameterAsModified(param);
 			}
 		}
 	}
@@ -1905,50 +1892,50 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * state changes of the process. Subclasses must implement
 	 * {@link #validateParameters(boolean)} instead.
 	 *
-	 * @param bOnInteraction TRUE if the validation occurs during an ongoing
-	 *                       interaction, FALSE after the final interaction
-	 *                       before the fragment is finished
+	 * @param onInteraction TRUE if the validation occurs during an ongoing
+	 *                      interaction, FALSE after the final interaction
+	 *                      before the fragment is finished
 	 * @return A mapping from invalid parameters to validation error message
 	 * (empty for none)
 	 */
 	public Map<RelationType<?>, String> validateFragmentParameters(
-		boolean bOnInteraction) {
-		Map<RelationType<?>, String> aValidationErrors = new HashMap<>();
+		boolean onInteraction) {
+		Map<RelationType<?>, String> validationErrors = new HashMap<>();
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			aValidationErrors.putAll(
-				rSubFragment.validateFragmentParameters(bOnInteraction));
+		for (InteractionFragment subFragment : getSubFragments()) {
+			validationErrors.putAll(
+				subFragment.validateFragmentParameters(onInteraction));
 		}
 
-		Map<RelationType<?>, String> aFragmentErrors =
-			validateParameters(bOnInteraction);
+		Map<RelationType<?>, String> fragmentErrors =
+			validateParameters(onInteraction);
 
-		Map<RelationType<?>, Function<?, String>> aValidations =
+		Map<RelationType<?>, Function<?, String>> validations =
 			new LinkedHashMap<>();
 
-		if (bOnInteraction) {
-			RelationType<?> rInteractionParam = getInteractiveInputParameter();
+		if (onInteraction) {
+			RelationType<?> interactionParam = getInteractiveInputParameter();
 
-			Function<?, String> fValidation =
-				getParameterValidations(true).get(rInteractionParam);
+			Function<?, String> validation =
+				getParameterValidations(true).get(interactionParam);
 
-			if (fValidation != null) {
-				aValidations.put(rInteractionParam, fValidation);
+			if (validation != null) {
+				validations.put(interactionParam, validation);
 			}
 		} else {
-			aValidations.putAll(getParameterValidations(true));
-			aValidations.putAll(getParameterValidations(false));
+			validations.putAll(getParameterValidations(true));
+			validations.putAll(getParameterValidations(false));
 		}
 
-		aFragmentErrors.putAll(performParameterValidations(aValidations));
+		fragmentErrors.putAll(performParameterValidations(validations));
 
-		if (!aFragmentErrors.isEmpty()) {
-			validationError(aFragmentErrors);
+		if (!fragmentErrors.isEmpty()) {
+			validationError(fragmentErrors);
 		}
 
-		aValidationErrors.putAll(aFragmentErrors);
+		validationErrors.putAll(fragmentErrors);
 
-		return aValidationErrors;
+		return validationErrors;
 	}
 
 	/**
@@ -1958,14 +1945,14 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * freely by overriding methods to add their own error messages if
 	 * necessary.
 	 *
-	 * @param bOnInteraction TRUE if the validation occurs during an ongoing
-	 *                       interaction, FALSE after the final interaction
-	 *                       before the fragment is finished
+	 * @param onInteraction TRUE if the validation occurs during an ongoing
+	 *                      interaction, FALSE after the final interaction
+	 *                      before the fragment is finished
 	 * @return A mapping from invalid parameters to validation error message
 	 * (empty for none)
 	 */
 	public Map<RelationType<?>, String> validateParameters(
-		boolean bOnInteraction) {
+		boolean onInteraction) {
 		return new HashMap<RelationType<?>, String>();
 	}
 
@@ -1977,13 +1964,12 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * not
 	 * override the default process parameter validation.
 	 *
-	 * @param rValidationErrors A mapping from parameters to validation error
-	 *                          messages
+	 * @param validationErrors A mapping from parameters to validation error
+	 *                         messages
 	 */
-	public void validationError(
-		Map<RelationType<?>, String> rValidationErrors) {
-		if (rParent != null) {
-			rParent.validationError(rValidationErrors);
+	public void validationError(Map<RelationType<?>, String> validationErrors) {
+		if (parent != null) {
+			parent.validationError(validationErrors);
 		}
 	}
 
@@ -2003,10 +1989,10 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * does
 	 * nothing.
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
-	protected void afterInteraction(RelationType<?> rInteractionParam)
+	protected void afterInteraction(RelationType<?> interactionParam)
 		throws Exception {
 	}
 
@@ -2030,8 +2016,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
 	protected final void finishFragment() throws Exception {
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.finishFragment();
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.finishFragment();
 		}
 
 		finish();
@@ -2044,10 +2030,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	protected Map<RelationType<?>, Function<?, String>> getParameterValidations(
-		boolean bOnInteraction) {
-		return bOnInteraction ?
-		       aParamInteractionValidations :
-		       aParamValidations;
+		boolean onInteraction) {
+		return onInteraction ? paramInteractionValidations : paramValidations;
 	}
 
 	/**
@@ -2056,7 +2040,7 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @return The root fragment
 	 */
 	protected InteractionFragment getRoot() {
-		return rParent != null ? rParent.getRoot() : this;
+		return parent != null ? parent.getRoot() : this;
 	}
 
 	/**
@@ -2067,26 +2051,25 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	@Override
 	protected int getTemporaryParameterId() {
-		return nNextParameterId++;
+		return nextParameterId++;
 	}
 
 	/**
 	 * Determines the datatype of a certain value. This especially recognizes
 	 * anonymous subclasses of enums and returns the correct enum type instead.
 	 *
-	 * @param rValue The value to determine the datatype of
+	 * @param value The value to determine the datatype of
 	 * @return The value datatype
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T> Class<T> getValueDatatype(T rValue) {
-		Class<T> rDatatype = (Class<T>) rValue.getClass();
+	protected <T> Class<T> getValueDatatype(T value) {
+		Class<T> datatype = (Class<T>) value.getClass();
 
-		if (rDatatype.isAnonymousClass() &&
-			rDatatype.getSuperclass().isEnum()) {
-			rDatatype = (Class<T>) rDatatype.getSuperclass();
+		if (datatype.isAnonymousClass() && datatype.getSuperclass().isEnum()) {
+			datatype = (Class<T>) datatype.getSuperclass();
 		}
 
-		return rDatatype;
+		return datatype;
 	}
 
 	/**
@@ -2111,9 +2094,9 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * be implemented by subclasses to initialize process step-specific
 	 * parameters. The default implementation does nothing.
 	 *
-	 * @param rProcessStep The process step of this fragment
+	 * @param processStep The process step of this fragment
 	 */
-	protected void initProcessStep(Interaction rProcessStep) {
+	protected void initProcessStep(Interaction processStep) {
 	}
 
 	/**
@@ -2123,31 +2106,30 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * configured as an input parameter. And a target parameter that will
 	 * receive the result of a successful file upload.
 	 *
-	 * @param rFileSelectParam The parameter for the file selection
-	 * @param rUploadHandler   The upload handler
+	 * @param fileSelectParam The parameter for the file selection
+	 * @param uploadHandler   The upload handler
 	 * @throws Exception If preparing the upload fails
 	 */
-	protected void prepareUpload(RelationType<String> rFileSelectParam,
-		UploadHandler rUploadHandler) throws Exception {
-		final SessionManager rSessionManager =
+	protected void prepareUpload(RelationType<String> fileSelectParam,
+		UploadHandler uploadHandler) throws Exception {
+		final SessionManager sessionManager =
 			getParameter(DataRelationTypes.SESSION_MANAGER);
 
-		String sOldUrl = getUIProperty(URL, rFileSelectParam);
+		String oldUrl = getUIProperty(URL, fileSelectParam);
 
-		if (sOldUrl != null) {
-			rSessionManager.removeUpload(sOldUrl);
-			getProcessStep().removeCleanupAction(sOldUrl);
+		if (oldUrl != null) {
+			sessionManager.removeUpload(oldUrl);
+			getProcessStep().removeCleanupAction(oldUrl);
 		}
 
-		final String sUploadUrl =
-			rSessionManager.prepareUpload(rUploadHandler);
+		final String uploadUrl = sessionManager.prepareUpload(uploadHandler);
 
-		setUIProperty(CONTENT_TYPE, ContentType.FILE_UPLOAD, rFileSelectParam);
-		setUIProperty(URL, sUploadUrl, rFileSelectParam);
-		setInteractive(InteractiveInputMode.ACTION, rFileSelectParam);
+		setUIProperty(CONTENT_TYPE, ContentType.FILE_UPLOAD, fileSelectParam);
+		setUIProperty(URL, uploadUrl, fileSelectParam);
+		setInteractive(InteractiveInputMode.ACTION, fileSelectParam);
 
-		addCleanupAction(sUploadUrl,
-			f -> rSessionManager.removeUpload(sUploadUrl));
+		addCleanupAction(uploadUrl,
+			f -> sessionManager.removeUpload(uploadUrl));
 	}
 
 	/**
@@ -2160,23 +2142,22 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * be configured as an input parameter. And a target parameter that will
 	 * receive the result of a successful file upload.
 	 *
-	 * @param rFileSelectParam    The parameter for the file selection
-	 * @param rTargetParam        The target parameter for the file content
-	 * @param rContentTypePattern A pattern that limits allowed content
-	 *                               types or
-	 *                            NULL for no restriction
-	 * @param nMaxSize            The maximum upload size
+	 * @param fileSelectParam    The parameter for the file selection
+	 * @param targetParam        The target parameter for the file content
+	 * @param contentTypePattern A pattern that limits allowed content types or
+	 *                           NULL for no restriction
+	 * @param maxSize            The maximum upload size
 	 * @throws Exception If preparing the upload fails
 	 * @see #prepareUpload(RelationType, UploadHandler)
 	 */
-	protected void prepareUpload(RelationType<String> rFileSelectParam,
-		RelationType<byte[]> rTargetParam, Pattern rContentTypePattern,
-		int nMaxSize) throws Exception {
-		ProcessParamUploadHandler aUploadHandler =
-			new ProcessParamUploadHandler(rTargetParam, rContentTypePattern,
-				nMaxSize);
+	protected void prepareUpload(RelationType<String> fileSelectParam,
+		RelationType<byte[]> targetParam, Pattern contentTypePattern,
+		int maxSize) throws Exception {
+		ProcessParamUploadHandler uploadHandler =
+			new ProcessParamUploadHandler(targetParam, contentTypePattern,
+				maxSize);
 
-		prepareUpload(rFileSelectParam, aUploadHandler);
+		prepareUpload(fileSelectParam, uploadHandler);
 	}
 
 	/**
@@ -2202,23 +2183,23 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * {@link #updateEntityFromParameterValues(Entity, List)} can be invoked.
 	 * </p>
 	 *
-	 * @param rEntity     The entity to read the attributes from
-	 * @param rAttributes The entity attributes and process parameters
+	 * @param entity     The entity to read the attributes from
+	 * @param attributes The entity attributes and process parameters
 	 * @throws StorageException If querying an extra attribute fails
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void setParameterValuesFromEntity(Entity rEntity,
-		List<RelationType<?>> rAttributes) throws StorageException {
-		for (RelationType<?> rParam : rAttributes) {
-			if (rEntity.getDefinition().getAttributes().contains(rParam)) {
-				Object rValue = rEntity.hasRelation(rParam) ?
-				                rEntity.get(rParam) :
-				                rParam.initialValue(rEntity);
+	protected void setParameterValuesFromEntity(Entity entity,
+		List<RelationType<?>> attributes) throws StorageException {
+		for (RelationType<?> param : attributes) {
+			if (entity.getDefinition().getAttributes().contains(param)) {
+				Object value = entity.hasRelation(param) ?
+				               entity.get(param) :
+				               param.initialValue(entity);
 
-				setParameter((RelationType) rParam, rValue);
-			} else if (rParam.hasFlag(ExtraAttributes.EXTRA_ATTRIBUTE_FLAG)) {
-				setParameter((RelationType) rParam,
-					rEntity.getExtraAttribute(rParam, null));
+				setParameter((RelationType) param, value);
+			} else if (param.hasFlag(ExtraAttributes.EXTRA_ATTRIBUTE_FLAG)) {
+				setParameter((RelationType) param,
+					entity.getExtraAttribute(param, null));
 			}
 		}
 	}
@@ -2226,18 +2207,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	/**
 	 * @see #setParameterValuesFromEntity(Entity, List)
 	 */
-	protected void setParameterValuesFromEntity(Entity rEntity,
-		RelationType<?>... rParams) throws StorageException {
-		setParameterValuesFromEntity(rEntity, Arrays.asList(rParams));
+	protected void setParameterValuesFromEntity(Entity entity,
+		RelationType<?>... params) throws StorageException {
+		setParameterValuesFromEntity(entity, Arrays.asList(params));
 	}
 
 	/**
 	 * Sets the parent fragment of this instance.
 	 *
-	 * @param rParent The parent fragment
+	 * @param parent The parent fragment
 	 */
-	protected void setParent(InteractionFragment rParent) {
-		this.rParent = rParent;
+	protected void setParent(InteractionFragment parent) {
+		this.parent = parent;
 	}
 
 	/**
@@ -2249,21 +2230,21 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * method {@link #setParameterValuesFromEntity(Entity, List)} can be used.
 	 * </p>
 	 *
-	 * @param rEntity The entity to update
-	 * @param rParams The process parameter and entity attribute relation types
+	 * @param entity The entity to update
+	 * @param params The process parameter and entity attribute relation types
 	 * @throws StorageException if setting an extra attribute fails
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void updateEntityFromParameterValues(Entity rEntity,
-		List<RelationType<?>> rParams) throws StorageException {
-		for (RelationType<?> rParam : rParams) {
-			if (hasParameter(rParam)) {
-				if (rEntity.getDefinition().getAttributes().contains(rParam)) {
-					rEntity.set((RelationType) rParam, getParameter(rParam));
-				} else if (rParam.hasFlag(
+	protected void updateEntityFromParameterValues(Entity entity,
+		List<RelationType<?>> params) throws StorageException {
+		for (RelationType<?> param : params) {
+			if (hasParameter(param)) {
+				if (entity.getDefinition().getAttributes().contains(param)) {
+					entity.set((RelationType) param, getParameter(param));
+				} else if (param.hasFlag(
 					ExtraAttributes.EXTRA_ATTRIBUTE_FLAG)) {
-					rEntity.setExtraAttribute((RelationType) rParam,
-						getParameter(rParam));
+					entity.setExtraAttribute((RelationType) param,
+						getParameter(param));
 				}
 			}
 		}
@@ -2274,16 +2255,16 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * {@link #afterInteraction(RelationType)} for this instance and all
 	 * registered sub-fragments.
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
-	final void afterFragmentInteraction(RelationType<?> rInteractionParam)
+	final void afterFragmentInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.afterFragmentInteraction(rInteractionParam);
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.afterFragmentInteraction(interactionParam);
 		}
 
-		afterInteraction(rInteractionParam);
+		afterInteraction(interactionParam);
 	}
 
 	/**
@@ -2296,8 +2277,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 
 	final boolean canFragmentRollback() {
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			if (!rSubFragment.canFragmentRollback()) {
+		for (InteractionFragment subFragment : getSubFragments()) {
+			if (!subFragment.canFragmentRollback()) {
 				return false;
 			}
 		}
@@ -2308,30 +2289,30 @@ public abstract class InteractionFragment extends ProcessFragment
 	/**
 	 * Checks whether this fragment contains a certain continuation parameter.
 	 *
-	 * @param rContinuationParam The continuation parameter to check
+	 * @param continuationParam The continuation parameter to check
 	 * @return TRUE if the given continuation parameter belongs to this
 	 * fragment
 	 */
 	InteractionFragment getContinuationFragment(
-		RelationType<?> rContinuationParam) {
-		InteractionFragment rContinuationFragment = null;
+		RelationType<?> continuationParam) {
+		InteractionFragment continuationFragment = null;
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rContinuationFragment =
-				rSubFragment.getContinuationFragment(rContinuationParam);
+		for (InteractionFragment subFragment : getSubFragments()) {
+			continuationFragment =
+				subFragment.getContinuationFragment(continuationParam);
 
-			if (rContinuationFragment != null) {
+			if (continuationFragment != null) {
 				break;
 			}
 		}
 
-		if (rContinuationFragment == null &&
-			aFragmentContinuationParams != null &&
-			aFragmentContinuationParams.contains(rContinuationParam)) {
-			rContinuationFragment = this;
+		if (continuationFragment == null &&
+			fragmentContinuationParams != null &&
+			fragmentContinuationParams.contains(continuationParam)) {
+			continuationFragment = this;
 		}
 
-		return rContinuationFragment;
+		return continuationFragment;
 	}
 
 	/**
@@ -2339,24 +2320,24 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * {@link #handleInteraction(RelationType)} for this instance and all
 	 * registered sub-fragments.
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 * @throws Exception Any kind of exception may be thrown in case of errors
 	 */
-	final void handleFragmentInteraction(RelationType<?> rInteractionParam)
+	final void handleFragmentInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		boolean bRootFragmentInteraction = true;
+		boolean rootFragmentInteraction = true;
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			if (rSubFragment.hasFragmentInteraction(rInteractionParam)) {
-				rSubFragment.handleFragmentInteraction(rInteractionParam);
-				bRootFragmentInteraction = false;
+		for (InteractionFragment subFragment : getSubFragments()) {
+			if (subFragment.hasFragmentInteraction(interactionParam)) {
+				subFragment.handleFragmentInteraction(interactionParam);
+				rootFragmentInteraction = false;
 
 				break;
 			}
 		}
 
-		if (bRootFragmentInteraction || hasInteraction(rInteractionParam)) {
-			handleInteraction(rInteractionParam);
+		if (rootFragmentInteraction || hasInteraction(interactionParam)) {
+			handleInteraction(interactionParam);
 		}
 	}
 
@@ -2365,18 +2346,18 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * interaction parameter from this fragment or one of it's sub-fragments.
 	 * Subclasses must implement {@link #hasInteraction(RelationType)} instead.
 	 *
-	 * @param rInteractionParam The interaction parameter to check
+	 * @param interactionParam The interaction parameter to check
 	 * @return TRUE if the interaction was caused by a parameter of this
 	 * fragment
 	 */
-	final boolean hasFragmentInteraction(RelationType<?> rInteractionParam) {
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			if (rSubFragment.hasFragmentInteraction(rInteractionParam)) {
+	final boolean hasFragmentInteraction(RelationType<?> interactionParam) {
+		for (InteractionFragment subFragment : getSubFragments()) {
+			if (subFragment.hasFragmentInteraction(interactionParam)) {
 				return true;
 			}
 		}
 
-		return hasInteraction(rInteractionParam);
+		return hasInteraction(interactionParam);
 	}
 
 	/**
@@ -2389,12 +2370,12 @@ public abstract class InteractionFragment extends ProcessFragment
 		getSubFragments().clear();
 		init();
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.initFragment();
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.initFragment();
 		}
 
 		markFragmentInputParams();
-		bInitialized = true;
+		initialized = true;
 		initComplete();
 	}
 
@@ -2407,8 +2388,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	final void prepareFragmentInteraction() throws Exception {
 		prepareInteraction();
 
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.prepareFragmentInteraction();
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.prepareFragmentInteraction();
 		}
 	}
 
@@ -2421,8 +2402,8 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * @throws Exception On errors
 	 */
 	final void rollbackFragment() throws Exception {
-		for (InteractionFragment rSubFragment : getSubFragments()) {
-			rSubFragment.rollbackFragment();
+		for (InteractionFragment subFragment : getSubFragments()) {
+			subFragment.rollbackFragment();
 		}
 
 		rollback();
@@ -2432,13 +2413,13 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * Package-internal method to associate this fragment with a particular
 	 * interactive process step.
 	 *
-	 * @param rProcessStep The process step this fragment belongs to
+	 * @param processStep The process step this fragment belongs to
 	 */
-	final void setProcessStep(Interaction rProcessStep) {
-		this.rProcessStep = rProcessStep;
+	final void setProcessStep(Interaction processStep) {
+		this.processStep = processStep;
 
-		if (rProcessStep != null) {
-			initProcessStep(rProcessStep);
+		if (processStep != null) {
+			initProcessStep(processStep);
 		}
 	}
 
@@ -2447,30 +2428,30 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * {@link ProcessFragment#addSubFragment(RelationType,
 	 * InteractionFragment)}.
 	 *
-	 * @param rSubFragmentParamType The type of the parameter containing the
-	 *                              child fragment parameters
-	 * @param rSubFragment          The child fragment
-	 * @param bMarkAsModified       TRUE to mark the parameter of this fragment
-	 *                              and it's structure as modified
+	 * @param subFragmentParamType The type of the parameter containing the
+	 *                             child fragment parameters
+	 * @param subFragment          The child fragment
+	 * @param markAsModified       TRUE to mark the parameter of this fragment
+	 *                             and it's structure as modified
 	 */
 	private void addSubFragment(
-		RelationType<List<RelationType<?>>> rSubFragmentParamType,
-		InteractionFragment rSubFragment, boolean bMarkAsModified) {
-		rSubFragment.setParent(this);
+		RelationType<List<RelationType<?>>> subFragmentParamType,
+		InteractionFragment subFragment, boolean markAsModified) {
+		subFragment.setParent(this);
 
-		super.addSubFragment(rSubFragmentParamType, rSubFragment);
+		super.addSubFragment(subFragmentParamType, subFragment);
 
-		if (bMarkAsModified) {
+		if (markAsModified) {
 			structureModified();
 		}
 
-		if (bInitialized) {
+		if (initialized) {
 			// if a fragment is added after initialization of the parent has
 			// already completed it's init() method needs to be invoked too
 			try {
-				rSubFragment.initFragment();
+				subFragment.initFragment();
 			} catch (Exception e) {
-				throw new RuntimeProcessException(rSubFragment, e);
+				throw new RuntimeProcessException(subFragment, e);
 			}
 		}
 	}
@@ -2483,71 +2464,70 @@ public abstract class InteractionFragment extends ProcessFragment
 	 * progresses
 	 * to another step (including rollback) or is terminated in any way.
 	 *
-	 * @param rEntity                 The entity to lock
-	 * @param sLockUnavailableMessage The message to display if the lock
-	 *                                couldn't be acquired
-	 * @param bInProcess              TRUE to lock the entity for the process,
-	 *                                FALSE to lock it only for the current
-	 *                                step
+	 * @param entity                 The entity to lock
+	 * @param lockUnavailableMessage The message to display if the lock
+	 *                                  couldn't
+	 *                               be acquired
+	 * @param inProcess              TRUE to lock the entity for the process,
+	 *                               FALSE to lock it only for the current step
 	 * @return TRUE if the lock could be acquired
 	 * @see #lockEntityForProcess(Entity, String)
 	 * @see #lockEntityForStep(Entity, String)
 	 */
-	private boolean lockEntity(Entity rEntity, String sLockUnavailableMessage,
-		boolean bInProcess) {
-		boolean bLocked =
-			bInProcess ? getProcess().lockEntity(rEntity) :
-			lockEntity(rEntity);
+	private boolean lockEntity(Entity entity, String lockUnavailableMessage,
+		boolean inProcess) {
+		boolean locked =
+			inProcess ? getProcess().lockEntity(entity) : lockEntity(entity);
 
-		if (!bLocked) {
-			showInfoMessage(sLockUnavailableMessage);
+		if (!locked) {
+			showInfoMessage(lockUnavailableMessage);
 		}
 
-		return bLocked;
+		return locked;
 	}
 
 	/**
 	 * Removes a child fragment from this parent by invoking
 	 * {@link ProcessFragment#removeSubFragment(InteractionFragment)}.
 	 *
-	 * @param rSubFragmentParamType The type of the parameter containing the
-	 *                              fragment parameters
-	 * @param bMarkAsModified       TRUE to mark the parameter of this fragment
-	 *                              and it's structure as modified
+	 * @param subFragmentParamType The type of the parameter containing the
+	 *                             fragment parameters
+	 * @param markAsModified       TRUE to mark the parameter of this fragment
+	 *                             and it's structure as modified
 	 * @return TODO: DOCUMENT ME!
 	 */
 	private InteractionFragment removeSubFragment(
-		RelationType<List<RelationType<?>>> rSubFragmentParamType,
-		boolean bMarkAsModified) {
-		InteractionFragment rSubFragment =
-			super.removeSubFragment(rSubFragmentParamType);
+		RelationType<List<RelationType<?>>> subFragmentParamType,
+		boolean markAsModified) {
+		InteractionFragment subFragment =
+			super.removeSubFragment(subFragmentParamType);
 
-		if (rSubFragment != null) {
-			rSubFragment.setProcessStep(null);
-			rSubFragment.setParent(null);
+		if (subFragment != null) {
+			subFragment.setProcessStep(null);
+			subFragment.setParent(null);
 
-			if (bMarkAsModified) {
+			if (markAsModified) {
 				structureModified();
 			}
 		}
 
-		return rSubFragment;
+		return subFragment;
 	}
 
 	/**
 	 * Internal method that displays any kind of dialog fragment.
 	 *
-	 * @param rDialogFragment The dialog fragment
-	 * @param rDialogListener An optional dialog listener or NULL for none
+	 * @param dialogFragment The dialog fragment
+	 * @param dialogListener An optional dialog listener or NULL for none
 	 * @throws Exception If displaying the dialog fails
 	 */
-	private void showDialogImpl(DialogFragment rDialogFragment,
-		DialogActionListener rDialogListener) {
-		if (rDialogListener != null) {
-			rDialogFragment.addDialogActionListener(rDialogListener);
+	private void showDialogImpl(DialogFragment dialogFragment,
+		DialogActionListener dialogListener) {
+		if (dialogListener != null) {
+			dialogFragment.addDialogActionListener(dialogListener);
 		}
 
-		rDialogFragment.show(this);
+		dialogFragment.show(this);
 	}
 
 	/**
@@ -2560,66 +2540,66 @@ public abstract class InteractionFragment extends ProcessFragment
 	 */
 	class ProcessParamUploadHandler implements UploadHandler {
 
-		private RelationType<byte[]> rTargetParam;
+		private final RelationType<byte[]> targetParam;
 
-		private Pattern rContentTypePattern;
+		private final Pattern contentTypePattern;
 
-		private int nMaxSize;
+		private final int maxSize;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rTargetParam        The target parameter for the uploaded
-		 *                            data
-		 * @param rContentTypePattern A pattern that limits allowed content
-		 *                            types or NULL for no restriction
-		 * @param nMaxSize            The maximum upload size
+		 * @param targetParam        The target parameter for the uploaded data
+		 * @param contentTypePattern A pattern that limits allowed content
+		 *                                 types
+		 *                           or NULL for no restriction
+		 * @param maxSize            The maximum upload size
 		 */
-		public ProcessParamUploadHandler(RelationType<byte[]> rTargetParam,
-			Pattern rContentTypePattern, int nMaxSize) {
-			this.rTargetParam = rTargetParam;
-			this.rContentTypePattern = rContentTypePattern;
-			this.nMaxSize = nMaxSize;
+		public ProcessParamUploadHandler(RelationType<byte[]> targetParam,
+			Pattern contentTypePattern, int maxSize) {
+			this.targetParam = targetParam;
+			this.contentTypePattern = contentTypePattern;
+			this.maxSize = maxSize;
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void processUploadData(String sFilename, String sContentType,
-			InputStream rDataStream) throws Exception {
-			byte[] aBuf = new byte[1024 * 16];
-			int nRead;
+		public void processUploadData(String filename, String contentType,
+			InputStream dataStream) throws Exception {
+			byte[] buf = new byte[1024 * 16];
+			int read;
 
-			if (rContentTypePattern != null &&
-				!rContentTypePattern.matcher(sContentType).matches()) {
+			if (contentTypePattern != null &&
+				!contentTypePattern.matcher(contentType).matches()) {
 				error("InvalidUploadContentType");
 			}
 
-			ByteArrayOutputStream aOutStream = new ByteArrayOutputStream();
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
-			while ((nRead = rDataStream.read(aBuf, 0, aBuf.length)) != -1) {
-				if (aOutStream.size() + nRead <= nMaxSize) {
-					aOutStream.write(aBuf, 0, nRead);
+			while ((read = dataStream.read(buf, 0, buf.length)) != -1) {
+				if (outStream.size() + read <= maxSize) {
+					outStream.write(buf, 0, read);
 				} else {
 					error("UploadSizeLimitExceeded");
 				}
 			}
 
-			setParameter(rTargetParam, aOutStream.toByteArray());
-			removeParameterAnnotation(rTargetParam, ERROR_MESSAGE);
+			setParameter(targetParam, outStream.toByteArray());
+			removeParameterAnnotation(targetParam, ERROR_MESSAGE);
 		}
 
 		/**
 		 * Sets an error message on the target parameter and then throws an
 		 * exception.
 		 *
-		 * @param sMessage The error message
+		 * @param message The error message
 		 * @throws ProcessException The error exception
 		 */
-		private void error(String sMessage) throws ProcessException {
-			annotateParameter(rTargetParam, null, ERROR_MESSAGE, sMessage);
-			throw new ProcessException(getProcessStep(), sMessage);
+		private void error(String message) throws ProcessException {
+			annotateParameter(targetParam, null, ERROR_MESSAGE, message);
+			throw new ProcessException(getProcessStep(), message);
 		}
 	}
 }

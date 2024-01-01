@@ -27,8 +27,8 @@ public interface UiComponentFactory {
 	/**
 	 * Creates a new component in the given parent.
 	 *
-	 * @param rParent The parent container to create the component in
+	 * @param parent The parent container to create the component in
 	 * @return The new component
 	 */
-	public UiComponent<?, ?> createComponent(UiContainer<?> rParent);
+	UiComponent<?, ?> createComponent(UiContainer<?> parent);
 }

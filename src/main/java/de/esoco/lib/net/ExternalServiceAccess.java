@@ -48,19 +48,19 @@ public interface ExternalServiceAccess {
 	 * should have a string representation that can be interpreted by the
 	 * corresponding service implementation.</p>
 	 *
-	 * @param rServiceDefinition The definition of the service to authorize
-	 * @param rCallback          The callback to be notified of successful
-	 *                           authorization
-	 * @param bForceAuth         TRUE to force the authorization even if cached
-	 *                           authorization tokens or similar exist
-	 * @param rAccessScopes      The optional access scopes
+	 * @param serviceDefinition The definition of the service to authorize
+	 * @param callback          The callback to be notified of successful
+	 *                          authorization
+	 * @param forceAuth         TRUE to force the authorization even if cached
+	 *                          authorization tokens or similar exist
+	 * @param accessScopes      The optional access scopes
 	 * @return A verification URL or NULL if no verification is necessary
 	 * @throws Exception If the authorization fails
 	 */
-	public String authorizeExternalServiceAccess(
-		ExternalServiceDefinition rServiceDefinition,
-		AuthorizationCallback rCallback, boolean bForceAuth,
-		Object... rAccessScopes) throws Exception;
+	String authorizeExternalServiceAccess(
+		ExternalServiceDefinition serviceDefinition,
+		AuthorizationCallback callback, boolean forceAuth,
+		Object... accessScopes) throws Exception;
 
 	/**
 	 * Creates a request to an external service. The access to the external
@@ -68,25 +68,25 @@ public interface ExternalServiceAccess {
 	 * {@link #authorizeExternalServiceAccess(ExternalServiceDefinition,
 	 * AuthorizationCallback, boolean, Object...)}.
 	 *
-	 * @param rServiceDefinition The type of service to create the request for
-	 * @param eAccessType        The service access type
-	 * @param sRequestUrl        The URL of the service request
+	 * @param serviceDefinition The type of service to create the request for
+	 * @param accessType        The service access type
+	 * @param requestUrl        The URL of the service request
 	 * @return The service request instance
 	 * @throws Exception If creating the request fails
 	 */
-	public ExternalServiceRequest createExternalServiceRequest(
-		ExternalServiceDefinition rServiceDefinition, AccessType eAccessType,
-		String sRequestUrl) throws Exception;
+	ExternalServiceRequest createExternalServiceRequest(
+		ExternalServiceDefinition serviceDefinition, AccessType accessType,
+		String requestUrl) throws Exception;
 
 	/**
 	 * Revokes any previously authorized access to an external service. This is
 	 * typically handled by removing all internal references and authorization
 	 * tokens to the external service for the current user from the system.
 	 *
-	 * @param rServiceDefinition The definition of the service to revoke the
-	 *                           access to
+	 * @param serviceDefinition The definition of the service to revoke the
+	 *                          access to
 	 * @throws Exception In the case of unrecoverable errors
 	 */
-	public void revokeExternalServiceAccess(
-		ExternalServiceDefinition rServiceDefinition) throws Exception;
+	void revokeExternalServiceAccess(
+		ExternalServiceDefinition serviceDefinition) throws Exception;
 }

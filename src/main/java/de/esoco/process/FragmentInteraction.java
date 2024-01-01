@@ -17,16 +17,14 @@
 package de.esoco.process;
 
 import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.param.ParameterList;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.LayoutProperties.HTML_HEIGHT;
 
@@ -46,17 +44,17 @@ public class FragmentInteraction extends Interaction {
 	/**
 	 * A default parameter to display a single fragment in.
 	 */
-	private RelationType<List<RelationType<?>>> rRootFragmentParam;
+	private RelationType<List<RelationType<?>>> rootFragmentParam;
 
-	private InteractionFragment rRootFragment;
+	private final InteractionFragment rootFragment;
 
 	/**
 	 * Creates a new instance that displays a single interaction fragment.
 	 *
-	 * @param rFragment The interaction fragment
+	 * @param fragment The interaction fragment
 	 */
-	public FragmentInteraction(InteractionFragment rFragment) {
-		rRootFragment = rFragment;
+	public FragmentInteraction(InteractionFragment fragment) {
+		rootFragment = fragment;
 	}
 
 	/**
@@ -67,15 +65,15 @@ public class FragmentInteraction extends Interaction {
 	 * method. In the first case the number of fragments must be equal to the
 	 * number of fragment parameters or else there must be no fragments at all.
 	 *
-	 * @param rTabsParam      The parameter for the tabs
-	 * @param rFragmentParams One tab parameter for each fragment
-	 * @param rFragments      The interaction fragments for the tabs
+	 * @param tabsParam      The parameter for the tabs
+	 * @param fragmentParams One tab parameter for each fragment
+	 * @param fragments      The interaction fragments for the tabs
 	 */
-	public FragmentInteraction(RelationType<List<RelationType<?>>> rTabsParam,
-		List<RelationType<List<RelationType<?>>>> rFragmentParams,
-		InteractionFragment... rFragments) {
-		rRootFragmentParam = rTabsParam;
-		rRootFragment = new RootFragment(rFragmentParams, rFragments);
+	public FragmentInteraction(RelationType<List<RelationType<?>>> tabsParam,
+		List<RelationType<List<RelationType<?>>>> fragmentParams,
+		InteractionFragment... fragments) {
+		rootFragmentParam = tabsParam;
+		rootFragment = new RootFragment(fragmentParams, fragments);
 	}
 
 	/**
@@ -84,7 +82,7 @@ public class FragmentInteraction extends Interaction {
 	 * @return The root fragment
 	 */
 	public final InteractionFragment getRootFragment() {
-		return rRootFragment;
+		return rootFragment;
 	}
 
 	/**
@@ -94,7 +92,7 @@ public class FragmentInteraction extends Interaction {
 	 * @return The root fragment parameter
 	 */
 	public final ParameterList getRootFragmentParam() {
-		return rRootFragment.fragmentParam();
+		return rootFragment.fragmentParam();
 	}
 
 	/**
@@ -105,8 +103,8 @@ public class FragmentInteraction extends Interaction {
 	 */
 	@Override
 	protected boolean needsInteraction() throws Exception {
-		return super.needsInteraction() && (rRootFragmentParam == null ||
-			getParameter(rRootFragmentParam).size() > 0);
+		return super.needsInteraction() && (rootFragmentParam == null ||
+			getParameter(rootFragmentParam).size() > 0);
 	}
 
 	/**
@@ -115,23 +113,22 @@ public class FragmentInteraction extends Interaction {
 	@Override
 	protected void prepareExecution() throws Exception {
 		// generate a temporary parameter type for a single fragment
-		if (rRootFragmentParam == null) {
-			String sName = FRAGMENT_PARAM_NAME + "_" + getFragmentId();
+		if (rootFragmentParam == null) {
+			String name = FRAGMENT_PARAM_NAME + "_" + getFragmentId();
 
-			rRootFragmentParam =
-				getTemporaryListType(sName, RelationType.class);
+			rootFragmentParam = getTemporaryListType(name, RelationType.class);
 		}
 
-		addDisplayParameters(rRootFragmentParam);
-		addSubFragment(rRootFragmentParam, rRootFragment);
+		addDisplayParameters(rootFragmentParam);
+		addSubFragment(rootFragmentParam, rootFragment);
 
-		rRootFragment
+		rootFragment
 			.fragmentParam()
 			.hideLabel()
 			.resid(FRAGMENT_PARAM_NAME)
 			.label("")
 			.tooltip("")
-			.style(rRootFragment.getClass().getSimpleName());
+			.style(rootFragment.getClass().getSimpleName());
 
 		super.prepareExecution();
 	}
@@ -146,27 +143,27 @@ public class FragmentInteraction extends Interaction {
 
 		private static final long serialVersionUID = 1L;
 
-		private List<RelationType<List<RelationType<?>>>> rFragmentParams =
+		private final List<RelationType<List<RelationType<?>>>> fragmentParams =
 			new ArrayList<>();
 
-		private List<InteractionFragment> rFragments = new ArrayList<>();
+		private final List<InteractionFragment> fragments = new ArrayList<>();
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rFragmentParams The fragment parameters
-		 * @param rFragments      The interaction fragments for the parameters
+		 * @param fragmentParams The fragment parameters
+		 * @param fragments      The interaction fragments for the parameters
 		 */
 		public RootFragment(
-			List<RelationType<List<RelationType<?>>>> rFragmentParams,
-			InteractionFragment... rFragments) {
+			List<RelationType<List<RelationType<?>>>> fragmentParams,
+			InteractionFragment... fragments) {
 			// allow empty fragment list for lazy initialization
-			assert rFragments.length == 0 ||
-				rFragmentParams.size() == rFragments.length :
+			assert fragments.length == 0 ||
+				fragmentParams.size() == fragments.length :
 				"Fragment and param counts must be equal";
 
-			this.rFragmentParams.addAll(rFragmentParams);
-			this.rFragments.addAll(Arrays.asList(rFragments));
+			this.fragmentParams.addAll(fragmentParams);
+			this.fragments.addAll(Arrays.asList(fragments));
 		}
 
 		/**
@@ -176,10 +173,10 @@ public class FragmentInteraction extends Interaction {
 		public void init() throws Exception {
 			layout(LayoutType.TABS).set(HTML_HEIGHT, "100%");
 
-			addDisplayParameters(rFragmentParams);
+			addDisplayParameters(fragmentParams);
 
-			for (int i = 0; i < rFragments.size(); i++) {
-				addSubFragment(rFragmentParams.get(i), rFragments.get(i));
+			for (int i = 0; i < fragments.size(); i++) {
+				addSubFragment(fragmentParams.get(i), fragments.get(i));
 			}
 		}
 	}

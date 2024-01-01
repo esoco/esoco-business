@@ -30,13 +30,13 @@ public class UiDialog extends UiDialogView<UiDialog> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent view
-	 * @param sTitle  The dialog title
-	 * @param rLayout The layout of the dialog content
-	 * @param bModal  TRUE to block any input outside of the view
+	 * @param parent The parent view
+	 * @param title  The dialog title
+	 * @param layout The layout of the dialog content
+	 * @param modal  TRUE to block any input outside of the view
 	 */
-	public UiDialog(UiView<?> rParent, String sTitle, UiLayout rLayout,
-		boolean bModal) {
-		super(rParent, sTitle, rLayout, bModal);
+	public UiDialog(UiView<?> parent, String title, UiLayout layout,
+		boolean modal) {
+		super(parent, title, layout, modal);
 	}
 }

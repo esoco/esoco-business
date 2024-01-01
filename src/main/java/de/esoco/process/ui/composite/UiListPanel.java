@@ -55,23 +55,23 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 		EXPAND, POPOUT
 	}
 
-	boolean bSelectable = false;
+	boolean selectable = false;
 
-	private Option<ExpandableListStyle> oExpandStyle;
+	private Option<ExpandableListStyle> expandStyle;
 
-	private List<Item> aItems = new ArrayList<>();
+	private final List<Item> items = new ArrayList<>();
 
-	private Item rSelectedItem = null;
+	private Item selectedItem = null;
 
-	private Consumer<Item> fSelectionHandler;
+	private Consumer<Item> selectionHandler;
 
 	/**
 	 * Creates a new instance with simple items that are not expandable.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiListPanel(UiContainer<?> rParent) {
-		this(rParent, Option.none());
+	public UiListPanel(UiContainer<?> parent) {
+		this(parent, Option.none());
 	}
 
 	/**
@@ -80,14 +80,14 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 * header area. Expanding an item will reveal the item content and hide any
 	 * other previously expanded item content.
 	 *
-	 * @param rParent      The parent container
-	 * @param oExpandStyle The expand style
+	 * @param parent      The parent container
+	 * @param expandStyle The expand style
 	 */
-	public UiListPanel(UiContainer<?> rParent,
-		Option<ExpandableListStyle> oExpandStyle) {
-		super(rParent, new ListLayout());
+	public UiListPanel(UiContainer<?> parent,
+		Option<ExpandableListStyle> expandStyle) {
+		super(parent, new ListLayout());
 
-		expandStyle(oExpandStyle);
+		expandStyle(expandStyle);
 	}
 
 	/**
@@ -96,11 +96,11 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 * @return The new item
 	 */
 	public Item addItem() {
-		Item aItem = new Item(this);
+		Item item = new Item(this);
 
-		aItems.add(aItem);
+		items.add(item);
 
-		return aItem;
+		return item;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 */
 	@Override
 	public void clear() {
-		aItems.clear();
+		items.clear();
 		super.clear();
 	}
 
@@ -117,15 +117,15 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 * changed before the list is first rendered. Use {@link Option#none()} for
 	 * a non-expandable list.
 	 *
-	 * @param oExpandStyle The optional new expandable list style
+	 * @param expandStyle The optional new expandable list style
 	 * @return This instance for fluent invocation
 	 */
-	public UiListPanel expandStyle(Option<ExpandableListStyle> oExpandStyle) {
-		this.oExpandStyle = oExpandStyle;
+	public UiListPanel expandStyle(Option<ExpandableListStyle> expandStyle) {
+		this.expandStyle = expandStyle;
 
-		if (oExpandStyle.exists()) {
+		if (expandStyle.exists()) {
 			set(LIST_LAYOUT_STYLE,
-				ListLayoutStyle.valueOf(oExpandStyle.orFail().name()));
+				ListLayoutStyle.valueOf(expandStyle.orFail().name()));
 		}
 
 		return this;
@@ -137,17 +137,17 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 * @return The list items
 	 */
 	public List<Item> getItems() {
-		return aItems;
+		return items;
 	}
 
 	/**
 	 * Sets the handler for selection events.
 	 *
-	 * @param fSelectionHandler The selection handler
+	 * @param selectionHandler The selection handler
 	 * @return This instance for fluent invocations
 	 */
-	public UiListPanel onSelection(Consumer<Item> fSelectionHandler) {
-		this.fSelectionHandler = fSelectionHandler;
+	public UiListPanel onSelection(Consumer<Item> selectionHandler) {
+		this.selectionHandler = selectionHandler;
 
 		return this;
 	}
@@ -155,21 +155,21 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	/**
 	 * Removes an item from this list.
 	 *
-	 * @param rItem The item to remove
+	 * @param item The item to remove
 	 */
-	public void removeItem(Item rItem) {
-		aItems.remove(rItem);
-		remove(rItem);
+	public void removeItem(Item item) {
+		items.remove(item);
+		remove(item);
 	}
 
 	/**
 	 * Sets the selectable state o this list. The default is FALSE.
 	 *
-	 * @param bSelectable The new selectable state
+	 * @param selectable The new selectable state
 	 * @return This instance for fluent invocations
 	 */
-	public UiListPanel selectable(boolean bSelectable) {
-		this.bSelectable = bSelectable;
+	public UiListPanel selectable(boolean selectable) {
+		this.selectable = selectable;
 
 		return this;
 	}
@@ -180,25 +180,25 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 * @return The optional expandable list style
 	 */
 	protected final Option<ExpandableListStyle> getExpandStyle() {
-		return oExpandStyle;
+		return expandStyle;
 	}
 
 	/**
 	 * Handles item selection events.
 	 *
-	 * @param rItem The item that has been selected
+	 * @param item The item that has been selected
 	 */
-	void changeSelection(Item rItem) {
-		if (bSelectable && rItem != rSelectedItem) {
-			if (rSelectedItem != null) {
-				rSelectedItem.setSelected(false);
+	void changeSelection(Item item) {
+		if (selectable && item != selectedItem) {
+			if (selectedItem != null) {
+				selectedItem.setSelected(false);
 			}
 
-			rItem.setSelected(true);
-			rSelectedItem = rItem;
+			item.setSelected(true);
+			selectedItem = item;
 
-			if (fSelectionHandler != null) {
-				fSelectionHandler.accept(rItem);
+			if (selectionHandler != null) {
+				selectionHandler.accept(item);
 			}
 		}
 	}
@@ -243,44 +243,41 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 	 */
 	public class Item extends UiComposite<Item> {
 
-		private Option<UiContainer<?>> oItemHeader = Option.none();
+		private Option<UiContainer<?>> itemHeader = Option.none();
 
-		private boolean bSelected = false;
+		private boolean selected = false;
 
-		private Consumer<Item> fSelectionHandler;
+		private Consumer<Item> selectionHandler;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rParent The list panel this item belongs to
+		 * @param parent The list panel this item belongs to
 		 */
-		Item(UiListPanel rParent) {
-			super(rParent, new ListItemLayout());
+		Item(UiListPanel parent) {
+			super(parent, new ListItemLayout());
 
-			if (oExpandStyle.exists()) {
-				oItemHeader = Option.of(builder()
+			if (expandStyle.exists()) {
+				itemHeader = Option.of(builder()
 					.addPanel(new UiHeaderLayout())
 					.set(ACTION_EVENT_ON_ACTIVATION_ONLY));
 			}
 
 			getHeader()
 				.getContainer()
-				.onClickInContainerArea(c -> rParent.changeSelection(this));
+				.onClickInContainerArea(c -> parent.changeSelection(this));
 		}
 
 		/**
 		 * Removes the content components from this item.
 		 */
 		public void clearContent() {
-			List<UiComponent<?, ?>> rComponents =
+			List<UiComponent<?, ?>> components =
 				new ArrayList<>(getComponents());
 
-			UiContainer<?> rHeader = oItemHeader.orUse(null);
+			UiContainer<?> header = itemHeader.orUse(null);
 
-			rComponents
-				.stream()
-				.filter(c -> c != rHeader)
-				.forEach(this::remove);
+			components.stream().filter(c -> c != header).forEach(this::remove);
 		}
 
 		/**
@@ -292,12 +289,12 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 		 * style is used. Otherwise it will just add an additional panel to the
 		 * item.
 		 *
-		 * @param rLayout The header panel layout
+		 * @param layout The header panel layout
 		 * @return The builder of the new header panel with the given layout
 		 */
-		public final UiBuilder<?> createHeaderPanel(UiLayout rLayout) {
+		public final UiBuilder<?> createHeaderPanel(UiLayout layout) {
 			return new UiLayoutPanel(getHeader().getContainer(),
-				rLayout).builder();
+				layout).builder();
 		}
 
 		/**
@@ -315,7 +312,7 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 		 * @return The item header container
 		 */
 		public final UiBuilder<?> getHeader() {
-			return oItemHeader.orUse(this).builder();
+			return itemHeader.orUse(this).builder();
 		}
 
 		/**
@@ -324,17 +321,17 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 		 * @return The selected state
 		 */
 		public boolean isSelected() {
-			return bSelected;
+			return selected;
 		}
 
 		/**
 		 * Sets the handler for selection events of this item.
 		 *
-		 * @param fSelectionHandler The selection handler
+		 * @param selectionHandler The selection handler
 		 * @return This instance for fluent invocations
 		 */
-		public Item onSelection(Consumer<Item> fSelectionHandler) {
-			this.fSelectionHandler = fSelectionHandler;
+		public Item onSelection(Consumer<Item> selectionHandler) {
+			this.selectionHandler = selectionHandler;
 
 			return this;
 		}
@@ -345,22 +342,22 @@ public class UiListPanel extends UiComposite<UiListPanel> {
 		 * @see UiComposite#remove(UiComponent)
 		 */
 		@Override
-		public void remove(UiComponent<?, ?> rComponent) {
-			super.remove(rComponent);
+		public void remove(UiComponent<?, ?> component) {
+			super.remove(component);
 		}
 
 		/**
 		 * Sets the selected state of this item.
 		 *
-		 * @param bSelected The new selected state
+		 * @param selected The new selected state
 		 */
-		public void setSelected(boolean bSelected) {
-			this.bSelected = bSelected;
+		public void setSelected(boolean selected) {
+			this.selected = selected;
 
-			style().styleName(bSelected ? "selected" : "");
+			style().styleName(selected ? "selected" : "");
 
-			if (bSelected && fSelectionHandler != null) {
-				fSelectionHandler.accept(this);
+			if (selected && selectionHandler != null) {
+				selectionHandler.accept(this);
 			}
 		}
 

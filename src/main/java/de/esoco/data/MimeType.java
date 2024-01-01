@@ -89,35 +89,35 @@ public enum MimeType {
 	XML_DTD("application/xml-dtd", ".dtd"),
 	XSLT("application/xslt+xml", ".xsl .xslt"), ZIP("application/zip", ".zip");
 
-	private String sDefinition;
+	private final String definition;
 
-	private String sFileExtensions;
+	private final String fileExtensions;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sDefinition     The mime type definition string
-	 * @param sFileExtensions The file extension of this MIME type
+	 * @param definition     The mime type definition string
+	 * @param fileExtensions The file extension of this MIME type
 	 */
-	private MimeType(String sDefinition, String sFileExtensions) {
-		this.sDefinition = sDefinition;
-		this.sFileExtensions = sFileExtensions;
+	MimeType(String definition, String fileExtensions) {
+		this.definition = definition;
+		this.fileExtensions = fileExtensions;
 	}
 
 	/**
 	 * Returns the MIME type for a certain file extension.
 	 *
-	 * @param sExtension The file extension to search for
+	 * @param extension The file extension to search for
 	 * @return The MIME type for the given extension or NULL if no match could
 	 * be found
 	 */
-	public static MimeType forFileExtension(String sExtension) {
-		sExtension = sExtension.toLowerCase();
+	public static MimeType forFileExtension(String extension) {
+		extension = extension.toLowerCase();
 
-		for (MimeType eMimeType : values()) {
-			for (String sTypeExtension : eMimeType.getFileExtensions()) {
-				if (sTypeExtension.contains(sExtension)) {
-					return eMimeType;
+		for (MimeType mimeType : values()) {
+			for (String typeExtension : mimeType.getFileExtensions()) {
+				if (typeExtension.contains(extension)) {
+					return mimeType;
 				}
 			}
 		}
@@ -129,14 +129,14 @@ public enum MimeType {
 	 * Returns the MIME type instance for a certain MIME type definition
 	 * string.
 	 *
-	 * @param sMimeType The MIME type definition to search for
+	 * @param type The MIME type definition to search for
 	 * @return The MIME type for the given definition or NULL if no match could
 	 * be found
 	 */
-	public static MimeType forMimeType(String sMimeType) {
-		for (MimeType eMimeType : values()) {
-			if (eMimeType.sDefinition.equalsIgnoreCase(sMimeType)) {
-				return eMimeType;
+	public static MimeType forMimeType(String type) {
+		for (MimeType mimeType : values()) {
+			if (mimeType.definition.equalsIgnoreCase(type)) {
+				return mimeType;
 			}
 		}
 
@@ -149,7 +149,7 @@ public enum MimeType {
 	 * @return The MIME type string
 	 */
 	public String getDefinition() {
-		return sDefinition;
+		return definition;
 	}
 
 	/**
@@ -159,6 +159,6 @@ public enum MimeType {
 	 * empty but will never be NULL)
 	 */
 	public String[] getFileExtensions() {
-		return sFileExtensions.split("\\w");
+		return fileExtensions.split("\\w");
 	}
 }

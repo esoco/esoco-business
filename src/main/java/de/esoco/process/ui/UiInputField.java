@@ -17,7 +17,6 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.ui.event.UiHasActionEvents;
 import de.esoco.process.ui.event.UiHasUpdateEvents;
 
@@ -37,62 +36,62 @@ public abstract class UiInputField<T, C extends UiInputField<T, C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
-	 * @param rValue    The initial value
+	 * @param parent   The parent container
+	 * @param datatype The value datatype
+	 * @param value    The initial value
 	 */
-	public UiInputField(UiContainer<?> rParent, Class<T> rDatatype, T rValue) {
-		super(rParent, rDatatype);
+	public UiInputField(UiContainer<?> parent, Class<T> datatype, T value) {
+		super(parent, datatype);
 
-		fragment().setParameter(type(), rValue);
+		fragment().setParameter(type(), value);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C onAction(Consumer<T> rEventHandler) {
-		return onEnter(rEventHandler);
+	public C onAction(Consumer<T> eventHandler) {
+		return onEnter(eventHandler);
 	}
 
 	/**
 	 * Sets the event handler for input confirmation events (enter key) of this
 	 * input field.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public C onEnter(Consumer<T> rEventHandler) {
+	public C onEnter(Consumer<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * Sets the event handler for value update events of this input field.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public C onInput(Consumer<T> rEventHandler) {
+	public C onInput(Consumer<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C onUpdate(Consumer<T> rEventHandler) {
-		return onInput(rEventHandler);
+	public C onUpdate(Consumer<T> eventHandler) {
+		return onInput(eventHandler);
 	}
 
 	/**
 	 * Sets a placeholder string to be displayed if the input field is empty.
 	 *
-	 * @param sPlaceholder The placeholder string
+	 * @param placeholder The placeholder string
 	 * @return This instance for concatenation
 	 */
-	public C placeholder(String sPlaceholder) {
-		return set(PLACEHOLDER, sPlaceholder);
+	public C placeholder(String placeholder) {
+		return set(PLACEHOLDER, placeholder);
 	}
 }

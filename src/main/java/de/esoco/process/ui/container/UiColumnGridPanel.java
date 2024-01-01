@@ -33,9 +33,9 @@ public class UiColumnGridPanel extends UiLayoutContainer<UiColumnGridPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiColumnGridPanel(UiContainer<?> rParent) {
-		super(rParent, new UiColumnGridLayout());
+	public UiColumnGridPanel(UiContainer<?> parent) {
+		super(parent, new UiColumnGridLayout());
 	}
 }

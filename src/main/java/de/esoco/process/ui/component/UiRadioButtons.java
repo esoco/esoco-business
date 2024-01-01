@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ListStyle;
-
 import de.esoco.process.ui.UiButtonGroup;
 import de.esoco.process.ui.UiContainer;
 
@@ -33,10 +32,10 @@ public class UiRadioButtons<T> extends UiButtonGroup<T, UiRadioButtons<T>> {
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as buttons.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the list values
+	 * @param parent   The parent container
+	 * @param datatype The datatype of the list values
 	 */
-	public UiRadioButtons(UiContainer<?> rParent, Class<T> rDatatype) {
-		super(rParent, rDatatype, ListStyle.DISCRETE);
+	public UiRadioButtons(UiContainer<?> parent, Class<T> datatype) {
+		super(parent, datatype, ListStyle.DISCRETE);
 	}
 }

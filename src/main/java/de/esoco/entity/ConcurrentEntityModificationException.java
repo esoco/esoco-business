@@ -28,7 +28,7 @@ public class ConcurrentEntityModificationException
 
 	private static final long serialVersionUID = 1L;
 
-	private String sEntityId;
+	private String entityId;
 
 	/**
 	 * Default constructor.
@@ -39,14 +39,14 @@ public class ConcurrentEntityModificationException
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rEntity  The modified entity
-	 * @param sMessage The error message
+	 * @param entity  The modified entity
+	 * @param message The error message
 	 */
-	public ConcurrentEntityModificationException(Entity rEntity,
-		String sMessage) {
-		super(sMessage);
+	public ConcurrentEntityModificationException(Entity entity,
+		String message) {
+		super(message);
 
-		sEntityId = rEntity.getGlobalId();
+		entityId = entity.getGlobalId();
 	}
 
 	/**
@@ -55,6 +55,6 @@ public class ConcurrentEntityModificationException
 	 * @return The global entity ID
 	 */
 	public final String getEntityId() {
-		return sEntityId;
+		return entityId;
 	}
 }

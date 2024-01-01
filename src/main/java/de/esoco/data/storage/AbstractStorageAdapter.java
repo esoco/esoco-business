@@ -17,12 +17,10 @@
 package de.esoco.data.storage;
 
 import de.esoco.lib.model.FilterableDataModel;
+import org.obrel.core.SerializableRelatedObject;
 
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
-
-import org.obrel.core.SerializableRelatedObject;
 
 /**
  * A base class for {@link StorageAdapter} implementations.
@@ -34,15 +32,14 @@ public abstract class AbstractStorageAdapter extends SerializableRelatedObject
 
 	private static final long serialVersionUID = 1L;
 
-	private final SimpleDateFormat aConstraintDateFormat =
-		new SimpleDateFormat(
+	private final SimpleDateFormat constraintDateFormat = new SimpleDateFormat(
 		FilterableDataModel.CONSTRAINT_DATE_FORMAT_PATTERN);
 
 	/**
 	 * Creates a new instance.
 	 */
 	public AbstractStorageAdapter() {
-		aConstraintDateFormat.setLenient(true);
+		constraintDateFormat.setLenient(true);
 	}
 
 	/**
@@ -65,47 +62,47 @@ public abstract class AbstractStorageAdapter extends SerializableRelatedObject
 	/**
 	 * Parses a string constraint value into a certain datatype.
 	 *
-	 * @param sConstraint The constraint value
-	 * @param rDataType   The datatype to parse the constraint into
+	 * @param constraint The constraint value
+	 * @param dataType   The datatype to parse the constraint into
 	 * @return The parsed value or NULL if it could not be parsed
 	 * @throws IllegalArgumentException If the constraint could not be parsed
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected Object parseConstraintValue(String sConstraint,
-		Class<?> rDataType) {
-		Object rValue = sConstraint;
+	protected Object parseConstraintValue(String constraint,
+		Class<?> dataType) {
+		Object value = constraint;
 
 		try {
-			if (!FilterableDataModel.NULL_CONSTRAINT_VALUE.equals(rValue)) {
-				if (rDataType.isEnum()) {
+			if (!FilterableDataModel.NULL_CONSTRAINT_VALUE.equals(value)) {
+				if (dataType.isEnum()) {
 					try {
-						rValue =
-							Enum.valueOf((Class<Enum>) rDataType, sConstraint);
+						value =
+							Enum.valueOf((Class<Enum>) dataType, constraint);
 					} catch (Exception e) {
-						rValue = sConstraint;
+						value = constraint;
 					}
-				} else if (Number.class.isAssignableFrom(rDataType)) {
+				} else if (Number.class.isAssignableFrom(dataType)) {
 					try {
-						rValue = Integer.valueOf(sConstraint);
+						value = Integer.valueOf(constraint);
 					} catch (NumberFormatException e) {
-						rValue = null;
+						value = null;
 					}
-				} else if (rDataType == Boolean.class) {
-					rValue = sConstraint != null ?
-					         Boolean.valueOf(sConstraint) :
-					         null;
-				} else if (Date.class.isAssignableFrom(rDataType)) {
-					rValue = aConstraintDateFormat.parse(sConstraint);
+				} else if (dataType == Boolean.class) {
+					value =
+						constraint != null ? Boolean.valueOf(constraint) :
+						null;
+				} else if (Date.class.isAssignableFrom(dataType)) {
+					value = constraintDateFormat.parse(constraint);
 				}
 			}
 		} catch (Exception e) {
-			String sMessage =
+			String message =
 				String.format("Could not parse constraint %s as type %s",
-					sConstraint, rDataType);
+					constraint, dataType);
 
-			throw new IllegalArgumentException(sMessage, e);
+			throw new IllegalArgumentException(message, e);
 		}
 
-		return rValue;
+		return value;
 	}
 }

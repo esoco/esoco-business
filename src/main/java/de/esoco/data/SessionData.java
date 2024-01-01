@@ -17,17 +17,14 @@
 package de.esoco.data;
 
 import de.esoco.data.element.DataElementList;
-
 import de.esoco.entity.Entity;
-
 import de.esoco.lib.logging.LogLevel;
-
-import java.util.Date;
-import java.util.Map;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.core.SerializableRelatedObject;
+
+import java.util.Date;
+import java.util.Map;
 
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newType;
@@ -89,15 +86,15 @@ public class SessionData extends SerializableRelatedObject {
 	/**
 	 * Updates this instance with the given values.
 	 *
-	 * @param rUser      The entity that describes the session user
-	 * @param sLoginName The login name of the session user
-	 * @param rUserData  The user data
+	 * @param user      The entity that describes the session user
+	 * @param loginName The login name of the session user
+	 * @param userData  The user data
 	 */
-	public void update(Entity rUser, String sLoginName,
-		DataElementList rUserData) {
-		set(SESSION_USER, rUser);
-		set(SESSION_LOGIN_NAME, sLoginName);
-		set(SESSION_USER_DATA, rUserData);
+	public void update(Entity user, String loginName,
+		DataElementList userData) {
+		set(SESSION_USER, user);
+		set(SESSION_LOGIN_NAME, loginName);
+		set(SESSION_USER_DATA, userData);
 
 		set(SESSION_START_TIME, new Date());
 	}

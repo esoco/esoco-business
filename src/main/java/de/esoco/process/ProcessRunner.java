@@ -18,19 +18,17 @@ package de.esoco.process;
 
 import de.esoco.entity.ConcurrentEntityModificationException;
 import de.esoco.entity.Entity;
-
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.logging.LogLevel;
 import de.esoco.lib.manage.RunCheck;
 import de.esoco.lib.manage.Stoppable;
+import org.obrel.core.RelatedObject;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.obrel.core.RelatedObject;
 
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 
@@ -48,37 +46,37 @@ public class ProcessRunner extends RelatedObject
 
 	private static final int MAX_ENTITY_MODIFICATION_SLEEP_TRIES = 30;
 
-	private final Lock aLock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 
-	private final Condition aPause = aLock.newCondition();
+	private final Condition pause = lock.newCondition();
 
-	private ProcessScheduler rProcessScheduler;
+	private ProcessScheduler processScheduler;
 
-	private LogLevel eLogLevel = LogLevel.ERROR;
+	private LogLevel logLevel = LogLevel.ERROR;
 
-	private boolean bLogOnError = true;
+	private boolean logOnError = true;
 
-	private boolean bContinueOnError = false;
+	private boolean continueOnError = false;
 
-	private boolean bRun = true;
+	private boolean run = true;
 
-	private boolean bSingleRun = false;
+	private boolean singleRun = false;
 
-	private boolean bRunning = false;
+	private boolean running = false;
 
-	private ProcessDefinition rProcessDefinition;
+	private ProcessDefinition processDefinition;
 
-	private Process aProcess = null;
+	private Process process = null;
 
-	private Date aNextScheduleTime = new Date();
+	private final Date nextScheduleTime = new Date();
 
 	/**
 	 * Creates a new instance for a certain process definition.
 	 *
-	 * @param rProcessDefinition The process definition
+	 * @param processDefinition The process definition
 	 */
-	public ProcessRunner(ProcessDefinition rProcessDefinition) {
-		setProcessDefinition(rProcessDefinition);
+	public ProcessRunner(ProcessDefinition processDefinition) {
+		setProcessDefinition(processDefinition);
 	}
 
 	/**
@@ -92,7 +90,7 @@ public class ProcessRunner extends RelatedObject
 	 * run in the future.
 	 */
 	public void executeOnce() {
-		bRun = false;
+		run = false;
 		executeProcessNow();
 	}
 
@@ -101,9 +99,9 @@ public class ProcessRunner extends RelatedObject
 	 * run in the future.
 	 */
 	public void executeProcessNow() {
-		bSingleRun = true;
+		singleRun = true;
 
-		if (bRunning) {
+		if (running) {
 			resumeFromPause();
 		} else {
 			run();
@@ -117,7 +115,7 @@ public class ProcessRunner extends RelatedObject
 	 * @return The current process (NULL for none)
 	 */
 	public final Process getProcess() {
-		return aProcess;
+		return process;
 	}
 
 	/**
@@ -128,7 +126,7 @@ public class ProcessRunner extends RelatedObject
 	 * {@link ProcessRunner} is running an instance of, FALSE otherwise.
 	 */
 	public ProcessDefinition getProcessDefinition() {
-		return rProcessDefinition;
+		return processDefinition;
 	}
 
 	/**
@@ -138,14 +136,14 @@ public class ProcessRunner extends RelatedObject
 	 */
 	@Override
 	public boolean isRunning() {
-		return bRunning;
+		return running;
 	}
 
 	/**
 	 * Resumes the execution of this runner if it is currently waiting.
 	 */
 	public void resume() {
-		bRun = true;
+		run = true;
 		resumeFromPause();
 	}
 
@@ -154,11 +152,11 @@ public class ProcessRunner extends RelatedObject
 	 */
 
 	public void resumeFromPause() {
-		if (aLock.tryLock()) {
+		if (lock.tryLock()) {
 			try {
-				aPause.signalAll();
+				pause.signalAll();
 			} finally {
-				aLock.unlock();
+				lock.unlock();
 			}
 		}
 	}
@@ -168,35 +166,34 @@ public class ProcessRunner extends RelatedObject
 	 */
 	@Override
 	public void run() {
-		bRunning = true;
+		running = true;
 
 		try {
-			while (bRun || bSingleRun) {
-				aLock.lock();
+			while (run || singleRun) {
+				lock.lock();
 
 				try {
-					long nScheduleTime = getNextScheduleTime().getTime();
-					long nSleepTime = 0;
+					long scheduleTime = getNextScheduleTime().getTime();
+					long sleepTime = 0;
 
-					if (!bSingleRun) {
-						nSleepTime =
-							nScheduleTime - System.currentTimeMillis();
+					if (!singleRun) {
+						sleepTime = scheduleTime - System.currentTimeMillis();
 					}
 
-					if (nSleepTime > 0) {
-						aPause.await(nSleepTime, TimeUnit.MILLISECONDS);
+					if (sleepTime > 0) {
+						pause.await(sleepTime, TimeUnit.MILLISECONDS);
 					}
 
-					if (bSingleRun ||
-						(bRun && System.currentTimeMillis() >= nScheduleTime)) {
-						bSingleRun = false;
+					if (singleRun ||
+						(run && System.currentTimeMillis() >= scheduleTime)) {
+						singleRun = false;
 						executeProcess();
 					}
 				} catch (InterruptedException e) {
 					// if sleep was interrupted just continue with the next
 					// loop
 				} finally {
-					aLock.unlock();
+					lock.unlock();
 				}
 			}
 		} catch (InterruptedException e) {
@@ -205,7 +202,7 @@ public class ProcessRunner extends RelatedObject
 		} catch (Exception e) {
 			handleProcessExecutionException(e);
 		} finally {
-			bRunning = false;
+			running = false;
 		}
 	}
 
@@ -213,10 +210,10 @@ public class ProcessRunner extends RelatedObject
 	 * Sets an optional process scheduler instance that provides the scheduling
 	 * context of this instance.
 	 *
-	 * @param rProcessScheduler the process scheduler
+	 * @param processScheduler the process scheduler
 	 */
-	public void setProcessScheduler(ProcessScheduler rProcessScheduler) {
-		this.rProcessScheduler = rProcessScheduler;
+	public void setProcessScheduler(ProcessScheduler processScheduler) {
+		this.processScheduler = processScheduler;
 	}
 
 	/**
@@ -225,10 +222,10 @@ public class ProcessRunner extends RelatedObject
 
 	@Override
 	public void stop() {
-		bRun = false;
+		run = false;
 
-		if (aProcess != null) {
-			aProcess.setParameter(ProcessRelationTypes.STOP_PROCESS_EXECUTION,
+		if (process != null) {
+			process.setParameter(ProcessRelationTypes.STOP_PROCESS_EXECUTION,
 				Boolean.TRUE);
 		}
 
@@ -239,10 +236,10 @@ public class ProcessRunner extends RelatedObject
 	 * Internal method that is called right after the process execution has
 	 * finished The default implementation does nothing.
 	 *
-	 * @param rProcess the schedule process that was executed.
+	 * @param process the schedule process that was executed.
 	 * @throws Exception subclasses may throw any kind of exception
 	 */
-	protected void afterExecution(Process rProcess) throws Exception {
+	protected void afterExecution(Process process) throws Exception {
 	}
 
 	/**
@@ -250,10 +247,10 @@ public class ProcessRunner extends RelatedObject
 	 * starts.
 	 * The default implementation does nothing.
 	 *
-	 * @param rProcess the schedule process that will be executed.
+	 * @param process the schedule process that will be executed.
 	 * @throws Exception subclasses may throw any kind of exception
 	 */
-	protected void beforeExecution(Process rProcess) throws Exception {
+	protected void beforeExecution(Process process) throws Exception {
 	}
 
 	/**
@@ -271,7 +268,7 @@ public class ProcessRunner extends RelatedObject
 	 * @throws Exception If determining the schedule date fails
 	 */
 	protected Date getNextScheduleTime() throws Exception {
-		return aNextScheduleTime;
+		return nextScheduleTime;
 	}
 
 	/**
@@ -281,13 +278,13 @@ public class ProcessRunner extends RelatedObject
 	 * @return The user used for the executed process (can be NULL)
 	 */
 	protected Entity getProcessUser() {
-		Entity rUser = null;
+		Entity user = null;
 
-		if (rProcessScheduler != null) {
-			rUser = rProcessScheduler.getScheduleProcessUser();
+		if (processScheduler != null) {
+			user = processScheduler.getScheduleProcessUser();
 		}
 
-		return rUser;
+		return user;
 	}
 
 	/**
@@ -303,38 +300,38 @@ public class ProcessRunner extends RelatedObject
 	/**
 	 * Sets the continueOnError.
 	 *
-	 * @param bContinueOnError The continueOnError value
+	 * @param continueOnError The continueOnError value
 	 */
-	protected void setContinueOnError(boolean bContinueOnError) {
-		this.bContinueOnError = bContinueOnError;
+	protected void setContinueOnError(boolean continueOnError) {
+		this.continueOnError = continueOnError;
 	}
 
 	/**
 	 * Sets the logLevel.
 	 *
-	 * @param eLogLevel The logLevel value
+	 * @param logLevel The logLevel value
 	 */
-	protected void setLogLevel(LogLevel eLogLevel) {
-		this.eLogLevel = eLogLevel;
+	protected void setLogLevel(LogLevel logLevel) {
+		this.logLevel = logLevel;
 	}
 
 	/**
 	 * Sets the logOnError.
 	 *
-	 * @param bLogOnError The logOnError value
+	 * @param logOnError The logOnError value
 	 */
-	protected void setLogOnError(boolean bLogOnError) {
-		this.bLogOnError = bLogOnError;
+	protected void setLogOnError(boolean logOnError) {
+		this.logOnError = logOnError;
 	}
 
 	/**
 	 * Sets the process definition to be used for the instantiation of the
 	 * executed processes.
 	 *
-	 * @param rProcessDefinition The process definition
+	 * @param processDefinition The process definition
 	 */
-	protected void setProcessDefinition(ProcessDefinition rProcessDefinition) {
-		this.rProcessDefinition = rProcessDefinition;
+	protected void setProcessDefinition(ProcessDefinition processDefinition) {
+		this.processDefinition = processDefinition;
 	}
 
 	/**
@@ -342,28 +339,28 @@ public class ProcessRunner extends RelatedObject
 	 * and {@link #afterExecution(Process)} and handles framework exceptions
 	 * like {@link ConcurrentEntityModificationException}.
 	 */
-	private void beforeAfterExecution(boolean bBefore) throws Exception {
-		int nTries = 0;
+	private void beforeAfterExecution(boolean before) throws Exception {
+		int tries = 0;
 
-		while (nTries++ < MAX_ENTITY_MODIFICATION_SLEEP_TRIES) {
+		while (tries++ < MAX_ENTITY_MODIFICATION_SLEEP_TRIES) {
 			try {
-				if (bBefore) {
-					beforeExecution(aProcess);
+				if (before) {
+					beforeExecution(process);
 				} else {
-					afterExecution(aProcess);
+					afterExecution(process);
 				}
 
 				break;
 			} catch (ConcurrentEntityModificationException e) {
 				Thread.sleep(ENTITY_MODIFICATION_SLEEP_TIME);
 
-				if (nTries >= MAX_ENTITY_MODIFICATION_SLEEP_TRIES) {
+				if (tries >= MAX_ENTITY_MODIFICATION_SLEEP_TRIES) {
 					throw e;
 				}
 			}
 		}
 
-		Log.info((bBefore ? "Start " : "Finish ") + aProcess.getFullName());
+		Log.info((before ? "Start " : "Finish ") + process.getFullName());
 	}
 
 	/**
@@ -374,26 +371,26 @@ public class ProcessRunner extends RelatedObject
 	 * @throws ProcessException if process creation fails
 	 */
 	private Process createProcess() throws ProcessException {
-		Process rProcess = ProcessManager.getProcess(rProcessDefinition);
+		Process process = ProcessManager.getProcess(processDefinition);
 
-		if (rProcessScheduler != null) {
-			rProcess.set(PROCESS_USER,
-				rProcessScheduler.getScheduleProcessUser());
+		if (processScheduler != null) {
+			process.set(PROCESS_USER,
+				processScheduler.getScheduleProcessUser());
 		}
 
-		return rProcess;
+		return process;
 	}
 
 	/**
 	 * Checks whether {@link #bLogOnError} is set to TRUE. If it is, logging is
 	 * done using the {@link LogLevel} {@link #eLogLevel}
 	 *
-	 * @param rLogMessage The log message
-	 * @param e           The ProcessException
+	 * @param logMessage The log message
+	 * @param e          The ProcessException
 	 */
-	private void doLoggingIfEnabled(String rLogMessage, Exception e) {
-		if (bLogOnError) {
-			Log.log(eLogLevel, rLogMessage, e);
+	private void doLoggingIfEnabled(String logMessage, Exception e) {
+		if (logOnError) {
+			Log.log(logLevel, logMessage, e);
 		}
 	}
 
@@ -405,30 +402,30 @@ public class ProcessRunner extends RelatedObject
 
 	private void executeProcess() throws Exception {
 		try {
-			aProcess = createProcess();
+			process = createProcess();
 
-			if (rProcessScheduler != null) {
-				rProcessScheduler.notifyScheduleProcessStarting(aProcess);
+			if (processScheduler != null) {
+				processScheduler.notifyScheduleProcessStarting(process);
 			}
 
 			beforeAfterExecution(true);
-			aProcess.execute();
+			process.execute();
 		} catch (Exception e) {
-			if (!bContinueOnError) {
+			if (!continueOnError) {
 				doLoggingIfEnabled(
-					"Schedule process error [" + aProcess.getName() +
+					"Schedule process error [" + process.getName() +
 						"], stopping", e);
 				throw e;
 			} else {
 				doLoggingIfEnabled(
-					"Schedule process error [" + aProcess.getName() +
+					"Schedule process error [" + process.getName() +
 						"], continuing", e);
 			}
 		} finally {
 			try {
 				beforeAfterExecution(false);
 			} catch (Exception e) {
-				if (!bContinueOnError) {
+				if (!continueOnError) {
 					doLoggingIfEnabled(
 						"Error during execution of 'execution support method" +
 							" " + "-> after execution', stopping ", e);
@@ -440,8 +437,8 @@ public class ProcessRunner extends RelatedObject
 				}
 			}
 
-			if (rProcessScheduler != null) {
-				rProcessScheduler.notifyScheduleProcessFinished(aProcess);
+			if (processScheduler != null) {
+				processScheduler.notifyScheduleProcessFinished(process);
 			}
 		}
 	}

@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.LabelStyle;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.graphics.UiIconSupplier;
@@ -36,13 +35,13 @@ public class UiIcon extends UiComponent<String, UiIcon> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent       The parent container
-	 * @param rIconSupplier rIcon rImage The initial image
+	 * @param parent       The parent container
+	 * @param iconSupplier icon image The initial image
 	 */
-	public UiIcon(UiContainer<?> rParent, UiIconSupplier rIconSupplier) {
-		super(rParent, String.class);
+	public UiIcon(UiContainer<?> parent, UiIconSupplier iconSupplier) {
+		super(parent, String.class);
 
-		setIcon(rIconSupplier);
+		setIcon(iconSupplier);
 		set(HIDE_LABEL);
 		set(LABEL_STYLE, LabelStyle.ICON);
 
@@ -55,10 +54,10 @@ public class UiIcon extends UiComponent<String, UiIcon> {
 	/**
 	 * Sets the icon to be displayed from an icon supplier.
 	 *
-	 * @param rIconSupplier The icon supplier
+	 * @param iconSupplier The icon supplier
 	 */
-	public void setIcon(UiIconSupplier rIconSupplier) {
-		super.image(rIconSupplier != null ? rIconSupplier.getIcon() : null);
+	public void setIcon(UiIconSupplier iconSupplier) {
+		super.image(iconSupplier != null ? iconSupplier.getIcon() : null);
 	}
 
 	/**
@@ -66,9 +65,9 @@ public class UiIcon extends UiComponent<String, UiIcon> {
 	 * point to
 	 * an icon reference).
 	 *
-	 * @param rIconResource The icon image resource
+	 * @param iconResource The icon image resource
 	 */
-	public void setIcon(UiImageResource rIconResource) {
-		super.image(rIconResource);
+	public void setIcon(UiImageResource iconResource) {
+		super.image(iconResource);
 	}
 }

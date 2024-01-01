@@ -19,7 +19,6 @@ package de.esoco.lib.logging;
 import de.esoco.data.DataRelationTypes;
 import de.esoco.data.SessionData;
 import de.esoco.data.SessionManager;
-
 import de.esoco.entity.Entity;
 
 /**
@@ -44,22 +43,21 @@ public abstract class BusinessLogAspect<T> extends LogAspect<T> {
 	 * @return The log source entity or NULL if none is available
 	 */
 	protected Entity getLogSource() {
-		SessionManager rSessionManager =
-			get(DataRelationTypes.SESSION_MANAGER);
-		Entity rSource = null;
+		SessionManager sessionManager = get(DataRelationTypes.SESSION_MANAGER);
+		Entity source = null;
 
-		if (rSessionManager != null) {
+		if (sessionManager != null) {
 			try {
-				SessionData rSessionData = rSessionManager.getSessionData();
+				SessionData sessionData = sessionManager.getSessionData();
 
-				if (rSessionData != null) {
-					rSource = rSessionData.get(SessionData.SESSION_USER);
+				if (sessionData != null) {
+					source = sessionData.get(SessionData.SESSION_USER);
 				}
 			} catch (Exception e) {
 				// if no access to session data leave source as NULL
 			}
 		}
 
-		return rSource;
+		return source;
 	}
 }

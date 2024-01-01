@@ -20,12 +20,10 @@ import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 import de.esoco.lib.manage.TransactionException;
-
 import de.esoco.storage.StorageException;
+import org.obrel.core.RelationType;
 
 import java.util.Collection;
-
-import org.obrel.core.RelationType;
 
 /**
  * A base class for fragments that edit the user settings that can be obtained
@@ -43,25 +41,25 @@ public abstract class SettingsFragment extends InteractionFragment {
 	 * optionally storing the settings. If no settings object exists for the
 	 * user it will be created.
 	 *
-	 * @param rUser         The user to apply the settings to
-	 * @param rSettingTypes The settings relation types
-	 * @param bStore        TRUE to store the user settings after applying
+	 * @param user         The user to apply the settings to
+	 * @param settingTypes The settings relation types
+	 * @param store        TRUE to store the user settings after applying
 	 * @throws StorageException     If updating a settings extra attribute
 	 *                              fails
 	 * @throws TransactionException If creating or storing the user settings
 	 *                              fails
 	 */
-	public void applySettings(Entity rUser,
-		Collection<RelationType<?>> rSettingTypes, boolean bStore)
+	public void applySettings(Entity user,
+		Collection<RelationType<?>> settingTypes, boolean store)
 		throws StorageException, TransactionException {
-		Configuration rSettings = Configuration.getSettings(rUser, true);
+		Configuration settings = Configuration.getSettings(user, true);
 
-		for (RelationType<?> rPreference : rSettingTypes) {
-			setPreferenceFromParameter(rSettings, rPreference);
+		for (RelationType<?> preference : settingTypes) {
+			setPreferenceFromParameter(settings, preference);
 		}
 
-		if (bStore) {
-			EntityManager.storeEntity(rSettings, rUser);
+		if (store) {
+			EntityManager.storeEntity(settings, user);
 		}
 	}
 
@@ -69,20 +67,20 @@ public abstract class SettingsFragment extends InteractionFragment {
 	 * Collects certain settings by transferring them from the user's settings
 	 * to the corresponding process parameters.
 	 *
-	 * @param rUser         The user to collect the settings from
-	 * @param rSettingTypes The settings relation types
+	 * @param user         The user to collect the settings from
+	 * @param settingTypes The settings relation types
 	 * @throws StorageException If accessing a settings extra attribute fails
 	 */
-	public void collectSettings(Entity rUser,
-		Collection<RelationType<?>> rSettingTypes) throws StorageException {
-		Configuration rSettings;
+	public void collectSettings(Entity user,
+		Collection<RelationType<?>> settingTypes) throws StorageException {
+		Configuration settings;
 
 		try {
-			rSettings = Configuration.getSettings(rUser, false);
+			settings = Configuration.getSettings(user, false);
 
-			if (rSettings != null) {
-				for (RelationType<?> rPreference : rSettingTypes) {
-					setParameterFromPreference(rSettings, rPreference);
+			if (settings != null) {
+				for (RelationType<?> preference : settingTypes) {
+					setParameterFromPreference(settings, preference);
 				}
 			}
 		} catch (TransactionException e) {
@@ -95,16 +93,16 @@ public abstract class SettingsFragment extends InteractionFragment {
 	 * Type-safe method to set a preferences parameter from a settings
 	 * configuration if it exists.
 	 *
-	 * @param rSettings   The settings (can be NULL if no settings are
-	 *                    available)
-	 * @param rPreference The preference extra attribute
+	 * @param settings   The settings (can be NULL if no settings are
+	 *                   available)
+	 * @param preference The preference extra attribute
 	 * @throws StorageException If reading the preference value fails
 	 */
-	protected <T> void setParameterFromPreference(Configuration rSettings,
-		RelationType<T> rPreference) throws StorageException {
-		if (rSettings != null) {
-			setParameter(rPreference,
-				rSettings.getSettingsValue(rPreference, null));
+	protected <T> void setParameterFromPreference(Configuration settings,
+		RelationType<T> preference) throws StorageException {
+		if (settings != null) {
+			setParameter(preference,
+				settings.getSettingsValue(preference, null));
 		}
 	}
 
@@ -112,12 +110,12 @@ public abstract class SettingsFragment extends InteractionFragment {
 	 * Type-safe method to set a preferences parameter from a settings
 	 * configuration.
 	 *
-	 * @param rSettings   The settings
-	 * @param rPreference The preference extra attribute
+	 * @param settings   The settings
+	 * @param preference The preference extra attribute
 	 * @throws StorageException If reading the preference value fails
 	 */
-	protected <T> void setPreferenceFromParameter(Configuration rSettings,
-		RelationType<T> rPreference) throws StorageException {
-		rSettings.setSettingsValue(rPreference, getParameter(rPreference));
+	protected <T> void setPreferenceFromParameter(Configuration settings,
+		RelationType<T> preference) throws StorageException {
+		settings.setSettingsValue(preference, getParameter(preference));
 	}
 }

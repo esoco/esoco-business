@@ -15,9 +15,9 @@ public class UiTableLayout extends UiLayout {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param nColumns The number of layout columns
+	 * @param columns The number of layout columns
 	 */
-	public UiTableLayout(int nColumns) {
-		super(LayoutType.TABLE, nColumns);
+	public UiTableLayout(int columns) {
+		super(LayoutType.TABLE, columns);
 	}
 }

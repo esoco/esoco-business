@@ -17,7 +17,6 @@
 package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiLayout;
 
@@ -40,12 +39,12 @@ public class UiFillLayout extends UiLayout {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void addComponent(UiComponent<?, ?> rComponent) {
-		if (rComponent.getParent().getComponents().size() > 1) {
+	protected void addComponent(UiComponent<?, ?> component) {
+		if (component.getParent().getComponents().size() > 1) {
 			throw new IllegalStateException(
 				"UiFillLayout can only contain a single component");
 		}
 
-		super.addComponent(rComponent);
+		super.addComponent(component);
 	}
 }

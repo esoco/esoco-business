@@ -28,12 +28,10 @@ import de.esoco.lib.expression.ThrowingSupplier;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.GetElement;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.storage.StorageException;
+import org.obrel.core.RelationType;
 
 import java.util.function.Supplier;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityPredicates.ifAttribute;
 
@@ -85,45 +83,44 @@ public class EntityFunctions {
 	/**
 	 * Format an entity with a default instance of {@link EntityFormat}.
 	 *
-	 * @param rEntity The entity to format
+	 * @param entity The entity to format
 	 * @return The resulting string or NULL, if the input entity is NULL
 	 */
-	public static String format(Entity rEntity) {
-		return FORMAT_ENTITY.evaluate(rEntity);
+	public static String format(Entity entity) {
+		return FORMAT_ENTITY.evaluate(entity);
 	}
 
 	/**
 	 * Returns a function that formats an entity into a readable string.
 	 *
-	 * @param sNullString The string to be displayed if the input entity is
-	 *                    NULL
+	 * @param nullString The string to be displayed if the input entity is NULL
 	 * @return The function for the string formatting
 	 */
 	public static <E extends Entity> Function<E, String> formatEntity(
-		String sNullString) {
-		return new EntityFormat<>(sNullString);
+		String nullString) {
+		return new EntityFormat<>(nullString);
 	}
 
 	/**
 	 * Creates a string for a formatted display of an entity's extra
 	 * attributes.
 	 *
-	 * @param rEntity The entity
+	 * @param entity The entity
 	 * @return The resulting string
 	 * @throws StorageException If accessing the extra attributes fails
 	 */
-	public static String formatExtraAttributes(Entity rEntity) {
-		StringBuilder aResult = new StringBuilder();
+	public static String formatExtraAttributes(Entity entity) {
+		StringBuilder result = new StringBuilder();
 
-		for (RelationType<?> rExtraAttr : rEntity.getExtraAttributes()) {
-			String sName = rExtraAttr.getSimpleName();
-			Object rValue = rEntity.getExtraAttribute(rExtraAttr, null);
+		for (RelationType<?> extraAttr : entity.getExtraAttributes()) {
+			String name = extraAttr.getSimpleName();
+			Object value = entity.getExtraAttribute(extraAttr, null);
 
-			aResult.append(TextConvert.capitalize(sName, " "));
-			aResult.append(": ").append(rValue).append("\n");
+			result.append(TextConvert.capitalize(name, " "));
+			result.append(": ").append(value).append("\n");
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
@@ -141,13 +138,13 @@ public class EntityFunctions {
 	 * it's
 	 * input entity.
 	 *
-	 * @param rKey          The extra attribute key
-	 * @param rDefaultValue The default value if the attribute doesn't exist
+	 * @param key          The extra attribute key
+	 * @param defaultValue The default value if the attribute doesn't exist
 	 * @return A new binary function instance
 	 */
 	public static <E extends Entity, V> GetExtraAttribute<E, V> getExtraAttribute(
-		RelationType<V> rKey, V rDefaultValue) {
-		return new GetExtraAttribute<>(rKey, rDefaultValue);
+		RelationType<V> key, V defaultValue) {
+		return new GetExtraAttribute<>(key, defaultValue);
 	}
 
 	/**
@@ -158,25 +155,25 @@ public class EntityFunctions {
 	 * doesn't match the argument key an {@link IllegalArgumentException} will
 	 * be thrown from the function evaluation.
 	 *
-	 * @param rExtraAttributeKey The extra attribute key
+	 * @param extraAttributeKey The extra attribute key
 	 * @return A new binary function instance
 	 */
 	public static <T> BinaryFunction<ExtraAttribute, RelationType<T>, T> getExtraAttributeValue(
-		RelationType<T> rExtraAttributeKey) {
+		RelationType<T> extraAttributeKey) {
 		return new AbstractBinaryFunction<ExtraAttribute, RelationType<T>, T>(
-			rExtraAttributeKey, "getExtraAttributeValue") {
+			extraAttributeKey, "getExtraAttributeValue") {
 			@Override
 			@SuppressWarnings("unchecked")
-			public T evaluate(ExtraAttribute rExtraAttribute,
-				RelationType<T> rKey) {
-				if (rKey == rExtraAttribute.get(ExtraAttribute.KEY)) {
-					return (T) rExtraAttribute.get(ExtraAttribute.VALUE);
+			public T evaluate(ExtraAttribute extraAttribute,
+				RelationType<T> key) {
+				if (key == extraAttribute.get(ExtraAttribute.KEY)) {
+					return (T) extraAttribute.get(ExtraAttribute.VALUE);
 				} else {
-					String sMessage =
-						String.format("Invalid key %s for %s", rKey,
-							rExtraAttribute);
+					String message = String.format("Invalid key %s for %s",
+						key,
+						extraAttribute);
 
-					throw new IllegalArgumentException(sMessage);
+					throw new IllegalArgumentException(message);
 				}
 			}
 		};
@@ -200,12 +197,12 @@ public class EntityFunctions {
 	 * @see Entity#getUpwards(RelationType)
 	 */
 	public static <E extends Entity, T> BinaryFunction<E, RelationType<T>, T> getUpwards(
-		RelationType<T> rAttribute) {
-		return new AbstractBinaryFunction<E, RelationType<T>, T>(rAttribute,
+		RelationType<T> attribute) {
+		return new AbstractBinaryFunction<E, RelationType<T>, T>(attribute,
 			"getUpwards(%s)") {
 			@Override
-			public T evaluate(E rEntity, RelationType<T> rAttribute) {
-				return rEntity.getUpwards(rAttribute);
+			public T evaluate(E entity, RelationType<T> attribute) {
+				return entity.getUpwards(attribute);
 			}
 		};
 	}
@@ -216,8 +213,7 @@ public class EntityFunctions {
 	 * @see EntityManager#queryEntity(String)
 	 */
 	public static java.util.function.Function<String, Entity> queryEntity() {
-		return ThrowingFunction.of(
-			sGlobalId -> EntityManager.queryEntity(sGlobalId));
+		return ThrowingFunction.of(EntityManager::queryEntity);
 	}
 
 	/**
@@ -227,9 +223,9 @@ public class EntityFunctions {
 	 * @see EntityManager#queryEntity(Class, long)
 	 */
 	public static <E extends Entity> java.util.function.Function<Number, E> queryEntity(
-		final Class<E> rEntityClass) {
+		final Class<E> entityClass) {
 		return ThrowingFunction.of(
-			rId -> EntityManager.queryEntity(rEntityClass, rId.longValue()));
+			id -> EntityManager.queryEntity(entityClass, id.longValue()));
 	}
 
 	/**
@@ -239,30 +235,31 @@ public class EntityFunctions {
 	 * @see EntityManager#queryEntity(Class, Predicate, boolean)
 	 */
 	public static <E extends Entity> Supplier<E> queryEntity(
-		final Class<E> rEntityClass, final Predicate<? super E> rCriteria,
-		final boolean bFailOnMultiple) {
+		final Class<E> entityClass, final Predicate<? super E> criteria,
+		final boolean failOnMultiple) {
 		return ThrowingSupplier.of(
-			() -> EntityManager.queryEntity(rEntityClass, rCriteria,
-				bFailOnMultiple));
+			() -> EntityManager.queryEntity(entityClass, criteria,
+				failOnMultiple));
 	}
 
 	/**
 	 * Returns a new function that queries an entity with a certain attribute
 	 * value.
 	 *
-	 * @param rEntityClass        The entity type to query
-	 * @param rAttribute          The attribute to search for
-	 * @param rAdditionalCriteria Optional additional criteria or NULL for none
-	 * @param bFailOnMultiple     If TRUE the call fails if multiple entities
-	 *                            are found for the given criteria
+	 * @param entityClass        The entity type to query
+	 * @param attribute          The attribute to search for
+	 * @param additionalCriteria Optional additional criteria or NULL for none
+	 * @param failOnMultiple     If TRUE the call fails if multiple entities
+	 *                             are
+	 *                           found for the given criteria
 	 * @return A new function instance
 	 */
 	public static <T, E extends Entity> java.util.function.Function<T, E> queryEntity(
-		final Class<E> rEntityClass, final RelationType<T> rAttribute,
-		final Predicate<? super E> rAdditionalCriteria,
-		final boolean bFailOnMultiple) {
-		return new AttributeQueryFunction<T, E>(rEntityClass, rAttribute,
-			rAdditionalCriteria, bFailOnMultiple);
+		final Class<E> entityClass, final RelationType<T> attribute,
+		final Predicate<? super E> additionalCriteria,
+		final boolean failOnMultiple) {
+		return new AttributeQueryFunction<T, E>(entityClass, attribute,
+			additionalCriteria, failOnMultiple);
 	}
 
 	/**
@@ -284,28 +281,27 @@ public class EntityFunctions {
 	public static class GetExtraAttribute<E extends Entity, V>
 		extends GetElement<E, RelationType<V>, V> {
 
-		V rDefaultValue;
+		V defaultValue;
 
 		/**
 		 * Creates a new instance that accesses a particular single-type
 		 * relation.
 		 *
-		 * @param rKey          The typed key of the extra attribute
-		 * @param rDefaultValue The default value if the attribute doesn't
-		 *                      exist
+		 * @param key          The typed key of the extra attribute
+		 * @param defaultValue The default value if the attribute doesn't exist
 		 */
-		public GetExtraAttribute(RelationType<V> rKey, V rDefaultValue) {
-			super(rKey, "GetExtraAttribute[%s]");
-			this.rDefaultValue = rDefaultValue;
+		public GetExtraAttribute(RelationType<V> key, V defaultValue) {
+			super(key, "GetExtraAttribute[%s]");
+			this.defaultValue = defaultValue;
 		}
 
 		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected V getElementValue(E rEntity, RelationType<V> rKey) {
+		protected V getElementValue(E entity, RelationType<V> key) {
 			try {
-				return rEntity.getExtraAttribute(rKey, rDefaultValue);
+				return entity.getExtraAttribute(key, defaultValue);
 			} catch (StorageException e) {
 				throw new FunctionException(this, e);
 			}
@@ -321,48 +317,48 @@ public class EntityFunctions {
 	private static final class AttributeQueryFunction<T, E extends Entity>
 		implements ThrowingFunction<T, E> {
 
-		private final Class<E> rEntityClass;
+		private final Class<E> entityClass;
 
-		private final boolean bFailOnMultiple;
+		private final boolean failOnMultiple;
 
-		private RelationType<T> rAttribute;
+		private final RelationType<T> attribute;
 
-		private Predicate<? super E> pAdditionalCriteria;
+		private final Predicate<? super E> additionalCriteria;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rEntityClass        The entity type to query
-		 * @param rAttribute          The attribute to search for
-		 * @param pAdditionalCriteria Optional additional criteria or NULL for
-		 *                            none
-		 * @param bFailOnMultiple     If TRUE the call fails if multiple
-		 *                            entities are found for the given criteria
+		 * @param entityClass        The entity type to query
+		 * @param attribute          The attribute to search for
+		 * @param additionalCriteria Optional additional criteria or NULL for
+		 *                           none
+		 * @param failOnMultiple     If TRUE the call fails if multiple
+		 *                                 entities
+		 *                           are found for the given criteria
 		 */
-		private AttributeQueryFunction(Class<E> rEntityClass,
-			RelationType<T> rAttribute,
-			Predicate<? super E> pAdditionalCriteria,
-			boolean bFailOnMultiple) {
-			this.rEntityClass = rEntityClass;
-			this.rAttribute = rAttribute;
-			this.pAdditionalCriteria = pAdditionalCriteria;
-			this.bFailOnMultiple = bFailOnMultiple;
+		private AttributeQueryFunction(Class<E> entityClass,
+			RelationType<T> attribute, Predicate<? super E> additionalCriteria,
+			boolean failOnMultiple) {
+			this.entityClass = entityClass;
+			this.attribute = attribute;
+			this.additionalCriteria = additionalCriteria;
+			this.failOnMultiple = failOnMultiple;
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public E tryApply(T rValue) throws StorageException {
-			Predicate<E> pCriteria =
-				ifAttribute(rAttribute, Predicates.equalTo(rValue));
+		public E tryApply(T value) throws StorageException {
+			Predicate<E> criteria =
+				ifAttribute(attribute, Predicates.equalTo(value));
 
-			if (pAdditionalCriteria != null) {
-				pCriteria = pCriteria.and(pAdditionalCriteria);
+			if (additionalCriteria != null) {
+				criteria = criteria.and(additionalCriteria);
 			}
 
-			return EntityManager.queryEntity(rEntityClass, pCriteria,
-				bFailOnMultiple);
+			return EntityManager.queryEntity(entityClass, criteria,
+				failOnMultiple);
 		}
 	}
 }

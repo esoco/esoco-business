@@ -17,25 +17,29 @@
 package de.esoco.process;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
-
 import de.esoco.entity.ConcurrentEntityModificationException;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
-
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.manage.TransactionManager;
+import org.obrel.core.RelatedObject;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationTypes;
+import org.obrel.core.SerializableRelatedObject;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -47,17 +51,7 @@ import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.obrel.core.RelatedObject;
-import org.obrel.core.Relation;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypeModifier;
-import org.obrel.core.RelationTypes;
-import org.obrel.core.SerializableRelatedObject;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
-
 import static de.esoco.history.HistoryManager.HISTORIZED;
-
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_CLEANUP_ACTIONS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_INITIALIZATIONS;
@@ -73,7 +67,6 @@ import static de.esoco.process.ProcessRelationTypes.PROCESS_SUSPEND_TIME;
 import static de.esoco.process.ProcessRelationTypes.PROCESS_USER;
 import static de.esoco.process.ProcessRelationTypes.RESUME_PROCESSES;
 import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
-
 import static org.obrel.type.MetaTypes.TRANSACTIONAL;
 
 /**
@@ -165,35 +158,35 @@ public class Process extends SerializableRelatedObject {
 	enum ProcessEventType implements BiConsumer<ProcessListener, Process> {
 		CANCELED {
 			@Override
-			public void accept(ProcessListener rListener, Process rProcess) {
-				rListener.processCanceled(rProcess);
+			public void accept(ProcessListener listener, Process process) {
+				listener.processCanceled(process);
 			}
 		}, FAILED {
 			@Override
-			public void accept(ProcessListener rListener, Process rProcess) {
-				rListener.processFailed(rProcess);
+			public void accept(ProcessListener listener, Process process) {
+				listener.processFailed(process);
 			}
 		}, FINISHED {
 			@Override
-			public void accept(ProcessListener rListener, Process rProcess) {
-				rListener.processFinished(rProcess);
+			public void accept(ProcessListener listener, Process process) {
+				listener.processFinished(process);
 			}
 		}, RESUMED {
 			@Override
-			public void accept(ProcessListener rListener, Process rProcess) {
-				rListener.processResumed(rProcess);
+			public void accept(ProcessListener listener, Process process) {
+				listener.processResumed(process);
 			}
 		}, STARTED {
 			@Override
-			public void accept(ProcessListener rListener, Process rProcess) {
-				rListener.processStarted(rProcess);
+			public void accept(ProcessListener listener, Process process) {
+				listener.processStarted(process);
 			}
 		}, SUSPENDED {
 			@Override
-			public void accept(ProcessListener rListener, Process rProcess) {
-				rListener.processSuspended(rProcess);
+			public void accept(ProcessListener listener, Process process) {
+				listener.processSuspended(process);
 			}
-		};
+		}
 	}
 
 	/**
@@ -215,65 +208,65 @@ public class Process extends SerializableRelatedObject {
 
 	//- Relation types
 
-	private static int nNextProcessId = 1;
+	private static int nextProcessId = 1;
 
 	static {
 		RelationTypes.init(Process.class);
 	}
 
-	private final String sProcessName;
+	private final String processName;
 
-	private final String sUniqueProcessName;
+	private final String uniqueProcessName;
 
-	private Process rContext = null;
+	private Process context = null;
 
-	private boolean bInitialized = false;
+	private boolean initialized = false;
 
-	private boolean bSuspended = false;
+	private boolean suspended = false;
 
-	private boolean bRollbackRestart = false;
+	private boolean rollbackRestart = false;
 
-	private int nHistoryLevel = 0;
+	private int historyLevel = 0;
 
-	private int nTransactionLevel = 0;
+	private int transactionLevel = 0;
 
-	private int nNextFragmentId = 0;
+	private int nextFragmentId = 0;
 
-	private int nNextParameterId = 0;
+	private int nextParameterId = 0;
 
-	private transient HashMap<String, ProcessStep> aProcessSteps;
+	private transient HashMap<String, ProcessStep> processSteps;
 
-	private transient Stack<ProcessStep> aExecutionStack;
+	private transient Stack<ProcessStep> executionStack;
 
-	private transient ProcessStep rCurrentStep;
+	private transient ProcessStep currentStep;
 
-	private ProcessInteractionHandler rInteractionHandler = null;
+	private ProcessInteractionHandler interactionHandler = null;
 
-	private Map<String, Consumer<Process>> aCleanupActions =
+	private final Map<String, Consumer<Process>> cleanupActions =
 		new LinkedHashMap<>();
 
 	/**
 	 * Package internal constructor, processes will only be created by
 	 * ProcessDefinitions.
 	 *
-	 * @param sName The name of the process
+	 * @param name The name of the process
 	 * @throws IllegalArgumentException If the name argument is NULL
 	 */
 	@SuppressWarnings("boxing")
-	Process(String sName) {
-		if (sName == null) {
+	Process(String name) {
+		if (name == null) {
 			throw new IllegalArgumentException(
 				"Process name must not be " + "NULL");
 		}
 
-		int nId = nNextProcessId++;
+		int id = nextProcessId++;
 
-		sProcessName = sName;
-		sUniqueProcessName = sName + "-" + nId;
+		processName = name;
+		uniqueProcessName = name + "-" + id;
 
 		setParameter(PROCESS, this);
-		setParameter(PROCESS_ID, nId);
-		setParameter(PROCESS_NAME, sProcessName);
+		setParameter(PROCESS_ID, id);
+		setParameter(PROCESS_NAME, processName);
 
 		initFields();
 	}
@@ -291,11 +284,11 @@ public class Process extends SerializableRelatedObject {
 	 * Registered Actions can be removed with
 	 * {@link #removeCleanupAction(String)}.</p>
 	 *
-	 * @param sKey    A key that identifies the action for later removal
-	 * @param fAction The function to invoke on cleanup
+	 * @param key    A key that identifies the action for later removal
+	 * @param action The function to invoke on cleanup
 	 */
-	public void addCleanupAction(String sKey, Consumer<Process> fAction) {
-		aCleanupActions.put(sKey, fAction);
+	public void addCleanupAction(String key, Consumer<Process> action) {
+		cleanupActions.put(key, action);
 	}
 
 	/**
@@ -303,11 +296,11 @@ public class Process extends SerializableRelatedObject {
 	 * execution after an interaction. After execution it will be removed from
 	 * the list of cleanup actions.
 	 *
-	 * @param fAction A function performing the cleanup action
+	 * @param action A function performing the cleanup action
 	 * @see #executeInteractionCleanupActions()
 	 */
-	public void addInteractionCleanupAction(Runnable fAction) {
-		getParameter(INTERACTION_CLEANUP_ACTIONS).add(fAction);
+	public void addInteractionCleanupAction(Runnable action) {
+		getParameter(INTERACTION_CLEANUP_ACTIONS).add(action);
 	}
 
 	/**
@@ -323,22 +316,22 @@ public class Process extends SerializableRelatedObject {
 	 * has already finished execution when this method is invoked it returns
 	 * FALSE.</p>
 	 *
-	 * @param rStep The step to check
+	 * @param step The step to check
 	 * @return TRUE if a rollback to the given step is possible, FALSE if not
 	 */
-	public boolean canRollbackTo(ProcessStep rStep) {
-		checkValidRollbackStep(rStep);
+	public boolean canRollbackTo(ProcessStep step) {
+		checkValidRollbackStep(step);
 
-		ProcessStep rCheckStep = null;
-		int nSteps = aExecutionStack.size();
-		boolean bCanRollback = true;
+		ProcessStep checkStep = null;
+		int steps = executionStack.size();
+		boolean canRollback = true;
 
-		while (bCanRollback && nSteps > 0 &&
-			(rCheckStep = aExecutionStack.get(--nSteps)) != rStep) {
-			bCanRollback = rCheckStep.canRollback();
+		while (canRollback && steps > 0 &&
+			(checkStep = executionStack.get(--steps)) != step) {
+			canRollback = checkStep.canRollback();
 		}
 
-		return bCanRollback;
+		return canRollback;
 	}
 
 	/**
@@ -356,17 +349,16 @@ public class Process extends SerializableRelatedObject {
 	 * possible, FALSE if not
 	 */
 	public boolean canRollbackToPreviousInteraction() {
-		boolean bCanRollback = rCurrentStep != null &&
-			rCurrentStep.canRollbackToPreviousInteraction();
+		boolean canRollback = currentStep != null &&
+			currentStep.canRollbackToPreviousInteraction();
 
-		if (!bCanRollback) {
-			ProcessStep rPreviousStep = findPreviousInteractiveStep();
+		if (!canRollback) {
+			ProcessStep previousStep = findPreviousInteractiveStep();
 
-			bCanRollback =
-				rPreviousStep != null ? canRollbackTo(rPreviousStep) : false;
+			canRollback = previousStep != null && canRollbackTo(previousStep);
 		}
 
-		return bCanRollback;
+		return canRollback;
 	}
 
 	/**
@@ -375,35 +367,34 @@ public class Process extends SerializableRelatedObject {
 	 * @see RelatedObject#deleteRelation(Relation)
 	 */
 	@Override
-	public void deleteRelation(Relation<?> rRelation) {
-		if (rContext != null) {
-			rContext.deleteRelation(rRelation);
+	public void deleteRelation(Relation<?> relation) {
+		if (context != null) {
+			context.deleteRelation(relation);
 		} else {
-			super.deleteRelation(rRelation);
+			super.deleteRelation(relation);
 		}
 	}
 
 	/**
 	 * Executes this process according to a certain process execution mode.
 	 *
-	 * @param eMode The execution mode
+	 * @param mode The execution mode
 	 * @throws ProcessException If the process execution fails
 	 */
-	public void execute(ProcessExecutionMode eMode) throws ProcessException {
-		if (rContext == null) {
+	public void execute(ProcessExecutionMode mode) throws ProcessException {
+		if (context == null) {
 			// Set (only) the root process as the entity modification context.
 			// If a process is spawned from another the first execution will
-			// be in the same thread. Therefore bKeepExisting is set to TRUE to
+			// be in the same thread. Therefore keepExisting is set to TRUE to
 			// not override the context of the starting process. On the next
 			// interaction (on a separate thread) the context will be set to
 			// the new process.
-			EntityManager.setEntityModificationContext(sUniqueProcessName,
-				this,
+			EntityManager.setEntityModificationContext(uniqueProcessName, this,
 				true);
 		}
 
 		try {
-			switch (eMode) {
+			switch (mode) {
 				case RELOAD:
 				case EXECUTE:
 					execute();
@@ -419,10 +410,10 @@ public class Process extends SerializableRelatedObject {
 					break;
 			}
 		} finally {
-			if (rContext == null) {
+			if (context == null) {
 				// remove but ignore error of newly spawned process
-				EntityManager.removeEntityModificationContext(
-					sUniqueProcessName, true);
+				EntityManager.removeEntityModificationContext(uniqueProcessName,
+					true);
 			}
 		}
 	}
@@ -433,10 +424,10 @@ public class Process extends SerializableRelatedObject {
 	 * @see #addInteractionCleanupAction(Runnable)
 	 */
 	public void executeInteractionCleanupActions() {
-		List<Runnable> rActions = getParameter(INTERACTION_CLEANUP_ACTIONS);
+		List<Runnable> actions = getParameter(INTERACTION_CLEANUP_ACTIONS);
 
-		rActions.forEach(rAction -> rAction.run());
-		rActions.clear();
+		actions.forEach(action -> action.run());
+		actions.clear();
 	}
 
 	/**
@@ -445,8 +436,8 @@ public class Process extends SerializableRelatedObject {
 	 * @see RelatedObject#get(RelationType)
 	 */
 	@Override
-	public <T> T get(RelationType<T> rType) {
-		return rContext != null ? rContext.get(rType) : super.get(rType);
+	public <T> T get(RelationType<T> type) {
+		return context != null ? context.get(type) : super.get(type);
 	}
 
 	/**
@@ -457,7 +448,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return The process context
 	 */
 	public final Process getContext() {
-		return rContext != null ? rContext : this;
+		return context != null ? context : this;
 	}
 
 	/**
@@ -469,7 +460,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return The current step
 	 */
 	public ProcessStep getCurrentStep() {
-		return rCurrentStep;
+		return currentStep;
 	}
 
 	/**
@@ -478,9 +469,9 @@ public class Process extends SerializableRelatedObject {
 	 * @return The first process step
 	 */
 	public ProcessStep getFirstStep() {
-		return aExecutionStack.isEmpty() ?
-		       rCurrentStep :
-		       aExecutionStack.firstElement();
+		return executionStack.isEmpty() ?
+		       currentStep :
+		       executionStack.firstElement();
 	}
 
 	/**
@@ -490,13 +481,13 @@ public class Process extends SerializableRelatedObject {
 	 * @return The hierarchical process name
 	 */
 	public String getFullName() {
-		String sFullName = sProcessName;
+		String fullName = processName;
 
-		if (rContext != null) {
-			sFullName = rContext.getFullName() + '.' + sFullName;
+		if (context != null) {
+			fullName = context.getFullName() + '.' + fullName;
 		}
 
-		return sFullName;
+		return fullName;
 	}
 
 	/**
@@ -519,11 +510,11 @@ public class Process extends SerializableRelatedObject {
 	 * @return The interaction step or NULL for none
 	 */
 	public ProcessStep getInteractionStep() {
-		if (rCurrentStep == null) {
+		if (currentStep == null) {
 			throw new IllegalStateException("No current interaction");
 		}
 
-		return rCurrentStep.getInteractionStep();
+		return currentStep.getInteractionStep();
 	}
 
 	/**
@@ -535,7 +526,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return The process name
 	 */
 	public final String getName() {
-		return sProcessName;
+		return processName;
 	}
 
 	/**
@@ -546,7 +537,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return The next generated fragment ID
 	 */
 	public int getNextFragmentId() {
-		return getContext().nNextFragmentId++;
+		return getContext().nextFragmentId++;
 	}
 
 	/**
@@ -554,11 +545,11 @@ public class Process extends SerializableRelatedObject {
 	 * ID is
 	 * set NULL will be returned.
 	 *
-	 * @param rParamType The type of the parameter
+	 * @param paramType The type of the parameter
 	 * @return The parameter value or NULL
 	 */
-	public <T> T getParameter(RelationType<T> rParamType) {
-		return get(rParamType);
+	public <T> T getParameter(RelationType<T> paramType) {
+		return get(paramType);
 	}
 
 	/**
@@ -577,10 +568,10 @@ public class Process extends SerializableRelatedObject {
 	 * @see RelatedObject#getRelation(RelationType)
 	 */
 	@Override
-	public <T> Relation<T> getRelation(RelationType<T> rType) {
-		return rContext != null ?
-		       rContext.getRelation(rType) :
-		       super.getRelation(rType);
+	public <T> Relation<T> getRelation(RelationType<T> type) {
+		return context != null ?
+		       context.getRelation(type) :
+		       super.getRelation(type);
 	}
 
 	/**
@@ -590,21 +581,21 @@ public class Process extends SerializableRelatedObject {
 	 */
 	@Override
 	public List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter) {
-		return rContext != null ?
-		       rContext.getRelations(rFilter) :
-		       super.getRelations(rFilter);
+		Predicate<? super Relation<?>> filter) {
+		return context != null ?
+		       context.getRelations(filter) :
+		       super.getRelations(filter);
 	}
 
 	/**
 	 * Returns a process step with a certain name.
 	 *
-	 * @param sName The name of the process step to be queried
+	 * @param name The name of the process step to be queried
 	 * @return The corresponding process step instance or NULL if no matching
 	 * step could be found or if the step name is {@link #PROCESS_END}
 	 */
-	public ProcessStep getStep(String sName) {
-		return PROCESS_END.equals(sName) ? null : aProcessSteps.get(sName);
+	public ProcessStep getStep(String name) {
+		return PROCESS_END.equals(name) ? null : processSteps.get(name);
 	}
 
 	/**
@@ -613,7 +604,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return The unique process name
 	 */
 	public final String getUniqueProcessName() {
-		return sUniqueProcessName;
+		return uniqueProcessName;
 	}
 
 	/**
@@ -621,21 +612,21 @@ public class Process extends SerializableRelatedObject {
 	 * with
 	 * a boolean datatype.
 	 *
-	 * @param rFlagType The flag parameter type
+	 * @param flagType The flag parameter type
 	 * @return TRUE if the flag exists and is set to TRUE
 	 */
-	public final boolean hasFlagParameter(RelationType<Boolean> rFlagType) {
-		return hasFlag(rFlagType);
+	public final boolean hasFlagParameter(RelationType<Boolean> flagType) {
+		return hasFlag(flagType);
 	}
 
 	/**
 	 * Queries if a certain parameter is stored in the process.
 	 *
-	 * @param rParamType The type of the parameter
+	 * @param paramType The type of the parameter
 	 * @return TRUE if the parameter exists
 	 */
-	public boolean hasParameter(RelationType<?> rParamType) {
-		return hasRelation(rParamType);
+	public boolean hasParameter(RelationType<?> paramType) {
+		return hasRelation(paramType);
 	}
 
 	/**
@@ -644,7 +635,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return TRUE if the process has finished execution
 	 */
 	public boolean isFinished() {
-		return rCurrentStep == null;
+		return currentStep == null;
 	}
 
 	/**
@@ -654,7 +645,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return TRUE if this process runs in the context of another process
 	 */
 	public final boolean isSubProcess() {
-		return rContext != null;
+		return context != null;
 	}
 
 	/**
@@ -663,32 +654,32 @@ public class Process extends SerializableRelatedObject {
 	 * registered with {@link #addCleanupAction(String, Consumer)} that removes
 	 * the lock if the process is finished.
 	 *
-	 * @param rEntity The entity to lock
+	 * @param entity The entity to lock
 	 * @return TRUE if the lock could be acquired, FALSE if the entity is
 	 * already locked
 	 */
-	public final boolean lockEntity(Entity rEntity) {
-		assert rEntity.isPersistent();
+	public final boolean lockEntity(Entity entity) {
+		assert entity.isPersistent();
 
-		boolean bSuccess = rEntity.lock();
+		boolean success = entity.lock();
 
-		if (bSuccess) {
-			addCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId(),
-				p -> rEntity.unlock());
+		if (success) {
+			addCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + entity.getGlobalId(),
+				p -> entity.unlock());
 		}
 
-		return bSuccess;
+		return success;
 	}
 
 	/**
 	 * Removes a cleanup action that has previously been registered through the
 	 * method {@link #addCleanupAction(String, Consumer)}.
 	 *
-	 * @param sKey The key that identifies the action to remove
+	 * @param key The key that identifies the action to remove
 	 * @return The registered action or NULL for none
 	 */
-	public Consumer<Process> removeCleanupAction(String sKey) {
-		return aCleanupActions.remove(sKey);
+	public Consumer<Process> removeCleanupAction(String key) {
+		return cleanupActions.remove(key);
 	}
 
 	/**
@@ -708,13 +699,13 @@ public class Process extends SerializableRelatedObject {
 	 * Removes a certain parameter from the process. If the parameter doesn't
 	 * exist the call is ignored.
 	 *
-	 * @param rParamType The type of the parameter
+	 * @param paramType The type of the parameter
 	 */
-	public void removeParameter(RelationType<?> rParamType) {
-		if (rContext != null) {
-			rContext.deleteRelation(rParamType);
+	public void removeParameter(RelationType<?> paramType) {
+		if (context != null) {
+			context.deleteRelation(paramType);
 		} else {
-			super.deleteRelation(rParamType);
+			super.deleteRelation(paramType);
 		}
 	}
 
@@ -724,10 +715,10 @@ public class Process extends SerializableRelatedObject {
 	 * @see RelatedObject#set(RelationType, Object)
 	 */
 	@Override
-	public <T> Relation<T> set(RelationType<T> rType, T rTarget) {
-		return rContext != null ?
-		       rContext.set(rType, rTarget) :
-		       super.set(rType, rTarget);
+	public <T> Relation<T> set(RelationType<T> type, T target) {
+		return context != null ?
+		       context.set(type, target) :
+		       super.set(type, target);
 	}
 
 	/**
@@ -743,26 +734,26 @@ public class Process extends SerializableRelatedObject {
 	 * if a process execution ends in any way, i.e. successfully, by
 	 * cancellation, or with an error.</p>
 	 *
-	 * @param pLockRule The entity modification lock rule
+	 * @param lockRule The entity modification lock rule
 	 */
-	public void setEntityModificationLock(Predicate<? super Entity> pLockRule) {
-		String sContextId = getContext().getUniqueProcessName();
+	public void setEntityModificationLock(Predicate<? super Entity> lockRule) {
+		String contextId = getContext().getUniqueProcessName();
 
-		Predicate<? super Entity> pCurrentRule =
-			EntityManager.removeEntityModificationLock(sContextId);
+		Predicate<? super Entity> currentRule =
+			EntityManager.removeEntityModificationLock(contextId);
 
-		pLockRule = Predicates.or(pCurrentRule, pLockRule);
+		lockRule = Predicates.or(currentRule, lockRule);
 
-		EntityManager.setEntityModificationLock(sContextId, pLockRule);
+		EntityManager.setEntityModificationLock(contextId, lockRule);
 	}
 
 	/**
 	 * Sets the process interaction handler for this context.
 	 *
-	 * @param rHandler The new interaction handler
+	 * @param handler The new interaction handler
 	 */
-	public void setInteractionHandler(ProcessInteractionHandler rHandler) {
-		rInteractionHandler = rHandler;
+	public void setInteractionHandler(ProcessInteractionHandler handler) {
+		interactionHandler = handler;
 	}
 
 	/**
@@ -770,12 +761,12 @@ public class Process extends SerializableRelatedObject {
 	 * will
 	 * be replaced.
 	 *
-	 * @param rParam The parameter
-	 * @param rValue The parameter value
+	 * @param param The parameter
+	 * @param value The parameter value
 	 * @return The relation of the parameter
 	 */
-	public <T> Relation<T> setParameter(RelationType<T> rParam, T rValue) {
-		return set(rParam, rValue);
+	public <T> Relation<T> setParameter(RelationType<T> param, T value) {
+		return set(param, value);
 	}
 
 	/**
@@ -784,7 +775,7 @@ public class Process extends SerializableRelatedObject {
 	@Override
 	public String toString() {
 		return String.format("Process %s (current step: %s)", getName(),
-			rCurrentStep);
+			currentStep);
 	}
 
 	/**
@@ -793,11 +784,11 @@ public class Process extends SerializableRelatedObject {
 	 * cleanup
 	 * action.
 	 *
-	 * @param rEntity The entity to unlock
+	 * @param entity The entity to unlock
 	 */
-	public final void unlockEntity(Entity rEntity) {
-		removeCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId());
-		rEntity.unlock();
+	public final void unlockEntity(Entity entity) {
+		removeCleanupAction(CLEANUP_KEY_UNLOCK_ENTITY + entity.getGlobalId());
+		entity.unlock();
 	}
 
 	/**
@@ -811,43 +802,42 @@ public class Process extends SerializableRelatedObject {
 	 * first process step. This means that the first step added to a process
 	 * will become it's starting step unless the start is changed later.</p>
 	 *
-	 * @param rStep The process step to add
+	 * @param step The process step to add
 	 * @throws IllegalArgumentException If a step with the same name exists
 	 */
-	void addStep(ProcessStep rStep) {
-		if (aProcessSteps.containsKey(rStep.getName())) {
+	void addStep(ProcessStep step) {
+		if (processSteps.containsKey(step.getName())) {
 			throw new IllegalArgumentException(
-				"Duplicate process step name: " + rStep.getName());
+				"Duplicate process step name: " + step.getName());
 		}
 
-		aProcessSteps.put(rStep.getName(), rStep);
-		rStep.setProcess(this);
+		processSteps.put(step.getName(), step);
+		step.setProcess(this);
 
-		if (rCurrentStep == null) {
-			setStart(rStep);
+		if (currentStep == null) {
+			setStart(step);
 		}
 	}
 
 	/**
 	 * Starts a transaction and optionally also a history group.
 	 *
-	 * @param bWithHistory TRUE to also start a history group inside the
-	 *                     transaction
-	 * @param rTarget      The target entity for the history or NULL for none
-	 * @param sValue       The history value or NULL
+	 * @param withHistory TRUE to also start a history group inside the
+	 *                    transaction
+	 * @param target      The target entity for the history or NULL for none
+	 * @param value       The history value or NULL
 	 */
-	void beginTransaction(boolean bWithHistory, Entity rTarget,
-		String sValue) {
+	void beginTransaction(boolean withHistory, Entity target, String value) {
 		TransactionManager.begin();
-		nTransactionLevel++;
+		transactionLevel++;
 
-		if (bWithHistory) {
-			if (rTarget == null) {
+		if (withHistory) {
+			if (target == null) {
 				Log.warn("Missing history target for " + this);
 			}
 
-			HistoryManager.begin(getParameter(PROCESS_USER), rTarget, sValue);
-			nHistoryLevel++;
+			HistoryManager.begin(getParameter(PROCESS_USER), target, value);
+			historyLevel++;
 		}
 	}
 
@@ -861,18 +851,18 @@ public class Process extends SerializableRelatedObject {
 	 */
 	void cancel() {
 		try {
-			if (rCurrentStep != null) {
-				rCurrentStep.cancel();
-				rCurrentStep.executeCleanupActions();
-				rCurrentStep.cleanup();
-				rCurrentStep = null;
+			if (currentStep != null) {
+				currentStep.cancel();
+				currentStep.executeCleanupActions();
+				currentStep.cleanup();
+				currentStep = null;
 			}
 
-			for (int i = aExecutionStack.size() - 1; i >= 0; i--) {
-				aExecutionStack.get(i).cancel();
+			for (int i = executionStack.size() - 1; i >= 0; i--) {
+				executionStack.get(i).cancel();
 			}
 
-			bSuspended = false;
+			suspended = false;
 
 			notifyListeners(ProcessEventType.CANCELED);
 			cleanup();
@@ -885,29 +875,29 @@ public class Process extends SerializableRelatedObject {
 	 * Commits a currently open transaction and optionally an open history
 	 * group.
 	 *
-	 * @param bWithHistory TRUE to also commit a history group before the
-	 *                     transaction
+	 * @param withHistory TRUE to also commit a history group before the
+	 *                    transaction
 	 * @throws TransactionException If committing fails
 	 * @throws ProcessException     If the transaction or history state is
 	 *                              invalid
 	 */
-	void commitTransaction(boolean bWithHistory)
+	void commitTransaction(boolean withHistory)
 		throws TransactionException, ProcessException {
-		if (nTransactionLevel > 0) {
-			if (bWithHistory) {
-				if (nHistoryLevel > 0) {
+		if (transactionLevel > 0) {
+			if (withHistory) {
+				if (historyLevel > 0) {
 					HistoryManager.commit(false);
-					nHistoryLevel--;
+					historyLevel--;
 				} else {
-					throw new ProcessException(rCurrentStep,
+					throw new ProcessException(currentStep,
 						"No open history group");
 				}
 			}
 
 			TransactionManager.commit();
-			nTransactionLevel--;
+			transactionLevel--;
 		} else {
-			throw new ProcessException(rCurrentStep, "No open transaction");
+			throw new ProcessException(currentStep, "No open transaction");
 		}
 	}
 
@@ -918,27 +908,27 @@ public class Process extends SerializableRelatedObject {
 	 * @throws ProcessException If the execution fails
 	 */
 	void execute() throws ProcessException {
-		if (rCurrentStep == null) {
+		if (currentStep == null) {
 			throw new ProcessException(null, "ProcessFinished");
 		}
 
-		if (!bInitialized) {
+		if (!initialized) {
 			init();
 			setParameter(PROCESS_START_TIME, new Date());
 			notifyListeners(ProcessEventType.STARTED);
-			bInitialized = true;
+			initialized = true;
 		}
 
 		try {
 			executeSteps();
 
-			if (rCurrentStep == null) {
+			if (currentStep == null) {
 				finish();
 			} else {
 				notifyListeners(ProcessEventType.SUSPENDED);
 			}
 		} catch (Exception e) {
-			bSuspended = true;
+			suspended = true;
 			handleException(ProcessExecutionMode.EXECUTE, e);
 		}
 	}
@@ -948,18 +938,18 @@ public class Process extends SerializableRelatedObject {
 	 * method is used internally by {@link #executeCleanupActions()} but can
 	 * also be used by subclasses for similar house keeping tasks.
 	 *
-	 * @param rActions A mapping from keys to the associated action to execute
+	 * @param actions A mapping from keys to the associated action to execute
 	 */
-	void executeActions(Map<String, Consumer<Process>> rActions) {
-		for (String sKey : rActions.keySet()) {
+	void executeActions(Map<String, Consumer<Process>> actions) {
+		for (String key : actions.keySet()) {
 			try {
-				rActions.get(sKey).accept(this);
+				actions.get(key).accept(this);
 			} catch (Exception e) {
-				Log.errorf(e, "Process cleanup action failed: %s", sKey);
+				Log.errorf(e, "Process cleanup action failed: %s", key);
 			}
 		}
 
-		rActions.clear();
+		actions.clear();
 	}
 
 	/**
@@ -968,7 +958,7 @@ public class Process extends SerializableRelatedObject {
 	 * @return The interaction handler
 	 */
 	final ProcessInteractionHandler getInteractionHandler() {
-		return getContext().rInteractionHandler;
+		return getContext().interactionHandler;
 	}
 
 	/**
@@ -977,27 +967,27 @@ public class Process extends SerializableRelatedObject {
 	 * @return The next generated parameter ID
 	 */
 	final int getNextParameterId() {
-		return getContext().nNextParameterId++;
+		return getContext().nextParameterId++;
 	}
 
 	/**
 	 * Registers a temporary parameter type for this process.
 	 *
-	 * @param rTempParam The parameter relation type+
+	 * @param tempParam The parameter relation type+
 	 * @see #unregisterTemporaryParameterType(RelationType, boolean)
 	 */
 	@SuppressWarnings("boxing")
-	void registerTemporaryParameterType(RelationType<?> rTempParam) {
-		Set<RelationType<?>> rTemporaryParamTypes =
+	void registerTemporaryParameterType(RelationType<?> tempParam) {
+		Set<RelationType<?>> temporaryParamTypes =
 			getParameter(TEMPORARY_PARAM_TYPES);
 
-		if (!rTemporaryParamTypes.contains(rTempParam)) {
-			rTemporaryParamTypes.add(rTempParam);
+		if (!temporaryParamTypes.contains(tempParam)) {
+			temporaryParamTypes.add(tempParam);
 
 			// ensure that usage count update is atomic
-			synchronized (rTempParam) {
-				rTempParam.set(PARAM_USAGE_COUNT,
-					rTempParam.get(PARAM_USAGE_COUNT) + 1);
+			synchronized (tempParam) {
+				tempParam.set(PARAM_USAGE_COUNT,
+					tempParam.get(PARAM_USAGE_COUNT) + 1);
 			}
 		}
 	}
@@ -1009,14 +999,14 @@ public class Process extends SerializableRelatedObject {
 	 * @see #unregisterTemporaryParameterType(RelationType, boolean)
 	 */
 	final void removeTemporaryParameterTypes() {
-		Set<RelationType<?>> rTemporaryParamTypes =
+		Set<RelationType<?>> temporaryParamTypes =
 			getParameter(TEMPORARY_PARAM_TYPES);
 
-		for (RelationType<?> rTempParam : rTemporaryParamTypes) {
-			unregisterTemporaryParameterType(rTempParam, false);
+		for (RelationType<?> tempParam : temporaryParamTypes) {
+			unregisterTemporaryParameterType(tempParam, false);
 		}
 
-		rTemporaryParamTypes.clear();
+		temporaryParamTypes.clear();
 	}
 
 	/**
@@ -1035,34 +1025,34 @@ public class Process extends SerializableRelatedObject {
 	 * {@link #execute()}
 	 * method is invoked again.</p>
 	 *
-	 * @param rStep The step to roll the process back to
+	 * @param step The step to roll the process back to
 	 */
-	void rollbackTo(ProcessStep rStep) {
-		checkValidRollbackStep(rStep);
+	void rollbackTo(ProcessStep step) {
+		checkValidRollbackStep(step);
 
-		ProcessStep rRollbackStep;
+		ProcessStep rollbackStep;
 
 		try {
-			rCurrentStep.resetParameters();
-			rCurrentStep.abort();
+			currentStep.resetParameters();
+			currentStep.abort();
 
 			do {
-				rRollbackStep = aExecutionStack.pop();
+				rollbackStep = executionStack.pop();
 
-				rRollbackStep.resetParameters();
-				rRollbackStep.rollback();
-			} while (rStep != rRollbackStep);
+				rollbackStep.resetParameters();
+				rollbackStep.rollback();
+			} while (step != rollbackStep);
 		} catch (Exception e) {
 			handleException(ProcessExecutionMode.ROLLBACK, e);
 		}
 
-		rCurrentStep = rStep;
-		bSuspended = false;
+		currentStep = step;
+		suspended = false;
 
 		// if invoked from the interaction handler, the execution loop needs to
 		// be restarted with the changed current step
 		if (getInteractionHandler() != null) {
-			bRollbackRestart = true;
+			rollbackRestart = true;
 		}
 	}
 
@@ -1072,16 +1062,16 @@ public class Process extends SerializableRelatedObject {
 	 * @throws ProcessException If the rollback fails
 	 */
 	void rollbackToPreviousInteraction() throws ProcessException {
-		if (rCurrentStep != null &&
-			rCurrentStep.canRollbackToPreviousInteraction()) {
-			rCurrentStep.rollbackToPreviousInteraction();
+		if (currentStep != null &&
+			currentStep.canRollbackToPreviousInteraction()) {
+			currentStep.rollbackToPreviousInteraction();
 		} else {
-			ProcessStep rRollbackStep = findPreviousInteractiveStep();
+			ProcessStep rollbackStep = findPreviousInteractiveStep();
 
-			if (rRollbackStep != null) {
-				rollbackTo(rRollbackStep);
+			if (rollbackStep != null) {
+				rollbackTo(rollbackStep);
 			} else {
-				throw new ProcessException(rCurrentStep,
+				throw new ProcessException(currentStep,
 					"No previous interactive step");
 			}
 		}
@@ -1092,39 +1082,39 @@ public class Process extends SerializableRelatedObject {
 	 * This is used for the execution of sub-processes in the context of a
 	 * parent process.
 	 *
-	 * @param rContext The new process context
+	 * @param context The new process context
 	 */
-	final void setContext(Process rContext) {
+	final void setContext(Process context) {
 		// invoke getContext() so that all sub-process contexts point to the
 		// root, even in process hierarchies
-		this.rContext = rContext != null ? rContext.getContext() : null;
+		this.context = context != null ? context.getContext() : null;
 	}
 
 	/**
 	 * Removes a temporary parameter relation type that had been used in this
 	 * process.
 	 *
-	 * @param rTempParam The temporary parameter relation type to remove
-	 * @param bRemove    TRUE if it should also be removed from this process
+	 * @param tempParam The temporary parameter relation type to remove
+	 * @param remove    TRUE if it should also be removed from this process
 	 * @see #registerTemporaryParameterType(RelationType)
 	 */
 	@SuppressWarnings("boxing")
-	void unregisterTemporaryParameterType(RelationType<?> rTempParam,
-		boolean bRemove) {
+	void unregisterTemporaryParameterType(RelationType<?> tempParam,
+		boolean remove) {
 		// ensure that usage count update is atomic
-		synchronized (rTempParam) {
-			int nUsageCount = rTempParam.get(PARAM_USAGE_COUNT);
+		synchronized (tempParam) {
+			int usageCount = tempParam.get(PARAM_USAGE_COUNT);
 
-			if (nUsageCount == 1) {
-				RelationType.unregisterRelationType(rTempParam);
-				rTempParam.deleteRelation(PARAM_USAGE_COUNT);
+			if (usageCount == 1) {
+				RelationType.unregisterRelationType(tempParam);
+				tempParam.deleteRelation(PARAM_USAGE_COUNT);
 			} else {
-				rTempParam.set(PARAM_USAGE_COUNT, nUsageCount - 1);
+				tempParam.set(PARAM_USAGE_COUNT, usageCount - 1);
 			}
 		}
 
-		if (bRemove) {
-			getParameter(TEMPORARY_PARAM_TYPES).remove(rTempParam);
+		if (remove) {
+			getParameter(TEMPORARY_PARAM_TYPES).remove(tempParam);
 		}
 	}
 
@@ -1132,14 +1122,14 @@ public class Process extends SerializableRelatedObject {
 	 * Checks whether this process and the given process step are valid for a
 	 * rollback. If not, an exception will be thrown.
 	 *
-	 * @param rStep The step to check
+	 * @param step The step to check
 	 * @throws IllegalArgumentException If either this process or the given
 	 * step
 	 *                                  are not valid for a rollback
 	 */
-	private void checkValidRollbackStep(ProcessStep rStep) {
-		if (rStep == null || !aExecutionStack.contains(rStep)) {
-			throw new IllegalArgumentException("InvalidRollbackStep: " + rStep);
+	private void checkValidRollbackStep(ProcessStep step) {
+		if (step == null || !executionStack.contains(step)) {
+			throw new IllegalArgumentException("InvalidRollbackStep: " + step);
 		}
 	}
 
@@ -1151,36 +1141,36 @@ public class Process extends SerializableRelatedObject {
 	 */
 	private void cleanup() throws TransactionException {
 		try {
-			for (ProcessStep rStep : aProcessSteps.values()) {
-				if (aExecutionStack.contains(rStep)) {
-					rStep.executeCleanupActions();
-					rStep.cleanup();
+			for (ProcessStep step : processSteps.values()) {
+				if (executionStack.contains(step)) {
+					step.executeCleanupActions();
+					step.cleanup();
 				}
 			}
 
 			executeCleanupActions();
 
 			// only remove temporary types if root process is terminated
-			if (rContext == null) {
+			if (context == null) {
 				removeTemporaryParameterTypes();
 			}
 
-			if (nHistoryLevel > 0) {
+			if (historyLevel > 0) {
 				HistoryManager.rollback();
-				nHistoryLevel = 0;
+				historyLevel = 0;
 			}
 		} finally {
-			if (nTransactionLevel > 0) {
+			if (transactionLevel > 0) {
 				TransactionManager.rollback();
-				nTransactionLevel = 0;
+				transactionLevel = 0;
 
 				EntityManager.resetEntityModifications(this);
 			}
 
-			if (rContext == null) {
-				EntityManager.removeEntityModificationLock(sUniqueProcessName);
-				EntityManager.checkUnsavedEntityModifications(
-					sUniqueProcessName, this);
+			if (context == null) {
+				EntityManager.removeEntityModificationLock(uniqueProcessName);
+				EntityManager.checkUnsavedEntityModifications(uniqueProcessName,
+					this);
 			}
 		}
 	}
@@ -1190,7 +1180,7 @@ public class Process extends SerializableRelatedObject {
 	 * method {@link #addCleanupAction(String, Action)}.
 	 */
 	private void executeCleanupActions() {
-		executeActions(aCleanupActions);
+		executeActions(cleanupActions);
 	}
 
 	/**
@@ -1201,52 +1191,52 @@ public class Process extends SerializableRelatedObject {
 	 */
 	private void executeSteps() throws Exception {
 		do {
-			boolean bExecute = true;
+			boolean execute = true;
 
-			if (bSuspended) {
-				rCurrentStep.validate();
+			if (suspended) {
+				currentStep.validate();
 
-				bSuspended = false;
-				bExecute = rCurrentStep.resume();
+				suspended = false;
+				execute = currentStep.resume();
 
 				notifyListeners(ProcessEventType.RESUMED);
 			} else {
-				bExecute = prepareStep(rCurrentStep);
+				execute = prepareStep(currentStep);
 
-				if (bRollbackRestart) {
+				if (rollbackRestart) {
 					// flag will be set to TRUE by the rollbackTo method if
 					// an interaction handler has caused the rollback; in
 					// that case the execution loop must be restarted with
 					// the modified current step from the rollback
-					bRollbackRestart = false;
+					rollbackRestart = false;
 
 					continue;
 				}
 			}
 
-			if (bExecute) {
-				ProcessStep rNextStep = getStep(rCurrentStep.perform());
+			if (execute) {
+				ProcessStep nextStep = getStep(currentStep.perform());
 
 				// only add step if progressing to next step, not on
 				// interaction
-				if (rCurrentStep != null && rNextStep != rCurrentStep) {
-					if (rCurrentStep.canRollback()) {
-						aExecutionStack.push(rCurrentStep);
+				if (currentStep != null && nextStep != currentStep) {
+					if (currentStep.canRollback()) {
+						executionStack.push(currentStep);
 					} else {
 						// if no rollback possible remove unreachable entries
 						// from stack; this will prevent the storing of
 						// unnecessary object references, especially during
 						// bulk processing or background processes
-						aExecutionStack.clear();
+						executionStack.clear();
 					}
 
-					rCurrentStep = rNextStep;
+					currentStep = nextStep;
 				}
 			} else {
 				setParameter(PROCESS_SUSPEND_TIME, new Date());
-				bSuspended = true;
+				suspended = true;
 			}
-		} while (!bSuspended && rCurrentStep != null);
+		} while (!suspended && currentStep != null);
 	}
 
 	/**
@@ -1259,19 +1249,19 @@ public class Process extends SerializableRelatedObject {
 	private ProcessStep findPreviousInteractiveStep() {
 		// start at last stack element; the current interactive step is not yet
 		// on the stack because it will only be executed after the interaction
-		int nStep = aExecutionStack.size();
-		ProcessStep rRollbackStep = null;
+		int stepNo = executionStack.size();
+		ProcessStep rollbackStep = null;
 
-		while (nStep > 0 && rRollbackStep == null) {
-			ProcessStep rStep = aExecutionStack.get(--nStep);
+		while (stepNo > 0 && rollbackStep == null) {
+			ProcessStep step = executionStack.get(--stepNo);
 
-			if (rStep.hasFlag(STEP_WAS_INTERACTIVE) &&
-				!rStep.hasFlag(AUTO_CONTINUE)) {
-				rRollbackStep = rStep;
+			if (step.hasFlag(STEP_WAS_INTERACTIVE) &&
+				!step.hasFlag(AUTO_CONTINUE)) {
+				rollbackStep = step;
 			}
 		}
 
-		return rRollbackStep;
+		return rollbackStep;
 	}
 
 	/**
@@ -1286,32 +1276,32 @@ public class Process extends SerializableRelatedObject {
 			commitTransaction(hasFlag(HISTORIZED));
 		}
 
-		if (nHistoryLevel > 0) {
+		if (historyLevel > 0) {
 			@SuppressWarnings("boxing")
-			String sMessage =
+			String message =
 				String.format("Uncommitted history levels(%d) in process %s",
-					nHistoryLevel, this);
+					historyLevel, this);
 
-			throw new ProcessException(rCurrentStep, sMessage);
+			throw new ProcessException(currentStep, message);
 		}
 
-		if (nTransactionLevel > 0) {
+		if (transactionLevel > 0) {
 			@SuppressWarnings("boxing")
-			String sMessage = String.format(
+			String message = String.format(
 				"Uncommitted transaction levels (%d) in process %s",
-				nTransactionLevel, this);
+				transactionLevel, this);
 
-			throw new ProcessException(rCurrentStep, sMessage);
+			throw new ProcessException(currentStep, message);
 		}
 
 		notifyListeners(ProcessEventType.FINISHED);
 
-		ProcessScheduler rProcessScheduler = getParameter(PROCESS_SCHEDULER);
+		ProcessScheduler processScheduler = getParameter(PROCESS_SCHEDULER);
 
-		if (rProcessScheduler != null) {
-			for (Class<? extends ProcessDefinition> rProcess : getParameter(
+		if (processScheduler != null) {
+			for (Class<? extends ProcessDefinition> process : getParameter(
 				RESUME_PROCESSES)) {
-				rProcessScheduler.resumeProcess(rProcess);
+				processScheduler.resumeProcess(process);
 			}
 		}
 
@@ -1321,38 +1311,38 @@ public class Process extends SerializableRelatedObject {
 	/**
 	 * Handles exceptions that may occur during process execution.
 	 *
-	 * @param eMode The process execution mode of the failed invocation
-	 * @param e     The exception that occurred
+	 * @param mode The process execution mode of the failed invocation
+	 * @param e    The exception that occurred
 	 * @throws ProcessException Always throws a process exception that has been
 	 *                          created from the original exception
 	 */
-	private void handleException(ProcessExecutionMode eMode, Exception e)
+	private void handleException(ProcessExecutionMode mode, Exception e)
 		throws ProcessException {
 		if (!(e instanceof InvalidParametersException ||
 			e instanceof ConcurrentEntityModificationException)) {
 			try {
 				cleanup();
-			} catch (Exception eCleanup) {
+			} catch (Exception cleanup) {
 				// only log and then continue with original exception below
-				Log.errorf(eCleanup, "Error cleanup failed in %s", this);
+				Log.errorf(cleanup, "Error cleanup failed in %s", this);
 			}
 		}
 
 		// TODO: introduce special error parameters and perform cleanup
 		// of disposable/closeable parameters
-		throw wrapException(e, "%s of %s failed", eMode, this);
+		throw wrapException(e, "%s of %s failed", mode, this);
 	}
 
 	/**
 	 * Performs the initialization of this process before execution.
 	 */
 	private void init() {
-		boolean bHistory = hasFlag(HISTORIZED);
+		boolean history = hasFlag(HISTORIZED);
 
 		initParams();
 
-		if (bHistory || hasFlag(TRANSACTIONAL)) {
-			beginTransaction(bHistory, getParameter(HistoryRecord.TARGET),
+		if (history || hasFlag(TRANSACTIONAL)) {
+			beginTransaction(history, getParameter(HistoryRecord.TARGET),
 				getName());
 		}
 	}
@@ -1362,8 +1352,8 @@ public class Process extends SerializableRelatedObject {
 	 * deserialization.
 	 */
 	private void initFields() {
-		aProcessSteps = new HashMap<String, ProcessStep>();
-		aExecutionStack = new Stack<ProcessStep>();
+		processSteps = new HashMap<String, ProcessStep>();
+		executionStack = new Stack<ProcessStep>();
 	}
 
 	/**
@@ -1373,20 +1363,19 @@ public class Process extends SerializableRelatedObject {
 	 */
 	@SuppressWarnings("unchecked")
 	private void initParams() {
-		Map<RelationType<?>, Function<? super Process, ?>> rTaskAttributeMap =
+		Map<RelationType<?>, Function<? super Process, ?>> taskAttributeMap =
 			getParameter(PARAM_INITIALIZATIONS);
 
-		for (Entry<RelationType<?>, Function<? super Process, ?>> rEntry :
-			rTaskAttributeMap.entrySet()) {
-			RelationType<Object> rParam =
-				(RelationType<Object>) rEntry.getKey();
-			Function<Object, Object> rFunction =
-				(Function<Object, Object>) rEntry.getValue();
+		for (Entry<RelationType<?>, Function<? super Process, ?>> entry :
+			taskAttributeMap.entrySet()) {
+			RelationType<Object> param = (RelationType<Object>) entry.getKey();
+			Function<Object, Object> function =
+				(Function<Object, Object>) entry.getValue();
 
-			Object rValue = rFunction.evaluate(this);
+			Object value = function.evaluate(this);
 
-			if (rValue != null) {
-				setParameter(rParam, rValue);
+			if (value != null) {
+				setParameter(param, value);
 			}
 		}
 	}
@@ -1394,11 +1383,11 @@ public class Process extends SerializableRelatedObject {
 	/**
 	 * Notifies registered listeners of a certain process event.
 	 *
-	 * @param rEventType The type of event that occurred
+	 * @param eventType The type of event that occurred
 	 */
-	private void notifyListeners(ProcessEventType rEventType) {
-		if (rContext == null) {
-			PROCESS_LISTENERS.notifyListeners(this, this, rEventType);
+	private void notifyListeners(ProcessEventType eventType) {
+		if (context == null) {
+			PROCESS_LISTENERS.notifyListeners(this, this, eventType);
 		}
 	}
 
@@ -1409,60 +1398,60 @@ public class Process extends SerializableRelatedObject {
 	 * interaction is required this method returns false to suspend the
 	 * execution of this process.
 	 *
-	 * @param rStep The process step to prepare
+	 * @param step The process step to prepare
 	 * @return TRUE if the process can continue with the step execution, FALSE
 	 * if it requires an external interaction
 	 * @throws Exception If either preparing the step or invoking the
 	 *                   interaction handler fails
 	 */
-	private boolean prepareStep(ProcessStep rStep) throws Exception {
-		boolean bContinue = rStep.prepareStep();
+	private boolean prepareStep(ProcessStep step) throws Exception {
+		boolean continueExecution = step.prepareStep();
 
-		if (!bContinue) {
-			rStep.set(STEP_WAS_INTERACTIVE);
+		if (!continueExecution) {
+			step.set(STEP_WAS_INTERACTIVE);
 
-			ProcessInteractionHandler rInteractionHandler =
+			ProcessInteractionHandler interactionHandler =
 				getInteractionHandler();
 
-			if (rInteractionHandler != null) {
-				rInteractionHandler.performInteraction(rStep);
-				bContinue = true;
+			if (interactionHandler != null) {
+				interactionHandler.performInteraction(step);
+				continueExecution = true;
 			}
 		}
 
-		return bContinue;
+		return continueExecution;
 	}
 
 	/**
 	 * Reads this instance from the given stream.
 	 *
-	 * @param rIn The stream to read this process' state from
+	 * @param in The stream to read this process' state from
 	 * @throws IOException            In case of I/O errors
 	 * @throws ClassNotFoundException If a class could not be deserialized
 	 */
-	private void readObject(ObjectInputStream rIn)
+	private void readObject(ObjectInputStream in)
 		throws IOException, ClassNotFoundException {
 		// read non-transient fields: interaction handler and flags
-		rIn.defaultReadObject();
+		in.defaultReadObject();
 
 		initFields();
 
 		// read all steps and put them in the process step map:
-		int nCount = rIn.readInt();
+		int count = in.readInt();
 
-		while (nCount-- > 0) {
-			addStep((ProcessStep) rIn.readObject());
+		while (count-- > 0) {
+			addStep((ProcessStep) in.readObject());
 		}
 
 		// read names of the steps on the execution stack and restore the stack
-		nCount = rIn.readInt();
+		count = in.readInt();
 
-		while (nCount-- > 0) {
-			aExecutionStack.push(getStep((String) rIn.readObject()));
+		while (count-- > 0) {
+			executionStack.push(getStep((String) in.readObject()));
 		}
 
 		// finally read the name of the current step and restore it
-		rCurrentStep = getStep((String) rIn.readObject());
+		currentStep = getStep((String) in.readObject());
 	}
 
 	/**
@@ -1470,17 +1459,17 @@ public class Process extends SerializableRelatedObject {
 	 * one start point can exist in a process. The step must have been added to
 	 * this process already, else an exception will be thrown.
 	 *
-	 * @param rStartStep The step to set as the process start
+	 * @param startStep The step to set as the process start
 	 * @throws IllegalArgumentException If the given step does not exist in
 	 * this
 	 *                                  process
 	 */
-	private void setStart(ProcessStep rStartStep) {
-		if (aProcessSteps.containsKey(rStartStep.getName())) {
-			rCurrentStep = rStartStep;
+	private void setStart(ProcessStep startStep) {
+		if (processSteps.containsKey(startStep.getName())) {
+			currentStep = startStep;
 		} else {
 			throw new IllegalArgumentException(
-				"Starting step not found: " + rStartStep);
+				"Starting step not found: " + startStep);
 		}
 	}
 
@@ -1489,60 +1478,60 @@ public class Process extends SerializableRelatedObject {
 	 * {@link ProcessException} and can simply be re-thrown or needs to wrapped
 	 * into one.
 	 *
-	 * @param e            The exception to wrap or type-cast
-	 * @param sMessage     The error message
-	 * @param rMessageArgs An optional list of message arguments to format into
-	 *                     the error message
+	 * @param e           The exception to wrap or type-cast
+	 * @param message     The error message
+	 * @param messageArgs An optional list of message arguments to format into
+	 *                    the error message
 	 * @return The original or wrapped exception
 	 */
-	private ProcessException wrapException(Exception e, String sMessage,
-		Object... rMessageArgs) {
-		ProcessException eResult;
+	private ProcessException wrapException(Exception e, String message,
+		Object... messageArgs) {
+		ProcessException result;
 
 		if (e instanceof ProcessException) {
-			eResult = (ProcessException) e;
+			result = (ProcessException) e;
 		} else if (e instanceof RuntimeProcessException) {
-			eResult = new ProcessException(
+			result = new ProcessException(
 				((RuntimeProcessException) e).getProcessStep(),
-				String.format(sMessage, rMessageArgs), e);
+				String.format(message, messageArgs), e);
 		} else {
-			eResult = new ProcessException(rCurrentStep,
-				String.format(sMessage, rMessageArgs), e);
+			result = new ProcessException(currentStep,
+				String.format(message, messageArgs), e);
 		}
 
-		setParameter(PROCESS_EXCEPTION, eResult);
+		setParameter(PROCESS_EXCEPTION, result);
 		notifyListeners(ProcessEventType.FAILED);
 
-		return eResult;
+		return result;
 	}
 
 	/**
 	 * Serializes this instance into the given stream.
 	 *
-	 * @param rOut The stream to store this process' state into
+	 * @param out The stream to store this process' state into
 	 * @throws IOException In case of I/O errors
 	 */
-	private void writeObject(ObjectOutputStream rOut) throws IOException {
+	private void writeObject(ObjectOutputStream out) throws IOException {
 		// write non-transient fields: interaction handler and flags
-		rOut.defaultWriteObject();
+		out.defaultWriteObject();
 
 		// write all steps from the process step map:
-		rOut.writeInt(aProcessSteps.size());
+		out.writeInt(processSteps.size());
 
-		for (ProcessStep rStep : aProcessSteps.values()) {
-			rOut.writeObject(rStep);
+		for (ProcessStep step : processSteps.values()) {
+			out.writeObject(step);
 		}
 
 		// write the names of all steps on the execution stack
-		rOut.writeInt(aExecutionStack.size());
+		out.writeInt(executionStack.size());
 
-		for (ProcessStep rStep : aExecutionStack) {
-			rOut.writeObject(rStep.getName());
+		for (ProcessStep step : executionStack) {
+			out.writeObject(step.getName());
 		}
 
-		if (!(rCurrentStep == null)) {
+		if (!(currentStep == null)) {
 			// finally write the name of the current step
-			rOut.writeObject(rCurrentStep.getName());
+			out.writeObject(currentStep.getName());
 		}
 	}
 }

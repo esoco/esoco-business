@@ -17,25 +17,20 @@
 package de.esoco.entity;
 
 import de.esoco.entity.EntityFunctions.GetExtraAttribute;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.GetElement.GetRelationValue;
 import de.esoco.lib.expression.predicate.ElementPredicate;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StoragePredicates;
-
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityFunctions.getExtraAttribute;
-
 import static de.esoco.lib.expression.Functions.coerce;
 import static de.esoco.lib.expression.ReflectionFuntions.cast;
 import static de.esoco.lib.expression.StringFunctions.substring;
-
 import static de.esoco.storage.StoragePredicates.like;
 import static de.esoco.storage.StoragePredicates.refersTo;
 
@@ -63,30 +58,30 @@ public class EntityPredicates {
 	 * being returned (which can then for example be fed into
 	 * {@link Predicates#and(Predicate, Predicate)}).
 	 *
-	 * @param sWildcard           The wildcard filter string (can be NULL or
-	 *                            empty)
-	 * @param rFilteredAttributes The text attributes to filter (can be NULL or
-	 *                            empty)
+	 * @param wildcard           The wildcard filter string (can be NULL or
+	 *                           empty)
+	 * @param filteredAttributes The text attributes to filter (can be NULL or
+	 *                           empty)
 	 * @return The resulting predicate (may be NULL if arguments are NULL or
 	 * empty)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E> Predicate<E> createWildcardFilter(String sWildcard,
-		RelationType<String>... rFilteredAttributes) {
-		Predicate<E> pWildcardFilter = null;
+	public static <E> Predicate<E> createWildcardFilter(String wildcard,
+		RelationType<String>... filteredAttributes) {
+		Predicate<E> wildcardFilter = null;
 
-		if (sWildcard != null && !sWildcard.isEmpty() &&
-			rFilteredAttributes != null) {
-			Predicate<String> pWildcardMatch =
-				StoragePredicates.createWildcardFilter(sWildcard);
+		if (wildcard != null && !wildcard.isEmpty() &&
+			filteredAttributes != null) {
+			Predicate<String> wildcardMatch =
+				StoragePredicates.createWildcardFilter(wildcard);
 
-			for (RelationType<String> rAttr : rFilteredAttributes) {
-				pWildcardFilter = (Predicate<E>) Predicates.or(pWildcardFilter,
-					rAttr.is(pWildcardMatch));
+			for (RelationType<String> attr : filteredAttributes) {
+				wildcardFilter = (Predicate<E>) Predicates.or(wildcardFilter,
+					attr.is(wildcardMatch));
 			}
 		}
 
-		return pWildcardFilter;
+		return wildcardFilter;
 	}
 
 	/**
@@ -96,44 +91,44 @@ public class EntityPredicates {
 	 * @see StoragePredicates#forType(Class, Predicate)
 	 */
 	public static <E extends Entity> QueryPredicate<E> forEntity(
-		Class<E> rEntityClass, Predicate<? super E> rCriteria) {
-		return StoragePredicates.forType(rEntityClass, rCriteria);
+		Class<E> entityClass, Predicate<? super E> criteria) {
+		return StoragePredicates.forType(entityClass, criteria);
 	}
 
 	/**
 	 * Creates an entity predicate to query for entities that have an extra
 	 * attribute that fulfill certain criteria.
 	 *
-	 * @param rEntityType The entity type to query for
-	 * @param pCriteria   The extra attribute criteria
+	 * @param entityType The entity type to query for
+	 * @param criteria   The extra attribute criteria
 	 * @return A new predicate for the given extra attribute
 	 */
 	public static <E extends Entity, V> Predicate<E> hasExtraAttribute(
-		Class<E> rEntityType, Predicate<? super ExtraAttribute> pCriteria) {
-		EntityDefinition<? extends Entity> rDef =
-			EntityManager.getEntityDefinition(rEntityType);
+		Class<E> entityType, Predicate<? super ExtraAttribute> criteria) {
+		EntityDefinition<? extends Entity> def =
+			EntityManager.getEntityDefinition(entityType);
 
-		RelationType<Number> rIdAttr = rDef.getIdAttribute();
+		RelationType<Number> idAttr = def.getIdAttribute();
 
-		String sIdPrefix = rDef.getIdPrefix();
-		int nIdStart = sIdPrefix.length() + 1;
+		String idPrefix = def.getIdPrefix();
+		int idStart = idPrefix.length() + 1;
 
 		// coerce attribute into a function that can be chained with substring;
 		// this and the subsequent functions can only be used for storage
 		// parsing
-		Function<Relatable, String> fAttr = coerce(ExtraAttribute.ENTITY);
+		Function<Relatable, String> attr = coerce(ExtraAttribute.ENTITY);
 
-		Function<Relatable, ? super Number> fExtraAttributeEntityId =
-			cast(rIdAttr.getTargetType()).from(
-				substring(nIdStart, -1).from(fAttr));
+		Function<Relatable, ? super Number> extraAttributeEntityId =
+			cast(idAttr.getTargetType()).from(
+				substring(idStart, -1).from(attr));
 
-		pCriteria = Predicates.and(pCriteria,
-			ifAttribute(ExtraAttribute.ENTITY, like(sIdPrefix + "%")));
+		criteria = Predicates.and(criteria,
+			ifAttribute(ExtraAttribute.ENTITY, like(idPrefix + "%")));
 
-		Predicate<? super Number> pHasExtraAttr =
-			refersTo(ExtraAttribute.class, fExtraAttributeEntityId, pCriteria);
+		Predicate<? super Number> hasExtraAttr =
+			refersTo(ExtraAttribute.class, extraAttributeEntityId, criteria);
 
-		return ifAttribute(rIdAttr, pHasExtraAttr);
+		return ifAttribute(idAttr, hasExtraAttr);
 	}
 
 	/**
@@ -143,8 +138,8 @@ public class EntityPredicates {
 	 * @see Predicates#ifRelation(RelationType, Predicate)
 	 */
 	public static <E extends Entity, V> ElementPredicate<E, V> ifAttribute(
-		RelationType<V> rType, Predicate<? super V> rPredicate) {
-		return Predicates.ifRelation(rType, rPredicate);
+		RelationType<V> type, Predicate<? super V> predicate) {
+		return Predicates.ifRelation(type, predicate);
 	}
 
 	/**
@@ -157,18 +152,17 @@ public class EntityPredicates {
 	 * loaded. For queries the {@link #hasExtraAttribute(Class, Predicate)}
 	 * method should be used instead.</p>
 	 *
-	 * @param rExtraAttribute The relation type of the extra attribute
-	 * @param rDefaultValue   The default value if the attribute doesn't exist
-	 * @param rPredicate      The predicate to evaluate the extra attribute
-	 *                        with
+	 * @param extraAttribute The relation type of the extra attribute
+	 * @param defaultValue   The default value if the attribute doesn't exist
+	 * @param predicate      The predicate to evaluate the extra attribute with
 	 * @return A new predicate for the given extra attribute
 	 */
 	public static <E extends Entity, V> Predicate<E> ifExtraAttribute(
-		RelationType<V> rExtraAttribute, V rDefaultValue,
-		Predicate<? super V> rPredicate) {
-		GetExtraAttribute<E, V> fGetExtraAttribute =
-			getExtraAttribute(rExtraAttribute, rDefaultValue);
+		RelationType<V> extraAttribute, V defaultValue,
+		Predicate<? super V> predicate) {
+		GetExtraAttribute<E, V> getExtraAttribute =
+			getExtraAttribute(extraAttribute, defaultValue);
 
-		return new ElementPredicate<E, V>(fGetExtraAttribute, rPredicate);
+		return new ElementPredicate<E, V>(getExtraAttribute, predicate);
 	}
 }

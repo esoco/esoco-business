@@ -33,12 +33,12 @@ public class UiSubFragment extends UiContainer<UiSubFragment> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rFragment The fragment to wrap
-	 * @param rLayout   The layout to embed the sub-fragment in
+	 * @param parent   The parent container
+	 * @param fragment The fragment to wrap
+	 * @param layout   The layout to embed the sub-fragment in
 	 */
-	public UiSubFragment(UiContainer<?> rParent, InteractionFragment rFragment,
-		UiLayout rLayout) {
-		super(rParent, rFragment, rLayout);
+	public UiSubFragment(UiContainer<?> parent, InteractionFragment fragment,
+		UiLayout layout) {
+		super(parent, fragment, layout);
 	}
 }

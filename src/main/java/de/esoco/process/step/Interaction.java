@@ -18,25 +18,22 @@ package de.esoco.process.step;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessStep;
+import org.obrel.core.RelationType;
+import org.obrel.type.MetaTypes;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.obrel.core.RelationType;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_FRAGMENT_CLASS;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
-import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
-
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static org.obrel.type.MetaTypes.INTERACTIVE;
 
 /**
@@ -62,24 +59,24 @@ public class Interaction extends RollbackStep {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<RelationType<?>, InteractionHandler> aParamInteractionHandlers;
+	private Map<RelationType<?>, InteractionHandler> paramInteractionHandlers;
 
 	/**
 	 * Returns the currently registered interaction handler for a certain
 	 * parameter.
 	 *
-	 * @param rParam The parameter to return the interaction handler for
+	 * @param param The parameter to return the interaction handler for
 	 * @return The registered interaction handler or NULL for none
 	 */
 	public InteractionHandler getParameterInteractionHandler(
-		RelationType<?> rParam) {
-		InteractionHandler rInteractionHandler = null;
+		RelationType<?> param) {
+		InteractionHandler interactionHandler = null;
 
-		if (aParamInteractionHandlers != null) {
-			rInteractionHandler = aParamInteractionHandlers.get(rParam);
+		if (paramInteractionHandlers != null) {
+			interactionHandler = paramInteractionHandlers.get(param);
 		}
 
-		return rInteractionHandler;
+		return interactionHandler;
 	}
 
 	/**
@@ -87,14 +84,14 @@ public class Interaction extends RollbackStep {
 	 * step's interaction parameters. If the parameter to insert before doesn't
 	 * exist the new parameter will be added to the end of the list.
 	 *
-	 * @param rParam       The parameter type to insert
-	 * @param rBeforeParam The parameter type to insert the new type before
+	 * @param param       The parameter type to insert
+	 * @param beforeParam The parameter type to insert the new type before
 	 */
-	public void insertDisplayParameter(RelationType<?> rParam,
-		RelationType<?> rBeforeParam) {
-		CollectionUtil.insert(get(INTERACTION_PARAMS), rBeforeParam, rParam);
+	public void insertDisplayParameter(RelationType<?> param,
+		RelationType<?> beforeParam) {
+		CollectionUtil.insert(get(INTERACTION_PARAMS), beforeParam, param);
 
-		prepareNewInteractionParameters(CollectionUtil.setOf(rParam));
+		prepareNewInteractionParameters(CollectionUtil.setOf(param));
 	}
 
 	/**
@@ -103,33 +100,33 @@ public class Interaction extends RollbackStep {
 	 * before doesn't exist the new parameter will be added to the end of the
 	 * list.
 	 *
-	 * @param rParam       The parameter type to insert
-	 * @param rBeforeParam The parameter type to insert the new type before
+	 * @param param       The parameter type to insert
+	 * @param beforeParam The parameter type to insert the new type before
 	 */
-	public void insertInputParameter(RelationType<?> rParam,
-		RelationType<?> rBeforeParam) {
-		insertDisplayParameter(rParam, rBeforeParam);
-		get(INPUT_PARAMS).add(rParam);
+	public void insertInputParameter(RelationType<?> param,
+		RelationType<?> beforeParam) {
+		insertDisplayParameter(param, beforeParam);
+		get(INPUT_PARAMS).add(param);
 	}
 
 	/**
 	 * Sets the interaction handler for a certain parameter. This will replace
 	 * any previous interaction handler for this parameter.
 	 *
-	 * @param rParam              The parameter to add the handler for
-	 * @param rInteractionHandler The interaction handler or NULL to remove the
-	 *                            current handler
+	 * @param param              The parameter to add the handler for
+	 * @param interactionHandler The interaction handler or NULL to remove the
+	 *                           current handler
 	 */
-	public void setParameterInteractionHandler(RelationType<?> rParam,
-		InteractionHandler rInteractionHandler) {
-		if (rInteractionHandler != null) {
-			if (aParamInteractionHandlers == null) {
-				aParamInteractionHandlers = new HashMap<>();
+	public void setParameterInteractionHandler(RelationType<?> param,
+		InteractionHandler interactionHandler) {
+		if (interactionHandler != null) {
+			if (paramInteractionHandlers == null) {
+				paramInteractionHandlers = new HashMap<>();
 			}
 
-			aParamInteractionHandlers.put(rParam, rInteractionHandler);
-		} else if (aParamInteractionHandlers != null) {
-			aParamInteractionHandlers.remove(rParam);
+			paramInteractionHandlers.put(param, interactionHandler);
+		} else if (paramInteractionHandlers != null) {
+			paramInteractionHandlers.remove(param);
 		}
 	}
 
@@ -140,8 +137,8 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected void abort() throws Exception {
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.abortFragment();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.abortFragment();
 		}
 	}
 
@@ -152,8 +149,8 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected boolean canRollback() {
-		for (InteractionFragment rFragment : getSubFragments()) {
-			if (!rFragment.canRollback()) {
+		for (InteractionFragment fragment : getSubFragments()) {
+			if (!fragment.canRollback()) {
 				return false;
 			}
 		}
@@ -166,8 +163,8 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected void cleanup() {
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.cleanup();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.cleanup();
 		}
 	}
 
@@ -189,8 +186,8 @@ public class Interaction extends RollbackStep {
 	protected void executeCleanupActions() {
 		super.executeCleanupActions();
 
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.executeCleanupActions();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.executeCleanupActions();
 		}
 	}
 
@@ -209,33 +206,33 @@ public class Interaction extends RollbackStep {
 	 * Handles any interactions that may occur in a sub-fragment. This method
 	 * should be invoked from the {@link #execute()} method of a subclass.
 	 *
-	 * @param rInteractionParam The interaction parameter
+	 * @param interactionParam The interaction parameter
 	 * @throws Exception If an error occurs
 	 */
-	protected void handleFragmentInteractions(RelationType<?> rInteractionParam)
+	protected void handleFragmentInteractions(RelationType<?> interactionParam)
 		throws Exception {
-		Iterator<InteractionFragment> rIterator = getSubFragments().iterator();
-		InteractionFragment rFragment = null;
+		Iterator<InteractionFragment> iterator = getSubFragments().iterator();
+		InteractionFragment fragment = null;
 
-		InteractionHandler rInteractionHandler =
-			getParameterInteractionHandler(rInteractionParam);
+		InteractionHandler interactionHandler =
+			getParameterInteractionHandler(interactionParam);
 
-		if (rInteractionHandler != null) {
-			InteractionEventType eEventType =
+		if (interactionHandler != null) {
+			InteractionEventType eventType =
 				getParameter(INTERACTION_EVENT_TYPE);
 
-			InteractionEvent aEvent =
-				new InteractionEvent(this, rInteractionParam, eEventType);
+			InteractionEvent event =
+				new InteractionEvent(this, interactionParam, eventType);
 
-			rInteractionHandler.handleInteraction(aEvent);
+			interactionHandler.handleInteraction(event);
 		} else {
-			while (rFragment == null && rIterator.hasNext()) {
-				rFragment = rIterator.next();
+			while (fragment == null && iterator.hasNext()) {
+				fragment = iterator.next();
 
-				if (rFragment.hasFragmentInteraction(rInteractionParam)) {
-					rFragment.handleFragmentInteraction(rInteractionParam);
+				if (fragment.hasFragmentInteraction(interactionParam)) {
+					fragment.handleFragmentInteraction(interactionParam);
 				} else {
-					rFragment = null;
+					fragment = null;
 				}
 			}
 		}
@@ -247,8 +244,8 @@ public class Interaction extends RollbackStep {
 	 * @throws Exception If an error occurs
 	 */
 	protected void initFragments() throws Exception {
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.initFragment();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.initFragment();
 		}
 	}
 
@@ -261,24 +258,24 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected void internalExecute() throws Exception {
-		RelationType<?> rInteractionParam = getInteractiveInputParameter();
+		RelationType<?> interactionParam = getInteractiveInputParameter();
 
-		if (rInteractionParam != null) {
-			handleFragmentInteractions(rInteractionParam);
+		if (interactionParam != null) {
+			handleFragmentInteractions(interactionParam);
 		}
 
-		if (rInteractionParam == null ||
-			get(CONTINUATION_PARAMS).contains(rInteractionParam)) {
-			for (InteractionFragment rFragment : getSubFragments()) {
-				rFragment.finishFragment();
+		if (interactionParam == null ||
+			get(CONTINUATION_PARAMS).contains(interactionParam)) {
+			for (InteractionFragment fragment : getSubFragments()) {
+				fragment.finishFragment();
 			}
 		}
 
 		super.internalExecute();
 
-		if (rInteractionParam != null) {
-			for (InteractionFragment rFragment : getSubFragments()) {
-				rFragment.afterFragmentInteraction(rInteractionParam);
+		if (interactionParam != null) {
+			for (InteractionFragment fragment : getSubFragments()) {
+				fragment.afterFragmentInteraction(interactionParam);
 			}
 		}
 	}
@@ -290,15 +287,15 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected void prepareContinuation() throws Exception {
-		RelationType<?> rContinuationParam = getParameter(CONTINUATION_PARAM);
+		RelationType<?> continuationParam = getParameter(CONTINUATION_PARAM);
 
-		for (InteractionFragment rFragment : getSubFragments()) {
-			InteractionFragment rContinuationFragment =
-				rFragment.getContinuationFragment(rContinuationParam);
+		for (InteractionFragment fragment : getSubFragments()) {
+			InteractionFragment continuationFragment =
+				fragment.getContinuationFragment(continuationParam);
 
-			if (rContinuationFragment != null) {
+			if (continuationFragment != null) {
 				setParameter(CONTINUATION_FRAGMENT_CLASS,
-					rContinuationFragment.getClass());
+					continuationFragment.getClass());
 
 				break;
 			}
@@ -326,8 +323,8 @@ public class Interaction extends RollbackStep {
 	protected void prepareFragmentInteractions() throws Exception {
 		setParameter(CONTINUATION_FRAGMENT_CLASS, null);
 
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.prepareFragmentInteraction();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.prepareFragmentInteraction();
 		}
 	}
 
@@ -347,9 +344,9 @@ public class Interaction extends RollbackStep {
 	 * Removes all sub-fragments.
 	 */
 	protected void removeAllFragments() {
-		for (InteractionFragment rFragment : getSubFragments()) {
-			removeInteractionParameters(rFragment.getInteractionParameters());
-			rFragment.setProcessStep(null);
+		for (InteractionFragment fragment : getSubFragments()) {
+			removeInteractionParameters(fragment.getInteractionParameters());
+			fragment.setProcessStep(null);
 		}
 
 		getSubFragments().clear();
@@ -358,12 +355,12 @@ public class Interaction extends RollbackStep {
 	/**
 	 * Removes a certain sub-fragment.
 	 *
-	 * @param rFragment The fragment to remove
+	 * @param fragment The fragment to remove
 	 */
-	protected void removeFragment(InteractionFragment rFragment) {
-		removeInteractionParameters(rFragment.getInteractionParameters());
-		getSubFragments().remove(rFragment);
-		rFragment.setProcessStep(null);
+	protected void removeFragment(InteractionFragment fragment) {
+		removeInteractionParameters(fragment.getInteractionParameters());
+		getSubFragments().remove(fragment);
+		fragment.setProcessStep(null);
 	}
 
 	/**
@@ -371,8 +368,8 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected void rollback() throws Exception {
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rFragment.rollbackFragment();
+		for (InteractionFragment fragment : getSubFragments()) {
+			fragment.rollbackFragment();
 		}
 	}
 
@@ -397,16 +394,16 @@ public class Interaction extends RollbackStep {
 	 */
 	@Override
 	protected Map<RelationType<?>, String> validateParameters(
-		boolean bOnInteraction) {
-		Map<RelationType<?>, String> rValidationErrors =
-			super.validateParameters(bOnInteraction);
+		boolean onInteraction) {
+		Map<RelationType<?>, String> validationErrors =
+			super.validateParameters(onInteraction);
 
-		for (InteractionFragment rFragment : getSubFragments()) {
-			rValidationErrors.putAll(
-				rFragment.validateFragmentParameters(bOnInteraction));
+		for (InteractionFragment fragment : getSubFragments()) {
+			validationErrors.putAll(
+				fragment.validateFragmentParameters(onInteraction));
 		}
 
-		return rValidationErrors;
+		return validationErrors;
 	}
 
 	/**
@@ -420,12 +417,12 @@ public class Interaction extends RollbackStep {
 		 * Will be invoked to handle the interaction for the annotated
 		 * parameter.
 		 *
-		 * @param rEvent bActionEvent TRUE if an action event occurred, FALSE
-		 *               for a continuous interaction event
+		 * @param event actionEvent TRUE if an action event occurred, FALSE for
+		 *              a continuous interaction event
 		 * @throws Exception Any kind of exception can be thrown if the
 		 * handling
 		 *                   fails
 		 */
-		public void handleInteraction(InteractionEvent rEvent) throws Exception;
+		void handleInteraction(InteractionEvent event) throws Exception;
 	}
 }

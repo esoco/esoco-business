@@ -17,11 +17,9 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.property.PropertyName;
 
 import java.math.BigDecimal;
-
 import java.util.Set;
 
 /**
@@ -35,7 +33,7 @@ public class BigDecimalDataElement extends DataElement<BigDecimal> {
 	 * Enumeration of the available display styles.
 	 */
 	public enum DisplayStyle {
-		DECIMAL, MULTI_FORMAT, CALCULATOR;
+		DECIMAL, MULTI_FORMAT, CALCULATOR
 	}
 
 	/**
@@ -82,31 +80,31 @@ public class BigDecimalDataElement extends DataElement<BigDecimal> {
 
 	private static final long serialVersionUID = 1L;
 
-	private BigDecimal aValue;
+	private BigDecimal value;
 
 	/**
 	 * Creates a new read-only instance with a certain name and value.
 	 *
-	 * @param sName  The name of this element
-	 * @param nValue The initial value
+	 * @param name  The name of this element
+	 * @param value The initial value
 	 */
-	public BigDecimalDataElement(String sName, BigDecimal nValue) {
-		this(sName, nValue, null, null);
+	public BigDecimalDataElement(String name, BigDecimal value) {
+		this(name, value, null, null);
 	}
 
 	/**
 	 * Creates a new instance with a certain initial value and validator.
 	 *
-	 * @param sName      The name of this element
-	 * @param rValue     The initial value
-	 * @param rValidator The validator for the value or NULL for none
-	 * @param rFlags     The optional flags for this data element
+	 * @param name      The name of this element
+	 * @param value     The initial value
+	 * @param validator The validator for the value or NULL for none
+	 * @param flags     The optional flags for this data element
 	 */
-	public BigDecimalDataElement(String sName, BigDecimal rValue,
-		Validator<? super BigDecimal> rValidator, Set<Flag> rFlags) {
-		super(sName, rValidator, rFlags);
+	public BigDecimalDataElement(String name, BigDecimal value,
+		Validator<? super BigDecimal> validator, Set<Flag> flags) {
+		super(name, validator, flags);
 
-		this.aValue = rValue;
+		this.value = value;
 	}
 
 	/**
@@ -119,9 +117,9 @@ public class BigDecimalDataElement extends DataElement<BigDecimal> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigDecimalDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (BigDecimalDataElement) super.copy(eMode, rCopyProperties);
+	public BigDecimalDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (BigDecimalDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -129,15 +127,15 @@ public class BigDecimalDataElement extends DataElement<BigDecimal> {
 	 */
 	@Override
 	public final BigDecimal getValue() {
-		return aValue;
+		return value;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStringValue(String sValue) {
-		setValue(new BigDecimal(sValue));
+	public void setStringValue(String value) {
+		setValue(new BigDecimal(value));
 	}
 
 	/**
@@ -152,8 +150,8 @@ public class BigDecimalDataElement extends DataElement<BigDecimal> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(BigDecimal rNewValue) {
-		aValue = rNewValue;
+	protected void updateValue(BigDecimal newValue) {
+		value = newValue;
 	}
 
 	/**

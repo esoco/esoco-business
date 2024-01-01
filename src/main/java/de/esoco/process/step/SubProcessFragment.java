@@ -17,9 +17,7 @@
 package de.esoco.process.step;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
-
 import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.FragmentInteraction;
 import de.esoco.process.Process;
 import de.esoco.process.ProcessDefinition;
@@ -28,14 +26,12 @@ import de.esoco.process.ProcessManager;
 import de.esoco.process.ProcessStep;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.step.ProcessControlFragment.ProcessExecutionHandler;
+import org.obrel.core.RelationType;
 
 import java.util.Collection;
 import java.util.List;
 
-import org.obrel.core.RelationType;
-
 import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
-
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
@@ -62,19 +58,19 @@ public class SubProcessFragment extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
-	private Class<? extends ProcessDefinition> rProcessClass;
+	private Class<? extends ProcessDefinition> processClass;
 
-	private Process rProcess;
+	private Process process;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rSubProcessClass The class of the sub-process to execute in this
-	 *                         fragment
+	 * @param subProcessClass The class of the sub-process to execute in this
+	 *                        fragment
 	 */
 	public SubProcessFragment(
-		Class<? extends ProcessDefinition> rSubProcessClass) {
-		displayProcess(rSubProcessClass);
+		Class<? extends ProcessDefinition> subProcessClass) {
+		displayProcess(subProcessClass);
 	}
 
 	/**
@@ -82,8 +78,8 @@ public class SubProcessFragment extends InteractionFragment
 	 */
 	@Override
 	public void cleanup() {
-		if (rProcess != null) {
-			rProcess.execute(ProcessExecutionMode.CANCEL);
+		if (process != null) {
+			process.execute(ProcessExecutionMode.CANCEL);
 			setProcess(null);
 		}
 	}
@@ -94,12 +90,12 @@ public class SubProcessFragment extends InteractionFragment
 	 * initialized a new process based on the new definition will be executed
 	 * and the UI will be initialized accordingly.
 	 *
-	 * @param rSubProcessClass The process definition class
+	 * @param subProcessClass The process definition class
 	 * @throws ProcessException If executing the new process fails
 	 */
 	public void displayProcess(
-		Class<? extends ProcessDefinition> rSubProcessClass) {
-		this.rProcessClass = rSubProcessClass;
+		Class<? extends ProcessDefinition> subProcessClass) {
+		this.processClass = subProcessClass;
 
 		cleanup();
 
@@ -116,37 +112,37 @@ public class SubProcessFragment extends InteractionFragment
 	/**
 	 * Executes the process of this fragment with a particular execution mode.
 	 *
-	 * @param eMode The process execution mode
+	 * @param mode The process execution mode
 	 * @throws ProcessException If the execution fails
 	 */
 	@Override
-	public void executeProcess(ProcessExecutionMode eMode)
+	public void executeProcess(ProcessExecutionMode mode)
 		throws ProcessException {
-		if (rProcess != null) {
-			List<RelationType<?>> rInteractionParams =
+		if (process != null) {
+			List<RelationType<?>> interactionParams =
 				getInteractionParameters();
 
-			Collection<RelationType<?>> rInputParams = getInputParameters();
+			Collection<RelationType<?>> inputParams = getInputParameters();
 
-			rProcess.execute(eMode);
+			process.execute(mode);
 
-			rInteractionParams.clear();
-			rInputParams.clear();
+			interactionParams.clear();
+			inputParams.clear();
 
-			if (rProcess.isFinished()) {
+			if (process.isFinished()) {
 				setProcess(null);
 			} else {
-				ProcessStep rStep = rProcess.getInteractionStep();
+				ProcessStep step = process.getInteractionStep();
 
-				if (!(rStep instanceof FragmentInteraction) ||
-					(((FragmentInteraction) rStep)
+				if (!(step instanceof FragmentInteraction) ||
+					(((FragmentInteraction) step)
 						.getRootFragmentParam()
 						.has(STRUCTURE_CHANGED))) {
 					structureModified();
 				}
 
-				rInteractionParams.addAll(rStep.get(INTERACTION_PARAMS));
-				rInputParams.addAll(rStep.get(INPUT_PARAMS));
+				interactionParams.addAll(step.get(INTERACTION_PARAMS));
+				inputParams.addAll(step.get(INPUT_PARAMS));
 			}
 		}
 	}
@@ -159,16 +155,16 @@ public class SubProcessFragment extends InteractionFragment
 	 * @return The fragment process (NULL if not yet initialized)
 	 */
 	public final Process getFragmentProcess() {
-		return rProcess;
+		return process;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		rProcess.setParameter(INTERACTION_EVENT_PARAM, rInteractionParam);
+		process.setParameter(INTERACTION_EVENT_PARAM, interactionParam);
 		executeProcess(ProcessExecutionMode.EXECUTE);
 	}
 
@@ -176,7 +172,7 @@ public class SubProcessFragment extends InteractionFragment
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean hasInteraction(RelationType<?> rInteractionParam) {
+	public boolean hasInteraction(RelationType<?> interactionParam) {
 		return true;
 	}
 
@@ -188,8 +184,8 @@ public class SubProcessFragment extends InteractionFragment
 		// simply render the process inline to it's parent fragment
 		layout(LayoutType.INLINE);
 
-		if (rProcessClass != null) {
-			setProcess(ProcessManager.getProcess(rProcessClass));
+		if (processClass != null) {
+			setProcess(ProcessManager.getProcess(processClass));
 
 			executeProcess(ProcessExecutionMode.EXECUTE);
 		} else {
@@ -211,10 +207,10 @@ public class SubProcessFragment extends InteractionFragment
 	/**
 	 * Sets a new process for this instance.
 	 *
-	 * @param rNewProcess The new process or NULL for none
+	 * @param newProcess The new process or NULL for none
 	 */
-	protected void setProcess(Process rNewProcess) {
-		rProcess = rNewProcess;
-		fragmentParam().annotate(PROCESS, rProcess);
+	protected void setProcess(Process newProcess) {
+		process = newProcess;
+		fragmentParam().annotate(PROCESS, process);
 	}
 }

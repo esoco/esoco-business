@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.TextFieldStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
@@ -34,8 +33,8 @@ public class UiPasswordField extends UiTextInputField<UiPasswordField> {
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiPasswordField(UiContainer<?> rContainer, String sText) {
-		super(rContainer, sText);
+	public UiPasswordField(UiContainer<?> container, String text) {
+		super(container, text);
 
 		set(StyleProperties.TEXT_FIELD_STYLE, TextFieldStyle.PASSWORD);
 	}

@@ -17,7 +17,6 @@
 package de.esoco.process.param;
 
 import de.esoco.process.step.InteractionFragment;
-
 import org.obrel.core.RelationType;
 
 /**
@@ -32,8 +31,7 @@ public class Parameter<T> extends ParameterBase<T, Parameter<T>> {
 	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public Parameter(InteractionFragment rFragment,
-		RelationType<T> rParamType) {
-		super(rFragment, rParamType);
+	public Parameter(InteractionFragment fragment, RelationType<T> paramType) {
+		super(fragment, paramType);
 	}
 }

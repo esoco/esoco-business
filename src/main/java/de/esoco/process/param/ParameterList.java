@@ -18,12 +18,10 @@ package de.esoco.process.param;
 
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.UserInterfaceProperties;
-
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
 
 import java.util.List;
-
-import org.obrel.core.RelationType;
 
 /**
  * A {@link ParameterBase} subclasses for that manages a parameter that refers
@@ -34,31 +32,31 @@ import org.obrel.core.RelationType;
 public class ParameterList
 	extends ParameterBase<List<RelationType<?>>, ParameterList> {
 
-	private boolean bIsFragment;
+	private final boolean isFragment;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rFragment   The fragment to handle the parameter for
-	 * @param rParamType  The parameter relation type to handle
-	 * @param bIsFragment TRUE if this parameter represents a distinct fragment
-	 *                    and FALSE if it is a subordinate panel of a fragment
+	 * @param fragment   The fragment to handle the parameter for
+	 * @param paramType  The parameter relation type to handle
+	 * @param isFragment TRUE if this parameter represents a distinct fragment
+	 *                   and FALSE if it is a subordinate panel of a fragment
 	 */
-	public ParameterList(InteractionFragment rFragment,
-		RelationType<List<RelationType<?>>> rParamType, boolean bIsFragment) {
-		super(rFragment, rParamType);
+	public ParameterList(InteractionFragment fragment,
+		RelationType<List<RelationType<?>>> paramType, boolean isFragment) {
+		super(fragment, paramType);
 
-		this.bIsFragment = bIsFragment;
+		this.isFragment = isFragment;
 	}
 
 	/**
 	 * Sets the list display mode to display this parameter list with.
 	 *
-	 * @param eMode The list display mode
+	 * @param mode The list display mode
 	 * @return This instance for concatenation
 	 */
-	public ParameterList as(LayoutType eMode) {
-		set(UserInterfaceProperties.LAYOUT, eMode);
+	public ParameterList as(LayoutType mode) {
+		set(UserInterfaceProperties.LAYOUT, mode);
 
 		return this;
 	}
@@ -71,7 +69,7 @@ public class ParameterList
 	 */
 	@Override
 	public ParameterList display() {
-		if (bIsFragment) {
+		if (isFragment) {
 			fragment().getParent().addDisplayParameters(type());
 		} else {
 			super.display();
@@ -84,17 +82,17 @@ public class ParameterList
 	 * Enables or disables the editing of this fragment and of all it's
 	 * children.
 	 *
-	 * @param bEnable TRUE to enable editing, FALSE to disable
+	 * @param enable TRUE to enable editing, FALSE to disable
 	 * @return This instance for concatenation
 	 */
-	public ParameterList enableEdit(boolean bEnable) {
-		InteractionFragment rFragment = fragment();
+	public ParameterList enableEdit(boolean enable) {
+		InteractionFragment fragment = fragment();
 
-		if (!bIsFragment) {
-			rFragment = fragment().getSubFragment(type());
+		if (!isFragment) {
+			fragment = fragment().getSubFragment(type());
 		}
 
-		rFragment.enableEdit(bEnable);
+		fragment.enableEdit(enable);
 
 		return this;
 	}
@@ -107,7 +105,7 @@ public class ParameterList
 	 */
 	@Override
 	public ParameterList input() {
-		if (bIsFragment) {
+		if (isFragment) {
 			fragment().getParent().addInputParameters(type());
 		} else {
 			super.display();

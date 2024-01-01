@@ -32,26 +32,25 @@ public class PeriodDataElement extends DataElement<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private int nPeriodCount;
+	private int periodCount;
 
-	private String sPeriodUnit;
+	private String periodUnit;
 
 	/**
 	 * Creates a new instance with a certain initial value and read-only state.
 	 *
-	 * @param sName         The name of this element
-	 * @param nPeriodCount  The period count
-	 * @param sPeriodUnit   The period unit
-	 * @param rAllowedUnits The period units that can be selected
-	 * @param rFlags        The optional flags for this data element
+	 * @param name         The name of this element
+	 * @param periodCount  The period count
+	 * @param periodUnit   The period unit
+	 * @param allowedUnits The period units that can be selected
+	 * @param flags        The optional flags for this data element
 	 */
-	public PeriodDataElement(String sName, int nPeriodCount,
-		String sPeriodUnit,
-		StringListValidator rAllowedUnits, Set<Flag> rFlags) {
-		super(sName, rAllowedUnits, rFlags);
+	public PeriodDataElement(String name, int periodCount, String periodUnit,
+		StringListValidator allowedUnits, Set<Flag> flags) {
+		super(name, allowedUnits, flags);
 
-		this.nPeriodCount = nPeriodCount;
-		this.sPeriodUnit = sPeriodUnit;
+		this.periodCount = periodCount;
+		this.periodUnit = periodUnit;
 	}
 
 	/**
@@ -64,9 +63,9 @@ public class PeriodDataElement extends DataElement<String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PeriodDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (PeriodDataElement) super.copy(eMode, rCopyProperties);
+	public PeriodDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (PeriodDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -75,7 +74,7 @@ public class PeriodDataElement extends DataElement<String> {
 	 * @return The period count
 	 */
 	public final int getPeriodCount() {
-		return nPeriodCount;
+		return periodCount;
 	}
 
 	/**
@@ -84,7 +83,7 @@ public class PeriodDataElement extends DataElement<String> {
 	 * @return The period unit
 	 */
 	public final String getPeriodUnit() {
-		return sPeriodUnit;
+		return periodUnit;
 	}
 
 	/**
@@ -92,35 +91,35 @@ public class PeriodDataElement extends DataElement<String> {
 	 */
 	@Override
 	public final String getValue() {
-		return nPeriodCount + "." + sPeriodUnit;
+		return periodCount + "." + periodUnit;
 	}
 
 	/**
 	 * Sets the period count.
 	 *
-	 * @param nCount The period count
+	 * @param count The period count
 	 */
-	public final void setPeriodCount(int nCount) {
-		nPeriodCount = nCount;
+	public final void setPeriodCount(int count) {
+		periodCount = count;
 	}
 
 	/**
 	 * Sets the period unit.
 	 *
-	 * @param sUnit The period unit
+	 * @param unit The period unit
 	 */
-	public final void setPeriodUnit(String sUnit) {
-		sPeriodUnit = sUnit;
+	public final void setPeriodUnit(String unit) {
+		periodUnit = unit;
 	}
 
 	/**
 	 * Sets the string value.
 	 *
-	 * @param sValue The new string value
+	 * @param value The new string value
 	 */
 	@Override
-	public void setStringValue(String sValue) {
-		setValue(sValue);
+	public void setStringValue(String value) {
+		setValue(value);
 	}
 
 	/**
@@ -135,15 +134,15 @@ public class PeriodDataElement extends DataElement<String> {
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected final void updateValue(String sNewValue) {
-		if ("NONE".equals(sNewValue)) {
-			nPeriodCount = 0;
-			sPeriodUnit = sNewValue;
+	protected final void updateValue(String newValue) {
+		if ("NONE".equals(newValue)) {
+			periodCount = 0;
+			periodUnit = newValue;
 		} else {
-			String[] rParts = sNewValue.split("\\.");
+			String[] parts = newValue.split("\\.");
 
-			nPeriodCount = Integer.parseInt(rParts[0]);
-			sPeriodUnit = rParts[1];
+			periodCount = Integer.parseInt(parts[0]);
+			periodUnit = parts[1];
 		}
 	}
 }

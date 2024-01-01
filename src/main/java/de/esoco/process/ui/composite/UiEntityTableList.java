@@ -18,13 +18,10 @@ package de.esoco.process.ui.composite;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDataProvider;
-
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.monad.Option;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
-
 import org.obrel.core.RelationType;
 
 /**
@@ -34,51 +31,50 @@ import org.obrel.core.RelationType;
  */
 public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E> {
 
-	private EntityDataProvider<E> aEntityProvider;
+	private final EntityDataProvider<E> entityProvider;
 
-	private String sGlobalFilter = null;
+	private String globalFilter = null;
 
-	private RelationType<String>[] aGlobalFilterAttributes;
+	private RelationType<String>[] globalFilterAttributes;
 
 	/**
 	 * Creates a new simple, non-expanding entity list.
 	 *
-	 * @param rParent          The parent container
-	 * @param rEntityType      The class of the entity type to display
-	 * @param pDefaultCriteria The default criteria or NULL for none
+	 * @param parent          The parent container
+	 * @param entityType      The class of the entity type to display
+	 * @param defaultCriteria The default criteria or NULL for none
 	 */
-	public UiEntityTableList(UiContainer<?> rParent, Class<E> rEntityType,
-		Predicate<? super E> pDefaultCriteria) {
-		this(rParent, rEntityType, pDefaultCriteria, null);
+	public UiEntityTableList(UiContainer<?> parent, Class<E> entityType,
+		Predicate<? super E> defaultCriteria) {
+		this(parent, entityType, defaultCriteria, null);
 	}
 
 	/**
 	 * Creates a new expanding entity list.
 	 *
-	 * @param rParent          The parent container
-	 * @param rEntityType      The class of the entity type to display
-	 * @param pDefaultCriteria Default criteria that are always applied or NULL
-	 *                         for none
-	 * @param oExpandStyle     The expand style
+	 * @param parent          The parent container
+	 * @param entityType      The class of the entity type to display
+	 * @param defaultCriteria Default criteria that are always applied or NULL
+	 *                        for none
+	 * @param expandStyle     The expand style
 	 */
-	public UiEntityTableList(UiContainer<?> rParent, Class<E> rEntityType,
-		Predicate<? super E> pDefaultCriteria,
-		Option<ExpandableListStyle> oExpandStyle) {
-		super(rParent, oExpandStyle);
+	public UiEntityTableList(UiContainer<?> parent, Class<E> entityType,
+		Predicate<? super E> defaultCriteria,
+		Option<ExpandableListStyle> expandStyle) {
+		super(parent, expandStyle);
 
-		aEntityProvider =
-			new EntityDataProvider<>(rEntityType, pDefaultCriteria);
+		entityProvider = new EntityDataProvider<>(entityType, defaultCriteria);
 
-		setData(aEntityProvider);
+		setData(entityProvider);
 	}
 
 	/**
 	 * Changes the default criteria and updates the displayed data.
 	 *
-	 * @param pCriteria The new default criteria
+	 * @param criteria The new default criteria
 	 */
-	public void changeDefaultCriteria(Predicate<? super E> pCriteria) {
-		aEntityProvider.setDefaultCriteria(pCriteria);
+	public void changeDefaultCriteria(Predicate<? super E> criteria) {
+		entityProvider.setDefaultCriteria(criteria);
 		update();
 	}
 
@@ -88,7 +84,7 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E> {
 	 * @return The global filter string or NULL for none
 	 */
 	public final String getGlobalFilter() {
-		return sGlobalFilter;
+		return globalFilter;
 	}
 
 	/**
@@ -96,27 +92,25 @@ public class UiEntityTableList<E extends Entity> extends UiPagingTableList<E> {
 	 * all attributes set with
 	 * {@link #setGlobalFilterAttributes(RelationType...)}.
 	 *
-	 * @param sFilter The filter string or NULL or empty for no filter
+	 * @param filter The filter string or NULL or empty for no filter
 	 */
-	public void setGlobalFilter(String sFilter) {
-		sGlobalFilter = sFilter.length() > 0 ? sFilter : null;
+	public void setGlobalFilter(String filter) {
+		globalFilter = filter.length() > 0 ? filter : null;
 
-		aEntityProvider.setWildcardFilter(sGlobalFilter,
-			aGlobalFilterAttributes);
+		entityProvider.setWildcardFilter(globalFilter, globalFilterAttributes);
 		update();
 	}
 
 	/**
 	 * Sets the attributes to be considered by the global filter.
 	 *
-	 * @param rAttributes The new filter attributes
+	 * @param attributes The new filter attributes
 	 */
 	@SafeVarargs
 	public final void setGlobalFilterAttributes(
-		RelationType<String>... rAttributes) {
-		this.aGlobalFilterAttributes = rAttributes;
+		RelationType<String>... attributes) {
+		this.globalFilterAttributes = attributes;
 
-		aEntityProvider.setWildcardFilter(sGlobalFilter,
-			aGlobalFilterAttributes);
+		entityProvider.setWildcardFilter(globalFilter, globalFilterAttributes);
 	}
 }

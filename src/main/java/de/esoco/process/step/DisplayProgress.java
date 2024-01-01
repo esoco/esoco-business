@@ -17,13 +17,11 @@
 package de.esoco.process.step;
 
 import de.esoco.process.ProcessFragment;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
 import static de.esoco.lib.property.ContentProperties.TOOLTIP;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_DESCRIPTION;
@@ -80,10 +78,10 @@ public class DisplayProgress extends Interaction {
 	/**
 	 * Resets the progress display parameters.
 	 *
-	 * @param rProcessStep The step for which to reset the parameters
+	 * @param processStep The step for which to reset the parameters
 	 */
-	public static void resetProgress(ProcessFragment rProcessStep) {
-		rProcessStep.deleteParameters(PROGRESS, PROGRESS_INDICATOR,
+	public static void resetProgress(ProcessFragment processStep) {
+		processStep.deleteParameters(PROGRESS, PROGRESS_INDICATOR,
 			SKIP_PROCESSING);
 	}
 

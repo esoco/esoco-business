@@ -25,7 +25,6 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
-
 import de.esoco.process.step.BranchStep;
 import de.esoco.process.step.DisplayMessage;
 import de.esoco.process.step.FunctionStep;
@@ -33,6 +32,11 @@ import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.step.SwitchStep;
 import de.esoco.process.step.TransferParam;
+import org.obrel.core.ObjectRelations;
+import org.obrel.core.Relatable;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,15 +47,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.obrel.core.ObjectRelations;
-import org.obrel.core.Relatable;
-import org.obrel.core.Relation;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-
 import static de.esoco.process.ProcessRelationTypes.AUTO_CONTINUE;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_FRAGMENT_CLASS;
-
 import static org.obrel.filter.RelationFilters.ALL_RELATIONS;
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 import static org.obrel.type.MetaTypes.KEY_DATATYPE;
@@ -85,27 +82,27 @@ public class StepListProcessDefinition extends ProcessDefinition {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Pattern aConfigEntryPattern =
+	private static final Pattern configEntryPattern =
 		Pattern.compile("\\s*(.+?)\\s*[:=]\\s*(.*)\\s*");
 
 	/**
 	 *
 	 */
-	private List<StepListEntry> aSteps = new ArrayList<>();
+	private final List<StepListEntry> steps = new ArrayList<>();
 
 	/**
 	 *
 	 */
-	private Map<String, Integer> aStepNameCounts = new HashMap<>();
+	private final Map<String, Integer> stepNameCounts = new HashMap<>();
 
 	/**
 	 * Convenience constructor with a variable argument list.
 	 *
 	 * @see StepListProcessDefinition#StepListProcessDefinition(String, List)
 	 */
-	public StepListProcessDefinition(String sProcessName,
-		StepListEntry... rStepList) {
-		this(sProcessName, Arrays.asList(rStepList));
+	public StepListProcessDefinition(String processName,
+		StepListEntry... stepList) {
+		this(processName, Arrays.asList(stepList));
 	}
 
 	/**
@@ -116,19 +113,19 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * and the last steps in the list will be used as the starting and ending
 	 * steps of the process, respectively.
 	 *
-	 * @param sProcessName The name of the process described by this definition
-	 * @param rStepList    The sequential list of process steps
+	 * @param processName The name of the process described by this definition
+	 * @param stepList    The sequential list of process steps
 	 * @throws IllegalArgumentException If the process step list is empty
 	 */
-	public StepListProcessDefinition(String sProcessName,
-		List<StepListEntry> rStepList) {
-		this(sProcessName);
+	public StepListProcessDefinition(String processName,
+		List<StepListEntry> stepList) {
+		this(processName);
 
-		if (rStepList == null || rStepList.isEmpty()) {
+		if (stepList == null || stepList.isEmpty()) {
 			throw new IllegalArgumentException("Empty process step list");
 		}
 
-		aSteps.addAll(rStepList);
+		steps.addAll(stepList);
 	}
 
 	/**
@@ -144,13 +141,12 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * certain name. The process steps must be added later through the method
 	 * {@link #invoke(String, Class)}.
 	 *
-	 * @param sProcessName The name of the process created by this
-	 *                        definition or
-	 *                     NULL for the class name
+	 * @param processName The name of the process created by this definition or
+	 *                    NULL for the class name
 	 */
-	protected StepListProcessDefinition(String sProcessName) {
+	protected StepListProcessDefinition(String processName) {
 		set(NAME,
-			sProcessName != null ? sProcessName : getClass().getSimpleName());
+			processName != null ? processName : getClass().getSimpleName());
 	}
 
 	/**
@@ -159,8 +155,8 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * @see Functions#error(String, Class)
 	 */
 	public static <I, O> BinaryFunction<I, String, O> throwProcessException(
-		String sMessage) {
-		return Functions.error(sMessage, ProcessException.class);
+		String message) {
+		return Functions.error(message, ProcessException.class);
 	}
 
 	/**
@@ -177,11 +173,11 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * Adds a step for an interactive process step that is based on the step
 	 * class {@link Interaction}.
 	 *
-	 * @param sName The name of the interactive step
+	 * @param name The name of the interactive step
 	 * @return The new step list entry
 	 */
-	protected StepListEntry addInteraction(String sName) {
-		return invoke(sName, Interaction.class);
+	protected StepListEntry addInteraction(String name) {
+		return invoke(name, Interaction.class);
 	}
 
 	/**
@@ -189,25 +185,25 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * class {@link Interaction} and that has display parameters as well as
 	 * input parameters.
 	 *
-	 * @param sName          The name of the interactive step
-	 * @param rDisplayParams The list of display parameter types
-	 * @param rInputParams   The list of input parameter types
+	 * @param name          The name of the interactive step
+	 * @param displayParams The list of display parameter types
+	 * @param inputParams   The list of input parameter types
 	 * @return The new step list entry
 	 */
-	protected StepListEntry addInteraction(String sName,
-		List<RelationType<?>> rDisplayParams,
-		List<RelationType<?>> rInputParams) {
-		StepListEntry aStep = invoke(sName, Interaction.class);
+	protected StepListEntry addInteraction(String name,
+		List<RelationType<?>> displayParams,
+		List<RelationType<?>> inputParams) {
+		StepListEntry step = invoke(name, Interaction.class);
 
-		if (rDisplayParams != null) {
-			aStep.addDisplayParameters(rDisplayParams);
+		if (displayParams != null) {
+			step.addDisplayParameters(displayParams);
 		}
 
-		if (rInputParams != null) {
-			aStep.addInputParameters(rInputParams);
+		if (inputParams != null) {
+			step.addInputParameters(inputParams);
 		}
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -217,10 +213,10 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * @see #branchTo(String, RelationType, Predicate)
 	 */
 	protected <T> StepListEntry branchTo(
-		Class<? extends ProcessFragment> rTargetStepClass,
-		RelationType<T> rBranchParam, Predicate<? super T> pBranchCondition) {
-		return branchTo(rTargetStepClass.getSimpleName(), rBranchParam,
-			pBranchCondition);
+		Class<? extends ProcessFragment> targetStepClass,
+		RelationType<T> branchParam, Predicate<? super T> branchCondition) {
+		return branchTo(targetStepClass.getSimpleName(), branchParam,
+			branchCondition);
 	}
 
 	/**
@@ -229,10 +225,10 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 *
 	 * @see #branchTo(String, RelationType, Predicate, String)
 	 */
-	protected <T> StepListEntry branchTo(String sTargetStep,
-		RelationType<T> rBranchParam, Predicate<? super T> pBranchCondition) {
-		return branchTo(sTargetStep, rBranchParam, pBranchCondition,
-			DEFAULT_BRANCH_PREFIX + sTargetStep);
+	protected <T> StepListEntry branchTo(String targetStep,
+		RelationType<T> branchParam, Predicate<? super T> branchCondition) {
+		return branchTo(targetStep, branchParam, branchCondition,
+			DEFAULT_BRANCH_PREFIX + targetStep);
 	}
 
 	/**
@@ -242,11 +238,11 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * @see #branchTo(String, RelationType, Predicate, String)
 	 */
 	protected <T> StepListEntry branchTo(
-		Class<? extends ProcessFragment> rTargetStepClass,
-		RelationType<T> rBranchParam, Predicate<? super T> pBranchCondition,
-		String sName) {
-		return branchTo(rTargetStepClass.getSimpleName(), rBranchParam,
-			pBranchCondition, sName);
+		Class<? extends ProcessFragment> targetStepClass,
+		RelationType<T> branchParam, Predicate<? super T> branchCondition,
+		String name) {
+		return branchTo(targetStepClass.getSimpleName(), branchParam,
+			branchCondition, name);
 	}
 
 	/**
@@ -257,21 +253,19 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * refer to a branch step's name (e.g. for another branch to the step
 	 * itself) it should query the name of the returned step list entry.
 	 *
-	 * @param sTargetStep      The name of the target step to be executed if
-	 *                           the
-	 *                         branch condition is TRUE; to end the process it
-	 *                         must be {@link Process#PROCESS_END}
-	 * @param rBranchParam     The parameter to be evaluated for the branch
-	 * @param pBranchCondition The predicate to evaluate the branch parameter
-	 *                         with
-	 * @param sName            The name of the step
+	 * @param targetStep      The name of the target step to be executed if the
+	 *                        branch condition is TRUE; to end the process it
+	 *                        must be {@link Process#PROCESS_END}
+	 * @param branchParam     The parameter to be evaluated for the branch
+	 * @param branchCondition The predicate to evaluate the branch parameter
+	 *                        with
+	 * @param name            The name of the step
 	 * @return The new step list entry
 	 */
-	protected <T> StepListEntry branchTo(String sTargetStep,
-		RelationType<T> rBranchParam, Predicate<? super T> pBranchCondition,
-		String sName) {
-		return addBranchStep(sName, sTargetStep, rBranchParam,
-			pBranchCondition);
+	protected <T> StepListEntry branchTo(String targetStep,
+		RelationType<T> branchParam, Predicate<? super T> branchCondition,
+		String name) {
+		return addBranchStep(name, targetStep, branchParam, branchCondition);
 	}
 
 	/**
@@ -282,13 +276,13 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * returned
 	 * step list entry.
 	 *
-	 * @param rSourceParam The source parameter to copy
-	 * @param rTargetParam The target parameter
+	 * @param sourceParam The source parameter to copy
+	 * @param targetParam The target parameter
 	 * @return The new step list entry
 	 */
-	protected <T> StepListEntry copyParam(RelationType<T> rSourceParam,
-		RelationType<? super T> rTargetParam) {
-		return transferParam(rSourceParam, rTargetParam, false);
+	protected <T> StepListEntry copyParam(RelationType<T> sourceParam,
+		RelationType<? super T> targetParam) {
+		return transferParam(sourceParam, targetParam, false);
 	}
 
 	/**
@@ -301,49 +295,49 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 */
 	@Override
 	protected Process createProcess() {
-		Process aProcess = new Process(get(NAME));
-		int nMax = aSteps.size() - 1;
+		Process process = new Process(get(NAME));
+		int max = steps.size() - 1;
 
-		assert nMax >= 0 : "Empty process definition";
+		assert max >= 0 : "Empty process definition";
 
-		ObjectRelations.copyRelations(this, aProcess, true);
+		ObjectRelations.copyRelations(this, process, true);
 
-		for (int i = 0; i <= nMax; i++) {
-			StepListEntry rEntry = aSteps.get(i);
-			ProcessStep aStep = rEntry.createStep();
-			String sNextStep = rEntry.sNextStep;
+		for (int i = 0; i <= max; i++) {
+			StepListEntry entry = steps.get(i);
+			ProcessStep step = entry.createStep();
+			String nextStep = entry.nextStep;
 
-			if (sNextStep == null) {
-				if (i < nMax) {
+			if (nextStep == null) {
+				if (i < max) {
 					// else use next step in list; if last entry leave it as
 					// NULL
-					sNextStep = aSteps.get(i + 1).sStepName;
+					nextStep = steps.get(i + 1).stepName;
 				} else {
-					sNextStep = Process.PROCESS_END;
+					nextStep = Process.PROCESS_END;
 				}
 			}
 
-			aStep.setNextStep(sNextStep);
+			step.setNextStep(nextStep);
 
 			// automatically sets the first step as the starting step
-			aProcess.addStep(aStep);
-			rEntry.initStep(aStep);
+			process.addStep(step);
+			entry.initStep(step);
 		}
 
-		return aProcess;
+		return process;
 	}
 
 	/**
 	 * Adds a step for an interactive process step that is based on the step
 	 * class {@link Interaction} and which has several display parameters.
 	 *
-	 * @param sName          The name of the interactive step
-	 * @param rDisplayParams The display parameter types
+	 * @param name          The name of the interactive step
+	 * @param displayParams The display parameter types
 	 * @return The new step list entry
 	 */
-	protected StepListEntry display(String sName,
-		RelationType<?>... rDisplayParams) {
-		return addInteraction(sName, Arrays.asList(rDisplayParams), null);
+	protected StepListEntry display(String name,
+		RelationType<?>... displayParams) {
+		return addInteraction(name, Arrays.asList(displayParams), null);
 	}
 
 	/**
@@ -354,26 +348,26 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * The message will then be displayed until the next interaction occurs in
 	 * the process.
 	 *
-	 * @param sMessage      The message to display
-	 * @param sInfo         The information string or NULL for none
-	 * @param bAutoContinue TRUE to automatically continue to the next step
+	 * @param message      The message to display
+	 * @param info         The information string or NULL for none
+	 * @param autoContinue TRUE to automatically continue to the next step
 	 * @return The new step list entry
 	 */
-	protected StepListEntry displayMessage(String sMessage, String sInfo,
-		boolean bAutoContinue) {
-		StepListEntry rEntry = invoke(DisplayMessage.class);
+	protected StepListEntry displayMessage(String message, String info,
+		boolean autoContinue) {
+		StepListEntry entry = invoke(DisplayMessage.class);
 
-		rEntry.set(ProcessRelationTypes.PROCESS_STEP_MESSAGE, sMessage);
+		entry.set(ProcessRelationTypes.PROCESS_STEP_MESSAGE, message);
 
-		if (sInfo != null) {
-			rEntry.set(ProcessRelationTypes.PROCESS_STEP_INFO, sInfo);
+		if (info != null) {
+			entry.set(ProcessRelationTypes.PROCESS_STEP_INFO, info);
 		}
 
-		if (bAutoContinue) {
-			rEntry.set(AUTO_CONTINUE);
+		if (autoContinue) {
+			entry.set(AUTO_CONTINUE);
 		}
 
-		return rEntry;
+		return entry;
 	}
 
 	/**
@@ -381,13 +375,13 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * that jumps to the end of the contract if the given condition is true for
 	 * the argument parameter.
 	 *
-	 * @param rParam     The parameter to be evaluated for the branch
-	 * @param pCondition The predicate to evaluate the branch parameter with
+	 * @param param     The parameter to be evaluated for the branch
+	 * @param condition The predicate to evaluate the branch parameter with
 	 * @return The new step list entry
 	 */
-	protected <T> StepListEntry endProcessIf(RelationType<T> rParam,
-		Predicate<? super T> pCondition) {
-		return branchTo(Process.PROCESS_END, rParam, pCondition);
+	protected <T> StepListEntry endProcessIf(RelationType<T> param,
+		Predicate<? super T> condition) {
+		return branchTo(Process.PROCESS_END, param, condition);
 	}
 
 	/**
@@ -397,8 +391,8 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * @see #goTo(String)
 	 */
 	protected StepListEntry goTo(
-		Class<? extends ProcessFragment> rTargetStepClass) {
-		return goTo(rTargetStepClass.getSimpleName());
+		Class<? extends ProcessFragment> targetStepClass) {
+		return goTo(targetStepClass.getSimpleName());
 	}
 
 	/**
@@ -406,12 +400,13 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * the
 	 * same process.
 	 *
-	 * @param sTargetStep The target step to branch to
+	 * @param targetStep The target step to branch to
 	 * @return The new step list entry
 	 */
-	protected StepListEntry goTo(String sTargetStep) {
-		return addBranchStep(DEFAULT_GOTO_PREFIX + sTargetStep, sTargetStep,
-			null, Predicates.alwaysTrue());
+	protected StepListEntry goTo(String targetStep) {
+		return addBranchStep(DEFAULT_GOTO_PREFIX + targetStep, targetStep,
+			null,
+			Predicates.alwaysTrue());
 	}
 
 	/**
@@ -431,55 +426,55 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * fragment handling processes must always be defined as a direct inner
 	 * class of the fragment they define the continuation handling of.</p>
 	 *
-	 * @param rAfterHandlingStep         The process step to be invoked after a
-	 *                                   fragment handling process
-	 * @param rNoHandlingStep            The process step to be invoked if no
-	 *                                   fragment handling has occurred
-	 * @param rFragmentHandlingProcesses The list of fragment continuation
-	 *                                   handling processes
+	 * @param afterHandlingStep         The process step to be invoked after a
+	 *                                  fragment handling process
+	 * @param noHandlingStep            The process step to be invoked if no
+	 *                                  fragment handling has occurred
+	 * @param fragmentHandlingProcesses The list of fragment continuation
+	 *                                  handling processes
 	 * @return The {@link StepListEntry} of the first continuation handling
 	 * step
 	 */
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
 	protected final StepListEntry handleFragmentContinuation(
-		Class<? extends ProcessFragment> rAfterHandlingStep,
-		Class<? extends ProcessFragment> rNoHandlingStep,
-		Class<? extends ProcessDefinition>... rFragmentHandlingProcesses) {
-		Map<Class<? extends ProcessFragment>, Object> aSwitchMap =
+		Class<? extends ProcessFragment> afterHandlingStep,
+		Class<? extends ProcessFragment> noHandlingStep,
+		Class<? extends ProcessDefinition>... fragmentHandlingProcesses) {
+		Map<Class<? extends ProcessFragment>, Object> switchMap =
 			new HashMap<>();
 
-		StepListEntry aSwitchStep =
-			switchOnParam(CONTINUATION_FRAGMENT_CLASS, aSwitchMap);
+		StepListEntry switchStep =
+			switchOnParam(CONTINUATION_FRAGMENT_CLASS, switchMap);
 
-		if (rNoHandlingStep != null) {
-			goTo(rNoHandlingStep);
+		if (noHandlingStep != null) {
+			goTo(noHandlingStep);
 		} else {
 			goTo(Process.PROCESS_END);
 		}
 
-		for (Class<? extends ProcessDefinition> rFragmentHandlingProcess :
-			rFragmentHandlingProcesses) {
-			StepListEntry aSubProcess =
-				invokeSubProcess(rFragmentHandlingProcess);
+		for (Class<? extends ProcessDefinition> fragmentHandlingProcess :
+			fragmentHandlingProcesses) {
+			StepListEntry subProcess =
+				invokeSubProcess(fragmentHandlingProcess);
 
-			goTo(rAfterHandlingStep);
+			goTo(afterHandlingStep);
 
-			Class<?> rEnclosingClass =
-				rFragmentHandlingProcess.getEnclosingClass();
+			Class<?> enclosingClass =
+				fragmentHandlingProcess.getEnclosingClass();
 
-			if (ProcessFragment.class.isAssignableFrom(rEnclosingClass)) {
-				Class<? extends ProcessFragment> rFragmentClass =
-					(Class<? extends ProcessFragment>) rEnclosingClass;
+			if (ProcessFragment.class.isAssignableFrom(enclosingClass)) {
+				Class<? extends ProcessFragment> fragmentClass =
+					(Class<? extends ProcessFragment>) enclosingClass;
 
-				aSwitchMap.put(rFragmentClass, aSubProcess.getStepName());
+				switchMap.put(fragmentClass, subProcess.getStepName());
 			} else {
 				throw new IllegalArgumentException(
-					"Not a process fragment: " + rEnclosingClass);
+					"Not a process fragment: " + enclosingClass);
 			}
 		}
 
-		return aSwitchStep;
+		return switchStep;
 	}
 
 	/**
@@ -489,34 +484,35 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * argument function doesn't need to check the parameter existence by
 	 * itself.
 	 *
-	 * @param rSourceParam      The process parameter to evaluate with the
-	 *                          initialization function
-	 * @param rDestinationParam The process parameter to store the function
-	 *                          result in
-	 * @param fInit             A function that produces the parameter value
-	 *                          from the process
+	 * @param sourceParam      The process parameter to evaluate with the
+	 *                         initialization function
+	 * @param destinationParam The process parameter to store the function
+	 *                         result in
+	 * @param init             A function that produces the parameter value
+	 *                            from
+	 *                         the process
 	 */
-	protected <S, D> void initParam(RelationType<S> rSourceParam,
-		RelationType<D> rDestinationParam, Function<? super S, D> fInit) {
-		Function<Relatable, D> fInitParam =
-			Functions.doIf(Predicates.notNull().from(rSourceParam),
-				fInit.from(rSourceParam));
+	protected <S, D> void initParam(RelationType<S> sourceParam,
+		RelationType<D> destinationParam, Function<? super S, D> init) {
+		Function<Relatable, D> initParam =
+			Functions.doIf(Predicates.notNull().from(sourceParam),
+				init.from(sourceParam));
 
-		get(ProcessRelationTypes.PARAM_INITIALIZATIONS).put(rDestinationParam,
-			fInitParam);
+		get(ProcessRelationTypes.PARAM_INITIALIZATIONS).put(destinationParam,
+			initParam);
 	}
 
 	/**
 	 * Adds an interactive process step that will query the value of certain
 	 * parameters with a particular input policy.
 	 *
-	 * @param sName        The name of the interactive step
-	 * @param rInputParams The input parameter types
+	 * @param name        The name of the interactive step
+	 * @param inputParams The input parameter types
 	 * @return The new step list entry
 	 */
-	protected StepListEntry input(String sName,
-		RelationType<?>... rInputParams) {
-		return addInteraction(sName, null, Arrays.asList(rInputParams));
+	protected StepListEntry input(String name,
+		RelationType<?>... inputParams) {
+		return addInteraction(name, null, Arrays.asList(inputParams));
 	}
 
 	/**
@@ -525,21 +521,22 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 *
 	 * @see #invoke(String, Class)
 	 */
-	protected StepListEntry invoke(Class<? extends ProcessFragment> rClass) {
-		return invoke(rClass.getSimpleName(), rClass);
+	protected StepListEntry invoke(
+		Class<? extends ProcessFragment> fragmentType) {
+		return invoke(fragmentType.getSimpleName(), fragmentType);
 	}
 
 	/**
 	 * Adds a process step with a specific name to this definition.
 	 *
-	 * @param sName  The name of the step
-	 * @param rClass The class to create the step from
+	 * @param name         The name of the step
+	 * @param fragmentType The class to create the step from
 	 * @return The new step list entry
 	 * @throws IllegalArgumentException If the given name has already been used
 	 */
-	protected StepListEntry invoke(String sName,
-		Class<? extends ProcessFragment> rClass) {
-		return addStep(sName, rClass, false);
+	protected StepListEntry invoke(String name,
+		Class<? extends ProcessFragment> fragmentType) {
+		return addStep(name, fragmentType, false);
 	}
 
 	/**
@@ -548,42 +545,42 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * name are added the names of the additional steps will be enumerated to
 	 * ensure uniqueness.
 	 *
-	 * @param sName        The name of the interactive step
-	 * @param rLeftParam   The type of the parameter that contains the main
-	 *                     (left-side) input value for the function evaluation
-	 * @param rRightParam  The type of the parameter that contains the
-	 *                        secondary
-	 *                     (right-side) input value for the evaluation of the
-	 *                     binary function
-	 * @param rOutputParam The type of the parameter to store the output value
-	 *                     of the function evaluation in or NULL to ignore the
-	 *                     function output
-	 * @param rFunction    The binary function that the step shall evaluate
+	 * @param name        The name of the interactive step
+	 * @param leftParam   The type of the parameter that contains the main
+	 *                    (left-side) input value for the function evaluation
+	 * @param rightParam  The type of the parameter that contains the secondary
+	 *                    (right-side) input value for the evaluation of the
+	 *                    binary function
+	 * @param outputParam The type of the parameter to store the output
+	 *                       value of
+	 *                    the function evaluation in or NULL to ignore the
+	 *                    function output
+	 * @param function    The binary function that the step shall evaluate
 	 * @return The new step list entry
 	 */
-	protected <L, R, O> StepListEntry invokeBinaryFunction(String sName,
-		RelationType<L> rLeftParam, RelationType<R> rRightParam,
-		RelationType<O> rOutputParam,
-		BinaryFunction<? super L, ? super R, ? extends O> rFunction) {
-		assert rLeftParam != null || rOutputParam != null;
+	protected <L, R, O> StepListEntry invokeBinaryFunction(String name,
+		RelationType<L> leftParam, RelationType<R> rightParam,
+		RelationType<O> outputParam,
+		BinaryFunction<? super L, ? super R, ? extends O> function) {
+		assert leftParam != null || outputParam != null;
 
-		StepListEntry aStep = addStep(sName, FunctionStep.class, true);
+		StepListEntry step = addStep(name, FunctionStep.class, true);
 
-		if (rLeftParam != null) {
-			aStep.set(FunctionStep.FUNCTION_MAIN_INPUT, rLeftParam);
+		if (leftParam != null) {
+			step.set(FunctionStep.FUNCTION_MAIN_INPUT, leftParam);
 		}
 
-		if (rRightParam != null) {
-			aStep.set(FunctionStep.FUNCTION_SECONDARY_INPUT, rRightParam);
+		if (rightParam != null) {
+			step.set(FunctionStep.FUNCTION_SECONDARY_INPUT, rightParam);
 		}
 
-		if (rOutputParam != null) {
-			aStep.set(FunctionStep.FUNCTION_OUTPUT, rOutputParam);
+		if (outputParam != null) {
+			step.set(FunctionStep.FUNCTION_OUTPUT, outputParam);
 		}
 
-		aStep.set(FunctionStep.FUNCTION, rFunction);
+		step.set(FunctionStep.FUNCTION, function);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -593,70 +590,71 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * added the names of the additional steps will be enumerated to ensure
 	 * uniqueness.
 	 *
-	 * @param sName        The name of the interactive step
-	 * @param rInputParam  The type of the parameter that contains the input
-	 *                     value for the function evaluation or NULL for no
-	 *                     input value (for functions that ignore their input)
-	 * @param rOutputParam The type of the parameter to store the output value
-	 *                     of the function evaluation in or NULL to ignore the
-	 *                     function output
-	 * @param rFunction    The function that the step shall evaluate
+	 * @param name        The name of the interactive step
+	 * @param inputParam  The type of the parameter that contains the input
+	 *                    value for the function evaluation or NULL for no
+	 *                    input
+	 *                    value (for functions that ignore their input)
+	 * @param outputParam The type of the parameter to store the output
+	 *                       value of
+	 *                    the function evaluation in or NULL to ignore the
+	 *                    function output
+	 * @param function    The function that the step shall evaluate
 	 * @return The new step list entry
 	 */
-	protected <I, O> StepListEntry invokeFunction(String sName,
-		RelationType<I> rInputParam, RelationType<O> rOutputParam,
-		java.util.function.Function<? super I, ? extends O> rFunction) {
-		assert rInputParam != null || rOutputParam != null;
+	protected <I, O> StepListEntry invokeFunction(String name,
+		RelationType<I> inputParam, RelationType<O> outputParam,
+		Function<? super I, ? extends O> function) {
+		assert inputParam != null || outputParam != null;
 
-		StepListEntry aStep = addStep(sName, FunctionStep.class, true);
+		StepListEntry step = addStep(name, FunctionStep.class, true);
 
-		if (rInputParam != null) {
-			aStep.set(FunctionStep.FUNCTION_MAIN_INPUT, rInputParam);
+		if (inputParam != null) {
+			step.set(FunctionStep.FUNCTION_MAIN_INPUT, inputParam);
 		}
 
-		if (rOutputParam != null) {
-			aStep.set(FunctionStep.FUNCTION_OUTPUT, rOutputParam);
+		if (outputParam != null) {
+			step.set(FunctionStep.FUNCTION_OUTPUT, outputParam);
 		}
 
-		aStep.set(FunctionStep.FUNCTION, rFunction);
+		step.set(FunctionStep.FUNCTION, function);
 
-		return aStep;
+		return step;
 	}
 
 	/**
 	 * Adds a step for a sub-process invocation. The name of the step will be
 	 * the same as that of the the sub-process.
 	 *
-	 * @param rSubProcessClass The class of the sub-process definition
+	 * @param subProcessClass The class of the sub-process definition
 	 * @return The new step list entry
 	 */
 	protected StepListEntry invokeSubProcess(
-		Class<? extends ProcessDefinition> rSubProcessClass) {
-		return invokeSubProcess(null, rSubProcessClass);
+		Class<? extends ProcessDefinition> subProcessClass) {
+		return invokeSubProcess(null, subProcessClass);
 	}
 
 	/**
 	 * Adds a step for a sub-process invocation which is based on the class
 	 * {@link SubProcessStep}.
 	 *
-	 * @param sName                 The step name or NULL to use the name of
-	 *                                the
-	 *                              sub-process
-	 * @param rSubProcessDefinition The definition of the sub-process
+	 * @param name                 The step name or NULL to use the name of the
+	 *                             sub-process
+	 * @param subProcessDefinition The definition of the sub-process
 	 * @return The new step list entry
 	 */
-	protected StepListEntry invokeSubProcess(String sName,
-		ProcessDefinition rSubProcessDefinition) {
-		if (sName == null) {
-			sName = rSubProcessDefinition.get(NAME);
+	protected StepListEntry invokeSubProcess(String name,
+		ProcessDefinition subProcessDefinition) {
+		if (name == null) {
+			name = subProcessDefinition.get(NAME);
 		}
 
-		StepListEntry aStep = addStep(sName, SubProcessStep.class, true);
+		StepListEntry step = addStep(name, SubProcessStep.class, true);
 
-		aStep.set(ProcessRelationTypes.SUB_PROCESS_DEFINITION,
-			rSubProcessDefinition);
+		step.set(ProcessRelationTypes.SUB_PROCESS_DEFINITION,
+			subProcessDefinition);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -667,15 +665,15 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * process). If this is not the case the {@link #invokeSubProcess(Class)}
 	 * method should be used instead.
 	 *
-	 * @param sName            The step name or NULL to use the name of the
-	 *                         sub-process
-	 * @param rSubProcessClass The class of the sub-process definition
+	 * @param name            The step name or NULL to use the name of the
+	 *                        sub-process
+	 * @param subProcessClass The class of the sub-process definition
 	 * @return The new step list entry
 	 */
-	protected StepListEntry invokeSubProcess(String sName,
-		Class<? extends ProcessDefinition> rSubProcessClass) {
-		return invokeSubProcess(sName,
-			ProcessManager.getProcessDefinition(rSubProcessClass));
+	protected StepListEntry invokeSubProcess(String name,
+		Class<? extends ProcessDefinition> subProcessClass) {
+		return invokeSubProcess(name,
+			ProcessManager.getProcessDefinition(subProcessClass));
 	}
 
 	/**
@@ -686,40 +684,39 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * returned
 	 * step list entry.
 	 *
-	 * @param rSourceParam The source parameter to move
-	 * @param rTargetParam The target parameter
+	 * @param sourceParam The source parameter to move
+	 * @param targetParam The target parameter
 	 * @return The new step list entry
 	 */
-	protected <T> StepListEntry moveParam(RelationType<T> rSourceParam,
-		RelationType<? super T> rTargetParam) {
-		return transferParam(rSourceParam, rTargetParam, true);
+	protected <T> StepListEntry moveParam(RelationType<T> sourceParam,
+		RelationType<? super T> targetParam) {
+		return transferParam(sourceParam, targetParam, true);
 	}
 
 	/**
 	 * Adds a function step that sets a parameter to a certain value.
 	 *
-	 * @param rParam The parameter to set
-	 * @param rValue The value of the parameter
+	 * @param param The parameter to set
+	 * @param value The value of the parameter
 	 * @return The new step list entry
 	 */
-	protected <T> StepListEntry setParameter(RelationType<T> rParam,
-		T rValue) {
-		return invokeFunction("set" + rParam.getSimpleName(),
+	protected <T> StepListEntry setParameter(RelationType<T> param, T value) {
+		return invokeFunction("set" + param.getSimpleName(),
 			ProcessRelationTypes.PROCESS, null,
-			ProcessFunctions.setParameter(rParam, rValue));
+			ProcessFunctions.setParameter(param, value));
 	}
 
 	/**
 	 * Adds a function step that sets a list parameter to certain values.
 	 *
-	 * @param rParam  The list parameter to set
-	 * @param rValues The values of the parameter
+	 * @param param  The list parameter to set
+	 * @param values The values of the parameter
 	 * @return The new step list entry
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T> StepListEntry setParameter(RelationType<List<T>> rParam,
-		T... rValues) {
-		return setParameter(rParam, Arrays.asList(rValues));
+	protected <T> StepListEntry setParameter(RelationType<List<T>> param,
+		T... values) {
+		return setParameter(param, Arrays.asList(values));
 	}
 
 	/**
@@ -728,10 +725,10 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 *
 	 * @see #switchOnParam(RelationType, Function)
 	 */
-	protected <T> StepListEntry switchOnParam(RelationType<T> rSwitchParam,
-		Map<T, Object> rSwitchMap) {
-		return switchOnParam(rSwitchParam,
-			CollectionFunctions.getMapValueFrom(rSwitchMap));
+	protected <T> StepListEntry switchOnParam(RelationType<T> switchParam,
+		Map<T, Object> switchMap) {
+		return switchOnParam(switchParam,
+			CollectionFunctions.getMapValueFrom(switchMap));
 	}
 
 	/**
@@ -739,22 +736,23 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * the state of a certain process parameter. See {@link SwitchStep} for
 	 * details.
 	 *
-	 * @param rSwitchParam    The parameter to be evaluated for the switch
-	 * @param fTargetSelector A function that evaluates the value of the switch
-	 *                        parameter and returns the name corresponding
-	 *                        target step
+	 * @param switchParam    The parameter to be evaluated for the switch
+	 * @param targetSelector A function that evaluates the value of the switch
+	 *                       parameter and returns the name corresponding
+	 *                       target
+	 *                       step
 	 * @return The new step list entry
 	 */
-	protected <T> StepListEntry switchOnParam(RelationType<T> rSwitchParam,
-		Function<? super T, Object> fTargetSelector) {
-		StepListEntry aStep = addStep("SwitchOn" +
-				TextConvert.capitalizedIdentifier(rSwitchParam.getSimpleName()),
+	protected <T> StepListEntry switchOnParam(RelationType<T> switchParam,
+		Function<? super T, Object> targetSelector) {
+		StepListEntry step = addStep("SwitchOn" +
+				TextConvert.capitalizedIdentifier(switchParam.getSimpleName()),
 			SwitchStep.class, true);
 
-		aStep.set(SwitchStep.SWITCH_PARAM, rSwitchParam);
-		aStep.set(SwitchStep.SWITCH_TARGET_SELECTOR, fTargetSelector);
+		step.set(SwitchStep.SWITCH_PARAM, switchParam);
+		step.set(SwitchStep.SWITCH_TARGET_SELECTOR, targetSelector);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -762,24 +760,23 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * multiple branches to the same target step the names of the branch steps
 	 * will be enumerated to ensure uniqueness.
 	 *
-	 * @param sName            The name of the step
-	 * @param sTargetStep      The name of the target step to be executed if
-	 *                           the
-	 *                         branch condition is TRUE
-	 * @param rBranchParam     The parameter to be evaluated for the branch
-	 * @param pBranchCondition The predicate to evaluate the branch parameter
-	 *                         with
+	 * @param name            The name of the step
+	 * @param targetStep      The name of the target step to be executed if the
+	 *                        branch condition is TRUE
+	 * @param branchParam     The parameter to be evaluated for the branch
+	 * @param branchCondition The predicate to evaluate the branch parameter
+	 *                        with
 	 * @return The new step list entry
 	 */
-	private <T> StepListEntry addBranchStep(String sName, String sTargetStep,
-		RelationType<T> rBranchParam, Predicate<? super T> pBranchCondition) {
-		StepListEntry aStep = addStep(sName, BranchStep.class, true);
+	private <T> StepListEntry addBranchStep(String name, String targetStep,
+		RelationType<T> branchParam, Predicate<? super T> branchCondition) {
+		StepListEntry step = addStep(name, BranchStep.class, true);
 
-		aStep.set(BranchStep.BRANCH_PARAM, rBranchParam);
-		aStep.set(BranchStep.BRANCH_CONDITION, pBranchCondition);
-		aStep.set(BranchStep.BRANCH_TARGET, sTargetStep);
+		step.set(BranchStep.BRANCH_PARAM, branchParam);
+		step.set(BranchStep.BRANCH_CONDITION, branchCondition);
+		step.set(BranchStep.BRANCH_TARGET, targetStep);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -789,64 +786,64 @@ public class StepListProcessDefinition extends ProcessDefinition {
 	 * increasing number will be appended to it each time it is used to ensure
 	 * uniqueness.
 	 *
-	 * @param sName             The name of the step
-	 * @param rClass            The class to create the step from
-	 * @param bCreateUniqueName TRUE to create a unique step name if the given
-	 *                          name has already been used
+	 * @param name             The name of the step
+	 * @param framgmentType    The class to create the step from
+	 * @param createUniqueName TRUE to create a unique step name if the given
+	 *                         name has already been used
 	 * @return The new step list entry
 	 */
 	@SuppressWarnings("boxing")
-	private StepListEntry addStep(String sName,
-		Class<? extends ProcessFragment> rClass, boolean bCreateUniqueName) {
-		int nStepCount = 1;
+	private StepListEntry addStep(String name,
+		Class<? extends ProcessFragment> framgmentType,
+		boolean createUniqueName) {
+		int stepCount = 1;
 
-		if (aStepNameCounts.containsKey(sName)) {
-			if (bCreateUniqueName) {
-				nStepCount = aStepNameCounts.get(sName).intValue() + 1;
+		if (stepNameCounts.containsKey(name)) {
+			if (createUniqueName) {
+				stepCount = stepNameCounts.get(name).intValue() + 1;
 			} else {
 				throw new IllegalArgumentException(
-					"Duplicate process step name: " + sName);
+					"Duplicate process step name: " + name);
 			}
 		}
 
-		aStepNameCounts.put(sName, nStepCount);
+		stepNameCounts.put(name, stepCount);
 
-		if (nStepCount > 1) {
-			sName = sName + nStepCount;
+		if (stepCount > 1) {
+			name = name + stepCount;
 		}
 
-		StepListEntry aStep = new StepListEntry(sName, rClass);
+		StepListEntry step = new StepListEntry(name, framgmentType);
 
-		aSteps.add(aStep);
+		steps.add(step);
 
-		return aStep;
+		return step;
 	}
 
 	/**
 	 * Internal method to add a step to that copies or moves a process
 	 * parameter. See {@link TransferParam} for details.
 	 *
-	 * @param rSourceParam The source parameter to transfer
-	 * @param rTargetParam The target parameter
-	 * @param bMove        TRUE to move, FALSE to copy
+	 * @param sourceParam The source parameter to transfer
+	 * @param targetParam The target parameter
+	 * @param move        TRUE to move, FALSE to copy
 	 * @return The new step list entry
 	 */
 	@SuppressWarnings("boxing")
-	private <T> StepListEntry transferParam(RelationType<T> rSourceParam,
-		RelationType<? super T> rTargetParam, boolean bMove) {
-		String sName = bMove ? "MOVE_" : "COPY_";
+	private <T> StepListEntry transferParam(RelationType<T> sourceParam,
+		RelationType<? super T> targetParam, boolean move) {
+		String name = move ? "MOVE_" : "COPY_";
 
-		sName += rSourceParam.getSimpleName() + "_TO_" +
-			rTargetParam.getSimpleName();
+		name +=
+			sourceParam.getSimpleName() + "_TO_" + targetParam.getSimpleName();
 
-		StepListEntry aTransferStep = addStep(sName, TransferParam.class,
-			true);
+		StepListEntry transferStep = addStep(name, TransferParam.class, true);
 
-		aTransferStep.set(ProcessRelationTypes.SOURCE_PARAM, rSourceParam);
-		aTransferStep.set(ProcessRelationTypes.TARGET_PARAM, rTargetParam);
-		aTransferStep.set(TransferParam.TRANSFER_PARAM_MOVE, bMove);
+		transferStep.set(ProcessRelationTypes.SOURCE_PARAM, sourceParam);
+		transferStep.set(ProcessRelationTypes.TARGET_PARAM, targetParam);
+		transferStep.set(TransferParam.TRANSFER_PARAM_MOVE, move);
 
-		return aTransferStep;
+		return transferStep;
 	}
 
 	/**
@@ -859,45 +856,45 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		/**
 		 *
 		 */
-		private final Class<? extends ProcessFragment> rStepClass;
+		private final Class<? extends ProcessFragment> stepClass;
 
 		/**
 		 *
 		 */
-		private final String sStepName;
+		private final String stepName;
 
 		/**
 		 *
 		 */
-		private String sNextStep = null;
+		private String nextStep = null;
 
 		/**
 		 * Creates a new StepListEntry for a named step with a specific
 		 * follow-up step.
 		 *
-		 * @param sStepName  The name of the step
-		 * @param rStepClass The class to create the step from
+		 * @param stepName  The name of the step
+		 * @param stepClass The class to create the step from
 		 */
-		public StepListEntry(String sStepName,
-			Class<? extends ProcessFragment> rStepClass) {
-			this(sStepName, rStepClass, (Map<?, ?>) null);
+		public StepListEntry(String stepName,
+			Class<? extends ProcessFragment> stepClass) {
+			this(stepName, stepClass, (Map<?, ?>) null);
 		}
 
 		/**
 		 * Creates a new StepListEntry for a named step with a specific
 		 * follow-up step and a configuration map for the step.
 		 *
-		 * @param sStepName      The name of the step
-		 * @param rStepClass     The class to create the step from
-		 * @param rConfigEntries The configuration for the step
+		 * @param stepName      The name of the step
+		 * @param stepClass     The class to create the step from
+		 * @param configEntries The configuration for the step
 		 */
-		public StepListEntry(String sStepName,
-			Class<? extends ProcessFragment> rStepClass,
-			String... rConfigEntries) {
-			this(sStepName, rStepClass, (Map<?, ?>) null);
+		public StepListEntry(String stepName,
+			Class<? extends ProcessFragment> stepClass,
+			String... configEntries) {
+			this(stepName, stepClass, (Map<?, ?>) null);
 
-			if (rConfigEntries != null) {
-				parseConfiguration(rConfigEntries);
+			if (configEntries != null) {
+				parseConfiguration(configEntries);
 			}
 		}
 
@@ -917,22 +914,22 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * type that is defined in a step referenced only by a step list entry
 		 * that is created later.</p>
 		 *
-		 * @param sStepName  The name of the step
-		 * @param rStepClass The class to create the step from
-		 * @param rConfig    The configuration for the step
+		 * @param stepName  The name of the step
+		 * @param stepClass The class to create the step from
+		 * @param config    The configuration for the step
 		 */
-		public StepListEntry(String sStepName,
-			Class<? extends ProcessFragment> rStepClass, Map<?, ?> rConfig) {
-			this.sStepName = sStepName;
-			this.rStepClass = rStepClass;
+		public StepListEntry(String stepName,
+			Class<? extends ProcessFragment> stepClass, Map<?, ?> config) {
+			this.stepName = stepName;
+			this.stepClass = stepClass;
 
-			RelationTypes.init(rStepClass);
+			RelationTypes.init(stepClass);
 
 			// CHECK: check if lazy parsing is needed to avoid missing
 			// parameter
 			// types because of not yet loaded step classes
-			if (rConfig != null) {
-				parseConfiguration(rConfig);
+			if (config != null) {
+				parseConfiguration(config);
 			}
 		}
 
@@ -943,7 +940,7 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * @return The name of the next step
 		 */
 		public final String getNextStep() {
-			return sNextStep;
+			return nextStep;
 		}
 
 		/**
@@ -952,7 +949,7 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * @return The stepName value
 		 */
 		public final String getStepName() {
-			return sStepName;
+			return stepName;
 		}
 
 		/**
@@ -971,51 +968,51 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		/**
 		 * Sets the name of the next step to be executed after this one.
 		 *
-		 * @param sNextStep The name of the next step
+		 * @param nextStep The name of the next step
 		 */
-		public final void thenGoTo(String sNextStep) {
-			this.sNextStep = sNextStep;
+		public final void thenGoTo(String nextStep) {
+			this.nextStep = nextStep;
 		}
 
 		/**
 		 * Sets the class of the next step to be executed after this one.
 		 *
-		 * @param rNextStep The class of the next step
+		 * @param nextStep The class of the next step
 		 */
-		public final void thenGoTo(Class<? extends ProcessFragment> rNextStep) {
-			thenGoTo(rNextStep.getSimpleName());
+		public final void thenGoTo(Class<? extends ProcessFragment> nextStep) {
+			thenGoTo(nextStep.getSimpleName());
 		}
 
 		/**
 		 * Adds a configuration entry from the corresponding key and value
 		 * elements.
 		 *
-		 * @param rKey   The key
-		 * @param rValue The value
+		 * @param key   The key
+		 * @param value The value
 		 */
 		@SuppressWarnings("unchecked")
-		void addConfigurationEntry(Object rKey, Object rValue) {
-			RelationType<?> rParamType = null;
+		void addConfigurationEntry(Object key, Object value) {
+			RelationType<?> paramType = null;
 
-			if (rKey instanceof RelationType<?>) {
-				rParamType = (RelationType<?>) rKey;
-			} else if (rKey instanceof String) {
-				rParamType = RelationType.valueOf((String) rKey);
+			if (key instanceof RelationType<?>) {
+				paramType = (RelationType<?>) key;
+			} else if (key instanceof String) {
+				paramType = RelationType.valueOf((String) key);
 			}
 
-			if (rParamType == null) {
-				throw new IllegalArgumentException("No relation type: " + rKey);
+			if (paramType == null) {
+				throw new IllegalArgumentException("No relation type: " + key);
 			}
 
-			Class<?> rTargetType = rParamType.getTargetType();
+			Class<?> targetType = paramType.getTargetType();
 
-			if (Collection.class.isAssignableFrom(rTargetType)) {
-				setCollectionParam(rParamType, rValue);
-			} else if (Map.class.isAssignableFrom(rTargetType)) {
-				setMapParam(rParamType, rValue);
+			if (Collection.class.isAssignableFrom(targetType)) {
+				setCollectionParam(paramType, value);
+			} else if (Map.class.isAssignableFrom(targetType)) {
+				setMapParam(paramType, value);
 			} else {
-				rValue = convertParamValue(rParamType.getTargetType(), rValue);
-				set((RelationType<Object>) rParamType, rValue);
+				value = convertParamValue(paramType.getTargetType(), value);
+				set((RelationType<Object>) paramType, value);
 			}
 		}
 
@@ -1023,21 +1020,21 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * Applies the configuration to a new process step instance. The
 		 * configuration consists of all relations that are set on this entry.
 		 *
-		 * @param rStep The step to apply the configuration to
+		 * @param step The step to apply the configuration to
 		 */
-		void applyConfiguration(ProcessElement rStep) {
+		void applyConfiguration(ProcessElement step) {
 			// copy single relations to preserve existing annotations set by
 			// the process step
-			for (Relation<?> rSource : getRelations(ALL_RELATIONS)) {
+			for (Relation<?> source : getRelations(ALL_RELATIONS)) {
 				@SuppressWarnings("unchecked")
-				RelationType<Object> rType =
-					(RelationType<Object>) rSource.getType();
+				RelationType<Object> type =
+					(RelationType<Object>) source.getType();
 
 				// first set value which creates the relation if necessary
-				Relation<?> rTarget = rStep.set(rType, rSource.getTarget());
+				Relation<?> target = step.set(type, source.getTarget());
 
 				// then copy the annotations (meta-relations)
-				ObjectRelations.copyRelations(rSource, rTarget, true);
+				ObjectRelations.copyRelations(source, target, true);
 			}
 		}
 
@@ -1048,25 +1045,25 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * exception
 		 * will be thrown.
 		 *
-		 * @param rTargetType The target datatype
-		 * @param rValue      The value to be checked and converted
+		 * @param targetType The target datatype
+		 * @param value      The value to be checked and converted
 		 * @return The parameter value, converted if necessary
 		 * @throws IllegalArgumentException If the value can neither be
 		 * assigned
 		 *                                  nor converted to the target
 		 *                                  datatype
 		 */
-		Object convertParamValue(Class<?> rTargetType, Object rValue) {
-			if (RelationType.class.isAssignableFrom(rTargetType) &&
-				rValue instanceof String) {
-				rValue = RelationType.valueOf((String) rValue);
-			} else if (!rTargetType.isAssignableFrom(rValue.getClass())) {
+		Object convertParamValue(Class<?> targetType, Object value) {
+			if (RelationType.class.isAssignableFrom(targetType) &&
+				value instanceof String) {
+				value = RelationType.valueOf((String) value);
+			} else if (!targetType.isAssignableFrom(value.getClass())) {
 				throw new IllegalArgumentException(
-					"Incompatible value datatype " + rValue.getClass() +
-						" for parameter " + rTargetType);
+					"Incompatible value datatype " + value.getClass() +
+						" for parameter " + targetType);
 			}
 
-			return rValue;
+			return value;
 		}
 
 		/**
@@ -1078,23 +1075,23 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 */
 		ProcessStep createStep() throws ProcessException {
 			try {
-				ProcessFragment aFragment = rStepClass.newInstance();
-				ProcessStep aStep;
+				ProcessFragment fragment = stepClass.newInstance();
+				ProcessStep step;
 
-				if (aFragment instanceof InteractionFragment) {
-					aStep = new FragmentInteraction(
-						(InteractionFragment) aFragment);
+				if (fragment instanceof InteractionFragment) {
+					step =
+						new FragmentInteraction((InteractionFragment) fragment);
 				} else {
-					aStep = (ProcessStep) aFragment;
+					step = (ProcessStep) fragment;
 				}
 
-				aStep.setName(sStepName);
+				step.setName(stepName);
 
-				return aStep;
+				return step;
 			} catch (Exception e) {
 				throw new ProcessException(null,
 					String.format("Creation of process step %s failed",
-						rStepClass.getSimpleName()), e);
+						stepClass.getSimpleName()), e);
 			}
 		}
 
@@ -1102,62 +1099,62 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * Initializes a process step. The step instance must have been
 		 * previously created by this entry.
 		 *
-		 * @param rStep The step to be initialized
+		 * @param step The step to be initialized
 		 * @throws ProcessException If initializing the step fails
 		 */
-		void initStep(ProcessStep rStep) throws ProcessException {
-			assert sStepName == rStep.getName();
+		void initStep(ProcessStep step) throws ProcessException {
+			assert stepName == step.getName();
 
-			applyConfiguration(rStep);
-			rStep.setup();
+			applyConfiguration(step);
+			step.setup();
 		}
 
 		/**
 		 * Creates a new step configuration from a map containing the
 		 * configuration entries.
 		 *
-		 * @param rConfig A map containing the configuration entries
+		 * @param config A map containing the configuration entries
 		 */
-		void parseConfiguration(Map<?, ?> rConfig) {
-			for (Map.Entry<?, ?> rEntry : rConfig.entrySet()) {
-				addConfigurationEntry(rEntry.getKey(), rEntry.getValue());
+		void parseConfiguration(Map<?, ?> config) {
+			for (Map.Entry<?, ?> entry : config.entrySet()) {
+				addConfigurationEntry(entry.getKey(), entry.getValue());
 			}
 		}
 
 		/**
 		 * Creates a new step configuration from a list of map entry strings.
 		 *
-		 * @param rConfig A string array containing the raw configuration
-		 *                entries
+		 * @param config A string array containing the raw configuration
+		 *               entries
 		 */
-		void parseConfiguration(String[] rConfig) {
-			for (String sConfigEntry : rConfig) {
-				Pair<Object, Object> aEntry =
-					parseConfigurationEntry(sConfigEntry);
+		void parseConfiguration(String[] config) {
+			for (String configEntry : config) {
+				Pair<Object, Object> entry =
+					parseConfigurationEntry(configEntry);
 
-				addConfigurationEntry(aEntry.first(), aEntry.second());
+				addConfigurationEntry(entry.first(), entry.second());
 			}
 		}
 
 		/**
 		 * Parses a configuration entry from a string.
 		 *
-		 * @param sEntry The string defining the configuration entry
+		 * @param entry The string defining the configuration entry
 		 * @return A pair containing the key and value parts of the entry
 		 * @throws IllegalArgumentException If the argument is not a valid
 		 *                                  configuration entry
 		 */
-		Pair<Object, Object> parseConfigurationEntry(String sEntry) {
-			Matcher aMatcher = aConfigEntryPattern.matcher(sEntry);
+		Pair<Object, Object> parseConfigurationEntry(String entry) {
+			Matcher matcher = configEntryPattern.matcher(entry);
 
-			if (!aMatcher.matches()) {
+			if (!matcher.matches()) {
 				throw new IllegalArgumentException(
-					"Invalid configuration entry: " + sEntry);
+					"Invalid configuration entry: " + entry);
 			}
 
 			return new Pair<Object, Object>(
-				TextUtil.parseObject(aMatcher.group(1)),
-				TextUtil.parseObject(aMatcher.group(2)));
+				TextUtil.parseObject(matcher.group(1)),
+				TextUtil.parseObject(matcher.group(2)));
 		}
 
 		/**
@@ -1169,20 +1166,20 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * element datatype with {@link #convertParamValue(Class, Object)} and
 		 * then added to the parameter collection.
 		 *
-		 * @param rType  The parameter type to set the collection for
-		 * @param rValue The parameter value
+		 * @param type  The parameter type to set the collection for
+		 * @param value The parameter value
 		 * @throws IllegalArgumentException If the value argument is not valid
 		 *                                  for the parameter's collection
 		 */
 		@SuppressWarnings("unchecked")
-		void setCollectionParam(RelationType<?> rType, Object rValue) {
-			Collection<Object> rCollection = (Collection<Object>) get(rType);
+		void setCollectionParam(RelationType<?> type, Object value) {
+			Collection<Object> collection = (Collection<Object>) get(type);
 
-			if (Collection.class.isAssignableFrom(rValue.getClass())) {
-				rCollection.addAll((Collection<Object>) rValue);
+			if (Collection.class.isAssignableFrom(value.getClass())) {
+				collection.addAll((Collection<Object>) value);
 			} else {
-				rCollection.add(
-					convertParamValue(rType.get(ELEMENT_DATATYPE), rValue));
+				collection.add(
+					convertParamValue(type.get(ELEMENT_DATATYPE), value));
 			}
 		}
 
@@ -1195,36 +1192,37 @@ public class StepListProcessDefinition extends ProcessDefinition {
 		 * Strings will be parsed with {@link #parseConfigurationEntry(String)}
 		 * to split them into a key/value pair.
 		 *
-		 * @param rType  The parameter type to set the map for
-		 * @param rValue The parameter value
+		 * @param type  The parameter type to set the map for
+		 * @param value The parameter value
 		 * @throws IllegalArgumentException If the value argument is not valid
 		 *                                  for the parameter's map
 		 */
 		@SuppressWarnings("unchecked")
-		void setMapParam(RelationType<?> rType, Object rValue) {
-			Map<Object, Object> rMap = (Map<Object, Object>) get(rType);
+		void setMapParam(RelationType<?> type, Object value) {
+			Map<Object, Object> map = (Map<Object, Object>) get(type);
 
-			if (Map.class.isAssignableFrom(rValue.getClass())) {
-				rMap.putAll((Map<?, ?>) rValue);
+			if (Map.class.isAssignableFrom(value.getClass())) {
+				map.putAll((Map<?, ?>) value);
 			} else {
-				Pair<Object, Object> aMapEntry;
+				Pair<Object, Object> mapEntry;
 
-				if (rValue instanceof Pair<?, ?>) {
-					aMapEntry = (Pair<Object, Object>) rValue;
-				} else if (rValue instanceof String) {
-					aMapEntry = parseConfigurationEntry((String) rValue);
+				if (value instanceof Pair<?, ?>) {
+					mapEntry = (Pair<Object, Object>) value;
+				} else if (value instanceof String) {
+					mapEntry = parseConfigurationEntry((String) value);
 				} else {
 					throw new IllegalArgumentException(
-						"Invalid map type config entry: " + rValue);
+						"Invalid map type config entry: " + value);
 				}
 
-				Object rKey = convertParamValue(rType.get(KEY_DATATYPE),
-					aMapEntry.first());
+				Object key =
+					convertParamValue(type.get(KEY_DATATYPE),
+						mapEntry.first());
 
-				rValue = convertParamValue(rType.get(VALUE_DATATYPE),
-					aMapEntry.second());
+				value = convertParamValue(type.get(VALUE_DATATYPE),
+					mapEntry.second());
 
-				rMap.put(rKey, rValue);
+				map.put(key, value);
 			}
 		}
 	}

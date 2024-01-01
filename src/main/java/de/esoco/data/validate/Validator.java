@@ -30,8 +30,8 @@ public interface Validator<T> extends Serializable {
 	/**
 	 * Must be implemented to validate data element values.
 	 *
-	 * @param rValue The value to validate
+	 * @param value The value to validate
 	 * @return TRUE if the value is valid according to this validator's rules
 	 */
-	public abstract boolean isValid(T rValue);
+	boolean isValid(T value);
 }

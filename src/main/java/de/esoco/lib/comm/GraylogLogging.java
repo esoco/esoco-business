@@ -18,7 +18,6 @@ package de.esoco.lib.comm;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
-
 import de.esoco.lib.comm.GraylogEndpoint.SendGraylogMessage;
 import de.esoco.lib.comm.GraylogMessage.Level;
 import de.esoco.lib.logging.BusinessLogAspect;
@@ -39,9 +38,9 @@ import java.util.Objects;
  */
 public class GraylogLogging extends BusinessLogAspect<GraylogMessage> {
 
-	private Endpoint aGraylogEndpoint;
+	private Endpoint graylogEndpoint;
 
-	private SendGraylogMessage fSendGraylogMessage;
+	private SendGraylogMessage sendGraylogMessage;
 
 	/**
 	 * Default constructor.
@@ -52,11 +51,11 @@ public class GraylogLogging extends BusinessLogAspect<GraylogMessage> {
 	/**
 	 * Creates a new instance with a certain Graylog server endpoint address.
 	 *
-	 * @param sGraylogEndpointAddress The Graylog server address
+	 * @param graylogEndpointAddress The Graylog server address
 	 */
-	public GraylogLogging(String sGraylogEndpointAddress) {
+	public GraylogLogging(String graylogEndpointAddress) {
 		set(CommunicationRelationTypes.ENDPOINT_ADDRESS,
-			Objects.requireNonNull(sGraylogEndpointAddress));
+			Objects.requireNonNull(graylogEndpointAddress));
 	}
 
 	/**
@@ -76,57 +75,56 @@ public class GraylogLogging extends BusinessLogAspect<GraylogMessage> {
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected GraylogMessage createLogObject(LogRecord rLogRecord) {
-		LogLevel eLogLevel = rLogRecord.getLevel();
+	protected GraylogMessage createLogObject(LogRecord logRecord) {
+		LogLevel logLevel = logRecord.getLevel();
 
-		Level eGraylogLevel;
+		Level graylogLevel;
 
-		switch (eLogLevel) {
+		switch (logLevel) {
 			case DEBUG:
-				eGraylogLevel = Level.DEBUG;
+				graylogLevel = Level.DEBUG;
 				break;
 
 			case ERROR:
-				eGraylogLevel = Level.ERROR;
+				graylogLevel = Level.ERROR;
 				break;
 
 			case FATAL:
-				eGraylogLevel = Level.EMERGENCY;
+				graylogLevel = Level.EMERGENCY;
 				break;
 
 			case TRACE:
-				eGraylogLevel = Level.NOTICE;
+				graylogLevel = Level.NOTICE;
 				break;
 
 			case WARN:
-				eGraylogLevel = Level.WARNING;
+				graylogLevel = Level.WARNING;
 				break;
 
 			default:
-				eGraylogLevel = Level.INFORMATIONAL;
+				graylogLevel = Level.INFORMATIONAL;
 		}
 
-		GraylogMessage aMessage =
-			new GraylogMessage(eGraylogLevel, rLogRecord.getMessage(), null);
+		GraylogMessage message =
+			new GraylogMessage(graylogLevel, logRecord.getMessage(), null);
 
-		aMessage.set(GraylogMessage.TIMESTAMP, rLogRecord.getTime());
-		aMessage.set(GraylogMessage._FILE_NAME,
-			rLogRecord.getSourceFileName());
-		aMessage.set(GraylogMessage._LINE_NUMBER, rLogRecord.getLineNumber());
+		message.set(GraylogMessage.TIMESTAMP, logRecord.getTime());
+		message.set(GraylogMessage._FILE_NAME, logRecord.getSourceFileName());
+		message.set(GraylogMessage._LINE_NUMBER, logRecord.getLineNumber());
 
-		Entity rLogSource = getLogSource();
+		Entity logSource = getLogSource();
 
-		if (rLogSource != null) {
-			aMessage.set(GraylogMessage._ORIGIN,
-				EntityFunctions.format(rLogSource));
+		if (logSource != null) {
+			message.set(GraylogMessage._ORIGIN,
+				EntityFunctions.format(logSource));
 		}
 
-		if (eLogLevel.compareTo(get(MIN_STACK_LOG_LEVEL)) >= 0) {
-			aMessage.set(GraylogMessage.FULL_MESSAGE,
-				Log.CAUSE_TRACE.evaluate(rLogRecord));
+		if (logLevel.compareTo(get(MIN_STACK_LOG_LEVEL)) >= 0) {
+			message.set(GraylogMessage.FULL_MESSAGE,
+				Log.CAUSE_TRACE.evaluate(logRecord));
 		}
 
-		return aMessage;
+		return message;
 	}
 
 	/**
@@ -138,23 +136,23 @@ public class GraylogLogging extends BusinessLogAspect<GraylogMessage> {
 	 */
 	@Override
 	protected void init() {
-		String sEndpointAddress =
+		String endpointAddress =
 			get(CommunicationRelationTypes.ENDPOINT_ADDRESS);
 
-		Objects.requireNonNull(sEndpointAddress);
+		Objects.requireNonNull(endpointAddress);
 
-		aGraylogEndpoint = Endpoint.at(sEndpointAddress);
-		fSendGraylogMessage = GraylogEndpoint.sendMessage();
+		graylogEndpoint = Endpoint.at(endpointAddress);
+		sendGraylogMessage = GraylogEndpoint.sendMessage();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void processLogObjects(Collection<GraylogMessage> rMessages) {
-		try (Connection rConnection = aGraylogEndpoint.connect(this)) {
-			for (GraylogMessage rMessage : rMessages) {
-				fSendGraylogMessage.sendTo(rConnection, rMessage);
+	protected void processLogObjects(Collection<GraylogMessage> messages) {
+		try (Connection connection = graylogEndpoint.connect(this)) {
+			for (GraylogMessage message : messages) {
+				sendGraylogMessage.sendTo(connection, message);
 			}
 		}
 	}

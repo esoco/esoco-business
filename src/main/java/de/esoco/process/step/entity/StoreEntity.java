@@ -18,13 +18,9 @@ package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
-
 import de.esoco.history.HistoryRecord;
-
 import de.esoco.lib.expression.Action;
-
 import de.esoco.process.ProcessRelationTypes;
-
 import org.obrel.core.RelationType;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
@@ -64,20 +60,20 @@ public class StoreEntity extends EntityStep {
 	 */
 	@Override
 	protected void execute() throws Exception {
-		RelationType<? extends Entity> rEntityParam =
+		RelationType<? extends Entity> entityParam =
 			checkParameter(ENTITY_PARAM);
 
-		Entity rEntity = checkParameter(rEntityParam);
+		Entity entity = checkParameter(entityParam);
 
-		if (rEntity != null) {
-			Action<Entity> fUpdate = getParameter(ENTITY_UPDATE_ACTION);
+		if (entity != null) {
+			Action<Entity> update = getParameter(ENTITY_UPDATE_ACTION);
 
-			if (fUpdate != null) {
-				fUpdate.evaluate(rEntity);
+			if (update != null) {
+				update.evaluate(entity);
 				setParameter(ENTITY_UPDATE_ACTION, null);
 			}
 
-			EntityManager.storeEntity(rEntity, getParameter(PROCESS_USER));
+			EntityManager.storeEntity(entity, getParameter(PROCESS_USER));
 		}
 	}
 

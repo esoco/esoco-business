@@ -18,15 +18,13 @@ package de.esoco.process.ui;
 
 import de.esoco.lib.expression.function.Validation.ValidationResult;
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ui.event.UiHasFocusEvents;
+import org.obrel.core.RelationType;
 
 import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import org.obrel.core.RelationType;
 
 /**
  * The base class for components that allow interactive input.
@@ -42,8 +40,8 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * @see UiComponent#UiComponent(UiContainer,
 	 * de.esoco.process.step.InteractionFragment, RelationType)
 	 */
-	public UiControl(UiContainer<?> rParent, RelationType<T> rParamType) {
-		super(rParent, rParent.fragment(), rParamType);
+	public UiControl(UiContainer<?> parent, RelationType<T> paramType) {
+		super(parent, parent.fragment(), paramType);
 
 		fragment().addInputParameters(type());
 	}
@@ -53,8 +51,8 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 *
 	 * @see UiComponent#UiComponent(UiContainer, Class)
 	 */
-	public UiControl(UiContainer<?> rParent, Class<? super T> rDatatype) {
-		super(rParent, rDatatype);
+	public UiControl(UiContainer<?> parent, Class<? super T> datatype) {
+		super(parent, datatype);
 
 		fragment().addInputParameters(type());
 	}
@@ -63,9 +61,9 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public final C onFocusLost(Consumer<T> rEventHandler) {
+	public final C onFocusLost(Consumer<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.FOCUS_LOST,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
@@ -74,16 +72,15 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * to is finished. All registered validations will be executed together and
 	 * any errors that are detected will be signaled to the user.
 	 *
-	 * @param fValidation The validation function
+	 * @param validation The validation function
 	 * @return This instance
 	 * @see #validateNow(Function)
 	 * @see #validateInteractive(Function)
 	 */
 	@SuppressWarnings("unchecked")
-	public C validateFinally(
-		Function<? super T, ValidationResult> fValidation) {
+	public C validateFinally(Function<? super T, ValidationResult> validation) {
 		fragment().setParameterValidation(type(), false,
-			v -> fValidation.apply(v).getMessage());
+			v -> validation.apply(v).getMessage());
 
 		return (C) this;
 	}
@@ -100,16 +97,16 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * needed. Otherwise a continuous signaling of errors can become annoying
 	 * for the user.</p>
 	 *
-	 * @param fValidation The validation function
+	 * @param validation The validation function
 	 * @return This instance
 	 * @see #validateNow(Function)
 	 * @see #validateFinally(Function)
 	 */
 	@SuppressWarnings("unchecked")
 	public C validateInteractive(
-		Function<? super T, ValidationResult> fValidation) {
+		Function<? super T, ValidationResult> validation) {
 		fragment().setParameterValidation(type(), true,
-			v -> fValidation.apply(v).getMessage());
+			v -> validation.apply(v).getMessage());
 
 		return (C) this;
 	}
@@ -122,22 +119,22 @@ public class UiControl<T, C extends UiControl<T, C>> extends UiComponent<T, C>
 	 * methods {@link #validateInteractive(Function)} and
 	 * {@link #validateFinally(Function)} should be used.
 	 *
-	 * @param fValidation The validation function for the control value
+	 * @param validation The validation function for the control value
 	 * @throws InvalidParametersException If the validation fails
 	 * @see #validateInteractive(Function)
 	 * @see #validateFinally(Function)
 	 */
-	public void validateNow(Function<? super T, ValidationResult> fValidation) {
-		ValidationResult rResult = fValidation.apply(getValueImpl());
+	public void validateNow(Function<? super T, ValidationResult> validation) {
+		ValidationResult result = validation.apply(getValueImpl());
 
-		if (!rResult.isValid()) {
-			String sMessage = rResult.getMessage();
-			RelationType<T> rParam = type();
+		if (!result.isValid()) {
+			String message = result.getMessage();
+			RelationType<T> param = type();
 
 			fragment().validationError(
-				Collections.singletonMap(rParam, sMessage));
+				Collections.singletonMap(param, message));
 
-			throw new InvalidParametersException(fragment(), sMessage, rParam);
+			throw new InvalidParametersException(fragment(), message, param);
 		}
 	}
 }

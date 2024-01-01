@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.LabelStyle;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiImageDefinition;
@@ -37,13 +36,13 @@ public class UiImage extends UiComponent<String, UiImage> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rImage  The initial image
+	 * @param parent The parent container
+	 * @param image  The initial image
 	 */
-	public UiImage(UiContainer<?> rParent, UiImageDefinition<?> rImage) {
-		super(rParent, String.class);
+	public UiImage(UiContainer<?> parent, UiImageDefinition<?> image) {
+		super(parent, String.class);
 
-		setImage(rImage);
+		setImage(image);
 		set(HIDE_LABEL);
 		set(LABEL_STYLE, LabelStyle.IMAGE);
 		set(HAS_IMAGES);
@@ -57,11 +56,11 @@ public class UiImage extends UiComponent<String, UiImage> {
 	/**
 	 * Fluent variant of {@link #setCaption(String)}.
 	 *
-	 * @param sCaption The image caption
+	 * @param caption The image caption
 	 * @return This instance
 	 */
-	public UiImage caption(String sCaption) {
-		return label(sCaption);
+	public UiImage caption(String caption) {
+		return label(caption);
 	}
 
 	/**
@@ -77,30 +76,30 @@ public class UiImage extends UiComponent<String, UiImage> {
 	/**
 	 * Sets the event handler for click events on images.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final UiImage onClick(Runnable rEventHandler) {
+	public final UiImage onClick(Runnable eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.run());
+			v -> eventHandler.run());
 	}
 
 	/**
 	 * Sets a caption label to be displayed over the image (if supported by the
 	 * container layout).
 	 *
-	 * @param sCaption The caption label or null for none
+	 * @param caption The caption label or null for none
 	 */
-	public void setCaption(String sCaption) {
-		caption(sCaption);
+	public void setCaption(String caption) {
+		caption(caption);
 	}
 
 	/**
 	 * Sets the image to be displayed.
 	 *
-	 * @param rImage The image
+	 * @param image The image
 	 */
-	public void setImage(UiImageDefinition<?> rImage) {
-		super.image(rImage);
+	public void setImage(UiImageDefinition<?> image) {
+		super.image(image);
 	}
 }

@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.TextAttribute;
-
 import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
 
@@ -36,13 +35,13 @@ public class UiLink extends UiButtonControl<String, UiLink>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sLabel  The link label
+	 * @param parent The parent container
+	 * @param label  The link label
 	 */
-	public UiLink(UiContainer<?> rParent, String sLabel) {
-		super(rParent, String.class);
+	public UiLink(UiContainer<?> parent, String label) {
+		super(parent, String.class);
 
-		setText(sLabel);
+		setText(label);
 		set(HIDE_LABEL);
 		set(BUTTON_STYLE, ButtonStyle.LINK);
 	}
@@ -59,7 +58,7 @@ public class UiLink extends UiButtonControl<String, UiLink>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText) {
-		setValueImpl(sText);
+	public void setText(String text) {
+		setValueImpl(text);
 	}
 }

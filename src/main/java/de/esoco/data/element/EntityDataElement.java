@@ -35,24 +35,24 @@ public class EntityDataElement extends DataElementList {
 
 	private static final long serialVersionUID = 1L;
 
-	private String sChildPrefix;
+	private String childPrefix;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName        The name of this data element
-	 * @param sResourceId  The resource to label the data element with
-	 * @param sChildPrefix The prefix string for child elements
-	 * @param rAttributes  The child elements that represent the entity
-	 *                     attributes (including children)
-	 * @param rFlags       The optional flags for this data element
+	 * @param name        The name of this data element
+	 * @param resourceId  The resource to label the data element with
+	 * @param childPrefix The prefix string for child elements
+	 * @param attributes  The child elements that represent the entity
+	 *                    attributes (including children)
+	 * @param flags       The optional flags for this data element
 	 */
-	public EntityDataElement(String sName, String sResourceId,
-		String sChildPrefix, List<DataElement<?>> rAttributes,
-		Set<Flag> rFlags) {
-		super(sName, sResourceId, rAttributes, rFlags);
+	public EntityDataElement(String name, String resourceId,
+		String childPrefix,
+		List<DataElement<?>> attributes, Set<Flag> flags) {
+		super(name, resourceId, attributes, flags);
 
-		this.sChildPrefix = sChildPrefix;
+		this.childPrefix = childPrefix;
 	}
 
 	/**
@@ -65,14 +65,14 @@ public class EntityDataElement extends DataElementList {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EntityDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		EntityDataElement aCopy =
-			(EntityDataElement) super.copy(eMode, rCopyProperties);
+	public EntityDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		EntityDataElement copy =
+			(EntityDataElement) super.copy(mode, copyProperties);
 
-		aCopy.sChildPrefix = sChildPrefix;
+		copy.childPrefix = childPrefix;
 
-		return aCopy;
+		return copy;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class EntityDataElement extends DataElementList {
 	 */
 	@Override
 	protected String getChildResourceIdPrefix() {
-		return sChildPrefix;
+		return childPrefix;
 	}
 
 	/**

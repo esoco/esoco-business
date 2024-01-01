@@ -18,28 +18,24 @@ package de.esoco.history;
 
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityRelationTypes;
-
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.HasProperties;
+import org.obrel.core.Annotations.RelationTypeNamespace;
+import org.obrel.core.RelationType;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.obrel.core.Annotations.RelationTypeNamespace;
-import org.obrel.core.RelationType;
-
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.arbitraryEntityAttribute;
 import static de.esoco.entity.EntityRelationTypes.childAttribute;
 import static de.esoco.entity.EntityRelationTypes.parentAttribute;
 import static de.esoco.entity.EntityRelationTypes.rootAttribute;
-
 import static de.esoco.lib.property.ContentProperties.CONTENT_TYPE;
 import static de.esoco.lib.property.StyleProperties.HAS_IMAGES;
 import static de.esoco.lib.property.StyleProperties.MAX_CHARS;
-
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -163,13 +159,11 @@ public class HistoryRecord extends Entity {
 	private static final long serialVersionUID = 1L;
 
 	static {
-		Class<? extends Entity> rClass = HistoryRecord.class;
-
-		setAttributeDisplayFlag(rClass, HAS_IMAGES, TYPE);
-		setAttributeDisplayProperty(rClass, 20, MAX_CHARS, ORIGIN);
-		setAttributeDisplayProperty(rClass, CONTENT_TYPE,
-			ContentType.DATE_TIME,
-			TIME);
+		setAttributeDisplayFlag(HistoryRecord.class, HAS_IMAGES, TYPE);
+		setAttributeDisplayProperty(HistoryRecord.class, 20, MAX_CHARS,
+			ORIGIN);
+		setAttributeDisplayProperty(HistoryRecord.class, CONTENT_TYPE,
+			ContentType.DATE_TIME, TIME);
 	}
 
 	/**
@@ -188,28 +182,29 @@ public class HistoryRecord extends Entity {
 	/**
 	 * Starts a new detail history record.
 	 *
-	 * @param rType           The type of this history record
-	 * @param rTarget         The target entity referenced by this record (may
-	 *                        be NULL)
-	 * @param sValue          The value of this record
-	 * @param rReferenceType  The type of the reference value
-	 * @param sReferenceValue The reference value
+	 * @param type           The type of this history record
+	 * @param target         The target entity referenced by this record
+	 *                          (may be
+	 *                       NULL)
+	 * @param value          The value of this record
+	 * @param referenceType  The type of the reference value
+	 * @param referenceValue The reference value
 	 * @return The new history record
 	 */
-	HistoryRecord addDetail(HistoryType rType, Entity rTarget, String sValue,
-		ReferenceType rReferenceType, String sReferenceValue) {
-		HistoryRecord rRoot = get(ROOT);
+	HistoryRecord addDetail(HistoryType type, Entity target, String value,
+		ReferenceType referenceType, String referenceValue) {
+		HistoryRecord root = get(ROOT);
 
-		HistoryRecord aDetailRecord =
-			HistoryManager.createRecord(rType, get(ORIGIN),
-				rTarget != null ? rTarget : get(TARGET), get(ROOT_TARGET),
-				sValue, rReferenceType, sReferenceValue);
+		HistoryRecord detailRecord =
+			HistoryManager.createRecord(type, get(ORIGIN),
+				target != null ? target : get(TARGET), get(ROOT_TARGET), value,
+				referenceType, referenceValue);
 
-		aDetailRecord.set(ROOT, rRoot != null ? rRoot : this);
-		aDetailRecord.set(PARENT, this);
+		detailRecord.set(ROOT, root != null ? root : this);
+		detailRecord.set(PARENT, this);
 
-		get(DETAILS).add(aDetailRecord);
+		get(DETAILS).add(detailRecord);
 
-		return aDetailRecord;
+		return detailRecord;
 	}
 }

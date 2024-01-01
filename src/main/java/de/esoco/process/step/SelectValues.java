@@ -21,8 +21,10 @@ import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.process.ProcessRelationTypes.ListAction;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,10 +32,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.MetaTypes;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
@@ -63,23 +61,23 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 		RelationTypes.init(SelectValues.class);
 	}
 
-	private String sIdentifier;
+	private final String identifier;
 
-	private Class<T> rValueDatatype;
+	private final Class<T> valueDatatype;
 
-	private Collection<T> rAllValues;
+	private Collection<T> allValues;
 
-	private Collection<T> rPreferredValues;
+	private final Collection<T> preferredValues;
 
-	private RelationType<Set<T>> aUnselectedValuesParam;
+	private RelationType<Set<T>> unselectedValuesParam;
 
-	private RelationType<Set<T>> aSelectedValuesParam;
+	private RelationType<Set<T>> selectedValuesParam;
 
-	private RelationType<ListAction> aListActionParam;
+	private RelationType<ListAction> listActionParam;
 
-	private boolean bSortValues;
+	private boolean sortValues;
 
-	private SelectValueListener rSelectionListener;
+	private SelectValueListener selectionListener;
 
 	/**
 	 * Creates a new instance. The Identifier should be a singular description
@@ -89,17 +87,16 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 * values will be sorted on the client side after resource expansion if
 	 * their datatype implements the {@link Comparable} interface.
 	 *
-	 * @param sIdentifier      A process step-unique identifier of this
-	 *                         instance
-	 * @param rValueDatatype   The datatype of the values
-	 * @param rAvailableValues The available values to select from
-	 * @param bSortValues      TRUE to sort the list values
+	 * @param identifier      A process step-unique identifier of this instance
+	 * @param valueDatatype   The datatype of the values
+	 * @param availableValues The available values to select from
+	 * @param sortValues      TRUE to sort the list values
 	 */
-	public SelectValues(String sIdentifier, Class<T> rValueDatatype,
-		Collection<T> rAvailableValues, boolean bSortValues) {
-		this(sIdentifier, rValueDatatype, rAvailableValues, null);
+	public SelectValues(String identifier, Class<T> valueDatatype,
+		Collection<T> availableValues, boolean sortValues) {
+		this(identifier, valueDatatype, availableValues, null);
 
-		this.bSortValues = bSortValues;
+		this.sortValues = sortValues;
 	}
 
 	/**
@@ -110,19 +107,18 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 * resource expansion, therefore using this variant only makes sense with
 	 * values that are not resources.
 	 *
-	 * @param sIdentifier      A process step-unique identifier of this
-	 *                         instance
-	 * @param rValueDatatype   The datatype of the values
-	 * @param rAvailableValues The available values to select from
-	 * @param rPreferredValues An optional list of preferred values that should
-	 *                         be listed first (empty for none)
+	 * @param identifier      A process step-unique identifier of this instance
+	 * @param valueDatatype   The datatype of the values
+	 * @param availableValues The available values to select from
+	 * @param preferredValues An optional list of preferred values that should
+	 *                        be listed first (empty for none)
 	 */
-	public SelectValues(String sIdentifier, Class<T> rValueDatatype,
-		Collection<T> rAvailableValues, Collection<T> rPreferredValues) {
-		this.sIdentifier = sIdentifier;
-		this.rValueDatatype = rValueDatatype;
-		this.rAllValues = rAvailableValues;
-		this.rPreferredValues = rPreferredValues;
+	public SelectValues(String identifier, Class<T> valueDatatype,
+		Collection<T> availableValues, Collection<T> preferredValues) {
+		this.identifier = identifier;
+		this.valueDatatype = valueDatatype;
+		this.allValues = availableValues;
+		this.preferredValues = preferredValues;
 	}
 
 	/**
@@ -131,10 +127,10 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 * @see InteractionFragment#enableEdit(boolean)
 	 */
 	@Override
-	public void enableEdit(boolean bEnable) {
-		super.enableEdit(bEnable);
+	public void enableEdit(boolean enable) {
+		super.enableEdit(enable);
 
-		setEnabled(bEnable, aUnselectedValuesParam, aListActionParam);
+		setEnabled(enable, unselectedValuesParam, listActionParam);
 	}
 
 	/**
@@ -142,8 +138,8 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return CollectionUtil.<RelationType<?>>listOf(aUnselectedValuesParam,
-			aListActionParam, aSelectedValuesParam);
+		return CollectionUtil.listOf(unselectedValuesParam,
+			listActionParam, selectedValuesParam);
 	}
 
 	/**
@@ -151,8 +147,8 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return CollectionUtil.<RelationType<?>>listOf(aUnselectedValuesParam,
-			aListActionParam, aSelectedValuesParam);
+		return CollectionUtil.listOf(unselectedValuesParam,
+			listActionParam, selectedValuesParam);
 	}
 
 	/**
@@ -161,39 +157,38 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 * @return A collection containing the selected values
 	 */
 	public Collection<T> getSelectedValues() {
-		return getAllowedElements(aSelectedValuesParam);
+		return getAllowedElements(selectedValuesParam);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		ListAction eListAction = null;
+		ListAction listAction = null;
 
-		if (rInteractionParam == aUnselectedValuesParam) {
-			eListAction = ListAction.ADD_SELECTED;
-		} else if (rInteractionParam == aSelectedValuesParam) {
-			eListAction = ListAction.REMOVE_SELECTED;
+		if (interactionParam == unselectedValuesParam) {
+			listAction = ListAction.ADD_SELECTED;
+		} else if (interactionParam == selectedValuesParam) {
+			listAction = ListAction.REMOVE_SELECTED;
 		} else {
-			eListAction = getParameter(aListActionParam);
+			listAction = getParameter(listActionParam);
 		}
 
-		if (eListAction != null) {
-			switch (eListAction) {
+		if (listAction != null) {
+			switch (listAction) {
 				case ADD_ALL:
 				case ADD_SELECTED:
-					moveAllowedValues(aUnselectedValuesParam,
-						aSelectedValuesParam,
-						eListAction == ListAction.ADD_ALL);
+					moveAllowedValues(unselectedValuesParam,
+						selectedValuesParam, listAction == ListAction.ADD_ALL);
 					break;
 
 				case REMOVE_ALL:
 				case REMOVE_SELECTED:
-					moveAllowedValues(aSelectedValuesParam,
-						aUnselectedValuesParam,
-						eListAction == ListAction.REMOVE_ALL);
+					moveAllowedValues(selectedValuesParam,
+						unselectedValuesParam,
+						listAction == ListAction.REMOVE_ALL);
 					break;
 			}
 		}
@@ -204,29 +199,29 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 */
 	@Override
 	public void init() throws Exception {
-		setImmediateAction(aListActionParam);
+		setImmediateAction(listActionParam);
 
-		setInteractive(InteractiveInputMode.ACTION, aUnselectedValuesParam,
-			aSelectedValuesParam);
+		setInteractive(InteractiveInputMode.ACTION, unselectedValuesParam,
+			selectedValuesParam);
 
-		setUIFlag(HIDE_LABEL, aUnselectedValuesParam);
-		setUIFlag(SAME_ROW, aListActionParam, aSelectedValuesParam);
-		setUIFlag(HAS_IMAGES, aListActionParam);
+		setUIFlag(HIDE_LABEL, unselectedValuesParam);
+		setUIFlag(SAME_ROW, listActionParam, selectedValuesParam);
+		setUIFlag(HAS_IMAGES, listActionParam);
 
-		if (bSortValues) {
-			setUIFlag(SORT, aUnselectedValuesParam, aSelectedValuesParam);
+		if (sortValues) {
+			setUIFlag(SORT, unselectedValuesParam, selectedValuesParam);
 		}
 
-		setUIProperty(2, COLUMNS, aListActionParam);
+		setUIProperty(2, COLUMNS, listActionParam);
 
-		setUIProperty(LIST_STYLE, ListStyle.LIST, aUnselectedValuesParam,
-			aSelectedValuesParam);
+		setUIProperty(LIST_STYLE, ListStyle.LIST, unselectedValuesParam,
+			selectedValuesParam);
 
-		setUIProperty(LABEL, "", aUnselectedValuesParam, aSelectedValuesParam,
-			aListActionParam);
-		setUIProperty(RESOURCE_ID, "SelectValuesAction", aListActionParam);
-		setUIProperty(RESOURCE_ID, sIdentifier, aUnselectedValuesParam,
-			aSelectedValuesParam);
+		setUIProperty(LABEL, "", unselectedValuesParam, selectedValuesParam,
+			listActionParam);
+		setUIProperty(RESOURCE_ID, "SelectValuesAction", listActionParam);
+		setUIProperty(RESOURCE_ID, identifier, unselectedValuesParam,
+			selectedValuesParam);
 	}
 
 	/**
@@ -236,121 +231,120 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 * should typically be invoked from the
 	 * {@link InteractionFragment#init() init()} method of the parent fragment.
 	 *
-	 * @param rParam The parameter that will hold this fragment
+	 * @param param The parameter that will hold this fragment
 	 */
 	public void initFragmentParameter(
-		RelationType<List<RelationType<?>>> rParam) {
+		RelationType<List<RelationType<?>>> param) {
 		setUIProperty(UserInterfaceProperties.STYLE,
 			getClass().getSimpleName(),
-			rParam);
+			param);
 	}
 
 	/**
 	 * Sets the values that are available for selection.
 	 *
-	 * @param rValues The selectable values (can be NULL for none)
+	 * @param values The selectable values (can be NULL for none)
 	 */
-	public void setAvailableValues(Collection<T> rValues) {
-		rAllValues = rValues;
+	public void setAvailableValues(Collection<T> values) {
+		allValues = values;
 
 		// init with empty collections to prevent NPEs
-		setParameter(aUnselectedValuesParam, new LinkedHashSet<T>());
-		setParameter(aSelectedValuesParam, new LinkedHashSet<T>());
-		setAllowedElements(aUnselectedValuesParam, sortValues(rAllValues));
+		setParameter(unselectedValuesParam, new LinkedHashSet<T>());
+		setParameter(selectedValuesParam, new LinkedHashSet<T>());
+		setAllowedElements(unselectedValuesParam, sortValues(allValues));
 
-		if (getAllowedElements(aSelectedValuesParam) == null) {
-			setAllowedElements(aSelectedValuesParam, new ArrayList<T>());
+		if (getAllowedElements(selectedValuesParam) == null) {
+			setAllowedElements(selectedValuesParam, new ArrayList<T>());
 		}
 	}
 
 	/**
 	 * Sets the currently selected values.
 	 *
-	 * @param rValues The selected values (may be NULL for none)
+	 * @param values The selected values (may be NULL for none)
 	 */
-	public void setSelectedValues(Collection<T> rValues) {
-		List<T> aAvailableValues = sortValues(rAllValues);
-		List<T> aSelectedValues = sortValues(rValues);
+	public void setSelectedValues(Collection<T> values) {
+		List<T> availableValues = sortValues(allValues);
+		List<T> selectedValues = sortValues(values);
 
-		aAvailableValues.removeAll(aSelectedValues);
-		setAllowedElements(aUnselectedValuesParam, aAvailableValues);
-		setAllowedElements(aSelectedValuesParam, aSelectedValues);
+		availableValues.removeAll(selectedValues);
+		setAllowedElements(unselectedValuesParam, availableValues);
+		setAllowedElements(selectedValuesParam, selectedValues);
 	}
 
 	/**
 	 * Sets a listener that will be notified if the selection in this instance
 	 * changes.
 	 *
-	 * @param rListener The listener
+	 * @param listener The listener
 	 */
-	public void setSelectionListener(SelectValueListener rListener) {
-		this.rSelectionListener = rListener;
+	public void setSelectionListener(SelectValueListener listener) {
+		this.selectionListener = listener;
 	}
 
 	/**
 	 * Sets the number of rows that are visible in the value lists.
 	 *
-	 * @param nRows The number of visible rows
+	 * @param rows The number of visible rows
 	 */
-	public void setVisibleRows(int nRows) {
-		setUIProperty(nRows, ROWS, aUnselectedValuesParam,
-			aSelectedValuesParam);
+	public void setVisibleRows(int rows) {
+		setUIProperty(rows, ROWS, unselectedValuesParam, selectedValuesParam);
 	}
 
 	/**
 	 * @see InteractionFragment#initProgressParameter()
 	 */
 	@Override
-	protected void initProcessStep(Interaction rProcessStep) {
-		String sId =
-			TextConvert.uppercaseIdentifier(TextConvert.toPlural(sIdentifier));
+	protected void initProcessStep(Interaction processStep) {
+		String id =
+			TextConvert.uppercaseIdentifier(TextConvert.toPlural(identifier));
 
-		aUnselectedValuesParam =
-			getTemporaryParameterType("UNSELECTED_" + sId, Set.class);
+		unselectedValuesParam =
+			getTemporaryParameterType("UNSELECTED_" + id, Set.class);
 
-		aSelectedValuesParam =
-			getTemporaryParameterType("SELECTED_" + sId, Set.class);
+		selectedValuesParam =
+			getTemporaryParameterType("SELECTED_" + id, Set.class);
 
-		aListActionParam =
-			getTemporaryParameterType("SELECT_" + sId + "_ACTION",
-				ListAction.class);
+		listActionParam = getTemporaryParameterType("SELECT_" + id + "_ACTION",
+			ListAction.class);
 
-		aUnselectedValuesParam.annotate(MetaTypes.ELEMENT_DATATYPE,
-			rValueDatatype);
-		aSelectedValuesParam.annotate(MetaTypes.ELEMENT_DATATYPE,
-			rValueDatatype);
+		unselectedValuesParam.annotate(MetaTypes.ELEMENT_DATATYPE,
+			valueDatatype);
+		selectedValuesParam.annotate(MetaTypes.ELEMENT_DATATYPE,
+			valueDatatype);
 
-		setAvailableValues(rAllValues);
+		setAvailableValues(allValues);
 	}
 
 	/**
 	 * Moves certain allowed values from one parameter to another.
 	 *
-	 * @param rSource    The source parameter
-	 * @param rTarget    The target parameter
-	 * @param bAllValues TRUE for all allowed values, FALSE for only the
-	 *                   selected values in the source parameter
+	 * @param source    The source parameter
+	 * @param target    The target parameter
+	 * @param allValues TRUE for all allowed values, FALSE for only the
+	 *                     selected
+	 *                  values in the source parameter
 	 */
-	void moveAllowedValues(RelationType<? extends Collection<T>> rSource,
-		RelationType<? extends Collection<T>> rTarget, boolean bAllValues) {
-		Collection<T> rSourceValues;
+	void moveAllowedValues(RelationType<? extends Collection<T>> source,
+		RelationType<? extends Collection<T>> target, boolean allValues) {
+		Collection<T> sourceValues;
 
-		List<T> rTargetValues = new ArrayList<>(getAllowedElements(rTarget));
+		List<T> targetValues = new ArrayList<>(getAllowedElements(target));
 
-		if (bAllValues) {
-			rSourceValues = getAllowedElements(rSource);
-			getParameter(rSource).clear();
+		if (allValues) {
+			sourceValues = getAllowedElements(source);
+			getParameter(source).clear();
 		} else {
-			rSourceValues = getParameter(rSource);
-			getAllowedElements(rSource).removeAll(rSourceValues);
+			sourceValues = getParameter(source);
+			getAllowedElements(source).removeAll(sourceValues);
 		}
 
-		rTargetValues.addAll(rSourceValues);
-		setAllowedElements(rTarget, sortValues(rTargetValues));
-		rSourceValues.clear();
+		targetValues.addAll(sourceValues);
+		setAllowedElements(target, sortValues(targetValues));
+		sourceValues.clear();
 
-		if (rSelectionListener != null) {
-			rSelectionListener.selectionChanged(this);
+		if (selectionListener != null) {
+			selectionListener.selectionChanged(this);
 		}
 	}
 
@@ -360,28 +354,27 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 * The original collection will not be modified. If the input collection is
 	 * NULL an empty list will be returned.
 	 *
-	 * @param rValues The collection to sort
+	 * @param values The collection to sort
 	 * @return A sorted list of values
 	 */
-	private List<T> sortValues(Collection<T> rValues) {
-		List<T> aSortedValues = new ArrayList<>();
+	private List<T> sortValues(Collection<T> values) {
+		List<T> sortedValues = new ArrayList<>();
 
-		if (rValues != null) {
-			aSortedValues.addAll(rValues);
+		if (values != null) {
+			sortedValues.addAll(values);
 
-			if (rPreferredValues != null) {
-				Collection<T> aPrefValues = Collections.emptySet();
+			if (preferredValues != null) {
+				Collection<T> prefValues = Collections.emptySet();
 
-				aPrefValues =
-					CollectionUtil.intersect(rPreferredValues, rValues);
+				prefValues = CollectionUtil.intersect(preferredValues, values);
 
-				aSortedValues.removeAll(aPrefValues);
-				Collections.sort(aSortedValues);
-				aSortedValues.addAll(0, aPrefValues);
+				sortedValues.removeAll(prefValues);
+				Collections.sort(sortedValues);
+				sortedValues.addAll(0, prefValues);
 			}
 		}
 
-		return aSortedValues;
+		return sortedValues;
 	}
 
 	/**
@@ -390,13 +383,13 @@ public class SelectValues<T extends Comparable<T>> extends InteractionFragment {
 	 *
 	 * @author eso
 	 */
-	public static interface SelectValueListener {
+	public interface SelectValueListener {
 
 		/**
 		 * Will be invoked after the selection has changed.
 		 *
-		 * @param rSource The source of the selection change
+		 * @param source The source of the selection change
 		 */
-		public void selectionChanged(SelectValues<?> rSource);
+		void selectionChanged(SelectValues<?> source);
 	}
 }

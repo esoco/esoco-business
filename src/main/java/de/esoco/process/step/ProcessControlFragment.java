@@ -17,7 +17,6 @@
 package de.esoco.process.step;
 
 import de.esoco.data.process.ProcessState.ProcessExecutionMode;
-
 import de.esoco.process.ProcessException;
 
 /**
@@ -37,15 +36,15 @@ public class ProcessControlFragment extends InteractionFragment {
 		CANCEL(ProcessExecutionMode.CANCEL),
 		RELOAD(ProcessExecutionMode.RELOAD);
 
-		private final ProcessExecutionMode eExecutionMode;
+		private final ProcessExecutionMode executionMode;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param eExecutionMode The associated execution mode
+		 * @param executionMode The associated execution mode
 		 */
-		private ProcessControlAction(ProcessExecutionMode eExecutionMode) {
-			this.eExecutionMode = eExecutionMode;
+		ProcessControlAction(ProcessExecutionMode executionMode) {
+			this.executionMode = executionMode;
 		}
 
 		/**
@@ -54,22 +53,22 @@ public class ProcessControlFragment extends InteractionFragment {
 		 * @return The execution mode
 		 */
 		public final ProcessExecutionMode getExecutionMode() {
-			return eExecutionMode;
+			return executionMode;
 		}
 	}
 
 	private static final long serialVersionUID = 1L;
 
-	private ProcessExecutionHandler rExecutionHandler;
+	private final ProcessExecutionHandler executionHandler;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rExecutionHandler The handler to be notified of process execution
-	 *                          events
+	 * @param executionHandler The handler to be notified of process execution
+	 *                         events
 	 */
-	public ProcessControlFragment(ProcessExecutionHandler rExecutionHandler) {
-		this.rExecutionHandler = rExecutionHandler;
+	public ProcessControlFragment(ProcessExecutionHandler executionHandler) {
+		this.executionHandler = executionHandler;
 	}
 
 	/**
@@ -78,7 +77,7 @@ public class ProcessControlFragment extends InteractionFragment {
 	@Override
 	public void init() throws Exception {
 		iconButtons(ProcessControlAction.class).onAction(
-			a -> rExecutionHandler.executeProcess(a.getExecutionMode()));
+			a -> executionHandler.executeProcess(a.getExecutionMode()));
 	}
 
 	/**
@@ -87,15 +86,15 @@ public class ProcessControlFragment extends InteractionFragment {
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface ProcessExecutionHandler {
+	public interface ProcessExecutionHandler {
 
 		/**
 		 * Executes the process with the given execution mode.
 		 *
-		 * @param eMode The process execution mode
+		 * @param mode The process execution mode
 		 * @throws ProcessException If the process execution fails
 		 */
-		public void executeProcess(ProcessExecutionMode eMode)
+		void executeProcess(ProcessExecutionMode mode)
 			throws ProcessException;
 	}
 }

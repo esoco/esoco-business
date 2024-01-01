@@ -17,7 +17,7 @@
 package de.esoco.data.element;
 
 /**
- * An interface for objects that allow to write data rValues to some
+ * An interface for objects that allow to write data values to some
  * destination.
  *
  * @author eso
@@ -25,72 +25,72 @@ package de.esoco.data.element;
 public interface DataWriter {
 
 	/**
-	 * Writes a boolean rValue.
+	 * Writes a boolean value.
 	 *
-	 * @param bValue The boolean
+	 * @param value The boolean
 	 */
-	void writeBoolean(boolean bValue);
+	void writeBoolean(boolean value);
 
 	/**
-	 * Writes a byte rValue.
+	 * Writes a byte value.
 	 *
-	 * @param nValue The byte
+	 * @param value The byte
 	 */
-	void writeByte(byte nValue);
+	void writeByte(byte value);
 
 	/**
-	 * Writes a char rValue.
+	 * Writes a char value.
 	 *
-	 * @param cValue The char
+	 * @param value The char
 	 */
-	void writeChar(char cValue);
+	void writeChar(char value);
 
 	/**
-	 * Writes a double rValue.
+	 * Writes a double value.
 	 *
-	 * @param fValue The double
+	 * @param value The double
 	 */
-	void writeDouble(double fValue);
+	void writeDouble(double value);
 
 	/**
-	 * Writes a float rValue.
+	 * Writes a float value.
 	 *
-	 * @param fValue The float
+	 * @param value The float
 	 */
-	void writeFloat(float fValue);
+	void writeFloat(float value);
 
 	/**
-	 * Writes a int rValue.
+	 * Writes a int value.
 	 *
-	 * @param nValue The int
+	 * @param value The int
 	 */
-	void writeInt(int nValue);
+	void writeInt(int value);
 
 	/**
-	 * Writes a long rValue.
+	 * Writes a long value.
 	 *
-	 * @param nValue The long
+	 * @param value The long
 	 */
-	void writeLong(long nValue);
+	void writeLong(long value);
 
 	/**
-	 * Writes a object rValue.
+	 * Writes a object value.
 	 *
-	 * @param rValue The object
+	 * @param value The object
 	 */
-	void writeObject(Object rValue);
+	void writeObject(Object value);
 
 	/**
-	 * Writes a short rValue.
+	 * Writes a short value.
 	 *
-	 * @param nValue The short
+	 * @param value The short
 	 */
-	void writeShort(short nValue);
+	void writeShort(short value);
 
 	/**
-	 * Writes a string rValue.
+	 * Writes a string value.
 	 *
-	 * @param sValue The string
+	 * @param value The string
 	 */
-	void writeString(String sValue);
+	void writeString(String value);
 }

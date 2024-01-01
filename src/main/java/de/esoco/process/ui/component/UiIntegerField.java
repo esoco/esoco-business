@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.IntAttribute;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiNumberInputField;
 
@@ -33,11 +32,11 @@ public class UiIntegerField extends UiNumberInputField<Integer, UiIntegerField>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rContainer rParent The parent container
-	 * @param nValue     The initial value
+	 * @param container parent The parent container
+	 * @param value     The initial value
 	 */
-	public UiIntegerField(UiContainer<?> rContainer, int nValue) {
-		super(rContainer, Integer.class, Integer.valueOf(nValue));
+	public UiIntegerField(UiContainer<?> container, int value) {
+		super(container, Integer.class, Integer.valueOf(value));
 	}
 
 	/**
@@ -52,8 +51,8 @@ public class UiIntegerField extends UiNumberInputField<Integer, UiIntegerField>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setValue(int nValue) {
-		setValueImpl(Integer.valueOf(nValue));
+	public void setValue(int value) {
+		setValueImpl(Integer.valueOf(value));
 	}
 
 	/**
@@ -61,12 +60,12 @@ public class UiIntegerField extends UiNumberInputField<Integer, UiIntegerField>
 	 * limits are set the component will display additional button to increment
 	 * or decrement the displayed value.
 	 *
-	 * @param nMinimum The minimum integer value
-	 * @param nMaximum The maximum integer value
+	 * @param minimum The minimum integer value
+	 * @param maximum The maximum integer value
 	 * @return This instance
 	 */
-	public UiIntegerField withBounds(int nMinimum, int nMaximum) {
-		fragment().setParameterBounds(type(), nMinimum, nMaximum);
+	public UiIntegerField withBounds(int minimum, int maximum) {
+		fragment().setParameterBounds(type(), minimum, maximum);
 
 		return this;
 	}

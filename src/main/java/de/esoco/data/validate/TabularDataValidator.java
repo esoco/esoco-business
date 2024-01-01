@@ -31,15 +31,15 @@ public abstract class TabularDataValidator implements Validator<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<ColumnDefinition> rColumns;
+	private List<ColumnDefinition> columns;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rColumns The table columns
+	 * @param columns The table columns
 	 */
-	public TabularDataValidator(List<ColumnDefinition> rColumns) {
-		this.rColumns = rColumns;
+	public TabularDataValidator(List<ColumnDefinition> columns) {
+		this.columns = columns;
 	}
 
 	/**
@@ -52,18 +52,18 @@ public abstract class TabularDataValidator implements Validator<String> {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		TabularDataValidator rOther = (TabularDataValidator) rObj;
+		TabularDataValidator other = (TabularDataValidator) obj;
 
-		return rColumns.equals(rOther.rColumns);
+		return columns.equals(other.columns);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public abstract class TabularDataValidator implements Validator<String> {
 	 * @return The table column definitions
 	 */
 	public final List<ColumnDefinition> getColumns() {
-		return rColumns;
+		return columns;
 	}
 
 	/**
@@ -80,6 +80,6 @@ public abstract class TabularDataValidator implements Validator<String> {
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * rColumns.hashCode();
+		return 37 * columns.hashCode();
 	}
 }

@@ -34,8 +34,8 @@ public interface UiComponentAdapter<T> extends UiComponentFactory {
 	/**
 	 * Updates a component from the given value.
 	 *
-	 * @param rComponent The component to be updated
-	 * @param rValue     The new value to update the component from
+	 * @param component The component to be updated
+	 * @param value     The new value to update the component from
 	 */
-	public void updateComponent(UiComponent<?, ?> rComponent, T rValue);
+	void updateComponent(UiComponent<?, ?> component, T value);
 }

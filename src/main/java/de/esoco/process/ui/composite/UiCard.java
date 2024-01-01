@@ -45,37 +45,37 @@ import java.util.function.Consumer;
  */
 public class UiCard extends UiComposite<UiCard> {
 
-	private UiCardTitle aCardTitle;
+	private UiCardTitle cardTitle;
 
-	private UiCardTitle aBackSideTitle;
+	private UiCardTitle backSideTitle;
 
-	private UiLayoutPanel aBackSide;
+	private UiLayoutPanel backSide;
 
-	private UiLayoutPanel aCardActions;
+	private UiLayoutPanel cardActions;
 
-	private Runnable fBackSideOpenHandler = () -> {
+	private Runnable backSideOpenHandler = () -> {
 	};
 
-	private Runnable fBackSideCloseHandler = () -> {
+	private Runnable backSideCloseHandler = () -> {
 	};
 
 	/**
 	 * Creates a new instance without a title.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiCard(UiContainer<?> rParent) {
-		this(rParent, (String) null);
+	public UiCard(UiContainer<?> parent) {
+		this(parent, (String) null);
 	}
 
 	/**
 	 * Creates a new instance with a title text but no icon.
 	 *
-	 * @param rParent The parent container
-	 * @param sTitle  The card title
+	 * @param parent The parent container
+	 * @param title  The card title
 	 */
-	public UiCard(UiContainer<?> rParent, String sTitle) {
-		this(rParent, sTitle, null);
+	public UiCard(UiContainer<?> parent, String title) {
+		this(parent, title, null);
 	}
 
 	/**
@@ -85,13 +85,13 @@ public class UiCard extends UiComposite<UiCard> {
 	 * content area. To place it inside the image use the constructor
 	 * {@link #UiCard(UiContainer, UiImageDefinition, String)} instead.
 	 *
-	 * @param rParent     The parent container
-	 * @param rTitleImage The image to display as the card title
+	 * @param parent     The parent container
+	 * @param titleImage The image to display as the card title
 	 */
-	public UiCard(UiContainer<?> rParent, UiImageDefinition<?> rTitleImage) {
-		super(rParent, new CardLayout());
+	public UiCard(UiContainer<?> parent, UiImageDefinition<?> titleImage) {
+		super(parent, new CardLayout());
 
-		builder().addImage(rTitleImage);
+		builder().addImage(titleImage);
 
 		// explicitly add card content panel so that a subsequently added title
 		// is placed in the content
@@ -101,30 +101,29 @@ public class UiCard extends UiComposite<UiCard> {
 	/**
 	 * Creates a new instance with a title image and text.
 	 *
-	 * @param rParent     The parent container
-	 * @param rTitleImage The image to display as the card title
-	 * @param sTitle      The card title to be displayed inside the title image
+	 * @param parent     The parent container
+	 * @param titleImage The image to display as the card title
+	 * @param title      The card title to be displayed inside the title image
 	 */
-	public UiCard(UiContainer<?> rParent, UiImageDefinition<?> rTitleImage,
-		String sTitle) {
-		super(rParent, new CardLayout());
+	public UiCard(UiContainer<?> parent, UiImageDefinition<?> titleImage,
+		String title) {
+		super(parent, new CardLayout());
 
-		builder().addImage(rTitleImage);
-		setTitle(sTitle, null);
+		builder().addImage(titleImage);
+		setTitle(title, null);
 	}
 
 	/**
 	 * Creates a new instance with a title and an icon.
 	 *
-	 * @param rParent The parent container
-	 * @param sTitle  The card title
-	 * @param rIcon   The card icon
+	 * @param parent The parent container
+	 * @param title  The card title
+	 * @param icon   The card icon
 	 */
-	public UiCard(UiContainer<?> rParent, String sTitle,
-		UiIconSupplier rIcon) {
-		super(rParent, new CardLayout());
+	public UiCard(UiContainer<?> parent, String title, UiIconSupplier icon) {
+		super(parent, new CardLayout());
 
-		setTitle(sTitle, rIcon);
+		setTitle(title, icon);
 	}
 
 	/**
@@ -138,18 +137,18 @@ public class UiCard extends UiComposite<UiCard> {
 	 * @return The back side builder
 	 */
 	public UiBuilder<?> backSideBuilder() {
-		if (aBackSide == null) {
-			aBackSide = builder().addPanel(new UiSecondaryContentLayout());
+		if (backSide == null) {
+			backSide = builder().addPanel(new UiSecondaryContentLayout());
 		}
 
-		if (aBackSideTitle == null) {
+		if (backSideTitle == null) {
 			// add empty title and close button
-			aBackSideTitle =
-				new UiCardTitle(aBackSide, "", UiStandardIcon.CLOSE).onAction(
-					v -> fBackSideCloseHandler.run());
+			backSideTitle =
+				new UiCardTitle(backSide, "", UiStandardIcon.CLOSE).onAction(
+					v -> backSideCloseHandler.run());
 		}
 
-		return aBackSide.builder();
+		return backSide.builder();
 	}
 
 	/**
@@ -161,11 +160,11 @@ public class UiCard extends UiComposite<UiCard> {
 	 * @return The panel content builder
 	 */
 	public UiBuilder<?> cardActionBuilder() {
-		if (aCardActions == null) {
-			aCardActions = builder().addPanel(new UiFooterLayout());
+		if (cardActions == null) {
+			cardActions = builder().addPanel(new UiFooterLayout());
 		}
 
-		return aCardActions.builder();
+		return cardActions.builder();
 	}
 
 	/**
@@ -174,7 +173,7 @@ public class UiCard extends UiComposite<UiCard> {
 	 * @return The title text
 	 */
 	public String getTitle() {
-		return aCardTitle.getText();
+		return cardTitle.getText();
 	}
 
 	/**
@@ -185,11 +184,11 @@ public class UiCard extends UiComposite<UiCard> {
 	 * close button. Only one handler function can be active. Invoking this
 	 * method again overrides any previous close handler.
 	 *
-	 * @param fCloseHandler The back side close handler function
+	 * @param closeHandler The back side close handler function
 	 * @return This instance for fluent invocations
 	 */
-	public UiCard onBackSideClose(Runnable fCloseHandler) {
-		fBackSideCloseHandler = fCloseHandler;
+	public UiCard onBackSideClose(Runnable closeHandler) {
+		backSideCloseHandler = closeHandler;
 
 		return this;
 	}
@@ -201,11 +200,11 @@ public class UiCard extends UiComposite<UiCard> {
 	 * with {@link #setBackSideTitle(String)}. Invoking this method again
 	 * overrides any previous open handler.
 	 *
-	 * @param fOpenHandler The back side open handler function
+	 * @param openHandler The back side open handler function
 	 * @return This instance for fluent invocations
 	 */
-	public UiCard onBackSideOpen(Runnable fOpenHandler) {
-		fBackSideOpenHandler = fOpenHandler;
+	public UiCard onBackSideOpen(Runnable openHandler) {
+		backSideOpenHandler = openHandler;
 
 		return this;
 	}
@@ -213,11 +212,11 @@ public class UiCard extends UiComposite<UiCard> {
 	/**
 	 * Sets the back side title with the standard close icon.
 	 *
-	 * @param sTitle The new back side title
+	 * @param title The new back side title
 	 * @return This instance for fluent invocations
 	 */
-	public UiCard setBackSideTitle(String sTitle) {
-		return setBackSideTitle(sTitle, UiStandardIcon.CLOSE);
+	public UiCard setBackSideTitle(String title) {
+		return setBackSideTitle(title, UiStandardIcon.CLOSE);
 	}
 
 	/**
@@ -231,17 +230,17 @@ public class UiCard extends UiComposite<UiCard> {
 	 * that is recognizable by the user. That icon is preset when using the
 	 * method {@link #setBackSideTitle(String)}.</p>
 	 *
-	 * @param sTitle The back side title text
-	 * @param rIcon  The back side title icon (used to close the back side)
+	 * @param title The back side title text
+	 * @param icon  The back side title icon (used to close the back side)
 	 * @return This instance for fluent invocations
 	 */
-	public UiCard setBackSideTitle(String sTitle, UiIconSupplier rIcon) {
-		if (aBackSideTitle == null) {
+	public UiCard setBackSideTitle(String title, UiIconSupplier icon) {
+		if (backSideTitle == null) {
 			// also creates the back side title
 			backSideBuilder();
 		}
 
-		aBackSideTitle.icon(rIcon).text(sTitle);
+		backSideTitle.icon(icon).text(title);
 
 		return this;
 	}
@@ -250,19 +249,19 @@ public class UiCard extends UiComposite<UiCard> {
 	 * Sets or removes the card title. If the title string is NULL the title
 	 * will be removed completely and the icon argument will be ignored.
 	 *
-	 * @param sTitle The card title string or NULL to remove
-	 * @param rIcon  The title icon
+	 * @param title The card title string or NULL to remove
+	 * @param icon  The title icon
 	 */
-	public void setTitle(String sTitle, UiIconSupplier rIcon) {
-		if (sTitle != null) {
-			if (aCardTitle == null) {
-				aCardTitle = new UiCardTitle(this, sTitle, rIcon).onAction(
-					v -> fBackSideOpenHandler.run());
+	public void setTitle(String title, UiIconSupplier icon) {
+		if (title != null) {
+			if (cardTitle == null) {
+				cardTitle = new UiCardTitle(this, title, icon).onAction(
+					v -> backSideOpenHandler.run());
 			}
 
-			aCardTitle.setText(sTitle);
-		} else if (aCardTitle != null) {
-			remove(aCardTitle);
+			cardTitle.setText(title);
+		} else if (cardTitle != null) {
+			remove(cardTitle);
 		}
 	}
 
@@ -277,35 +276,35 @@ public class UiCard extends UiComposite<UiCard> {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rParent The parent container
-		 * @param sText   The title text
-		 * @param rIcon   The title icon
+		 * @param parent The parent container
+		 * @param text   The title text
+		 * @param icon   The title icon
 		 */
-		public UiCardTitle(UiContainer<?> rParent, String sText,
-			UiIconSupplier rIcon) {
-			super(rParent, sText);
+		public UiCardTitle(UiContainer<?> parent, String text,
+			UiIconSupplier icon) {
+			super(parent, text);
 
-			icon(rIcon);
+			icon(icon);
 		}
 
 		/**
 		 * Sets the title icon.
 		 *
-		 * @param rIconSupplier The title icon
+		 * @param iconSupplier The title icon
 		 * @return This instance
 		 */
 		@Override
-		public UiCardTitle icon(UiIconSupplier rIconSupplier) {
-			return (UiCardTitle) super.icon(rIconSupplier);
+		public UiCardTitle icon(UiIconSupplier iconSupplier) {
+			return (UiCardTitle) super.icon(iconSupplier);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public UiCardTitle onAction(Consumer<String> rEventHandler) {
+		public UiCardTitle onAction(Consumer<String> eventHandler) {
 			return (UiCardTitle) setParameterEventHandler(
-				InteractionEventType.ACTION, v -> rEventHandler.accept(v));
+				InteractionEventType.ACTION, v -> eventHandler.accept(v));
 		}
 	}
 

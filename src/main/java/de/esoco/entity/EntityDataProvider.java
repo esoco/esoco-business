@@ -21,16 +21,14 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.model.AbstractDataProvider;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.SortDirection;
-
 import de.esoco.storage.QueryPredicate;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.storage.StoragePredicates.sortBy;
 
@@ -42,77 +40,76 @@ import static de.esoco.storage.StoragePredicates.sortBy;
 public class EntityDataProvider<E extends Entity>
 	extends AbstractDataProvider<E> {
 
-	private QueryPredicate<E> qBaseQuery;
+	private QueryPredicate<E> baseQuery;
 
-	private QueryPredicate<E> qVisibleEntities;
+	private QueryPredicate<E> visibleEntities;
 
-	private Predicate<E> pAttributeFilter;
+	private Predicate<E> attributeFilter;
 
-	private Predicate<E> pWildcardFilter;
+	private Predicate<E> wildcardFilter;
 
-	private Predicate<E> pSortPredicate;
+	private Predicate<E> sortPredicate;
 
 	/**
 	 * Creates a new instance that queries all entities of a certain type.
 	 *
-	 * @param rEntityType The class of the entity type to be queried
+	 * @param entityType The class of the entity type to be queried
 	 */
-	public EntityDataProvider(Class<E> rEntityType) {
-		this(rEntityType, null);
+	public EntityDataProvider(Class<E> entityType) {
+		this(entityType, null);
 	}
 
 	/**
 	 * Creates a new instance for a certain entity type with default query
 	 * criteria that will always be applied.
 	 *
-	 * @param qBaseQuery The base query to be executed if no additional
-	 *                   constraints are applied
+	 * @param baseQuery The base query to be executed if no additional
+	 *                  constraints are applied
 	 */
-	public EntityDataProvider(QueryPredicate<E> qBaseQuery) {
-		this.qBaseQuery = qBaseQuery;
-		qVisibleEntities = qBaseQuery;
+	public EntityDataProvider(QueryPredicate<E> baseQuery) {
+		this.baseQuery = baseQuery;
+		visibleEntities = baseQuery;
 	}
 
 	/**
 	 * Creates a new instance that queries the entities of a certain type the
 	 * match certain criteria.
 	 *
-	 * @param rEntityType      The class of the entity type to be queried
-	 * @param pDefaultCriteria The criteria for which to limit the queried
-	 *                         entities
+	 * @param entityType      The class of the entity type to be queried
+	 * @param defaultCriteria The criteria for which to limit the queried
+	 *                        entities
 	 */
-	public EntityDataProvider(Class<E> rEntityType,
-		Predicate<? super E> pDefaultCriteria) {
-		this(new QueryPredicate<>(rEntityType, pDefaultCriteria));
+	public EntityDataProvider(Class<E> entityType,
+		Predicate<? super E> defaultCriteria) {
+		this(new QueryPredicate<>(entityType, defaultCriteria));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<E> getData(int nStart, int nCount) {
-		Collection<E> aResult = new ArrayList<>(nCount);
+	public Collection<E> getData(int start, int count) {
+		Collection<E> result = new ArrayList<>(count);
 
-		try (EntityIterator<E> aIterator = new EntityIterator<>(
-			qVisibleEntities)) {
-			aIterator.setPosition(nStart, false);
+		try (EntityIterator<E> iterator = new EntityIterator<>(
+			visibleEntities)) {
+			iterator.setPosition(start, false);
 
-			while (nCount-- > 0 && aIterator.hasNext()) {
-				aResult.add(aIterator.next());
+			while (count-- > 0 && iterator.hasNext()) {
+				result.add(iterator.next());
 			}
 		}
 
-		return aResult;
+		return result;
 	}
 
 	/**
 	 * Sets the default criteria.
 	 *
-	 * @param pCriteria The new default criteria
+	 * @param criteria The new default criteria
 	 */
-	public void setDefaultCriteria(Predicate<? super E> pCriteria) {
-		qBaseQuery = new QueryPredicate<>(qBaseQuery.getQueryType(),
-			pCriteria);
+	public void setDefaultCriteria(Predicate<? super E> criteria) {
+		baseQuery = new QueryPredicate<>(baseQuery.getQueryType(), criteria);
 
 		updateVisibleEntities();
 	}
@@ -123,17 +120,16 @@ public class EntityDataProvider<E extends Entity>
 	 * {@link EntityPredicates#createWildcardFilter(String, RelationType...)}
 	 * for details.
 	 *
-	 * @param sFilter             sWildcard The wildcard filter string (can be
-	 *                            NULL or empty)
-	 * @param rFilteredAttributes The text attributes to filter (can be NULL or
-	 *                            empty)
+	 * @param filter             wildcard The wildcard filter string (can be
+	 *                           NULL or empty)
+	 * @param filteredAttributes The text attributes to filter (can be NULL or
+	 *                           empty)
 	 */
 	@SuppressWarnings("unchecked")
-	public void setWildcardFilter(String sFilter,
-		RelationType<String>... rFilteredAttributes) {
-		pWildcardFilter =
-			EntityPredicates.createWildcardFilter(sFilter,
-				rFilteredAttributes);
+	public void setWildcardFilter(String filter,
+		RelationType<String>... filteredAttributes) {
+		wildcardFilter =
+			EntityPredicates.createWildcardFilter(filter, filteredAttributes);
 
 		updateVisibleEntities();
 	}
@@ -143,9 +139,9 @@ public class EntityDataProvider<E extends Entity>
 	 */
 	@Override
 	public int size() {
-		try (EntityIterator<E> aIterator = new EntityIterator<>(
-			qVisibleEntities)) {
-			return aIterator.size();
+		try (EntityIterator<E> iterator = new EntityIterator<>(
+			visibleEntities)) {
+			return iterator.size();
 		}
 	}
 
@@ -155,22 +151,22 @@ public class EntityDataProvider<E extends Entity>
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void updateFilter(
-		Map<Function<? super E, ?>, java.util.function.Predicate<?>> rFilters) {
-		pAttributeFilter = null;
+		Map<Function<? super E, ?>, java.util.function.Predicate<?>> filters) {
+		attributeFilter = null;
 
-		for (Entry<Function<? super E, ?>, java.util.function.Predicate<?>> rFilter : rFilters.entrySet()) {
-			Function<? super E, ?> rAttribute = rFilter.getKey();
-			java.util.function.Predicate<?> pFilter = rFilter.getValue();
+		for (Entry<Function<? super E, ?>, java.util.function.Predicate<?>> filter : filters.entrySet()) {
+			Function<? super E, ?> attribute = filter.getKey();
+			java.util.function.Predicate<?> entityFilter = filter.getValue();
 
-			if (rAttribute instanceof RelationType &&
-				pFilter instanceof de.esoco.lib.expression.Predicate) {
-				RelationType<Object> rEntityAttr =
-					(RelationType<Object>) rAttribute;
+			if (attribute instanceof RelationType &&
+				filter instanceof de.esoco.lib.expression.Predicate) {
+				RelationType<Object> entityAttr =
+					(RelationType<Object>) attribute;
 
-				Predicate<Object> pCriterion = (Predicate<Object>) pFilter;
+				Predicate<Object> criterion = (Predicate<Object>) entityFilter;
 
-				pAttributeFilter = Predicates.and(pAttributeFilter,
-					EntityPredicates.ifAttribute(rEntityAttr, pCriterion));
+				attributeFilter = Predicates.and(attributeFilter,
+					EntityPredicates.ifAttribute(entityAttr, criterion));
 			}
 		}
 
@@ -182,18 +178,18 @@ public class EntityDataProvider<E extends Entity>
 	 */
 	@Override
 	protected void updateSorting(
-		Map<Function<? super E, ? extends Comparable<?>>, SortDirection> rSortings) {
-		pSortPredicate = null;
+		Map<Function<? super E, ? extends Comparable<?>>, SortDirection> sortings) {
+		sortPredicate = null;
 
 		for (Entry<Function<? super E, ? extends Comparable<?>>,
-			SortDirection> rOrdering : rSortings.entrySet()) {
-			Function<? super E, ?> rAttribute = rOrdering.getKey();
-			SortDirection eDirection = rOrdering.getValue();
+			SortDirection> ordering : sortings.entrySet()) {
+			Function<? super E, ?> attribute = ordering.getKey();
+			SortDirection direction = ordering.getValue();
 
-			if (rAttribute instanceof RelationType) {
-				pSortPredicate = Predicates.and(pSortPredicate,
-					sortBy((RelationType<?>) rAttribute,
-						eDirection == SortDirection.ASCENDING));
+			if (attribute instanceof RelationType) {
+				sortPredicate = Predicates.and(sortPredicate,
+					sortBy((RelationType<?>) attribute,
+						direction == SortDirection.ASCENDING));
 			}
 		}
 
@@ -204,14 +200,14 @@ public class EntityDataProvider<E extends Entity>
 	 * Updates the query of the visible entities.
 	 */
 	protected void updateVisibleEntities() {
-		Predicate<E> pCriteria =
-			Predicates.and(qBaseQuery.getCriteria(), pAttributeFilter);
+		Predicate<E> criteria =
+			Predicates.and(baseQuery.getCriteria(), attributeFilter);
 
-		pCriteria = Predicates.and(pCriteria, pAttributeFilter);
-		pCriteria = Predicates.and(pCriteria, pWildcardFilter);
-		pCriteria = Predicates.and(pCriteria, pSortPredicate);
+		criteria = Predicates.and(criteria, attributeFilter);
+		criteria = Predicates.and(criteria, wildcardFilter);
+		criteria = Predicates.and(criteria, sortPredicate);
 
-		qVisibleEntities =
-			new QueryPredicate<>(qBaseQuery.getQueryType(), pCriteria);
+		visibleEntities =
+			new QueryPredicate<>(baseQuery.getQueryType(), criteria);
 	}
 }

@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ContentType;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 
@@ -34,13 +33,13 @@ public class UiWebView extends UiComponent<String, UiWebView> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sUrl    sText The label text
+	 * @param parent The parent container
+	 * @param url    text The label text
 	 */
-	public UiWebView(UiContainer<?> rParent, String sUrl) {
-		super(rParent, String.class);
+	public UiWebView(UiContainer<?> parent, String url) {
+		super(parent, String.class);
 
-		setUrl(sUrl);
+		setUrl(url);
 		set(CONTENT_TYPE, ContentType.WEBSITE);
 		set(HIDE_LABEL);
 	}
@@ -57,9 +56,9 @@ public class UiWebView extends UiComponent<String, UiWebView> {
 	/**
 	 * Sets the URL of the web page to be displayed.
 	 *
-	 * @param sUrl The website URL
+	 * @param url The website URL
 	 */
-	public void setUrl(String sUrl) {
-		setValueImpl(sUrl);
+	public void setUrl(String url) {
+		setValueImpl(url);
 	}
 }

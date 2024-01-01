@@ -17,7 +17,6 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutType;
@@ -27,20 +26,17 @@ import de.esoco.lib.text.TextConvert;
 import de.esoco.process.param.Parameter;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.graphics.UiMaterialIcon;
-
 import de.esoco.storage.StoragePredicates;
 import de.esoco.storage.StoragePredicates.SortPredicate;
+import org.obrel.core.RelationType;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.ContentProperties.ICON;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.NO_EVENT_PROPAGATION;
 import static de.esoco.lib.property.StyleProperties.BUTTON_STYLE;
-
 import static org.obrel.type.MetaTypes.SORT_DIRECTION;
 
 /**
@@ -55,20 +51,20 @@ public abstract class EntityListHeader<E extends Entity>
 
 	private static final String COLUMN_BASE_STYLE = "EntityListColumn";
 
-	private final EntityList<E, ?> rEntityList;
+	private final EntityList<E, ?> entityList;
 
-	private RelationType<?> rCurrentSortColumn = null;
-
-	private Map<RelationType<?>, Parameter<String>> aColumnParams =
+	private final Map<RelationType<?>, Parameter<String>> columnParams =
 		new HashMap<>();
+
+	private RelationType<?> currentSortColumn = null;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rEntityList The entity list this header belongs to
+	 * @param entityList The entity list this header belongs to
 	 */
-	public EntityListHeader(EntityList<E, ?> rEntityList) {
-		this.rEntityList = rEntityList;
+	public EntityListHeader(EntityList<E, ?> entityList) {
+		this.entityList = entityList;
 	}
 
 	/**
@@ -77,7 +73,7 @@ public abstract class EntityListHeader<E extends Entity>
 	 * @return The parent entity list
 	 */
 	public final EntityList<E, ?> getEntityList() {
-		return rEntityList;
+		return entityList;
 	}
 
 	/**
@@ -100,19 +96,19 @@ public abstract class EntityListHeader<E extends Entity>
 	 */
 	@Override
 	public void init() throws Exception {
-		boolean bExpandable = getHeaderType() != ListLayoutStyle.SIMPLE;
+		boolean expandable = getHeaderType() != ListLayoutStyle.SIMPLE;
 
 		layout(LayoutType.LIST_ITEM);
 
-		panel(rHeader -> {
-			if (bExpandable) {
-				initExpandableHeaderPanel(rHeader);
+		panel(header -> {
+			if (expandable) {
+				initExpandableHeaderPanel(header);
 			} else {
-				buildTitlePanel(rHeader);
+				buildTitlePanel(header);
 			}
 		});
 
-		if (bExpandable) {
+		if (expandable) {
 			panel(p -> initDataPanel(p));
 		}
 	}
@@ -124,12 +120,12 @@ public abstract class EntityListHeader<E extends Entity>
 	 * same
 	 * as the argument to {@link #initTitlePanel(InteractionFragment)}.
 	 *
-	 * @param rHeaderPanel The header panel
+	 * @param headerPanel The header panel
 	 * @return The parameter representing the indicator
 	 */
 	protected Parameter<String> addExpandableHeaderIndicator(
-		InteractionFragment rHeaderPanel) {
-		return rHeaderPanel
+		InteractionFragment headerPanel) {
+		return headerPanel
 			.label("")
 			.input()
 			.sameRow(1)
@@ -142,65 +138,64 @@ public abstract class EntityListHeader<E extends Entity>
 	/**
 	 * Builds and initializes the title panel of this header.
 	 *
-	 * @param rPanel The title panel
+	 * @param panel The title panel
 	 */
-	protected void buildTitlePanel(InteractionFragment rPanel) {
-		initTitlePanel(rPanel);
+	protected void buildTitlePanel(InteractionFragment panel) {
+		initTitlePanel(panel);
 
-		SortPredicate<? super E> pSortColumn = getEntityList().getSortColumn();
+		SortPredicate<? super E> sortColumn = getEntityList().getSortColumn();
 
-		if (pSortColumn != null) {
-			toggleSorting((RelationType<?>) pSortColumn.getElementDescriptor(),
-				pSortColumn.get(SORT_DIRECTION));
+		if (sortColumn != null) {
+			toggleSorting((RelationType<?>) sortColumn.getElementDescriptor(),
+				sortColumn.get(SORT_DIRECTION));
 		}
 	}
 
 	/**
 	 * Changes the active sorting column.
 	 *
-	 * @param rSortColumn The column attribute relation type to sort on
+	 * @param sortColumn The column attribute relation type to sort on
 	 */
-	protected void changeSortColumn(RelationType<?> rSortColumn) {
-		SortDirection eDirection = toggleSorting(rSortColumn, null);
-		SortPredicate<E> pSort = null;
+	protected void changeSortColumn(RelationType<?> sortColumn) {
+		SortDirection direction = toggleSorting(sortColumn, null);
+		SortPredicate<E> sort = null;
 
-		if (eDirection != null) {
-			pSort = StoragePredicates.sortBy(rCurrentSortColumn, eDirection);
+		if (direction != null) {
+			sort = StoragePredicates.sortBy(currentSortColumn, direction);
 		}
 
-		rEntityList.setSortColumn(pSort);
+		entityList.setSortColumn(sort);
 	}
 
 	/**
 	 * Creates a parameter for a column title from a relation type.
 	 *
-	 * @param rPanel            The fragment of the title panel
-	 * @param rAttr             The relation type to create the column title
-	 *                          for
-	 * @param rColumnProperties The column properties
+	 * @param panel            The fragment of the title panel
+	 * @param attr             The relation type to create the column title for
+	 * @param columnProperties The column properties
 	 * @return A parameter instance for the column title
 	 */
-	protected Parameter<String> createColumnTitle(InteractionFragment rPanel,
-		final RelationType<?> rAttr, HasProperties rColumnProperties) {
-		String sColumnTitle = rColumnProperties.getProperty(RESOURCE_ID, null);
+	protected Parameter<String> createColumnTitle(InteractionFragment panel,
+		final RelationType<?> attr, HasProperties columnProperties) {
+		String columnTitle = columnProperties.getProperty(RESOURCE_ID, null);
 
-		if (sColumnTitle == null) {
-			sColumnTitle = getEntityList().getEntityType().getSimpleName() +
-				TextConvert.capitalizedIdentifier(rAttr.getSimpleName());
+		if (columnTitle == null) {
+			columnTitle = getEntityList().getEntityType().getSimpleName() +
+				TextConvert.capitalizedIdentifier(attr.getSimpleName());
 		}
 
-		sColumnTitle = "$lbl" + sColumnTitle;
+		columnTitle = "$lbl" + columnTitle;
 
-		Parameter<String> aColumnTitle = rPanel
-			.label(sColumnTitle)
+		Parameter<String> titleParam = panel
+			.label(columnTitle)
 			.style(COLUMN_BASE_STYLE)
 			.buttonStyle(ButtonStyle.LINK)
 			.set(NO_EVENT_PROPAGATION)
-			.onAction(v -> changeSortColumn(rAttr));
+			.onAction(v -> changeSortColumn(attr));
 
-		aColumnParams.put(rAttr, aColumnTitle);
+		columnParams.put(attr, titleParam);
 
-		return aColumnTitle;
+		return titleParam;
 	}
 
 	/**
@@ -208,20 +203,20 @@ public abstract class EntityListHeader<E extends Entity>
 	 * method {@link #getHeaderType()} returns an expanding header style. The
 	 * data panel layout is pre-set to {@link LayoutType#GRID}.
 	 *
-	 * @param rContentPanel rHeaderPanel The content panel fragment
+	 * @param contentPanel headerPanel The content panel fragment
 	 */
-	protected void initDataPanel(InteractionFragment rContentPanel) {
+	protected void initDataPanel(InteractionFragment contentPanel) {
 	}
 
 	/**
 	 * Will be invoked to init the wrapping header panel if this header is
 	 * expandable.
 	 *
-	 * @param rHeader The header panel
+	 * @param header The header panel
 	 */
-	protected void initExpandableHeaderPanel(InteractionFragment rHeader) {
-		rHeader.layout(LayoutType.HEADER);
-		rHeader.panel(p -> buildTitlePanel(p));
+	protected void initExpandableHeaderPanel(InteractionFragment header) {
+		header.layout(LayoutType.HEADER);
+		header.panel(p -> buildTitlePanel(p));
 	}
 
 	/**
@@ -230,54 +225,55 @@ public abstract class EntityListHeader<E extends Entity>
 	 * of this instance. The panel layout is set to {@link LayoutType#GRID}
 	 * which can be overridden.
 	 *
-	 * @param rHeaderPanel The header panel fragment
+	 * @param headerPanel The header panel fragment
 	 */
-	protected abstract void initTitlePanel(InteractionFragment rHeaderPanel);
+	protected abstract void initTitlePanel(InteractionFragment headerPanel);
 
 	/**
 	 * Toggles the sorting of a certain column attribute by switching through
 	 * the states ascending, descending, and no sorting. This will change the
 	 * style of the sort column header accordingly.
 	 *
-	 * @param rSortColumn The new sort column or NULL for no sorting
-	 * @param eDirection  The sort direction to set or NULL to switch an
-	 *                    existing direction
+	 * @param sortColumn The new sort column or NULL for no sorting
+	 * @param direction  The sort direction to set or NULL to switch an
+	 *                      existing
+	 *                   direction
 	 * @return The current style of the sorted column (NULL for not sorted)
 	 */
-	protected SortDirection toggleSorting(RelationType<?> rSortColumn,
-		SortDirection eDirection) {
-		if (rCurrentSortColumn != null && rCurrentSortColumn != rSortColumn) {
-			Parameter<String> rCurrentColumnParam =
-				aColumnParams.get(rCurrentSortColumn);
+	protected SortDirection toggleSorting(RelationType<?> sortColumn,
+		SortDirection direction) {
+		if (currentSortColumn != null && currentSortColumn != sortColumn) {
+			Parameter<String> currentColumnParam =
+				columnParams.get(currentSortColumn);
 
-			rCurrentColumnParam.style(COLUMN_BASE_STYLE);
-			rCurrentColumnParam.set(SORT_DIRECTION, null);
+			currentColumnParam.style(COLUMN_BASE_STYLE);
+			currentColumnParam.set(SORT_DIRECTION, null);
 		}
 
-		rCurrentSortColumn = rSortColumn;
+		currentSortColumn = sortColumn;
 
-		Parameter<String> rColumnParam = aColumnParams.get(rCurrentSortColumn);
-		String sStyle = COLUMN_BASE_STYLE;
+		Parameter<String> columnParam = columnParams.get(currentSortColumn);
+		String style = COLUMN_BASE_STYLE;
 
-		if (eDirection == null) {
-			eDirection = rColumnParam.get(SORT_DIRECTION);
+		if (direction == null) {
+			direction = columnParam.get(SORT_DIRECTION);
 
-			if (eDirection == null) {
-				eDirection = SortDirection.ASCENDING;
-			} else if (eDirection == SortDirection.ASCENDING) {
-				eDirection = SortDirection.DESCENDING;
+			if (direction == null) {
+				direction = SortDirection.ASCENDING;
+			} else if (direction == SortDirection.ASCENDING) {
+				direction = SortDirection.DESCENDING;
 			} else {
-				eDirection = null;
+				direction = null;
 			}
 		}
 
-		if (eDirection != null) {
-			sStyle += " sort " + eDirection.name().toLowerCase();
+		if (direction != null) {
+			style += " sort " + direction.name().toLowerCase();
 		}
 
-		rColumnParam.style(sStyle);
-		rColumnParam.set(SORT_DIRECTION, eDirection);
+		columnParam.style(style);
+		columnParam.set(SORT_DIRECTION, direction);
 
-		return eDirection;
+		return direction;
 	}
 }

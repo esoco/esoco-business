@@ -19,7 +19,6 @@ package de.esoco.process.ui.composite;
 import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.model.DataProvider;
 import de.esoco.lib.property.Alignment;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.composite.UiListPanel.ExpandableListStyle;
 import de.esoco.process.ui.container.UiColumnGridPanel;
@@ -31,38 +30,38 @@ import de.esoco.process.ui.container.UiColumnGridPanel;
  */
 public class UiPagingTableList<T> extends UiTableList<T> {
 
-	private String sEmptyPageLabel;
+	private final String emptyPageLabel;
 
-	private UiColumnGridPanel aToolPanel;
+	private final UiColumnGridPanel toolPanel;
 
-	private UiPagingNavigation aNavigation;
+	private final UiPagingNavigation navigation;
 
 	/**
 	 * Creates a new instance with a simple table style.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiPagingTableList(UiContainer<?> rParent) {
-		this(rParent, Option.none());
+	public UiPagingTableList(UiContainer<?> parent) {
+		this(parent, Option.none());
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent      The parent container
-	 * @param oExpandStyle The expand style
+	 * @param parent      The parent container
+	 * @param expandStyle The expand style
 	 */
-	public UiPagingTableList(UiContainer<?> rParent,
-		Option<ExpandableListStyle> oExpandStyle) {
-		super(rParent, oExpandStyle);
+	public UiPagingTableList(UiContainer<?> parent,
+		Option<ExpandableListStyle> expandStyle) {
+		super(parent, expandStyle);
 
-		aToolPanel = new UiColumnGridPanel(this);
-		aNavigation = new UiPagingNavigation(aToolPanel, this::update, 10);
+		toolPanel = new UiColumnGridPanel(this);
+		navigation = new UiPagingNavigation(toolPanel, this::update, 10);
 
-		aNavigation.cell().alignHorizontal(Alignment.END);
-		aNavigation.setPageSizes(UiPagingNavigation.DEFAULT_PAGE_SIZES);
+		navigation.cell().alignHorizontal(Alignment.END);
+		navigation.setPageSizes(UiPagingNavigation.DEFAULT_PAGE_SIZES);
 
-		sEmptyPageLabel = "$lbl" + getComponentStyleName() + "Empty";
+		emptyPageLabel = "$lbl" + getComponentStyleName() + "Empty";
 	}
 
 	/**
@@ -75,7 +74,7 @@ public class UiPagingTableList<T> extends UiTableList<T> {
 	 * @return The empty page label
 	 */
 	public String getEmptyPagelLabel() {
-		return sEmptyPageLabel;
+		return emptyPageLabel;
 	}
 
 	/**
@@ -84,20 +83,20 @@ public class UiPagingTableList<T> extends UiTableList<T> {
 	 * @see UiTableList#setData(DataProvider)
 	 */
 	@Override
-	public void setData(DataProvider<T> rRowDataProvider) {
-		aNavigation.setPageStart(0);
+	public void setData(DataProvider<T> rowDataProvider) {
+		navigation.setPageStart(0);
 
-		super.setData(rRowDataProvider);
+		super.setData(rowDataProvider);
 	}
 
 	/**
 	 * Sets the text to be displayed in the navigation area if no data is
 	 * available so that the current page is empty.
 	 *
-	 * @param rEmptyPageLabel The emptyPageLabel value
+	 * @param emptyPageLabel The emptyPageLabel value
 	 */
-	public final void setEmptyPageLabel(String rEmptyPageLabel) {
-		sEmptyPageLabel = rEmptyPageLabel;
+	public final void setEmptyPageLabel(String emptyPageLabel) {
+		emptyPageLabel = emptyPageLabel;
 	}
 
 	/**
@@ -106,8 +105,8 @@ public class UiPagingTableList<T> extends UiTableList<T> {
 	@Override
 	protected void update() {
 		setSelection(null);
-		displayRows(aNavigation.getPageStart(), aNavigation.getPageSize());
-		aNavigation.setEmptyPageLabel(getEmptyPagelLabel());
-		aNavigation.setTotalSize(getData().size());
+		displayRows(navigation.getPageStart(), navigation.getPageSize());
+		navigation.setEmptyPageLabel(getEmptyPagelLabel());
+		navigation.setTotalSize(getData().size());
 	}
 }

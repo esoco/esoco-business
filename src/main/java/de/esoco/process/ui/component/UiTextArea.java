@@ -33,8 +33,8 @@ public class UiTextArea extends UiTextInputField<UiTextArea> {
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiTextArea(UiContainer<?> rContainer, String sText) {
-		super(rContainer, sText);
+	public UiTextArea(UiContainer<?> container, String text) {
+		super(container, text);
 
 		set(-1, ROWS);
 	}
@@ -42,10 +42,10 @@ public class UiTextArea extends UiTextInputField<UiTextArea> {
 	/**
 	 * Sets the number of rows that should be displayed.
 	 *
-	 * @param nRows The visible rows
+	 * @param rows The visible rows
 	 * @return This instance for concatenation
 	 */
-	public UiTextArea visibleRows(int nRows) {
-		return set(nRows, ROWS);
+	public UiTextArea visibleRows(int rows) {
+		return set(rows, ROWS);
 	}
 }

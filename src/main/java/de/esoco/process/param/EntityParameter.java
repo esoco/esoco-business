@@ -17,21 +17,17 @@
 package de.esoco.process.param;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StoragePredicates;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ATTRIBUTES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_QUERY_PREDICATE;
@@ -49,9 +45,9 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	/**
 	 * @see Parameter#Parameter(InteractionFragment, RelationType) .
 	 */
-	public EntityParameter(InteractionFragment rFragment,
-		RelationType<E> rParamType) {
-		super(rFragment, rParamType);
+	public EntityParameter(InteractionFragment fragment,
+		RelationType<E> paramType) {
+		super(fragment, paramType);
 	}
 
 	/**
@@ -61,8 +57,8 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	 */
 	@SafeVarargs
 	public final EntityParameter<E> attributes(
-		Function<? super E, ?>... rAttributes) {
-		return attributes(Arrays.asList(rAttributes));
+		Function<? super E, ?>... attributes) {
+		return attributes(Arrays.asList(attributes));
 	}
 
 	/**
@@ -76,24 +72,24 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	 * that extracts the name from an entity reference (like
 	 * NAME.from(OTHER_ENTITY)).
 	 *
-	 * @param rAttributes The entity attribute access functions
+	 * @param attributes The entity attribute access functions
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
 	public final EntityParameter<E> attributes(
-		Collection<Function<? super E, ?>> rAttributes) {
-		List<Function<? super Entity, ?>> rGenericAttributes = null;
+		Collection<Function<? super E, ?>> attributes) {
+		List<Function<? super Entity, ?>> genericAttributes = null;
 
-		if (rAttributes != null && rAttributes.size() > 0) {
-			rGenericAttributes = new ArrayList<Function<? super Entity, ?>>();
+		if (attributes != null && attributes.size() > 0) {
+			genericAttributes = new ArrayList<Function<? super Entity, ?>>();
 
-			for (Function<? super E, ?> rFunction : rAttributes) {
-				rGenericAttributes.add((Function<? super Entity, ?>) rFunction);
+			for (Function<? super E, ?> function : attributes) {
+				genericAttributes.add((Function<? super Entity, ?>) function);
 			}
 		}
 
 		fragment().annotateParameter(type(), null, ENTITY_ATTRIBUTES,
-			rGenericAttributes);
+			genericAttributes);
 
 		return this;
 	}
@@ -111,12 +107,12 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	/**
 	 * Defines the ordering for queries on the entity type of this parameter.
 	 *
-	 * @param pOrder The sort order criteria (NULL for none)
+	 * @param order The sort order criteria (NULL for none)
 	 * @return This instance for concatenation
 	 */
-	public final EntityParameter<E> order(Predicate<? super Entity> pOrder) {
+	public final EntityParameter<E> order(Predicate<? super Entity> order) {
 		fragment().annotateParameter(type(), null, ENTITY_SORT_PREDICATE,
-			pOrder);
+			order);
 
 		return this;
 	}
@@ -125,13 +121,13 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	 * Sets an ordering attribute for queries on the entity type of this
 	 * parameter.
 	 *
-	 * @param rOrderAttribute The ordering attribute
-	 * @param bAscending      TRUE for ascending order, FALSE for descending
+	 * @param orderAttribute The ordering attribute
+	 * @param ascending      TRUE for ascending order, FALSE for descending
 	 * @see #order(Predicate)
 	 */
-	public final EntityParameter<E> orderBy(RelationType<?> rOrderAttribute,
-		boolean bAscending) {
-		return order(StoragePredicates.sortBy(rOrderAttribute, bAscending));
+	public final EntityParameter<E> orderBy(RelationType<?> orderAttribute,
+		boolean ascending) {
+		return order(StoragePredicates.sortBy(orderAttribute, ascending));
 	}
 
 	/**
@@ -146,17 +142,16 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	/**
 	 * Defines the storage query to be executed for this parameter.
 	 *
-	 * @param pCriteria The query criteria to apply (NULL for none)
+	 * @param criteria The query criteria to apply (NULL for none)
 	 * @return This instance for concatenation
 	 */
-	public final EntityParameter<E> query(Predicate<? super E> pCriteria) {
+	public final EntityParameter<E> query(Predicate<? super E> criteria) {
 		@SuppressWarnings("unchecked")
-		QueryPredicate<E> pQuery =
-			new QueryPredicate<E>((Class<E>) type().getTargetType(),
-				pCriteria);
+		QueryPredicate<E> query =
+			new QueryPredicate<E>((Class<E>) type().getTargetType(), criteria);
 
 		fragment().annotateParameter(type(), null, ENTITY_QUERY_PREDICATE,
-			pQuery);
+			query);
 
 		return this;
 	}
@@ -168,7 +163,7 @@ public class EntityParameter<E extends Entity> extends Parameter<E> {
 	 * @return This instance
 	 */
 	public EntityParameter<E> reloadEntity() {
-		fragment().reloadEntity(rParamType);
+		fragment().reloadEntity(paramType);
 
 		return this;
 	}

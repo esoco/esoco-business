@@ -20,18 +20,15 @@ import de.esoco.lib.app.CommandLine;
 import de.esoco.lib.app.CommandLineException;
 import de.esoco.lib.app.RestService;
 import de.esoco.lib.security.AuthenticationService;
-
 import de.esoco.process.ProcessDefinition;
 import de.esoco.process.ProcessManager;
+import org.obrel.core.RelationType;
+import org.obrel.space.ObjectSpace;
 
 import java.io.PrintStream;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.obrel.core.RelationType;
-import org.obrel.space.ObjectSpace;
 
 import static org.obrel.core.RelationTypes.newType;
 
@@ -51,19 +48,19 @@ public abstract class InteractiveProcessExecutor extends RestService
 
 	private static final String ARG_PROCESSES = "processes";
 
-	private Set<ProcessDefinition> aProcessDefinitions = new HashSet<>();
+	private final Set<ProcessDefinition> processDefinitions = new HashSet<>();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected ObjectSpace<Object> buildRestServerSpace() {
-		ObjectSpace<Object> rRootSpace = super.buildRestServerSpace();
-		ObjectSpace<String> rApiSpace = rRootSpace.get(API);
+		ObjectSpace<Object> rootSpace = super.buildRestServerSpace();
+		ObjectSpace<String> apiSpace = rootSpace.get(API);
 
-		rApiSpace.init(EXECUTE_PROCESS).onUpdate(this::executeProcess);
+		apiSpace.init(EXECUTE_PROCESS).onUpdate(this::executeProcess);
 
-		return rRootSpace;
+		return rootSpace;
 	}
 
 	/**
@@ -79,32 +76,32 @@ public abstract class InteractiveProcessExecutor extends RestService
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void initialize(CommandLine rCommandLine) throws Exception {
-//		String sRenderService =
-//			rCommandLine.requireOption(ARG_RENDERER).toString();
+	protected void initialize(CommandLine commandLine) throws Exception {
+//		String renderService =
+//			commandLine.requireOption(ARG_RENDERER).toString();
 
-		String[] aProcesses =
-			rCommandLine.requireOption(ARG_PROCESSES).toString().split(",");
+		String[] processes =
+			commandLine.requireOption(ARG_PROCESSES).toString().split(",");
 
-		for (String sProcess : aProcesses) {
+		for (String process : processes) {
 			try {
-				Class<?> rProcessClass = Class.forName(sProcess);
+				Class<?> processClass = Class.forName(process);
 
-				if (ProcessDefinition.class.isAssignableFrom(rProcessClass)) {
-					ProcessDefinition rDefinition =
+				if (ProcessDefinition.class.isAssignableFrom(processClass)) {
+					ProcessDefinition definition =
 						ProcessManager.getProcessDefinition(
-							(Class<? extends ProcessDefinition>) rProcessClass);
+							(Class<? extends ProcessDefinition>) processClass);
 
-					aProcessDefinitions.add(rDefinition);
+					processDefinitions.add(definition);
 				} else {
 					throw new CommandLineException(
 						String.format("Class is not a process definition: %s",
-							sProcess), ARG_PROCESSES);
+							process), ARG_PROCESSES);
 				}
 			} catch (Exception e) {
 				throw new CommandLineException(String.format(
 					"Could not create process definition for class %s",
-					sProcess), ARG_PROCESSES, e);
+					process), ARG_PROCESSES, e);
 			}
 		}
 	}
@@ -113,8 +110,8 @@ public abstract class InteractiveProcessExecutor extends RestService
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void printUsage(PrintStream rOutput) {
-		rOutput.printf(
+	protected void printUsage(PrintStream output) {
+		output.printf(
 			"Usage: %s -%s <render service URL> -%s <process definition " +
 				"classes> -port <listening port>\n",
 			getClass().getSimpleName(),
@@ -124,8 +121,8 @@ public abstract class InteractiveProcessExecutor extends RestService
 	/**
 	 * Executes the process in the request.
 	 *
-	 * @param rRequest The execution request
+	 * @param request The execution request
 	 */
-	private void executeProcess(Map<String, String> rRequest) {
+	private void executeProcess(Map<String, String> request) {
 	}
 }

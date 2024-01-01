@@ -19,29 +19,25 @@ package de.esoco.history;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.ExtraAttributes;
-
 import de.esoco.history.HistoryRecord.HistoryType;
 import de.esoco.history.HistoryRecord.ReferenceType;
-
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.manage.TransactionException;
-
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryResult;
 import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
+import org.obrel.core.Annotations.RelationTypeNamespace;
+import org.obrel.core.Relatable;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import org.obrel.core.Annotations.RelationTypeNamespace;
-import org.obrel.core.Relatable;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
 
 import static de.esoco.history.HistoryRecord.DETAILS;
 import static de.esoco.history.HistoryRecord.HistoryType.GROUP;
@@ -53,14 +49,11 @@ import static de.esoco.history.HistoryRecord.TARGET;
 import static de.esoco.history.HistoryRecord.TIME;
 import static de.esoco.history.HistoryRecord.TYPE;
 import static de.esoco.history.HistoryRecord.VALUE;
-
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.greaterOrEqual;
 import static de.esoco.lib.expression.Predicates.ifProperty;
 import static de.esoco.lib.expression.Predicates.lessOrEqual;
-
 import static de.esoco.storage.StoragePredicates.forType;
-
 import static org.obrel.core.RelationTypes.newFlagType;
 
 /**
@@ -102,7 +95,7 @@ public class HistoryManager {
 	public static final RelationType<Map<String, String>>
 		HISTORY_NOTE_TEMPLATES = ExtraAttributes.newOrderedMapExtraAttribute();
 
-	private static ThreadLocal<HistoryRecord> aThreadHistoryGroup =
+	private static ThreadLocal<HistoryRecord> threadHistoryGroup =
 		new ThreadLocal<HistoryRecord>();
 
 	static {
@@ -121,22 +114,22 @@ public class HistoryManager {
 	 * argument the newly created predicate will be appended to it with an AND
 	 * expression.
 	 *
-	 * @param aQuery        An optional existing query or NULL to create
-	 * @param rProperty     The type of the history property to be queried
-	 * @param rCompareValue The value to compare with
+	 * @param query        An optional existing query or NULL to create
+	 * @param property     The type of the history property to be queried
+	 * @param compareValue The value to compare with
 	 * @return A new query object, either as a single query or concatenated
 	 * with
 	 * the first argument
 	 */
 	private static Predicate<Relatable> addEqualCriterion(
-		Predicate<Relatable> aQuery, RelationType<?> rProperty,
-		Object rCompareValue) {
-		if (rCompareValue != null) {
-			aQuery = Predicates.and(aQuery,
-				ifProperty(rProperty, equalTo(rCompareValue)));
+		Predicate<Relatable> query, RelationType<?> property,
+		Object compareValue) {
+		if (compareValue != null) {
+			query = Predicates.and(query,
+				ifProperty(property, equalTo(compareValue)));
 		}
 
-		return aQuery;
+		return query;
 	}
 
 	/**
@@ -146,29 +139,29 @@ public class HistoryManager {
 	 * with an
 	 * AND expression.
 	 *
-	 * @param aQuery   An optional existing query or NULL to create
-	 * @param rDate    The date to compare with
-	 * @param bIsStart TRUE for the start date, FALSE for the end date (both
-	 *                 inclusive)
+	 * @param query   An optional existing query or NULL to create
+	 * @param date    The date to compare with
+	 * @param isStart TRUE for the start date, FALSE for the end date (both
+	 *                inclusive)
 	 * @return A new query object, either as a single query or concatenated
 	 * with
 	 * the first argument
 	 */
 	private static Predicate<Relatable> addTimeCriterion(
-		Predicate<Relatable> aQuery, Date rDate, boolean bIsStart) {
-		if (rDate != null) {
-			Predicate<Relatable> aPredicate;
+		Predicate<Relatable> query, Date date, boolean isStart) {
+		if (date != null) {
+			Predicate<Relatable> predicate;
 
-			if (bIsStart) {
-				aPredicate = ifProperty(TIME, greaterOrEqual(rDate));
+			if (isStart) {
+				predicate = ifProperty(TIME, greaterOrEqual(date));
 			} else {
-				aPredicate = ifProperty(TIME, lessOrEqual(rDate));
+				predicate = ifProperty(TIME, lessOrEqual(date));
 			}
 
-			aQuery = Predicates.and(aQuery, aPredicate);
+			query = Predicates.and(query, predicate);
 		}
 
-		return aQuery;
+		return query;
 	}
 
 	/**
@@ -178,53 +171,51 @@ public class HistoryManager {
 	 * to {@link #commit(boolean)} is made. A call to the {@link #rollback()}
 	 * method will cancel the complete history group hierarchy.
 	 *
-	 * @param rOrigin The entity from which the record originates (may be NULL)
-	 * @param rTarget The target entity referenced by the record (may be NULL)
-	 * @param sValue  The value of this record
+	 * @param origin The entity from which the record originates (may be NULL)
+	 * @param target The target entity referenced by the record (may be NULL)
+	 * @param value  The value of this record
 	 */
-	public static void begin(Entity rOrigin, Entity rTarget, String sValue) {
-		HistoryRecord rGroup = aThreadHistoryGroup.get();
+	public static void begin(Entity origin, Entity target, String value) {
+		HistoryRecord group = threadHistoryGroup.get();
 
-		if (rGroup == null) {
-			rGroup =
-				createRecord(GROUP, rOrigin, rTarget, null, sValue, null,
-					null);
+		if (group == null) {
+			group =
+				createRecord(GROUP, origin, target, null, value, null, null);
 		} else {
-			rGroup = rGroup.addDetail(GROUP, rTarget, sValue, null, null);
+			group = group.addDetail(GROUP, target, value, null, null);
 		}
 
-		aThreadHistoryGroup.set(rGroup);
+		threadHistoryGroup.set(group);
 	}
 
 	/**
 	 * Commits a group of history records. The group must previously have been
 	 * started with a call to {@link #begin(Entity, Entity, String)}.
 	 *
-	 * @param bKeepIfEmpty TRUE to keep empty groups, FALSE to discard them
+	 * @param keepIfEmpty TRUE to keep empty groups, FALSE to discard them
 	 * @throws TransactionException If storing the group fails
 	 */
-	public static void commit(boolean bKeepIfEmpty)
-		throws TransactionException {
-		HistoryRecord rRecord = aThreadHistoryGroup.get();
+	public static void commit(boolean keepIfEmpty) throws TransactionException {
+		HistoryRecord record = threadHistoryGroup.get();
 
-		if (rRecord == null) {
+		if (record == null) {
 			throw new IllegalStateException("Unmatched call to commit()");
 		} else {
-			HistoryRecord rParent = rRecord.get(PARENT);
+			HistoryRecord parent = record.get(PARENT);
 
-			boolean bKeep = !rRecord.get(DETAILS).isEmpty() || bKeepIfEmpty;
+			boolean keep = !record.get(DETAILS).isEmpty() || keepIfEmpty;
 
-			if (rParent != null) {
-				aThreadHistoryGroup.set(rParent);
+			if (parent != null) {
+				threadHistoryGroup.set(parent);
 
-				if (!bKeep) {
-					rParent.get(DETAILS).remove(rRecord);
+				if (!keep) {
+					parent.get(DETAILS).remove(record);
 				}
 			} else {
-				aThreadHistoryGroup.remove();
+				threadHistoryGroup.remove();
 
-				if (bKeep) {
-					EntityManager.storeEntity(rRecord, null);
+				if (keep) {
+					EntityManager.storeEntity(record, null);
 				}
 			}
 		}
@@ -233,43 +224,41 @@ public class HistoryManager {
 	/**
 	 * Internal method to create a new history record.
 	 *
-	 * @param rType           The type of the new history record
-	 * @param rOrigin         The entity from which the record originates
-	 * @param rTarget         The target entity referenced by the record
-	 *                           (may be
-	 *                        NULL)
-	 * @param rRootTarget     The root target of the record (may be NULL)
-	 * @param sValue          The value of this record
-	 * @param rReferenceType  The type of the reference value or NULL for none
-	 * @param sReferenceValue The reference value or NULL for none
+	 * @param type           The type of the new history record
+	 * @param origin         The entity from which the record originates
+	 * @param target         The target entity referenced by the record (may be
+	 *                       NULL)
+	 * @param rootTarget     The root target of the record (may be NULL)
+	 * @param value          The value of this record
+	 * @param referenceType  The type of the reference value or NULL for none
+	 * @param referenceValue The reference value or NULL for none
 	 * @return A new history record initialized with the given parameters
 	 */
-	static HistoryRecord createRecord(HistoryType rType, Entity rOrigin,
-		Entity rTarget, Entity rRootTarget, String sValue,
-		ReferenceType rReferenceType, String sReferenceValue) {
-		HistoryRecord aRecord = new HistoryRecord();
+	static HistoryRecord createRecord(HistoryType type, Entity origin,
+		Entity target, Entity rootTarget, String value,
+		ReferenceType referenceType, String referenceValue) {
+		HistoryRecord record = new HistoryRecord();
 
-		aRecord.set(TIME, new Date());
-		aRecord.set(TYPE, rType);
-		aRecord.set(ORIGIN, rOrigin);
-		aRecord.set(ROOT_TARGET, rRootTarget);
-		aRecord.set(TARGET, rTarget);
-		aRecord.set(VALUE, sValue);
+		record.set(TIME, new Date());
+		record.set(TYPE, type);
+		record.set(ORIGIN, origin);
+		record.set(ROOT_TARGET, rootTarget);
+		record.set(TARGET, target);
+		record.set(VALUE, value);
 
-		if (rReferenceType != null && sReferenceValue != null) {
-			aRecord.set(REFERENCE,
-				rReferenceType.name() + ":" + sReferenceValue);
+		if (referenceType != null && referenceValue != null) {
+			record.set(REFERENCE, referenceType.name() + ":" + referenceValue);
 		}
 
-		return aRecord;
+		return record;
 	}
 
 	/**
 	 * Returns the history entries for a target object that have a certain
 	 * type.
 	 *
-	 * @param rTarget The target entity to search records for
-	 * @param rType   The type of the history records to query or NULL
+	 * @param target The target entity to search records for
+	 * @param type   The type of the history records to query or NULL
 	 * @return A list of history records that match the given criteria (may be
 	 * empty but will never be NULL)
 	 * @throws StorageException         If querying the history storage fails
@@ -277,9 +266,9 @@ public class HistoryManager {
 	 * @see HistoryManager#getHistoryFor(Entity, HistoryType, Date, Date,
 	 * Entity)
 	 */
-	public static List<HistoryRecord> getHistoryFor(Entity rTarget,
-		HistoryType rType) throws StorageException {
-		return getHistoryFor(rTarget, rType, null, null, null);
+	public static List<HistoryRecord> getHistoryFor(Entity target,
+		HistoryType type) throws StorageException {
+		return getHistoryFor(target, type, null, null, null);
 	}
 
 	/**
@@ -288,52 +277,52 @@ public class HistoryManager {
 	 * optionally be constrained to certain criteria. Criteria that are NULL
 	 * will be ignored.
 	 *
-	 * @param rTarget   The target entity to search records for
-	 * @param rType     The type of the history records to query or NULL
-	 * @param rFromDate The start date for the queried records or NULL
-	 * @param rToDate   The end date for the queried records or NULL
-	 * @param rOrigin   The origin entity to search records for or NULL
+	 * @param target   The target entity to search records for
+	 * @param type     The type of the history records to query or NULL
+	 * @param fromDate The start date for the queried records or NULL
+	 * @param toDate   The end date for the queried records or NULL
+	 * @param origin   The origin entity to search records for or NULL
 	 * @return A list of history records that match the given criteria (may be
 	 * empty but will never be NULL)
 	 * @throws StorageException         If querying the history storage fails
 	 * @throws IllegalArgumentException If the target entity is NULL
 	 */
-	public static List<HistoryRecord> getHistoryFor(Entity rTarget,
-		HistoryType rType, Date rFromDate, Date rToDate, Entity rOrigin)
+	public static List<HistoryRecord> getHistoryFor(Entity target,
+		HistoryType type, Date fromDate, Date toDate, Entity origin)
 		throws StorageException {
-		if (rTarget == null) {
+		if (target == null) {
 			throw new IllegalArgumentException("Target must not be NULL");
 		}
 
-		Predicate<Relatable> aCriteria = null;
+		Predicate<Relatable> criteria = null;
 
-		aCriteria = addEqualCriterion(aCriteria, TARGET, rTarget);
-		aCriteria = addEqualCriterion(aCriteria, ORIGIN, rOrigin);
-		aCriteria = addEqualCriterion(aCriteria, TYPE, rType);
-		aCriteria = addTimeCriterion(aCriteria, rFromDate, true);
-		aCriteria = addTimeCriterion(aCriteria, rToDate, false);
+		criteria = addEqualCriterion(criteria, TARGET, target);
+		criteria = addEqualCriterion(criteria, ORIGIN, origin);
+		criteria = addEqualCriterion(criteria, TYPE, type);
+		criteria = addTimeCriterion(criteria, fromDate, true);
+		criteria = addTimeCriterion(criteria, toDate, false);
 
-		Storage rStorage = getHistoryStorage();
+		Storage storage = getHistoryStorage();
 
 		try {
-			Query<HistoryRecord> rQuery =
-				rStorage.query(forType(HistoryRecord.class, aCriteria));
+			Query<HistoryRecord> query =
+				storage.query(forType(HistoryRecord.class, criteria));
 
 			try {
-				QueryResult<HistoryRecord> rResult = rQuery.execute();
+				QueryResult<HistoryRecord> result = query.execute();
 
-				List<HistoryRecord> aRecords = new ArrayList<HistoryRecord>();
+				List<HistoryRecord> records = new ArrayList<HistoryRecord>();
 
-				while (rResult.hasNext()) {
-					aRecords.add(rResult.next());
+				while (result.hasNext()) {
+					records.add(result.next());
 				}
 
-				return aRecords;
+				return records;
 			} finally {
-				rQuery.close();
+				query.close();
 			}
 		} finally {
-			rStorage.release();
+			storage.release();
 		}
 	}
 
@@ -377,7 +366,7 @@ public class HistoryManager {
 	 * @return The recording
 	 */
 	public static boolean isRecording() {
-		return aThreadHistoryGroup.get() != null;
+		return threadHistoryGroup.get() != null;
 	}
 
 	/**
@@ -386,16 +375,15 @@ public class HistoryManager {
 	 * added as a detail record to that group. If no group is active a single
 	 * history record will be created and stored immediately.
 	 *
-	 * @param rType   The type of the new history record
-	 * @param rOrigin The entity from which the record originates (may be NULL)
-	 * @param rTarget The target entity referenced by the record (may be NULL)
-	 * @param sValue  The value of this record
+	 * @param type   The type of the new history record
+	 * @param origin The entity from which the record originates (may be NULL)
+	 * @param target The target entity referenced by the record (may be NULL)
+	 * @param value  The value of this record
 	 * @throws TransactionException If storing the new record fails
 	 */
-	public static void record(HistoryType rType, Entity rOrigin,
-		Entity rTarget,
-		String sValue) throws TransactionException {
-		record(rType, rOrigin, rTarget, null, sValue, null, null);
+	public static void record(HistoryType type, Entity origin, Entity target,
+		String value) throws TransactionException {
+		record(type, origin, target, null, value, null, null);
 	}
 
 	/**
@@ -406,39 +394,37 @@ public class HistoryManager {
 	 * is active a single history record will be created and stored
 	 * immediately.
 	 *
-	 * @param rType           The type of the new history record
-	 * @param rOrigin         The entity from which the record originates (may
-	 *                        be NULL)
-	 * @param rTarget         The target entity referenced by the record
-	 *                           (may be
-	 *                        NULL)
-	 * @param rRootTarget     The root target entity of the record (may be
-	 *                           NULL,
-	 *                        will be ignored if a group is active)
-	 * @param sValue          The value of this record
-	 * @param rReferenceType  The type of the reference value
-	 * @param sReferenceValue The reference value
+	 * @param type           The type of the new history record
+	 * @param origin         The entity from which the record originates
+	 *                          (may be
+	 *                       NULL)
+	 * @param target         The target entity referenced by the record (may be
+	 *                       NULL)
+	 * @param rootTarget     The root target entity of the record (may be NULL,
+	 *                       will be ignored if a group is active)
+	 * @param value          The value of this record
+	 * @param referenceType  The type of the reference value
+	 * @param referenceValue The reference value
 	 * @throws TransactionException If storing the new record fails
 	 */
-	public static void record(HistoryType rType, Entity rOrigin,
-		Entity rTarget,
-		Entity rRootTarget, String sValue, ReferenceType rReferenceType,
-		String sReferenceValue) throws TransactionException {
-		if (rType == GROUP) {
+	public static void record(HistoryType type, Entity origin, Entity target,
+		Entity rootTarget, String value, ReferenceType referenceType,
+		String referenceValue) throws TransactionException {
+		if (type == GROUP) {
 			throw new IllegalArgumentException("Invalid record type: " + GROUP);
 		}
 
-		HistoryRecord rGroup = aThreadHistoryGroup.get();
+		HistoryRecord group = threadHistoryGroup.get();
 
-		if (rGroup == null) {
-			HistoryRecord aRecord =
-				createRecord(rType, rOrigin, rTarget, rRootTarget, sValue,
-					rReferenceType, sReferenceValue);
+		if (group == null) {
+			HistoryRecord record =
+				createRecord(type, origin, target, rootTarget, value,
+					referenceType, referenceValue);
 
-			EntityManager.storeEntity(aRecord, null);
+			EntityManager.storeEntity(record, null);
 		} else {
-			rGroup.addDetail(rType, rTarget, sValue, rReferenceType,
-				sReferenceValue);
+			group.addDetail(type, target, value, referenceType,
+				referenceValue);
 		}
 	}
 
@@ -450,7 +436,7 @@ public class HistoryManager {
 	 * invocations of this method will be ignored.
 	 */
 	public static void rollback() {
-		aThreadHistoryGroup.remove();
+		threadHistoryGroup.remove();
 	}
 
 	/**
@@ -458,6 +444,6 @@ public class HistoryManager {
 	 * resources.
 	 */
 	public static void shutdown() {
-		aThreadHistoryGroup = null;
+		threadHistoryGroup = null;
 	}
 }

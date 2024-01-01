@@ -21,7 +21,6 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.ButtonStyle;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Orientation;
-
 import de.esoco.process.ui.UiBuilder;
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
@@ -53,33 +52,33 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 */
 	public enum NavMenuType {TOP, SIDE}
 
-	private Collection<T> rMenuItems;
+	private Collection<T> menuItems;
 
-	private UiPushButtons<?> aMenuLinks;
+	private UiPushButtons<?> menuLinks;
 
-	private UiTextField aSearchField;
+	private UiTextField searchField;
 
-	private Consumer<T> fMenuSelectionHandler;
+	private Consumer<T> menuSelectionHandler;
 
 	/**
 	 * Creates a new instance without preset menu items.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	protected UiNavMenu(UiContainer<?> rParent) {
-		this(rParent, null);
+	protected UiNavMenu(UiContainer<?> parent) {
+		this(parent, null);
 	}
 
 	/**
 	 * Creates a new instance with preset menu items.
 	 *
-	 * @param rParent    The parent container
-	 * @param rMenuItems The initial menu items
+	 * @param parent    The parent container
+	 * @param menuItems The initial menu items
 	 */
-	protected UiNavMenu(UiContainer<?> rParent, Collection<T> rMenuItems) {
-		super(rParent, new UiLayout(LayoutType.MENU));
+	protected UiNavMenu(UiContainer<?> parent, Collection<T> menuItems) {
+		super(parent, new UiLayout(LayoutType.MENU));
 
-		setMenuItems(rMenuItems);
+		setMenuItems(menuItems);
 	}
 
 	/**
@@ -88,7 +87,7 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * @return The collection of menu item enum values
 	 */
 	public final Collection<T> getMenuItems() {
-		return rMenuItems;
+		return menuItems;
 	}
 
 	/**
@@ -97,58 +96,58 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * @return The menu links parameter
 	 */
 	public final UiPushButtons<?> getMenuLinks() {
-		return aMenuLinks;
+		return menuLinks;
 	}
 
 	/**
 	 * Sets the handler for menu actions. This will override any previously set
 	 * menu selection handler.
 	 *
-	 * @param fHandler The handler to be invoked on menu selection
+	 * @param handler The handler to be invoked on menu selection
 	 */
-	public void onMenuSelection(Consumer<T> fHandler) {
-		fMenuSelectionHandler = fHandler;
+	public void onMenuSelection(Consumer<T> handler) {
+		menuSelectionHandler = handler;
 	}
 
 	/**
 	 * Marks a certain menu item as active.
 	 *
-	 * @param rMenuItem The new active item or NULL for none
+	 * @param menuItem The new active item or NULL for none
 	 */
 	@SuppressWarnings("unchecked")
-	public void setActive(T rMenuItem) {
-		if (aMenuLinks != null) {
-			rMenuItem = rMenuItems.contains(rMenuItem) ? rMenuItem : null;
-			((UiPushButtons<Object>) aMenuLinks).select(
-				rMenuItem instanceof Enum ?
-				rMenuItem :
-				rMenuItem != null ? rMenuItem.toString() : null);
+	public void setActive(T menuItem) {
+		if (menuLinks != null) {
+			menuItem = menuItems.contains(menuItem) ? menuItem : null;
+			((UiPushButtons<Object>) menuLinks).select(
+				menuItem instanceof Enum ?
+				menuItem :
+				menuItem != null ? menuItem.toString() : null);
 		}
 	}
 
 	/**
 	 * Sets the menu items to be displayed.
 	 *
-	 * @param rMenuItems The new menu items (NULL or empty for none)
+	 * @param menuItems The new menu items (NULL or empty for none)
 	 */
-	public void setMenuItems(Collection<T> rMenuItems) {
-		this.rMenuItems =
-			rMenuItems != null ? rMenuItems : Collections.emptyList();
+	public void setMenuItems(Collection<T> menuItems) {
+		this.menuItems =
+			menuItems != null ? menuItems : Collections.emptyList();
 	}
 
 	/**
 	 * Sets the text to be displayed in the search field (if such exists) or
 	 * hides the field if the text is NULL.
 	 *
-	 * @param sText The search text to show (NULL to hide the search field)
+	 * @param text The search text to show (NULL to hide the search field)
 	 */
-	public void setSearchText(String sText) {
-		if (aSearchField != null) {
-			if (sText != null) {
-				aSearchField.setText(sText);
-				aSearchField.show();
+	public void setSearchText(String text) {
+		if (searchField != null) {
+			if (text != null) {
+				searchField.setText(text);
+				searchField.show();
 			} else {
-				aSearchField.hide();
+				searchField.hide();
 			}
 		}
 	}
@@ -160,9 +159,9 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * overridden by subclasses to add additional components like a logo image
 	 * and/or a search field.
 	 *
-	 * @param rBuilder The builder to add the menu components with
+	 * @param builder The builder to add the menu components with
 	 */
-	protected void addMenuComponents(UiBuilder<?> rBuilder) {
+	protected void addMenuComponents(UiBuilder<?> builder) {
 	}
 
 	/**
@@ -170,31 +169,31 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * subclasses to modify or extend the menu presentation. The default
 	 * implementation adds menu buttons for each menu item value.
 	 *
-	 * @param rBuilder The builder to add the menu items with
+	 * @param builder The builder to add the menu items with
 	 */
 	@SuppressWarnings("unchecked")
-	protected <E extends Enum<E>> void addMenuItems(UiBuilder<?> rBuilder) {
-		if (!rMenuItems.isEmpty()) {
-			T rFirstItem = CollectionUtil.firstElementOf(rMenuItems);
+	protected <E extends Enum<E>> void addMenuItems(UiBuilder<?> builder) {
+		if (!menuItems.isEmpty()) {
+			T firstItem = CollectionUtil.firstElementOf(menuItems);
 
-			if (rFirstItem instanceof Enum) {
-				aMenuLinks = createEnumMenuLinks(rBuilder, rFirstItem);
+			if (firstItem instanceof Enum) {
+				menuLinks = createEnumMenuLinks(builder, firstItem);
 			} else {
-				UiPushButtons<String> aLinks = rBuilder.addPushButtons();
+				UiPushButtons<String> links = builder.addPushButtons();
 
-				aLinks
-					.setButtons(rMenuItems.stream().map(i -> i.toString()))
-					.select(rFirstItem.toString());
-				aMenuLinks = aLinks;
+				links
+					.setButtons(menuItems.stream().map(i -> i.toString()))
+					.select(firstItem.toString());
+				menuLinks = links;
 			}
 
-			aMenuLinks
+			menuLinks
 				.withImages()
 				.buttonStyle(ButtonStyle.LINK)
 				.onAction(this::handleItemSelection);
 
 			if (get(ORIENTATION) == Orientation.VERTICAL) {
-				aMenuLinks.set(LAYOUT, LayoutType.INLINE);
+				menuLinks.set(LAYOUT, LayoutType.INLINE);
 			}
 		}
 	}
@@ -203,23 +202,23 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * Adds a search input field with the given builder (which should be a
 	 * builder from this menu).
 	 *
-	 * @param rBuilder       The builder to add the field with
-	 * @param sPlaceholder   The text to be displayed if the field is empty
-	 * @param fSearchHandler fHandler The handler to be invoked with the input
-	 *                       value if a search is to be performed
+	 * @param builder       The builder to add the field with
+	 * @param placeholder   The text to be displayed if the field is empty
+	 * @param searchHandler handler The handler to be invoked with the input
+	 *                      value if a search is to be performed
 	 * @return The search input field component
 	 */
 	@SuppressWarnings("boxing")
-	protected UiTextField addSearchField(UiBuilder<?> rBuilder,
-		String sPlaceholder, Consumer<String> fSearchHandler) {
-		aSearchField = rBuilder
+	protected UiTextField addSearchField(UiBuilder<?> builder,
+		String placeholder, Consumer<String> searchHandler) {
+		searchField = builder
 			.addTextField("")
-			.set(PLACEHOLDER, sPlaceholder)
+			.set(PLACEHOLDER, placeholder)
 			.set(EVENT_HANDLING_DELAY, 1200)
-			.onUpdate(fSearchHandler)
-			.onAction(fSearchHandler);
+			.onUpdate(searchHandler)
+			.onAction(searchHandler);
 
-		return aSearchField;
+		return searchField;
 	}
 
 	/**
@@ -229,15 +228,15 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * @see UiComposite#buildContent(UiBuilder)
 	 */
 	@Override
-	protected void buildContent(UiBuilder<?> rBuilder) {
-		addMenuComponents(rBuilder);
+	protected void buildContent(UiBuilder<?> builder) {
+		addMenuComponents(builder);
 
-		if (!rMenuItems.isEmpty()) {
-			UiLayoutPanel aItemPanel =
-				rBuilder.addPanel(new UiSecondaryContentLayout());
+		if (!menuItems.isEmpty()) {
+			UiLayoutPanel itemPanel =
+				builder.addPanel(new UiSecondaryContentLayout());
 
-			aItemPanel.set(FLOAT, Alignment.END);
-			addMenuItems(aItemPanel.builder());
+			itemPanel.set(FLOAT, Alignment.END);
+			addMenuItems(itemPanel.builder());
 		}
 	}
 
@@ -246,12 +245,12 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * handler
 	 * registered through {@link #onMenuSelection(Consumer)}.
 	 *
-	 * @param rItem The selected menu item
+	 * @param item The selected menu item
 	 */
 	@SuppressWarnings("unchecked")
-	protected void handleItemSelection(Object rItem) {
-		if (fMenuSelectionHandler != null) {
-			fMenuSelectionHandler.accept((T) rItem);
+	protected void handleItemSelection(Object item) {
+		if (menuSelectionHandler != null) {
+			menuSelectionHandler.accept((T) item);
 		}
 	}
 
@@ -260,15 +259,15 @@ public abstract class UiNavMenu<T> extends UiComposite<UiNavMenu<T>> {
 	 * for an
 	 * enum datatype.
 	 *
-	 * @param rBuilder   The container builder
-	 * @param rFirstItem The first menu item
+	 * @param builder   The container builder
+	 * @param firstItem The first menu item
 	 * @return The menu links component
 	 */
 	@SuppressWarnings("unchecked")
 	private <E extends Enum<E>> UiPushButtons<E> createEnumMenuLinks(
-		UiBuilder<?> rBuilder, T rFirstItem) {
-		return rBuilder
-			.addPushButtons((Class<E>) rFirstItem.getClass())
-			.select((E) rFirstItem);
+		UiBuilder<?> builder, T firstItem) {
+		return builder
+			.addPushButtons((Class<E>) firstItem.getClass())
+			.select((E) firstItem);
 	}
 }

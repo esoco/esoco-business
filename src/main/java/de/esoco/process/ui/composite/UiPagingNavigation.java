@@ -17,7 +17,6 @@
 package de.esoco.process.ui.composite;
 
 import de.esoco.lib.property.Updatable;
-
 import de.esoco.process.ui.UiComposite;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.component.UiDropDown;
@@ -45,55 +44,55 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	public static final int[] DEFAULT_PAGE_SIZES =
 		new int[] { 5, 10, 20, 25, 50, 100 };
 
-	private Updatable rNavigationListener;
+	private final Updatable navigationListener;
 
-	private int nPageStart = 0;
+	private final String emptyPageLabel = "$lblPageEmpty";
 
-	private int nPageSize = 0;
+	private final UiIconButton firstPageButton;
 
-	private int nTotalSize = 0;
+	private final UiIconButton previousButton;
 
-	private int[] aPageSizes = null;
+	private final UiLabel navPosition;
 
-	private String sEmptyPageLabel = "$lblPageEmpty";
+	private final UiIconButton nextButton;
 
-	private UiDropDown<String> aPageSizeSelector;
+	private final UiIconButton lastPageButton;
 
-	private UiIconButton aFirstPageButton;
+	private int pageStart = 0;
 
-	private UiIconButton aPreviousButton;
+	private int pageSize = 0;
 
-	private UiLabel aNavPosition;
+	private int totalSize = 0;
 
-	private UiIconButton aNextButton;
+	private int[] pageSizes = null;
 
-	private UiIconButton aLastPageButton;
+	private UiDropDown<String> pageSizeSelector;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent             The parent container
-	 * @param rNavigationListener A listener for navigation events
-	 * @param nPageSize           The initial page size
+	 * @param parent             The parent container
+	 * @param navigationListener A listener for navigation events
+	 * @param pageSize           The initial page size
 	 */
-	public UiPagingNavigation(UiContainer<?> rParent,
-		Updatable rNavigationListener, int nPageSize) {
-		super(rParent, new UiTableLayout(6));
+	public UiPagingNavigation(UiContainer<?> parent,
+		Updatable navigationListener, int pageSize) {
+		super(parent, new UiTableLayout(6));
 
-		this.rNavigationListener = rNavigationListener;
-		this.nPageSize = nPageSize;
+		this.navigationListener = navigationListener;
+		this.pageSize = pageSize;
 
-		aFirstPageButton = builder()
+		firstPageButton = builder()
 			.addIconButton(UiStandardIcon.FIRST_PAGE)
 			.onClick(v -> handleNavigation(UiStandardIcon.FIRST_PAGE));
-		aPreviousButton = builder()
+		previousButton = builder()
 			.addIconButton(UiStandardIcon.PREVIOUS)
 			.onClick(v -> handleNavigation(UiStandardIcon.PREVIOUS));
-		aNavPosition = builder().addLabel("");
-		aNextButton = builder()
+		navPosition = builder().addLabel("");
+		nextButton = builder()
 			.addIconButton(UiStandardIcon.NEXT)
 			.onClick(v -> handleNavigation(UiStandardIcon.NEXT));
-		aLastPageButton = builder()
+		lastPageButton = builder()
 			.addIconButton(UiStandardIcon.LAST_PAGE)
 			.onClick(v -> handleNavigation(UiStandardIcon.LAST_PAGE));
 	}
@@ -104,7 +103,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * @return The current page size
 	 */
 	public final int getPageSize() {
-		return nPageSize;
+		return pageSize;
 	}
 
 	/**
@@ -113,7 +112,7 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * @return The array list sizes or NULL for none
 	 */
 	public final int[] getPageSizes() {
-		return aPageSizes;
+		return pageSizes;
 	}
 
 	/**
@@ -122,16 +121,16 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * @return The starting index of the current page
 	 */
 	public final int getPageStart() {
-		return nPageStart;
+		return pageStart;
 	}
 
 	/**
 	 * Sets the label to be displayed if the current page is empty.
 	 *
-	 * @param rEmptyPageLabel The new empty page label
+	 * @param emptyPageLabel The new empty page label
 	 */
-	public final void setEmptyPageLabel(String rEmptyPageLabel) {
-		sEmptyPageLabel = rEmptyPageLabel;
+	public final void setEmptyPageLabel(String emptyPageLabel) {
+		emptyPageLabel = emptyPageLabel;
 	}
 
 	/**
@@ -139,13 +138,13 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * fire an
 	 * event to the page size change handler.
 	 *
-	 * @param nPageSize The new page size
+	 * @param pageSize The new page size
 	 */
-	public final void setPageSize(int nPageSize) {
-		this.nPageSize = nPageSize;
+	public final void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 
-		if (aPageSizeSelector != null) {
-			aPageSizeSelector.setSelection(Integer.toString(nPageSize));
+		if (pageSizeSelector != null) {
+			pageSizeSelector.setSelection(Integer.toString(pageSize));
 		}
 
 		update();
@@ -155,33 +154,32 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * Sets the page sizes that can be selected by the user. If set to NULL no
 	 * page size selection will be available.
 	 *
-	 * @param rPageSizes The selectable page sizes or NULL to hide the page
-	 *                      size
-	 *                   selection
+	 * @param pageSizes The selectable page sizes or NULL to hide the page size
+	 *                  selection
 	 */
-	public final void setPageSizes(int... rPageSizes) {
-		this.aPageSizes = rPageSizes;
+	public final void setPageSizes(int... pageSizes) {
+		this.pageSizes = pageSizes;
 
-		if (rPageSizes != null) {
-			if (aPageSizeSelector == null) {
-				aPageSizeSelector = builder()
+		if (pageSizes != null) {
+			if (pageSizeSelector == null) {
+				pageSizeSelector = builder()
 					.addDropDown(String.class)
 					.setVisible(false)
 					.onSelection(this::updatePageSize);
-				aPageSizeSelector.placeBefore(aFirstPageButton);
-				aPageSizeSelector.setSelection(Integer.toString(nPageSize));
+				pageSizeSelector.placeBefore(firstPageButton);
+				pageSizeSelector.setSelection(Integer.toString(pageSize));
 			}
 
-			List<String> aPageSizeValues = new ArrayList<>(aPageSizes.length);
+			List<String> pageSizeValues = new ArrayList<>(pageSizes.length);
 
-			for (int nPageSize : aPageSizes) {
-				aPageSizeValues.add(Integer.toString(nPageSize));
+			for (int pageSize : pageSizes) {
+				pageSizeValues.add(Integer.toString(pageSize));
 			}
 
-			aPageSizeSelector.setListValues(aPageSizeValues);
-		} else if (aPageSizeSelector != null) {
-			remove(aPageSizeSelector);
-			aPageSizeSelector = null;
+			pageSizeSelector.setListValues(pageSizeValues);
+		} else if (pageSizeSelector != null) {
+			remove(pageSizeSelector);
+			pageSizeSelector = null;
 		}
 	}
 
@@ -190,10 +188,10 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * navigation
 	 * display. This will not fire an event to the page change handler.
 	 *
-	 * @param nPageStart The new starting index of the current page
+	 * @param pageStart The new starting index of the current page
 	 */
-	public final void setPageStart(int nPageStart) {
-		this.nPageStart = nPageStart;
+	public final void setPageStart(int pageStart) {
+		this.pageStart = pageStart;
 		update();
 	}
 
@@ -201,10 +199,10 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	 * Sets the total size of data available and updates the navigation
 	 * display.
 	 *
-	 * @param nSize The new total data size
+	 * @param size The new total data size
 	 */
-	public final void setTotalSize(int nSize) {
-		this.nTotalSize = nSize;
+	public final void setTotalSize(int size) {
+		this.totalSize = size;
 		update();
 	}
 
@@ -215,72 +213,71 @@ public class UiPagingNavigation extends UiComposite<UiPagingNavigation> {
 	@Override
 	@SuppressWarnings("boxing")
 	public void update() {
-		boolean bShowControls = nTotalSize > nPageSize;
-		String sPosition = "";
+		boolean showControls = totalSize > pageSize;
+		String position = "";
 
-		if (nTotalSize > 5) {
-			int nLast = Math.min(nPageStart + nPageSize, nTotalSize);
+		if (totalSize > 5) {
+			int last = Math.min(pageStart + pageSize, totalSize);
 
-			sPosition = String.format("$$%d - %d {$lblPositionOfCount} %d",
-				nPageStart + 1, nLast, nTotalSize);
-		} else if (nTotalSize == 0) {
-			sPosition = sEmptyPageLabel;
+			position = String.format("$$%d - %d {$lblPositionOfCount} %d",
+				pageStart + 1, last, totalSize);
+		} else if (totalSize == 0) {
+			position = emptyPageLabel;
 		}
 
-		aPageSizeSelector.setVisible(bShowControls);
-		aFirstPageButton.setVisible(bShowControls);
-		aLastPageButton.setVisible(bShowControls);
-		aPreviousButton.setVisible(bShowControls);
-		aNextButton.setVisible(bShowControls);
+		pageSizeSelector.setVisible(showControls);
+		firstPageButton.setVisible(showControls);
+		lastPageButton.setVisible(showControls);
+		previousButton.setVisible(showControls);
+		nextButton.setVisible(showControls);
 
-		aNavPosition.setVisible(!sPosition.isEmpty());
-		aNavPosition.setText(sPosition);
+		navPosition.setVisible(!position.isEmpty());
+		navPosition.setText(position);
 	}
 
 	/**
 	 * Performs navigation and notifies the navigation listener.
 	 *
-	 * @param eAction The navigation action icon
+	 * @param action The navigation action icon
 	 */
-	protected void handleNavigation(UiIconSupplier eAction) {
-		int nMax = Math.max(0, nTotalSize - nPageSize);
+	protected void handleNavigation(UiIconSupplier action) {
+		int max = Math.max(0, totalSize - pageSize);
 
-		switch ((UiStandardIcon) eAction) {
+		switch ((UiStandardIcon) action) {
 			case FIRST_PAGE:
-				nPageStart = 0;
+				pageStart = 0;
 				break;
 
 			case PREVIOUS:
-				nPageStart = Math.max(0, nPageStart - nPageSize);
+				pageStart = Math.max(0, pageStart - pageSize);
 				break;
 
 			case NEXT:
-				nPageStart = Math.min(nMax, nPageStart + nPageSize);
+				pageStart = Math.min(max, pageStart + pageSize);
 				break;
 
 			case LAST_PAGE:
-				nPageStart = nMax;
+				pageStart = max;
 				break;
 
 			default:
 				assert false;
 		}
 
-		rNavigationListener.update();
+		navigationListener.update();
 	}
 
 	/**
 	 * Updates the current page size and notifies the update listener.
 	 *
-	 * @param sPageSize The new page size as a string containing an integer
-	 *                  value
+	 * @param size The new page size as a string containing an integer value
 	 */
-	private void updatePageSize(String sPageSize) {
-		int nNewPageSize = Integer.parseInt(sPageSize);
+	private void updatePageSize(String size) {
+		int newPageSize = Integer.parseInt(size);
 
-		if (nNewPageSize != nPageSize) {
-			nPageSize = nNewPageSize;
-			rNavigationListener.update();
+		if (newPageSize != pageSize) {
+			pageSize = newPageSize;
+			navigationListener.update();
 		}
 	}
 }

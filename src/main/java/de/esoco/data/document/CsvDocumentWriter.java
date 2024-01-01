@@ -19,10 +19,8 @@ package de.esoco.data.document;
 import de.esoco.data.FileType;
 
 import java.math.BigDecimal;
-
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
 
 /**
@@ -39,41 +37,42 @@ public class CsvDocumentWriter implements TabularDocumentWriter<String> {
 
 	private static final String DECIMAL_FORMAT = "#,##0.00";
 
-	private StringBuilder aDocument = new StringBuilder();
+	private final StringBuilder document = new StringBuilder();
 
-	private boolean bNewRow = true;
+	private final String valueSeparator;
 
-	private String sValueSeparator;
+	private final DecimalFormat decimalFormat =
+		new DecimalFormat(DECIMAL_FORMAT);
 
-	private SimpleDateFormat aDateFormat;
+	private boolean newRow = true;
 
-	private DecimalFormat aDecimalFormat = new DecimalFormat(DECIMAL_FORMAT);
+	private SimpleDateFormat dateFormat;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sValueSeparator The list value separator to use.
+	 * @param valueSeparator The list value separator to use.
 	 */
-	public CsvDocumentWriter(String sValueSeparator) {
-		this(sValueSeparator, DateFormat.DATE);
+	public CsvDocumentWriter(String valueSeparator) {
+		this(valueSeparator, DateFormat.DATE);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sValueSeparator The list value separator to use.
-	 * @param eDateFormat     The date format for date fields.
+	 * @param valueSeparator The list value separator to use.
+	 * @param dateFormat     The date format for date fields.
 	 */
-	public CsvDocumentWriter(String sValueSeparator, DateFormat eDateFormat) {
-		this.sValueSeparator = sValueSeparator;
+	public CsvDocumentWriter(String valueSeparator, DateFormat dateFormat) {
+		this.valueSeparator = valueSeparator;
 
-		switch (eDateFormat) {
+		switch (dateFormat) {
 			case DATE:
-				aDateFormat = new SimpleDateFormat(DATE_FORMAT);
+				this.dateFormat = new SimpleDateFormat(DATE_FORMAT);
 				break;
 
 			case DATE_TIME:
-				aDateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
+				this.dateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
 				break;
 		}
 	}
@@ -82,25 +81,25 @@ public class CsvDocumentWriter implements TabularDocumentWriter<String> {
 	 * @see TabularDocumentWriter#addValue(Object)
 	 */
 	@Override
-	public void addValue(Object rValue) {
-		String sValue = null;
+	public void addValue(Object value) {
+		String valueText = null;
 
-		if (!bNewRow) {
-			aDocument.append(sValueSeparator);
+		if (!newRow) {
+			document.append(valueSeparator);
 		}
 
-		if (rValue instanceof Date) {
-			sValue = aDateFormat.format((Date) rValue);
-		} else if (rValue instanceof BigDecimal) {
-			sValue = aDecimalFormat.format(rValue);
+		if (value instanceof Date) {
+			valueText = dateFormat.format((Date) value);
+		} else if (value instanceof BigDecimal) {
+			valueText = decimalFormat.format(value);
 		} else {
-			sValue = rValue != null ? rValue.toString() : "";
+			valueText = value != null ? value.toString() : "";
 		}
 
-		aDocument.append("\"");
-		aDocument.append(sValue);
-		aDocument.append("\"");
-		bNewRow = false;
+		document.append("\"");
+		document.append(valueText);
+		document.append("\"");
+		newRow = false;
 	}
 
 	/**
@@ -108,7 +107,7 @@ public class CsvDocumentWriter implements TabularDocumentWriter<String> {
 	 */
 	@Override
 	public String createDocument() {
-		return aDocument.toString();
+		return document.toString();
 	}
 
 	/**
@@ -124,7 +123,7 @@ public class CsvDocumentWriter implements TabularDocumentWriter<String> {
 	 */
 	@Override
 	public void newRow() {
-		aDocument.append("\n");
-		bNewRow = true;
+		document.append("\n");
+		newRow = true;
 	}
 }

@@ -19,10 +19,9 @@ package de.esoco.process.ui;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.process.ui.event.UiHasUpdateEvents;
+import org.obrel.core.RelationType;
 
 import java.util.function.Consumer;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 
@@ -38,30 +37,30 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	/**
 	 * Creates a new instance for an existing parameter type.
 	 *
-	 * @param rParent    The parent container
-	 * @param rParamType The parameter relation type
-	 * @param eListStyle The list style
+	 * @param parent    The parent container
+	 * @param paramType The parameter relation type
+	 * @param listStyle The list style
 	 */
-	public UiListControl(UiContainer<?> rParent, RelationType<T> rParamType,
-		ListStyle eListStyle) {
-		super(rParent, rParamType);
+	public UiListControl(UiContainer<?> parent, RelationType<T> paramType,
+		ListStyle listStyle) {
+		super(parent, paramType);
 
-		set(LIST_STYLE, eListStyle);
+		set(LIST_STYLE, listStyle);
 	}
 
 	/**
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as the list values.
 	 *
-	 * @param rParent    The parent container
-	 * @param rDatatype  The datatype of the list values
-	 * @param eListStyle The list style
+	 * @param parent    The parent container
+	 * @param datatype  The datatype of the list values
+	 * @param listStyle The list style
 	 */
-	public UiListControl(UiContainer<?> rParent, Class<? super T> rDatatype,
-		ListStyle eListStyle) {
-		super(rParent, rDatatype);
+	public UiListControl(UiContainer<?> parent, Class<? super T> datatype,
+		ListStyle listStyle) {
+		super(parent, datatype);
 
-		set(LIST_STYLE, eListStyle);
+		set(LIST_STYLE, listStyle);
 	}
 
 	/**
@@ -76,38 +75,38 @@ public abstract class UiListControl<T, C extends UiListControl<T, C>>
 	/**
 	 * Sets the event handler for selection events of this table.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
-	public final C onSelection(Consumer<T> rEventHandler) {
+	public final C onSelection(Consumer<T> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C onUpdate(Consumer<T> rEventHandler) {
-		return onSelection(rEventHandler);
+	public C onUpdate(Consumer<T> eventHandler) {
+		return onSelection(eventHandler);
 	}
 
 	/**
 	 * Sets the selected value.
 	 *
-	 * @param rValue The new selection or NULL for none
+	 * @param value The new selection or NULL for none
 	 * @return This instance
 	 */
-	public C select(T rValue) {
-		return setValueImpl(rValue);
+	public C select(T value) {
+		return setValueImpl(value);
 	}
 
 	/**
 	 * Sets the selected value.
 	 *
-	 * @param rValue The new selection or NULL for none
+	 * @param value The new selection or NULL for none
 	 */
-	public void setSelection(T rValue) {
-		select(rValue);
+	public void setSelection(T value) {
+		select(value);
 	}
 }

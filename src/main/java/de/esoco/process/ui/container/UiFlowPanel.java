@@ -30,9 +30,9 @@ public class UiFlowPanel extends UiLayoutContainer<UiFlowPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiFlowPanel(UiContainer<?> rParent) {
-		super(rParent, new UiFlowLayout());
+	public UiFlowPanel(UiContainer<?> parent) {
+		super(parent, new UiFlowLayout());
 	}
 }

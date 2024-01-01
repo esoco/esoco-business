@@ -27,8 +27,8 @@ public interface ValueEventHandler<T> {
 	/**
 	 * Will be invoked if a value update has been performed.
 	 *
-	 * @param rNewValue The updated value
+	 * @param newValue The updated value
 	 * @throws Exception May throw an exception on errors
 	 */
-	public void handleValueUpdate(T rNewValue) throws Exception;
+	void handleValueUpdate(T newValue) throws Exception;
 }

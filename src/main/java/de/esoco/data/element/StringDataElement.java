@@ -17,7 +17,6 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.UserInterfaceProperties;
@@ -38,16 +37,16 @@ public class StringDataElement extends DataElement<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private String sValue;
+	private String value;
 
 	/**
 	 * Creates a new modifiable instance without a validator.
 	 *
-	 * @param sName  The name of this element
-	 * @param sValue The value of this element
+	 * @param name  The name of this element
+	 * @param value The value of this element
 	 */
-	public StringDataElement(String sName, String sValue) {
-		this(sName, sValue, null, null);
+	public StringDataElement(String name, String value) {
+		this(name, value, null, null);
 	}
 
 	/**
@@ -57,16 +56,16 @@ public class StringDataElement extends DataElement<String> {
 	 * against
 	 * which new element values will be matched.
 	 *
-	 * @param sName      The name of this element
-	 * @param sValue     The value of this element
-	 * @param rValidator The validator for the value or NULL for none
-	 * @param rFlags     The optional flags for this data element
+	 * @param name      The name of this element
+	 * @param value     The value of this element
+	 * @param validator The validator for the value or NULL for none
+	 * @param flags     The optional flags for this data element
 	 */
-	public StringDataElement(String sName, String sValue,
-		Validator<? super String> rValidator, Set<Flag> rFlags) {
-		super(sName, rValidator, rFlags);
+	public StringDataElement(String name, String value,
+		Validator<? super String> validator, Set<Flag> flags) {
+		super(name, validator, flags);
 
-		updateValue(sValue);
+		updateValue(value);
 	}
 
 	/**
@@ -81,48 +80,47 @@ public class StringDataElement extends DataElement<String> {
 	 * area code, phone number, and extension. Empty parts will be returned as
 	 * empty strings but will never be NULL.
 	 *
-	 * @param sNumber The phone number string
+	 * @param number The phone number string
 	 * @return A list containing the 4 number parts
 	 */
-	public static List<String> getPhoneNumberParts(String sNumber) {
-		List<String> aNumberParts;
+	public static List<String> getPhoneNumberParts(String number) {
+		List<String> numberParts;
 
-		if (sNumber != null) {
-			boolean bHasCountryCode = sNumber.startsWith("+");
+		if (number != null) {
+			boolean hasCountryCode = number.startsWith("+");
 
-			if (bHasCountryCode) {
-				sNumber = sNumber.substring(1);
+			if (hasCountryCode) {
+				number = number.substring(1);
 			}
 
-			aNumberParts =
-				new ArrayList<String>(Arrays.asList(sNumber.split("\\D")));
+			numberParts =
+				new ArrayList<String>(Arrays.asList(number.split("\\D")));
 
-			if (!bHasCountryCode) {
-				aNumberParts.add(0, "");
+			if (!hasCountryCode) {
+				numberParts.add(0, "");
 			}
 
-			while (aNumberParts.size() > 4) {
-				aNumberParts.set(2,
-					aNumberParts.get(2) + aNumberParts.remove(3));
+			while (numberParts.size() > 4) {
+				numberParts.set(2, numberParts.get(2) + numberParts.remove(3));
 			}
 		} else {
-			aNumberParts = new ArrayList<String>(4);
+			numberParts = new ArrayList<String>(4);
 		}
 
-		for (int i = aNumberParts.size(); i < 4; i++) {
-			aNumberParts.add("");
+		for (int i = numberParts.size(); i < 4; i++) {
+			numberParts.add("");
 		}
 
-		return aNumberParts;
+		return numberParts;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (StringDataElement) super.copy(eMode, rCopyProperties);
+	public StringDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (StringDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -130,7 +128,7 @@ public class StringDataElement extends DataElement<String> {
 	 */
 	@Override
 	public final String getValue() {
-		return sValue;
+		return value;
 	}
 
 	/**
@@ -141,9 +139,8 @@ public class StringDataElement extends DataElement<String> {
 	 * @see DataElement#isValidValue(Validator, Object)
 	 */
 	@Override
-	public <T> boolean isValidValue(Validator<? super T> rValidator,
-		T rValue) {
-		return super.isValidValue(rValidator, rValue) || (rValidator != null &&
+	public <T> boolean isValidValue(Validator<? super T> validator, T value) {
+		return super.isValidValue(validator, value) || (validator != null &&
 			getProperty(LIST_STYLE, null) == ListStyle.EDITABLE);
 	}
 
@@ -151,8 +148,8 @@ public class StringDataElement extends DataElement<String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStringValue(String sValue) {
-		setValue(sValue);
+	public void setStringValue(String value) {
+		setValue(value);
 	}
 
 	/**
@@ -167,7 +164,7 @@ public class StringDataElement extends DataElement<String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected final void updateValue(String sNewValue) {
-		sValue = sNewValue;
+	protected final void updateValue(String newValue) {
+		value = newValue;
 	}
 }

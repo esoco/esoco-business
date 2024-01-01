@@ -19,9 +19,7 @@ package de.esoco.history;
 import de.esoco.entity.AbstractEntityStorageTest;
 import de.esoco.entity.Entity;
 import de.esoco.entity.TestPerson;
-
 import de.esoco.lib.manage.TransactionException;
-
 import de.esoco.storage.StorageException;
 import org.junit.jupiter.api.Test;
 
@@ -39,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class HistoryTest extends AbstractEntityStorageTest {
 
-	private Entity rOrigin;
+	private Entity origin;
 
-	private Entity rTarget;
+	private Entity target;
 
 	/**
 	 * Initializes the storage for the tests.
@@ -50,16 +48,16 @@ public class HistoryTest extends AbstractEntityStorageTest {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		rOrigin = createPerson(
+		origin = createPerson(
 			new String[] { "Origin", "Test", "-", "-", "-", "11" });
-		rTarget = createPerson(
+		target = createPerson(
 			new String[] { "Target", "Test", "-", "-", "-", "22" });
 
-		rStorage.initObjectStorage(HistoryRecord.class);
-		rStorage.initObjectStorage(TestPerson.class);
+		storage.initObjectStorage(HistoryRecord.class);
+		storage.initObjectStorage(TestPerson.class);
 
-		rStorage.store(rOrigin);
-		rStorage.store(rTarget);
+		storage.store(origin);
+		storage.store(target);
 	}
 
 	/**
@@ -68,15 +66,15 @@ public class HistoryTest extends AbstractEntityStorageTest {
 	@Test
 	public void testDiscardEmptyHierarchy()
 		throws StorageException, TransactionException {
-		HistoryManager.begin(rOrigin, rTarget, "TEST");
-		HistoryManager.begin(rOrigin, rTarget, "SUBTEST");
+		HistoryManager.begin(origin, target, "TEST");
+		HistoryManager.begin(origin, target, "SUBTEST");
 		HistoryManager.commit(false);
 		HistoryManager.commit(false);
 
-		List<HistoryRecord> rHistory =
-			HistoryManager.getHistoryFor(rTarget, GROUP);
+		List<HistoryRecord> history =
+			HistoryManager.getHistoryFor(target, GROUP);
 
-		assertEquals(0, rHistory.size());
+		assertEquals(0, history.size());
 	}
 
 	/**
@@ -84,23 +82,23 @@ public class HistoryTest extends AbstractEntityStorageTest {
 	 */
 	@Test
 	public void testHierarchy() throws StorageException, TransactionException {
-		HistoryManager.begin(rOrigin, rTarget, "TEST");
-		HistoryManager.record(INFO, null, rTarget, "TESTINFO");
-		HistoryManager.record(NOTE, null, rTarget, "TESTNOTE");
+		HistoryManager.begin(origin, target, "TEST");
+		HistoryManager.record(INFO, null, target, "TESTINFO");
+		HistoryManager.record(NOTE, null, target, "TESTNOTE");
 		HistoryManager.commit(true);
 
-		List<HistoryRecord> rHistory =
-			HistoryManager.getHistoryFor(rTarget, GROUP);
+		List<HistoryRecord> history =
+			HistoryManager.getHistoryFor(target, GROUP);
 
-		assertEquals(1, rHistory.size());
+		assertEquals(1, history.size());
 
-		HistoryRecord rRecord = rHistory.get(0);
+		HistoryRecord record = history.get(0);
 
-		assertEquals("TEST", rRecord.get(HistoryRecord.VALUE));
+		assertEquals("TEST", record.get(HistoryRecord.VALUE));
 
-		List<HistoryRecord> rRecords = rRecord.get(HistoryRecord.DETAILS);
+		List<HistoryRecord> records = record.get(HistoryRecord.DETAILS);
 
-		assertEquals(2, rRecords.size());
+		assertEquals(2, records.size());
 	}
 
 	/**
@@ -108,13 +106,13 @@ public class HistoryTest extends AbstractEntityStorageTest {
 	 */
 	@Test
 	public void testHistory() throws StorageException, TransactionException {
-		HistoryManager.record(INFO, rOrigin, rTarget, "TEST");
+		HistoryManager.record(INFO, origin, target, "TEST");
 
-		List<HistoryRecord> rHistory =
-			HistoryManager.getHistoryFor(rTarget, INFO);
+		List<HistoryRecord> history =
+			HistoryManager.getHistoryFor(target, INFO);
 
-		assertEquals(1, rHistory.size());
-		assertEquals("TEST", rHistory.get(0).get(HistoryRecord.VALUE));
+		assertEquals(1, history.size());
+		assertEquals("TEST", history.get(0).get(HistoryRecord.VALUE));
 	}
 
 	/**
@@ -123,20 +121,20 @@ public class HistoryTest extends AbstractEntityStorageTest {
 	@Test
 	public void testKeepEmptyHierarchy()
 		throws StorageException, TransactionException {
-		HistoryManager.begin(rOrigin, rTarget, "TEST");
+		HistoryManager.begin(origin, target, "TEST");
 		HistoryManager.commit(true);
 
-		List<HistoryRecord> rHistory =
-			HistoryManager.getHistoryFor(rTarget, GROUP);
+		List<HistoryRecord> history =
+			HistoryManager.getHistoryFor(target, GROUP);
 
-		assertEquals(1, rHistory.size());
+		assertEquals(1, history.size());
 
-		HistoryRecord rRecord = rHistory.get(0);
+		HistoryRecord record = history.get(0);
 
-		assertEquals("TEST", rRecord.get(HistoryRecord.VALUE));
+		assertEquals("TEST", record.get(HistoryRecord.VALUE));
 
-		List<HistoryRecord> rRecords = rRecord.get(HistoryRecord.DETAILS);
+		List<HistoryRecord> records = record.get(HistoryRecord.DETAILS);
 
-		assertEquals(0, rRecords.size());
+		assertEquals(0, records.size());
 	}
 }

@@ -16,18 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.comm;
 
-import java.io.IOException;
-
-import java.net.URI;
-
-import java.nio.charset.StandardCharsets;
-
-import java.util.Objects;
-
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.comm.CommunicationRelationTypes.ENCRYPTION;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
+import static de.esoco.lib.comm.CommunicationRelationTypes.ENCRYPTION;
 import static org.obrel.core.RelationTypeModifier.PRIVATE;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -70,55 +65,54 @@ public class GraylogEndpoint extends Endpoint {
 	/**
 	 * Builds a Graylog endpoint URL from the given parameters.
 	 *
-	 * @param sHost      The host name or address
-	 * @param nPort      The port to connect to
-	 * @param eProtocol  The communication protocol
-	 * @param bEncrypted TRUE for an encrypted connection
+	 * @param host      The host name or address
+	 * @param port      The port to connect to
+	 * @param protocol  The communication protocol
+	 * @param encrypted TRUE for an encrypted connection
 	 * @return The resulting endpoint URL
 	 */
 	@SuppressWarnings("boxing")
-	public static String url(String sHost, int nPort, Protocol eProtocol,
-		boolean bEncrypted) {
+	public static String url(String host, int port, Protocol protocol,
+		boolean encrypted) {
 		return String.format("%s://%s:%d?%s",
-			bEncrypted ? "graylogs" : "graylog", sHost, nPort, eProtocol);
+			encrypted ? "graylogs" : "graylog", host, port, protocol);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void closeConnection(Connection rConnection) throws IOException {
-		rConnection.get(GRAYLOG_SERVER_CONNECTION).close();
+	protected void closeConnection(Connection connection) throws IOException {
+		connection.get(GRAYLOG_SERVER_CONNECTION).close();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initConnection(Connection rConnection) throws IOException {
-		URI rUri = rConnection.getUri();
-		String sHost = rUri.getHost();
-		int nPort = rUri.getPort();
-		String sProtocol = rUri.getQuery();
-		Protocol eProtocol = null;
+	protected void initConnection(Connection connection) {
+		URI uri = connection.getUri();
+		String host = uri.getHost();
+		int port = uri.getPort();
+		String proto = uri.getQuery();
+		Protocol protocol = null;
 
-		if (sProtocol != null) {
-			eProtocol = Protocol.valueOf(sProtocol);
-		}
+		if (proto != null) {
+			protocol = Protocol.valueOf(proto);
+		} else
+			throw new IllegalArgumentException("Graylog protocol missing");
 
-		Objects.requireNonNull(eProtocol, "Graylog protocol missing");
+		if (protocol == Protocol.TCP) {
+			String socketAddress =
+				SocketEndpoint.url(host, port, hasFlag(ENCRYPTION));
 
-		if (eProtocol == Protocol.TCP) {
-			String sSocketAddress =
-				SocketEndpoint.url(sHost, nPort, hasFlag(ENCRYPTION));
-
-			rConnection.set(GRAYLOG_SERVER_CONNECTION,
-				Endpoint.at(sSocketAddress).connect(rConnection));
-			rConnection.set(GRAYLOG_SERVER_METHOD,
+			connection.set(GRAYLOG_SERVER_CONNECTION,
+				Endpoint.at(socketAddress).connect(connection));
+			connection.set(GRAYLOG_SERVER_METHOD,
 				SocketEndpoint.binaryRequest(null, null));
 		} else {
 			throw new CommunicationException(
-				"Protocol not implemented: " + eProtocol);
+				"Protocol not implemented: " + protocol);
 		}
 	}
 
@@ -141,12 +135,12 @@ public class GraylogEndpoint extends Endpoint {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Void doOn(Connection rConnection, GraylogMessage rMessage)
+		public Void doOn(Connection connection, GraylogMessage message)
 			throws Exception {
-			rConnection
+			connection
 				.get(GRAYLOG_SERVER_METHOD)
-				.doOn(rConnection.get(GRAYLOG_SERVER_CONNECTION),
-					rMessage.toJson().getBytes(StandardCharsets.UTF_8));
+				.doOn(connection.get(GRAYLOG_SERVER_CONNECTION),
+					message.toJson().getBytes(StandardCharsets.UTF_8));
 
 			return null;
 		}

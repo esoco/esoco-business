@@ -70,40 +70,40 @@ public class DataSetDataElement extends DataElement<DataSet<?>> {
 
 	private static final long serialVersionUID = 1L;
 
-	private DataSet<?> rDataSet;
+	private DataSet<?> dataSet;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName    The name of the data element
-	 * @param rDataSet The data set for the chart
-	 * @param rFlags   The flags for this instance
+	 * @param name    The name of the data element
+	 * @param dataSet The data set for the chart
+	 * @param flags   The flags for this instance
 	 */
-	public DataSetDataElement(String sName, DataSet<?> rDataSet,
-		Set<Flag> rFlags) {
-		super(sName, null, rFlags);
+	public DataSetDataElement(String name, DataSet<?> dataSet,
+		Set<Flag> flags) {
+		super(name, null, flags);
 
-		this.rDataSet = rDataSet;
+		this.dataSet = dataSet;
 	}
 
 	/**
 	 * Creates a new instance with certain display properties set.
 	 *
-	 * @param sName            The name of the data element
-	 * @param aDataSet         The chart data
-	 * @param eChartType       The chart type
-	 * @param eLegendPosition  The legend position
-	 * @param sBackgroundColor The chart background color
-	 * @param b3D              TRUE for a 3D chart
+	 * @param name            The name of the data element
+	 * @param dataSet         The chart data
+	 * @param chartType       The chart type
+	 * @param legendPosition  The legend position
+	 * @param backgroundColor The chart background color
+	 * @param b3D             TRUE for a 3D chart
 	 */
-	public DataSetDataElement(String sName, DataSet<?> aDataSet,
-		ChartType eChartType, LegendPosition eLegendPosition,
-		String sBackgroundColor, boolean b3D) {
-		this(sName, aDataSet, DISPLAY_FLAGS);
+	public DataSetDataElement(String name, DataSet<?> dataSet,
+		ChartType chartType, LegendPosition legendPosition,
+		String backgroundColor, boolean b3D) {
+		this(name, dataSet, DISPLAY_FLAGS);
 
-		setProperty(CHART_BACKGROUND, Color.valueOf(sBackgroundColor));
-		setProperty(CHART_LEGEND_POSITION, eLegendPosition);
-		setProperty(CHART_TYPE, eChartType);
+		setProperty(CHART_BACKGROUND, Color.valueOf(backgroundColor));
+		setProperty(CHART_LEGEND_POSITION, legendPosition);
+		setProperty(CHART_TYPE, chartType);
 
 		if (b3D) {
 			setFlag(CHART_3D);
@@ -127,9 +127,9 @@ public class DataSetDataElement extends DataElement<DataSet<?>> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DataSetDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (DataSetDataElement) super.copy(eMode, rCopyProperties);
+	public DataSetDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (DataSetDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class DataSetDataElement extends DataElement<DataSet<?>> {
 	 */
 	@Override
 	public DataSet<?> getValue() {
-		return rDataSet;
+		return dataSet;
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class DataSetDataElement extends DataElement<DataSet<?>> {
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected void updateValue(DataSet<?> rNewDataSet) {
-		rDataSet = rNewDataSet;
+	protected void updateValue(DataSet<?> newDataSet) {
+		dataSet = newDataSet;
 	}
 }

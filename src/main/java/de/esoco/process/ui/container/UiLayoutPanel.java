@@ -31,11 +31,11 @@ public class UiLayoutPanel extends UiLayoutContainer<UiLayoutPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param rLayout The layout of this panel
+	 * @param parent The parent container
+	 * @param layout The layout of this panel
 	 */
-	public UiLayoutPanel(UiContainer<?> rParent, UiLayout rLayout) {
-		super(rParent, rLayout);
+	public UiLayoutPanel(UiContainer<?> parent, UiLayout layout) {
+		super(parent, layout);
 	}
 
 	/**

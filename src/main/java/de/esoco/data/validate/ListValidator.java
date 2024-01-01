@@ -29,18 +29,18 @@ public abstract class ListValidator<T>
 
 	private static final long serialVersionUID = 1L;
 
-	private List<T> rValueList;
+	private List<T> valueList;
 
 	/**
 	 * Creates a new instance that checks if values are an element of the
 	 * argument list. If the list is empty any value will be allowed.
 	 *
-	 * @param rValueList The list of values to be validated against or an empty
-	 *                   list to allow any value
+	 * @param valueList The list of values to be validated against or an empty
+	 *                  list to allow any value
 	 */
 	@SuppressWarnings("unchecked")
-	public ListValidator(List<? extends T> rValueList) {
-		this.rValueList = (List<T>) rValueList;
+	public ListValidator(List<? extends T> valueList) {
+		this.valueList = (List<T>) valueList;
 	}
 
 	/**
@@ -53,18 +53,18 @@ public abstract class ListValidator<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (this == rObj) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
 
-		if (rObj == null || getClass() != rObj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 
-		ListValidator<?> rOther = (ListValidator<?>) rObj;
+		ListValidator<?> other = (ListValidator<?>) obj;
 
-		return rValueList.equals(rOther.rValueList);
+		return valueList.equals(other.valueList);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public abstract class ListValidator<T>
 	 */
 	@Override
 	public List<T> getValues() {
-		return rValueList;
+		return valueList;
 	}
 
 	/**
@@ -80,16 +80,16 @@ public abstract class ListValidator<T>
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * rValueList.hashCode();
+		return 37 * valueList.hashCode();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(T rValue) {
-		return rValue == null || rValueList.isEmpty() ||
-			rValueList.contains(rValue);
+	public boolean isValid(T value) {
+		return value == null || valueList.isEmpty() ||
+			valueList.contains(value);
 	}
 
 	/**
@@ -97,6 +97,6 @@ public abstract class ListValidator<T>
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + rValueList + "]";
+		return getClass().getSimpleName() + "[" + valueList + "]";
 	}
 }

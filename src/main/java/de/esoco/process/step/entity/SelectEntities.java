@@ -20,7 +20,6 @@ import de.esoco.entity.Entity;
 import de.esoco.entity.EntityDefinition;
 import de.esoco.entity.EntityDefinition.DisplayMode;
 import de.esoco.entity.EntityManager;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
@@ -28,13 +27,12 @@ import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.InteractiveInputMode;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.process.ProcessRelationTypes.ListAction;
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,11 +42,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-
 import static de.esoco.entity.EntityPredicates.forEntity;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
-
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.not;
@@ -62,7 +57,6 @@ import static de.esoco.lib.property.LayoutProperties.SAME_ROW;
 import static de.esoco.lib.property.StateProperties.CURRENT_SELECTION;
 import static de.esoco.lib.property.StateProperties.INTERACTIVE_INPUT_MODE;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
-
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_TYPE;
 
 /**
@@ -77,35 +71,35 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 
 	private static final long serialVersionUID = 1L;
 
-	private String sIdentifier;
+	private final String identifier;
 
-	private Class<E> rEntityClass;
+	private final Class<E> entityClass;
 
-	private Predicate<? super E> pQueryCriteria;
+	private final List<Function<? super E, ?>> columns;
 
-	private Predicate<? super Entity> pSortOrder;
+	private final Set<Long> selectedEntityIds = new LinkedHashSet<>();
 
-	private List<Function<? super E, ?>> rColumns;
+	private Predicate<? super E> queryCriteria;
 
-	private List<Function<? super E, ?>> rSelectionColumns;
+	private Predicate<? super Entity> sortOrder;
 
-	private Function<? super E, String> fCreateEntityInfo;
+	private List<Function<? super E, ?>> selectionColumns;
 
-	private boolean bUpdate;
+	private Function<? super E, String> createEntityInfo;
 
-	private Set<Long> aSelectedEntityIds = new LinkedHashSet<>();
+	private boolean update;
 
-	private RelationType<String> aUnselectedHeaderParam;
+	private RelationType<String> unselectedHeaderParam;
 
-	private RelationType<String> aSelectedHeaderParam;
+	private RelationType<String> selectedHeaderParam;
 
-	private RelationType<E> aUnselectedEntitiesParam;
+	private RelationType<E> unselectedEntitiesParam;
 
-	private RelationType<E> aSelectedEntitiesParam;
+	private RelationType<E> selectedEntitiesParam;
 
-	private RelationType<ListAction> aListActionParam;
+	private RelationType<ListAction> listActionParam;
 
-	private RelationType<String> aEntityInfoParam;
+	private RelationType<String> entityInfoParam;
 
 	/**
 	 * Creates a new instance with a varargs list for the column attributes
@@ -114,9 +108,9 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * @see SelectEntities#SelectEntities(String, Class, List)
 	 */
 	@SafeVarargs
-	public SelectEntities(String sIdentifier, Class<E> rEntityClass,
-		Function<? super E, ?>... rColumns) {
-		this(sIdentifier, rEntityClass, Arrays.asList(rColumns));
+	public SelectEntities(String identifier, Class<E> entityClass,
+		Function<? super E, ?>... columns) {
+		this(identifier, entityClass, Arrays.asList(columns));
 	}
 
 	/**
@@ -124,58 +118,58 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * string must be unique in the context of this instance because it will be
 	 * used to generate temporary parameters and resource identifiers.
 	 *
-	 * @param sIdentifier  An identifier string for this instance
-	 * @param rEntityClass The class of the entities to be selected
-	 * @param rColumns     The entity attribute functions for the table columns
-	 *                     to be displayed; empty to use the entity attributes
-	 *                     of {@link DisplayMode#COMPACT}
+	 * @param identifier  An identifier string for this instance
+	 * @param entityClass The class of the entities to be selected
+	 * @param columns     The entity attribute functions for the table columns
+	 *                    to be displayed; empty to use the entity
+	 *                    attributes of
+	 *                    {@link DisplayMode#COMPACT}
 	 */
-	public SelectEntities(String sIdentifier, Class<E> rEntityClass,
-		List<Function<? super E, ?>> rColumns) {
-		this.sIdentifier = sIdentifier;
-		this.rEntityClass = rEntityClass;
+	public SelectEntities(String identifier, Class<E> entityClass,
+		List<Function<? super E, ?>> columns) {
+		this.identifier = identifier;
+		this.entityClass = entityClass;
 
-		if (rColumns == null || rColumns.isEmpty()) {
-			List<RelationType<?>> rDisplayAttr = EntityManager
-				.getEntityDefinition(rEntityClass)
+		if (columns == null || columns.isEmpty()) {
+			List<RelationType<?>> displayAttr = EntityManager
+				.getEntityDefinition(entityClass)
 				.getDisplayAttributes(DisplayMode.COMPACT);
 
-			rColumns = new ArrayList<Function<? super E, ?>>(rDisplayAttr);
+			columns = new ArrayList<Function<? super E, ?>>(displayAttr);
 		}
 
-		this.rColumns = rColumns;
-		this.rSelectionColumns = rColumns;
+		this.columns = columns;
+		this.selectionColumns = columns;
 	}
 
 	/**
 	 * Returns a predicate that can be used as the criteria of a storage query
 	 * for a certain set of entities based on their ID.
 	 *
-	 * @param rEntityClass The entity class of the list elements
-	 * @param rEntities    The entities to create the predicate for (can be
-	 *                        NULL
-	 *                     for none)
+	 * @param entityClass The entity class of the list elements
+	 * @param entities    The entities to create the predicate for (can be NULL
+	 *                    for none)
 	 * @return A predicate containing the entity ID criteria for the given
 	 * entities
 	 */
 	public static <E extends Entity> Predicate<E> getEntityListPredicate(
-		Class<E> rEntityClass, Collection<E> rEntities) {
-		RelationType<Number> rIdAttr =
-			EntityManager.getEntityDefinition(rEntityClass).getIdAttribute();
+		Class<E> entityClass, Collection<E> entities) {
+		RelationType<Number> idAttr =
+			EntityManager.getEntityDefinition(entityClass).getIdAttribute();
 
 		// use a dummy predicate that will find nothing as the default
-		Predicate<E> pEntityList =
-			ifAttribute(rIdAttr, equalTo(Integer.valueOf(-1)));
+		Predicate<E> entityList =
+			ifAttribute(idAttr, equalTo(Integer.valueOf(-1)));
 
-		if (rEntities != null) {
-			Collection<Number> rIds = CollectionUtil.map(rEntities, rIdAttr);
+		if (entities != null) {
+			Collection<Number> ids = CollectionUtil.map(entities, idAttr);
 
-			if (rIds.size() > 0) {
-				pEntityList = ifAttribute(rIdAttr, elementOf(rIds));
+			if (ids.size() > 0) {
+				entityList = ifAttribute(idAttr, elementOf(ids));
 			}
 		}
 
-		return pEntityList;
+		return entityList;
 	}
 
 	/**
@@ -183,8 +177,8 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return CollectionUtil.<RelationType<?>>listOf(aUnselectedEntitiesParam,
-			aListActionParam, aSelectedEntitiesParam);
+		return CollectionUtil.listOf(unselectedEntitiesParam, listActionParam,
+			selectedEntitiesParam);
 	}
 
 	/**
@@ -192,16 +186,16 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		List<RelationType<?>> rInteractionParams =
-			CollectionUtil.<RelationType<?>>listOf(aUnselectedHeaderParam,
-				aSelectedHeaderParam, aUnselectedEntitiesParam,
-				aListActionParam, aSelectedEntitiesParam);
+		List<RelationType<?>> interactionParams =
+			CollectionUtil.listOf(unselectedHeaderParam, selectedHeaderParam,
+				unselectedEntitiesParam, listActionParam,
+				selectedEntitiesParam);
 
-		if (fCreateEntityInfo != null) {
-			rInteractionParams.add(aEntityInfoParam);
+		if (createEntityInfo != null) {
+			interactionParams.add(entityInfoParam);
 		}
 
-		return rInteractionParams;
+		return interactionParams;
 	}
 
 	/**
@@ -210,38 +204,38 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * @return A new set containing the selected entity IDs
 	 */
 	public final Set<Long> getSelectedEntityIds() {
-		return new LinkedHashSet<>(aSelectedEntityIds);
+		return new LinkedHashSet<>(selectedEntityIds);
 	}
 
 	/**
 	 * @see InteractionFragment#handleInteraction(RelationType)
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		ListAction eListAction = null;
+		ListAction listAction = null;
 
-		if (rInteractionParam == aUnselectedEntitiesParam ||
-			rInteractionParam == aSelectedEntitiesParam) {
-			if (fCreateEntityInfo != null &&
+		if (interactionParam == unselectedEntitiesParam ||
+			interactionParam == selectedEntitiesParam) {
+			if (createEntityInfo != null &&
 				getParameter(INTERACTION_EVENT_TYPE) !=
 					InteractionEventType.ACTION) {
 				@SuppressWarnings("unchecked")
-				E rEntity = (E) getParameter(rInteractionParam);
+				E entity = (E) getParameter(interactionParam);
 
-				setParameter(aEntityInfoParam,
-					fCreateEntityInfo.evaluate(rEntity));
-			} else if (rInteractionParam == aSelectedEntitiesParam) {
-				eListAction = ListAction.REMOVE_SELECTED;
+				setParameter(entityInfoParam,
+					createEntityInfo.evaluate(entity));
+			} else if (interactionParam == selectedEntitiesParam) {
+				listAction = ListAction.REMOVE_SELECTED;
 			} else {
-				eListAction = ListAction.ADD_SELECTED;
+				listAction = ListAction.ADD_SELECTED;
 			}
 		} else {
-			eListAction = getParameter(aListActionParam);
+			listAction = getParameter(listActionParam);
 		}
 
-		if (eListAction != null) {
-			handleListAction(eListAction);
+		if (listAction != null) {
+			handleListAction(listAction);
 		}
 	}
 
@@ -250,42 +244,40 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 */
 	@Override
 	public void init() throws Exception {
-		aSelectedEntityIds.clear();
-		bUpdate = true;
+		selectedEntityIds.clear();
+		update = true;
 
-		String sUnselectedHeader = TextConvert.capitalizedIdentifier(
-			aUnselectedHeaderParam.getSimpleName());
-		String sSelectedHeader = TextConvert.capitalizedIdentifier(
-			aSelectedHeaderParam.getSimpleName());
+		String unselectedHeader = TextConvert.capitalizedIdentifier(
+			unselectedHeaderParam.getSimpleName());
+		String selectedHeader = TextConvert.capitalizedIdentifier(
+			selectedHeaderParam.getSimpleName());
 
-		setParameter(aUnselectedHeaderParam, "$lbl" + sUnselectedHeader);
-		setParameter(aSelectedHeaderParam, "$lbl" + sSelectedHeader);
+		setParameter(unselectedHeaderParam, "$lbl" + unselectedHeader);
+		setParameter(selectedHeaderParam, "$lbl" + selectedHeader);
 
-		setUIFlag(HIDE_LABEL, aUnselectedEntitiesParam,
-			aUnselectedHeaderParam);
-		setUIFlag(SAME_ROW, aListActionParam, aSelectedEntitiesParam,
-			aSelectedHeaderParam);
+		setUIFlag(HIDE_LABEL, unselectedEntitiesParam, unselectedHeaderParam);
+		setUIFlag(SAME_ROW, listActionParam, selectedEntitiesParam,
+			selectedHeaderParam);
 
-		setUIProperty(2, COLUMN_SPAN, aUnselectedHeaderParam);
-		setUIProperty(HTML_WIDTH, "50%", aUnselectedEntitiesParam,
-			aSelectedEntitiesParam);
-		setUIProperty(HTML_HEIGHT, "100%", aUnselectedEntitiesParam,
-			aSelectedEntitiesParam);
+		setUIProperty(2, COLUMN_SPAN, unselectedHeaderParam);
+		setUIProperty(HTML_WIDTH, "50%", unselectedEntitiesParam,
+			selectedEntitiesParam);
+		setUIProperty(HTML_HEIGHT, "100%", unselectedEntitiesParam,
+			selectedEntitiesParam);
 
-		setUIProperty(RESOURCE_ID, "ListAction", aListActionParam);
-		setUIProperty(LABEL, "", aUnselectedHeaderParam, aSelectedHeaderParam,
-			aListActionParam, aUnselectedEntitiesParam,
-			aSelectedEntitiesParam);
+		setUIProperty(RESOURCE_ID, "ListAction", listActionParam);
+		setUIProperty(LABEL, "", unselectedHeaderParam, selectedHeaderParam,
+			listActionParam, unselectedEntitiesParam, selectedEntitiesParam);
 
 		setUIProperty(INTERACTIVE_INPUT_MODE, InteractiveInputMode.BOTH,
-			aUnselectedEntitiesParam, aSelectedEntitiesParam);
+			unselectedEntitiesParam, selectedEntitiesParam);
 
-		setUIFlag(HIDE_LABEL, aEntityInfoParam);
-		setUIProperty(3, COLUMN_SPAN, aEntityInfoParam);
-		setUIProperty(-1, ROWS, aEntityInfoParam);
-		setUIProperty(LABEL, "", aEntityInfoParam);
+		setUIFlag(HIDE_LABEL, entityInfoParam);
+		setUIProperty(3, COLUMN_SPAN, entityInfoParam);
+		setUIProperty(-1, ROWS, entityInfoParam);
+		setUIProperty(LABEL, "", entityInfoParam);
 
-		setImmediateAction(aListActionParam, ListAction.ADD_ALL,
+		setImmediateAction(listActionParam, ListAction.ADD_ALL,
 			ListAction.REMOVE_ALL);
 	}
 
@@ -294,17 +286,17 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 */
 	@Override
 	public void prepareInteraction() throws Exception {
-		if (fCreateEntityInfo != null) {
-			setAllowedValues(aListActionParam, ListAction.ADD_SELECTED,
+		if (createEntityInfo != null) {
+			setAllowedValues(listActionParam, ListAction.ADD_SELECTED,
 				ListAction.ADD_ALL, ListAction.REMOVE_ALL,
 				ListAction.REMOVE_SELECTED);
 		} else {
-			setAllowedValues(aListActionParam, ListAction.ADD_ALL,
+			setAllowedValues(listActionParam, ListAction.ADD_ALL,
 				ListAction.REMOVE_ALL);
 		}
 
-		if (bUpdate) {
-			bUpdate = false;
+		if (update) {
+			update = false;
 			update();
 		}
 	}
@@ -316,31 +308,32 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * @throws StorageException If the query fails
 	 */
 	public final List<E> querySelectedEntities() throws StorageException {
-		EntityDefinition<E> rDef =
-			EntityManager.getEntityDefinition(rEntityClass);
+		EntityDefinition<E> def =
+			EntityManager.getEntityDefinition(entityClass);
 
-		List<E> rEntities;
+		List<E> entities;
 
-		if (aSelectedEntityIds.size() > 0) {
-			rEntities = EntityManager.queryEntities(rEntityClass,
-				ifAttribute(rDef.getIdAttribute(),
-					elementOf(aSelectedEntityIds)), aSelectedEntityIds.size());
+		if (selectedEntityIds.size() > 0) {
+			entities = EntityManager.queryEntities(entityClass,
+				ifAttribute(def.getIdAttribute(),
+					elementOf(selectedEntityIds)),
+				selectedEntityIds.size());
 		} else {
-			rEntities = new ArrayList<>();
+			entities = new ArrayList<>();
 		}
 
-		return rEntities;
+		return entities;
 	}
 
 	/**
 	 * Sets a function that generate an information string for an input entity.
 	 * This information will then be displayed on selection of an entity.
 	 *
-	 * @param fCreateEntityInfo The entity info function
+	 * @param createEntityInfo The entity info function
 	 */
 	public final void setEntityInfoFunction(
-		Function<? super E, String> fCreateEntityInfo) {
-		this.fCreateEntityInfo = fCreateEntityInfo;
+		Function<? super E, String> createEntityInfo) {
+		this.createEntityInfo = createEntityInfo;
 	}
 
 	/**
@@ -349,24 +342,25 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * constraints
 	 * actually have changed.
 	 *
-	 * @param pCriteria The query criteria or NULL for all entities of the
-	 *                  chosen type
-	 * @param pSort     The sort predicate or NULL for no explicit order
+	 * @param criteria The query criteria or NULL for all entities of the
+	 *                    chosen
+	 *                 type
+	 * @param sort     The sort predicate or NULL for no explicit order
 	 */
-	public void setQueryConstraints(Predicate<? super E> pCriteria,
-		Predicate<? super Entity> pSort) {
-		if (pCriteria != null && !pCriteria.equals(pQueryCriteria) ||
-			pQueryCriteria != null && !pQueryCriteria.equals(pCriteria)) {
-			bUpdate = true;
+	public void setQueryConstraints(Predicate<? super E> criteria,
+		Predicate<? super Entity> sort) {
+		if (criteria != null && !criteria.equals(queryCriteria) ||
+			queryCriteria != null && !queryCriteria.equals(criteria)) {
+			update = true;
 		}
 
-		if (pSort != null && !pSort.equals(pSortOrder) ||
-			pSortOrder != null && !pSortOrder.equals(pSort)) {
-			bUpdate = true;
+		if (sort != null && !sort.equals(sortOrder) ||
+			sortOrder != null && !sortOrder.equals(sort)) {
+			update = true;
 		}
 
-		pQueryCriteria = pCriteria;
-		pSortOrder = pSort;
+		queryCriteria = criteria;
+		sortOrder = sort;
 	}
 
 	/**
@@ -375,12 +369,12 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * with
 	 * the current query criteria are filtered out.
 	 *
-	 * @param rIds A collection containing the IDs of the entities to select
+	 * @param ids A collection containing the IDs of the entities to select
 	 */
-	public final void setSelectedEntityIds(Collection<Long> rIds) {
-		aSelectedEntityIds.clear();
-		aSelectedEntityIds.addAll(rIds);
-		bUpdate = true;
+	public final void setSelectedEntityIds(Collection<Long> ids) {
+		selectedEntityIds.clear();
+		selectedEntityIds.addAll(ids);
+		update = true;
 	}
 
 	/**
@@ -388,11 +382,11 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * selected entities. If not they will default to the same columns as the
 	 * all entities table.
 	 *
-	 * @param rSelectionColumns The columns of the selection table
+	 * @param selectionColumns The columns of the selection table
 	 */
 	public void setSelectionColumns(
-		List<Function<? super E, ?>> rSelectionColumns) {
-		this.rSelectionColumns = rSelectionColumns;
+		List<Function<? super E, ?>> selectionColumns) {
+		this.selectionColumns = selectionColumns;
 	}
 
 	/**
@@ -401,159 +395,156 @@ public class SelectEntities<E extends Entity> extends InteractionFragment {
 	 * been set before to be considered for the update.
 	 */
 	public void update() throws StorageException {
-		Predicate<? super E> pCriteria = pQueryCriteria;
-		Predicate<Object> pIsSelected;
+		Predicate<? super E> criteria = queryCriteria;
+		Predicate<Object> isSelected;
 
-		RelationType<Number> rIdAttr =
-			EntityManager.getEntityDefinition(rEntityClass).getIdAttribute();
+		RelationType<Number> idAttr =
+			EntityManager.getEntityDefinition(entityClass).getIdAttribute();
 
-		if (aSelectedEntityIds.size() > 0) {
-			pIsSelected = elementOf(new HashSet<>(aSelectedEntityIds));
-			pCriteria = Predicates.and(pCriteria,
-				ifAttribute(rIdAttr, not(pIsSelected)));
+		if (selectedEntityIds.size() > 0) {
+			isSelected = elementOf(new HashSet<>(selectedEntityIds));
+			criteria =
+				Predicates.and(criteria, ifAttribute(idAttr, not(isSelected)));
 		} else {
 			// use dummy predicate to find nothing if selection is empty
-			pIsSelected = equalTo(null);
+			isSelected = equalTo(null);
 		}
 
-		QueryPredicate<E> pUnselectedEntities =
-			forEntity(rEntityClass, pCriteria);
+		QueryPredicate<E> unselectedEntities = forEntity(entityClass,
+			criteria);
 
-		QueryPredicate<E> pSelectedEntities = forEntity(rEntityClass,
-			Predicates.and(ifAttribute(rIdAttr, pIsSelected),
-				(pQueryCriteria)));
+		QueryPredicate<E> selectedEntities = forEntity(entityClass,
+			Predicates.and(ifAttribute(idAttr, isSelected), (queryCriteria)));
 
-		annotateForEntityQuery(aUnselectedEntitiesParam, pUnselectedEntities,
-			pSortOrder, rColumns);
-		annotateForEntityQuery(aSelectedEntitiesParam, pSelectedEntities,
-			pSortOrder, rSelectionColumns);
+		annotateForEntityQuery(unselectedEntitiesParam, unselectedEntities,
+			sortOrder, columns);
+		annotateForEntityQuery(selectedEntitiesParam, selectedEntities,
+			sortOrder, selectionColumns);
 
-		updateSelectedEntityIds(pSelectedEntities);
+		updateSelectedEntityIds(selectedEntities);
 
-		setUIProperty(-1, CURRENT_SELECTION, aUnselectedEntitiesParam,
-			aSelectedEntitiesParam);
+		setUIProperty(-1, CURRENT_SELECTION, unselectedEntitiesParam,
+			selectedEntitiesParam);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void afterInteraction(RelationType<?> rInteractionParam)
+	protected void afterInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		markParameterAsModified(aUnselectedEntitiesParam);
-		markParameterAsModified(aSelectedEntitiesParam);
+		markParameterAsModified(unselectedEntitiesParam);
+		markParameterAsModified(selectedEntitiesParam);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initProcessStep(Interaction rProcessStep) {
-		String sPrefix = TextConvert.uppercaseIdentifier(sIdentifier);
-		String sEntities = rEntityClass.getSimpleName();
+	protected void initProcessStep(Interaction processStep) {
+		String prefix = TextConvert.uppercaseIdentifier(identifier);
+		String entities = entityClass.getSimpleName();
 
-		sEntities =
-			TextConvert.uppercaseIdentifier(TextConvert.toPlural(sEntities));
+		entities =
+			TextConvert.uppercaseIdentifier(TextConvert.toPlural(entities));
 
-		String sUnselected = sPrefix + "_UNSELECTED_" + sEntities;
-		String sSelected = sPrefix + "_SELECTED_" + sEntities;
-		String sAction = sPrefix + "_SELECT_" + sEntities + "_ACTION";
-		String sEntityInfo = sPrefix + "_SELECT_" + sEntities + "_INFOS";
+		String unselected = prefix + "_UNSELECTED_" + entities;
+		String selected = prefix + "_SELECTED_" + entities;
+		String action = prefix + "_SELECT_" + entities + "_ACTION";
+		String entityInfo = prefix + "_SELECT_" + entities + "_INFOS";
 
-		aUnselectedHeaderParam =
-			getTemporaryParameterType(sUnselected + "_HEADER", String.class);
-		aSelectedHeaderParam =
-			getTemporaryParameterType(sSelected + "_HEADER", String.class);
-		aUnselectedEntitiesParam =
-			getTemporaryParameterType(sUnselected, Entity.class);
-		aSelectedEntitiesParam =
-			getTemporaryParameterType(sSelected, Entity.class);
+		unselectedHeaderParam =
+			getTemporaryParameterType(unselected + "_HEADER", String.class);
+		selectedHeaderParam =
+			getTemporaryParameterType(selected + "_HEADER", String.class);
+		unselectedEntitiesParam =
+			getTemporaryParameterType(unselected, Entity.class);
+		selectedEntitiesParam =
+			getTemporaryParameterType(selected, Entity.class);
 
-		aListActionParam = getTemporaryParameterType(sAction,
-			ListAction.class);
-		aEntityInfoParam = getTemporaryParameterType(sEntityInfo,
-			String.class);
+		listActionParam = getTemporaryParameterType(action, ListAction.class);
+		entityInfoParam = getTemporaryParameterType(entityInfo, String.class);
 	}
 
 	/**
 	 * Handles the manipulation actions for the list of selected domains.
 	 *
-	 * @param eListAction The selected list action
+	 * @param listAction The selected list action
 	 * @throws StorageException If a storage access fails
 	 */
-	private void handleListAction(ListAction eListAction)
+	private void handleListAction(ListAction listAction)
 		throws StorageException {
-		boolean bSelect = eListAction == ListAction.ADD_ALL ||
-			eListAction == ListAction.ADD_SELECTED;
+		boolean select = listAction == ListAction.ADD_ALL ||
+			listAction == ListAction.ADD_SELECTED;
 
-		switch (eListAction) {
+		switch (listAction) {
 			case ADD_ALL:
 
-				QueryPredicate<E> pQuery =
-					getCurrentQuery(aUnselectedEntitiesParam);
+				QueryPredicate<E> query =
+					getCurrentQuery(unselectedEntitiesParam);
 
-				if (pQuery != null) {
-					List<E> rEntities =
-						EntityManager.queryEntities(pQuery, Short.MAX_VALUE);
+				if (query != null) {
+					List<E> entities =
+						EntityManager.queryEntities(query, Short.MAX_VALUE);
 
-					for (Entity rEntity : rEntities) {
-						setSelected(rEntity, bSelect);
+					for (Entity entity : entities) {
+						setSelected(entity, select);
 					}
 				}
 
 				break;
 
 			case REMOVE_ALL:
-				aSelectedEntityIds.clear();
+				selectedEntityIds.clear();
 				break;
 
 			case ADD_SELECTED:
 			case REMOVE_SELECTED:
 
-				Entity rEntity = getParameter(bSelect ?
-				                              aUnselectedEntitiesParam :
-				                              aSelectedEntitiesParam);
+				Entity entity = getParameter(
+					select ? unselectedEntitiesParam : selectedEntitiesParam);
 
-				if (rEntity != null) {
-					setSelected(rEntity, bSelect);
+				if (entity != null) {
+					setSelected(entity, select);
 				}
 
 				break;
 		}
 
-		bUpdate = true;
+		update = true;
 	}
 
 	/**
 	 * Selects or deselects a certain entity.
 	 *
-	 * @param rEntity   The entity
-	 * @param bSelected TRUE to select, FALSE to deselect
+	 * @param entity   The entity
+	 * @param selected TRUE to select, FALSE to deselect
 	 */
-	private void setSelected(Entity rEntity, boolean bSelected) {
+	private void setSelected(Entity entity, boolean selected) {
 		@SuppressWarnings("boxing")
-		Long rId = rEntity.getId();
+		Long id = entity.getId();
 
-		if (bSelected) {
-			aSelectedEntityIds.add(rId);
+		if (selected) {
+			selectedEntityIds.add(id);
 		} else {
-			aSelectedEntityIds.remove(rId);
+			selectedEntityIds.remove(id);
 		}
 	}
 
 	/**
 	 * Executes the given {@link QueryPredicate} and stored the Ids of the
-	 * queried entities in {@link #aSelectedEntityIds}
+	 * queried entities in {@link #selectedEntityIds}
 	 */
-	private void updateSelectedEntityIds(QueryPredicate<E> qSelectedEntities)
-		throws StorageException {
-		List<E> rSelectedEntities =
-			EntityManager.queryEntities(qSelectedEntities, Short.MAX_VALUE);
+	private void updateSelectedEntityIds(
+		QueryPredicate<E> selectedEntitiesCriteria) throws StorageException {
+		List<E> selectedEntities =
+			EntityManager.queryEntities(selectedEntitiesCriteria,
+				Short.MAX_VALUE);
 
-		Collection<Long> rSelectedEntityIds =
-			CollectionUtil.transform(rSelectedEntities, e -> e.getId());
+		Collection<Long> selectedEntityIds =
+			CollectionUtil.transform(selectedEntities, e -> e.getId());
 
-		aSelectedEntityIds.clear();
-		aSelectedEntityIds.addAll(rSelectedEntityIds);
+		selectedEntityIds.clear();
+		selectedEntityIds.addAll(selectedEntityIds);
 	}
 }

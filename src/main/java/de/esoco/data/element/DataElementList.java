@@ -39,7 +39,7 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	private static final String PATH_SEPARATOR_STRING =
 		String.valueOf(PATH_SEPARATOR_CHAR);
 
-	private List<DataElement<?>> aDataElements =
+	private List<DataElement<?>> dataElements =
 		new ArrayList<DataElement<?>>();
 
 	/**
@@ -47,13 +47,14 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * elements. The contents of the collection argument will be copied into
 	 * this list element but not the collection itself.
 	 *
-	 * @param sName     The name of this element
-	 * @param rElements A collection containing the initial elements of this
-	 *                  list element (may be NULL)
+	 * @param name     The name of this element
+	 * @param elements A collection containing the initial elements of this
+	 *                    list
+	 *                 element (may be NULL)
 	 */
-	public DataElementList(String sName,
-		Collection<? extends DataElement<?>> rElements) {
-		this(sName, null, rElements, null);
+	public DataElementList(String name,
+		Collection<? extends DataElement<?>> elements) {
+		this(name, null, elements, null);
 	}
 
 	/**
@@ -61,13 +62,13 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * validator
 	 * and flags.
 	 *
-	 * @param sName       The name of this element
-	 * @param sResourceId A resource ID or NULL for the default
-	 * @param rElements   The child data elements
+	 * @param name       The name of this element
+	 * @param resourceId A resource ID or NULL for the default
+	 * @param elements   The child data elements
 	 */
-	public DataElementList(String sName, String sResourceId,
-		DataElement<?>... rElements) {
-		this(sName, sResourceId, Arrays.asList(rElements), null);
+	public DataElementList(String name, String resourceId,
+		DataElement<?>... elements) {
+		this(name, resourceId, Arrays.asList(elements), null);
 	}
 
 	/**
@@ -75,22 +76,22 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * elements. The contents of the collection argument will be copied into
 	 * this list element but not the collection itself.
 	 *
-	 * @param sName       The name of this element
-	 * @param sResourceId A resource ID or NULL for the default
-	 * @param rElements   A collection containing the initial elements of this
-	 *                    list element (may be NULL)
-	 * @param rFlags      The optional flags for this data element
+	 * @param name       The name of this element
+	 * @param resourceId A resource ID or NULL for the default
+	 * @param elements   A collection containing the initial elements of this
+	 *                   list element (may be NULL)
+	 * @param flags      The optional flags for this data element
 	 */
-	public DataElementList(String sName, String sResourceId,
-		Collection<? extends DataElement<?>> rElements, Set<Flag> rFlags) {
-		super(sName, null, rFlags);
+	public DataElementList(String name, String resourceId,
+		Collection<? extends DataElement<?>> elements, Set<Flag> flags) {
+		super(name, null, flags);
 
-		setResourceId(sResourceId);
+		setResourceId(resourceId);
 
-		if (rElements != null) {
-			for (DataElement<?> rElement : rElements) {
-				updateParent(rElement);
-				aDataElements.add(rElement);
+		if (elements != null) {
+			for (DataElement<?> element : elements) {
+				updateParent(element);
+				dataElements.add(element);
 			}
 		}
 	}
@@ -107,28 +108,28 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * {@link DataElementList data element lists} these will be searched
 	 * recursively.
 	 *
-	 * @param sName     The name of the data element
-	 * @param rElements The elements to search
+	 * @param name     The name of the data element
+	 * @param elements The elements to search
 	 * @return The matching data element or NULL if no such element exists
 	 */
-	public static DataElement<?> findDataElement(String sName,
-		Collection<DataElement<?>> rElements) {
-		DataElement<?> rResult = null;
+	public static DataElement<?> findDataElement(String name,
+		Collection<DataElement<?>> elements) {
+		DataElement<?> result = null;
 
-		for (DataElement<?> rElement : rElements) {
-			if (sName.equals(rElement.getName())) {
-				rResult = rElement;
-			} else if (rElement instanceof DataElementList) {
-				rResult = findDataElement(sName,
-					((DataElementList) rElement).getDataElements());
+		for (DataElement<?> element : elements) {
+			if (name.equals(element.getName())) {
+				result = element;
+			} else if (element instanceof DataElementList) {
+				result = findDataElement(name,
+					((DataElementList) element).getDataElements());
 			}
 
-			if (rResult != null) {
+			if (result != null) {
 				break;
 			}
 		}
 
-		return rResult;
+		return result;
 	}
 
 	/**
@@ -144,45 +145,45 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * for
 	 * more information.
 	 *
-	 * @param sName  The name of the data element to add
-	 * @param sValue The value of the new data element
+	 * @param name  The name of the data element to add
+	 * @param value The value of the new data element
 	 */
-	public void add(String sName, String sValue) {
-		addElement(new StringDataElement(sName, sValue));
+	public void add(String name, String value) {
+		addElement(new StringDataElement(name, value));
 	}
 
 	/**
 	 * Shortcut method to add a new {@link DateDataElement} with a certain name
 	 * and {@link Date} value.
 	 *
-	 * @param sName  The name of the data element to add
-	 * @param rValue The value of the new data element
+	 * @param name  The name of the data element to add
+	 * @param value The value of the new data element
 	 */
-	public void add(String sName, Date rValue) {
-		addElement(new DateDataElement(sName, rValue, null, null));
+	public void add(String name, Date value) {
+		addElement(new DateDataElement(name, value, null, null));
 	}
 
 	/**
 	 * Shortcut method to add a new {@link IntegerDataElement} with a certain
 	 * name and value.
 	 *
-	 * @param sName  The name of the data element to add
-	 * @param nValue The value of the new data element
+	 * @param name  The name of the data element to add
+	 * @param value The value of the new data element
 	 */
-	public void add(String sName, int nValue) {
-		addElement(new IntegerDataElement(sName, nValue, null, null));
+	public void add(String name, int value) {
+		addElement(new IntegerDataElement(name, value, null, null));
 	}
 
 	/**
 	 * Shortcut method to add a new {@link BooleanDataElement} with a certain
 	 * name and value.
 	 *
-	 * @param sName  The name of the data element to add
-	 * @param bValue The value of the new data element
+	 * @param name  The name of the data element to add
+	 * @param value The value of the new data element
 	 */
 	@SuppressWarnings("boxing")
-	public void add(String sName, boolean bValue) {
-		addElement(new BooleanDataElement(sName, bValue, null));
+	public void add(String name, boolean value) {
+		addElement(new BooleanDataElement(name, value, null));
 	}
 
 	/**
@@ -191,31 +192,31 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * @see ListDataElement#addElement(int, Object)
 	 */
 	@Override
-	public void addElement(int nIndex, DataElement<?> rElement) {
-		super.addElement(nIndex, rElement);
-		updateParent(rElement);
+	public void addElement(int index, DataElement<?> element) {
+		super.addElement(index, element);
+		updateParent(element);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DataElementList copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		DataElementList aCopy =
-			(DataElementList) super.copy(eMode, rCopyProperties);
+	public DataElementList copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		DataElementList copy =
+			(DataElementList) super.copy(mode, copyProperties);
 
 		// copyValue() is overridden to do nothing, so the child list is empty
-		if (eMode == CopyMode.FULL) {
-			for (DataElement<?> rChild : this) {
-				DataElement<?> aChildCopy = rChild.copy(eMode);
+		if (mode == CopyMode.FULL) {
+			for (DataElement<?> child : this) {
+				DataElement<?> childCopy = child.copy(mode);
 
-				aChildCopy.setParent(aCopy);
-				aCopy.aDataElements.add(aChildCopy);
+				childCopy.setParent(copy);
+				copy.dataElements.add(childCopy);
 			}
 		}
 
-		return aCopy;
+		return copy;
 	}
 
 	/**
@@ -223,11 +224,11 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * and returns it if found. Invokes
 	 * {@link #findDataElement(String, Collection)} to perform the search.
 	 *
-	 * @param sName The name of the data element to search
+	 * @param name The name of the data element to search
 	 * @return The child data element with the given name or NULL for none
 	 */
-	public DataElement<?> findChild(String sName) {
-		return findDataElement(sName, aDataElements);
+	public DataElement<?> findChild(String name) {
+		return findDataElement(name, dataElements);
 	}
 
 	/**
@@ -238,16 +239,14 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * If not, FALSE will be returned. If the data element's value is not of
 	 * type {@link Boolean} an exception will occur.
 	 *
-	 * @param sName The name of the data element to return as a boolean value
+	 * @param name The name of the data element to return as a boolean value
 	 * @return The boolean value of the data element or FALSE if none could be
 	 * found
 	 */
-	public boolean getBoolean(String sName) {
-		DataElement<?> rElement = getElement(sName);
+	public boolean getBoolean(String name) {
+		DataElement<?> element = getElement(name);
 
-		return rElement != null ?
-		       ((Boolean) rElement.getValue()).booleanValue() :
-		       false;
+		return element != null && ((Boolean) element.getValue()).booleanValue();
 	}
 
 	/**
@@ -258,15 +257,15 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * exists
 	 * NULL will be returned.
 	 *
-	 * @param sElementPath The path of the element list to return
+	 * @param elementPath The path of the element list to return
 	 * @return The element list at the given path or NULL if no list with the
 	 * given name exists
 	 */
-	public DataElementList getChildList(String sElementPath) {
-		DataElement<?> rElement = getElementAt(sElementPath);
+	public DataElementList getChildList(String elementPath) {
+		DataElement<?> element = getElementAt(elementPath);
 
-		return rElement instanceof DataElementList ?
-		       (DataElementList) rElement :
+		return element instanceof DataElementList ?
+		       (DataElementList) element :
 		       null;
 	}
 
@@ -277,7 +276,7 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * @return The list of data elements
 	 */
 	public List<DataElement<?>> getDataElements() {
-		return aDataElements;
+		return dataElements;
 	}
 
 	/**
@@ -288,26 +287,26 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * not
 	 * of type {@link Date} an exception will occur.
 	 *
-	 * @param sName The name of the data element to return as a date value
+	 * @param name The name of the data element to return as a date value
 	 * @return The date value of the data element or NULL if none could be
 	 * found
 	 */
-	public Date getDate(String sName) {
-		DataElement<?> rElement = getElement(sName);
+	public Date getDate(String name) {
+		DataElement<?> element = getElement(name);
 
-		return rElement != null ? (Date) rElement.getValue() : null;
+		return element != null ? (Date) element.getValue() : null;
 	}
 
 	/**
 	 * Returns the first element with a certain name from this list.
 	 *
-	 * @param sElementName The name of the element to return
+	 * @param elementName The name of the element to return
 	 * @return The element or NULL if no element with the given name exists
 	 */
-	public DataElement<?> getElement(String sElementName) {
-		for (DataElement<?> rElement : aDataElements) {
-			if (rElement.getName().equals(sElementName)) {
-				return rElement;
+	public DataElement<?> getElement(String elementName) {
+		for (DataElement<?> element : dataElements) {
+			if (element.getName().equals(elementName)) {
+				return element;
 			}
 		}
 
@@ -338,23 +337,23 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 *   <li>'Preferences': returns the sub-list named 'Preferences'</li>
 	 * </ul>
 	 *
-	 * @param sElementPath The path of the element to return
+	 * @param elementPath The path of the element to return
 	 * @return The element with the given path or NULL if no such element
 	 * exists
 	 */
-	public DataElement<?> getElementAt(String sElementPath) {
-		String[] aPathElements = sElementPath.split(PATH_SEPARATOR_STRING);
-		DataElementList rCurrentList = this;
-		DataElement<?> rResult = null;
-		int nLastElement = aPathElements.length - 1;
-		int nPathElement = 0;
+	public DataElement<?> getElementAt(String elementPath) {
+		String[] pathElements = elementPath.split(PATH_SEPARATOR_STRING);
+		DataElementList currentList = this;
+		DataElement<?> result = null;
+		int lastElement = pathElements.length - 1;
+		int pathElement = 0;
 
-		if (nLastElement > 0 && sElementPath.charAt(0) == PATH_SEPARATOR_CHAR) {
-			if (aPathElements[1].equals(getName())) {
-				if (nLastElement == 1) {
-					rResult = this;
+		if (lastElement > 0 && elementPath.charAt(0) == PATH_SEPARATOR_CHAR) {
+			if (pathElements[1].equals(getName())) {
+				if (lastElement == 1) {
+					result = this;
 				} else { // 0 = empty string, 1 = this element
-					nPathElement = 2;
+					pathElement = 2;
 				}
 			} else {
 				throw new IllegalArgumentException(
@@ -362,52 +361,52 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 			}
 		}
 
-		while (rResult == null && rCurrentList != null &&
-			nPathElement <= nLastElement) {
-			String sElementName = aPathElements[nPathElement++];
+		while (result == null && currentList != null &&
+			pathElement <= lastElement) {
+			String elementName = pathElements[pathElement++];
 
-			rResult = rCurrentList.getElement(sElementName);
+			result = currentList.getElement(elementName);
 
-			if (nPathElement <= nLastElement) {
-				if (rResult instanceof DataElementList) {
-					rCurrentList = (DataElementList) rResult;
-					rResult = null;
+			if (pathElement <= lastElement) {
+				if (result instanceof DataElementList) {
+					currentList = (DataElementList) result;
+					result = null;
 				} else {
 					throw new IllegalArgumentException(
-						"Not an element list: " + sElementName);
+						"Not an element list: " + elementName);
 				}
 			}
 		}
 
-		return rResult;
+		return result;
 	}
 
 	/**
 	 * Returns a formatted multi-line string that describes the data element
 	 * hierarchy of this instance.
 	 *
-	 * @param sIndent The initial indent of the hierarchy (empty for none)
+	 * @param indent The initial indent of the hierarchy (empty for none)
 	 * @return The data element hierarchy string
 	 */
-	public String getElementHierarchy(String sIndent) {
-		StringBuilder aBuilder = new StringBuilder(getName());
+	public String getElementHierarchy(String indent) {
+		StringBuilder builder = new StringBuilder(getName());
 
-		aBuilder.append('\n');
-		sIndent += "  ";
+		builder.append('\n');
+		indent += "  ";
 
 		for (DataElement<?> e : this) {
-			aBuilder.append(sIndent);
+			builder.append(indent);
 
 			if (e instanceof DataElementList) {
-				aBuilder.append(
-					((DataElementList) e).getElementHierarchy(sIndent));
+				builder.append(
+					((DataElementList) e).getElementHierarchy(indent));
 			} else {
-				aBuilder.append(e.getName());
-				aBuilder.append('\n');
+				builder.append(e.getName());
+				builder.append('\n');
 			}
 		}
 
-		return aBuilder.toString();
+		return builder.toString();
 	}
 
 	/**
@@ -418,15 +417,14 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * If not, 0 (zero) will be returned. If the data element's value is not of
 	 * type {@link Number} an exception will occur.
 	 *
-	 * @param sName The name of the data element to return as an integer value
+	 * @param name The name of the data element to return as an integer value
 	 * @return The integer value of the data element or 0 if none could be
 	 * found
 	 */
-	public int getInt(String sName) {
-		DataElement<?> rElement = getElement(sName);
+	public int getInt(String name) {
+		DataElement<?> element = getElement(name);
 
-		return rElement != null ? ((Number) rElement.getValue()).intValue()
-		                        : 0;
+		return element != null ? ((Number) element.getValue()).intValue() : 0;
 	}
 
 	/**
@@ -436,14 +434,14 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * will be
 	 * returned.
 	 *
-	 * @param sName The name of the data element to return the string value of
+	 * @param name The name of the data element to return the string value of
 	 * @return The string value of the data element or NULL if none could be
 	 * found
 	 */
-	public String getString(String sName) {
-		DataElement<?> rElement = getElement(sName);
+	public String getString(String name) {
+		DataElement<?> element = getElement(name);
 
-		return rElement != null ? rElement.getValue().toString() : null;
+		return element != null ? element.getValue().toString() : null;
 	}
 
 	/**
@@ -454,8 +452,8 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 		super.markAsChanged();
 		setFlag(StateProperties.STRUCTURE_CHANGED);
 
-		for (DataElement<?> rChildElement : aDataElements) {
-			rChildElement.markAsChanged();
+		for (DataElement<?> childElement : dataElements) {
+			childElement.markAsChanged();
 		}
 	}
 
@@ -465,25 +463,25 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * @see ListDataElement#removeElement(Object)
 	 */
 	@Override
-	public void removeElement(DataElement<?> rElement) {
-		super.removeElement(rElement);
-		rElement.setParent(null);
+	public void removeElement(DataElement<?> element) {
+		super.removeElement(element);
+		element.setParent(null);
 	}
 
 	/**
 	 * Replaces the first data element in this list with a new element with the
 	 * same name.
 	 *
-	 * @param rNewElement The element to replace another with the same name
+	 * @param newElement The element to replace another with the same name
 	 * @return TRUE if an element has been replaced
 	 */
-	public boolean replaceElement(DataElement<?> rNewElement) {
-		int nCount = aDataElements.size();
+	public boolean replaceElement(DataElement<?> newElement) {
+		int count = dataElements.size();
 
-		for (int i = 0; i < nCount; i++) {
-			if (aDataElements.get(i).getName().equals(rNewElement.getName())) {
-				updateParent(rNewElement);
-				aDataElements.set(i, rNewElement);
+		for (int i = 0; i < count; i++) {
+			if (dataElements.get(i).getName().equals(newElement.getName())) {
+				updateParent(newElement);
+				dataElements.set(i, newElement);
 
 				return true;
 			}
@@ -497,11 +495,11 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * and string value. See {@link #setElement(DataElement)} for more
 	 * information.
 	 *
-	 * @param sName  The name of the data element to add
-	 * @param sValue The value of the new data element
+	 * @param name  The name of the data element to add
+	 * @param value The value of the new data element
 	 */
-	public void set(String sName, String sValue) {
-		setElement(new StringDataElement(sName, sValue));
+	public void set(String name, String value) {
+		setElement(new StringDataElement(name, value));
 	}
 
 	/**
@@ -510,18 +508,18 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * added
 	 * to the end of the list.
 	 *
-	 * @param rElement The element to set
+	 * @param element The element to set
 	 */
-	public void setElement(DataElement<?> rElement) {
-		DataElement<?> rExisting = getElement(rElement.getName());
+	public void setElement(DataElement<?> element) {
+		DataElement<?> existing = getElement(element.getName());
 
-		if (rExisting != null) {
-			int nIndex = getElementIndex(rExisting);
+		if (existing != null) {
+			int index = getElementIndex(existing);
 
-			removeElement(rExisting);
-			addElement(nIndex, rElement);
+			removeElement(existing);
+			addElement(index, element);
 		} else {
-			addElement(rElement);
+			addElement(element);
 		}
 	}
 
@@ -529,20 +527,18 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toDebugString(String sIndent, boolean bIncludeProperties) {
-		StringBuilder aHierarchy =
-			new StringBuilder(super.toDebugString(sIndent,
-				bIncludeProperties));
+	public String toDebugString(String indent, boolean includeProperties) {
+		StringBuilder hierarchy =
+			new StringBuilder(super.toDebugString(indent, includeProperties));
 
-		sIndent += "  ";
+		indent += "  ";
 
-		for (DataElement<?> rChild : aDataElements) {
-			aHierarchy.append('\n');
-			aHierarchy.append(
-				rChild.toDebugString(sIndent, bIncludeProperties));
+		for (DataElement<?> child : dataElements) {
+			hierarchy.append('\n');
+			hierarchy.append(child.toDebugString(indent, includeProperties));
 		}
 
-		return aHierarchy.toString();
+		return hierarchy.toString();
 	}
 
 	/**
@@ -561,7 +557,7 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * @see ListDataElement#copyValue(DataElement)
 	 */
 	@Override
-	protected void copyValue(DataElement<List<DataElement<?>>> aCopy) {
+	protected void copyValue(DataElement<List<DataElement<?>>> copy) {
 	}
 
 	/**
@@ -579,7 +575,7 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 */
 	@Override
 	protected List<DataElement<?>> getList() {
-		return aDataElements;
+		return dataElements;
 	}
 
 	/**
@@ -594,55 +590,55 @@ public class DataElementList extends ListDataElement<DataElement<?>> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<DataElement<?>> rNewElements) {
-		aDataElements = rNewElements;
+	protected void updateValue(List<DataElement<?>> newElements) {
+		dataElements = newElements;
 	}
 
 	/**
 	 * Returns the full hierarchy of this data element list.
 	 *
-	 * @param sIndent The indentation of the hierarchy
+	 * @param indent The indentation of the hierarchy
 	 * @return The hierarchy string
 	 */
-	private String toHierarchyString(String sIndent) {
-		StringBuilder aHierarchy = new StringBuilder();
+	private String toHierarchyString(String indent) {
+		StringBuilder hierarchy = new StringBuilder();
 
-		aHierarchy.append(sIndent);
-		aHierarchy.append(getName());
-		aHierarchy.append(" [");
-		aHierarchy.append(aDataElements.size());
-		aHierarchy.append("]\n");
+		hierarchy.append(indent);
+		hierarchy.append(getName());
+		hierarchy.append(" [");
+		hierarchy.append(dataElements.size());
+		hierarchy.append("]\n");
 
-		sIndent += "  ";
+		indent += "  ";
 
-		for (DataElement<?> rChild : this) {
-			if (rChild instanceof DataElementList) {
-				aHierarchy.append(
-					((DataElementList) rChild).toHierarchyString(sIndent));
+		for (DataElement<?> child : this) {
+			if (child instanceof DataElementList) {
+				hierarchy.append(
+					((DataElementList) child).toHierarchyString(indent));
 			} else {
-				aHierarchy.append(sIndent);
-				aHierarchy.append(rChild.getName());
-				aHierarchy.append('\n');
+				hierarchy.append(indent);
+				hierarchy.append(child.getName());
+				hierarchy.append('\n');
 			}
 		}
 
-		return aHierarchy.toString();
+		return hierarchy.toString();
 	}
 
 	/**
 	 * Prepares the addition of an element to this list.
 	 *
-	 * @param rElement The element that will be added
+	 * @param element The element that will be added
 	 */
-	private void updateParent(DataElement<?> rElement) {
-		DataElementList rOldParent = rElement.getParent();
+	private void updateParent(DataElement<?> element) {
+		DataElementList oldParent = element.getParent();
 
-		if (rOldParent != this) {
-			if (rOldParent != null) {
-				rOldParent.removeElement(rElement);
+		if (oldParent != this) {
+			if (oldParent != null) {
+				oldParent.removeElement(element);
 			}
 
-			rElement.setParent(this);
+			element.setParent(this);
 		}
 	}
 }

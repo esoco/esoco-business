@@ -17,13 +17,11 @@
 package de.esoco.process.step.entity;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.process.ProcessStep;
-
-import java.util.List;
-
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+
+import java.util.List;
 
 import static org.obrel.core.RelationTypes.newType;
 
@@ -82,13 +80,13 @@ public class AddEntityChild extends EntityStep {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void execute() throws Exception {
-		Entity rParent = checkParameter(checkParameter(PARENT_ENTITY_PARAM));
-		Entity rChild = checkParameter(checkParameter(CHILD_ENTITY_PARAM));
+		Entity parent = checkParameter(checkParameter(PARENT_ENTITY_PARAM));
+		Entity child = checkParameter(checkParameter(CHILD_ENTITY_PARAM));
 
-		RelationType<? extends List<? extends Entity>> rChildAttribute =
+		RelationType<? extends List<? extends Entity>> childAttribute =
 			checkParameter(CHILD_ATTRIBUTE);
 
-		rParent.addChild((RelationType<List<Entity>>) rChildAttribute, rChild);
+		parent.addChild((RelationType<List<Entity>>) childAttribute, child);
 	}
 
 	/**
@@ -98,15 +96,15 @@ public class AddEntityChild extends EntityStep {
 	 */
 	@Override
 	protected void rollback() throws Exception {
-		Entity rParent = checkParameter(checkParameter(PARENT_ENTITY_PARAM));
-		RelationType<? extends List<? extends Entity>> rChildAttribute =
+		Entity parent = checkParameter(checkParameter(PARENT_ENTITY_PARAM));
+		RelationType<? extends List<? extends Entity>> childAttribute =
 			checkParameter(CHILD_ATTRIBUTE);
 
-		List<? extends Entity> rList = rParent.get(rChildAttribute);
+		List<? extends Entity> list = parent.get(childAttribute);
 
-		Entity rChild = checkParameter(checkParameter(CHILD_ENTITY_PARAM));
+		Entity child = checkParameter(checkParameter(CHILD_ENTITY_PARAM));
 
-		rList.remove(rChild);
+		list.remove(child);
 
 		super.rollback();
 	}

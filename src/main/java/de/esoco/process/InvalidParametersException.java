@@ -16,13 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
+import org.obrel.core.RelationType;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.obrel.core.RelationType;
 
 /**
  * A process exception subclass that is thrown when a process step encounters
@@ -34,59 +34,58 @@ public class InvalidParametersException extends ProcessException {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Map<RelationType<?>, String> aInvalidParams;
+	private final Map<RelationType<?>, String> invalidParams;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rStep                 The process step in which the error
-	 *                              occurred
-	 * @param rInvalidParamMessages A mapping from the invalid parameter types
-	 *                              to strings that describe the problem
+	 * @param step                 The process step in which the error occurred
+	 * @param invalidParamMessages A mapping from the invalid parameter
+	 *                                types to
+	 *                             strings that describe the problem
 	 */
-	public InvalidParametersException(ProcessFragment rStep,
-		Map<RelationType<?>, String> rInvalidParamMessages) {
-		super(rStep, "InvalidParams");
+	public InvalidParametersException(ProcessFragment step,
+		Map<RelationType<?>, String> invalidParamMessages) {
+		super(step, "InvalidParams");
 
-		this.aInvalidParams =
-			Collections.unmodifiableMap(rInvalidParamMessages);
+		this.invalidParams = Collections.unmodifiableMap(invalidParamMessages);
 	}
 
 	/**
 	 * Creates a new instance for one or more invalid parameters with the same
 	 * error message.
 	 *
-	 * @param rStep          The process step in which the error occurred
-	 * @param sMessage       The error message
-	 * @param rInvalidParams The invalid parameter types
+	 * @param step          The process step in which the error occurred
+	 * @param message       The error message
+	 * @param invalidParams The invalid parameter types
 	 */
-	public InvalidParametersException(ProcessFragment rStep, String sMessage,
-		RelationType<?>... rInvalidParams) {
-		this(rStep, sMessage, Arrays.asList(rInvalidParams));
+	public InvalidParametersException(ProcessFragment step, String message,
+		RelationType<?>... invalidParams) {
+		this(step, message, Arrays.asList(invalidParams));
 	}
 
 	/**
 	 * Creates a new instance for one or more invalid parameters with the same
 	 * error message.
 	 *
-	 * @param rStep          The process step in which the error occurred
-	 * @param sMessage       The error message
-	 * @param rInvalidParams The invalid parameter types
+	 * @param step          The process step in which the error occurred
+	 * @param message       The error message
+	 * @param invalidParams The invalid parameter types
 	 */
-	public InvalidParametersException(ProcessFragment rStep, String sMessage,
-		Collection<RelationType<?>> rInvalidParams) {
-		super(rStep, "InvalidParams");
+	public InvalidParametersException(ProcessFragment step, String message,
+		Collection<RelationType<?>> invalidParams) {
+		super(step, "InvalidParams");
 
-		assert rInvalidParams.size() > 0;
+		assert !invalidParams.isEmpty();
 
-		Map<RelationType<?>, String> aParams =
-			new HashMap<RelationType<?>, String>(rInvalidParams.size());
+		Map<RelationType<?>, String> params =
+			new HashMap<>(invalidParams.size());
 
-		for (RelationType<?> rParam : rInvalidParams) {
-			aParams.put(rParam, sMessage);
+		for (RelationType<?> param : invalidParams) {
+			params.put(param, message);
 		}
 
-		aInvalidParams = Collections.unmodifiableMap(aParams);
+		this.invalidParams = Collections.unmodifiableMap(params);
 	}
 
 	/**
@@ -96,6 +95,6 @@ public class InvalidParametersException extends ProcessException {
 	 * @return The mapping from invalid parameters to error messages
 	 */
 	public final Map<RelationType<?>, String> getInvalidParams() {
-		return aInvalidParams;
+		return invalidParams;
 	}
 }

@@ -17,9 +17,13 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.property.ViewDisplayType;
-
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ViewFragment;
+import org.obrel.core.RelatedObject;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.ListenerType;
+import org.obrel.type.ListenerTypes;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,12 +31,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.obrel.core.RelatedObject;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.ListenerType;
-import org.obrel.type.ListenerTypes;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.ContentProperties.TOOLTIP;
@@ -78,16 +76,16 @@ public class DialogFragment extends ViewFragment {
 		public static final Set<DialogAction> YES_NO_CANCEL =
 			Collections.unmodifiableSet(EnumSet.of(YES, NO, CANCEL));
 
-		private final boolean bValidated;
+		private final boolean validated;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param bValidated TRUE if the dialog needs to be validated if closed
-		 *                   by this action
+		 * @param validated TRUE if the dialog needs to be validated if closed
+		 *                  by this action
 		 */
-		DialogAction(boolean bValidated) {
-			this.bValidated = bValidated;
+		DialogAction(boolean validated) {
+			this.validated = validated;
 		}
 
 		/**
@@ -97,7 +95,7 @@ public class DialogFragment extends ViewFragment {
 		 * action
 		 */
 		public final boolean isValidated() {
-			return bValidated;
+			return validated;
 		}
 	}
 
@@ -110,23 +108,23 @@ public class DialogFragment extends ViewFragment {
 
 	private static final long serialVersionUID = 1L;
 
-	private static boolean bUseFillParam = true;
+	private static boolean useFillParam = true;
 
 	static {
 		RelationTypes.init(DialogFragment.class);
 	}
 
-	private final Collection<DialogAction> rDialogActions;
+	private final Collection<DialogAction> dialogActions;
 
-	private RelationType<String> aDialogActionFillParam;
+	private RelationType<String> dialogActionFillParam;
 
-	private RelationType<String> aDialogActionQuestionParam;
+	private RelationType<String> dialogActionQuestionParam;
 
-	private RelationType<DialogAction> aDialogActionParam;
+	private RelationType<DialogAction> dialogActionParam;
 
-	private RelatedObject aDialogRelations = new RelatedObject();
+	private final RelatedObject dialogRelations = new RelatedObject();
 
-	private String sQuestion;
+	private final String question;
 
 	/**
 	 * Creates a new instance for a certain content fragment. If the given
@@ -134,29 +132,28 @@ public class DialogFragment extends ViewFragment {
 	 * registered as
 	 * an action listener of this instance.
 	 *
-	 * @param sParamNameTemplate The string format pattern for the
-	 *                              generation of
-	 *                           the view fragment parameter names. If NULL a
-	 *                           template will be generated from the class name
-	 *                           of the content fragment
-	 * @param rContentFragment   The fragment that contains the dialog content
-	 * @param bModal             eViewStyle How the view should be displayed
-	 * @param sQuestion          A string (typically a question) that will be
-	 *                           displayed next to the dialog action buttons.
-	 * @param rDialogActions     The actions to be displayed as the dialog
-	 *                           buttons
+	 * @param paramNameTemplate The string format pattern for the generation of
+	 *                          the view fragment parameter names. If NULL a
+	 *                          template will be generated from the class name
+	 *                          of the content fragment
+	 * @param contentFragment   The fragment that contains the dialog content
+	 * @param modal             viewStyle How the view should be displayed
+	 * @param question          A string (typically a question) that will be
+	 *                          displayed next to the dialog action buttons.
+	 * @param dialogActions     The actions to be displayed as the dialog
+	 *                          buttons
 	 */
-	public DialogFragment(String sParamNameTemplate,
-		InteractionFragment rContentFragment, boolean bModal, String sQuestion,
-		Collection<DialogAction> rDialogActions) {
-		super(sParamNameTemplate, rContentFragment,
-			bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
+	public DialogFragment(String paramNameTemplate,
+		InteractionFragment contentFragment, boolean modal, String question,
+		Collection<DialogAction> dialogActions) {
+		super(paramNameTemplate, contentFragment,
+			modal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 
-		this.sQuestion = sQuestion;
-		this.rDialogActions = rDialogActions;
+		this.question = question;
+		this.dialogActions = dialogActions;
 
-		if (rContentFragment instanceof DialogActionListener) {
-			addDialogActionListener((DialogActionListener) rContentFragment);
+		if (contentFragment instanceof DialogActionListener) {
+			addDialogActionListener((DialogActionListener) contentFragment);
 		}
 	}
 
@@ -168,39 +165,39 @@ public class DialogFragment extends ViewFragment {
 	 * adapted to layout-bayed UI (instead of table-based).</p>
 	 */
 	public static void disableButtonFillParameter() {
-		bUseFillParam = false;
+		useFillParam = false;
 	}
 
 	/**
 	 * Adds a listener for dialog actions that will be invoked after the
 	 * fragment dialog has been closed.
 	 *
-	 * @param rListener The listener to add
+	 * @param listener The listener to add
 	 */
-	public void addDialogActionListener(DialogActionListener rListener) {
-		aDialogRelations.get(DIALOG_ACTION_LISTENERS).add(rListener);
+	public void addDialogActionListener(DialogActionListener listener) {
+		dialogRelations.get(DIALOG_ACTION_LISTENERS).add(listener);
 	}
 
 	/**
 	 * Finishes this dialog and hides it.
 	 *
-	 * @param eAction The action to finish the dialog with
+	 * @param action The action to finish the dialog with
 	 * @throws Exception If finishing a sub-fragment fails
 	 */
-	public void finishDialog(DialogAction eAction) throws Exception {
-		if (eAction.isValidated()) {
-			Map<RelationType<?>, String> rInvalidParams =
+	public void finishDialog(DialogAction action) throws Exception {
+		if (action.isValidated()) {
+			Map<RelationType<?>, String> invalidParams =
 				super.validateFragmentParameters(false);
 
-			if (!rInvalidParams.isEmpty()) {
+			if (!invalidParams.isEmpty()) {
 				throw new InvalidParametersException(getProcessStep(),
-					rInvalidParams);
+					invalidParams);
 			}
 
 			finishFragment();
 		}
 
-		DIALOG_ACTION_LISTENERS.notifyListeners(aDialogRelations, eAction);
+		DIALOG_ACTION_LISTENERS.notifyListeners(dialogRelations, action);
 		hide();
 	}
 
@@ -208,16 +205,16 @@ public class DialogFragment extends ViewFragment {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		if (rInteractionParam == aDialogActionParam) {
-			DialogAction eAction = getParameter(aDialogActionParam);
+		if (interactionParam == dialogActionParam) {
+			DialogAction action = getParameter(dialogActionParam);
 
-			if (eAction != null) {
-				finishDialog(eAction);
+			if (action != null) {
+				finishDialog(action);
 			}
 		} else {
-			super.handleInteraction(rInteractionParam);
+			super.handleInteraction(interactionParam);
 		}
 	}
 
@@ -228,27 +225,27 @@ public class DialogFragment extends ViewFragment {
 	public void init() throws Exception {
 		super.init();
 
-		setImmediateAction(aDialogActionParam, rDialogActions);
+		setImmediateAction(dialogActionParam, dialogActions);
 
-		setUIFlag(HIDE_LABEL, aDialogActionFillParam, aDialogActionParam,
-			aDialogActionQuestionParam);
+		setUIFlag(HIDE_LABEL, dialogActionFillParam, dialogActionParam,
+			dialogActionQuestionParam);
 
-		if (bUseFillParam) {
-			setUIFlag(SAME_ROW, aDialogActionQuestionParam);
+		if (useFillParam) {
+			setUIFlag(SAME_ROW, dialogActionQuestionParam);
 		}
 
-		setUIFlag(SAME_ROW, aDialogActionParam);
+		setUIFlag(SAME_ROW, dialogActionParam);
 		setUIProperty(3, COLUMN_SPAN, getViewContentParam());
-		setUIProperty(TOOLTIP, "", aDialogActionFillParam,
-			aDialogActionQuestionParam);
-		setUIProperty(HTML_WIDTH, "100%", aDialogActionFillParam);
+		setUIProperty(TOOLTIP, "", dialogActionFillParam,
+			dialogActionQuestionParam);
+		setUIProperty(HTML_WIDTH, "100%", dialogActionFillParam);
 
-		setUIProperty(rDialogActions.size(), COLUMNS, aDialogActionParam);
-		setUIProperty(RESOURCE_ID, "DialogActionFill", aDialogActionFillParam);
+		setUIProperty(dialogActions.size(), COLUMNS, dialogActionParam);
+		setUIProperty(RESOURCE_ID, "DialogActionFill", dialogActionFillParam);
 		setUIProperty(RESOURCE_ID, "DialogActionQuestion",
-			aDialogActionQuestionParam);
-		setUIProperty(RESOURCE_ID, "DialogAction", aDialogActionParam);
-		setParameter(aDialogActionQuestionParam, sQuestion);
+			dialogActionQuestionParam);
+		setUIProperty(RESOURCE_ID, "DialogAction", dialogActionParam);
+		setParameter(dialogActionQuestionParam, question);
 	}
 
 	/**
@@ -260,8 +257,8 @@ public class DialogFragment extends ViewFragment {
 	 */
 	@Override
 	public Map<RelationType<?>, String> validateFragmentParameters(
-		boolean bOnInteraction) {
-		if (bOnInteraction) {
+		boolean onInteraction) {
+		if (onInteraction) {
 			return super.validateFragmentParameters(true);
 		} else {
 			return new HashMap<RelationType<?>, String>();
@@ -272,24 +269,24 @@ public class DialogFragment extends ViewFragment {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void addExtraViewInteractionParams(String sParamBaseName) {
-		aDialogActionFillParam =
-			getTemporaryParameterType(sParamBaseName + "_ACTION_FILL",
+	protected void addExtraViewInteractionParams(String paramBaseName) {
+		dialogActionFillParam =
+			getTemporaryParameterType(paramBaseName + "_ACTION_FILL",
 				String.class);
 
-		aDialogActionQuestionParam =
-			getTemporaryParameterType(sParamBaseName + "_ACTION_QUESTION",
+		dialogActionQuestionParam =
+			getTemporaryParameterType(paramBaseName + "_ACTION_QUESTION",
 				String.class);
-		aDialogActionParam =
-			getTemporaryParameterType(sParamBaseName + "_ACTION",
-				DialogAction.class);
+		dialogActionParam = getTemporaryParameterType(paramBaseName +
+				"_ACTION",
+			DialogAction.class);
 
-		if (bUseFillParam) {
-			getInteractionParameters().add(aDialogActionFillParam);
+		if (useFillParam) {
+			getInteractionParameters().add(dialogActionFillParam);
 		}
 
-		getInteractionParameters().add(aDialogActionQuestionParam);
-		addInputParameters(aDialogActionParam);
+		getInteractionParameters().add(dialogActionQuestionParam);
+		addInputParameters(dialogActionParam);
 	}
 
 	/**
@@ -297,13 +294,13 @@ public class DialogFragment extends ViewFragment {
 	 *
 	 * @author eso
 	 */
-	public static interface DialogActionListener {
+	public interface DialogActionListener {
 
 		/**
 		 * Will be invoked if a certain dialog action occurred.
 		 *
-		 * @param eAction The dialog action
+		 * @param action The dialog action
 		 */
-		public void onDialogAction(DialogAction eAction);
+		void onDialogAction(DialogAction action);
 	}
 }

@@ -17,32 +17,28 @@
 package de.esoco.process.param;
 
 import de.esoco.data.FileType;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.property.ContentProperties;
 import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.PropertyName;
-
 import de.esoco.process.ProcessFragment;
 import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ValueEventHandler;
 import de.esoco.process.step.Interaction.InteractionHandler;
 import de.esoco.process.step.InteractionEvent;
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelatedObject;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.obrel.core.RelatedObject;
-import org.obrel.core.Relation;
-import org.obrel.core.RelationType;
-
 import static de.esoco.data.element.DataElement.HIDDEN_URL;
 import static de.esoco.data.element.DataElement.INTERACTION_URL;
-
 import static de.esoco.lib.property.ContentProperties.ELEMENT_ID;
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.StateProperties.DISABLED;
@@ -58,9 +54,9 @@ import static de.esoco.lib.property.StateProperties.INTERACTION_EVENT_TYPES;
 public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	extends RelatedObject {
 
-	InteractionFragment rFragment;
+	InteractionFragment fragment;
 
-	RelationType<T> rParamType;
+	RelationType<T> paramType;
 
 	/**
 	 * Creates a new instance for a certain fragment and parameter relation
@@ -76,13 +72,13 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * subclass, e.g. to include some kind of self-reference (which is not
 	 * possible while invoking the super constructor).</p>
 	 *
-	 * @param rFragment  The fragment to wrap the parameter for
-	 * @param rParamType The parameter relation type to wrap
+	 * @param fragment  The fragment to wrap the parameter for
+	 * @param paramType The parameter relation type to wrap
 	 */
-	public ParameterWrapper(InteractionFragment rFragment,
-		RelationType<T> rParamType) {
-		this.rFragment = rFragment;
-		this.rParamType = rParamType;
+	public ParameterWrapper(InteractionFragment fragment,
+		RelationType<T> paramType) {
+		this.fragment = fragment;
+		this.paramType = paramType;
 	}
 
 	/**
@@ -95,31 +91,32 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * <p>This method is protected because it's functionality should only be
 	 * exposed by the API of certain parameter wrappers (e.g. buttons).</p>
 	 *
-	 * @param rParam             The parameter to initiate the download for
-	 * @param sFileName          The file name of the download
-	 * @param eFileType          The file type of the download
-	 * @param fDownloadGenerator The function that generates the download data
+	 * @param param             The parameter to initiate the download for
+	 * @param fileName          The file name of the download
+	 * @param fileType          The file type of the download
+	 * @param downloadGenerator The function that generates the download data
 	 * @throws RuntimeProcessException If the download preparation fails
 	 */
 	@SuppressWarnings("unchecked")
-	public static void initiateDownload(ParameterWrapper<?, ?> rParam,
-		String sFileName, FileType eFileType,
-		Function<FileType, ?> fDownloadGenerator) {
-		InteractionFragment rFragment = rParam.fragment();
-		String sDownloadUrl;
+	public static void initiateDownload(ParameterWrapper<?, ?> param,
+		String fileName, FileType fileType,
+		Function<FileType, ?> downloadGenerator) {
+		InteractionFragment fragment = param.fragment();
+		String downloadUrl;
 
 		try {
-			sDownloadUrl = rFragment.prepareDownload(sFileName, eFileType,
-				fDownloadGenerator);
+			downloadUrl =
+				fragment.prepareDownload(fileName, fileType,
+					downloadGenerator);
 
-			rParam.set(HIDDEN_URL);
-			rParam.set(INTERACTION_URL, sDownloadUrl);
-			rFragment
+			param.set(HIDDEN_URL);
+			param.set(INTERACTION_URL, downloadUrl);
+			fragment
 				.getProcess()
 				.addInteractionCleanupAction(
-					() -> rParam.remove(INTERACTION_URL).remove(HIDDEN_URL));
+					() -> param.remove(INTERACTION_URL).remove(HIDDEN_URL));
 		} catch (Exception e) {
-			throw new RuntimeProcessException(rFragment, e);
+			throw new RuntimeProcessException(fragment, e);
 		}
 	}
 
@@ -129,8 +126,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @see ProcessFragment#clearUIFlag(PropertyName, RelationType...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final P clear(PropertyName<Boolean> rProperty) {
-		rFragment.clearUIFlag(rProperty, rParamType);
+	public final P clear(PropertyName<Boolean> property) {
+		fragment.clearUIFlag(property, paramType);
 
 		return (P) this;
 	}
@@ -162,7 +159,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @return The fragment
 	 */
 	public InteractionFragment fragment() {
-		return rFragment;
+		return fragment;
 	}
 
 	/**
@@ -170,8 +167,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 *
 	 * @see ProcessFragment#getUIProperty(PropertyName, RelationType)
 	 */
-	public final <V> V get(PropertyName<V> rProperty) {
-		return rFragment.getUIProperty(rProperty, rParamType);
+	public final <V> V get(PropertyName<V> property) {
+		return fragment.getUIProperty(property, paramType);
 	}
 
 	/**
@@ -179,21 +176,21 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 *
 	 * @see ProcessFragment#getParameter(RelationType)
 	 */
-	public final <V> V getParam(RelationType<V> rType) {
-		return rFragment.getParameter(rType);
+	public final <V> V getParam(RelationType<V> type) {
+		return fragment.getParameter(type);
 	}
 
 	/**
 	 * Checks whether a certain property has been set for the wrapped
 	 * parameter.
 	 *
-	 * @param rProperty The property name
+	 * @param property The property name
 	 * @return TRUE if the property exists (with any value)
 	 */
-	public final boolean has(PropertyName<?> rProperty) {
-		HasProperties rProperties = rFragment.getUIProperties(rParamType);
+	public final boolean has(PropertyName<?> property) {
+		HasProperties properties = fragment.getUIProperties(paramType);
 
-		return rProperties != null && rProperties.hasProperty(rProperty);
+		return properties != null && properties.hasProperty(property);
 	}
 
 	/**
@@ -210,11 +207,11 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * Sets a string ID for this instance by setting the UI property
 	 * {@link ContentProperties#ELEMENT_ID}.
 	 *
-	 * @param sId The ID string
+	 * @param id The ID string
 	 * @return This instance for concatenation
 	 */
-	public P id(String sId) {
-		return set(ELEMENT_ID, sId);
+	public P id(String id) {
+		return set(ELEMENT_ID, id);
 	}
 
 	/**
@@ -223,7 +220,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @see #setEnabled(boolean)
 	 */
 	public boolean isEnabled() {
-		return !rFragment.hasUIFlag(DISABLED, rParamType);
+		return !fragment.hasUIFlag(DISABLED, paramType);
 	}
 
 	/**
@@ -232,18 +229,18 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @see #setVisible(boolean)
 	 */
 	public boolean isVisible() {
-		return !rFragment.hasUIFlag(HIDDEN, rParamType);
+		return !fragment.hasUIFlag(HIDDEN, paramType);
 	}
 
 	/**
 	 * Removes certain properties from the wrapped parameter.
 	 *
-	 * @param rProperties The names of the properties to remove
+	 * @param properties The names of the properties to remove
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	public final P remove(PropertyName<?>... rProperties) {
-		rFragment.removeUIProperties(rParamType, rProperties);
+	public final P remove(PropertyName<?>... properties) {
+		fragment.removeUIProperties(paramType, properties);
 
 		return (P) this;
 	}
@@ -252,11 +249,11 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * Sets a resource ID for this instance by setting the UI property
 	 * {@link ContentProperties#RESOURCE_ID}.
 	 *
-	 * @param sResourceId The resource ID string
+	 * @param resourceId The resource ID string
 	 * @return This instance for concatenation
 	 */
-	public P resid(String sResourceId) {
-		return set(RESOURCE_ID, sResourceId);
+	public P resid(String resourceId) {
+		return set(RESOURCE_ID, resourceId);
 	}
 
 	/**
@@ -265,8 +262,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @see ProcessFragment#setUIFlag(PropertyName, RelationType...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final P set(PropertyName<Boolean> rFlagProperty) {
-		rFragment.setUIFlag(rFlagProperty, rParamType);
+	public final P set(PropertyName<Boolean> flagProperty) {
+		fragment.setUIFlag(flagProperty, paramType);
 
 		return (P) this;
 	}
@@ -277,8 +274,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @see ProcessFragment#setUIProperty(PropertyName, Object, RelationType...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final <V> P set(PropertyName<V> rProperty, V rValue) {
-		rFragment.setUIProperty(rProperty, rValue, rParamType);
+	public final <V> P set(PropertyName<V> property, V value) {
+		fragment.setUIProperty(property, value, paramType);
 
 		return (P) this;
 	}
@@ -289,8 +286,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @see ProcessFragment#setUIProperty(int, PropertyName, RelationType...)
 	 */
 	@SuppressWarnings("unchecked")
-	public final P set(int nValue, PropertyName<Integer> rProperty) {
-		rFragment.setUIProperty(nValue, rProperty, rParamType);
+	public final P set(int value, PropertyName<Integer> property) {
+		fragment.setUIProperty(value, property, paramType);
 
 		return (P) this;
 	}
@@ -298,11 +295,11 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	/**
 	 * Enables or disables this parameter based on the boolean parameter.
 	 *
-	 * @param bEnabled TRUE to enable the parameter, FALSE to disable it
+	 * @param enabled TRUE to enable the parameter, FALSE to disable it
 	 * @return This instance for concatenation
 	 */
-	public P setEnabled(boolean bEnabled) {
-		return bEnabled ? clear(DISABLED) : set(DISABLED);
+	public P setEnabled(boolean enabled) {
+		return enabled ? clear(DISABLED) : set(DISABLED);
 	}
 
 	/**
@@ -310,18 +307,18 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 *
 	 * @see ProcessFragment#setParameter(RelationType, Object)
 	 */
-	public final <V> Relation<V> setParam(RelationType<V> rType, V rValue) {
-		return rFragment.setParameter(rType, rValue);
+	public final <V> Relation<V> setParam(RelationType<V> type, V value) {
+		return fragment.setParameter(type, value);
 	}
 
 	/**
 	 * Sets the visibility of this parameter based on the boolean parameter.
 	 *
-	 * @param bVisible TRUE to show the parameter, FALSE to hide it
+	 * @param visible TRUE to show the parameter, FALSE to hide it
 	 * @return This instance for concatenation
 	 */
-	public P setVisible(boolean bVisible) {
-		return bVisible ? clear(HIDDEN) : set(HIDDEN);
+	public P setVisible(boolean visible) {
+		return visible ? clear(HIDDEN) : set(HIDDEN);
 	}
 
 	/**
@@ -340,7 +337,7 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * @return The parameter relation type
 	 */
 	public final RelationType<T> type() {
-		return rParamType;
+		return paramType;
 	}
 
 	/**
@@ -350,51 +347,50 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * construction time. In that case this method must be invoked before any
 	 * other method is invoked or else an exception will be thrown.
 	 *
-	 * @param rFragment The new fragment
+	 * @param fragment The new fragment
 	 */
-	protected final void setFragment(InteractionFragment rFragment) {
-		this.rFragment = rFragment;
+	protected final void setFragment(InteractionFragment fragment) {
+		this.fragment = fragment;
 	}
 
 	/**
 	 * Helper method to set a parameter event handler that forwards interaction
 	 * events to a runnable object.
 	 *
-	 * @param eEventType    The event type to set the event handler for
-	 * @param rEventHandler rRunnable The runnable to be invoked on interaction
-	 *                      events
+	 * @param eventType    The event type to set the event handler for
+	 * @param eventHandler runnable The runnable to be invoked on interaction
+	 *                     events
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	protected P setParameterEventHandler(InteractionEventType eEventType,
-		final ValueEventHandler<T> rEventHandler) {
-		InteractionHandler rInteractionHandler =
-			rFragment.getParameterInteractionHandler(rParamType);
+	protected P setParameterEventHandler(InteractionEventType eventType,
+		final ValueEventHandler<T> eventHandler) {
+		InteractionHandler interactionHandler =
+			fragment.getParameterInteractionHandler(paramType);
 
-		if (rInteractionHandler instanceof ParameterWrapper.ParameterInteractionHandler) {
-			((ParameterInteractionHandler) rInteractionHandler).setEventTypeHandler(
-				eEventType, rEventHandler);
+		if (interactionHandler instanceof ParameterWrapper.ParameterInteractionHandler) {
+			((ParameterInteractionHandler) interactionHandler).setEventTypeHandler(
+				eventType, eventHandler);
 		} else {
-			ParameterInteractionHandler rHandler =
+			ParameterInteractionHandler handler =
 				new ParameterInteractionHandler();
 
-			rHandler.setEventTypeHandler(eEventType, rEventHandler);
+			handler.setEventTypeHandler(eventType, eventHandler);
 
-			rFragment.setParameterInteractionHandler(rParamType, rHandler);
+			fragment.setParameterInteractionHandler(paramType, handler);
 		}
 
-		Set<InteractionEventType> rInteractionEventTypes =
+		Set<InteractionEventType> interactionEventTypes =
 			get(INTERACTION_EVENT_TYPES);
 
-		if (rInteractionEventTypes == null) {
-			rInteractionEventTypes =
-				EnumSet.noneOf(InteractionEventType.class);
+		if (interactionEventTypes == null) {
+			interactionEventTypes = EnumSet.noneOf(InteractionEventType.class);
 		}
 
-		rInteractionEventTypes.add(eEventType);
+		interactionEventTypes.add(eventType);
 		input();
 
-		return set(INTERACTION_EVENT_TYPES, rInteractionEventTypes);
+		return set(INTERACTION_EVENT_TYPES, interactionEventTypes);
 	}
 
 	/**
@@ -404,10 +400,10 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 * construction time. In that case this method must be invoked before any
 	 * other method is invoked or else an exception will be thrown.
 	 *
-	 * @param rParamType The new parameter relation type
+	 * @param paramType The new parameter relation type
 	 */
-	protected final void setParameterType(RelationType<T> rParamType) {
-		this.rParamType = rParamType;
+	protected final void setParameterType(RelationType<T> paramType) {
+		this.paramType = paramType;
 	}
 
 	/**
@@ -420,8 +416,8 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	P input() {
 		// ignore the fragment parameter itself (e.g. when registering click
 		// handlers on a container) to prevent recursion
-		if (rParamType != rFragment.getFragmentParameter()) {
-			rFragment.addInputParameters(rParamType);
+		if (paramType != fragment.getFragmentParameter()) {
+			fragment.addInputParameters(paramType);
 		}
 
 		return (P) this;
@@ -434,42 +430,41 @@ public class ParameterWrapper<T, P extends ParameterWrapper<T, P>>
 	 */
 	class ParameterInteractionHandler implements InteractionHandler {
 
-		private Map<InteractionEventType, ValueEventHandler<T>>
-			aEventTypeHandlers = new HashMap<>();
+		private final Map<InteractionEventType, ValueEventHandler<T>>
+			eventTypeHandlers = new HashMap<>();
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void handleInteraction(InteractionEvent rEvent)
-			throws Exception {
-			ValueEventHandler<T> rEventHandler =
-				aEventTypeHandlers.get(rEvent.getType());
+		public void handleInteraction(InteractionEvent event) throws Exception {
+			ValueEventHandler<T> eventHandler =
+				eventTypeHandlers.get(event.getType());
 
-			if (rEventHandler != null && rFragment.isAttached()) {
-				rEventHandler.handleValueUpdate(
-					rFragment.getParameter(rParamType));
+			if (eventHandler != null && fragment.isAttached()) {
+				eventHandler.handleValueUpdate(
+					fragment.getParameter(paramType));
 			}
 		}
 
 		/**
 		 * Remove the event handler for a certain event type.
 		 *
-		 * @param eEventType The event type
+		 * @param eventType The event type
 		 */
-		void removeEventTypeHandler(InteractionEventType eEventType) {
-			aEventTypeHandlers.remove(eEventType);
+		void removeEventTypeHandler(InteractionEventType eventType) {
+			eventTypeHandlers.remove(eventType);
 		}
 
 		/**
 		 * Sets or replaces an event handler for a certain event type.
 		 *
-		 * @param eEventType The event type
-		 * @param rHandler   The event handler
+		 * @param eventType The event type
+		 * @param handler   The event handler
 		 */
-		void setEventTypeHandler(InteractionEventType eEventType,
-			ValueEventHandler<T> rHandler) {
-			aEventTypeHandlers.put(eEventType, rHandler);
+		void setEventTypeHandler(InteractionEventType eventType,
+			ValueEventHandler<T> handler) {
+			eventTypeHandlers.put(eventType, handler);
 		}
 	}
 }

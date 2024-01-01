@@ -19,7 +19,6 @@ package de.esoco.process.ui.component;
 import de.esoco.lib.property.CheckBoxStyle;
 import de.esoco.lib.property.Selectable;
 import de.esoco.lib.property.TextAttribute;
-
 import de.esoco.process.ui.UiButtonControl;
 import de.esoco.process.ui.UiContainer;
 
@@ -38,13 +37,13 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
-	 * @param sLabel  The check box label
+	 * @param parent The parent container
+	 * @param label  The check box label
 	 */
-	public UiCheckBox(UiContainer<?> rParent, String sLabel) {
-		super(rParent, Boolean.class);
+	public UiCheckBox(UiContainer<?> parent, String label) {
+		super(parent, Boolean.class);
 
-		setText(sLabel);
+		setText(label);
 		set(HIDE_LABEL);
 	}
 
@@ -61,19 +60,19 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	 */
 	@Override
 	public boolean isSelected() {
-		Boolean rState = fragment().getParameter(type());
+		Boolean state = fragment().getParameter(type());
 
-		return rState != null ? rState.booleanValue() : false;
+		return state != null && state.booleanValue();
 	}
 
 	/**
 	 * Fluent variant of {@link #setSelected(boolean)}.
 	 *
-	 * @param bSelected The selection state
+	 * @param selected The selection state
 	 * @return This instance
 	 */
-	public UiCheckBox select(boolean bSelected) {
-		setSelected(bSelected);
+	public UiCheckBox select(boolean selected) {
+		setSelected(selected);
 
 		return this;
 	}
@@ -81,35 +80,35 @@ public class UiCheckBox extends UiButtonControl<Boolean, UiCheckBox>
 	/**
 	 * Sets the style of this check box.
 	 *
-	 * @param eStyle The new check box style
+	 * @param style The new check box style
 	 */
-	public void setCheckBoxStyle(CheckBoxStyle eStyle) {
-		set(CHECK_BOX_STYLE, eStyle);
+	public void setCheckBoxStyle(CheckBoxStyle style) {
+		set(CHECK_BOX_STYLE, style);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSelected(boolean bSelected) {
-		fragment().setParameter(type(), bSelected);
+	public void setSelected(boolean selected) {
+		fragment().setParameter(type(), selected);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText) {
-		set(LABEL, sText);
+	public void setText(String text) {
+		set(LABEL, text);
 	}
 
 	/**
 	 * Sets the style of this check box.
 	 *
-	 * @param eStyle The check box style
+	 * @param style The check box style
 	 * @return This instance
 	 */
-	public UiCheckBox style(CheckBoxStyle eStyle) {
-		return set(CHECK_BOX_STYLE, eStyle);
+	public UiCheckBox style(CheckBoxStyle style) {
+		return set(CHECK_BOX_STYLE, style);
 	}
 }

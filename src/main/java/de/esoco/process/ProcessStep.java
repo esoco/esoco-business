@@ -17,13 +17,16 @@
 package de.esoco.process;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.history.HistoryManager;
 import de.esoco.history.HistoryRecord;
-
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.process.param.ParameterBase;
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,30 +35,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypeModifier;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
-
 import static de.esoco.history.HistoryManager.HISTORIZED;
-
 import static de.esoco.lib.property.StateProperties.PROPERTIES_CHANGED;
 import static de.esoco.lib.property.StateProperties.STRUCTURE_CHANGED;
 import static de.esoco.lib.property.StateProperties.VALUE_CHANGED;
-
 import static de.esoco.process.ProcessRelationTypes.AUTO_UPDATE;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAM;
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_END;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_START;
 import static de.esoco.process.ProcessRelationTypes.HISTORY_TARGET_PARAM;
-import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
+import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.STOP_PROCESS_EXECUTION;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_END;
 import static de.esoco.process.ProcessRelationTypes.TRANSACTION_START;
-
 import static org.obrel.core.RelationTypes.newType;
 import static org.obrel.type.MetaTypes.TRANSACTIONAL;
 import static org.obrel.type.StandardTypes.NAME;
@@ -92,17 +86,17 @@ public abstract class ProcessStep extends ProcessFragment {
 		RelationTypes.init(ProcessStep.class);
 	}
 
+	// collects modifications of parameters in the full fragment hierarchy
+	private final Set<RelationType<?>> modifiedParams = new HashSet<>();
+
 	/**
 	 * Will be restored by the parent process on deserialization
 	 */
-	private transient Process rProcess;
+	private transient Process process;
 
-	private boolean bMarkingAsModified;
+	private boolean markingAsModified;
 
-	private Set<RelationType<?>> aNewInteractionParams = null;
-
-	// collects modifications of parameters in the full fragment hierarchy
-	private Set<RelationType<?>> aModifiedParams = new HashSet<>();
+	private Set<RelationType<?>> newInteractionParams = null;
 
 	/**
 	 * Default constructor, which must be provided by any subclass.
@@ -117,9 +111,9 @@ public abstract class ProcessStep extends ProcessFragment {
 	 */
 	@Override
 	public void addDisplayParameters(
-		Collection<? extends RelationType<?>> rParams) {
-		super.addDisplayParameters(rParams);
-		prepareNewInteractionParameters(rParams);
+		Collection<? extends RelationType<?>> params) {
+		super.addDisplayParameters(params);
+		prepareNewInteractionParameters(params);
 	}
 
 	/**
@@ -129,9 +123,9 @@ public abstract class ProcessStep extends ProcessFragment {
 	 */
 	@Override
 	public void addSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam,
-		InteractionFragment rSubFragment) {
-		super.addSubFragment(rFragmentParam, rSubFragment);
+		RelationType<List<RelationType<?>>> fragmentParam,
+		InteractionFragment subFragment) {
+		super.addSubFragment(fragmentParam, subFragment);
 
 		// necessary for legacy process step based interactions that do not
 		// use InteractionFragment
@@ -152,7 +146,7 @@ public abstract class ProcessStep extends ProcessFragment {
 	 */
 	@Override
 	public final Process getProcess() {
-		return rProcess;
+		return process;
 	}
 
 	/**
@@ -169,47 +163,47 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * Checks whether a parameter has been modified by the process during the
 	 * last interaction cycle.
 	 *
-	 * @param rParam The parameter to check
+	 * @param param The parameter to check
 	 * @return TRUE if the parameter has been modified
 	 */
-	public boolean isParameterModified(RelationType<?> rParam) {
-		return aModifiedParams.contains(rParam) ||
-			hasUIFlag(PROPERTIES_CHANGED, rParam);
+	public boolean isParameterModified(RelationType<?> param) {
+		return modifiedParams.contains(param) ||
+			hasUIFlag(PROPERTIES_CHANGED, param);
 	}
 
 	/**
 	 * Removes the modification markers for a certain process parameter.
 	 *
-	 * @param rParam The process parameter
+	 * @param param The process parameter
 	 */
-	public void removeParameterModification(ParameterBase<?, ?> rParam) {
-		removeParameterModification(rParam.type());
+	public void removeParameterModification(ParameterBase<?, ?> param) {
+		removeParameterModification(param.type());
 	}
 
 	/**
 	 * Removes the modification markers for a certain parameter relation type.
 	 *
-	 * @param rParamType The parameter relation type
+	 * @param paramType The parameter relation type
 	 */
-	public void removeParameterModification(RelationType<?> rParamType) {
-		MutableProperties rUiProperties = getUIProperties(rParamType);
+	public void removeParameterModification(RelationType<?> paramType) {
+		MutableProperties uiProperties = getUIProperties(paramType);
 
-		if (rUiProperties != null) {
-			rUiProperties.removeProperty(VALUE_CHANGED);
-			rUiProperties.removeProperty(PROPERTIES_CHANGED);
-			rUiProperties.removeProperty(STRUCTURE_CHANGED);
+		if (uiProperties != null) {
+			uiProperties.removeProperty(VALUE_CHANGED);
+			uiProperties.removeProperty(PROPERTIES_CHANGED);
+			uiProperties.removeProperty(STRUCTURE_CHANGED);
 		}
 
-		aModifiedParams.remove(rParamType);
+		modifiedParams.remove(paramType);
 	}
 
 	/**
 	 * Resets all parameter modification markers for this step.
 	 */
 	public void resetParameterModifications() {
-		// iterate over a copy because aModifiedParams is modified
-		for (RelationType<?> rParamType : new ArrayList<>(aModifiedParams)) {
-			removeParameterModification(rParamType);
+		// iterate over a copy because modifiedParams is modified
+		for (RelationType<?> paramType : new ArrayList<>(modifiedParams)) {
+			removeParameterModification(paramType);
 		}
 	}
 
@@ -218,14 +212,14 @@ public abstract class ProcessStep extends ProcessFragment {
 	 */
 	@Override
 	public String toString() {
-		String sResult = getClass().getSimpleName();
-		String sName = getName();
+		String result = getClass().getSimpleName();
+		String name = getName();
 
-		if (!sResult.equals(sName)) {
-			sResult += "[" + sName + "]";
+		if (!result.equals(name)) {
+			result += "[" + name + "]";
 		}
 
-		return sResult;
+		return result;
 	}
 
 	/**
@@ -312,16 +306,16 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * @return The name of the next process step
 	 */
 	protected String getNextStep() {
-		String sNextStep;
+		String nextStep;
 
 		if (isContinuedInteraction()) {
 			// re-execute this step again after an interactive input event
-			sNextStep = getName();
+			nextStep = getName();
 		} else {
-			sNextStep = get(NEXT_STEP);
+			nextStep = get(NEXT_STEP);
 		}
 
-		return sNextStep;
+		return nextStep;
 	}
 
 	/**
@@ -395,29 +389,29 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * Prepares new interaction parameters for rendering.
 	 */
 	protected void prepareNewInteractionParameters(
-		Collection<? extends RelationType<?>> rParams) {
-		if (rProcess != null) {
-			for (RelationType<?> rParam : rParams) {
+		Collection<? extends RelationType<?>> params) {
+		if (process != null) {
+			for (RelationType<?> param : params) {
 				// do not use paramModified() to prevent setting of the (empty)
 				// parameter because the VALUE_CHANGED property is set; this
 				// can cause problems with some legacy processes
-				markParameterAsModified(rParam);
+				markParameterAsModified(param);
 
-				if (rParam.getTargetType() == List.class &&
-					rParam.get(MetaTypes.ELEMENT_DATATYPE) ==
+				if (param.getTargetType() == List.class &&
+					param.get(MetaTypes.ELEMENT_DATATYPE) ==
 						RelationType.class) {
 					// necessary for legacy process step based interactions
 					// that do not
 					// use InteractionFragment
-					setUIFlag(STRUCTURE_CHANGED, rParam);
+					setUIFlag(STRUCTURE_CHANGED, param);
 				}
 			}
 		} else {
-			if (aNewInteractionParams == null) {
-				aNewInteractionParams = new HashSet<>(rParams);
+			if (newInteractionParams == null) {
+				newInteractionParams = new HashSet<>(params);
 			}
 
-			aNewInteractionParams.addAll(rParams);
+			newInteractionParams.addAll(params);
 		}
 	}
 
@@ -512,10 +506,10 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * Sets the name of the next process step that shall be executed after this
 	 * one.
 	 *
-	 * @param sNextStepName The name of the next process step
+	 * @param nextStepName The name of the next process step
 	 */
-	protected void setNextStep(String sNextStepName) {
-		set(NEXT_STEP, sNextStepName);
+	protected void setNextStep(String nextStepName) {
+		set(NEXT_STEP, nextStepName);
 	}
 
 	/**
@@ -534,13 +528,13 @@ public abstract class ProcessStep extends ProcessFragment {
 	/**
 	 * Throws a runtime exception that signals a missing process parameter.
 	 *
-	 * @param rParamType The relation type of the missing parameter
+	 * @param paramType The relation type of the missing parameter
 	 */
 	@Override
 	protected <T> void throwMissingParameterException(
-		RelationType<T> rParamType) {
+		RelationType<T> paramType) {
 		throw new IllegalStateException(
-			String.format("Parameter %s not set", rParamType));
+			String.format("Parameter %s not set", paramType));
 	}
 
 	/**
@@ -565,11 +559,11 @@ public abstract class ProcessStep extends ProcessFragment {
 	protected void validate() throws Exception {
 		handleParamValidation(true);
 
-		RelationType<?> rInteractionParam =
+		RelationType<?> interactionParam =
 			getParameter(INTERACTION_EVENT_PARAM);
 
 		if (!isContinuedInteraction() ||
-			isContinuationParam(rInteractionParam)) {
+			isContinuationParam(interactionParam)) {
 			handleParamValidation(false);
 		}
 	}
@@ -588,17 +582,16 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * own error message to the returned map if necessary. That allows the user
 	 * interface of interactive steps to display all failures at once.</p>
 	 *
-	 * @param bOnInteraction TRUE if the validation occurs during an
-	 *                          interaction
-	 *                       and FALSE if it occurs when the process progresses
-	 *                       to the next step
+	 * @param onInteraction TRUE if the validation occurs during an interaction
+	 *                      and FALSE if it occurs when the process progresses
+	 *                      to the next step
 	 * @return The mapping from invalid parameters to the corresponding error
 	 * messages
 	 */
 	protected Map<RelationType<?>, String> validateParameters(
-		boolean bOnInteraction) {
+		boolean onInteraction) {
 		return performParameterValidations(
-			getParameterValidations(bOnInteraction));
+			getParameterValidations(onInteraction));
 	}
 
 	/**
@@ -644,14 +637,14 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * {@link #isParameterModified(RelationType)}. Modifications are changes to
 	 * parameter values or properties.
 	 *
-	 * @param rParamType The relation type of the modified parameter
+	 * @param paramType The relation type of the modified parameter
 	 */
-	void parameterModified(RelationType<?> rParamType) {
-		if (!bMarkingAsModified) {
-			bMarkingAsModified = true;
-			setUIFlag(VALUE_CHANGED, rParamType);
-			aModifiedParams.add(rParamType);
-			bMarkingAsModified = false;
+	void parameterModified(RelationType<?> paramType) {
+		if (!markingAsModified) {
+			markingAsModified = true;
+			setUIFlag(VALUE_CHANGED, paramType);
+			modifiedParams.add(paramType);
+			markingAsModified = false;
 		}
 	}
 
@@ -664,52 +657,51 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * @throws Exception If performing the process step fails
 	 */
 	final String perform() throws Exception {
-		boolean bHistorized = hasFlag(HISTORIZED);
-		boolean bTransactional = hasFlag(TRANSACTIONAL);
+		boolean historized = hasFlag(HISTORIZED);
+		boolean transactional = hasFlag(TRANSACTIONAL);
 
-		boolean bBeginHistory = bHistorized || hasFlag(HISTORY_START);
-		boolean bCommitHistory = bHistorized || hasFlag(HISTORY_END);
+		boolean beginHistory = historized || hasFlag(HISTORY_START);
+		boolean commitHistory = historized || hasFlag(HISTORY_END);
 
-		boolean bBeginTransaction =
-			bBeginHistory || bTransactional || hasFlag(TRANSACTION_START);
-		boolean bCommitTransaction =
-			bCommitHistory || bTransactional || hasFlag(TRANSACTION_END);
+		boolean beginTransaction =
+			beginHistory || transactional || hasFlag(TRANSACTION_START);
+		boolean commitTransaction =
+			commitHistory || transactional || hasFlag(TRANSACTION_END);
 
 		setParameter(CONTINUATION_PARAM, null);
 
-		if (bBeginTransaction) {
-			RelationType<? extends Entity> rTargetParam =
+		if (beginTransaction) {
+			RelationType<? extends Entity> targetParam =
 				get(HISTORY_TARGET_PARAM);
 
-			String sValue = get(HistoryRecord.VALUE);
-			Entity rTarget = rTargetParam != null ?
-			                 getParameter(rTargetParam) :
-			                 get(HistoryRecord.TARGET);
+			String value = get(HistoryRecord.VALUE);
+			Entity target = targetParam != null ?
+			                getParameter(targetParam) :
+			                get(HistoryRecord.TARGET);
 
-			if (sValue == null) {
-				sValue =
-					getProcess().get(StandardTypes.NAME) + "." + getName();
+			if (value == null) {
+				value = getProcess().get(StandardTypes.NAME) + "." + getName();
 			}
 
-			getProcess().beginTransaction(bBeginHistory, rTarget, sValue);
+			getProcess().beginTransaction(beginHistory, target, value);
 		}
 
 		internalExecute();
 
-		RelationType<?> rInteractionParam =
+		RelationType<?> interactionParam =
 			getParameter(INTERACTION_EVENT_PARAM);
 
 		if (!isContinuedInteraction()) {
 			removeAllSubFragments();
 			executeCleanupActions();
-		} else if (isContinuationParam(rInteractionParam)) {
-			setParameter(CONTINUATION_PARAM, rInteractionParam);
+		} else if (isContinuationParam(interactionParam)) {
+			setParameter(CONTINUATION_PARAM, interactionParam);
 			setParameter(INTERACTION_EVENT_PARAM, null);
 			prepareContinuation();
 		}
 
-		if (bCommitTransaction) {
-			getProcess().commitTransaction(bCommitHistory);
+		if (commitTransaction) {
+			getProcess().commitTransaction(commitHistory);
 		}
 
 		return getNextStep();
@@ -754,24 +746,24 @@ public abstract class ProcessStep extends ProcessFragment {
 	/**
 	 * Sets the step's name. Will only be used internally for special purposes
 	 *
-	 * @param sName The new name of the step
+	 * @param name The new name of the step
 	 */
-	void setName(String sName) {
-		set(NAME, sName);
+	void setName(String name) {
+		set(NAME, name);
 	}
 
 	/**
 	 * Package internal method to associate this step with a particular
 	 * instance.
 	 *
-	 * @param rProcess The new parent process of this step
+	 * @param process The new parent process of this step
 	 */
-	void setProcess(Process rProcess) {
-		this.rProcess = rProcess;
+	void setProcess(Process process) {
+		this.process = process;
 
-		if (aNewInteractionParams != null) {
-			prepareNewInteractionParameters(aNewInteractionParams);
-			aNewInteractionParams = null;
+		if (newInteractionParams != null) {
+			prepareNewInteractionParameters(newInteractionParams);
+			newInteractionParams = null;
 		}
 	}
 
@@ -779,17 +771,17 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * Evaluates a list of parameter validation functions and throws an
 	 * exception for all invalid parameters.
 	 *
-	 * @param bOnInteraction rParamValidations The mapping from parameters to
-	 *                       validation functions
+	 * @param onInteraction paramValidations The mapping from parameters to
+	 *                      validation functions
 	 * @throws InvalidParametersException If one or more parameters are invalid
 	 */
-	private void handleParamValidation(boolean bOnInteraction)
+	private void handleParamValidation(boolean onInteraction)
 		throws InvalidParametersException {
-		Map<RelationType<?>, String> rInvalidParams =
-			validateParameters(bOnInteraction);
+		Map<RelationType<?>, String> invalidParams =
+			validateParameters(onInteraction);
 
-		if (rInvalidParams.size() > 0) {
-			throw new InvalidParametersException(this, rInvalidParams);
+		if (invalidParams.size() > 0) {
+			throw new InvalidParametersException(this, invalidParams);
 		}
 	}
 
@@ -797,11 +789,11 @@ public abstract class ProcessStep extends ProcessFragment {
 	 * Checks whether an interaction on the given parameter should continue the
 	 * process execution.
 	 *
-	 * @param rParam The parameter to check
+	 * @param param The parameter to check
 	 * @return TRUE if the parameter will continue the process execution
 	 */
-	private boolean isContinuationParam(RelationType<?> rParam) {
+	private boolean isContinuationParam(RelationType<?> param) {
 		return hasRelation(CONTINUATION_PARAMS) &&
-			get(CONTINUATION_PARAMS).contains(rParam);
+			get(CONTINUATION_PARAMS).contains(param);
 	}
 }

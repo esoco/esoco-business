@@ -31,7 +31,7 @@ public class UiTextField extends UiTextInputField<UiTextField> {
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiTextField(UiContainer<?> rContainer, String sText) {
-		super(rContainer, sText);
+	public UiTextField(UiContainer<?> container, String text) {
+		super(container, text);
 	}
 }

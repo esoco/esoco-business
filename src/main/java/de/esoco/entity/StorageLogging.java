@@ -20,7 +20,6 @@ import de.esoco.lib.logging.BusinessLogAspect;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.logging.LogLevel;
 import de.esoco.lib.logging.LogRecord;
-
 import de.esoco.storage.Storage;
 import de.esoco.storage.StorageException;
 import de.esoco.storage.StorageManager;
@@ -40,49 +39,49 @@ public class StorageLogging extends BusinessLogAspect<LogEntry> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected LogEntry createLogObject(LogRecord rLogRecord) {
-		LogLevel eLogLevel = rLogRecord.getLevel();
-		LogEntry aLogEntry = null;
+	protected LogEntry createLogObject(LogRecord logRecord) {
+		LogLevel logLevel = logRecord.getLevel();
+		LogEntry logEntry = null;
 
-		String sMessage = rLogRecord.getMessage();
+		String message = logRecord.getMessage();
 
-		if (eLogLevel.compareTo(get(MIN_STACK_LOG_LEVEL)) >= 0) {
-			Throwable eCause = rLogRecord.getCause();
+		if (logLevel.compareTo(get(MIN_STACK_LOG_LEVEL)) >= 0) {
+			Throwable cause = logRecord.getCause();
 
-			if (eCause != null) {
-				sMessage += String.format(" [%s]\n--------------\n%s", eCause,
-					Log.CAUSE_TRACE.evaluate(rLogRecord));
+			if (cause != null) {
+				message += String.format(" [%s]\n--------------\n%s", cause,
+					Log.CAUSE_TRACE.evaluate(logRecord));
 			}
 		}
 
-		aLogEntry = new LogEntry();
-		aLogEntry.set(LogEntry.LEVEL, eLogLevel);
-		aLogEntry.set(LogEntry.TIME, new Date(rLogRecord.getTime()));
-		aLogEntry.set(LogEntry.MESSAGE, sMessage);
-		aLogEntry.set(LogEntry.SOURCE, getLogSource());
+		logEntry = new LogEntry();
+		logEntry.set(LogEntry.LEVEL, logLevel);
+		logEntry.set(LogEntry.TIME, new Date(logRecord.getTime()));
+		logEntry.set(LogEntry.MESSAGE, message);
+		logEntry.set(LogEntry.SOURCE, getLogSource());
 
-		return aLogEntry;
+		return logEntry;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void processLogObjects(Collection<LogEntry> rLogEntries)
+	protected void processLogObjects(Collection<LogEntry> logEntries)
 		throws StorageException {
-		Storage rStorage = StorageManager.newStorage(LogEntry.class);
+		Storage storage = StorageManager.newStorage(LogEntry.class);
 
 		try {
-			for (LogEntry rLogEntry : rLogEntries) {
-				rStorage.store(rLogEntry);
+			for (LogEntry logEntry : logEntries) {
+				storage.store(logEntry);
 			}
 
-			rStorage.commit();
+			storage.commit();
 		} catch (Exception e) {
-			rStorage.rollback();
+			storage.rollback();
 			throw e;
 		} finally {
-			rStorage.release();
+			storage.release();
 		}
 	}
 }

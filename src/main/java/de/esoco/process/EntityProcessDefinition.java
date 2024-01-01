@@ -19,35 +19,29 @@ package de.esoco.process;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityFunctions;
 import de.esoco.entity.EntityRelationTypes;
-
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.ReflectionFuntions;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
-
 import de.esoco.process.step.CopyEntityAttributes;
 import de.esoco.process.step.CopyEntityAttributes.CopyMode;
 import de.esoco.process.step.entity.AddEntityChild;
 import de.esoco.process.step.entity.StoreEntity;
-
 import de.esoco.storage.QueryPredicate;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.obrel.core.Relation;
-import org.obrel.core.RelationType;
-
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ATTRIBUTES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_ID;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_QUERY_PREDICATE;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_SORT_PREDICATE;
-
 import static de.esoco.process.ProcessRelationTypes.ENTITY_PARAM;
-
 import static de.esoco.storage.StorageRelationTypes.QUERY_DEPTH;
 
 /**
@@ -72,54 +66,54 @@ public abstract class EntityProcessDefinition
 	/**
 	 * @see StepListProcessDefinition#StepListProcessDefinition(String)
 	 */
-	protected EntityProcessDefinition(String sProcessName) {
-		super(sProcessName);
+	protected EntityProcessDefinition(String processName) {
+		super(processName);
 	}
 
 	/**
 	 * Annotates a relation with the parameters for an entity query.
 	 *
-	 * @param rRelation   The relation to annotate
-	 * @param pQuery      The entity query
-	 * @param pSortOrder  The default sort order of the query or NULL for none
-	 * @param rAttributes The optional entity attributes to display or NONE for
-	 *                    the default
+	 * @param relation   The relation to annotate
+	 * @param query      The entity query
+	 * @param sortOrder  The default sort order of the query or NULL for none
+	 * @param attributes The optional entity attributes to display or NONE for
+	 *                   the default
 	 */
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity> void annotateForEntityQuery(
-		Relation<? super E> rRelation, QueryPredicate<E> pQuery,
-		Predicate<? super Entity> pSortOrder,
-		Function<? super E, ?>... rAttributes) {
-		annotateForEntityQuery(rRelation, pQuery, null,
-			Arrays.asList(rAttributes));
+		Relation<? super E> relation, QueryPredicate<E> query,
+		Predicate<? super Entity> sortOrder,
+		Function<? super E, ?>... attributes) {
+		annotateForEntityQuery(relation, query, null,
+			Arrays.asList(attributes));
 	}
 
 	/**
 	 * Annotates a relation with the parameters for an entity query.
 	 *
-	 * @param rRelation   The relation to annotate
-	 * @param pQuery      The entity query
-	 * @param pSortOrder  The default sort order of the query or NULL for none
-	 * @param rAttributes The optional entity attributes to display or NONE for
-	 *                    the default
+	 * @param relation   The relation to annotate
+	 * @param query      The entity query
+	 * @param sortOrder  The default sort order of the query or NULL for none
+	 * @param attributes The optional entity attributes to display or NONE for
+	 *                   the default
 	 */
 	@SuppressWarnings("unchecked")
 	public static <E extends Entity> void annotateForEntityQuery(
-		Relation<? super E> rRelation, QueryPredicate<E> pQuery,
-		Predicate<? super Entity> pSortOrder,
-		Collection<Function<? super E, ?>> rAttributes) {
-		rRelation.annotate(ENTITY_QUERY_PREDICATE, pQuery);
-		rRelation.annotate(ENTITY_SORT_PREDICATE, pSortOrder);
+		Relation<? super E> relation, QueryPredicate<E> query,
+		Predicate<? super Entity> sortOrder,
+		Collection<Function<? super E, ?>> attributes) {
+		relation.annotate(ENTITY_QUERY_PREDICATE, query);
+		relation.annotate(ENTITY_SORT_PREDICATE, sortOrder);
 
-		if (rAttributes != null && rAttributes.size() > 0) {
-			List<Function<? super Entity, ?>> rAttr =
+		if (attributes != null && attributes.size() > 0) {
+			List<Function<? super Entity, ?>> attr =
 				new ArrayList<Function<? super Entity, ?>>();
 
-			for (Function<? super E, ?> rFunction : rAttributes) {
-				rAttr.add((Function<? super Entity, ?>) rFunction);
+			for (Function<? super E, ?> function : attributes) {
+				attr.add((Function<? super Entity, ?>) function);
 			}
 
-			rRelation.annotate(ENTITY_ATTRIBUTES, rAttr);
+			relation.annotate(ENTITY_ATTRIBUTES, attr);
 		}
 	}
 
@@ -127,29 +121,29 @@ public abstract class EntityProcessDefinition
 	 * Creates a new {@link AddEntityChild} process step and adds a new step
 	 * list entry.
 	 *
-	 * @param sName              The name of the step
-	 * @param rParentEntityParam The parent parameter
-	 * @param rChildAttribute    The child attribute of the parent
-	 * @param rChildEntityParam  The child parameter that will be set
+	 * @param name              The name of the step
+	 * @param parentEntityParam The parent parameter
+	 * @param childAttribute    The child attribute of the parent
+	 * @param childEntityParam  The child parameter that will be set
 	 * @return The new step list entry
 	 */
-	protected <C extends Entity> StepListEntry addEntityChild(String sName,
-		RelationType<? extends Entity> rParentEntityParam,
-		RelationType<? extends List<C>> rChildAttribute,
-		RelationType<C> rChildEntityParam) {
-		StepListEntry aStep = null;
+	protected <C extends Entity> StepListEntry addEntityChild(String name,
+		RelationType<? extends Entity> parentEntityParam,
+		RelationType<? extends List<C>> childAttribute,
+		RelationType<C> childEntityParam) {
+		StepListEntry step = null;
 
-		if (sName == null) {
-			aStep = invoke(AddEntityChild.class);
+		if (name == null) {
+			step = invoke(AddEntityChild.class);
 		} else {
-			aStep = invoke(sName, AddEntityChild.class);
+			step = invoke(name, AddEntityChild.class);
 		}
 
-		aStep.set(AddEntityChild.PARENT_ENTITY_PARAM, rParentEntityParam);
-		aStep.set(AddEntityChild.CHILD_ENTITY_PARAM, rChildEntityParam);
-		aStep.set(AddEntityChild.CHILD_ATTRIBUTE, rChildAttribute);
+		step.set(AddEntityChild.PARENT_ENTITY_PARAM, parentEntityParam);
+		step.set(AddEntityChild.CHILD_ENTITY_PARAM, childEntityParam);
+		step.set(AddEntityChild.CHILD_ATTRIBUTE, childAttribute);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -158,19 +152,19 @@ public abstract class EntityProcessDefinition
 	 * parameter a new entity instance of the parameter's target type will be
 	 * created.
 	 *
-	 * @param sName        The step name
-	 * @param rEntityParam The parameter that contains the entity
-	 * @param eCopyMode    the copy mode
+	 * @param name        The step name
+	 * @param entityParam The parameter that contains the entity
+	 * @param copyMode    the copy mode
 	 * @return The new step list entry
 	 */
-	protected StepListEntry copyEntityAttributes(String sName,
-		RelationType<? extends Entity> rEntityParam, CopyMode eCopyMode) {
-		StepListEntry aStep = invoke(sName, CopyEntityAttributes.class);
+	protected StepListEntry copyEntityAttributes(String name,
+		RelationType<? extends Entity> entityParam, CopyMode copyMode) {
+		StepListEntry step = invoke(name, CopyEntityAttributes.class);
 
-		aStep.set(ProcessRelationTypes.ENTITY_PARAM, rEntityParam);
-		aStep.set(CopyEntityAttributes.COPY_MODE, eCopyMode);
+		step.set(ProcessRelationTypes.ENTITY_PARAM, entityParam);
+		step.set(CopyEntityAttributes.COPY_MODE, copyMode);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -181,9 +175,10 @@ public abstract class EntityProcessDefinition
 	 * @see #createEntity(String, Class, RelationType)
 	 */
 	protected <E extends Entity> StepListEntry createEntity(
-		Class<E> rEntityClass, RelationType<? super E> rTargetParam) {
-		return createEntity("create" + rEntityClass.getSimpleName(),
-			rEntityClass, rTargetParam);
+		Class<E> entityClass, RelationType<? super E> targetParam) {
+		return createEntity("create" + entityClass.getSimpleName(),
+			entityClass,
+			targetParam);
 	}
 
 	/**
@@ -191,15 +186,15 @@ public abstract class EntityProcessDefinition
 	 * stores it
 	 * in a certain parameter.
 	 *
-	 * @param sName        The step name
-	 * @param rEntityClass The class of the entity type to create
-	 * @param rTargetParam The process parameter to store the new entity in
+	 * @param name        The step name
+	 * @param entityClass The class of the entity type to create
+	 * @param targetParam The process parameter to store the new entity in
 	 * @return The new step list entry
 	 */
-	protected <E extends Entity> StepListEntry createEntity(String sName,
-		Class<E> rEntityClass, RelationType<? super E> rTargetParam) {
-		return invokeFunction(sName, null, rTargetParam,
-			ReflectionFuntions.newInstanceOf(rEntityClass));
+	protected <E extends Entity> StepListEntry createEntity(String name,
+		Class<E> entityClass, RelationType<? super E> targetParam) {
+		return invokeFunction(name, null, targetParam,
+			ReflectionFuntions.newInstanceOf(entityClass));
 	}
 
 	/**
@@ -208,19 +203,19 @@ public abstract class EntityProcessDefinition
 	 * the
 	 * type {@link EntityRelationTypes#ENTITY_ID}.
 	 *
-	 * @param sName        The step name
-	 * @param rTargetParam The parameter to store the entity in
+	 * @param name        The step name
+	 * @param targetParam The parameter to store the entity in
 	 * @return The new step list entry
 	 */
-	protected <E extends Entity> StepListEntry queryEntityById(String sName,
-		RelationType<E> rTargetParam) {
+	protected <E extends Entity> StepListEntry queryEntityById(String name,
+		RelationType<E> targetParam) {
 		@SuppressWarnings("unchecked")
-		Class<E> rTargetType = (Class<E>) rTargetParam.getTargetType();
+		Class<E> targetType = (Class<E>) targetParam.getTargetType();
 
-		StepListEntry aStep = invokeFunction(sName, ENTITY_ID, rTargetParam,
-			EntityFunctions.queryEntity(rTargetType));
+		StepListEntry step = invokeFunction(name, ENTITY_ID, targetParam,
+			EntityFunctions.queryEntity(targetType));
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -231,9 +226,9 @@ public abstract class EntityProcessDefinition
 	 */
 	@SuppressWarnings("unchecked")
 	protected <E extends Entity> StepListEntry selectEntity(
-		RelationType<? super E> rTargetParam, QueryPredicate<E> rQuery,
-		Function<? super E, ?>... rAttributes) {
-		return selectEntity(null, rTargetParam, rQuery, rAttributes);
+		RelationType<? super E> targetParam, QueryPredicate<E> query,
+		Function<? super E, ?>... attributes) {
+		return selectEntity(null, targetParam, query, attributes);
 	}
 
 	/**
@@ -249,33 +244,35 @@ public abstract class EntityProcessDefinition
 	 * <p>If the step name is null it will be generated from the target
 	 * parameter by prepending "Select" to the parameter's simple name.</p>
 	 *
-	 * @param sName        The name of the interactive step
-	 * @param rTargetParam The parameter to store the selected entity in
-	 * @param rQuery       The query criteria (NULL for all entities of the
-	 *                     given type)
-	 * @param rAttributes  A list of functions that will extract the query
-	 *                     values from a queried entity or NULL for a default
+	 * @param name        The name of the interactive step
+	 * @param targetParam The parameter to store the selected entity in
+	 * @param query       The query criteria (NULL for all entities of the
+	 *                       given
+	 *                    type)
+	 * @param attributes  A list of functions that will extract the query
+	 *                       values
+	 *                    from a queried entity or NULL for a default
 	 * @return The new step list entry
 	 */
 	@SuppressWarnings({ "unchecked" })
-	protected <E extends Entity> StepListEntry selectEntity(String sName,
-		RelationType<? super E> rTargetParam, QueryPredicate<E> rQuery,
-		Function<? super E, ?>... rAttributes) {
-		if (sName == null) {
-			String sParam = rTargetParam.getSimpleName();
+	protected <E extends Entity> StepListEntry selectEntity(String name,
+		RelationType<? super E> targetParam, QueryPredicate<E> query,
+		Function<? super E, ?>... attributes) {
+		if (name == null) {
+			String param = targetParam.getSimpleName();
 
-			sName = "Select" + TextUtil.capitalizedIdentifier(sParam);
+			name = "Select" + TextUtil.capitalizedIdentifier(param);
 		}
 
-		StepListEntry aStep = input(sName, rTargetParam);
+		StepListEntry step = input(name, targetParam);
 
-		Relation<? super E> rParamRelation = aStep.set(rTargetParam, null);
+		Relation<? super E> paramRelation = step.set(targetParam, null);
 
-		rQuery.set(QUERY_DEPTH, 0);
+		query.set(QUERY_DEPTH, 0);
 
-		annotateForEntityQuery(rParamRelation, rQuery, null, rAttributes);
+		annotateForEntityQuery(paramRelation, query, null, attributes);
 
-		return aStep;
+		return step;
 	}
 
 	/**
@@ -285,25 +282,25 @@ public abstract class EntityProcessDefinition
 	 * @see #storeEntity(String, RelationType)
 	 */
 	protected StepListEntry storeEntity(
-		RelationType<? extends Entity> rEntityParam) {
+		RelationType<? extends Entity> entityParam) {
 		return storeEntity("Store" +
-				TextConvert.capitalizedIdentifier(rEntityParam.getSimpleName()),
-			rEntityParam);
+				TextConvert.capitalizedIdentifier(entityParam.getSimpleName()),
+			entityParam);
 	}
 
 	/**
 	 * Adds a step to store an entity from a certain process parameter.
 	 *
-	 * @param sName        The name of the step
-	 * @param rEntityParam The parameter the entity is stored in
+	 * @param name        The name of the step
+	 * @param entityParam The parameter the entity is stored in
 	 * @return The new step list entry
 	 */
-	protected StepListEntry storeEntity(String sName,
-		RelationType<? extends Entity> rEntityParam) {
-		StepListEntry aStep = invoke(sName, StoreEntity.class);
+	protected StepListEntry storeEntity(String name,
+		RelationType<? extends Entity> entityParam) {
+		StepListEntry step = invoke(name, StoreEntity.class);
 
-		aStep.set(ENTITY_PARAM, rEntityParam);
+		step.set(ENTITY_PARAM, entityParam);
 
-		return aStep;
+		return step;
 	}
 }

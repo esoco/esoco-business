@@ -30,15 +30,15 @@ public class ProcessService extends Service {
 
 	private static final String ARG_PROCESS = "process";
 
-	private ProcessRunner aProcessRunner;
+	private ProcessRunner processRunner;
 
 	/**
 	 * The main method of this application.
 	 *
-	 * @param rArgs The application arguments
+	 * @param args The application arguments
 	 */
-	public static void main(String[] rArgs) {
-		new ProcessService().run(rArgs);
+	public static void main(String[] args) {
+		new ProcessService().run(args);
 	}
 
 	/**
@@ -46,15 +46,15 @@ public class ProcessService extends Service {
 	 */
 	@Override
 	public void stop() {
-		aProcessRunner.stop();
+		processRunner.stop();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void configure(CommandLine rCommandLine) throws Exception {
-		aProcessRunner.setLogLevel(LogLevel.INFO);
+	protected void configure(CommandLine commandLine) throws Exception {
+		processRunner.setLogLevel(LogLevel.INFO);
 	}
 
 	/**
@@ -63,35 +63,35 @@ public class ProcessService extends Service {
 	 * need to
 	 * run a sub-class of {@link ProcessRunner}.
 	 *
-	 * @param rCommandLine The application command line
+	 * @param commandLine The application command line
 	 * @return A process runner instance
 	 * @throws Exception If creating the runner fails
 	 */
 	@SuppressWarnings("unchecked")
-	protected ProcessRunner createProcessRunner(CommandLine rCommandLine)
+	protected ProcessRunner createProcessRunner(CommandLine commandLine)
 		throws Exception {
-		ProcessRunner aRunner = null;
+		ProcessRunner runner = null;
 
-		String sProcess = rCommandLine.requireOption(ARG_PROCESS).toString();
+		String process = commandLine.requireOption(ARG_PROCESS).toString();
 
 		try {
-			Class<?> rProcessClass = Class.forName(sProcess);
+			Class<?> processClass = Class.forName(process);
 
-			if (ProcessDefinition.class.isAssignableFrom(rProcessClass)) {
-				ProcessDefinition rProcessDef =
+			if (ProcessDefinition.class.isAssignableFrom(processClass)) {
+				ProcessDefinition processDef =
 					ProcessManager.getProcessDefinition(
-						(Class<? extends ProcessDefinition>) rProcessClass);
+						(Class<? extends ProcessDefinition>) processClass);
 
-				aRunner = new ProcessRunner(rProcessDef);
+				runner = new ProcessRunner(processDef);
 			}
 		} catch (ClassNotFoundException e) {
 			throw new CommandLineException(
-				String.format("Could not find process class '%s'", sProcess),
+				String.format("Could not find process class '%s'", process),
 				ARG_PROCESS, e);
 		}
 
-		if (aRunner != null) {
-			return aRunner;
+		if (runner != null) {
+			return runner;
 		} else {
 			throw new CommandLineException("Missing argument %s", ARG_PROCESS);
 		}
@@ -102,15 +102,15 @@ public class ProcessService extends Service {
 	 */
 	@Override
 	protected String getServiceName() {
-		return aProcessRunner.getProcessDefinition().getClass().getSimpleName();
+		return processRunner.getProcessDefinition().getClass().getSimpleName();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void initialize(CommandLine rCommandLine) throws Exception {
-		aProcessRunner = createProcessRunner(rCommandLine);
+	protected void initialize(CommandLine commandLine) throws Exception {
+		processRunner = createProcessRunner(commandLine);
 	}
 
 	/**
@@ -118,6 +118,6 @@ public class ProcessService extends Service {
 	 */
 	@Override
 	protected void runService() throws Exception {
-		aProcessRunner.run();
+		processRunner.run();
 	}
 }

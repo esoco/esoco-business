@@ -33,40 +33,40 @@ public class StringMapDataElement extends MapDataElement<String, String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, String> aDataMap = new LinkedHashMap<String, String>();
+	private final Map<String, String> dataMap = new LinkedHashMap<String, String>();
 
 	/**
 	 * Creates a new instance with a certain name.
 	 *
-	 * @param sName The name of the element
+	 * @param name The name of the element
 	 */
-	public StringMapDataElement(String sName) {
-		this(sName, null, null);
+	public StringMapDataElement(String name) {
+		this(name, null, null);
 	}
 
 	/**
 	 * @see MapDataElement#MapDataElement(String, Validator, Set)
 	 */
-	public StringMapDataElement(String sName,
-		Validator<? super String> rValidator, Set<Flag> rFlags) {
-		super(sName, rValidator, rFlags);
+	public StringMapDataElement(String name,
+		Validator<? super String> validator, Set<Flag> flags) {
+		super(name, validator, flags);
 	}
 
 	/**
 	 * Creates a new instance that is initialized from a certain map.
 	 *
-	 * @param sName            The name of this data element
-	 * @param rInitialMappings The initial mappings
-	 * @param rValidator       The validator for new values or NULL for none
-	 * @param rFlags           The optional flags for this data element or NULL
-	 *                         for none
+	 * @param name            The name of this data element
+	 * @param initialMappings The initial mappings
+	 * @param validator       The validator for new values or NULL for none
+	 * @param flags           The optional flags for this data element or NULL
+	 *                        for none
 	 */
-	public StringMapDataElement(String sName,
-		Map<String, String> rInitialMappings,
-		Validator<? super String> rValidator, Set<Flag> rFlags) {
-		this(sName, rValidator, rFlags);
+	public StringMapDataElement(String name,
+		Map<String, String> initialMappings,
+		Validator<? super String> validator, Set<Flag> flags) {
+		this(name, validator, flags);
 
-		aDataMap.putAll(rInitialMappings);
+		dataMap.putAll(initialMappings);
 	}
 
 	/**
@@ -79,9 +79,9 @@ public class StringMapDataElement extends MapDataElement<String, String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringMapDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (StringMapDataElement) super.copy(eMode, rCopyProperties);
+	public StringMapDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (StringMapDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class StringMapDataElement extends MapDataElement<String, String> {
 	 */
 	@Override
 	public Map<String, String> getMap() {
-		return aDataMap;
+		return dataMap;
 	}
 
 	/**

@@ -17,7 +17,6 @@
 package de.esoco.process.ui.app;
 
 import de.esoco.lib.property.LabelStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.style.DefaultStyleNames;
 
@@ -33,31 +32,31 @@ public class UiTopMenu<T> extends UiNavMenu<T> {
 	/**
 	 * Creates a new instance without preset menu items.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiTopMenu(UiContainer<?> rParent) {
-		this(rParent, null);
+	public UiTopMenu(UiContainer<?> parent) {
+		this(parent, null);
 	}
 
 	/**
 	 * Creates a new instance with preset menu items.
 	 *
-	 * @param rParent    The parent container
-	 * @param rMenuItems The initial menu items
+	 * @param parent    The parent container
+	 * @param menuItems The initial menu items
 	 */
-	public UiTopMenu(UiContainer<?> rParent, Collection<T> rMenuItems) {
-		super(rParent, rMenuItems);
+	public UiTopMenu(UiContainer<?> parent, Collection<T> menuItems) {
+		super(parent, menuItems);
 	}
 
 	/**
 	 * Adds a label that is displayed prominently to identify the website. It
 	 * has the style name {@link DefaultStyleNames#TOP_MENU_BRAND_LABEL}.
 	 *
-	 * @param sText The text to display as the site label
+	 * @param text The text to display as the site label
 	 */
-	public void addBrandLabel(String sText) {
+	public void addBrandLabel(String text) {
 		builder()
-			.addLabel(sText)
+			.addLabel(text)
 			.labelStyle(LabelStyle.BRAND)
 			.styleName(DefaultStyleNames.TOP_MENU_BRAND_LABEL);
 	}

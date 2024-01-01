@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ListStyle;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiMultiSelectionButtonGroup;
 
@@ -36,10 +35,10 @@ public class UiToggleButtons<T>
 	 * Creates a new instance. If the datatype is an enum all enum values will
 	 * be pre-set as buttons.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the button labels
+	 * @param parent   The parent container
+	 * @param datatype The datatype of the button labels
 	 */
-	public UiToggleButtons(UiContainer<?> rParent, Class<T> rDatatype) {
-		super(rParent, rDatatype, ListStyle.IMMEDIATE);
+	public UiToggleButtons(UiContainer<?> parent, Class<T> datatype) {
+		super(parent, datatype, ListStyle.IMMEDIATE);
 	}
 }

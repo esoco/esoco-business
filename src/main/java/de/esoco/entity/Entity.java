@@ -17,7 +17,6 @@
 package de.esoco.entity;
 
 import de.esoco.entity.EntityDefinition.DisplayMode;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Predicate;
@@ -27,19 +26,8 @@ import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.StringProperties;
 import de.esoco.lib.text.TextConvert;
-
 import de.esoco.storage.AfterStoreHandler;
 import de.esoco.storage.StorageException;
-
-import java.io.PrintStream;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.obrel.core.IntermediateRelation;
 import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
@@ -49,6 +37,15 @@ import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import static de.esoco.entity.EntityRelationTypes.CACHE_ENTITY;
 import static de.esoco.entity.EntityRelationTypes.DEPENDENT_STORE_ENTITIES;
 import static de.esoco.entity.EntityRelationTypes.ENTITY_STORE_ORIGIN;
@@ -57,13 +54,10 @@ import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTES_READ;
 import static de.esoco.entity.EntityRelationTypes.EXTRA_ATTRIBUTE_MAP;
 import static de.esoco.entity.EntityRelationTypes.REMOVED_CHILDREN;
 import static de.esoco.entity.EntityRelationTypes.SKIP_NEXT_CHANGE_LOGGING;
-
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.notNull;
-
 import static de.esoco.storage.StorageRelationTypes.PERSISTENT;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_MAPPING;
-
 import static org.obrel.type.MetaTypes.INITIALIZING;
 import static org.obrel.type.MetaTypes.LOCKED;
 import static org.obrel.type.MetaTypes.MODIFIED;
@@ -155,10 +149,9 @@ public class Entity extends SerializableRelatedObject
 	 */
 	@SuppressWarnings("boxing")
 	public static void setAttributeDisplayFlag(
-		Class<? extends Entity> rEntityClass, PropertyName<Boolean> rProperty,
-		RelationType<?>... rAttributes) {
-		setAttributeDisplayProperty(rEntityClass, rProperty, true,
-			rAttributes);
+		Class<? extends Entity> entityClass, PropertyName<Boolean> property,
+		RelationType<?>... attributes) {
+		setAttributeDisplayProperty(entityClass, property, true, attributes);
 	}
 
 	/**
@@ -169,10 +162,9 @@ public class Entity extends SerializableRelatedObject
 	 */
 	@SuppressWarnings("boxing")
 	public static void setAttributeDisplayProperty(
-		Class<? extends Entity> rEntityClass, int nValue,
-		PropertyName<Integer> rProperty, RelationType<?>... rAttributes) {
-		setAttributeDisplayProperty(rEntityClass, rProperty, nValue,
-			rAttributes);
+		Class<? extends Entity> entityClass, int value,
+		PropertyName<Integer> property, RelationType<?>... attributes) {
+		setAttributeDisplayProperty(entityClass, property, value, attributes);
 	}
 
 	/**
@@ -188,27 +180,26 @@ public class Entity extends SerializableRelatedObject
 	 * {@link EntityDefinition#ATTRIBUTE_DISPLAY_PROPERTIES_FIELD} instead to
 	 * prevent side effects.</p>
 	 *
-	 * @param rEntityClass The entity class for which to set the property
-	 * @param rProperty    The property to set
-	 * @param rValue       The property values
-	 * @param rAttributes  The attributes to set the display property on
+	 * @param entityClass The entity class for which to set the property
+	 * @param property    The property to set
+	 * @param value       The property values
+	 * @param attributes  The attributes to set the display property on
 	 */
 	public static <T> void setAttributeDisplayProperty(
-		Class<? extends Entity> rEntityClass, PropertyName<T> rProperty,
-		T rValue, RelationType<?>... rAttributes) {
-		Map<RelationType<?>, MutableProperties> rDisplayPropertiesMap =
-			EntityDefinition.getAttributeDisplayProperties(rEntityClass);
+		Class<? extends Entity> entityClass, PropertyName<T> property, T value,
+		RelationType<?>... attributes) {
+		Map<RelationType<?>, MutableProperties> displayPropertiesMap =
+			EntityDefinition.getAttributeDisplayProperties(entityClass);
 
-		for (RelationType<?> rAttribute : rAttributes) {
-			MutableProperties rProperties =
-				rDisplayPropertiesMap.get(rAttribute);
+		for (RelationType<?> attribute : attributes) {
+			MutableProperties properties = displayPropertiesMap.get(attribute);
 
-			if (rProperties == null) {
-				rProperties = new StringProperties();
-				rDisplayPropertiesMap.put(rAttribute, rProperties);
+			if (properties == null) {
+				properties = new StringProperties();
+				displayPropertiesMap.put(attribute, properties);
 			}
 
-			rProperties.setProperty(rProperty, rValue);
+			properties.setProperty(property, value);
 		}
 	}
 
@@ -216,24 +207,24 @@ public class Entity extends SerializableRelatedObject
 	 * A convenience method to add a single child to an entity. Invokes the
 	 * method {@link #addChildren(RelationType, Entity...)} .
 	 *
-	 * @param rChildAttr The attribute that references the child type
-	 * @param rChild     The child object to add
+	 * @param childAttr The attribute that references the child type
+	 * @param child     The child object to add
 	 * @throws IllegalArgumentException If one of the parameters is invalid or
 	 *                                  if the child is already stored in this
 	 *                                  entity
 	 */
 	@SuppressWarnings("unchecked")
 	public final <C extends Entity> void addChild(
-		RelationType<List<C>> rChildAttr, C rChild) {
-		addChildren(rChildAttr, rChild);
+		RelationType<List<C>> childAttr, C child) {
+		addChildren(childAttr, child);
 	}
 
 	/**
 	 * A convenience method to add variable number of children to an entity.
 	 * Invokes the method {@link #addChildren(RelationType, List)}.
 	 *
-	 * @param rChildAttr The attribute that references the child type
-	 * @param rChildren  The new child objects to add
+	 * @param childAttr The attribute that references the child type
+	 * @param children  The new child objects to add
 	 * @throws IllegalArgumentException If one of the parameters is invalid or
 	 *                                  if one of the children is already
 	 *                                  stored
@@ -241,8 +232,8 @@ public class Entity extends SerializableRelatedObject
 	 */
 	@SuppressWarnings("unchecked")
 	public final <C extends Entity> void addChildren(
-		RelationType<List<C>> rChildAttr, C... rChildren) {
-		addChildren(rChildAttr, Arrays.asList(rChildren));
+		RelationType<List<C>> childAttr, C... children) {
+		addChildren(childAttr, Arrays.asList(children));
 	}
 
 	/**
@@ -253,38 +244,38 @@ public class Entity extends SerializableRelatedObject
 	 * implements (and documents) more specific methods for the management of
 	 * child entities.
 	 *
-	 * @param rChildAttr The attribute that references the child type
-	 * @param rChildren  The new child objects to add to this entity
+	 * @param childAttr The attribute that references the child type
+	 * @param children  The new child objects to add to this entity
 	 * @throws IllegalArgumentException If one of the parameters is invalid or
 	 *                                  if one of the children is already
 	 *                                  stored
 	 *                                  in this entity
 	 */
-	public <C extends Entity> void addChildren(RelationType<List<C>> rChildAttr,
-		List<C> rChildren) {
-		if (rChildAttr == null || rChildren == null || rChildren.size() == 0) {
+	public <C extends Entity> void addChildren(RelationType<List<C>> childAttr,
+		List<C> children) {
+		if (childAttr == null || children == null || children.size() == 0) {
 			throw new IllegalArgumentException(
 				"Arguments must not be NULL or empty");
 		}
 
-		boolean bInitializing = hasFlag(INITIALIZING);
+		boolean initializing = hasFlag(INITIALIZING);
 
 		// mark as modified to perform child count update in storage framework
 		// do before child list modification to allow the modification tracking
 		// in EntityDefinition to prohibit the change by throwing an exception
-		if (!bInitializing) {
+		if (!initializing) {
 			set(MODIFIED);
 		}
 
 		@SuppressWarnings("unchecked")
-		EntityDefinition<Entity> rDef =
+		EntityDefinition<Entity> def =
 			(EntityDefinition<Entity>) getDefinition();
 
-		EntityDefinition<?> rChildDef =
-			(EntityDefinition<?>) rChildAttr.get(STORAGE_MAPPING);
+		EntityDefinition<?> childDef =
+			(EntityDefinition<?>) childAttr.get(STORAGE_MAPPING);
 
-		rDef.initChildren(this, rChildren, rChildDef, bInitializing);
-		get(rChildAttr).addAll(rChildren);
+		def.initChildren(this, children, childDef, initializing);
+		get(childAttr).addAll(children);
 	}
 
 	/**
@@ -295,12 +286,12 @@ public class Entity extends SerializableRelatedObject
 	@Override
 	public void afterStore() throws Exception {
 		if (hasFlag(EXTRA_ATTRIBUTES_MODIFIED)) {
-			Entity rStoreOrigin = getUpwards(ENTITY_STORE_ORIGIN);
+			Entity storeOrigin = getUpwards(ENTITY_STORE_ORIGIN);
 
-			for (ExtraAttribute rExtraAttribute : get(
+			for (ExtraAttribute extraAttribute : get(
 				EXTRA_ATTRIBUTE_MAP).values()) {
-				if (rExtraAttribute.hasFlag(MODIFIED)) {
-					EntityManager.storeEntity(rExtraAttribute, rStoreOrigin);
+				if (extraAttribute.hasFlag(MODIFIED)) {
+					EntityManager.storeEntity(extraAttribute, storeOrigin);
 				}
 			}
 
@@ -320,69 +311,68 @@ public class Entity extends SerializableRelatedObject
 	 * values will only be included if the boolean parameter is TRUE. Otherwise
 	 * no attribute description will be appended at all.
 	 *
-	 * @param rStringBuilder The string builder to append the attribute
-	 *                       description to
-	 * @param rAttribute     The relation type of the attribute to append
-	 * @param sFormat        The format string for the formatting of the
-	 *                       attribute name and value
-	 * @param bIncludeNull   TRUE to include NULL values, FALSE to omit them
+	 * @param stringBuilder The string builder to append the attribute
+	 *                      description to
+	 * @param attribute     The relation type of the attribute to append
+	 * @param format        The format string for the formatting of the
+	 *                      attribute name and value
+	 * @param includeNull   TRUE to include NULL values, FALSE to omit them
 	 */
-	public void appendAttribute(StringBuilder rStringBuilder,
-		RelationType<?> rAttribute, String sFormat, boolean bIncludeNull) {
-		Object rValue = get(rAttribute);
+	public void appendAttribute(StringBuilder stringBuilder,
+		RelationType<?> attribute, String format, boolean includeNull) {
+		Object value = get(attribute);
 
-		if (bIncludeNull || rValue != null) {
-			String sName = TextConvert.capitalize(
-				TextConvert.lastElementOf(rAttribute.getName()), " ");
+		if (includeNull || value != null) {
+			String name = TextConvert.capitalize(
+				TextConvert.lastElementOf(attribute.getName()), " ");
 
-			if (rValue == null) {
-				rValue = "NULL";
+			if (value == null) {
+				value = "NULL";
 			}
 
-			rStringBuilder.append(String.format(sFormat, sName, rValue));
+			stringBuilder.append(String.format(format, name, value));
 		}
 	}
 
 	/**
 	 * Creates a string for the attributes of a certain display mode.
 	 *
-	 * @param eDisplayMode The display mode
-	 * @param sSeparator   The separator string between attributes
+	 * @param displayMode The display mode
+	 * @param separator   The separator string between attributes
 	 * @return The resulting string
 	 */
-	public String attributeString(DisplayMode eDisplayMode,
-		String sSeparator) {
+	public String attributeString(DisplayMode displayMode, String separator) {
 		return attributeString(
-			getDefinition().getDisplayAttributes(eDisplayMode), sSeparator);
+			getDefinition().getDisplayAttributes(displayMode), separator);
 	}
 
 	/**
 	 * Creates a string for a certain list of entity attributes. NULL values
 	 * will be omitted from the output.
 	 *
-	 * @param rAttributes The attribute list
-	 * @param sSeparator  The separator string between attributes
+	 * @param attributes The attribute list
+	 * @param separator  The separator string between attributes
 	 * @return The resulting string
 	 */
-	public String attributeString(List<RelationType<?>> rAttributes,
-		String sSeparator) {
-		StringBuilder aResult = new StringBuilder();
+	public String attributeString(List<RelationType<?>> attributes,
+		String separator) {
+		StringBuilder result = new StringBuilder();
 
-		for (RelationType<?> rAttribute : rAttributes) {
-			String sValue = getAttributeValue(rAttribute);
+		for (RelationType<?> attribute : attributes) {
+			String value = getAttributeValue(attribute);
 
-			if (sValue != null) {
-				aResult.append(sValue).append(sSeparator);
+			if (value != null) {
+				result.append(value).append(separator);
 			} else {
-				aResult.append(sSeparator);
+				result.append(separator);
 			}
 		}
 
-		if (aResult.length() > 0) {
-			aResult.setLength(aResult.length() - sSeparator.length());
+		if (result.length() > 0) {
+			result.setLength(result.length() - separator.length());
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
@@ -397,30 +387,29 @@ public class Entity extends SerializableRelatedObject
 	 * @return The topmost entity in the hierarchy to update or THIS
 	 */
 	public Entity checkForHierarchyUpdate() {
-		Entity rParent = getParent();
-		Entity rUpdateEntity = this;
+		Entity parent = getParent();
+		Entity updateEntity = this;
 
-		if (rParent != null && rParent.hasFlag(MODIFIED)) {
-			rUpdateEntity = rParent.checkForHierarchyUpdate();
+		if (parent != null && parent.hasFlag(MODIFIED)) {
+			updateEntity = parent.checkForHierarchyUpdate();
 		}
 
-		return rUpdateEntity;
+		return updateEntity;
 	}
 
 	/**
 	 * Collects all children of a certain type in the hierarchy of this entity
 	 * that match a certain predicate.
 	 *
-	 * @param rChildAttribute The child attribute to descend the hierarchy at
-	 * @param pCriteria       The predicate to evaluate the child entities with
+	 * @param childAttribute The child attribute to descend the hierarchy at
+	 * @param criteria       The predicate to evaluate the child entities with
 	 * @return A new list containing the resulting child entities (may be empty
 	 * but will never be NULL)
 	 */
 	public <E extends Entity> List<E> collectDownwards(
-		RelationType<List<E>> rChildAttribute,
-		Predicate<? super E> pCriteria) {
-		return EntityManager.collectDownwards(get(rChildAttribute),
-			rChildAttribute, pCriteria);
+		RelationType<List<E>> childAttribute, Predicate<? super E> criteria) {
+		return EntityManager.collectDownwards(get(childAttribute),
+			childAttribute, criteria);
 	}
 
 	/**
@@ -440,27 +429,27 @@ public class Entity extends SerializableRelatedObject
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObject) {
-		if (this == rObject) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (rObject == null || getClass() != rObject.getClass()) {
+		if (object == null || getClass() != object.getClass()) {
 			return false;
 		}
 
-		Entity rOther = (Entity) rObject;
-		long nId = getId();
+		Entity other = (Entity) object;
+		long id = getId();
 
-		boolean bModified = hasFlag(MODIFIED);
-		boolean bOtherModified = rOther.hasFlag(MODIFIED);
+		boolean modified = hasFlag(MODIFIED);
+		boolean otherModified = other.hasFlag(MODIFIED);
 
-		if ((!bModified && bOtherModified) || (bModified && !bOtherModified)) {
+		if ((!modified && otherModified) || (modified && !otherModified)) {
 			return false;
-		} else if (nId != 0 && !(bModified || bOtherModified)) {
-			return nId == rOther.getId();
+		} else if (id != 0 && !(modified || otherModified)) {
+			return id == other.getId();
 		} else {
-			return attributesEqual(rOther);
+			return attributesEqual(other);
 		}
 	}
 
@@ -471,16 +460,15 @@ public class Entity extends SerializableRelatedObject
 	 * {@link EntityManager#findDownwards(List, RelationType, Predicate)}
 	 * method.
 	 *
-	 * @param rChildAttribute The child attribute to search and descend
-	 *                        hierarchically
-	 * @param pCriteria       The predicate to evaluate the children with
+	 * @param childAttribute The child attribute to search and descend
+	 *                       hierarchically
+	 * @param criteria       The predicate to evaluate the children with
 	 * @return The first matching child or NULL if none could be found
 	 */
 	public <E extends Entity> E findDownwards(
-		RelationType<List<E>> rChildAttribute,
-		Predicate<? super E> pCriteria) {
-		return EntityManager.findDownwards(get(rChildAttribute),
-			rChildAttribute, pCriteria);
+		RelationType<List<E>> childAttribute, Predicate<? super E> criteria) {
+		return EntityManager.findDownwards(get(childAttribute), childAttribute,
+			criteria);
 	}
 
 	/**
@@ -496,43 +484,42 @@ public class Entity extends SerializableRelatedObject
 	 * Returns a child that is valid on a certain date. The child must be a
 	 * subclass of {@link PeriodEntity} to support the date check.
 	 *
-	 * @param rChildAttr     The child attribute to search for
-	 * @param rDate          The date to return the child for
-	 * @param pExtraCriteria An optional predicate to check valid children with
-	 *                       or NULL for none
-	 * @param bUpwards       TRUE to look upwards in the hierarchy if not found
-	 *                       in this entity
+	 * @param childAttr     The child attribute to search for
+	 * @param date          The date to return the child for
+	 * @param extraCriteria An optional predicate to check valid children with
+	 *                      or NULL for none
+	 * @param upwards       TRUE to look upwards in the hierarchy if not found
+	 *                      in this entity
 	 * @return The matching child or NULL if none could be found
 	 */
-	public <C extends PeriodEntity> C getChild(RelationType<List<C>> rChildAttr,
-		Date rDate, Predicate<? super C> pExtraCriteria, boolean bUpwards) {
-		C rResult = null;
+	public <C extends PeriodEntity> C getChild(RelationType<List<C>> childAttr,
+		Date date, Predicate<? super C> extraCriteria, boolean upwards) {
+		C result = null;
 
-		for (C rChild : get(rChildAttr)) {
-			if (rChild.isValidOn(rDate) && (pExtraCriteria == null ||
-				pExtraCriteria.evaluate(rChild) == Boolean.TRUE)) {
-				rResult = rChild;
+		for (C child : get(childAttr)) {
+			if (child.isValidOn(date) && (extraCriteria == null ||
+				extraCriteria.evaluate(child) == Boolean.TRUE)) {
+				result = child;
 
 				break;
 			}
 		}
 
-		if (rResult == null && bUpwards) {
-			RelationType<? extends Entity> rParentAttr =
+		if (result == null && upwards) {
+			RelationType<? extends Entity> parentAttr =
 				getDefinition().getParentAttribute(getDefinition());
 
-			if (rParentAttr != null) {
-				Entity rParent = get(rParentAttr);
+			if (parentAttr != null) {
+				Entity parent = get(parentAttr);
 
-				if (rParent != null) {
-					rResult =
-						rParent.getChild(rChildAttr, rDate, pExtraCriteria,
-							bUpwards);
+				if (parent != null) {
+					result = parent.getChild(childAttr, date, extraCriteria,
+						upwards);
 				}
 			}
 		}
 
-		return rResult;
+		return result;
 	}
 
 	/**
@@ -546,27 +533,26 @@ public class Entity extends SerializableRelatedObject
 	 * <p>The returned list will never be NULL and can be manipulated freely.
 	 * </p>
 	 *
-	 * @param rChildAttribute The attribute of the children to return
-	 * @param pCriteria       The optional criteria or NULL for all children
+	 * @param childAttribute The attribute of the children to return
+	 * @param criteria       The optional criteria or NULL for all children
 	 * @return The list of children
 	 */
 	@SuppressWarnings("boxing")
 	public <C extends Entity> List<C> getChildHierarchy(
-		RelationType<List<C>> rChildAttribute,
-		Predicate<? super C> pCriteria) {
-		List<C> rChildren = get(rChildAttribute);
-		List<C> aHierarchy = new ArrayList<C>(rChildren.size());
+		RelationType<List<C>> childAttribute, Predicate<? super C> criteria) {
+		List<C> children = get(childAttribute);
+		List<C> hierarchy = new ArrayList<C>(children.size());
 
-		for (C rChild : rChildren) {
-			if (pCriteria != null && pCriteria.evaluate(rChild)) {
-				aHierarchy.add(rChild);
+		for (C child : children) {
+			if (criteria != null && criteria.evaluate(child)) {
+				hierarchy.add(child);
 			}
 
-			aHierarchy.addAll(
-				rChild.getChildHierarchy(rChildAttribute, pCriteria));
+			hierarchy.addAll(child.getChildHierarchy(childAttribute,
+				criteria));
 		}
 
-		return aHierarchy;
+		return hierarchy;
 	}
 
 	/**
@@ -581,58 +567,58 @@ public class Entity extends SerializableRelatedObject
 	/**
 	 * Returns the value of a certain extra attribute of this entity.
 	 *
-	 * @param rKey          The key that identifies the attribute
-	 * @param rDefaultValue The default value to return if no extra attribute
-	 *                      with the given key exists
+	 * @param key          The key that identifies the attribute
+	 * @param defaultValue The default value to return if no extra attribute
+	 *                     with the given key exists
 	 * @return The attribute value or the default value if the attribute is not
 	 * set
 	 * @throws StorageException If retrieving the extra attributes of this
 	 *                          entity fails
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getExtraAttribute(RelationType<T> rKey, T rDefaultValue)
+	public <T> T getExtraAttribute(RelationType<T> key, T defaultValue)
 		throws StorageException {
-		ExtraAttribute rExtraAttribute =
-			getExtraAttributeMap().get(rKey.getSimpleName());
+		ExtraAttribute extraAttribute =
+			getExtraAttributeMap().get(key.getSimpleName());
 
-		T rValue = rDefaultValue;
+		T value = defaultValue;
 
-		if (rExtraAttribute != null) {
-			rValue = (T) rExtraAttribute.get(ExtraAttribute.VALUE);
+		if (extraAttribute != null) {
+			value = (T) extraAttribute.get(ExtraAttribute.VALUE);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
 	 * Returns the value of an extra attribute of this entity for a certain
 	 * owner entity.
 	 *
-	 * @param rOwner        The owner entity of the extra attribute
-	 * @param rKey          The key that identifies the attribute
-	 * @param rDefaultValue The default value to return if no extra attribute
-	 *                      with the given key exists
-	 * @param bFallback     TRUE to return the default extra attribute if no
-	 *                      attribute for the given owner exists; FALSE to just
-	 *                      return the default value
+	 * @param owner        The owner entity of the extra attribute
+	 * @param key          The key that identifies the attribute
+	 * @param defaultValue The default value to return if no extra attribute
+	 *                     with the given key exists
+	 * @param fallback     TRUE to return the default extra attribute if no
+	 *                     attribute for the given owner exists; FALSE to just
+	 *                     return the default value
 	 * @return The attribute value or the default value if the attribute is not
 	 * set
 	 * @throws StorageException If querying the extra attribute fails
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getExtraAttributeFor(Entity rOwner, RelationType<T> rKey,
-		T rDefaultValue, boolean bFallback) throws StorageException {
-		ExtraAttribute rExtraAttribute = queryExtraAttributeFor(rOwner, rKey);
+	public <T> T getExtraAttributeFor(Entity owner, RelationType<T> key,
+		T defaultValue, boolean fallback) throws StorageException {
+		ExtraAttribute extraAttribute = queryExtraAttributeFor(owner, key);
 
-		T rValue = rDefaultValue;
+		T value = defaultValue;
 
-		if (rExtraAttribute != null) {
-			rValue = (T) rExtraAttribute.get(ExtraAttribute.VALUE);
-		} else if (bFallback) {
-			rValue = getExtraAttribute(rKey, rValue);
+		if (extraAttribute != null) {
+			value = (T) extraAttribute.get(ExtraAttribute.VALUE);
+		} else if (fallback) {
+			value = getExtraAttribute(key, value);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -641,25 +627,25 @@ public class Entity extends SerializableRelatedObject
 	 * looked up recursively in the parent of the same type (i.e. with the same
 	 * entity definition) if such exists.
 	 *
-	 * @param rTypedKey The extra attribute key
+	 * @param typedKey The extra attribute key
 	 * @return The extra attribute value
 	 * @throws StorageException If retrieving the extra attributes of this
 	 *                          entity fails
 	 */
-	public <T> T getExtraAttributeUpwards(RelationType<T> rTypedKey)
+	public <T> T getExtraAttributeUpwards(RelationType<T> typedKey)
 		throws StorageException {
-		T rValue = getExtraAttribute(rTypedKey, null);
+		T value = getExtraAttribute(typedKey, null);
 
-		if (rValue == null) {
-			Entity rParent = getParent();
+		if (value == null) {
+			Entity parent = getParent();
 
-			if ((rParent != null) &&
-				(rParent.getDefinition() == getDefinition())) {
-				rValue = rParent.getExtraAttributeUpwards(rTypedKey);
+			if ((parent != null) &&
+				(parent.getDefinition() == getDefinition())) {
+				value = parent.getExtraAttributeUpwards(typedKey);
 			}
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -723,15 +709,15 @@ public class Entity extends SerializableRelatedObject
 	/**
 	 * Returns the previous value of a modified attribute.
 	 *
-	 * @param rAttribute The attribute to get the previous value of
+	 * @param attribute The attribute to get the previous value of
 	 * @return The previous value (may be NULL)
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getPrevious(RelationType<T> rAttribute) {
-		Relation<T> rAttrRelation = getRelation(rAttribute);
+	public <T> T getPrevious(RelationType<T> attribute) {
+		Relation<T> attrRelation = getRelation(attribute);
 
-		return rAttrRelation != null ?
-		       (T) rAttrRelation.get(PREVIOUS_VALUE) :
+		return attrRelation != null ?
+		       (T) attrRelation.get(PREVIOUS_VALUE) :
 		       null;
 	}
 
@@ -743,13 +729,13 @@ public class Entity extends SerializableRelatedObject
 	 * @return The root parent of this entity
 	 */
 	public Entity getRoot() {
-		Entity rRoot = this;
+		Entity root = this;
 
-		while (rRoot.getParent() != null) {
-			rRoot = rRoot.getParent();
+		while (root.getParent() != null) {
+			root = root.getParent();
 		}
 
-		return rRoot;
+		return root;
 	}
 
 	/**
@@ -768,21 +754,21 @@ public class Entity extends SerializableRelatedObject
 	 * up recursively in the parent of the same type (i.e. with the same entity
 	 * definition) if such exists.
 	 *
-	 * @param rType The relation type of the attribute to return the value of
+	 * @param type The relation type of the attribute to return the value of
 	 * @return The attribute value (NULL if not set in the hierarchy)
 	 */
-	public <T> T getUpwards(RelationType<T> rType) {
-		T rValue = get(rType);
+	public <T> T getUpwards(RelationType<T> type) {
+		T value = get(type);
 
-		if (rValue == null) {
-			Entity rParent = getParent();
+		if (value == null) {
+			Entity parent = getParent();
 
-			if (rParent != null && rParent.getDefinition() == getDefinition()) {
-				rValue = rParent.getUpwards(rType);
+			if (parent != null && parent.getDefinition() == getDefinition()) {
+				value = parent.getUpwards(type);
 			}
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -797,9 +783,9 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @see #getExtraAttribute(RelationType, Object)
 	 */
-	public <T> T getXA(RelationType<T> rKey, T rDefaultValue) {
+	public <T> T getXA(RelationType<T> key, T defaultValue) {
 		try {
-			return getExtraAttribute(rKey, rDefaultValue);
+			return getExtraAttribute(key, defaultValue);
 		} catch (StorageException e) {
 			throw new IllegalStateException(e);
 		}
@@ -821,27 +807,27 @@ public class Entity extends SerializableRelatedObject
 	/**
 	 * Checks whether a certain extra attribute has been set on this entity.
 	 *
-	 * @param rKey The key that identifies the attribute
+	 * @param key The key that identifies the attribute
 	 * @return TRUE if the attribute exists
 	 * @throws StorageException If retrieving the extra attributes of this
 	 *                          entity fails
 	 */
-	public boolean hasExtraAttribute(RelationType<?> rKey)
+	public boolean hasExtraAttribute(RelationType<?> key)
 		throws StorageException {
-		return getExtraAttributeMap().containsKey(rKey.getSimpleName());
+		return getExtraAttributeMap().containsKey(key.getSimpleName());
 	}
 
 	/**
 	 * A convenience method to check a boolean extra attribute.
 	 *
-	 * @param rKey The key of the boolean extra attribute
+	 * @param key The key of the boolean extra attribute
 	 * @return TRUE only if the extra attribute exists and has the value TRUE
 	 * @throws StorageException If reading the extra attributes fails
 	 */
 	@SuppressWarnings("boxing")
-	public boolean hasExtraAttributeFlag(RelationType<Boolean> rKey)
+	public boolean hasExtraAttributeFlag(RelationType<Boolean> key)
 		throws StorageException {
-		return getExtraAttribute(rKey, false);
+		return getExtraAttribute(key, false);
 	}
 
 	/**
@@ -855,9 +841,9 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @see #hasExtraAttribute(RelationType)
 	 */
-	public boolean hasXA(RelationType<?> rKey) {
+	public boolean hasXA(RelationType<?> key) {
 		try {
-			return hasExtraAttribute(rKey);
+			return hasExtraAttribute(key);
 		} catch (StorageException e) {
 			throw new IllegalStateException(e);
 		}
@@ -871,17 +857,17 @@ public class Entity extends SerializableRelatedObject
 	 */
 	@Override
 	public int hashCode() {
-		int nHashCode = 37 * getClass().hashCode();
+		int hashCode = 37 * getClass().hashCode();
 
 		if (hasFlag(MODIFIED)) {
-			nHashCode = 37 * nHashCode + attributesHashCode();
+			hashCode = 37 * hashCode + attributesHashCode();
 		} else {
-			long nId = getId();
+			long id = getId();
 
-			nHashCode = 37 * nHashCode + (int) (nId ^ (nId >>> 32));
+			hashCode = 37 * hashCode + (int) (id ^ (id >>> 32));
 		}
 
-		return nHashCode;
+		return hashCode;
 	}
 
 	/**
@@ -898,18 +884,17 @@ public class Entity extends SerializableRelatedObject
 	 * case if this entity is either a the same as the given parent or a
 	 * descendant of it.
 	 *
-	 * @param rHierarchyParent The hierarchy parent to check this entity
-	 *                         against
+	 * @param hierarchyParent The hierarchy parent to check this entity against
 	 * @return TRUE if this entity is a part of the given entity's hierarchy
 	 */
-	public boolean isHierarchyElement(Entity rHierarchyParent) {
-		Entity rEntity = this;
+	public boolean isHierarchyElement(Entity hierarchyParent) {
+		Entity entity = this;
 
-		while (rEntity != null && rEntity.getId() != rHierarchyParent.getId()) {
-			rEntity = rEntity.getParent();
+		while (entity != null && entity.getId() != hierarchyParent.getId()) {
+			entity = entity.getParent();
 		}
 
-		return rEntity != null;
+		return entity != null;
 	}
 
 	/**
@@ -936,13 +921,12 @@ public class Entity extends SerializableRelatedObject
 	 * @return TRUE if this entity is the hierarchy root
 	 */
 	public boolean isRoot() {
-		EntityDefinition<?> rDefinition = getDefinition();
-		RelationType<?> rParentAttr = rDefinition.getParentAttribute();
-		RelationType<?> rMasterAttr = rDefinition.getMasterAttribute();
+		EntityDefinition<?> definition = getDefinition();
+		RelationType<?> parentAttr = definition.getParentAttribute();
+		RelationType<?> masterAttr = definition.getMasterAttribute();
 
-		return
-			(rParentAttr == null || getAttributeValue(rParentAttr) == null) &&
-				(rMasterAttr == null || getAttributeValue(rMasterAttr) == null);
+		return (parentAttr == null || getAttributeValue(parentAttr) == null) &&
+			(masterAttr == null || getAttributeValue(masterAttr) == null);
 	}
 
 	/**
@@ -952,20 +936,20 @@ public class Entity extends SerializableRelatedObject
 	 * already locked
 	 */
 	public boolean lock() {
-		boolean bSuccess;
+		boolean success;
 
 		try {
 			// this method doesn't need to be synchronized because
 			// beginEntityModification already is; if it returns successfully
 			// it will prevent parallel executions of lock() from succeeding
 			EntityManager.beginEntityModification(this);
-			bSuccess = true;
+			success = true;
 			set(LOCKED);
 		} catch (ConcurrentEntityModificationException e) {
-			bSuccess = false;
+			success = false;
 		}
 
-		return bSuccess;
+		return success;
 	}
 
 	/**
@@ -973,24 +957,24 @@ public class Entity extends SerializableRelatedObject
 	 * This method is intended to be used for debugging and informational
 	 * purposes only. The format of the output may change any time.
 	 *
-	 * @param rOut The stream to print to
+	 * @param out The stream to print to
 	 */
-	public void printHierarchy(PrintStream rOut) {
-		printHierarchy(rOut, null);
+	public void printHierarchy(PrintStream out) {
+		printHierarchy(out, null);
 	}
 
 	/**
 	 * A convenience method that removes all children of a certain type and
 	 * handles the necessary defensive copying of the child list.
 	 *
-	 * @param rChildAttr The child attribute to remove all children of
+	 * @param childAttr The child attribute to remove all children of
 	 */
 	public <C extends Entity> void removeAllChildren(
-		RelationType<List<C>> rChildAttr) {
-		List<C> rChildren = get(rChildAttr);
+		RelationType<List<C>> childAttr) {
+		List<C> children = get(childAttr);
 
-		if (rChildren != null && rChildren.size() > 0) {
-			removeChildren(rChildAttr, new ArrayList<>(rChildren));
+		if (children != null && children.size() > 0) {
+			removeChildren(childAttr, new ArrayList<>(children));
 		}
 	}
 
@@ -999,9 +983,9 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @see #removeChildren(RelationType, List)
 	 */
-	public <C extends Entity> void removeChild(RelationType<List<C>> rChildAttr,
-		C rChild) {
-		removeChildren(rChildAttr, Arrays.asList(rChild));
+	public <C extends Entity> void removeChild(RelationType<List<C>> childAttr,
+		C child) {
+		removeChildren(childAttr, Collections.singletonList(child));
 	}
 
 	/**
@@ -1020,16 +1004,16 @@ public class Entity extends SerializableRelatedObject
 	 * relation {@link EntityRelationTypes#DEPENDENT_STORE_ENTITIES} so that
 	 * they will be updated when this entity is stored.</p>
 	 *
-	 * @param rChildAttr The attribute that references the child type
-	 * @param rChildren  The new child objects to add to this entity
+	 * @param childAttr The attribute that references the child type
+	 * @param children  The new child objects to add to this entity
 	 * @throws IllegalArgumentException If one of the parameters is invalid or
 	 *                                  if one of the children is already
 	 *                                  stored
 	 *                                  in this entity
 	 */
 	public <C extends Entity> void removeChildren(
-		RelationType<List<C>> rChildAttr, List<C> rChildren) {
-		if (rChildAttr == null || rChildren == null || rChildren.size() == 0) {
+		RelationType<List<C>> childAttr, List<C> children) {
+		if (childAttr == null || children == null || children.size() == 0) {
 			throw new IllegalArgumentException(
 				"Arguments must not be NULL or empty");
 		}
@@ -1042,13 +1026,13 @@ public class Entity extends SerializableRelatedObject
 		}
 
 		@SuppressWarnings("unchecked")
-		EntityDefinition<Entity> rDef =
+		EntityDefinition<Entity> def =
 			(EntityDefinition<Entity>) getDefinition();
 
-		rDef.detachChildren(this, rChildAttr, rChildren);
-		get(rChildAttr).removeAll(rChildren);
-		get(DEPENDENT_STORE_ENTITIES).addAll(rChildren);
-		getRelation(rChildAttr).get(REMOVED_CHILDREN).addAll(rChildren);
+		def.detachChildren(this, childAttr, children);
+		get(childAttr).removeAll(children);
+		get(DEPENDENT_STORE_ENTITIES).addAll(children);
+		getRelation(childAttr).get(REMOVED_CHILDREN).addAll(children);
 	}
 
 	/**
@@ -1090,25 +1074,25 @@ public class Entity extends SerializableRelatedObject
 	 * key already exists it will be updated, otherwise a new attribute will be
 	 * created.
 	 *
-	 * @param rKey   The key that identifies the attribute
-	 * @param rValue The value of the new attribute
+	 * @param key   The key that identifies the attribute
+	 * @param value The value of the new attribute
 	 * @throws StorageException If retrieving the extra attributes of this
 	 *                          entity fails
 	 */
-	public <T> void setExtraAttribute(RelationType<T> rKey, T rValue)
+	public <T> void setExtraAttribute(RelationType<T> key, T value)
 		throws StorageException {
-		Map<String, ExtraAttribute> rAttributes = getExtraAttributeMap();
+		Map<String, ExtraAttribute> attributes = getExtraAttributeMap();
 
-		ExtraAttribute rExtraAttribute = rAttributes.get(rKey.getSimpleName());
+		ExtraAttribute extraAttribute = attributes.get(key.getSimpleName());
 
-		if (rExtraAttribute == null && rValue != null) {
-			rExtraAttribute = new ExtraAttribute();
+		if (extraAttribute == null && value != null) {
+			extraAttribute = new ExtraAttribute();
 
-			rExtraAttribute.set(ExtraAttribute.ENTITY, this);
-			rExtraAttribute.set(ExtraAttribute.KEY, rKey);
+			extraAttribute.set(ExtraAttribute.ENTITY, this);
+			extraAttribute.set(ExtraAttribute.KEY, key);
 		}
 
-		if (rExtraAttribute != null) {
+		if (extraAttribute != null) {
 			// set as modified before extra attribute is updated to allow the
 			// modification tracking in EntityDefinition to prohibit the change
 			// by throwing an exception
@@ -1117,11 +1101,11 @@ public class Entity extends SerializableRelatedObject
 			// always mark attribute as modified even if value is detected as
 			// unmodified by the framework to ensure the saving of mutable
 			// values like collections
-			rExtraAttribute.set(MODIFIED);
+			extraAttribute.set(MODIFIED);
 			set(EXTRA_ATTRIBUTES_MODIFIED);
 
-			rExtraAttribute.set(ExtraAttribute.VALUE, rValue);
-			rAttributes.put(rKey.getSimpleName(), rExtraAttribute);
+			extraAttribute.set(ExtraAttribute.VALUE, value);
+			attributes.put(key.getSimpleName(), extraAttribute);
 		}
 	}
 
@@ -1134,53 +1118,53 @@ public class Entity extends SerializableRelatedObject
 	 * attributes
 	 * are typically used less often than standard extra attributes.
 	 *
-	 * @param rOwner        The owner of the extra attribute
-	 * @param rKey          The key that identifies the attribute
-	 * @param rValue        The value of the extra attribute
-	 * @param rChangeOrigin The entity that caused this change
+	 * @param owner        The owner of the extra attribute
+	 * @param key          The key that identifies the attribute
+	 * @param value        The value of the extra attribute
+	 * @param changeOrigin The entity that caused this change
 	 * @throws StorageException If querying for an existing extra attribute
 	 *                          fails
 	 */
-	public <T> void setExtraAttributeFor(Entity rOwner, RelationType<T> rKey,
-		T rValue, Entity rChangeOrigin) throws StorageException {
-		ExtraAttribute rExtraAttribute = null;
-		boolean bAddToDependentStoreEntities = true;
+	public <T> void setExtraAttributeFor(Entity owner, RelationType<T> key,
+		T value, Entity changeOrigin) throws StorageException {
+		ExtraAttribute extraAttribute = null;
+		boolean addToDependentStoreEntities = true;
 
 		// search for an existing extra attribute that hasn't been stored yet
 		if (hasRelation(DEPENDENT_STORE_ENTITIES)) {
-			for (Entity rEntity : get(DEPENDENT_STORE_ENTITIES)) {
-				if (rEntity instanceof ExtraAttribute &&
-					rEntity.get(ExtraAttribute.KEY) == rKey &&
-					rEntity.get(ExtraAttribute.OWNER) == rOwner) {
-					assert rEntity.get(ExtraAttribute.ENTITY) == this;
+			for (Entity entity : get(DEPENDENT_STORE_ENTITIES)) {
+				if (entity instanceof ExtraAttribute &&
+					entity.get(ExtraAttribute.KEY) == key &&
+					entity.get(ExtraAttribute.OWNER) == owner) {
+					assert entity.get(ExtraAttribute.ENTITY) == this;
 
-					rExtraAttribute = (ExtraAttribute) rEntity;
-					bAddToDependentStoreEntities = false;
+					extraAttribute = (ExtraAttribute) entity;
+					addToDependentStoreEntities = false;
 
 					break;
 				}
 			}
 		}
 
-		if (rExtraAttribute == null) {
-			rExtraAttribute = queryExtraAttributeFor(rOwner, rKey);
+		if (extraAttribute == null) {
+			extraAttribute = queryExtraAttributeFor(owner, key);
 		}
 
-		if (rExtraAttribute == null && rValue != null) {
-			rExtraAttribute = new ExtraAttribute();
+		if (extraAttribute == null && value != null) {
+			extraAttribute = new ExtraAttribute();
 
-			rExtraAttribute.set(ExtraAttribute.ENTITY, this);
-			rExtraAttribute.set(ExtraAttribute.OWNER, rOwner);
-			rExtraAttribute.set(ExtraAttribute.KEY, rKey);
+			extraAttribute.set(ExtraAttribute.ENTITY, this);
+			extraAttribute.set(ExtraAttribute.OWNER, owner);
+			extraAttribute.set(ExtraAttribute.KEY, key);
 		}
 
-		if (rExtraAttribute != null) {
+		if (extraAttribute != null) {
 			// always mark as modified to ensure the saving of mutable values
-			rExtraAttribute.set(MODIFIED);
-			rExtraAttribute.set(ExtraAttribute.VALUE, rValue);
+			extraAttribute.set(MODIFIED);
+			extraAttribute.set(ExtraAttribute.VALUE, value);
 
-			if (bAddToDependentStoreEntities) {
-				get(DEPENDENT_STORE_ENTITIES).add(rExtraAttribute);
+			if (addToDependentStoreEntities) {
+				get(DEPENDENT_STORE_ENTITIES).add(extraAttribute);
 			}
 		}
 	}
@@ -1192,25 +1176,24 @@ public class Entity extends SerializableRelatedObject
 	 * only the entities for which the predicate evaluation yields TRUE will
 	 * have the attribute value set.
 	 *
-	 * @param rAttribute The attribute to set
-	 * @param rValue     The attribute value
-	 * @param pCriteria  Optional criteria for the entities affected or NULL
-	 *                     for
-	 *                   all
+	 * @param attribute The attribute to set
+	 * @param value     The attribute value
+	 * @param criteria  Optional criteria for the entities affected or NULL for
+	 *                  all
 	 */
 	@SuppressWarnings("boxing")
-	public <T> void setHierarchical(RelationType<T> rAttribute, T rValue,
-		Predicate<? super Entity> pCriteria) {
-		if (pCriteria == null || pCriteria.evaluate(this)) {
-			set(rAttribute, rValue);
+	public <T> void setHierarchical(RelationType<T> attribute, T value,
+		Predicate<? super Entity> criteria) {
+		if (criteria == null || criteria.evaluate(this)) {
+			set(attribute, value);
 		}
 
-		RelationType<List<Entity>> rChildAttr =
+		RelationType<List<Entity>> childAttr =
 			getDefinition().getHierarchyChildAttribute();
 
-		if (rChildAttr != null) {
-			for (Entity rChild : get(rChildAttr)) {
-				rChild.setHierarchical(rAttribute, rValue, pCriteria);
+		if (childAttr != null) {
+			for (Entity child : get(childAttr)) {
+				child.setHierarchical(attribute, value, criteria);
 			}
 		}
 	}
@@ -1223,11 +1206,11 @@ public class Entity extends SerializableRelatedObject
 	public void setHierarchyImmutable() {
 		set(MetaTypes.IMMUTABLE);
 
-		for (RelationType<List<Entity>> rChildAttr :
+		for (RelationType<List<Entity>> childAttr :
 			getDefinition().getChildAttributes()) {
-			if (hasRelation(rChildAttr)) {
-				for (Entity rChild : get(rChildAttr)) {
-					rChild.setHierarchyImmutable();
+			if (hasRelation(childAttr)) {
+				for (Entity child : get(childAttr)) {
+					child.setHierarchyImmutable();
 				}
 			}
 		}
@@ -1245,9 +1228,9 @@ public class Entity extends SerializableRelatedObject
 	 *
 	 * @see #setExtraAttribute(RelationType, Object)
 	 */
-	public <T> void setXA(RelationType<T> rKey, T rValue) {
+	public <T> void setXA(RelationType<T> key, T value) {
 		try {
-			setExtraAttribute(rKey, rValue);
+			setExtraAttribute(key, value);
 		} catch (StorageException e) {
 			throw new IllegalStateException(e);
 		}
@@ -1262,20 +1245,20 @@ public class Entity extends SerializableRelatedObject
 	 * ignored!
 	 * </p>
 	 *
-	 * @param bIgnoreNullValues If TRUE attribute values that are NULL are
-	 *                          ignored when building the {@link Predicate}
+	 * @param ignoreNullValues If TRUE attribute values that are NULL are
+	 *                         ignored when building the {@link Predicate}
 	 * @return A {@link Predicate} from this entity using the current attribute
 	 * values and the {@link Predicates#equalTo(Object)} method.
 	 */
 	public <E extends Entity> Predicate<E> toPredicate(
-		boolean bIgnoreNullValues) {
-		List<RelationType<?>> rAttributes =
+		boolean ignoreNullValues) {
+		List<RelationType<?>> attributes =
 			new ArrayList<RelationType<?>>(getDefinition().getAttributes());
 
-		rAttributes.remove(EntityRelationTypes.ENTITY_ID);
+		attributes.remove(EntityRelationTypes.ENTITY_ID);
 
-		return toPredicate(bIgnoreNullValues,
-			rAttributes.toArray(new RelationType<?>[0]));
+		return toPredicate(ignoreNullValues,
+			attributes.toArray(new RelationType<?>[0]));
 	}
 
 	/**
@@ -1283,25 +1266,25 @@ public class Entity extends SerializableRelatedObject
 	 * values for the given attributes and the
 	 * {@link Predicates#equalTo(Object)} method to construct it.
 	 *
-	 * @param bIgnoreNullValues If TRUE attribute values that are NULL are
-	 *                          ignored when building the {@link Predicate}
-	 * @param rAttributes       The attributes to use.
+	 * @param ignoreNullValues If TRUE attribute values that are NULL are
+	 *                         ignored when building the {@link Predicate}
+	 * @param attributes       The attributes to use.
 	 * @return A {@link Predicate} from this entity using the current attribute
 	 * values for the given attributes and the
 	 * {@link Predicates#equalTo(Object)} method.
 	 */
-	public <E extends Entity> Predicate<E> toPredicate(
-		boolean bIgnoreNullValues, RelationType<?>... rAttributes) {
-		Predicate<E> pPredicate = notNull();
+	public <E extends Entity> Predicate<E> toPredicate(boolean ignoreNullValues,
+		RelationType<?>... attributes) {
+		Predicate<E> predicate = notNull();
 
-		for (RelationType<?> rAttribute : rAttributes) {
-			if (!bIgnoreNullValues || get(rAttribute) != null) {
-				pPredicate =
-					pPredicate.and(rAttribute.is(equalTo(get(rAttribute))));
+		for (RelationType<?> attribute : attributes) {
+			if (!ignoreNullValues || get(attribute) != null) {
+				predicate =
+					predicate.and(attribute.is(equalTo(get(attribute))));
 			}
 		}
 
-		return pPredicate;
+		return predicate;
 	}
 
 	/**
@@ -1311,72 +1294,72 @@ public class Entity extends SerializableRelatedObject
 	 */
 	@Override
 	public String toString() {
-		Object rId = isPersistent() ? get(getIdAttribute()) : "<NEW>";
-		String sThis = getDescription();
-		String sResult;
+		Object id = isPersistent() ? get(getIdAttribute()) : "<NEW>";
+		String desc = getDescription();
+		String result;
 
-		if (sThis.length() > 0) {
-			sResult =
+		if (desc.length() > 0) {
+			result =
 				String.format("%s[%s(%s)]", getDefinition().getEntityName(),
-					sThis, rId);
+					this, id);
 		} else {
-			sResult =
-				String.format("%s[%s]", getDefinition().getEntityName(), rId);
+			result =
+				String.format("%s[%s]", getDefinition().getEntityName(), id);
 		}
 
-		return sResult;
+		return result;
 	}
 
 	/**
 	 * Converts an entity to a string that includes certain attributes.
 	 *
-	 * @param rAttributes The attributes to include in the string
-	 * @param sSeparator  The separator string between attributes
+	 * @param attributes The attributes to include in the string
+	 * @param separator  The separator string between attributes
 	 * @return The string for the given display mode
 	 */
-	public String toString(Collection<RelationType<?>> rAttributes,
-		String sSeparator) {
-		StringBuilder aResult =
+	public String toString(Collection<RelationType<?>> attributes,
+		String separator) {
+		StringBuilder result =
 			new StringBuilder(getDefinition().getEntityName());
 
-		aResult.append('[');
+		result.append('[');
 
-		if (rAttributes != null) {
-			for (RelationType<?> rAttribute : rAttributes) {
-				appendAttribute(rAttribute, sSeparator, aResult);
+		if (attributes != null) {
+			for (RelationType<?> attribute : attributes) {
+				appendAttribute(attribute, separator, result);
 			}
 
-			if (aResult.length() > 0) {
-				aResult.setLength(aResult.length() - sSeparator.length());
+			if (result.length() > 0) {
+				result.setLength(result.length() - separator.length());
 			}
 		}
 
-		aResult.append(']');
+		result.append(']');
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
 	 * Converts an entity to a string according to a certain display mode.
 	 *
-	 * @param eDisplayMode The display mode to create the string for
-	 * @param sSeparator   The separator string between attributes
+	 * @param displayMode The display mode to create the string for
+	 * @param separator   The separator string between attributes
 	 * @return The string for the given display mode
 	 */
-	public final String toString(DisplayMode eDisplayMode, String sSeparator) {
-		return toString(getDefinition().getDisplayAttributes(eDisplayMode),
-			sSeparator);
+	public final String toString(DisplayMode displayMode, String separator) {
+		return toString(getDefinition().getDisplayAttributes(displayMode),
+			separator);
 	}
 
 	/**
 	 * Converts an entity to a string that includes certain attributes.
 	 *
-	 * @param sSeparator  The separator string between attributes
-	 * @param rAttributes The attributes to include in the string
+	 * @param separator  The separator string between attributes
+	 * @param attributes The attributes to include in the string
 	 * @return The string for the given display mode
 	 */
-	public String toString(String sSeparator, RelationType<?>... rAttributes) {
-		return toString(Arrays.asList(rAttributes), sSeparator);
+	public String toString(String separator, RelationType<?>... attributes) {
+		return toString(Arrays.asList(attributes), separator);
 	}
 
 	/**
@@ -1401,20 +1384,20 @@ public class Entity extends SerializableRelatedObject
 	 * throws an exception if that values is not equal to the given value. If
 	 * the current value is not set or NULL no exception is thrown.
 	 *
-	 * @param rAttr  The attribute to test
-	 * @param rValue The value to check the attribute value against
+	 * @param attr  The attribute to test
+	 * @param value The value to check the attribute value against
 	 * @throws IllegalStateException If the attribute value differs from the
 	 *                               given value
 	 */
-	public <T> void verifyAttribute(RelationType<? super T> rAttr, T rValue) {
-		Object rCurrentValue = this.get(rAttr);
+	public <T> void verifyAttribute(RelationType<? super T> attr, T value) {
+		Object currentValue = this.get(attr);
 
-		if (rCurrentValue != null && !rCurrentValue.equals(rValue)) {
-			String sMessage =
-				String.format("%s attribute %s != %s", this, rCurrentValue,
-					rValue);
+		if (currentValue != null && !currentValue.equals(value)) {
+			String message =
+				String.format("%s attribute %s != %s", this, currentValue,
+					value);
 
-			throw new IllegalStateException(sMessage);
+			throw new IllegalStateException(message);
 		}
 	}
 
@@ -1433,18 +1416,18 @@ public class Entity extends SerializableRelatedObject
 	 * Appends a string description for a certain entity attribute to a string
 	 * buffer.
 	 *
-	 * @param rAttribute The element to append the description of
-	 * @param sSeparator The separator string
-	 * @param aBuilder   The string buffer to append to
+	 * @param attribute The element to append the description of
+	 * @param separator The separator string
+	 * @param builder   The string buffer to append to
 	 */
-	void appendAttribute(RelationType<?> rAttribute, String sSeparator,
-		StringBuilder aBuilder) {
-		String sValue = getAttributeValue(rAttribute);
+	void appendAttribute(RelationType<?> attribute, String separator,
+		StringBuilder builder) {
+		String value = getAttributeValue(attribute);
 
-		aBuilder.append(rAttribute.getSimpleName());
-		aBuilder.append('=');
-		aBuilder.append(sValue);
-		aBuilder.append(sSeparator);
+		builder.append(attribute.getSimpleName());
+		builder.append('=');
+		builder.append(value);
+		builder.append(separator);
 	}
 
 	/**
@@ -1467,61 +1450,61 @@ public class Entity extends SerializableRelatedObject
 	/**
 	 * Appends a JSON string for a certain attribute to a string builder.
 	 *
-	 * @param rChanges      The string builder to append to
-	 * @param sIndent       The indentation
-	 * @param sAttr         The name of the attribute to append
-	 * @param rAttrRelation The attribute relation
-	 * @param bChangesOnly  TRUE to include only changed attributes
+	 * @param changes      The string builder to append to
+	 * @param indent       The indentation
+	 * @param attr         The name of the attribute to append
+	 * @param attrRelation The attribute relation
+	 * @param changesOnly  TRUE to include only changed attributes
 	 */
-	private void appendJsonAttribute(StringBuilder rChanges, String sIndent,
-		String sAttr, Relation<?> rAttrRelation, boolean bChangesOnly) {
-		Object rNewValue = rAttrRelation.getTarget();
+	private void appendJsonAttribute(StringBuilder changes, String indent,
+		String attr, Relation<?> attrRelation, boolean changesOnly) {
+		Object newValue = attrRelation.getTarget();
 
-		boolean bUpdated =
-			(bChangesOnly && rAttrRelation.hasRelation(PREVIOUS_VALUE));
+		boolean updated =
+			(changesOnly && attrRelation.hasRelation(PREVIOUS_VALUE));
 
-		if (bUpdated || rNewValue != null) {
-			JsonBuilder aJson = new JsonBuilder();
+		if (updated || newValue != null) {
+			JsonBuilder json = new JsonBuilder();
 
-			aJson.appendText(sIndent);
-			aJson.appendName(sAttr);
+			json.appendText(indent);
+			json.appendName(attr);
 
-			if (bUpdated) {
-				aJson.appendText("{\n");
-				aJson.appendText(sIndent);
-				aJson.appendText(JSON_INDENT);
-				aJson.appendText("\"");
-				aJson.appendText(JSON_CHANGE_NEW_VALUE);
-				aJson.appendText("\": ");
+			if (updated) {
+				json.appendText("{\n");
+				json.appendText(indent);
+				json.appendText(JSON_INDENT);
+				json.appendText("\"");
+				json.appendText(JSON_CHANGE_NEW_VALUE);
+				json.appendText("\": ");
 			}
 
-			if (rNewValue instanceof Relatable) {
-				rNewValue = rNewValue.toString();
+			if (newValue instanceof Relatable) {
+				newValue = newValue.toString();
 			}
 
-			aJson.append(rNewValue);
+			json.append(newValue);
 
-			if (bUpdated) {
-				Object rPrevValue = rAttrRelation.get(PREVIOUS_VALUE);
+			if (updated) {
+				Object prevValue = attrRelation.get(PREVIOUS_VALUE);
 
-				if (rPrevValue instanceof Relatable) {
-					rPrevValue = rPrevValue.toString();
+				if (prevValue instanceof Relatable) {
+					prevValue = prevValue.toString();
 				}
 
-				aJson.appendText(",\n");
-				aJson.appendText(sIndent);
-				aJson.appendText(JSON_INDENT);
-				aJson.appendText("\"");
-				aJson.appendText(JSON_CHANGE_OLD_VALUE);
-				aJson.appendText("\": ");
-				aJson.append(rPrevValue);
-				aJson.appendText("\n");
-				aJson.appendText(sIndent);
-				aJson.appendText("}");
+				json.appendText(",\n");
+				json.appendText(indent);
+				json.appendText(JSON_INDENT);
+				json.appendText("\"");
+				json.appendText(JSON_CHANGE_OLD_VALUE);
+				json.appendText("\": ");
+				json.append(prevValue);
+				json.appendText("\n");
+				json.appendText(indent);
+				json.appendText("}");
 			}
 
-			aJson.appendText(",\n");
-			rChanges.append(aJson);
+			json.appendText(",\n");
+			changes.append(json);
 		}
 	}
 
@@ -1529,21 +1512,20 @@ public class Entity extends SerializableRelatedObject
 	 * Appends the JSON representation of this entity's attributes to a string
 	 * builder.
 	 *
-	 * @param aChanges     The string builder
-	 * @param rDefinition  The definition of this entity
-	 * @param sIndent      The indentation
-	 * @param bChangesOnly TRUE to include only changed attributes
+	 * @param changes     The string builder
+	 * @param definition  The definition of this entity
+	 * @param indent      The indentation
+	 * @param changesOnly TRUE to include only changed attributes
 	 */
-	private void appendJsonAttributes(StringBuilder aChanges,
-		EntityDefinition<?> rDefinition, String sIndent,
-		boolean bChangesOnly) {
-		for (RelationType<?> rAttribute : rDefinition.getAttributes()) {
-			Relation<?> rRelation = getRelation(rAttribute);
+	private void appendJsonAttributes(StringBuilder changes,
+		EntityDefinition<?> definition, String indent, boolean changesOnly) {
+		for (RelationType<?> attribute : definition.getAttributes()) {
+			Relation<?> relation = getRelation(attribute);
 
-			if (rRelation != null &&
-				(!bChangesOnly || rRelation.hasRelation(PREVIOUS_VALUE))) {
-				appendJsonAttribute(aChanges, sIndent,
-					rAttribute.getSimpleName(), rRelation, bChangesOnly);
+			if (relation != null &&
+				(!changesOnly || relation.hasRelation(PREVIOUS_VALUE))) {
+				appendJsonAttribute(changes, indent, attribute.getSimpleName(),
+					relation, changesOnly);
 			}
 		}
 	}
@@ -1552,63 +1534,62 @@ public class Entity extends SerializableRelatedObject
 	 * Appends a JSON string with child entity informations to a string
 	 * builder.
 	 *
-	 * @param aChanges        The string builder
-	 * @param sIndent         The indentation
-	 * @param rChildAttribute The child attribute
-	 * @param bChangesOnly    TRUE to include only changed attributes
+	 * @param changes        The string builder
+	 * @param indent         The indentation
+	 * @param childAttribute The child attribute
+	 * @param changesOnly    TRUE to include only changed attributes
 	 */
-	private void appendJsonChildren(StringBuilder aChanges, String sIndent,
-		RelationType<List<Entity>> rChildAttribute, boolean bChangesOnly) {
-		List<Entity> rChildren = get(rChildAttribute);
-		StringBuilder aChildChanges = new StringBuilder();
-		String sChildAttr = rChildAttribute.getSimpleName();
+	private void appendJsonChildren(StringBuilder changes, String indent,
+		RelationType<List<Entity>> childAttribute, boolean changesOnly) {
+		List<Entity> children = get(childAttribute);
+		StringBuilder childChanges = new StringBuilder();
+		String childAttr = childAttribute.getSimpleName();
 
-		for (Entity rChild : rChildren) {
-			boolean bChildChangesOnly = bChangesOnly && rChild.isPersistent();
+		for (Entity child : children) {
+			boolean childChangesOnly = changesOnly && child.isPersistent();
 
-			String sChildChange =
-				rChild.toJson(sIndent, bChildChangesOnly, false);
+			String childChange = child.toJson(indent, childChangesOnly, false);
 
-			if (!sChildChange.isEmpty()) {
-				aChildChanges.append(sChildChange);
-				aChildChanges.append(",\n");
+			if (!childChange.isEmpty()) {
+				childChanges.append(childChange);
+				childChanges.append(",\n");
 			}
 		}
 
-		if (aChildChanges.length() > 0) {
-			aChildChanges.setLength(aChildChanges.length() - 2);
+		if (childChanges.length() > 0) {
+			childChanges.setLength(childChanges.length() - 2);
 
-			aChanges.append(sIndent);
-			aChanges.append('"');
-			aChanges.append(sChildAttr);
-			aChanges.append("\": [\n");
-			aChanges.append(aChildChanges);
-			aChanges.append("\n");
-			aChanges.append(sIndent);
-			aChanges.append("],\n");
+			changes.append(indent);
+			changes.append('"');
+			changes.append(childAttr);
+			changes.append("\": [\n");
+			changes.append(childChanges);
+			changes.append("\n");
+			changes.append(indent);
+			changes.append("],\n");
 		}
 
-		List<Entity> rRemovedChildren =
-			getRelation(rChildAttribute).get(REMOVED_CHILDREN);
+		List<Entity> removedChildren =
+			getRelation(childAttribute).get(REMOVED_CHILDREN);
 
-		if (!rRemovedChildren.isEmpty()) {
-			String sSubIndent = sIndent + JSON_INDENT;
+		if (!removedChildren.isEmpty()) {
+			String subIndent = indent + JSON_INDENT;
 
-			aChanges.append(sIndent);
-			aChanges.append("\"");
-			aChanges.append(sChildAttr);
-			aChanges.append(JSON_REMOVED_CHILDREN_SUFFIX);
-			aChanges.append("\": [\n");
+			changes.append(indent);
+			changes.append("\"");
+			changes.append(childAttr);
+			changes.append(JSON_REMOVED_CHILDREN_SUFFIX);
+			changes.append("\": [\n");
 
-			for (Entity rRemoved : rRemovedChildren) {
-				aChanges.append(rRemoved.toJson(sSubIndent, false, false));
-				aChanges.append(",\n");
+			for (Entity removed : removedChildren) {
+				changes.append(removed.toJson(subIndent, false, false));
+				changes.append(",\n");
 			}
 
-			aChanges.setLength(aChanges.length() - 2);
-			aChanges.append('\n');
-			aChanges.append(sIndent);
-			aChanges.append("],\n");
+			changes.setLength(changes.length() - 2);
+			changes.append('\n');
+			changes.append(indent);
+			changes.append("],\n");
 		}
 	}
 
@@ -1617,24 +1598,23 @@ public class Entity extends SerializableRelatedObject
 	 * string
 	 * builder.
 	 *
-	 * @param aChanges     The string builder
-	 * @param sIndent      The indentation
-	 * @param bChangesOnly TRUE to include only changed attributes
+	 * @param changes     The string builder
+	 * @param indent      The indentation
+	 * @param changesOnly TRUE to include only changed attributes
 	 */
-	private void appendJsonExtraAttribute(StringBuilder aChanges,
-		String sIndent, boolean bChangesOnly) {
-		for (ExtraAttribute rExtraAttribute : get(
+	private void appendJsonExtraAttribute(StringBuilder changes, String indent,
+		boolean changesOnly) {
+		for (ExtraAttribute extraAttribute : get(
 			EXTRA_ATTRIBUTE_MAP).values()) {
-			Relation<Object> rExtraAttrRelation =
-				rExtraAttribute.getRelation(ExtraAttribute.VALUE);
+			Relation<Object> extraAttrRelation =
+				extraAttribute.getRelation(ExtraAttribute.VALUE);
 
-			if (rExtraAttribute.hasFlag(MODIFIED) && (!bChangesOnly ||
-				rExtraAttrRelation.hasRelation(PREVIOUS_VALUE))) {
-				String sName =
-					rExtraAttribute.get(ExtraAttribute.KEY).getName();
+			if (extraAttribute.hasFlag(MODIFIED) && (!changesOnly ||
+				extraAttrRelation.hasRelation(PREVIOUS_VALUE))) {
+				String name = extraAttribute.get(ExtraAttribute.KEY).getName();
 
-				appendJsonAttribute(aChanges, sIndent, sName,
-					rExtraAttrRelation, bChangesOnly);
+				appendJsonAttribute(changes, indent, name, extraAttrRelation,
+					changesOnly);
 			}
 		}
 	}
@@ -1643,45 +1623,43 @@ public class Entity extends SerializableRelatedObject
 	 * Performs an equality comparison of this instance's attributes with
 	 * another entity, including extra attributes and children.
 	 *
-	 * @param rOther The entity to compare with
+	 * @param other The entity to compare with
 	 * @return TRUE if all attributes are equal
 	 */
-	private boolean attributesEqual(Entity rOther) {
-		List<RelationType<?>> rCompareAttributes = getCompareAttributes();
+	private boolean attributesEqual(Entity other) {
+		List<RelationType<?>> compareAttributes = getCompareAttributes();
 
-		boolean bEqual =
-			rCompareAttributes.equals(rOther.getCompareAttributes());
+		boolean equal = compareAttributes.equals(other.getCompareAttributes());
 
-		if (bEqual) {
-			for (RelationType<?> rAttr : rCompareAttributes) {
-				Object rValue = get(rAttr);
-				Object rOtherValue = rOther.get(rAttr);
+		if (equal) {
+			for (RelationType<?> attr : compareAttributes) {
+				Object value = get(attr);
+				Object otherValue = other.get(attr);
 
-				if (rValue == null && rOtherValue != null ||
-					rValue != null && !rValue.equals(rOtherValue)) {
-					bEqual = false;
+				if (value == null && otherValue != null ||
+					value != null && !value.equals(otherValue)) {
+					equal = false;
 
 					break;
 				}
 			}
 
-			if (bEqual) {
-				Map<String, ExtraAttribute> rExtraAttributeMap =
+			if (equal) {
+				Map<String, ExtraAttribute> extraAttributeMap =
 					get(EXTRA_ATTRIBUTE_MAP);
 
-				Map<String, ExtraAttribute> rOtherExtraAttributeMap =
-					rOther.get(EXTRA_ATTRIBUTE_MAP);
+				Map<String, ExtraAttribute> otherExtraAttributeMap =
+					other.get(EXTRA_ATTRIBUTE_MAP);
 
-				if (rExtraAttributeMap != null) {
-					bEqual =
-						rExtraAttributeMap.equals(rOtherExtraAttributeMap);
+				if (extraAttributeMap != null) {
+					equal = extraAttributeMap.equals(otherExtraAttributeMap);
 				} else {
-					bEqual = rOtherExtraAttributeMap == null;
+					equal = otherExtraAttributeMap == null;
 				}
 			}
 		}
 
-		return bEqual;
+		return equal;
 	}
 
 	/**
@@ -1691,45 +1669,44 @@ public class Entity extends SerializableRelatedObject
 	 * @return The attribute hash code
 	 */
 	private int attributesHashCode() {
-		int nHashCode = getCompareAttributes().hashCode();
+		int hashCode = getCompareAttributes().hashCode();
 
-		Map<String, ExtraAttribute> rExtraAttributeMap =
+		Map<String, ExtraAttribute> extraAttributeMap =
 			get(EXTRA_ATTRIBUTE_MAP);
 
-		if (rExtraAttributeMap != null) {
-			nHashCode = 37 * nHashCode + rExtraAttributeMap.hashCode();
+		if (extraAttributeMap != null) {
+			hashCode = 37 * hashCode + extraAttributeMap.hashCode();
 		}
 
-		return nHashCode;
+		return hashCode;
 	}
 
 	/**
 	 * Returns the value of an attribute.
 	 *
-	 * @param rAttribute The attribute
+	 * @param attribute The attribute
 	 * @return The attribute value
 	 */
 	@SuppressWarnings("boxing")
-	private String getAttributeValue(RelationType<?> rAttribute) {
-		Relation<?> rRelation = getRelation(rAttribute);
-		Object rValue = null;
+	private String getAttributeValue(RelationType<?> attribute) {
+		Relation<?> relation = getRelation(attribute);
+		Object value = null;
 
-		if (rRelation != null) {
-			rValue = rRelation.getTarget();
+		if (relation != null) {
+			value = relation.getTarget();
 		}
 
-		if (rValue == null && rRelation instanceof IntermediateRelation<?,
-			?>) {
-			rValue =
-				((IntermediateRelation<?, ?>) rRelation).getIntermediateTarget();
+		if (value == null && relation instanceof IntermediateRelation<?, ?>) {
+			value =
+				((IntermediateRelation<?, ?>) relation).getIntermediateTarget();
 		}
 
-		if (rValue instanceof Entity) {
-			rValue = ((Entity) rValue).getId();
+		if (value instanceof Entity) {
+			value = ((Entity) value).getId();
 		}
 
-		return rValue != null ?
-		       rValue.toString().replaceAll("[\n\r]", "¶") :
+		return value != null ?
+		       value.toString().replaceAll("[\n\r]", "¶") :
 		       null;
 	}
 
@@ -1743,14 +1720,14 @@ public class Entity extends SerializableRelatedObject
 	 * @return The list of all comparable (extra) attributes
 	 */
 	private ArrayList<RelationType<?>> getCompareAttributes() {
-		EntityDefinition<?> rDefinition = getDefinition();
+		EntityDefinition<?> definition = getDefinition();
 
-		ArrayList<RelationType<?>> aAttributes =
-			new ArrayList<RelationType<?>>(rDefinition.getAttributes());
+		ArrayList<RelationType<?>> attributes =
+			new ArrayList<RelationType<?>>(definition.getAttributes());
 
-		aAttributes.remove(rDefinition.getParentAttribute());
+		attributes.remove(definition.getParentAttribute());
 
-		return aAttributes;
+		return attributes;
 	}
 
 	/**
@@ -1758,24 +1735,24 @@ public class Entity extends SerializableRelatedObject
 	 * This method is intended to be used for debugging and informational
 	 * purposes only. The format of the output may change any time.
 	 *
-	 * @param rOut    The stream to print to
-	 * @param sIndent The indentation of the output
+	 * @param out    The stream to print to
+	 * @param indent The indentation of the output
 	 */
-	private void printHierarchy(PrintStream rOut, String sIndent) {
-		EntityDefinition<?> rDefinition = getDefinition();
-		String sPrefix = sIndent != null ? sIndent + "+--" : "";
+	private void printHierarchy(PrintStream out, String indent) {
+		EntityDefinition<?> definition = getDefinition();
+		String prefix = indent != null ? indent + "+--" : "";
 
-		sIndent = sIndent != null ? sIndent + "   " : "";
+		indent = indent != null ? indent + "   " : "";
 
-		rOut.println(sPrefix + toString(rDefinition.getAttributes(), ","));
+		out.println(prefix + toString(definition.getAttributes(), ","));
 
-		for (RelationType<?> rChildType : rDefinition.getChildAttributes()) {
+		for (RelationType<?> childType : definition.getChildAttributes()) {
 			@SuppressWarnings("unchecked")
-			Collection<Entity> rChildren =
-				get((RelationType<Collection<Entity>>) rChildType);
+			Collection<Entity> children =
+				get((RelationType<Collection<Entity>>) childType);
 
-			for (Entity rChild : rChildren) {
-				rChild.printHierarchy(rOut, sIndent);
+			for (Entity child : children) {
+				child.printHierarchy(out, indent);
 			}
 		}
 	}
@@ -1784,27 +1761,27 @@ public class Entity extends SerializableRelatedObject
 	 * Internal method to query a single extra attribute for a certain owner
 	 * entity.
 	 *
-	 * @param rOwner The owner entity
-	 * @param rKey   The extra attribute key
+	 * @param owner The owner entity
+	 * @param key   The extra attribute key
 	 * @return The matching extra attribute or NULL if none exists
 	 * @throws StorageException If the query fails
 	 */
-	private <T> ExtraAttribute queryExtraAttributeFor(Entity rOwner,
-		RelationType<T> rKey) throws StorageException {
-		ExtraAttribute rExtraAttribute = null;
+	private <T> ExtraAttribute queryExtraAttributeFor(Entity owner,
+		RelationType<T> key) throws StorageException {
+		ExtraAttribute extraAttribute = null;
 
 		if (isPersistent()) {
-			Predicate<Relatable> pExtraAttr = ExtraAttribute.ENTITY
+			Predicate<Relatable> extraAttr = ExtraAttribute.ENTITY
 				.is(equalTo(this))
-				.and(ExtraAttribute.OWNER.is(equalTo(rOwner)))
-				.and(ExtraAttribute.KEY.is(equalTo(rKey)));
+				.and(ExtraAttribute.OWNER.is(equalTo(owner)))
+				.and(ExtraAttribute.KEY.is(equalTo(key)));
 
-			rExtraAttribute =
-				EntityManager.queryEntity(ExtraAttribute.class, pExtraAttr,
+			extraAttribute =
+				EntityManager.queryEntity(ExtraAttribute.class, extraAttr,
 					true);
 		}
 
-		return rExtraAttribute;
+		return extraAttribute;
 	}
 
 	/**
@@ -1818,39 +1795,39 @@ public class Entity extends SerializableRelatedObject
 		assert !hasFlag(EXTRA_ATTRIBUTES_MODIFIED) :
 			"Invalid state: extra attributes have been modified";
 
-		Predicate<Relatable> pExtraAttr = ExtraAttribute.ENTITY
+		Predicate<Relatable> extraAttr = ExtraAttribute.ENTITY
 			.is(equalTo(this))
 			.and(ExtraAttribute.HAS_NO_OWNER);
 
-		List<ExtraAttribute> rExtraAttributes =
-			EntityManager.queryEntities(ExtraAttribute.class, pExtraAttr,
+		List<ExtraAttribute> extraAttributes =
+			EntityManager.queryEntities(ExtraAttribute.class, extraAttr,
 				Integer.MAX_VALUE);
 
-		Map<String, ExtraAttribute> rExtraAttributeMap =
+		Map<String, ExtraAttribute> extraAttributeMap =
 			get(EXTRA_ATTRIBUTE_MAP);
 
-		for (ExtraAttribute rAttribute : rExtraAttributes) {
-			Relation<?> rKeyRelation =
-				rAttribute.getRelation(ExtraAttribute.KEY);
+		for (ExtraAttribute attribute : extraAttributes) {
+			Relation<?> keyRelation =
+				attribute.getRelation(ExtraAttribute.KEY);
 
-			String sKey = null;
+			String key = null;
 
-			if (rKeyRelation instanceof IntermediateRelation) {
-				sKey = ((IntermediateRelation<?, ?>) rKeyRelation)
+			if (keyRelation instanceof IntermediateRelation) {
+				key = ((IntermediateRelation<?, ?>) keyRelation)
 					.getIntermediateTarget()
 					.toString();
 			}
 
 			// always check for NULL because the intermediate target will be
 			// NULL if the relation has already been resolved
-			if (sKey == null) {
-				sKey = rAttribute.get(ExtraAttribute.KEY).getSimpleName();
+			if (key == null) {
+				key = attribute.get(ExtraAttribute.KEY).getSimpleName();
 			}
 
-			assert sKey != null :
-				"Undefined extra attribute key for " + rAttribute;
+			assert key != null :
+				"Undefined extra attribute key for " + attribute;
 
-			rExtraAttributeMap.put(sKey.toString(), rAttribute);
+			extraAttributeMap.put(key, attribute);
 		}
 
 		set(EXTRA_ATTRIBUTES_READ);
@@ -1864,13 +1841,13 @@ public class Entity extends SerializableRelatedObject
 	 * @see #resetHierachy()
 	 */
 	private void resetHierarchyModifications() {
-		for (RelationType<List<Entity>> rChildAttr :
+		for (RelationType<List<Entity>> childAttr :
 			getDefinition().getChildAttributes()) {
-			for (Entity rChild : get(rChildAttr)) {
-				rChild.resetHierarchyModifications();
+			for (Entity child : get(childAttr)) {
+				child.resetHierarchyModifications();
 
-				if (rChild.isModified()) {
-					EntityManager.endEntityModification(rChild);
+				if (child.isModified()) {
+					EntityManager.endEntityModification(child);
 				}
 			}
 		}
@@ -1878,74 +1855,72 @@ public class Entity extends SerializableRelatedObject
 
 	/**
 	 * Internal method to create a JSON representation of this entity and it's
-	 * hierarchy. If the bOnlyChanges parameter is TRUE only the modified
+	 * hierarchy. If the onlyChanges parameter is TRUE only the modified
 	 * attributes will be included.
 	 *
-	 * @param sIndent            The indentation of the resulting string
-	 * @param bChangesOnly       TRUE to only included changed attributes
-	 * @param bIncludeEntityName TRUE to include the entity name into the
-	 *                           generated JSON, FALSE to omit it
+	 * @param indent            The indentation of the resulting string
+	 * @param changesOnly       TRUE to only included changed attributes
+	 * @param includeEntityName TRUE to include the entity name into the
+	 *                          generated JSON, FALSE to omit it
 	 * @return The resulting string
 	 */
-	private String toJson(String sIndent, boolean bChangesOnly,
-		boolean bIncludeEntityName) {
-		EntityDefinition<?> rDefinition = getDefinition();
-		StringBuilder aChanges = new StringBuilder("");
-		String sSubIndent = sIndent + JSON_INDENT;
+	private String toJson(String indent, boolean changesOnly,
+		boolean includeEntityName) {
+		EntityDefinition<?> definition = getDefinition();
+		StringBuilder changes = new StringBuilder();
+		String subIndent = indent + JSON_INDENT;
 
-		if (!bChangesOnly || hasFlag(MODIFIED)) {
-			appendJsonAttributes(aChanges, rDefinition, sSubIndent,
-				bChangesOnly);
+		if (!changesOnly || hasFlag(MODIFIED)) {
+			appendJsonAttributes(changes, definition, subIndent, changesOnly);
 		}
 
 		if (hasFlag(EXTRA_ATTRIBUTES_MODIFIED)) {
-			appendJsonExtraAttribute(aChanges, sSubIndent, bChangesOnly);
+			appendJsonExtraAttribute(changes, subIndent, changesOnly);
 		}
 
-		Collection<RelationType<List<Entity>>> rChildAttributes =
-			rDefinition.getChildAttributes();
+		Collection<RelationType<List<Entity>>> childAttributes =
+			definition.getChildAttributes();
 
-		if (rChildAttributes != null) {
-			for (RelationType<List<Entity>> rChildAttr : rChildAttributes) {
-				appendJsonChildren(aChanges, sSubIndent, rChildAttr,
-					bChangesOnly);
+		if (childAttributes != null) {
+			for (RelationType<List<Entity>> childAttr : childAttributes) {
+				appendJsonChildren(changes, subIndent, childAttr, changesOnly);
 			}
 		}
 
-		int nLength = aChanges.length();
+		int length = changes.length();
 
-		if (nLength > 0 || !isPersistent()) {
-			if (nLength >= 2) {
+		if (length > 0 || !isPersistent()) {
+			if (length >= 2) {
 				// remove trailing ,\n
-				aChanges.setLength(nLength - 2);
+				changes.setLength(length - 2);
 			}
 
 			@SuppressWarnings("boxing")
-			Object rId = isPersistent() ? getId() : "\"<NEW>\"";
+			Object id = isPersistent() ? getId() : "\"<NEW>\"";
 
-			String sDescription = getDescription();
-			String sEntity =
-				String.format("%s{\n%s\"%s\": %s,\n", sIndent, sSubIndent,
-					JSON_ID_FIELD, rId);
+			String description = getDescription();
+			String entity =
+				String.format("%s{\n%s\"%s\": %s,\n", indent, subIndent,
+					JSON_ID_FIELD, id);
 
-			if (bIncludeEntityName) {
-				sEntity =
-					String.format("%s%s\"%s\": \"%s\",\n", sEntity, sSubIndent,
-						JSON_TYPE_FIELD, rDefinition.getEntityName());
+			if (includeEntityName) {
+				entity =
+					String.format("%s%s\"%s\": \"%s\",\n", entity, subIndent,
+						JSON_TYPE_FIELD, definition.getEntityName());
 			}
 
-			if (sDescription.length() > 0) {
-				sEntity =
-					String.format("%s%s\"%s\": \"%s\",\n", sEntity, sSubIndent,
-						JSON_NAME_FIELD, sDescription);
+			if (description.length() > 0) {
+				entity =
+					String.format("%s%s\"%s\": \"%s\",\n", entity, subIndent,
+						JSON_NAME_FIELD, description);
 			}
 
-			aChanges.insert(0, sEntity);
-			aChanges.append("\n");
-			aChanges.append(sIndent);
-			aChanges.append("}");
+			changes.insert(0, entity);
+			changes.append("\n");
+			changes.append(indent);
+			changes.append("}");
 		}
 
-		return aChanges.toString();
+		return changes.toString();
 	}
 }

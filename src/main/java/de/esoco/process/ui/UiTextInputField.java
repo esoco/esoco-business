@@ -34,11 +34,11 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent rContainer The parent container
-	 * @param sText   The initial text
+	 * @param parent container The parent container
+	 * @param text   The initial text
 	 */
-	public UiTextInputField(UiContainer<?> rParent, String sText) {
-		super(rParent, String.class, sText);
+	public UiTextInputField(UiContainer<?> parent, String text) {
+		super(parent, String.class, text);
 	}
 
 	/**
@@ -54,11 +54,11 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	 * will
 	 * be possible but the field will not be rendered as disabled.
 	 *
-	 * @param bEditable The new editable
+	 * @param editable The new editable
 	 */
 	@SuppressWarnings("boxing")
-	public void setEditable(boolean bEditable) {
-		set(EDITABLE, bEditable);
+	public void setEditable(boolean editable) {
+		set(EDITABLE, editable);
 	}
 
 	/**
@@ -68,30 +68,29 @@ public abstract class UiTextInputField<T extends UiTextInputField<T>>
 	 * limited. Therefore the format arguments must already be in string format
 	 * and advanced features like argument reordering may not be available.
 	 *
-	 * @param sTemplate        The format template
-	 * @param rFormatArguments The format arguments
+	 * @param template        The format template
+	 * @param formatArguments The format arguments
 	 */
-	public void setFormattedText(String sTemplate,
-		String... rFormatArguments) {
-		setText(sTemplate);
-		set(FORMAT_ARGUMENTS, Arrays.asList(rFormatArguments));
+	public void setFormattedText(String template, String... formatArguments) {
+		setText(template);
+		set(FORMAT_ARGUMENTS, Arrays.asList(formatArguments));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setText(String sText) {
-		setValueImpl(sText);
+	public void setText(String text) {
+		setValueImpl(text);
 	}
 
 	/**
 	 * Fluent method to set the text of this field.
 	 *
-	 * @param sText The new text
+	 * @param text The new text
 	 * @return This instance
 	 */
-	public T text(String sText) {
-		return setValueImpl(sText);
+	public T text(String text) {
+		return setValueImpl(text);
 	}
 }

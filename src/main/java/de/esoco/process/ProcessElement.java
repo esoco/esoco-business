@@ -21,6 +21,9 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.StringFunctions;
+import org.obrel.core.RelationType;
+import org.obrel.core.SerializableRelatedObject;
+import org.obrel.type.MetaTypes;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,19 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.SerializableRelatedObject;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.lib.expression.Functions.value;
 import static de.esoco.lib.expression.Predicates.isNull;
-
 import static de.esoco.process.ProcessRelationTypes.CONTINUATION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_PARAM_VALIDATIONS;
 import static de.esoco.process.ProcessRelationTypes.PARAM_VALIDATIONS;
-
 import static org.obrel.type.MetaTypes.MANDATORY;
 
 /**
@@ -71,11 +68,11 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * {@link CollectionUtil#listOf(Object...)}. For an immutable list the
 	 * method {@link #staticParams(RelationType...)} can be used.
 	 *
-	 * @param rParams The parameters to place in the list
+	 * @param params The parameters to place in the list
 	 * @return The mutable parameter list
 	 */
-	public static List<RelationType<?>> params(RelationType<?>... rParams) {
-		return CollectionUtil.<RelationType<?>>listOf(rParams);
+	public static List<RelationType<?>> params(RelationType<?>... params) {
+		return CollectionUtil.listOf(params);
 	}
 
 	/**
@@ -85,34 +82,34 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * {@link CollectionUtil#listOf(Object...)}. For a mutable list the method
 	 * {@link #params(RelationType...)} can be used.
 	 *
-	 * @param rParams The parameters to place in the list
+	 * @param params The parameters to place in the list
 	 * @return The mutable parameter list
 	 */
 	public static List<RelationType<?>> staticParams(
-		RelationType<?>... rParams) {
-		return Arrays.<RelationType<?>>asList(rParams);
+		RelationType<?>... params) {
+		return Arrays.asList(params);
 	}
 
 	/**
 	 * @see #addDisplayParameters(Collection)
 	 */
-	public void addDisplayParameters(RelationType<?>... rParams) {
-		addDisplayParameters(Arrays.asList(rParams));
+	public void addDisplayParameters(RelationType<?>... params) {
+		addDisplayParameters(Arrays.asList(params));
 	}
 
 	/**
 	 * Adds parameter types into the list of this step's interaction parameters
 	 * for display only.
 	 *
-	 * @param rParams The parameter types to be displayed
+	 * @param params The parameter types to be displayed
 	 */
 	public void addDisplayParameters(
-		Collection<? extends RelationType<?>> rParams) {
-		List<RelationType<?>> rInteractionParams = get(INTERACTION_PARAMS);
+		Collection<? extends RelationType<?>> params) {
+		List<RelationType<?>> interactionParams = get(INTERACTION_PARAMS);
 
-		for (RelationType<?> rParam : rParams) {
-			if (!rInteractionParams.contains(rParam)) {
-				rInteractionParams.add(rParam);
+		for (RelationType<?> param : params) {
+			if (!interactionParams.contains(param)) {
+				interactionParams.add(param);
 			}
 		}
 	}
@@ -120,8 +117,8 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	/**
 	 * @see #addInputParameters(Collection)
 	 */
-	public void addInputParameters(RelationType<?>... rParams) {
-		addInputParameters(Arrays.asList(rParams));
+	public void addInputParameters(RelationType<?>... params) {
+		addInputParameters(Arrays.asList(params));
 	}
 
 	/**
@@ -133,12 +130,12 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * input
 	 * and not added with this method.
 	 *
-	 * @param rParams The parameter types to be displayed
+	 * @param params The parameter types to be displayed
 	 */
 	public void addInputParameters(
-		Collection<? extends RelationType<?>> rParams) {
-		addDisplayParameters(rParams);
-		markInputParams(true, rParams);
+		Collection<? extends RelationType<?>> params) {
+		addDisplayParameters(params);
+		markInputParams(true, params);
 	}
 
 	/**
@@ -152,46 +149,46 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	/**
 	 * Marks interaction parameters types as continuation parameters.
 	 *
-	 * @param rParams The parameters to be marked for process continuation
+	 * @param params The parameters to be marked for process continuation
 	 * @see #setContinueOnInteraction(boolean, RelationType...)
 	 */
-	public void continueOnInteraction(RelationType<?>... rParams) {
-		setContinueOnInteraction(true, rParams);
+	public void continueOnInteraction(RelationType<?>... params) {
+		setContinueOnInteraction(true, params);
 	}
 
 	/**
 	 * Checks whether a certain parameter is registered as an interaction
 	 * parameter.
 	 *
-	 * @param rParam The parameter to check
+	 * @param param The parameter to check
 	 * @return TRUE if the parameter is an interaction parameter
 	 */
-	public boolean hasInteractionParameter(RelationType<?> rParam) {
-		return get(INTERACTION_PARAMS).contains(rParam);
+	public boolean hasInteractionParameter(RelationType<?> param) {
+		return get(INTERACTION_PARAMS).contains(param);
 	}
 
 	/**
 	 * @see #markInputParams(boolean, Collection)
 	 */
-	public void markInputParams(boolean bInput, RelationType<?>... rParams) {
-		markInputParams(bInput, Arrays.asList(rParams));
+	public void markInputParams(boolean input, RelationType<?>... params) {
+		markInputParams(input, Arrays.asList(params));
 	}
 
 	/**
 	 * Marks a number of parameter types as input parameters. Such parameters
 	 * will be rendered as input components during interactions.
 	 *
-	 * @param bInput  TRUE to add input parameters, FALSE to remove
-	 * @param rParams The parameters to add or remove
+	 * @param input  TRUE to add input parameters, FALSE to remove
+	 * @param params The parameters to add or remove
 	 */
-	public void markInputParams(boolean bInput,
-		Collection<? extends RelationType<?>> rParams) {
-		Set<RelationType<?>> rInputParams = get(INPUT_PARAMS);
+	public void markInputParams(boolean input,
+		Collection<? extends RelationType<?>> params) {
+		Set<RelationType<?>> inputParams = get(INPUT_PARAMS);
 
-		if (bInput) {
-			rInputParams.addAll(rParams);
+		if (input) {
+			inputParams.addAll(params);
 		} else {
-			rInputParams.removeAll(rParams);
+			inputParams.removeAll(params);
 		}
 	}
 
@@ -207,49 +204,49 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * Removes certain parameter types from the list of this step's interaction
 	 * parameters.
 	 *
-	 * @param rParams The parameter types to be displayed
+	 * @param params The parameter types to be displayed
 	 */
-	public void removeInteractionParameters(RelationType<?>... rParams) {
-		removeInteractionParameters(Arrays.asList(rParams));
+	public void removeInteractionParameters(RelationType<?>... params) {
+		removeInteractionParameters(Arrays.asList(params));
 	}
 
 	/**
 	 * Removes certain parameter types from the list of this step's interaction
 	 * parameters.
 	 *
-	 * @param rParams The parameter types to be displayed
+	 * @param params The parameter types to be displayed
 	 */
 	public void removeInteractionParameters(
-		Collection<RelationType<?>> rParams) {
-		get(INTERACTION_PARAMS).removeAll(rParams);
-		get(INPUT_PARAMS).removeAll(rParams);
+		Collection<RelationType<?>> params) {
+		get(INTERACTION_PARAMS).removeAll(params);
+		get(INPUT_PARAMS).removeAll(params);
 	}
 
 	/**
 	 * Removes certain parameter validations from this step.
 	 *
-	 * @param rParams The parameters to remove the validations for
+	 * @param params The parameters to remove the validations for
 	 */
 	public void removeParameterValidations(
-		Collection<? extends RelationType<?>> rParams) {
-		Map<RelationType<?>, Function<?, String>> rFinishValidations =
+		Collection<? extends RelationType<?>> params) {
+		Map<RelationType<?>, Function<?, String>> finishValidations =
 			getParameterValidations(false);
-		Map<RelationType<?>, Function<?, String>> rInteractionValidations =
+		Map<RelationType<?>, Function<?, String>> interactionValidations =
 			getParameterValidations(true);
 
-		for (RelationType<?> rParam : rParams) {
-			rFinishValidations.remove(rParam);
-			rInteractionValidations.remove(rParam);
+		for (RelationType<?> param : params) {
+			finishValidations.remove(param);
+			interactionValidations.remove(param);
 		}
 	}
 
 	/**
 	 * Removes certain parameter validations from this step.
 	 *
-	 * @param rParams The parameters to remove the validations for
+	 * @param params The parameters to remove the validations for
 	 */
-	public void removeParameterValidations(RelationType<?>... rParams) {
-		removeParameterValidations(Arrays.asList(rParams));
+	public void removeParameterValidations(RelationType<?>... params) {
+		removeParameterValidations(Arrays.asList(params));
 	}
 
 	/**
@@ -261,17 +258,18 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * current step. This is typically used for enumerated parameters with an
 	 * immediate interaction flag set.
 	 *
-	 * @param bContinue TRUE to continue the process on interaction, FALSE to
-	 *                  stay in the same step
-	 * @param rParams   The parameters to set or remove the continuation mark
-	 *                  for
+	 * @param continueOnInteraction TRUE to continue the process on
+	 *                                 interaction,
+	 *                              FALSE to stay in the same step
+	 * @param params                The parameters to set or remove the
+	 *                              continuation mark for
 	 */
-	public void setContinueOnInteraction(boolean bContinue,
-		RelationType<?>... rParams) {
-		if (bContinue) {
-			get(CONTINUATION_PARAMS).addAll(Arrays.asList(rParams));
+	public void setContinueOnInteraction(boolean continueOnInteraction,
+		RelationType<?>... params) {
+		if (continueOnInteraction) {
+			get(CONTINUATION_PARAMS).addAll(Arrays.asList(params));
 		} else {
-			get(CONTINUATION_PARAMS).removeAll(Arrays.asList(rParams));
+			get(CONTINUATION_PARAMS).removeAll(Arrays.asList(params));
 		}
 	}
 
@@ -282,19 +280,19 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * will
 	 * be created with an initial value of NULL.
 	 *
-	 * @param rParams The parameter types to be marked as mandatory
+	 * @param params The parameter types to be marked as mandatory
 	 */
-	public void setMandatory(RelationType<?>... rParams) {
-		for (RelationType<?> rParam : rParams) {
-			set(rParam, null).annotate(MANDATORY);
+	public void setMandatory(RelationType<?>... params) {
+		for (RelationType<?> param : params) {
+			set(param, null).annotate(MANDATORY);
 		}
 	}
 
 	/**
 	 * @see #setParameterNotEmptyValidations(Collection)
 	 */
-	public void setParameterNotEmptyValidations(RelationType<?>... rParams) {
-		setParameterNotEmptyValidations(Arrays.asList(rParams));
+	public void setParameterNotEmptyValidations(RelationType<?>... params) {
+		setParameterNotEmptyValidations(Arrays.asList(params));
 	}
 
 	/**
@@ -306,30 +304,30 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * to have a size greater than zero. Otherwise this method has the same
 	 * effect as {@link #setParameterNotNullValidations(Collection)}.
 	 *
-	 * @param rParams The parameters to validate
+	 * @param params The parameters to validate
 	 * @see #setParameterValidation(RelationType, String, Predicate)
 	 */
 	public void setParameterNotEmptyValidations(
-		Collection<? extends RelationType<?>> rParams) {
-		for (RelationType<?> rParam : rParams) {
-			Class<?> rDatatype = rParam.getTargetType();
+		Collection<? extends RelationType<?>> params) {
+		for (RelationType<?> param : params) {
+			Class<?> datatype = param.getTargetType();
 
-			if (CharSequence.class.isAssignableFrom(rDatatype)) {
+			if (CharSequence.class.isAssignableFrom(datatype)) {
 				@SuppressWarnings("unchecked")
-				RelationType<CharSequence> rStringParam =
-					(RelationType<CharSequence>) rParam;
+				RelationType<CharSequence> stringParam =
+					(RelationType<CharSequence>) param;
 
-				setParameterValidation(rStringParam, MSG_PARAM_NOT_SET,
+				setParameterValidation(stringParam, MSG_PARAM_NOT_SET,
 					StringFunctions.isEmpty());
-			} else if (Collection.class.isAssignableFrom(rDatatype)) {
+			} else if (Collection.class.isAssignableFrom(datatype)) {
 				@SuppressWarnings("unchecked")
-				RelationType<Collection<?>> rCollectionParam =
-					(RelationType<Collection<?>>) rParam;
+				RelationType<Collection<?>> collectionParam =
+					(RelationType<Collection<?>>) param;
 
-				setParameterValidation(rCollectionParam, MSG_PARAM_NOT_SET,
+				setParameterValidation(collectionParam, MSG_PARAM_NOT_SET,
 					Collection::isEmpty);
 			} else {
-				setParameterValidation(rParam, MSG_PARAM_NOT_SET, isNull());
+				setParameterValidation(param, MSG_PARAM_NOT_SET, isNull());
 			}
 		}
 	}
@@ -337,21 +335,21 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	/**
 	 * A shortcut method to validate that certain parameters are not NULL.
 	 *
-	 * @param rParams The parameters to check
+	 * @param params The parameters to check
 	 */
-	public void setParameterNotNullValidations(RelationType<?>... rParams) {
-		setParameterNotNullValidations(Arrays.asList(rParams));
+	public void setParameterNotNullValidations(RelationType<?>... params) {
+		setParameterNotNullValidations(Arrays.asList(params));
 	}
 
 	/**
 	 * A shortcut method to validate that certain parameters are not NULL.
 	 *
-	 * @param rParams The parameters to check
+	 * @param params The parameters to check
 	 */
 	public void setParameterNotNullValidations(
-		Collection<? extends RelationType<?>> rParams) {
-		for (RelationType<?> rParam : rParams) {
-			setParameterValidation(rParam, MSG_PARAM_NOT_SET, isNull());
+		Collection<? extends RelationType<?>> params) {
+		for (RelationType<?> param : params) {
+			setParameterValidation(param, MSG_PARAM_NOT_SET, isNull());
 		}
 	}
 
@@ -362,14 +360,14 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * describes why the value is invalid (typically a resource key). Invoking
 	 * this method overrides any previous validation function.
 	 *
-	 * @param rParam         The parameter to check
-	 * @param bOnInteraction TRUE to validate on each interaction, FALSE to
-	 *                       validate only if the process step is finished
-	 * @param fValidation    The validation function
+	 * @param param         The parameter to check
+	 * @param onInteraction TRUE to validate on each interaction, FALSE to
+	 *                      validate only if the process step is finished
+	 * @param validation    The validation function
 	 */
-	public <T> void setParameterValidation(RelationType<T> rParam,
-		boolean bOnInteraction, Function<? super T, String> fValidation) {
-		getParameterValidations(bOnInteraction).put(rParam, fValidation);
+	public <T> void setParameterValidation(RelationType<T> param,
+		boolean onInteraction, Function<? super T, String> validation) {
+		getParameterValidations(onInteraction).put(param, validation);
 	}
 
 	/**
@@ -378,31 +376,31 @@ public abstract class ProcessElement extends SerializableRelatedObject {
 	 * parameter value is invalid, i.e. it must return TRUE if the value is
 	 * invalid and FALSE if it is valid.
 	 *
-	 * @param rParam       The parameter to check
-	 * @param sInvalidInfo The string to return if the parameter is invalid
-	 * @param pIsInvalid   A predicate that checks if the parameter is invalid
+	 * @param param       The parameter to check
+	 * @param invalidInfo The string to return if the parameter is invalid
+	 * @param isInvalid   A predicate that checks if the parameter is invalid
 	 * @see #setParameterValidation(RelationType, boolean, Function)
 	 */
-	public <T> void setParameterValidation(RelationType<T> rParam,
-		String sInvalidInfo, Predicate<? super T> pIsInvalid) {
-		setParameterValidation(rParam, false,
-			Functions.doIf(pIsInvalid, value(sInvalidInfo)));
+	public <T> void setParameterValidation(RelationType<T> param,
+		String invalidInfo, Predicate<? super T> isInvalid) {
+		setParameterValidation(param, false,
+			Functions.doIf(isInvalid, value(invalidInfo)));
 	}
 
 	/**
 	 * Returns the parameter validations for a certain validation type.
 	 *
-	 * @param bOnInteraction TRUE for interaction validations, FALSE for
-	 *                       finishing validations
+	 * @param onInteraction TRUE for interaction validations, FALSE for
+	 *                      finishing validations
 	 * @return The mapping from parameter types to validation functions
 	 */
 	protected Map<RelationType<?>, Function<?, String>> getParameterValidations(
-		boolean bOnInteraction) {
-		Map<RelationType<?>, Function<?, String>> rParamValidations =
-			bOnInteraction ?
+		boolean onInteraction) {
+		Map<RelationType<?>, Function<?, String>> paramValidations =
+			onInteraction ?
 			get(INTERACTION_PARAM_VALIDATIONS) :
 			get(PARAM_VALIDATIONS);
 
-		return rParamValidations;
+		return paramValidations;
 	}
 }

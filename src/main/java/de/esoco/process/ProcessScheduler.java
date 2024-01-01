@@ -29,9 +29,9 @@ public interface ProcessScheduler {
 	 * Adds the schedule process defined by the Entity to the management of the
 	 * scheduler.
 	 *
-	 * @param rProcessDescription The Entity that defines the schedule process.
+	 * @param processDescription The Entity that defines the schedule process.
 	 */
-	public void addScheduleProcess(Entity rProcessDescription);
+	void addScheduleProcess(Entity processDescription);
 
 	/**
 	 * Must be implemented by subclasses to provide access to the entity to be
@@ -40,74 +40,73 @@ public interface ProcessScheduler {
 	 * @return An entity instance that will be used as the user of schedule
 	 * processes
 	 */
-	public Entity getScheduleProcessUser();
+	Entity getScheduleProcessUser();
 
 	/**
 	 * Returns TRUE if the process scheduler is enabled and FALSE otherwise.
 	 *
 	 * @return TRUE if the process scheduler is enabled and FALSE otherwise.
 	 */
-	public boolean isProcessSchedulingEnabled();
+	boolean isProcessSchedulingEnabled();
 
 	/**
 	 * Notify about a change or edit of a schedule process.
 	 */
-	public void notifyScheduleProcessChanged();
+	void notifyScheduleProcessChanged();
 
 	/**
 	 * Notify about a schedule process that has finished execution.
 	 *
-	 * @param rProcess The schedule process that has finished
+	 * @param process The schedule process that has finished
 	 */
-	public void notifyScheduleProcessFinished(Process rProcess);
+	void notifyScheduleProcessFinished(Process process);
 
 	/**
 	 * Notify about a schedule process that is about to start execution.
 	 *
-	 * @param rProcess The schedule process that is starting
+	 * @param process The schedule process that is starting
 	 */
-	public void notifyScheduleProcessStarting(Process rProcess);
+	void notifyScheduleProcessStarting(Process process);
 
 	/**
 	 * Removes the process from the management of the scheduler.
 	 *
-	 * @param sEntityId ProcessDescription the Entity that defines the schedule
-	 *                  process
+	 * @param entityId ProcessDescription the Entity that defines the schedule
+	 *                 process
 	 */
-	public void removeScheduleProcess(String sEntityId);
+	void removeScheduleProcess(String entityId);
 
 	/**
 	 * Resumes the execution of a process if it is currently suspended. This is
 	 * useful if a schedule process should be run immediately although it is in
 	 * an idle state waiting the period time for the next execution.
 	 *
-	 * @param rProcessDefinitionClass The process description of the schedule
-	 *                                process
+	 * @param processDefinitionClass The process description of the schedule
+	 *                               process
 	 */
-	public void resumeProcess(
-		Class<? extends ProcessDefinition> rProcessDefinitionClass);
+	void resumeProcess(
+		Class<? extends ProcessDefinition> processDefinitionClass);
 
 	/**
 	 * Resumes the process defined by the Entity-Id.
 	 *
-	 * @param sEntityId The Id of the Entity that defines the process.
+	 * @param entityId The Id of the Entity that defines the process.
 	 */
-	public void resumeScheduleProcess(String sEntityId);
+	void resumeScheduleProcess(String entityId);
 
 	/**
 	 * Runs the process defined by the Entity immediately.
 	 *
-	 * @param sEntityId rProcessDescription The Entity that defines the
-	 *                     schedule
-	 *                  process.
+	 * @param entityId processDescription The Entity that defines the schedule
+	 *                 process.
 	 */
-	public void runScheduleProcessNow(String sEntityId);
+	void runScheduleProcessNow(String entityId);
 
 	/**
 	 * Stops the schedule process and suspends the execution of this process
 	 * until resumeScheduleProcess is called.
 	 *
-	 * @param sEntityId The Id of the Entity that defines the process.
+	 * @param entityId The Id of the Entity that defines the process.
 	 */
-	public void suspendScheduleProcess(String sEntityId);
+	void suspendScheduleProcess(String entityId);
 }

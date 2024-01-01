@@ -22,12 +22,11 @@ import de.esoco.lib.expression.Action;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Orientation;
+import org.obrel.core.RelationType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.ContentProperties.RESOURCE_ID;
 import static de.esoco.lib.property.LayoutProperties.COLUMNS;
@@ -55,47 +54,48 @@ public class EditText extends InteractionFragment {
 
 	private static final long serialVersionUID = 1L;
 
-	private final RelationType<String> rValueParam;
+	private final RelationType<String> valueParam;
 
-	private final EditListener<String> rEditListener;
+	private final EditListener<String> editListener;
 
-	private boolean bAllowCreate;
+	private final boolean allowCreate;
 
-	private boolean bAllowEdit;
+	private boolean allowEdit;
 
-	private RelationType<List<RelationType<?>>> aActionPanelParam;
+	private RelationType<List<RelationType<?>>> actionPanelParam;
 
-	private RelationType<TextAction> aTextActionParam;
+	private RelationType<TextAction> textActionParam;
 
-	private RelationType<EditAction> aEditActionParam;
+	private RelationType<EditAction> editActionParam;
 
-	private RelationType<String> aEditInfoParam;
+	private RelationType<String> editInfoParam;
 
-	private List<RelationType<?>> aInteractionParams;
+	private List<RelationType<?>> interactionParams;
 
-	private List<RelationType<?>> aInputParams;
+	private List<RelationType<?>> inputParams;
 
-	private List<RelationType<?>> aActionPanelParams;
+	private List<RelationType<?>> actionPanelParams;
 
-	private Map<RelationType<? extends Enum<?>>, Action<?>> aAdditionalActions;
+	private Map<RelationType<? extends Enum<?>>, Action<?>> additionalActions;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rValueParam   The parameter that stores the edited value
-	 * @param rEditListener An optional listener for edit events or NULL for
-	 *                      none
-	 * @param bAllowCreate  TRUE to add an action to create new values, FALSE
-	 *                      for edit only
-	 * @param bAllowEdit    TRUE to allow the editing of the displayed value
+	 * @param valueParam   The parameter that stores the edited value
+	 * @param editListener An optional listener for edit events or NULL for
+	 *                     none
+	 * @param allowCreate  TRUE to add an action to create new values, FALSE
+	 *                       for
+	 *                     edit only
+	 * @param allowEdit    TRUE to allow the editing of the displayed value
 	 */
-	public EditText(RelationType<String> rValueParam,
-		EditListener<String> rEditListener, boolean bAllowCreate,
-		boolean bAllowEdit) {
-		this.rValueParam = rValueParam;
-		this.rEditListener = rEditListener;
-		this.bAllowCreate = bAllowCreate;
-		this.bAllowEdit = bAllowEdit;
+	public EditText(RelationType<String> valueParam,
+		EditListener<String> editListener, boolean allowCreate,
+		boolean allowEdit) {
+		this.valueParam = valueParam;
+		this.editListener = editListener;
+		this.allowCreate = allowCreate;
+		this.allowEdit = allowEdit;
 	}
 
 	/**
@@ -111,30 +111,30 @@ public class EditText extends InteractionFragment {
 	 * instance of this class but latest before it's {@link #setup()} method is
 	 * invoked.</p>
 	 *
-	 * @param rActionParam The parameter relation type for the action enum
-	 * @param fHandler     The handler for the action or NULL for none
+	 * @param actionParam The parameter relation type for the action enum
+	 * @param handler     The handler for the action or NULL for none
 	 */
-	public <E extends Enum<E>> void addAction(RelationType<E> rActionParam,
-		Action<E> fHandler) {
-		if (aAdditionalActions == null) {
-			aAdditionalActions = new LinkedHashMap<>();
+	public <E extends Enum<E>> void addAction(RelationType<E> actionParam,
+		Action<E> handler) {
+		if (additionalActions == null) {
+			additionalActions = new LinkedHashMap<>();
 		}
 
-		aAdditionalActions.put(rActionParam, fHandler);
+		additionalActions.put(actionParam, handler);
 	}
 
 	/**
 	 * Activates or deactivates the possibility to edit the text.
 	 *
-	 * @param bAllow TRUE to allow editing, FALSE to disable the action
+	 * @param allow TRUE to allow editing, FALSE to disable the action
 	 */
-	public void allowEdit(boolean bAllow) {
-		bAllowEdit = bAllow;
+	public void allowEdit(boolean allow) {
+		allowEdit = allow;
 
-		if (bAllow) {
-			enableAllElements(aTextActionParam);
+		if (allow) {
+			enableAllElements(textActionParam);
 		} else {
-			disableElements(aTextActionParam, TextAction.EDIT);
+			disableElements(textActionParam, TextAction.EDIT);
 		}
 	}
 
@@ -143,7 +143,7 @@ public class EditText extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInputParameters() {
-		return aInputParams;
+		return inputParams;
 	}
 
 	/**
@@ -151,33 +151,33 @@ public class EditText extends InteractionFragment {
 	 */
 	@Override
 	public List<RelationType<?>> getInteractionParameters() {
-		return aInteractionParams;
+		return interactionParams;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleInteraction(RelationType<?> rInteractionParam)
+	public void handleInteraction(RelationType<?> interactionParam)
 		throws Exception {
-		if (rInteractionParam == rValueParam) {
-			if (bAllowEdit && !hasUIFlag(EDITABLE, rValueParam)) {
+		if (interactionParam == valueParam) {
+			if (allowEdit && !hasUIFlag(EDITABLE, valueParam)) {
 				startEditing(false);
 			}
-		} else if (rInteractionParam == aTextActionParam) {
-			startEditing(getParameter(aTextActionParam) == TextAction.NEW);
-		} else if (rInteractionParam == aEditActionParam) {
-			stopEditing(getParameter(aEditActionParam));
+		} else if (interactionParam == textActionParam) {
+			startEditing(getParameter(textActionParam) == TextAction.NEW);
+		} else if (interactionParam == editActionParam) {
+			stopEditing(getParameter(editActionParam));
 		} else {
-			for (RelationType<? extends Enum<?>> rActionParam :
-				aAdditionalActions.keySet()) {
-				if (rInteractionParam == rActionParam) {
+			for (RelationType<? extends Enum<?>> actionParam :
+				additionalActions.keySet()) {
+				if (interactionParam == actionParam) {
 					@SuppressWarnings("unchecked")
-					Action<Enum<?>> fHandler =
-						(Action<Enum<?>>) aAdditionalActions.get(rActionParam);
+					Action<Enum<?>> handler =
+						(Action<Enum<?>>) additionalActions.get(actionParam);
 
-					if (fHandler != null) {
-						fHandler.execute(getParameter(rActionParam));
+					if (handler != null) {
+						handler.execute(getParameter(actionParam));
 					}
 
 					break;
@@ -191,38 +191,38 @@ public class EditText extends InteractionFragment {
 	 */
 	@Override
 	public void init() throws Exception {
-		setInteractive(aTextActionParam, null, ListStyle.IMMEDIATE);
-		setInteractive(aEditActionParam, null, ListStyle.IMMEDIATE);
+		setInteractive(textActionParam, null, ListStyle.IMMEDIATE);
+		setInteractive(editActionParam, null, ListStyle.IMMEDIATE);
 
-		setUIFlag(HIDE_LABEL, rValueParam, aEditInfoParam);
-		setUIFlag(HIDE_LABEL, aTextActionParam, aEditActionParam);
-		setUIFlag(HAS_IMAGES, aTextActionParam, aEditActionParam);
-		setUIFlag(SAME_ROW, aEditActionParam, aEditInfoParam);
+		setUIFlag(HIDE_LABEL, valueParam, editInfoParam);
+		setUIFlag(HIDE_LABEL, textActionParam, editActionParam);
+		setUIFlag(HAS_IMAGES, textActionParam, editActionParam);
+		setUIFlag(SAME_ROW, editActionParam, editInfoParam);
 
-		if (aAdditionalActions != null) {
-			setUIFlag(SAME_ROW, aAdditionalActions.keySet());
+		if (additionalActions != null) {
+			setUIFlag(SAME_ROW, additionalActions.keySet());
 		}
 
-		if (bAllowCreate) {
-			setUIProperty(2, COLUMNS, aTextActionParam);
+		if (allowCreate) {
+			setUIProperty(2, COLUMNS, textActionParam);
 		} else {
-			setAllowedValues(aTextActionParam, TextAction.EDIT);
+			setAllowedValues(textActionParam, TextAction.EDIT);
 		}
 
-		setUIProperty(-1, ROWS, rValueParam);
-		setUIProperty(2, COLUMNS, aEditActionParam);
+		setUIProperty(-1, ROWS, valueParam);
+		setUIProperty(2, COLUMNS, editActionParam);
 
-		setUIProperty(RESOURCE_ID, "EditTextActions", aActionPanelParam);
-		setUIProperty(RESOURCE_ID, "EditTextTextAction", aTextActionParam);
-		setUIProperty(RESOURCE_ID, "EditTextEditAction", aEditActionParam);
-		setUIProperty(RESOURCE_ID, "EditTextInfo", aEditInfoParam);
+		setUIProperty(RESOURCE_ID, "EditTextActions", actionPanelParam);
+		setUIProperty(RESOURCE_ID, "EditTextTextAction", textActionParam);
+		setUIProperty(RESOURCE_ID, "EditTextEditAction", editActionParam);
+		setUIProperty(RESOURCE_ID, "EditTextInfo", editInfoParam);
 
-		setUIProperty(STYLE, "EditTextValue", rValueParam);
-		setUIProperty(STYLE, "EditTextActions", aActionPanelParam);
+		setUIProperty(STYLE, "EditTextValue", valueParam);
+		setUIProperty(STYLE, "EditTextActions", actionPanelParam);
 
-		addPanel(aActionPanelParam, LayoutType.TABLE, aActionPanelParams);
+		addPanel(actionPanelParam, LayoutType.TABLE, actionPanelParams);
 
-		setUIProperty(34, HEIGHT, aActionPanelParam);
+		setUIProperty(34, HEIGHT, actionPanelParam);
 		setUIProperty(ORIENTATION, Orientation.VERTICAL,
 			getFragmentParameter());
 		setLayout(LayoutType.DOCK, getFragmentParameter());
@@ -237,18 +237,18 @@ public class EditText extends InteractionFragment {
 	 * @return TRUE if edit mode is active
 	 */
 	public boolean isEditing() {
-		return hasUIFlag(EDITABLE, rValueParam);
+		return hasUIFlag(EDITABLE, valueParam);
 	}
 
 	/**
 	 * Sets an info string that describes the currently displayed or edited
 	 * data.
 	 *
-	 * @param sInfo The info string (empty to clear)
+	 * @param info The info string (empty to clear)
 	 */
-	public void setEditInfo(String sInfo) {
-		setVisible(sInfo.length() > 0, aEditInfoParam);
-		setParameter(aEditInfoParam, sInfo);
+	public void setEditInfo(String info) {
+		setVisible(info.length() > 0, editInfoParam);
+		setParameter(editInfoParam, info);
 	}
 
 	/**
@@ -256,73 +256,71 @@ public class EditText extends InteractionFragment {
 	 */
 	@Override
 	public void setup() {
-		String sName = rValueParam.getSimpleName();
+		String name = valueParam.getSimpleName();
 
-		aActionPanelParam =
-			getTemporaryListType(sName + "_ACTION_PANEL", RelationType.class);
-		aTextActionParam =
-			getTemporaryParameterType(sName + "_TEXT_ACTION",
-				TextAction.class);
-		aEditActionParam =
-			getTemporaryParameterType(sName + "_EDIT_ACTION",
-				EditAction.class);
-		aEditInfoParam =
-			getTemporaryParameterType(sName + "_EDIT_INFO", String.class);
+		actionPanelParam =
+			getTemporaryListType(name + "_ACTION_PANEL", RelationType.class);
+		textActionParam =
+			getTemporaryParameterType(name + "_TEXT_ACTION", TextAction.class);
+		editActionParam =
+			getTemporaryParameterType(name + "_EDIT_ACTION", EditAction.class);
+		editInfoParam =
+			getTemporaryParameterType(name + "_EDIT_INFO", String.class);
 
-		aInteractionParams = params(rValueParam, aActionPanelParam);
-		aInputParams = params(rValueParam, aActionPanelParam);
-		aActionPanelParams =
-			params(aTextActionParam, aEditActionParam, aEditInfoParam);
+		interactionParams = params(valueParam, actionPanelParam);
+		inputParams = params(valueParam, actionPanelParam);
+		actionPanelParams =
+			params(textActionParam, editActionParam, editInfoParam);
 
-		aInputParams.add(aTextActionParam);
-		aInputParams.add(aEditActionParam);
+		inputParams.add(textActionParam);
+		inputParams.add(editActionParam);
 
-		if (aAdditionalActions != null) {
-			aActionPanelParams.addAll(aAdditionalActions.keySet());
-			aInputParams.addAll(aAdditionalActions.keySet());
+		if (additionalActions != null) {
+			actionPanelParams.addAll(additionalActions.keySet());
+			inputParams.addAll(additionalActions.keySet());
 		}
 	}
 
 	/**
 	 * Starts editing the text.
 	 *
-	 * @param bNewValue TRUE if a new value should be created
+	 * @param newValue TRUE if a new value should be created
 	 */
-	public void startEditing(boolean bNewValue) {
-		if (aAdditionalActions != null) {
-			setVisible(false, aAdditionalActions.keySet());
+	public void startEditing(boolean newValue) {
+		if (additionalActions != null) {
+			setVisible(false, additionalActions.keySet());
 		}
 
-		setVisible(false, aTextActionParam);
-		setVisible(true, aEditActionParam);
-		setUIFlag(EDITABLE, rValueParam);
+		setVisible(false, textActionParam);
+		setVisible(true, editActionParam);
+		setUIFlag(EDITABLE, valueParam);
 
-		if (bNewValue) {
-			setParameter(rValueParam, "");
+		if (newValue) {
+			setParameter(valueParam, "");
 		}
 
-		if (rEditListener != null) {
-			rEditListener.editStarted(
-				bNewValue ? null : getParameter(rValueParam));
+		if (editListener != null) {
+			editListener.editStarted(
+				newValue ? null : getParameter(valueParam));
 		}
 	}
 
 	/**
 	 * Starts editing the value.
 	 *
-	 * @param eAction The action to stop the editing with
+	 * @param action The action to stop the editing with
 	 */
-	public void stopEditing(EditAction eAction) {
-		if (eAction != null && rEditListener != null) {
-			rEditListener.editFinished(getParameter(rValueParam), eAction);
+	public void stopEditing(EditAction action) {
+		if (action != null && editListener != null) {
+			editListener.editFinished(getParameter(valueParam), action);
 		}
 
-		clearUIFlag(EDITABLE, rValueParam);
-		setVisible(false, aEditActionParam);
-		setVisible(true, aTextActionParam);
+		clearUIFlag(EDITABLE, valueParam);
+		setVisible(false, editActionParam);
+		setVisible(true, textActionParam);
 
-		if (aAdditionalActions != null) {
-			setVisible(true, aAdditionalActions.keySet());
+		if (additionalActions != null) {
+			setVisible(true, additionalActions.keySet());
 		}
 	}
 

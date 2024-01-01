@@ -18,10 +18,8 @@ package de.esoco.process.ui.component;
 
 import de.esoco.data.element.HierarchicalDataObject;
 import de.esoco.data.element.SelectionDataElement;
-
 import de.esoco.lib.model.ColumnDefinition;
 import de.esoco.lib.property.InteractionEventType;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTableControl;
 import de.esoco.process.ui.event.UiHasActionEvents;
@@ -43,33 +41,33 @@ public class UiDataTable
 	implements UiHasUpdateEvents<SelectionDataElement, UiDataTable>,
 	UiHasActionEvents<SelectionDataElement, UiDataTable> {
 
-	private List<ColumnDefinition> aColumns;
+	private List<ColumnDefinition> columns;
 
-	private List<HierarchicalDataObject> aTableData;
+	private List<HierarchicalDataObject> tableData;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
+	 * @param container The parent container
 	 */
-	public UiDataTable(UiContainer<?> rContainer) {
-		super(rContainer, SelectionDataElement.class);
+	public UiDataTable(UiContainer<?> container) {
+		super(container, SelectionDataElement.class);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rContainer The parent container
-	 * @param rData      The table data
-	 * @param rColumns   The table columns
+	 * @param container The parent container
+	 * @param data      The table data
+	 * @param columns   The table columns
 	 */
-	public UiDataTable(UiContainer<?> rContainer,
-		Collection<HierarchicalDataObject> rData,
-		Collection<ColumnDefinition> rColumns) {
-		this(rContainer);
+	public UiDataTable(UiContainer<?> container,
+		Collection<HierarchicalDataObject> data,
+		Collection<ColumnDefinition> columns) {
+		this(container);
 
-		setData(rData);
-		setColumns(rColumns);
+		setData(data);
+		setColumns(columns);
 	}
 
 	/**
@@ -78,18 +76,18 @@ public class UiDataTable
 	 * @return The current selection (NULL for none)
 	 */
 	public HierarchicalDataObject getSelection() {
-		int nSelection = getValueImpl().getSelectionIndex();
+		int selection = getValueImpl().getSelectionIndex();
 
-		return nSelection >= 0 ? aTableData.get(nSelection) : null;
+		return selection >= 0 ? tableData.get(selection) : null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiDataTable onAction(Consumer<SelectionDataElement> rEventHandler) {
+	public UiDataTable onAction(Consumer<SelectionDataElement> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
@@ -97,13 +95,13 @@ public class UiDataTable
 	 * will receive the currently selected data object or NULL if no object is
 	 * selected.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
 	public final UiDataTable onSelection(
-		Consumer<HierarchicalDataObject> rEventHandler) {
+		Consumer<HierarchicalDataObject> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			v -> rEventHandler.accept(getSelection()));
+			v -> eventHandler.accept(getSelection()));
 	}
 
 	/**
@@ -111,31 +109,31 @@ public class UiDataTable
 	 * click) of this table. The handler will receive the currently selected
 	 * data object or NULL if no object is selected.
 	 *
-	 * @param rEventHandler The event handler
+	 * @param eventHandler The event handler
 	 * @return This instance for concatenation
 	 */
 	public final UiDataTable onSelectionConfirmed(
-		Consumer<HierarchicalDataObject> rEventHandler) {
+		Consumer<HierarchicalDataObject> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.ACTION,
-			v -> rEventHandler.accept(getSelection()));
+			v -> eventHandler.accept(getSelection()));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UiDataTable onUpdate(Consumer<SelectionDataElement> rEventHandler) {
+	public UiDataTable onUpdate(Consumer<SelectionDataElement> eventHandler) {
 		return setParameterEventHandler(InteractionEventType.UPDATE,
-			v -> rEventHandler.accept(v));
+			v -> eventHandler.accept(v));
 	}
 
 	/**
 	 * Sets the table columns.
 	 *
-	 * @param rColumns The table column definitions
+	 * @param columns The table column definitions
 	 */
-	public void setColumns(Collection<ColumnDefinition> rColumns) {
-		aColumns = rColumns != null ? new ArrayList<>(rColumns) : null;
+	public void setColumns(Collection<ColumnDefinition> columns) {
+		columns = columns != null ? new ArrayList<>(columns) : null;
 		setValueImpl(null);
 	}
 
@@ -143,10 +141,10 @@ public class UiDataTable
 	 * Sets the table data as a list of hierarchical data objects that will be
 	 * rendered as the table rows.
 	 *
-	 * @param rData A list of table data objects
+	 * @param data A list of table data objects
 	 */
-	public void setData(Collection<HierarchicalDataObject> rData) {
-		aTableData = rData != null ? new ArrayList<>(rData) : null;
+	public void setData(Collection<HierarchicalDataObject> data) {
+		tableData = data != null ? new ArrayList<>(data) : null;
 		setValueImpl(null);
 	}
 
@@ -156,16 +154,17 @@ public class UiDataTable
 	@Override
 	protected void applyProperties() {
 		if (getValueImpl() == null) {
-			if (aTableData == null) {
+			if (tableData == null) {
 				throw new IllegalStateException("No table data");
 			}
 
-			if (aColumns == null) {
+			if (columns == null) {
 				throw new IllegalStateException("No colums");
 			}
 
-			setValueImpl(new SelectionDataElement(type().getName(), aTableData,
-				aColumns));
+			setValueImpl(
+				new SelectionDataElement(type().getName(), tableData,
+					columns));
 		}
 
 		super.applyProperties();

@@ -28,12 +28,12 @@ public interface StorageAdapterRegistry {
 	/**
 	 * Returns the registered storage adapter for a {@link StorageAdapterId}.
 	 *
-	 * @param rId The adapter ID
+	 * @param id The adapter ID
 	 * @return The storage adapter that has been registered for the given ID or
 	 * NULL for none
 	 * @throws StorageException If retrieving the storage adapter fails
 	 */
-	public StorageAdapter getStorageAdapter(StorageAdapterId rId)
+	StorageAdapter getStorageAdapter(StorageAdapterId id)
 		throws StorageException;
 
 	/**
@@ -41,14 +41,14 @@ public interface StorageAdapterRegistry {
 	 * of a
 	 * storage adapter ID as created by {@link StorageAdapterId#toString()}.
 	 *
-	 * @param sId The adapter ID
+	 * @param id The adapter ID
 	 * @return The storage adapter that has been registered for the given ID or
 	 * NULL for none
 	 * @throws StorageException If retrieving the storage adapter fails
 	 */
-	default StorageAdapter getStorageAdapter(String sId)
+	default StorageAdapter getStorageAdapter(String id)
 		throws StorageException {
-		return getStorageAdapter(new StorageAdapterId(sId));
+		return getStorageAdapter(new StorageAdapterId(id));
 	}
 
 	/**
@@ -59,10 +59,10 @@ public interface StorageAdapterRegistry {
 	 * because the adapter will be garbage collected if neither the ID nor the
 	 * adapter are referenced any longer by any strong reference.
 	 *
-	 * @param rAdapter The adapter to register
+	 * @param adapter The adapter to register
 	 * @return The ID that identifies the adapter
 	 * @throws StorageException If registering the adapter fails
 	 */
-	public StorageAdapterId registerStorageAdapter(StorageAdapter rAdapter)
+	StorageAdapterId registerStorageAdapter(StorageAdapter adapter)
 		throws StorageException;
 }

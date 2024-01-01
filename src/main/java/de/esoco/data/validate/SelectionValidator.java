@@ -18,7 +18,6 @@ package de.esoco.data.validate;
 
 import de.esoco.data.element.HierarchicalDataObject;
 import de.esoco.data.element.SelectionDataElement;
-
 import de.esoco.lib.model.ColumnDefinition;
 
 import java.util.List;
@@ -36,21 +35,21 @@ public class SelectionValidator extends TabularDataValidator
 
 	private static final long serialVersionUID = 1L;
 
-	private List<HierarchicalDataObject> rValues;
+	private List<HierarchicalDataObject> values;
 
 	/**
 	 * Creates a new instance that uses zero-based continuous integer values
 	 * for
 	 * the identification of the data objects.
 	 *
-	 * @param rValues  The hierarchical data objects allowed by this instance
-	 * @param rColumns The table columns
+	 * @param values  The hierarchical data objects allowed by this instance
+	 * @param columns The table columns
 	 */
-	public SelectionValidator(List<HierarchicalDataObject> rValues,
-		List<ColumnDefinition> rColumns) {
-		super(rColumns);
+	public SelectionValidator(List<HierarchicalDataObject> values,
+		List<ColumnDefinition> columns) {
+		super(columns);
 
-		this.rValues = rValues;
+		this.values = values;
 	}
 
 	/**
@@ -63,14 +62,14 @@ public class SelectionValidator extends TabularDataValidator
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (!super.equals(rObj)) {
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 
-		SelectionValidator rOther = (SelectionValidator) rObj;
+		SelectionValidator other = (SelectionValidator) obj;
 
-		return rValues.equals(rOther.rValues);
+		return values.equals(other.values);
 	}
 
 	/**
@@ -78,7 +77,7 @@ public class SelectionValidator extends TabularDataValidator
 	 */
 	@Override
 	public final List<HierarchicalDataObject> getValues() {
-		return rValues;
+		return values;
 	}
 
 	/**
@@ -86,14 +85,14 @@ public class SelectionValidator extends TabularDataValidator
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * super.hashCode() + rValues.hashCode();
+		return 37 * super.hashCode() + values.hashCode();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValid(String sId) {
+	public boolean isValid(String id) {
 		return true;
 	}
 }

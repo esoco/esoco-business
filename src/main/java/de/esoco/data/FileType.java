@@ -25,32 +25,32 @@ public enum FileType {
 	TXT(MimeType.TEXT_PLAIN, ".txt"), XLS(MimeType.MS_EXCEL, ".xls"),
 	XLSX(MimeType.MS_XLSX, ".xlsx"), ZIP(MimeType.ZIP, ".zip");
 
-	private MimeType eMimeType;
+	private final MimeType mimeType;
 
-	private String sFileExtension;
+	private final String fileExtension;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param eMimeType      The MIME type string
-	 * @param sFileExtension The file extension string (including the .)
+	 * @param mimeType      The MIME type string
+	 * @param fileExtension The file extension string (including the .)
 	 */
-	private FileType(MimeType eMimeType, String sFileExtension) {
-		this.eMimeType = eMimeType;
-		this.sFileExtension = sFileExtension;
+	FileType(MimeType mimeType, String fileExtension) {
+		this.mimeType = mimeType;
+		this.fileExtension = fileExtension;
 	}
 
 	/**
 	 * Returns the file type for a certain file extension.
 	 *
-	 * @param sExtension The file extension to search for
+	 * @param extension The file extension to search for
 	 * @return The file type for the given extension or NULL if no match could
 	 * be found
 	 */
-	public static FileType forFileExtension(String sExtension) {
-		for (FileType eFileType : values()) {
-			if (eFileType.sFileExtension.equalsIgnoreCase(sExtension)) {
-				return eFileType;
+	public static FileType forFileExtension(String extension) {
+		for (FileType fileType : values()) {
+			if (fileType.fileExtension.equalsIgnoreCase(extension)) {
+				return fileType;
 			}
 		}
 
@@ -60,14 +60,14 @@ public enum FileType {
 	/**
 	 * Returns the first file type for a certain MIME type.
 	 *
-	 * @param eMimeType The MIME type to search the file type for
+	 * @param mimeType The MIME type to search the file type for
 	 * @return The file type for the given extension or NULL if no match could
 	 * be found
 	 */
-	public static FileType forMimeType(MimeType eMimeType) {
-		for (FileType eFileType : values()) {
-			if (eFileType.eMimeType == eMimeType) {
-				return eFileType;
+	public static FileType forMimeType(MimeType mimeType) {
+		for (FileType fileType : values()) {
+			if (fileType.mimeType == mimeType) {
+				return fileType;
 			}
 		}
 
@@ -80,7 +80,7 @@ public enum FileType {
 	 * @return The fileExtension value
 	 */
 	public String getFileExtension() {
-		return sFileExtension;
+		return fileExtension;
 	}
 
 	/**
@@ -89,6 +89,6 @@ public enum FileType {
 	 * @return The MIME type
 	 */
 	public MimeType getMimeType() {
-		return eMimeType;
+		return mimeType;
 	}
 }

@@ -30,7 +30,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.obrel.core.RelationType;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public abstract class AbstractEntityStorageTest {
 	/**
 	 * The storage reference (initialized in setUp())
 	 */
-	protected Storage rStorage;
+	protected Storage storage;
 
 	/**
 	 * Test initialization.
@@ -68,57 +67,56 @@ public abstract class AbstractEntityStorageTest {
 	 */
 	@BeforeEach
 	public void setUp() throws Exception {
-		StorageDefinition aDef = JdbcStorageDefinition.create(
+		StorageDefinition def = JdbcStorageDefinition.create(
 			"jdbc:h2:mem:testdb;user=sa;password=");
 
 		EntityManager.init();
-		StorageManager.setDefaultStorage(aDef);
+		StorageManager.setDefaultStorage(def);
 
 		// using TestPerson to get the default storage
-		rStorage = StorageManager.getStorage(TestPerson.class);
+		storage = StorageManager.getStorage(TestPerson.class);
 
 		TransactionManager.begin();
-		TransactionManager.addTransactionElement(rStorage);
+		TransactionManager.addTransactionElement(storage);
 
-		rStorage.initObjectStorage(TestPerson.class);
-		rStorage.initObjectStorage(ExtraAttribute.class);
-		rStorage.initObjectStorage(HistoryRecord.class);
+		storage.initObjectStorage(TestPerson.class);
+		storage.initObjectStorage(ExtraAttribute.class);
+		storage.initObjectStorage(HistoryRecord.class);
 	}
 
 	/**
 	 * Performs a rollback and closes the storage.
 	 */
 	@AfterEach
-	public void tearDown()
-		throws StorageException, SQLException, TransactionException {
+	public void tearDown() throws StorageException, TransactionException {
 		TransactionManager.rollback();
 	}
 
 	/**
 	 * Adds contacts to a person entity.
 	 *
-	 * @param rEntity   The person entity
-	 * @param aContacts The contacts in the order email, phone, fax
+	 * @param entity   The person entity
+	 * @param contacts The contacts in the order email, phone, fax
 	 */
-	protected void addContacts(Entity rEntity, String... aContacts) {
-		String[] aTypes = new String[] { "EML", "TEL", "FAX" };
-		int nIndex = 0;
+	protected void addContacts(Entity entity, String... contacts) {
+		String[] types = new String[] { "EML", "TEL", "FAX" };
+		int index = 0;
 
-		RelationType<List<TestContact>> rChildAttr =
-			(rEntity instanceof TestPerson ?
+		RelationType<List<TestContact>> childAttr =
+			(entity instanceof TestPerson ?
 			 TestPerson.CONTACTS :
 			 TestContact.CHILDREN);
 
-		for (String sContact : aContacts) {
-			String sType = aTypes[nIndex++];
+		for (String contact : contacts) {
+			String type = types[index++];
 
-			if (sContact != null) {
-				TestContact aContact = new TestContact();
+			if (contact != null) {
+				TestContact testContact = new TestContact();
 
-				aContact.set(CONTACT_TYPE, sType);
-				aContact.set(CONTACT_VALUE, sContact);
+				testContact.set(CONTACT_TYPE, type);
+				testContact.set(CONTACT_VALUE, contact);
 
-				rEntity.addChildren(rChildAttr, aContact);
+				entity.addChildren(childAttr, testContact);
 			}
 		}
 	}
@@ -126,36 +124,36 @@ public abstract class AbstractEntityStorageTest {
 	/**
 	 * Creates a new person entity.
 	 *
-	 * @param rAttributes The attributes of the person (6 elements)
+	 * @param attributes The attributes of the person (6 elements)
 	 * @return The new entity
 	 */
-	protected TestPerson createPerson(String[] rAttributes) {
-		TestPerson aPerson = new TestPerson();
+	protected TestPerson createPerson(String[] attributes) {
+		TestPerson person = new TestPerson();
 
-		aPerson.set(LASTNAME, rAttributes[0]);
-		aPerson.set(FORENAME, rAttributes[1]);
-		aPerson.set(ADDRESS, rAttributes[2]);
-		aPerson.set(POSTAL_CODE, rAttributes[3]);
-		aPerson.set(CITY, rAttributes[4]);
-		aPerson.set(AGE, Integer.parseInt(rAttributes[5]));
+		person.set(LASTNAME, attributes[0]);
+		person.set(FORENAME, attributes[1]);
+		person.set(ADDRESS, attributes[2]);
+		person.set(POSTAL_CODE, attributes[3]);
+		person.set(CITY, attributes[4]);
+		person.set(AGE, Integer.parseInt(attributes[5]));
 
-		if (rAttributes.length > 6) {
-			addContacts(aPerson,
-				Arrays.copyOfRange(rAttributes, 6, rAttributes.length));
+		if (attributes.length > 6) {
+			addContacts(person,
+				Arrays.copyOfRange(attributes, 6, attributes.length));
 		}
 
-		return aPerson;
+		return person;
 	}
 
 	/**
 	 * Executes a query and returns the resulting entities in a list.
 	 *
-	 * @param pCriteria The query criteria
+	 * @param criteria The query criteria
 	 * @return A list containing the queried entities
 	 * @throws StorageException On errors
 	 */
-	protected List<TestPerson> executePersonQuery(Predicate<Entity> pCriteria)
+	protected List<TestPerson> executePersonQuery(Predicate<Entity> criteria)
 		throws StorageException {
-		return EntityManager.queryEntities(TestPerson.class, pCriteria, 1000);
+		return EntityManager.queryEntities(TestPerson.class, criteria, 1000);
 	}
 }

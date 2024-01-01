@@ -21,14 +21,7 @@ import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.FunctionException;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.logging.Log;
-
 import de.esoco.storage.StorageException;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.IntermediateRelation;
 import org.obrel.core.Relatable;
@@ -36,14 +29,16 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.type.MetaTypes;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import static de.esoco.entity.EntityRelationTypes.arbitraryEntityAttribute;
 import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTES_NAMESPACE;
-
 import static de.esoco.lib.expression.Predicates.equalTo;
-
 import static de.esoco.storage.StorageRelationTypes.STORAGE_DATATYPE;
 import static de.esoco.storage.StorageRelationTypes.STORAGE_LENGTH;
-
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -129,56 +124,54 @@ public class ExtraAttribute extends Entity {
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object checkAttributeValue(RelationType<?> rAttribute,
-			Object rValue) throws StorageException {
-			rValue = super.checkAttributeValue(rAttribute, rValue);
+		public Object checkAttributeValue(RelationType<?> attribute,
+			Object value) throws StorageException {
+			value = super.checkAttributeValue(attribute, value);
 
-			if (rValue instanceof List) {
-				rValue = Collections.unmodifiableList((List<Object>) rValue);
-			} else if (rValue instanceof Set) {
-				rValue = Collections.unmodifiableSet((Set<Object>) rValue);
-			} else if (rValue instanceof Map) {
-				rValue =
-					Collections.unmodifiableMap((Map<Object, Object>) rValue);
+			if (value instanceof List) {
+				value = Collections.unmodifiableList((List<Object>) value);
+			} else if (value instanceof Set) {
+				value = Collections.unmodifiableSet((Set<Object>) value);
+			} else if (value instanceof Map) {
+				value =
+					Collections.unmodifiableMap((Map<Object, Object>) value);
 			}
 
-			return rValue;
+			return value;
 		}
 
 		/**
 		 * @see EntityDefinition#createObject(List, boolean)
 		 */
 		@Override
-		public ExtraAttribute createObject(List<?> rAttributeValues,
-			boolean bAsChild) throws StorageException {
-			ExtraAttribute rXA = super.createObject(rAttributeValues,
-				bAsChild);
+		public ExtraAttribute createObject(List<?> attributeValues,
+			boolean asChild) throws StorageException {
+			ExtraAttribute xA = super.createObject(attributeValues, asChild);
 
-			rXA.set(MetaTypes.INITIALIZING);
+			xA.set(MetaTypes.INITIALIZING);
 
 			try {
-				Relation<RelationType<?>> rKeyRelation = rXA.getRelation(KEY);
+				Relation<RelationType<?>> keyRelation = xA.getRelation(KEY);
 
-				String sValue = (String) rXA.get(VALUE);
+				String value = (String) xA.get(VALUE);
 
-				if (rKeyRelation instanceof IntermediateRelation) {
-					String sKeyName =
-						((IntermediateRelation<?, ?>) rKeyRelation)
-							.getIntermediateTarget()
-							.toString();
+				if (keyRelation instanceof IntermediateRelation) {
+					String keyName = ((IntermediateRelation<?, ?>) keyRelation)
+						.getIntermediateTarget()
+						.toString();
 
-					rXA.deleteRelation(VALUE);
-					rXA.set(VALUE,
-						rRawData -> Conversions.parseValue(rRawData.second(),
-							getKeyRelationType(rRawData.first(), true)),
-						new Pair<String, String>(sKeyName, sValue));
+					xA.deleteRelation(VALUE);
+					xA.set(VALUE,
+						rawData -> Conversions.parseValue(rawData.second(),
+							getKeyRelationType(rawData.first(), true)),
+						new Pair<String, String>(keyName, value));
 				} else {
-					RelationType<?> rKey = rKeyRelation.getTarget();
+					RelationType<?> key = keyRelation.getTarget();
 
-					rXA.set(VALUE, Conversions.parseValue(sValue, rKey));
+					xA.set(VALUE, Conversions.parseValue(value, key));
 				}
 
-				rXA.deleteRelation(MetaTypes.INITIALIZING);
+				xA.deleteRelation(MetaTypes.INITIALIZING);
 			} catch (FunctionException e) {
 				// unwrap any storage exceptions that occur on parsing
 				if (e.getCause() instanceof StorageException) {
@@ -188,7 +181,7 @@ public class ExtraAttribute extends Entity {
 				}
 			}
 
-			return rXA;
+			return xA;
 		}
 
 		/**
@@ -197,17 +190,17 @@ public class ExtraAttribute extends Entity {
 		 * @see EntityDefinition#mapValue(RelationType, Object)
 		 */
 		@Override
-		public Object mapValue(RelationType<?> rAttribute, Object rValue)
+		public Object mapValue(RelationType<?> attribute, Object value)
 			throws StorageException {
-			if (rAttribute == VALUE) {
-				if (rValue != null) {
-					rValue = Conversions.asString(rValue);
+			if (attribute == VALUE) {
+				if (value != null) {
+					value = Conversions.asString(value);
 				}
 			} else {
-				rValue = super.mapValue(rAttribute, rValue);
+				value = super.mapValue(attribute, value);
 			}
 
-			return rValue;
+			return value;
 		}
 
 		/**
@@ -217,42 +210,42 @@ public class ExtraAttribute extends Entity {
 		 * String)
 		 */
 		@Override
-		protected void initRelationTypeAttribute(ExtraAttribute rExtraAttribute,
-			RelationType<RelationType<?>> rRelationTypeAttr, String sKeyName) {
-			RelationType<?> rType = getKeyRelationType(sKeyName, false);
+		protected void initRelationTypeAttribute(ExtraAttribute extraAttribute,
+			RelationType<RelationType<?>> relationTypeAttr, String keyName) {
+			RelationType<?> type = getKeyRelationType(keyName, false);
 
-			if (rType != null) {
-				rExtraAttribute.set(rRelationTypeAttr, rType);
+			if (type != null) {
+				extraAttribute.set(relationTypeAttr, type);
 			} else {
-				rExtraAttribute.set(rRelationTypeAttr,
-					sKey -> getKeyRelationType(sKey, true), sKeyName);
+				extraAttribute.set(relationTypeAttr,
+					key -> getKeyRelationType(key, true), keyName);
 			}
 		}
 
 		/**
 		 * Returns the relation type for a certain extra attribute key.
 		 *
-		 * @param sKeyName    The name of the key
-		 * @param bLogMissing TRUE to log an error if the key relation type
-		 *                    cannot be resolved
+		 * @param keyName    The name of the key
+		 * @param logMissing TRUE to log an error if the key relation type
+		 *                   cannot be resolved
 		 * @return The key relation type or NULL for none
 		 */
-		RelationType<?> getKeyRelationType(String sKeyName,
-			boolean bLogMissing) {
-			RelationType<?> rType = RelationType.valueOf(sKeyName);
+		RelationType<?> getKeyRelationType(String keyName,
+			boolean logMissing) {
+			RelationType<?> type = RelationType.valueOf(keyName);
 
-			if (rType == null) {
-				rType = RelationType.valueOf(
-					EXTRA_ATTRIBUTES_NAMESPACE + "." + sKeyName);
+			if (type == null) {
+				type = RelationType.valueOf(
+					EXTRA_ATTRIBUTES_NAMESPACE + "." + keyName);
 
-				if (rType == null && bLogMissing) {
+				if (type == null && logMissing) {
 					Log.errorf(
 						"Missing extra attribute type %s (in entity " + "%s)",
-						sKeyName, get(ENTITY));
+						keyName, get(ENTITY));
 				}
 			}
 
-			return rType;
+			return type;
 		}
 	}
 }

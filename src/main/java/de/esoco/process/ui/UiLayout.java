@@ -21,11 +21,11 @@ import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.MutableProperties;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.RelativeSize;
-
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,40 +51,40 @@ import static de.esoco.lib.property.LayoutProperties.SMALL_COLUMN_SPAN;
  */
 public class UiLayout extends UiLayoutElement<UiLayout> {
 
-	private final LayoutType eLayoutType;
+	private final LayoutType layoutType;
 
-	private boolean bNextRow = false;
+	private final List<Row> rows = new ArrayList<>();
 
-	private int nCurrentRow = 0;
+	private final List<Column> columns = new ArrayList<>();
 
-	private int nNextColumn = 0;
+	private final List<Cell> cells = new ArrayList<>();
 
-	private List<Row> aRows = new ArrayList<>();
+	private final Set<PropertyName<?>> ignoredProperties = new HashSet<>();
 
-	private List<Column> aColumns = new ArrayList<>();
+	private boolean nextRow = false;
 
-	private List<Cell> aCells = new ArrayList<>();
+	private int currentRow = 0;
 
-	private Set<PropertyName<?>> aIgnoredProperties = new HashSet<>();
+	private int nextColumn = 0;
 
 	/**
 	 * Creates a new instance with a single column and row (i.e. a single
 	 * cell).
 	 *
-	 * @param eLayoutType The layout type
+	 * @param layoutType The layout type
 	 */
-	public UiLayout(LayoutType eLayoutType) {
-		this(eLayoutType, 1, 1);
+	public UiLayout(LayoutType layoutType) {
+		this(layoutType, 1, 1);
 	}
 
 	/**
 	 * Creates a new instance with a single row.
 	 *
-	 * @param eLayoutType The layout type
-	 * @param nColumns    The number of columns in this layout
+	 * @param layoutType The layout type
+	 * @param columns    The number of columns in this layout
 	 */
-	public UiLayout(LayoutType eLayoutType, int nColumns) {
-		this(eLayoutType, 1, nColumns);
+	public UiLayout(LayoutType layoutType, int columns) {
+		this(layoutType, 1, columns);
 	}
 
 	/**
@@ -92,24 +92,24 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * and columns will be created and filled with empty cells (component =
 	 * NULL).
 	 *
-	 * @param eLayoutType The layout type
-	 * @param nRows       The number of rows in this layout
-	 * @param nColumns    The number of columns in this layout
+	 * @param layoutType The layout type
+	 * @param rows       The number of rows in this layout
+	 * @param columns    The number of columns in this layout
 	 */
-	public UiLayout(LayoutType eLayoutType, int nRows, int nColumns) {
-		this.eLayoutType = eLayoutType;
+	public UiLayout(LayoutType layoutType, int rows, int columns) {
+		this.layoutType = layoutType;
 
-		reset(nRows, nColumns);
+		reset(rows, columns);
 	}
 
 	/**
 	 * Applies this layout to the given container.
 	 *
-	 * @param rContainer The container
+	 * @param container The container
 	 */
-	public final void applyTo(UiContainer<?> rContainer) {
+	public final void applyTo(UiContainer<?> container) {
 		if (isModified()) {
-			applyToContainer(rContainer);
+			applyToContainer(container);
 			setModified(false);
 		}
 	}
@@ -125,7 +125,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * @return The layout cells
 	 */
 	public List<Cell> getCells() {
-		return aCells;
+		return cells;
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * @return The column list
 	 */
 	public List<Column> getColumns() {
-		return aColumns;
+		return columns;
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * @return The last row
 	 */
 	public Row getCurrentRow() {
-		return aRows.get(nCurrentRow);
+		return rows.get(currentRow);
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * @return The layout type
 	 */
 	public final LayoutType getLayoutType() {
-		return eLayoutType;
+		return layoutType;
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * @return The row list
 	 */
 	public List<Row> getRows() {
-		return aRows;
+		return rows;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * depends on the respective layout implementation.
 	 */
 	public void nextRow() {
-		bNextRow = true;
+		nextRow = true;
 	}
 
 	/**
@@ -180,34 +180,34 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * the
 	 * layout parameters are not adjusted accordingly (e.g. column count).
 	 *
-	 * @param rColumn The column to remove
+	 * @param column The column to remove
 	 */
-	public void removeColumn(Column rColumn) {
-		for (Cell rCell : rColumn.getCells()) {
-			UiComponent<?, ?> rComponent = rCell.getComponent();
+	public void removeColumn(Column column) {
+		for (Cell cell : column.getCells()) {
+			UiComponent<?, ?> component = cell.getComponent();
 
-			rComponent.getParent().remove(rComponent);
-			rCell.getRow().getCells().remove(rCell);
+			component.getParent().remove(component);
+			cell.getRow().getCells().remove(cell);
 		}
 
-		aColumns.remove(rColumn);
+		columns.remove(column);
 	}
 
 	/**
 	 * Removes a certain row from this layout. This will also remove all
 	 * components in the row cells from their parent container.
 	 *
-	 * @param rRow The row to remove
+	 * @param row The row to remove
 	 */
-	public void removeRow(Row rRow) {
-		for (Cell rCell : rRow.getCells()) {
-			UiComponent<?, ?> rComponent = rCell.getComponent();
+	public void removeRow(Row row) {
+		for (Cell cell : row.getCells()) {
+			UiComponent<?, ?> component = cell.getComponent();
 
-			rComponent.getParent().remove(rComponent);
-			rCell.getColumn().getCells().remove(rCell);
+			component.getParent().remove(component);
+			cell.getColumn().getCells().remove(cell);
 		}
 
-		aRows.remove(rRow);
+		rows.remove(row);
 	}
 
 	/**
@@ -221,42 +221,42 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 *
 	 * <p>Invoked by {@link UiContainer#addComponent(UiComponent)}.</p>
 	 *
-	 * @param rComponent The component that has been added to the container
+	 * @param component The component that has been added to the container
 	 */
-	protected void addComponent(UiComponent<?, ?> rComponent) {
-		Cell aInitialCell = createCell(null, null);
+	protected void addComponent(UiComponent<?, ?> component) {
+		Cell initialCell = createCell(null, null);
 
-		aInitialCell.rComponent = rComponent;
-		aInitialCell.bStartNewRow = bNextRow;
-		bNextRow = false;
+		initialCell.component = component;
+		initialCell.startNewRow = nextRow;
+		nextRow = false;
 
-		rComponent.setLayoutCell(aInitialCell);
+		component.setLayoutCell(initialCell);
 	}
 
 	/**
 	 * Applies this layout to the given container.
 	 *
-	 * @param rContainer The container
+	 * @param container The container
 	 */
-	protected void applyToContainer(UiContainer<?> rContainer) {
-		nNextColumn = 0;
-		nCurrentRow = 0;
+	protected void applyToContainer(UiContainer<?> container) {
+		nextColumn = 0;
+		currentRow = 0;
 
-		for (UiComponent<?, ?> rComponent : rContainer.getComponents()) {
-			layoutComponent(rComponent);
+		for (UiComponent<?, ?> component : container.getComponents()) {
+			layoutComponent(component);
 		}
 
-		for (Cell rCell : aCells) {
-			rCell.checkRepositioning();
+		for (Cell cell : cells) {
+			cell.checkRepositioning();
 		}
 
 		// remove trailing empty rows that may have been created due to
 		// cell repositioning
-		while (nCurrentRow > 0 && aRows.get(nCurrentRow).isEmpty()) {
-			aRows.remove(nCurrentRow--);
+		while (currentRow > 0 && rows.get(currentRow).isEmpty()) {
+			rows.remove(currentRow--);
 		}
 
-		rContainer.set(LAYOUT, eLayoutType);
+		container.set(LAYOUT, layoutType);
 	}
 
 	/**
@@ -264,12 +264,12 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * layout-specific cell types. The default implementation returns an
 	 * instance of the inner class {@link Cell}.
 	 *
-	 * @param rRow    The row of the cell
-	 * @param rColumn The column of the cell
+	 * @param row    The row of the cell
+	 * @param column The column of the cell
 	 * @return The new cell
 	 */
-	protected Cell createCell(Row rRow, Column rColumn) {
-		return new Cell(rRow, rColumn);
+	protected Cell createCell(Row row, Column column) {
+		return new Cell(row, column);
 	}
 
 	/**
@@ -277,12 +277,12 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * grid position. Can be overridden by subclasses that need to modify the
 	 * grid position, e.g. because of irregular grid structures.
 	 *
-	 * @param rRow    The row at which to place the component
-	 * @param rColumn The column at which to place the component
+	 * @param row    The row at which to place the component
+	 * @param column The column at which to place the component
 	 * @return The layout cell
 	 */
-	protected Cell getLayoutCell(Row rRow, Column rColumn) {
-		return rRow.getCell(rColumn.getIndex());
+	protected Cell getLayoutCell(Row row, Column column) {
+		return row.getCell(column.getIndex());
 	}
 
 	/**
@@ -291,23 +291,23 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * have been set on the cell at the given grid coordinate. This method is
 	 * intended to be used by subclasses that allow to define irregular grids.
 	 *
-	 * @param nRow    The index of the cell column
-	 * @param nColumn The index of the cell row
+	 * @param row    The index of the cell column
+	 * @param column The index of the cell row
 	 * @return The next row
 	 */
-	protected Column getNextGridColumn(int nRow, int nColumn) {
-		if (nColumn >= 0) {
-			nColumn += aColumns.get(nColumn).getCell(nRow).get(COLUMN_SPAN, 1);
+	protected Column getNextGridColumn(int row, int column) {
+		if (column >= 0) {
+			column += columns.get(column).getCell(row).get(COLUMN_SPAN, 1);
 
-			if (nColumn >= aColumns.size()) {
-				nColumn = 0;
+			if (column >= columns.size()) {
+				column = 0;
 				proceedToNextRow();
 			}
 		} else {
-			nColumn = 0;
+			column = 0;
 		}
 
-		return aColumns.get(nColumn);
+		return columns.get(column);
 	}
 
 	/**
@@ -315,96 +315,94 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * been set on the cell at the given grid coordinate. This method is
 	 * intended to be used by subclasses that allow to define irregular grids.
 	 *
-	 * @param nRow    The index of the cell row
-	 * @param nColumn The index of the cell column
+	 * @param row    The index of the cell row
+	 * @param column The index of the cell column
 	 * @return The next row
 	 */
-	protected Row getNextGridRow(int nRow, int nColumn) {
-		if (nRow >= 0) {
-			int nSpan = aRows.get(nRow).getCell(nColumn).get(ROW_SPAN, 1);
+	protected Row getNextGridRow(int row, int column) {
+		if (row >= 0) {
+			int span = rows.get(row).getCell(column).get(ROW_SPAN, 1);
 
-			nRow += nSpan;
+			row += span;
 		} else {
-			nRow = 0;
+			row = 0;
 		}
 
-		nCurrentRow = nRow;
+		currentRow = row;
 
-		while (aRows.size() <= nRow) {
+		while (rows.size() <= row) {
 			addRow();
 		}
 
-		return aRows.get(nRow);
+		return rows.get(row);
 	}
 
 	/**
 	 * Can be invoked by subclasses to exclude certain properties from
 	 * application upon components.
 	 *
-	 * @param rProperties The properties to ignore
+	 * @param properties The properties to ignore
 	 */
-	protected void ignoreProperties(PropertyName<?>... rProperties) {
-		for (PropertyName<?> rProperty : rProperties) {
-			aIgnoredProperties.add(rProperty);
-		}
+	protected void ignoreProperties(PropertyName<?>... properties) {
+		Collections.addAll(ignoredProperties, properties);
 	}
 
 	/**
 	 * Checks whether a certain property should be ignored for application on
 	 * components.
 	 *
-	 * @param rProperty The property name
+	 * @param property The property name
 	 * @return TRUE if the property is to be ignored
 	 */
-	protected boolean isIgnored(PropertyName<?> rProperty) {
-		return aIgnoredProperties.contains(rProperty);
+	protected boolean isIgnored(PropertyName<?> property) {
+		return ignoredProperties.contains(property);
 	}
 
 	/**
 	 * Internal method to place a component in the layout. Invoked by
 	 * {@link UiContainer#applyProperties()}.
 	 *
-	 * @param rComponent The component to layout
+	 * @param component The component to layout
 	 */
-	protected void layoutComponent(UiComponent<?, ?> rComponent) {
-		if (rComponent.cell().bStartNewRow || nNextColumn >= aColumns.size()) {
+	protected void layoutComponent(UiComponent<?, ?> component) {
+		if (component.cell().startNewRow || nextColumn >= columns.size()) {
 			// do not proceed on first layout cell (e.g. if nextRow() has been
 			// invoked on empty layout)
-			if (nCurrentRow > 0 || nNextColumn > 0) {
+			if (currentRow > 0 || nextColumn > 0) {
 				proceedToNextRow();
 			}
-		} else if (nNextColumn > 0) {
-			rComponent.set(LayoutProperties.SAME_ROW);
+		} else if (nextColumn > 0) {
+			component.set(LayoutProperties.SAME_ROW);
 		}
 
-		Row rRow = aRows.get(nCurrentRow);
-		Column rColumn = aColumns.get(nNextColumn);
+		Row row = rows.get(currentRow);
+		Column column = columns.get(nextColumn);
 
-		Cell aCell = getLayoutCell(rRow, rColumn);
+		Cell cell = getLayoutCell(row, column);
 
-		aCell.updateFrom(rComponent);
-		rComponent.setLayoutCell(aCell);
+		cell.updateFrom(component);
+		component.setLayoutCell(cell);
 
-		nNextColumn = aCell.getColumn().getIndex() + 1;
+		nextColumn = cell.getColumn().getIndex() + 1;
 	}
 
 	/**
 	 * Resets this layout for recalculation.
 	 *
-	 * @param nRows    The number of rows
-	 * @param nColumns The number of column
+	 * @param rowCount The number of rows
+	 * @param colCount The number of column
 	 */
-	protected void reset(int nRows, int nColumns) {
+	protected void reset(int rowCount, int colCount) {
 		setModified(true);
-		aColumns.clear();
-		aRows.clear();
-		aCells.clear();
+		columns.clear();
+		rows.clear();
+		cells.clear();
 
-		for (int nCol = 0; nCol < nColumns; nCol++) {
-			aColumns.add(new Column(nCol));
+		for (int col = 0; col < colCount; col++) {
+			columns.add(new Column(col));
 		}
 
-		for (int nRow = 0; nRow < nRows; nRow++) {
+		for (int row = 0; row < rowCount; row++) {
 			addRow();
 		}
 	}
@@ -414,12 +412,12 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * an empty cell.
 	 */
 	private void addRow() {
-		Row aRow = new Row(aRows.size());
+		Row row = new Row(rows.size());
 
-		aRows.add(aRow);
+		rows.add(row);
 
-		for (Column rColumn : aColumns) {
-			aCells.add(createCell(aRow, rColumn));
+		for (Column column : columns) {
+			cells.add(createCell(row, column));
 		}
 	}
 
@@ -428,10 +426,10 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 * been filled completely yet. Adds a new row if necessary.
 	 */
 	private void proceedToNextRow() {
-		nNextColumn = 0;
-		nCurrentRow++;
+		nextColumn = 0;
+		currentRow++;
 
-		if (aRows.size() == nCurrentRow) {
+		if (rows.size() == currentRow) {
 			addRow();
 		}
 	}
@@ -445,32 +443,32 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	 */
 	public class Cell extends ChildElement<Cell> {
 
-		private Row rRow;
+		private final Row row;
 
-		private Column rColumn;
+		private final Column column;
 
-		private UiComponent<?, ?> rComponent;
+		private UiComponent<?, ?> component;
 
-		private boolean bStartNewRow = false;
+		private boolean startNewRow = false;
 
-		private int nRepositionRow = -1;
+		private int repositionRow = -1;
 
-		private int nRepositionColumn = -1;
+		private int repositionColumn = -1;
 
 		/**
 		 * Creates a new instance of a cell that is placed at a certain layout
 		 * position. These are the actual layout cells while
 		 *
-		 * @param rRow    The row of the cell
-		 * @param rColumn The column of the cell
+		 * @param row    The row of the cell
+		 * @param column The column of the cell
 		 */
-		protected Cell(Row rRow, Column rColumn) {
-			this.rRow = rRow;
-			this.rColumn = rColumn;
+		protected Cell(Row row, Column column) {
+			this.row = row;
+			this.column = column;
 
-			if (rRow != null) {
-				rRow.getCells().add(this);
-				rColumn.getCells().add(this);
+			if (row != null) {
+				row.getCells().add(this);
+				column.getCells().add(this);
 			}
 		}
 
@@ -480,32 +478,32 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @see ChildElement#applyPropertiesTo(UiComponent)
 		 */
 		@Override
-		public void applyPropertiesTo(UiComponent<?, ?> rComponent) {
-			super.applyPropertiesTo(rComponent);
+		public void applyPropertiesTo(UiComponent<?, ?> component) {
+			super.applyPropertiesTo(component);
 
-			rRow.applyPropertiesTo(rComponent);
-			rColumn.applyPropertiesTo(rComponent);
-			getLayout().applyPropertiesTo(rComponent);
+			row.applyPropertiesTo(component);
+			column.applyPropertiesTo(component);
+			getLayout().applyPropertiesTo(component);
 		}
 
 		/**
 		 * Sets the number of columns this cell occupies in it's layout.
 		 *
-		 * @param nColumns The number of columns
+		 * @param columns The number of columns
 		 * @return This instance for fluent invocation
 		 */
-		public Cell colSpan(int nColumns) {
-			return set(COLUMN_SPAN, nColumns);
+		public Cell colSpan(int columns) {
+			return set(COLUMN_SPAN, columns);
 		}
 
 		/**
 		 * Sets the number of columns this cell occupies as a relative value.
 		 *
-		 * @param eRelativeWidth The relative column span
+		 * @param relativeWidth The relative column span
 		 * @return This instance for fluent invocation
 		 */
-		public Cell colSpan(RelativeSize eRelativeWidth) {
-			return colSpan(eRelativeWidth.calcSize(getColumns().size()));
+		public Cell colSpan(RelativeSize relativeWidth) {
+			return colSpan(relativeWidth.calcSize(getColumns().size()));
 		}
 
 		/**
@@ -521,7 +519,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return The column
 		 */
 		public Column getColumn() {
-			return rColumn;
+			return column;
 		}
 
 		/**
@@ -533,7 +531,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return The component in this cell
 		 */
 		public final UiComponent<?, ?> getComponent() {
-			return rComponent;
+			return component;
 		}
 
 		/**
@@ -548,18 +546,18 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return The row
 		 */
 		public Row getRow() {
-			return rRow;
+			return row;
 		}
 
 		/**
 		 * Sets the height of this cell.
 		 *
-		 * @param nHeight The height value
-		 * @param eUnit   The height unit
+		 * @param height The height value
+		 * @param unit   The height unit
 		 * @return This instance for fluent invocation
 		 */
-		public Cell height(int nHeight, SizeUnit eUnit) {
-			return size(HTML_HEIGHT, nHeight, eUnit);
+		public Cell height(int height, SizeUnit unit) {
+			return size(HTML_HEIGHT, height, unit);
 		}
 
 		/**
@@ -568,19 +566,19 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return TRUE for an empty cell without a component
 		 */
 		public final boolean isEmpty() {
-			return rComponent == null;
+			return component == null;
 		}
 
 		/**
 		 * Sets the grid position at which this cell should be placed.
 		 *
-		 * @param nRow    The row index
-		 * @param nColumn The column index
+		 * @param row    The row index
+		 * @param column The column index
 		 * @return This instance for fluent invocation
 		 */
-		public Cell position(int nRow, int nColumn) {
-			nRepositionRow = nRow;
-			nRepositionColumn = nColumn;
+		public Cell position(int row, int column) {
+			repositionRow = row;
+			repositionColumn = column;
 
 			return this;
 		}
@@ -590,33 +588,33 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * and
 		 * {@link LayoutProperties#MEDIUM_COLUMN_SPAN}.
 		 *
-		 * @param nSmall  the number of columns to span in small-size layouts
-		 * @param nMedium the number of columns to span in medium-size layouts
+		 * @param small  the number of columns to span in small-size layouts
+		 * @param medium the number of columns to span in medium-size layouts
 		 * @return This instance for fluent invocation
 		 */
-		public final Cell responsiveColSpans(int nSmall, int nMedium) {
-			return set(SMALL_COLUMN_SPAN, nSmall).set(MEDIUM_COLUMN_SPAN,
-				nMedium);
+		public final Cell responsiveColSpans(int small, int medium) {
+			return set(SMALL_COLUMN_SPAN, small).set(MEDIUM_COLUMN_SPAN,
+				medium);
 		}
 
 		/**
 		 * Sets the number of columns this cell occupies as a relative value.
 		 *
-		 * @param eRelativeHeight eRelativeWidth The relative column span
+		 * @param relativeHeight relativeWidth The relative column span
 		 * @return This instance for fluent invocation
 		 */
-		public Cell rowSpan(RelativeSize eRelativeHeight) {
-			return rowSpan(eRelativeHeight.calcSize(getRows().size()));
+		public Cell rowSpan(RelativeSize relativeHeight) {
+			return rowSpan(relativeHeight.calcSize(getRows().size()));
 		}
 
 		/**
 		 * Sets the number of rows this cell occupies in it's layout.
 		 *
-		 * @param nRows The number of rows
+		 * @param rows The number of rows
 		 * @return This instance for fluent invocation
 		 */
-		public Cell rowSpan(int nRows) {
-			return set(ROW_SPAN, nRows);
+		public Cell rowSpan(int rows) {
+			return set(ROW_SPAN, rows);
 		}
 
 		/**
@@ -627,7 +625,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return This instance for fluent invocation
 		 */
 		public Cell startNewRow() {
-			bStartNewRow = true;
+			startNewRow = true;
 
 			return this;
 		}
@@ -639,52 +637,52 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		@SuppressWarnings("boxing")
 		public String toString() {
 			return String.format("%s(R%d,C%d)", getClass().getSimpleName(),
-				rRow.getIndex(), rColumn.getIndex());
+				row.getIndex(), column.getIndex());
 		}
 
 		/**
 		 * Sets the relative width of this cell.
 		 *
-		 * @param eWidth The relative size constant for the cell width
+		 * @param width The relative size constant for the cell width
 		 * @return This instance for fluent invocation
 		 */
-		public final Cell width(RelativeSize eWidth) {
-			return set(RELATIVE_WIDTH, eWidth);
+		public final Cell width(RelativeSize width) {
+			return set(RELATIVE_WIDTH, width);
 		}
 
 		/**
 		 * Sets the width of this cell.
 		 *
-		 * @param nWidth The width value
-		 * @param eUnit  The width unit
+		 * @param width The width value
+		 * @param unit  The width unit
 		 * @return This instance for fluent invocation
 		 */
-		public Cell width(int nWidth, SizeUnit eUnit) {
-			return size(HTML_WIDTH, nWidth, eUnit);
+		public Cell width(int width, SizeUnit unit) {
+			return size(HTML_WIDTH, width, unit);
 		}
 
 		/**
 		 * Updates this cell with the data from a certain component's (initial)
 		 * layout cell and also sets the component reference.
 		 *
-		 * @param rComponent The component
+		 * @param component The component
 		 */
-		protected void updateFrom(UiComponent<?, ?> rComponent) {
-			Cell rComponentCell = rComponent.cell();
+		protected void updateFrom(UiComponent<?, ?> component) {
+			Cell componentCell = component.cell();
 
-			this.rComponent = rComponent;
-			bStartNewRow = rComponentCell.bStartNewRow;
-			nRepositionRow = rComponentCell.nRepositionRow;
-			nRepositionColumn = rComponentCell.nRepositionColumn;
+			this.component = component;
+			startNewRow = componentCell.startNewRow;
+			repositionRow = componentCell.repositionRow;
+			repositionColumn = componentCell.repositionColumn;
 
 			// replace cell properties with the combination of component cell
 			// and
 			// layout cell, with precedence for component cell styles
-			MutableProperties rComponentCellProperties =
-				rComponentCell.getProperties();
+			MutableProperties componentCellProperties =
+				componentCell.getProperties();
 
-			rComponentCellProperties.setProperties(getProperties(), false);
-			setProperties(rComponentCellProperties);
+			componentCellProperties.setProperties(getProperties(), false);
+			setProperties(componentCellProperties);
 		}
 
 		/**
@@ -692,27 +690,26 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * been set with {@link #position(int, int)}.
 		 */
 		void checkRepositioning() {
-			if (nRepositionRow >= 0 && nRepositionColumn >= 0) {
-				Cell rNewCell = getLayout()
+			if (repositionRow >= 0 && repositionColumn >= 0) {
+				Cell newCell = getLayout()
 					.getRows()
-					.get(nRepositionRow)
-					.getCell(nRepositionColumn);
+					.get(repositionRow)
+					.getCell(repositionColumn);
 
-				if (rNewCell != this) {
-					if (rNewCell.rComponent != null) {
+				if (newCell != this) {
+					if (newCell.component != null) {
 						throw new IllegalArgumentException(
-							"Cell already has component " +
-								rNewCell.rComponent);
+							"Cell already has component " + newCell.component);
 					}
 
-					rNewCell.rComponent = rComponent;
+					newCell.component = component;
 
-					rNewCell.clearProperties();
-					rNewCell.copyPropertiesFrom(this, true);
+					newCell.clearProperties();
+					newCell.copyPropertiesFrom(this, true);
 					clearProperties();
 
-					rComponent.setLayoutCell(rNewCell);
-					rComponent = null;
+					component.setLayoutCell(newCell);
+					component = null;
 				}
 			}
 		}
@@ -728,42 +725,42 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param nIndex The column index
+		 * @param index The column index
 		 */
-		public Column(int nIndex) {
-			super(nIndex);
+		public Column(int index) {
+			super(index);
 		}
 
 		/**
 		 * Sets the relative width of this column.
 		 *
-		 * @param eWidth The relative size constant for the column width
+		 * @param width The relative size constant for the column width
 		 * @return This instance for fluent invocation
 		 */
-		public final Column width(RelativeSize eWidth) {
-			return set(RELATIVE_WIDTH, eWidth);
+		public final Column width(RelativeSize width) {
+			return set(RELATIVE_WIDTH, width);
 		}
 
 		/**
 		 * Sets the width of this column to a certain HTML size value.
 		 *
-		 * @param sHtmlWidth The HTML width value
+		 * @param htmlWidth The HTML width value
 		 * @return This instance for fluent invocation
 		 */
-		public Column width(String sHtmlWidth) {
-			return set(HTML_WIDTH, sHtmlWidth);
+		public Column width(String htmlWidth) {
+			return set(HTML_WIDTH, htmlWidth);
 		}
 
 		/**
 		 * Sets the width of this column to a certain value and unit. Which
 		 * units are supported depends on the actual layout type used.
 		 *
-		 * @param nWidth The width value
-		 * @param eUnit  The width unit
+		 * @param width The width value
+		 * @param unit  The width unit
 		 * @return This instance for fluent invocation
 		 */
-		public Column width(int nWidth, SizeUnit eUnit) {
-			return size(HTML_WIDTH, nWidth, eUnit);
+		public Column width(int width, SizeUnit unit) {
+			return size(HTML_WIDTH, width, unit);
 		}
 	}
 
@@ -777,32 +774,32 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param nIndex The row index
+		 * @param index The row index
 		 */
-		public Row(int nIndex) {
-			super(nIndex);
+		public Row(int index) {
+			super(index);
 		}
 
 		/**
 		 * Sets the height of this row to a certain HTML size value.
 		 *
-		 * @param sHtmlHeigth The HTML height value
+		 * @param htmlHeigth The HTML height value
 		 * @return This instance for fluent invocation
 		 */
-		public Row height(String sHtmlHeigth) {
-			return set(HTML_HEIGHT, sHtmlHeigth);
+		public Row height(String htmlHeigth) {
+			return set(HTML_HEIGHT, htmlHeigth);
 		}
 
 		/**
 		 * Sets the height of this row to a certain value and unit. Which units
 		 * are supported depends on the actual layout type used.
 		 *
-		 * @param nHeight The height value
-		 * @param eUnit   The height unit
+		 * @param height The height value
+		 * @param unit   The height unit
 		 * @return This instance for fluent invocation
 		 */
-		public Row height(int nHeight, SizeUnit eUnit) {
-			return size(HTML_HEIGHT, nHeight, eUnit);
+		public Row height(int height, SizeUnit unit) {
+			return size(HTML_HEIGHT, height, unit);
 		}
 
 		/**
@@ -811,8 +808,8 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return TRUE if the doesn't contain a component
 		 */
 		public boolean isEmpty() {
-			for (Cell rCell : getCells()) {
-				if (rCell.rComponent != null) {
+			for (Cell cell : getCells()) {
+				if (cell.component != null) {
 					return false;
 				}
 			}
@@ -845,23 +842,23 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @see UiLayoutElement#applyProperty(UiComponent, PropertyName)
 		 */
 		@Override
-		protected <T> void applyProperty(UiComponent<?, ?> rComponent,
-			PropertyName<T> rProperty) {
-			if (!getLayout().isIgnored(rProperty)) {
-				super.applyProperty(rComponent, rProperty);
+		protected <T> void applyProperty(UiComponent<?, ?> component,
+			PropertyName<T> property) {
+			if (!getLayout().isIgnored(property)) {
+				super.applyProperty(component, property);
 			}
 		}
 
 		/**
 		 * Internal method to set a string size property.
 		 *
-		 * @param rSizeProperty The size property
-		 * @param nSize         The size value
-		 * @param eUnit         The size unit
+		 * @param sizeProperty The size property
+		 * @param size         The size value
+		 * @param unit         The size unit
 		 * @return This instance to allow fluent invocations
 		 */
-		E size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit) {
-			return set(rSizeProperty, eUnit.getHtmlSize(nSize));
+		E size(PropertyName<String> sizeProperty, int size, SizeUnit unit) {
+			return set(sizeProperty, unit.getHtmlSize(size));
 		}
 	}
 
@@ -874,19 +871,19 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 	protected abstract class StructureElement<E extends StructureElement<E>>
 		extends ChildElement<E> {
 
-		private final int nIndex;
+		private final int index;
 
-		private UiStyle aStyle = new UiStyle();
+		private final UiStyle style = new UiStyle();
 
-		private List<Cell> aCells = new ArrayList<>();
+		private final List<Cell> cells = new ArrayList<>();
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param nIndex The index of the element in the layout structure
+		 * @param index The index of the element in the layout structure
 		 */
-		public StructureElement(int nIndex) {
-			this.nIndex = nIndex;
+		public StructureElement(int index) {
+			this.index = index;
 		}
 
 		/**
@@ -896,10 +893,10 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @see UiLayout#ignoreProperties(PropertyName...)
 		 */
 		@Override
-		public void applyPropertiesTo(UiComponent<?, ?> rComponent) {
-			super.applyPropertiesTo(rComponent);
+		public void applyPropertiesTo(UiComponent<?, ?> component) {
+			super.applyPropertiesTo(component);
 
-			aStyle.applyPropertiesTo(rComponent);
+			style.applyPropertiesTo(component);
 		}
 
 		/**
@@ -907,11 +904,11 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * positions will be filled but depending on the layout type cells can
 		 * be empty, i.e. their component may be NULL.
 		 *
-		 * @param nIndex The cell index in this element
+		 * @param index The cell index in this element
 		 * @return The list of column cells
 		 */
-		public final Cell getCell(int nIndex) {
-			return aCells.get(nIndex);
+		public final Cell getCell(int index) {
+			return cells.get(index);
 		}
 
 		/**
@@ -921,7 +918,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return The list of column cells
 		 */
 		public final List<Cell> getCells() {
-			return aCells;
+			return cells;
 		}
 
 		/**
@@ -930,7 +927,7 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return The index
 		 */
 		public final int getIndex() {
-			return nIndex;
+			return index;
 		}
 
 		/**
@@ -940,20 +937,20 @@ public class UiLayout extends UiLayoutElement<UiLayout> {
 		 * @return The component style
 		 */
 		public final UiStyle style() {
-			return aStyle;
+			return style;
 		}
 
 		/**
 		 * Sets the style of this component to a copy of an existing style
 		 * definition.
 		 *
-		 * @param rStyle The style object to apply
+		 * @param style The style object to apply
 		 * @return The component style to allow subsequent modifications
 		 */
-		public final UiStyle style(UiStyle rStyle) {
-			aStyle = new UiStyle(rStyle);
+		public final UiStyle style(UiStyle style) {
+			style = new UiStyle(style);
 
-			return aStyle;
+			return style;
 		}
 
 		/**

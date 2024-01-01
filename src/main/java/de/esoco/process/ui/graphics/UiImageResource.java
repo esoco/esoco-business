@@ -31,9 +31,9 @@ public class UiImageResource extends UiImageDefinition<UiImageResource> {
 	/**
 	 * Creates a new instance with a certain resource ID.
 	 *
-	 * @param sResourceId The image resource ID
+	 * @param resourceId The image resource ID
 	 */
-	public UiImageResource(String sResourceId) {
-		set(IMAGE, sResourceId);
+	public UiImageResource(String resourceId) {
+		set(IMAGE, resourceId);
 	}
 }

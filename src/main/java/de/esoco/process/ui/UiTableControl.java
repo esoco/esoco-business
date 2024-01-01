@@ -31,29 +31,29 @@ public abstract class UiTableControl<T, C extends UiTableControl<T, C>>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The value datatype
+	 * @param parent   The parent container
+	 * @param datatype The value datatype
 	 */
-	public UiTableControl(UiContainer<?> rParent, Class<T> rDatatype) {
-		super(rParent, rDatatype);
+	public UiTableControl(UiContainer<?> parent, Class<T> datatype) {
+		super(parent, datatype);
 	}
 
 	/**
 	 * Sets the table style.
 	 *
-	 * @param eStyle The new table style
+	 * @param style The new table style
 	 */
-	public void setTableStyle(TableStyle eStyle) {
-		tableStyle(eStyle);
+	public void setTableStyle(TableStyle style) {
+		tableStyle(style);
 	}
 
 	/**
 	 * Sets the table style.
 	 *
-	 * @param eStyle The table style
+	 * @param style The table style
 	 * @return This instance for fluent invocation
 	 */
-	public C tableStyle(TableStyle eStyle) {
-		return set(TABLE_STYLE, eStyle);
+	public C tableStyle(TableStyle style) {
+		return set(TABLE_STYLE, style);
 	}
 }

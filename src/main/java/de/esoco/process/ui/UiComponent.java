@@ -21,7 +21,6 @@ import de.esoco.lib.property.HasProperties;
 import de.esoco.lib.property.LayoutVisibility;
 import de.esoco.lib.property.PropertyName;
 import de.esoco.lib.property.TitleAttribute;
-
 import de.esoco.process.param.ParameterWrapper;
 import de.esoco.process.step.InteractionFragment;
 import de.esoco.process.ui.UiLayout.Cell;
@@ -29,7 +28,6 @@ import de.esoco.process.ui.graphics.UiIconSupplier;
 import de.esoco.process.ui.style.SizeUnit;
 import de.esoco.process.ui.style.UiStyle;
 import de.esoco.process.ui.view.UiRootView;
-
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.property.ContentProperties.LABEL;
@@ -47,47 +45,46 @@ import static de.esoco.lib.property.StyleProperties.SHOW_LABEL;
 public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	extends ParameterWrapper<T, C> {
 
-	private final UiContainer<?> rParent;
+	private final UiContainer<?> parent;
 
-	private UiLayout.Cell rLayoutCell;
+	private UiLayout.Cell layoutCell;
 
-	private UiStyle aStyle = new UiStyle();
+	private final UiStyle style = new UiStyle();
 
-	private UiImageDefinition<?> rImage = null;
+	private UiImageDefinition<?> image = null;
 
 	/**
 	 * Creates a new instance for a certain datatype.
 	 *
-	 * @param rParent   The parent container
-	 * @param rDatatype The datatype of the component value
+	 * @param parent   The parent container
+	 * @param datatype The datatype of the component value
 	 */
-	protected UiComponent(UiContainer<?> rParent, Class<? super T> rDatatype) {
-		this(rParent, rParent.fragment(),
-			rParent.fragment().getTemporaryParameterType(rDatatype));
+	protected UiComponent(UiContainer<?> parent, Class<? super T> datatype) {
+		this(parent, parent.fragment(),
+			parent.fragment().getTemporaryParameterType(datatype));
 	}
 
 	/**
 	 * Creates a new instance for a certain parameter relation type.
 	 *
-	 * @param rParent    The parent container
-	 * @param rFragment  The fragment this component belongs to
-	 * @param rParamType The parameter relation type
+	 * @param parent    The parent container
+	 * @param fragment  The fragment this component belongs to
+	 * @param paramType The parameter relation type
 	 */
-	protected UiComponent(UiContainer<?> rParent,
-		InteractionFragment rFragment,
-		RelationType<T> rParamType) {
-		super(rFragment, rParamType);
+	protected UiComponent(UiContainer<?> parent, InteractionFragment fragment,
+		RelationType<T> paramType) {
+		super(fragment, paramType);
 
-		this.rParent = rParent;
+		this.parent = parent;
 
-		if (rParent != null) {
-			attachTo(rParent);
+		if (parent != null) {
+			attachTo(parent);
 		}
 
-		String sComponentStyle = getComponentStyleName();
+		String componentStyle = getComponentStyleName();
 
-		if (sComponentStyle.length() > 0) {
-			aStyle.defaultStyleName(sComponentStyle);
+		if (componentStyle.length() > 0) {
+			style.defaultStyleName(componentStyle);
 		}
 	}
 
@@ -101,7 +98,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @return The layout cell
 	 */
 	public final Cell cell() {
-		return rLayoutCell;
+		return layoutCell;
 	}
 
 	/**
@@ -110,13 +107,13 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * sure that the given type is actually used by the parent container's
 	 * layout or else an exception will occur.
 	 *
-	 * @param rCellType A sub-type of {@link Cell} that must match the actual
-	 *                  cell type
+	 * @param cellType A sub-type of {@link Cell} that must match the actual
+	 *                 cell type
 	 * @return The layout cell, cast to the given type
 	 */
 	@SuppressWarnings("hiding")
-	public final <C extends Cell> C cell(Class<C> rCellType) {
-		return rCellType.cast(rLayoutCell);
+	public final <C extends Cell> C cell(Class<C> cellType) {
+		return cellType.cast(layoutCell);
 	}
 
 	/**
@@ -125,7 +122,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @return The parent
 	 */
 	public final UiContainer<?> getParent() {
-		return rParent;
+		return parent;
 	}
 
 	/**
@@ -134,11 +131,11 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @return The root view
 	 */
 	public UiRootView getRootView() {
-		UiView<?> rView = getView();
+		UiView<?> view = getView();
 
-		return rView instanceof UiRootView ?
-		       (UiRootView) rView :
-		       rView.getRootView();
+		return view instanceof UiRootView ?
+		       (UiRootView) view :
+		       view.getRootView();
 	}
 
 	/**
@@ -147,31 +144,30 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @return The parent view
 	 */
 	public UiView<?> getView() {
-		return rParent instanceof UiView ?
-		       (UiView<?>) rParent :
-		       rParent.getView();
+		return parent instanceof UiView ? (UiView<?>) parent :
+		       parent.getView();
 	}
 
 	/**
 	 * Sets the height of this component.
 	 *
-	 * @param nHeight The height value
-	 * @param eUnit   The height unit
+	 * @param height The height value
+	 * @param unit   The height unit
 	 * @return This instance for concatenation
 	 */
-	public C height(int nHeight, SizeUnit eUnit) {
-		return size(HTML_HEIGHT, nHeight, eUnit);
+	public C height(int height, SizeUnit unit) {
+		return size(HTML_HEIGHT, height, unit);
 	}
 
 	/**
 	 * Sets a label for this component. How exactly the label is rendered and
 	 * where it is placed dependend on the parent container and it's layout.
 	 *
-	 * @param sLabel The label text or NULL for none
+	 * @param label The label text or NULL for none
 	 * @return This instance for concatenation
 	 */
-	public C label(String sLabel) {
-		if (sLabel != null) {
+	public C label(String label) {
+		if (label != null) {
 			clear(HIDE_LABEL);
 			set(SHOW_LABEL);
 		} else {
@@ -179,21 +175,21 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 			clear(SHOW_LABEL);
 		}
 
-		return set(LABEL, sLabel);
+		return set(LABEL, label);
 	}
 
 	/**
 	 * Places this component before another component in the same parent
 	 * container.
 	 *
-	 * @param rBeforeComponent The component to place this component before
+	 * @param beforeComponent The component to place this component before
 	 * @return This instance for concatenation
 	 * @throws IllegalArgumentException If the given component is not found in
 	 *                                  the parent container
 	 */
 	@SuppressWarnings("unchecked")
-	public C placeBefore(UiComponent<?, ?> rBeforeComponent) {
-		rParent.placeComponentBefore(rBeforeComponent, this);
+	public C placeBefore(UiComponent<?, ?> beforeComponent) {
+		parent.placeComponentBefore(beforeComponent, this);
 
 		return (C) this;
 	}
@@ -202,28 +198,28 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public C resid(String sResourceId) {
-		if (sResourceId != null) {
+	public C resid(String resourceId) {
+		if (resourceId != null) {
 			if (this instanceof TitleAttribute) {
-				((TitleAttribute) this).setTitle("$ti" + sResourceId);
+				((TitleAttribute) this).setTitle("$ti" + resourceId);
 			} else {
-				set(LABEL, "$lbl" + sResourceId);
+				set(LABEL, "$lbl" + resourceId);
 			}
 		}
 
-		return super.resid(sResourceId);
+		return super.resid(resourceId);
 	}
 
 	/**
 	 * Sets the size of this component.
 	 *
-	 * @param nWidth  The width
-	 * @param nHeight The height
-	 * @param eUnit   The unit of the size values
+	 * @param width  The width
+	 * @param height The height
+	 * @param unit   The unit of the size values
 	 * @return This instance for concatenation
 	 */
-	public C size(int nWidth, int nHeight, SizeUnit eUnit) {
-		return width(nWidth, eUnit).height(nHeight, eUnit);
+	public C size(int width, int height, SizeUnit unit) {
+		return width(width, unit).height(height, unit);
 	}
 
 	/**
@@ -233,39 +229,39 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @return The component style
 	 */
 	public UiStyle style() {
-		return aStyle;
+		return style;
 	}
 
 	/**
 	 * Sets the style of this component to a copy of an existing style
 	 * definition.
 	 *
-	 * @param rStyle The style object to apply
+	 * @param style The style object to apply
 	 * @return The component style to allow subsequent modifications
 	 */
-	public UiStyle style(UiStyle rStyle) {
-		aStyle = new UiStyle(rStyle);
+	public UiStyle style(UiStyle style) {
+		style = new UiStyle(style);
 
-		String sStyleName = aStyle.getStyleName();
-		String sComponentStyle = getComponentStyleName();
+		String styleName = style.getStyleName();
+		String componentStyle = getComponentStyleName();
 
-		if (sComponentStyle.length() > 0 &&
-			!sStyleName.startsWith(sComponentStyle)) {
-			aStyle.styleName(sComponentStyle + " " + sStyleName);
+		if (componentStyle.length() > 0 &&
+			!styleName.startsWith(componentStyle)) {
+			style.styleName(componentStyle + " " + styleName);
 		}
 
-		return aStyle;
+		return style;
 	}
 
 	/**
 	 * Shortcut to set the style name in the {@link #style()} object.
 	 *
-	 * @param sStyleName the new style name
+	 * @param styleName the new style name
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public C styleName(String sStyleName) {
-		style().styleName(sStyleName);
+	public C styleName(String styleName) {
+		style().styleName(styleName);
 
 		return (C) this;
 	}
@@ -282,32 +278,32 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	/**
 	 * Sets the tooltip to be displayed for this component.
 	 *
-	 * @param sTooltip The tooltip text or NULL for none
+	 * @param tooltip The tooltip text or NULL for none
 	 * @return This instance
 	 */
-	public C tooltip(String sTooltip) {
-		return set(ContentProperties.TOOLTIP, sTooltip);
+	public C tooltip(String tooltip) {
+		return set(ContentProperties.TOOLTIP, tooltip);
 	}
 
 	/**
 	 * Sets the visibility in responsive layouts.
 	 *
-	 * @param eVisibilty The visibility
+	 * @param visibilty The visibility
 	 * @return This instance for concatenation
 	 */
-	public C visibleOn(LayoutVisibility eVisibilty) {
-		return set(LAYOUT_VISIBILITY, eVisibilty);
+	public C visibleOn(LayoutVisibility visibilty) {
+		return set(LAYOUT_VISIBILITY, visibilty);
 	}
 
 	/**
 	 * Sets the width of this component.
 	 *
-	 * @param nWidth The width value
-	 * @param eUnit  The width unit
+	 * @param width The width value
+	 * @param unit  The width unit
 	 * @return This instance for concatenation
 	 */
-	public C width(int nWidth, SizeUnit eUnit) {
-		return size(HTML_WIDTH, nWidth, eUnit);
+	public C width(int width, SizeUnit unit) {
+		return size(HTML_WIDTH, width, unit);
 	}
 
 	/**
@@ -315,15 +311,15 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * corresponding process parameter before it is rendered.
 	 */
 	protected void applyProperties() {
-		aStyle.applyTo(this);
+		style.applyTo(this);
 
 		// is NULL in the root view
-		if (rLayoutCell != null) {
-			rLayoutCell.applyTo(this);
+		if (layoutCell != null) {
+			layoutCell.applyTo(this);
 		}
 
-		if (rImage != null) {
-			rImage.applyTo(this);
+		if (image != null) {
+			image.applyTo(this);
 		}
 
 		update();
@@ -333,18 +329,18 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * Attaches this component to it's parent container. This will be invoked
 	 * just after the construction of a component instance.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	protected void attachTo(UiContainer<?> rParent) {
-		rParent.addComponent(this);
+	protected void attachTo(UiContainer<?> parent) {
+		parent.addComponent(this);
 
-		RelationType<T> rParamType = type();
-		Class<? super T> rDatatype = rParamType.getTargetType();
+		RelationType<T> paramType = type();
+		Class<? super T> datatype = paramType.getTargetType();
 
-		fragment().addDisplayParameters(rParamType);
+		fragment().addDisplayParameters(paramType);
 
-		if (rDatatype != null && rDatatype.isEnum()) {
-			resid(rDatatype.getSimpleName());
+		if (datatype != null && datatype.isEnum()) {
+			resid(datatype.getSimpleName());
 		}
 	}
 
@@ -368,7 +364,7 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * @return The component image or NULL for none
 	 */
 	protected UiImageDefinition<?> getImage() {
-		return rImage;
+		return image;
 	}
 
 	/**
@@ -387,14 +383,13 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * icon handling functionality for all subclasses. Subclasses that support
 	 * the setting of icon should override this method as public.
 	 *
-	 * @param rIconSupplier The component icon (NULL for none)
+	 * @param iconSupplier The component icon (NULL for none)
 	 * @return This instance so that this method can be used for fluent
 	 * implementations
 	 */
-	protected C icon(UiIconSupplier rIconSupplier) {
-		return image(rIconSupplier != null ?
-		             rIconSupplier.getIcon().alignRight() :
-		             null);
+	protected C icon(UiIconSupplier iconSupplier) {
+		return image(
+			iconSupplier != null ? iconSupplier.getIcon().alignRight() : null);
 	}
 
 	/**
@@ -403,13 +398,13 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * image handling functionality for all subclasses. Subclasses that support
 	 * the setting of images should override this method as public.
 	 *
-	 * @param rImage The component image
+	 * @param image The component image
 	 * @return This instance so that this method can be used for fluent
 	 * implementations
 	 */
 	@SuppressWarnings("unchecked")
-	protected C image(UiImageDefinition<?> rImage) {
-		this.rImage = rImage;
+	protected C image(UiImageDefinition<?> image) {
+		this.image = image;
 
 		return (C) this;
 	}
@@ -419,13 +414,13 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * intended to be used by subclasses which should provide a type-specific
 	 * public method (like setText(String)).
 	 *
-	 * @param rValue The new value
+	 * @param value The new value
 	 * @return This instance so that this method can be used for fluent
 	 * implementations
 	 */
 	@SuppressWarnings("unchecked")
-	protected final C setValueImpl(T rValue) {
-		fragment().setParameter(type(), rValue);
+	protected final C setValueImpl(T value) {
+		fragment().setParameter(type(), value);
 
 		return (C) this;
 	}
@@ -442,24 +437,24 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	 * placed. Will be invoked from
 	 * {@link UiLayout#layoutComponent(UiComponent)}.
 	 *
-	 * @param rCell The new layout cell
+	 * @param cell The new layout cell
 	 */
-	void setLayoutCell(UiLayout.Cell rCell) {
-		rLayoutCell = rCell;
+	void setLayoutCell(UiLayout.Cell cell) {
+		layoutCell = cell;
 	}
 
 	/**
 	 * Internal method to set the UI properties of this component.
 	 *
-	 * @param rNewProperties The new UI properties
-	 * @param bReplace       TRUE to replace existing properties, FALSE to only
-	 *                       set new properties
+	 * @param newProperties The new UI properties
+	 * @param replace       TRUE to replace existing properties, FALSE to only
+	 *                      set new properties
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	void setProperties(HasProperties rNewProperties, boolean bReplace) {
-		if (rNewProperties.getPropertyCount() > 0) {
-			for (PropertyName rProperty : rNewProperties.getPropertyNames()) {
-				set(rProperty, rNewProperties.getProperty(rProperty, null));
+	void setProperties(HasProperties newProperties, boolean replace) {
+		if (newProperties.getPropertyCount() > 0) {
+			for (PropertyName property : newProperties.getPropertyNames()) {
+				set(property, newProperties.getProperty(property, null));
 			}
 		}
 	}
@@ -467,12 +462,12 @@ public abstract class UiComponent<T, C extends UiComponent<T, C>>
 	/**
 	 * Internal method to set a string size property.
 	 *
-	 * @param rSizeProperty The size property
-	 * @param nSize         The size value
-	 * @param eUnit         The size unit
+	 * @param sizeProperty The size property
+	 * @param size         The size value
+	 * @param unit         The size unit
 	 * @return This instance to allow fluent invocations
 	 */
-	C size(PropertyName<String> rSizeProperty, int nSize, SizeUnit eUnit) {
-		return set(rSizeProperty, eUnit.getHtmlSize(nSize));
+	C size(PropertyName<String> sizeProperty, int size, SizeUnit unit) {
+		return set(sizeProperty, unit.getHtmlSize(size));
 	}
 }

@@ -31,13 +31,10 @@ import de.esoco.data.process.ProcessState;
 import de.esoco.data.storage.StorageAdapter;
 import de.esoco.data.storage.StorageAdapterId;
 import de.esoco.data.storage.StorageAdapterRegistry;
-
 import de.esoco.entity.Configuration;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
-
 import de.esoco.history.HistoryRecord;
-
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
@@ -61,12 +58,14 @@ import de.esoco.lib.property.StyleProperties;
 import de.esoco.lib.property.UserInterfaceProperties;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
-
 import de.esoco.process.step.Interaction;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.StorageException;
+import org.obrel.core.Relatable;
+import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
+import org.obrel.type.MetaTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,17 +83,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.obrel.core.Relatable;
-import org.obrel.core.Relation;
-import org.obrel.core.RelationType;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.data.DataRelationTypes.STORAGE_ADAPTER_ID;
 import static de.esoco.data.DataRelationTypes.STORAGE_ADAPTER_REGISTRY;
-
 import static de.esoco.entity.EntityRelationTypes.DISPLAY_PROPERTIES;
 import static de.esoco.entity.ExtraAttributes.EXTRA_ATTRIBUTE_FLAG;
-
 import static de.esoco.lib.expression.Functions.doIf;
 import static de.esoco.lib.expression.Functions.doIfElse;
 import static de.esoco.lib.expression.Functions.value;
@@ -119,7 +111,6 @@ import static de.esoco.lib.property.StyleProperties.DISABLED_ELEMENTS;
 import static de.esoco.lib.property.StyleProperties.HIDE_LABEL;
 import static de.esoco.lib.property.StyleProperties.LIST_STYLE;
 import static de.esoco.lib.property.StyleProperties.WRAP;
-
 import static de.esoco.process.ProcessRelationTypes.ALLOWED_VALUES;
 import static de.esoco.process.ProcessRelationTypes.INPUT_PARAMS;
 import static de.esoco.process.ProcessRelationTypes.INTERACTION_EVENT_PARAM;
@@ -135,7 +126,6 @@ import static de.esoco.process.ProcessRelationTypes.PROGRESS_INDICATOR_TEMPLATE;
 import static de.esoco.process.ProcessRelationTypes.PROGRESS_MAXIMUM;
 import static de.esoco.process.ProcessRelationTypes.SPAWN_PROCESSES;
 import static de.esoco.process.ProcessRelationTypes.TEMPORARY_PARAM_TYPES;
-
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newRelationType;
 import static org.obrel.core.RelationTypes.newSetType;
@@ -153,62 +143,61 @@ public abstract class ProcessFragment extends ProcessElement {
 	private static final long serialVersionUID = 1L;
 
 	private static final Set<PropertyName<?>> NON_MODIFYING_PROPERTIES =
-		CollectionUtil.<PropertyName<?>>setOf(DISABLED, HIDDEN);
+		CollectionUtil.setOf(DISABLED, HIDDEN);
 
-	private int nFragmentId = -1;
+	private final Map<RelationType<List<RelationType<?>>>, InteractionFragment>
+		subFragments = new LinkedHashMap<>();
 
-	private String sFragmentParamPackage = null;
-
-	private Collection<RelationType<?>> aPanelParameters;
-
-	private Map<RelationType<List<RelationType<?>>>, InteractionFragment>
-		aSubFragments = new LinkedHashMap<>();
-
-	private Map<String, Consumer<ProcessFragment>> aCleanupActions =
+	private final Map<String, Consumer<ProcessFragment>> cleanupActions =
 		new LinkedHashMap<>();
+
+	private int fragmentId = -1;
+
+	private String fragmentParamPackage = null;
+
+	private Collection<RelationType<?>> panelParameters;
 
 	/**
 	 * Modifies a date by a certain calendar field and returns a new date with
 	 * the update value.
 	 *
-	 * @param rDate          The date to modify (will not be changed)
-	 * @param nCalendarField The calendar field to modify
-	 * @param nAddValue      The update value for the calendar field
+	 * @param date          The date to modify (will not be changed)
+	 * @param calendarField The calendar field to modify
+	 * @param addValue      The update value for the calendar field
 	 * @return A new date instance containing the updated value
 	 */
-	public static Date changeDate(Date rDate, int nCalendarField,
-		int nAddValue) {
-		Calendar rCalendar = Calendar.getInstance();
+	public static Date changeDate(Date date, int calendarField, int addValue) {
+		Calendar calendar = Calendar.getInstance();
 
-		rCalendar.setTime(rDate);
-		rCalendar.add(nCalendarField, nAddValue);
+		calendar.setTime(date);
+		calendar.add(calendarField, addValue);
 
-		return rCalendar.getTime();
+		return calendar.getTime();
 	}
 
 	/**
 	 * Return the interactive input mode for a certain list style.
 	 *
-	 * @param eListStyle The list style
+	 * @param listStyle The list style
 	 * @return The interactive input mode
 	 */
-	public static InteractiveInputMode getInputMode(ListStyle eListStyle) {
-		InteractiveInputMode eInputMode = null;
+	public static InteractiveInputMode getInputMode(ListStyle listStyle) {
+		InteractiveInputMode inputMode = null;
 
-		switch (eListStyle) {
+		switch (listStyle) {
 			case LIST:
 			case DROP_DOWN:
 			case EDITABLE:
-				eInputMode = InteractiveInputMode.CONTINUOUS;
+				inputMode = InteractiveInputMode.CONTINUOUS;
 				break;
 
 			case DISCRETE:
 			case IMMEDIATE:
-				eInputMode = InteractiveInputMode.ACTION;
+				inputMode = InteractiveInputMode.ACTION;
 				break;
 		}
 
-		return eInputMode;
+		return inputMode;
 	}
 
 	/**
@@ -224,61 +213,62 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * argument to provide access to process parameters. Registered Actions can
 	 * be removed with {@link #removeCleanupAction(String)}.</p>
 	 *
-	 * @param sKey    A key that identifies the action for later removal
-	 * @param fAction The function to invoke on cleanup
+	 * @param key    A key that identifies the action for later removal
+	 * @param action The function to invoke on cleanup
 	 */
-	public void addCleanupAction(String sKey,
-		Consumer<ProcessFragment> fAction) {
-		aCleanupActions.put(sKey, fAction);
+	public void addCleanupAction(String key,
+		Consumer<ProcessFragment> action) {
+		cleanupActions.put(key, action);
 	}
 
 	/**
 	 * Adds an invisible fill parameter to a layout.
 	 *
-	 * @param bFillWidth  TRUE to fill the remaining layout width
-	 * @param bFillHeight TRUE to fill the remaining layout height
+	 * @param fillWidth  TRUE to fill the remaining layout width
+	 * @param fillHeight TRUE to fill the remaining layout height
 	 * @return The fill parameter that has been added by this method
 	 */
-	public RelationType<?> addLayoutFiller(boolean bFillWidth,
-		boolean bFillHeight) {
-		RelationType<String> rFillParam = INTERACTION_FILL;
+	public RelationType<?> addLayoutFiller(boolean fillWidth,
+		boolean fillHeight) {
+		RelationType<String> fillParam = INTERACTION_FILL;
 
-		if (!hasInteractionParameter(rFillParam)) {
-			addDisplayParameters(rFillParam);
+		if (!hasInteractionParameter(fillParam)) {
+			addDisplayParameters(fillParam);
 		}
 
-		setUIFlag(HIDE_LABEL, rFillParam);
-		setUIProperty(TOOLTIP, "", rFillParam);
+		setUIFlag(HIDE_LABEL, fillParam);
+		setUIProperty(TOOLTIP, "", fillParam);
 
-		if (bFillWidth) {
-			setUIProperty(HTML_WIDTH, "100%", rFillParam);
+		if (fillWidth) {
+			setUIProperty(HTML_WIDTH, "100%", fillParam);
 		}
 
-		if (bFillHeight) {
-			setUIProperty(HTML_HEIGHT, "100%", rFillParam);
+		if (fillHeight) {
+			setUIProperty(HTML_HEIGHT, "100%", fillParam);
 		}
 
-		return rFillParam;
+		return fillParam;
 	}
 
 	/**
 	 * Configures a parameter to be displayed in a separate panel.
 	 *
-	 * @param rPanelParam         The data element list parameter to be
-	 *                            displayed as a panel
-	 * @param eLayout             The layout for the panel
-	 * @param rPanelContentParams The list of parameters to be displayed in the
-	 *                            panel
+	 * @param panelParam         The data element list parameter to be
+	 *                              displayed
+	 *                           as a panel
+	 * @param layout             The layout for the panel
+	 * @param panelContentParams The list of parameters to be displayed in the
+	 *                           panel
 	 */
-	public void addPanel(RelationType<List<RelationType<?>>> rPanelParam,
-		LayoutType eLayout, List<RelationType<?>> rPanelContentParams) {
-		setParameter(rPanelParam, rPanelContentParams);
-		setLayout(eLayout, rPanelParam);
-		setUIFlag(STRUCTURE_CHANGED, rPanelParam);
+	public void addPanel(RelationType<List<RelationType<?>>> panelParam,
+		LayoutType layout, List<RelationType<?>> panelContentParams) {
+		setParameter(panelParam, panelContentParams);
+		setLayout(layout, panelParam);
+		setUIFlag(STRUCTURE_CHANGED, panelParam);
 
 		// mark the content parameters as panel elements so that they
 		// can be detected as subordinate parameters
-		addPanelParameters(rPanelContentParams);
+		addPanelParameters(panelContentParams);
 	}
 
 	/**
@@ -288,71 +278,71 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * property {@link StyleProperties#ORIENTATION} should be set to
 	 * {@link Orientation#VERTICAL VERTICAL}.
 	 *
-	 * @param rPanelParam  The data element list parameter to be displayed as a
-	 *                     panel
-	 * @param rFirstParam  The first parameter in the panel or NULL for none
-	 * @param rCenterParam rFirstParam The center (main) parameter in the panel
-	 * @param rLastParam   The last parameter in the panel or NULL for none
-	 * @param bResizable   TRUE to make the panel resizable as a split panel
-	 * @param rUIFlags     Boolean properties to be set on the panel parameter
+	 * @param panelParam  The data element list parameter to be displayed as a
+	 *                    panel
+	 * @param firstParam  The first parameter in the panel or NULL for none
+	 * @param centerParam firstParam The center (main) parameter in the panel
+	 * @param lastParam   The last parameter in the panel or NULL for none
+	 * @param resizable   TRUE to make the panel resizable as a split panel
+	 * @param iFlags      Boolean properties to be set on the panel parameter
 	 */
 	@SafeVarargs
-	public final void addPanel(RelationType<List<RelationType<?>>> rPanelParam,
-		RelationType<?> rFirstParam, RelationType<?> rCenterParam,
-		RelationType<?> rLastParam, boolean bResizable,
-		PropertyName<Boolean>... rUIFlags) {
-		List<RelationType<?>> rPanelContentParams = new ArrayList<>(3);
+	public final void addPanel(RelationType<List<RelationType<?>>> panelParam,
+		RelationType<?> firstParam, RelationType<?> centerParam,
+		RelationType<?> lastParam, boolean resizable,
+		PropertyName<Boolean>... iFlags) {
+		List<RelationType<?>> panelContentParams = new ArrayList<>(3);
 
-		if (rFirstParam != null) {
-			rPanelContentParams.add(rFirstParam);
+		if (firstParam != null) {
+			panelContentParams.add(firstParam);
 		}
 
-		rPanelContentParams.add(rCenterParam);
+		panelContentParams.add(centerParam);
 
-		if (rLastParam != null) {
-			rPanelContentParams.add(rLastParam);
+		if (lastParam != null) {
+			panelContentParams.add(lastParam);
 		}
 
-		addPanel(rPanelParam, bResizable ? LayoutType.SPLIT : LayoutType.DOCK,
-			rPanelContentParams);
+		addPanel(panelParam, resizable ? LayoutType.SPLIT : LayoutType.DOCK,
+			panelContentParams);
 
-		for (PropertyName<Boolean> rFlag : rUIFlags) {
-			setUIFlag(rFlag, rPanelParam);
+		for (PropertyName<Boolean> flag : iFlags) {
+			setUIFlag(flag, panelParam);
 		}
 	}
 
 	/**
 	 * Appends another string below the current process step message.
 	 *
-	 * @param sMessage The message string or resource key to append
+	 * @param message The message string or resource key to append
 	 */
-	public void addProcessStepMessage(String sMessage) {
-		String sStepMessage = getParameter(PROCESS_STEP_MESSAGE);
+	public void addProcessStepMessage(String message) {
+		String stepMessage = getParameter(PROCESS_STEP_MESSAGE);
 
-		if (sStepMessage == null || sStepMessage.length() == 0) {
-			sMessage = sStepMessage;
-		} else if (sStepMessage.startsWith("$$")) {
-			sMessage = String.format("%s<br><br>{%s}", sStepMessage, sMessage);
+		if (stepMessage == null || stepMessage.length() == 0) {
+			message = stepMessage;
+		} else if (stepMessage.startsWith("$$")) {
+			message = String.format("%s<br><br>{%s}", stepMessage, message);
 		} else {
-			sMessage =
-				String.format("$${%s}<br><br>{%s}", sStepMessage, sMessage);
+			message = String.format("$${%s}<br><br>{%s}", stepMessage,
+				message);
 		}
 
-		setProcessStepMessage(sMessage);
+		setProcessStepMessage(message);
 	}
 
 	/**
 	 * A convenience method to add selection dependencies to the UI property
 	 * {@link UserInterfaceProperties#SELECTION_DEPENDENCY}.
 	 *
-	 * @param rParam           The parameter to set the dependency for
-	 * @param bReverseState    TRUE to reverse the selection state of buttons
-	 * @param rDependentParams The dependent parameters
+	 * @param param           The parameter to set the dependency for
+	 * @param reverseState    TRUE to reverse the selection state of buttons
+	 * @param dependentParams The dependent parameters
 	 */
-	public final void addSelectionDependency(RelationType<?> rParam,
-		boolean bReverseState, RelationType<?>... rDependentParams) {
-		addSelectionDependency(rParam, bReverseState,
-			Arrays.asList(rDependentParams));
+	public final void addSelectionDependency(RelationType<?> param,
+		boolean reverseState, RelationType<?>... dependentParams) {
+		addSelectionDependency(param, reverseState,
+			Arrays.asList(dependentParams));
 	}
 
 	/**
@@ -360,51 +350,52 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link UserInterfaceProperties#SELECTION_DEPENDENCY}. Empty parameter
 	 * lists will be ignored.
 	 *
-	 * @param rParam           The parameter to set the dependency for
-	 * @param bReverseState    TRUE to reverse the selection state of buttons
-	 * @param rDependentParams The dependent parameters
+	 * @param param           The parameter to set the dependency for
+	 * @param reverseState    TRUE to reverse the selection state of buttons
+	 * @param dependentParams The dependent parameters
 	 */
-	public final void addSelectionDependency(RelationType<?> rParam,
-		boolean bReverseState,
-		Collection<? extends RelationType<?>> rDependentParams) {
-		if (rDependentParams.size() > 0) {
-			StringBuilder aDependencies = new StringBuilder();
+	public final void addSelectionDependency(RelationType<?> param,
+		boolean reverseState,
+		Collection<? extends RelationType<?>> dependentParams) {
+		if (dependentParams.size() > 0) {
+			StringBuilder dependencies = new StringBuilder();
 
-			String sCurrentDependencies =
-				getUIProperty(SELECTION_DEPENDENCY, rParam);
+			String currentDependencies =
+				getUIProperty(SELECTION_DEPENDENCY, param);
 
-			if (sCurrentDependencies != null &&
-				sCurrentDependencies.length() > 0) {
-				aDependencies.append(sCurrentDependencies).append(',');
+			if (currentDependencies != null &&
+				currentDependencies.length() > 0) {
+				dependencies.append(currentDependencies).append(',');
 			}
 
-			for (RelationType<?> rDependentParam : rDependentParams) {
-				if (bReverseState) {
-					aDependencies.append(SELECTION_DEPENDENCY_REVERSE_PREFIX);
+			for (RelationType<?> dependentParam : dependentParams) {
+				if (reverseState) {
+					dependencies.append(SELECTION_DEPENDENCY_REVERSE_PREFIX);
 				}
 
-				aDependencies.append(rDependentParam.getName());
-				aDependencies.append(',');
+				dependencies.append(dependentParam.getName());
+				dependencies.append(',');
 			}
 
-			aDependencies.setLength(aDependencies.length() - 1);
+			dependencies.setLength(dependencies.length() - 1);
 
-			setUIProperty(SELECTION_DEPENDENCY, aDependencies.toString(),
-				rParam);
+			setUIProperty(SELECTION_DEPENDENCY, dependencies.toString(),
+				param);
 		}
 	}
 
 	/**
 	 * Configures a parameter to be displayed in a separate stack panel.
 	 *
-	 * @param rPanelParam         The data element list parameter to be
-	 *                            displayed as a stack panel
-	 * @param rPanelContentParams The parameters to be displayed in the panel
+	 * @param panelParam         The data element list parameter to be
+	 *                              displayed
+	 *                           as a stack panel
+	 * @param panelContentParams The parameters to be displayed in the panel
 	 */
-	public void addStackPanel(RelationType<List<RelationType<?>>> rPanelParam,
-		RelationType<?>... rPanelContentParams) {
-		addPanel(rPanelParam, LayoutType.STACK,
-			Arrays.asList(rPanelContentParams));
+	public void addStackPanel(RelationType<List<RelationType<?>>> panelParam,
+		RelationType<?>... panelContentParams) {
+		addPanel(panelParam, LayoutType.STACK,
+			Arrays.asList(panelContentParams));
 	}
 
 	/**
@@ -418,82 +409,83 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * <p>If a fragment already exist in the given parameter it will be
 	 * replaced with the new instance.</p>
 	 *
-	 * @param rFragmentParam The interactive process parameter in which the
-	 *                       fragment will be displayed
-	 * @param rSubFragment   The fragment to add
+	 * @param fragmentParam The interactive process parameter in which the
+	 *                      fragment will be displayed
+	 * @param subFragment   The fragment to add
 	 */
 	public void addSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam,
-		InteractionFragment rSubFragment) {
-		if (aSubFragments.containsKey(rFragmentParam)) {
-			InteractionFragment rPreviousFragment =
-				aSubFragments.remove(rFragmentParam);
+		RelationType<List<RelationType<?>>> fragmentParam,
+		InteractionFragment subFragment) {
+		if (subFragments.containsKey(fragmentParam)) {
+			InteractionFragment previousFragment =
+				subFragments.remove(fragmentParam);
 
-			rPreviousFragment.cleanup();
+			previousFragment.cleanup();
 		}
 
-		rSubFragment.attach((Interaction) getProcessStep(), rFragmentParam);
-		rSubFragment.setup();
-		aSubFragments.put(rFragmentParam, rSubFragment);
+		subFragment.attach((Interaction) getProcessStep(), fragmentParam);
+		subFragment.setup();
+		subFragments.put(fragmentParam, subFragment);
 
-		setParameter(rFragmentParam, rSubFragment.getInteractionParameters());
+		setParameter(fragmentParam, subFragment.getInteractionParameters());
 
-		get(INPUT_PARAMS).add(rFragmentParam);
-		rSubFragment.markFragmentInputParams();
+		get(INPUT_PARAMS).add(fragmentParam);
+		subFragment.markFragmentInputParams();
 	}
 
 	/**
 	 * Configures a parameter to be displayed in a separate tab panel.
 	 *
-	 * @param rPanelParam         The data element list parameter to be
-	 *                            displayed as a tab panel
-	 * @param rPanelContentParams The parameters to be displayed in the panel
+	 * @param panelParam         The data element list parameter to be
+	 *                              displayed
+	 *                           as a tab panel
+	 * @param panelContentParams The parameters to be displayed in the panel
 	 */
-	public void addTabPanel(RelationType<List<RelationType<?>>> rPanelParam,
-		RelationType<?>... rPanelContentParams) {
-		addPanel(rPanelParam, LayoutType.TABS,
-			Arrays.asList(rPanelContentParams));
+	public void addTabPanel(RelationType<List<RelationType<?>>> panelParam,
+		RelationType<?>... panelContentParams) {
+		addPanel(panelParam, LayoutType.TABS,
+			Arrays.asList(panelContentParams));
 	}
 
 	/**
 	 * Annotates a process parameter for a storage query.
 	 *
-	 * @param rParam      The parameter type
-	 * @param pQuery      The query predicate
-	 * @param pSortOrder  The sort order predicate of the query or NULL for the
-	 *                    default sort order
-	 * @param rAttributes The entity attributes to query
+	 * @param param      The parameter type
+	 * @param query      The query predicate
+	 * @param sortOrder  The sort order predicate of the query or NULL for the
+	 *                   default sort order
+	 * @param attributes The entity attributes to query
 	 */
 	public <E extends Entity> void annotateForEntityQuery(
-		RelationType<? super E> rParam, QueryPredicate<E> pQuery,
-		Predicate<? super Entity> pSortOrder,
-		List<Function<? super E, ?>> rAttributes) {
-		Relation<? super E> rRelation = getParameterRelation(rParam);
+		RelationType<? super E> param, QueryPredicate<E> query,
+		Predicate<? super Entity> sortOrder,
+		List<Function<? super E, ?>> attributes) {
+		Relation<? super E> relation = getParameterRelation(param);
 
-		if (rRelation == null) {
-			rRelation = setParameter(rParam, null);
+		if (relation == null) {
+			relation = setParameter(param, null);
 		} else {
-			markParameterAsModified(rParam);
+			markParameterAsModified(param);
 		}
 
-		EntityProcessDefinition.annotateForEntityQuery(rRelation, pQuery,
-			pSortOrder, rAttributes);
+		EntityProcessDefinition.annotateForEntityQuery(relation, query,
+			sortOrder, attributes);
 	}
 
 	/**
 	 * Annotates a process parameter for a storage query.
 	 *
-	 * @param rParam      The parameter type
-	 * @param pQuery      The query predicate
-	 * @param pSortOrder  The sort order predicate of the query or NULL for the
-	 *                    default sort order
-	 * @param rAttributes The entity attributes to query
+	 * @param param      The parameter type
+	 * @param query      The query predicate
+	 * @param sortOrder  The sort order predicate of the query or NULL for the
+	 *                   default sort order
+	 * @param attributes The entity attributes to query
 	 */
 	public <E extends Entity> void annotateForEntityQuery(
-		RelationType<? super E> rParam, QueryPredicate<E> pQuery,
-		Predicate<? super Entity> pSortOrder, RelationType<?>... rAttributes) {
-		annotateForEntityQuery(rParam, pQuery, pSortOrder,
-			Arrays.<Function<? super E, ?>>asList(rAttributes));
+		RelationType<? super E> param, QueryPredicate<E> query,
+		Predicate<? super Entity> sortOrder, RelationType<?>... attributes) {
+		annotateForEntityQuery(param, query, sortOrder,
+			Arrays.asList(attributes));
 	}
 
 	/**
@@ -501,32 +493,32 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * hasn't been set before it will be set to the given initial value to
 	 * create a relation that can be annotated.
 	 *
-	 * @param rParam          The parameter to annotate
-	 * @param rInitialValue   The initial value if the parameter doesn't exist
-	 * @param rAnnotationType The relation type of the annotation
-	 * @param rValue          The annotation value
+	 * @param param          The parameter to annotate
+	 * @param initialValue   The initial value if the parameter doesn't exist
+	 * @param annotationType The relation type of the annotation
+	 * @param value          The annotation value
 	 * @see #removeParameterAnnotation(RelationType, RelationType)
 	 */
-	public <T, A> void annotateParameter(RelationType<T> rParam,
-		T rInitialValue, RelationType<A> rAnnotationType, A rValue) {
-		Process rProcess = getProcess();
-		Relation<?> rRelation = rProcess.getRelation(rParam);
+	public <T, A> void annotateParameter(RelationType<T> param, T initialValue,
+		RelationType<A> annotationType, A value) {
+		Process process = getProcess();
+		Relation<?> relation = process.getRelation(param);
 
-		if (rRelation == null) {
-			if (rInitialValue == null) {
-				rInitialValue = rParam.initialValue(rProcess.getContext());
+		if (relation == null) {
+			if (initialValue == null) {
+				initialValue = param.initialValue(process.getContext());
 			}
 
-			rRelation = setParameter(rParam, rInitialValue);
+			relation = setParameter(param, initialValue);
 		} else {
-			markParameterAsModified(rParam);
+			markParameterAsModified(param);
 
-			if (rAnnotationType == ALLOWED_VALUES) {
-				setUIFlag(DataElement.ALLOWED_VALUES_CHANGED, rParam);
+			if (annotationType == ALLOWED_VALUES) {
+				setUIFlag(DataElement.ALLOWED_VALUES_CHANGED, param);
 			}
 		}
 
-		rRelation.annotate(rAnnotationType, rValue);
+		relation.annotate(annotationType, value);
 	}
 
 	/**
@@ -537,32 +529,31 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * is an extra attribute type this method will set the extra attribute
 	 * value.
 	 *
-	 * @param rDerivedParam The derived parameter
-	 * @param rTarget       The target object to set the derived parameter on
+	 * @param derivedParam The derived parameter
+	 * @param target       The target object to set the derived parameter on
 	 */
-	public <T> void applyDerivedParameter(RelationType<T> rDerivedParam,
-		Relatable rTarget) {
+	public <T> void applyDerivedParameter(RelationType<T> derivedParam,
+		Relatable target) {
 		@SuppressWarnings("unchecked")
-		RelationType<T> rOriginalType =
-			(RelationType<T>) rDerivedParam.get(ORIGINAL_RELATION_TYPE);
+		RelationType<T> originalType =
+			(RelationType<T>) derivedParam.get(ORIGINAL_RELATION_TYPE);
 
-		T rParamValue = getParameter(rDerivedParam);
+		T paramValue = getParameter(derivedParam);
 
-		if (rParamValue instanceof String &&
-			((String) rParamValue).length() == 0) {
-			rParamValue = null;
+		if (paramValue instanceof String &&
+			((String) paramValue).length() == 0) {
+			paramValue = null;
 		}
 
-		if (rTarget instanceof Entity &&
-			rOriginalType.hasFlag(EXTRA_ATTRIBUTE_FLAG)) {
+		if (target instanceof Entity &&
+			originalType.hasFlag(EXTRA_ATTRIBUTE_FLAG)) {
 			try {
-				((Entity) rTarget).setExtraAttribute(rOriginalType,
-					rParamValue);
+				((Entity) target).setExtraAttribute(originalType, paramValue);
 			} catch (StorageException e) {
 				throw new RuntimeProcessException(this, e);
 			}
 		} else {
-			rTarget.set(rOriginalType, rParamValue);
+			target.set(originalType, paramValue);
 		}
 	}
 
@@ -570,13 +561,13 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Applies multiple derived parameters to a certain target. See the method
 	 * {@link #applyDerivedParameter(RelationType, Relatable)} for details.
 	 *
-	 * @param rDerivedParams The derived parameters
-	 * @param rTarget        The target object to set the derived parameters on
+	 * @param derivedParams The derived parameters
+	 * @param target        The target object to set the derived parameters on
 	 */
-	public void applyDerivedParameters(List<RelationType<?>> rDerivedParams,
-		Relatable rTarget) {
-		for (RelationType<?> rParam : rDerivedParams) {
-			applyDerivedParameter(rParam, rTarget);
+	public void applyDerivedParameters(List<RelationType<?>> derivedParams,
+		Relatable target) {
+		for (RelationType<?> param : derivedParams) {
+			applyDerivedParameter(param, target);
 		}
 	}
 
@@ -585,19 +576,19 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * parameter in the process of this fragment. NULL values, empty strings,
 	 * and empty collections will be ignored.
 	 *
-	 * @param rEntity    The entity to set the extra attribute on
-	 * @param rExtraAttr The extra attribute type
+	 * @param entity    The entity to set the extra attribute on
+	 * @param extraAttr The extra attribute type
 	 * @throws StorageException If setting the extra attribute fails
 	 */
-	public <T> void applyExtraAttribute(Entity rEntity,
-		RelationType<T> rExtraAttr) throws StorageException {
-		T rValue = getParameter(rExtraAttr);
+	public <T> void applyExtraAttribute(Entity entity,
+		RelationType<T> extraAttr) throws StorageException {
+		T value = getParameter(extraAttr);
 
-		if (rValue != null) {
-			if (!((rValue instanceof String && ((String) rValue).isEmpty()) ||
-				(rValue instanceof Collection &&
-					((Collection<?>) rValue).isEmpty()))) {
-				rEntity.setExtraAttribute(rExtraAttr, rValue);
+		if (value != null) {
+			if (!((value instanceof String && ((String) value).isEmpty()) ||
+				(value instanceof Collection &&
+					((Collection<?>) value).isEmpty()))) {
+				entity.setExtraAttribute(extraAttr, value);
 			}
 		}
 	}
@@ -608,9 +599,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setUIProperty(PropertyName, Object, RelationType...)
 	 */
-	public final void clearUIFlag(PropertyName<Boolean> rProperty,
-		RelationType<?>... rParams) {
-		clearUIFlag(rProperty, Arrays.asList(rParams));
+	public final void clearUIFlag(PropertyName<Boolean> property,
+		RelationType<?>... params) {
+		clearUIFlag(property, Arrays.asList(params));
 	}
 
 	/**
@@ -619,9 +610,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setUIProperty(PropertyName, Object, Collection)
 	 */
-	public final void clearUIFlag(PropertyName<Boolean> rProperty,
-		Collection<? extends RelationType<?>> rParams) {
-		setUIProperty(rProperty, Boolean.FALSE, rParams);
+	public final void clearUIFlag(PropertyName<Boolean> property,
+		Collection<? extends RelationType<?>> params) {
+		setUIProperty(property, Boolean.FALSE, params);
 	}
 
 	/**
@@ -633,16 +624,17 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * an extra attribute type this method will retrieve the extra attribute
 	 * value.
 	 *
-	 * @param rSource       The source object to read the parameter value from
-	 * @param rDerivedParam The derived parameter
-	 * @param bSkipExisting If TRUE only parameters that don't exist already
-	 *                      will be collected from the source object
+	 * @param source       The source object to read the parameter value from
+	 * @param derivedParam The derived parameter
+	 * @param skipExisting If TRUE only parameters that don't exist already
+	 *                        will
+	 *                     be collected from the source object
 	 */
-	public <T> void collectDerivedParameter(Relatable rSource,
-		RelationType<T> rDerivedParam, boolean bSkipExisting) {
-		if (!bSkipExisting || !hasParameter(rDerivedParam)) {
-			setParameter(rDerivedParam,
-				getDerivedParameterValue(rSource, rDerivedParam));
+	public <T> void collectDerivedParameter(Relatable source,
+		RelationType<T> derivedParam, boolean skipExisting) {
+		if (!skipExisting || !hasParameter(derivedParam)) {
+			setParameter(derivedParam,
+				getDerivedParameterValue(source, derivedParam));
 		}
 	}
 
@@ -652,29 +644,30 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link #collectDerivedParameter(Relatable, RelationType, boolean)}
 	 * for details.
 	 *
-	 * @param rSource        The source object to read the the derived
-	 *                       parameters from
-	 * @param rDerivedParams The derived parameters
-	 * @param bSkipExisting  If TRUE only parameters that don't exist already
-	 *                       will be collected from the source object
+	 * @param source        The source object to read the the derived
+	 *                         parameters
+	 *                      from
+	 * @param derivedParams The derived parameters
+	 * @param skipExisting  If TRUE only parameters that don't exist already
+	 *                      will be collected from the source object
 	 */
-	public void collectDerivedParameters(Relatable rSource,
-		List<RelationType<?>> rDerivedParams, boolean bSkipExisting) {
-		for (RelationType<?> rParam : rDerivedParams) {
-			collectDerivedParameter(rSource, rParam, bSkipExisting);
+	public void collectDerivedParameters(Relatable source,
+		List<RelationType<?>> derivedParams, boolean skipExisting) {
+		for (RelationType<?> param : derivedParams) {
+			collectDerivedParameter(source, param, skipExisting);
 		}
 	}
 
 	/**
 	 * Deletes several parameters from the process.
 	 *
-	 * @param rParamTypes The types of the parameters to delete
+	 * @param paramTypes The types of the parameters to delete
 	 */
-	public final void deleteParameters(RelationType<?>... rParamTypes) {
-		Process rProcess = getProcess();
+	public final void deleteParameters(RelationType<?>... paramTypes) {
+		Process process = getProcess();
 
-		for (RelationType<?> rParamType : rParamTypes) {
-			rProcess.deleteRelation(rParamType);
+		for (RelationType<?> paramType : paramTypes) {
+			process.deleteRelation(paramType);
 		}
 	}
 
@@ -684,9 +677,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @see #disableElements(RelationType, Collection)
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>> void disableElements(RelationType<E> rEnumParam,
-		E... rDisabledElements) {
-		disableElements(rEnumParam, Arrays.asList(rDisabledElements));
+	public <E extends Enum<E>> void disableElements(RelationType<E> enumParam,
+		E... disabledElements) {
+		disableElements(enumParam, Arrays.asList(disabledElements));
 	}
 
 	/**
@@ -694,15 +687,15 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * be displayed but cannot be modified. This works only with discrete
 	 * display types like check boxes.
 	 *
-	 * @param rEnumParam        The parameter to disable the elements of
-	 * @param rDisabledElements The elements to disable (NULL or none to enable
-	 *                          all)
+	 * @param enumParam        The parameter to disable the elements of
+	 * @param disabledElements The elements to disable (NULL or none to enable
+	 *                         all)
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>> void disableElements(RelationType<E> rEnumParam,
-		Collection<E> rDisabledElements) {
-		disableElements(rEnumParam, (Class<E>) rEnumParam.getTargetType(),
-			getAllowedValues(rEnumParam), rDisabledElements);
+	public <E extends Enum<E>> void disableElements(RelationType<E> enumParam,
+		Collection<E> disabledElements) {
+		disableElements(enumParam, (Class<E>) enumParam.getTargetType(),
+			getAllowedValues(enumParam), disabledElements);
 	}
 
 	/**
@@ -712,37 +705,36 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * argument is NULL the enum values will be read from the datatype class
 	 * with {@link Class#getEnumConstants()}.
 	 *
-	 * @param rParam            The parameter to disable the elements of
-	 * @param rDatatype         The parameter datatype
-	 * @param rAllElements      All values that are displayed (NULL for all
-	 *                          values of an enum data type)
-	 * @param rDisabledElements The elements to disable (NULL or none to enable
-	 *                          all)
+	 * @param param            The parameter to disable the elements of
+	 * @param datatype         The parameter datatype
+	 * @param allElements      All values that are displayed (NULL for all
+	 *                         values of an enum data type)
+	 * @param disabledElements The elements to disable (NULL or none to enable
+	 *                         all)
 	 */
-	public <T> void disableElements(RelationType<?> rParam, Class<T> rDatatype,
-		Collection<T> rAllElements, Collection<T> rDisabledElements) {
-		if (rDisabledElements != null && rDisabledElements.size() > 0) {
-			if (rAllElements == null && rDatatype.isEnum()) {
-				rAllElements = Arrays.asList(rDatatype.getEnumConstants());
+	public <T> void disableElements(RelationType<?> param, Class<T> datatype,
+		Collection<T> allElements, Collection<T> disabledElements) {
+		if (disabledElements != null && disabledElements.size() > 0) {
+			if (allElements == null && datatype.isEnum()) {
+				allElements = Arrays.asList(datatype.getEnumConstants());
 			}
 
-			StringBuilder aDisabledElements = new StringBuilder();
-			List<T> aIndexedElements = new ArrayList<T>(rAllElements);
+			StringBuilder disabled = new StringBuilder();
+			List<T> indexedElements = new ArrayList<T>(allElements);
 
-			for (T eElement : rDisabledElements) {
-				int nIndex = aIndexedElements.indexOf(eElement);
+			for (T element : disabledElements) {
+				int index = indexedElements.indexOf(element);
 
-				if (nIndex >= 0) {
-					aDisabledElements.append('(');
-					aDisabledElements.append(nIndex);
-					aDisabledElements.append(')');
+				if (index >= 0) {
+					disabled.append('(');
+					disabled.append(index);
+					disabled.append(')');
 				}
 			}
 
-			setUIProperty(DISABLED_ELEMENTS, aDisabledElements.toString(),
-				rParam);
+			setUIProperty(DISABLED_ELEMENTS, disabled.toString(), param);
 		} else {
-			removeUIProperties(rParam, DISABLED_ELEMENTS);
+			removeUIProperties(param, DISABLED_ELEMENTS);
 		}
 	}
 
@@ -751,35 +743,34 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * be displayed but cannot be modified. This works only with discrete
 	 * display types like check boxes.
 	 *
-	 * @param rEnumCollectionParam The parameter to disable the elements of
-	 * @param rDisabledElements    The elements to disable (NULL or none to
-	 *                             enable all)
+	 * @param enumCollectionParam The parameter to disable the elements of
+	 * @param disabledElements    The elements to disable (NULL or none to
+	 *                            enable all)
 	 */
 	@SuppressWarnings("unchecked")
 	public <E extends Enum<E>, C extends Collection<E>> void disableMultiSelectionElements(
-		RelationType<C> rEnumCollectionParam,
-		Collection<E> rDisabledElements) {
-		disableElements(rEnumCollectionParam,
-			(Class<E>) rEnumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
-			getAllowedElements(rEnumCollectionParam), rDisabledElements);
+		RelationType<C> enumCollectionParam, Collection<E> disabledElements) {
+		disableElements(enumCollectionParam,
+			(Class<E>) enumCollectionParam.get(MetaTypes.ELEMENT_DATATYPE),
+			getAllowedElements(enumCollectionParam), disabledElements);
 	}
 
 	/**
 	 * Sets the value of a selected history record into a certain parameter.
 	 *
-	 * @param rHistoryParam      The parameter with the history selection
-	 * @param rHistoryValueParam The parameter for the history value
+	 * @param historyParam      The parameter with the history selection
+	 * @param historyValueParam The parameter for the history value
 	 */
-	public void displayHistoryValue(RelationType<HistoryRecord> rHistoryParam,
-		RelationType<String> rHistoryValueParam) {
-		HistoryRecord rHistory = getParameter(rHistoryParam);
-		String sHistoryValue = "";
+	public void displayHistoryValue(RelationType<HistoryRecord> historyParam,
+		RelationType<String> historyValueParam) {
+		HistoryRecord history = getParameter(historyParam);
+		String historyValue = "";
 
-		if (rHistory != null) {
-			sHistoryValue = rHistory.get(HistoryRecord.VALUE);
+		if (history != null) {
+			historyValue = history.get(HistoryRecord.VALUE);
 		}
 
-		setParameter(rHistoryValueParam, sHistoryValue);
+		setParameter(historyValueParam, historyValue);
 	}
 
 	/**
@@ -787,47 +778,47 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #disableElements(RelationType, Collection)
 	 */
-	public void enableAllElements(RelationType<? extends Enum<?>> rEnumParam) {
-		removeUIProperties(rEnumParam, DISABLED_ELEMENTS);
+	public void enableAllElements(RelationType<? extends Enum<?>> enumParam) {
+		removeUIProperties(enumParam, DISABLED_ELEMENTS);
 	}
 
 	/**
 	 * Allowed to query the allowed values of a collection-type process
 	 * parameter.
 	 *
-	 * @param rParam The parameter type
+	 * @param param The parameter type
 	 * @return The allowed values for the parameter (can be NULL)
 	 */
 	@SuppressWarnings("unchecked")
 	public <T, C extends Collection<T>> Collection<T> getAllowedElements(
-		RelationType<C> rParam) {
+		RelationType<C> param) {
 		// mark the parameter as modified because it is probable the the list
 		// is queried for modification
-		markParameterAsModified(rParam);
+		markParameterAsModified(param);
 
-		Relation<C> rRelation = getParameterRelation(rParam);
+		Relation<C> relation = getParameterRelation(param);
 
-		return rRelation != null ?
-		       (Collection<T>) rRelation.get(ALLOWED_VALUES) :
+		return relation != null ?
+		       (Collection<T>) relation.get(ALLOWED_VALUES) :
 		       null;
 	}
 
 	/**
 	 * Allowed to query the allowed values of a process parameter.
 	 *
-	 * @param rParam The parameter type
+	 * @param param The parameter type
 	 * @return The allowed values for the parameter (can be NULL)
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> Collection<T> getAllowedValues(RelationType<T> rParam) {
+	public <T> Collection<T> getAllowedValues(RelationType<T> param) {
 		// mark the parameter as modified because it is probable the list
 		// is queried for modification
-		markParameterAsModified(rParam);
+		markParameterAsModified(param);
 
-		Relation<T> rRelation = getParameterRelation(rParam);
+		Relation<T> relation = getParameterRelation(param);
 
-		return rRelation != null ?
-		       (Collection<T>) rRelation.get(ALLOWED_VALUES) :
+		return relation != null ?
+		       (Collection<T>) relation.get(ALLOWED_VALUES) :
 		       null;
 	}
 
@@ -836,36 +827,36 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * annotated with a storage query. If the query hasn't (yet) been executed
 	 * the result will be NULL.
 	 *
-	 * @param rQueryParam The annotated parameter
+	 * @param queryParam The annotated parameter
 	 * @return The current query predicate or NULL if no query is available for
 	 * the given parameter
 	 */
 	@SuppressWarnings("unchecked")
 	public <E extends Entity> QueryPredicate<E> getCurrentQuery(
-		RelationType<E> rQueryParam) {
-		QueryPredicate<E> pQuery = null;
+		RelationType<E> queryParam) {
+		QueryPredicate<E> query = null;
 
-		StorageAdapterId rAdapterId =
-			getParameterRelation(rQueryParam).get(STORAGE_ADAPTER_ID);
+		StorageAdapterId adapterId =
+			getParameterRelation(queryParam).get(STORAGE_ADAPTER_ID);
 
-		if (rAdapterId != null) {
-			StorageAdapterRegistry rRegistry =
+		if (adapterId != null) {
+			StorageAdapterRegistry registry =
 				getParameter(STORAGE_ADAPTER_REGISTRY);
 
 			try {
-				StorageAdapter rStorageAdapter =
-					rRegistry.getStorageAdapter(rAdapterId);
+				StorageAdapter storageAdapter =
+					registry.getStorageAdapter(adapterId);
 
-				if (rStorageAdapter != null) {
-					pQuery =
-						(QueryPredicate<E>) rStorageAdapter.getCurrentQueryCriteria();
+				if (storageAdapter != null) {
+					query =
+						(QueryPredicate<E>) storageAdapter.getCurrentQueryCriteria();
 				}
 			} catch (StorageException e) {
 				throw new IllegalStateException(e);
 			}
 		}
 
-		return pQuery;
+		return query;
 	}
 
 	/**
@@ -875,30 +866,30 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * original relation type is an extra attribute type this method will
 	 * retrieve the extra attribute value.
 	 *
-	 * @param rSource       The source object to get the value from
-	 * @param rDerivedParam The derived parameter type
+	 * @param source       The source object to get the value from
+	 * @param derivedParam The derived parameter type
 	 * @return The value
 	 */
-	public <T> T getDerivedParameterValue(Relatable rSource,
-		RelationType<T> rDerivedParam) {
-		T rValue;
+	public <T> T getDerivedParameterValue(Relatable source,
+		RelationType<T> derivedParam) {
+		T value;
 		@SuppressWarnings("unchecked")
-		RelationType<T> rOriginalType =
-			(RelationType<T>) rDerivedParam.get(ORIGINAL_RELATION_TYPE);
+		RelationType<T> originalType =
+			(RelationType<T>) derivedParam.get(ORIGINAL_RELATION_TYPE);
 
-		if (rSource instanceof Entity &&
-			rOriginalType.hasFlag(EXTRA_ATTRIBUTE_FLAG)) {
+		if (source instanceof Entity &&
+			originalType.hasFlag(EXTRA_ATTRIBUTE_FLAG)) {
 			try {
-				rValue =
-					((Entity) rSource).getExtraAttribute(rOriginalType, null);
+				value = ((Entity) source).getExtraAttribute(originalType,
+					null);
 			} catch (StorageException e) {
 				throw new RuntimeProcessException(this, e);
 			}
 		} else {
-			rValue = rSource.get(rOriginalType);
+			value = source.get(originalType);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -907,11 +898,11 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @return The fragment ID
 	 */
 	public int getFragmentId() {
-		if (nFragmentId == -1) {
-			nFragmentId = getProcess().getNextFragmentId();
+		if (fragmentId == -1) {
+			fragmentId = getProcess().getNextFragmentId();
 		}
 
-		return nFragmentId;
+		return fragmentId;
 	}
 
 	/**
@@ -929,44 +920,44 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * invoking {@link Process#getParameter(RelationType)}. If the parameter is
 	 * not found there, it will be queried from this fragment's relations.
 	 *
-	 * @param rParamType The type of the parameter to return the value of
+	 * @param paramType The type of the parameter to return the value of
 	 * @return The parameter value or NULL if not set
 	 */
-	public <T> T getParameter(RelationType<T> rParamType) {
-		Process rProcess = getProcess();
-		T rParam;
+	public <T> T getParameter(RelationType<T> paramType) {
+		Process process = getProcess();
+		T param;
 
 		// also query the relation from the process if it is not set on the
 		// step
 		// to consider initial or default values; especially initial values
 		// need
 		// to be created to be available to subsequent steps
-		if (rProcess.hasParameter(rParamType) || !hasRelation(rParamType)) {
-			rParam = rProcess.getParameter(rParamType);
+		if (process.hasParameter(paramType) || !hasRelation(paramType)) {
+			param = process.getParameter(paramType);
 		} else {
-			rParam = get(rParamType);
+			param = get(paramType);
 		}
 
-		return rParam;
+		return param;
 	}
 
 	/**
 	 * Returns a certain annotation from a process parameter.
 	 *
-	 * @param rParam          The parameter to get the annotation for
-	 * @param rAnnotationType The relation type of the annotation
+	 * @param param          The parameter to get the annotation for
+	 * @param annotationType The relation type of the annotation
 	 * @see #annotateParameter(RelationType, Object, RelationType, Object)
 	 */
-	public <T> T getParameterAnnotation(RelationType<?> rParam,
-		RelationType<T> rAnnotationType) {
-		Relation<?> rRelation = getProcess().getRelation(rParam);
-		T rAnnotation = null;
+	public <T> T getParameterAnnotation(RelationType<?> param,
+		RelationType<T> annotationType) {
+		Relation<?> relation = getProcess().getRelation(param);
+		T annotation = null;
 
-		if (rRelation != null) {
-			rAnnotation = rRelation.getAnnotation(rAnnotationType);
+		if (relation != null) {
+			annotation = relation.getAnnotation(annotationType);
 		}
 
-		return rAnnotation;
+		return annotation;
 	}
 
 	/**
@@ -975,20 +966,20 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * invoking {@link Process#getRelation(RelationType)}. If the relation is
 	 * not found there, it will be queried from this step.
 	 *
-	 * @param rParamType The type of the relation to return
+	 * @param paramType The type of the relation to return
 	 * @return The corresponding relation or NULL if not set
 	 */
-	public <T> Relation<T> getParameterRelation(RelationType<T> rParamType) {
-		Process rProcess = getProcess();
-		Relation<T> rRelation;
+	public <T> Relation<T> getParameterRelation(RelationType<T> paramType) {
+		Process process = getProcess();
+		Relation<T> relation;
 
-		if (rProcess.hasParameter(rParamType)) {
-			rRelation = rProcess.getRelation(rParamType);
+		if (process.hasParameter(paramType)) {
+			relation = process.getRelation(paramType);
 		} else {
-			rRelation = getRelation(rParamType);
+			relation = getRelation(paramType);
 		}
 
-		return rRelation;
+		return relation;
 	}
 
 	/**
@@ -1016,12 +1007,12 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Returns the sub-fragment that is associated with a certain fragment
 	 * parameter.
 	 *
-	 * @param rFragmentParam The sub fragment parameter
+	 * @param fragmentParam The sub fragment parameter
 	 * @return The sub fragment (NULL for none)
 	 */
 	public InteractionFragment getSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam) {
-		return aSubFragments.get(rFragmentParam);
+		RelationType<List<RelationType<?>>> fragmentParam) {
+		return subFragments.get(fragmentParam);
 	}
 
 	/**
@@ -1030,8 +1021,8 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @see #getTemporaryListType(String, Class)
 	 */
 	public <T> RelationType<List<T>> getTemporaryListType(
-		Class<? super T> rElementType) {
-		return getTemporaryListType(null, rElementType);
+		Class<? super T> elementType) {
+		return getTemporaryListType(null, elementType);
 	}
 
 	/**
@@ -1040,29 +1031,29 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * certain element datatype. The parameter will have an empty list as it's
 	 * initial value.
 	 *
-	 * @param sName        The name of the parameter
-	 * @param rElementType The list element datatype
+	 * @param name        The name of the parameter
+	 * @param elementType The list element datatype
 	 * @return The temporary list parameter type
 	 * @see #getTemporaryParameterType(String, Class)
 	 */
-	public <T> RelationType<List<T>> getTemporaryListType(String sName,
-		Class<? super T> rElementType) {
-		sName = getTemporaryParameterName(sName);
+	public <T> RelationType<List<T>> getTemporaryListType(String name,
+		Class<? super T> elementType) {
+		name = getTemporaryParameterName(name);
 
 		@SuppressWarnings("unchecked")
-		RelationType<List<T>> rParam =
-			(RelationType<List<T>>) RelationType.valueOf(sName);
+		RelationType<List<T>> param =
+			(RelationType<List<T>>) RelationType.valueOf(name);
 
-		if (rParam == null) {
-			rParam = newListType(sName, rElementType);
+		if (param == null) {
+			param = newListType(name, elementType);
 		} else {
-			assert rParam.getTargetType() == List.class &&
-				rParam.get(ELEMENT_DATATYPE) == rElementType;
+			assert param.getTargetType() == List.class &&
+				param.get(ELEMENT_DATATYPE) == elementType;
 		}
 
-		getProcess().registerTemporaryParameterType(rParam);
+		getProcess().registerTemporaryParameterType(param);
 
-		return rParam;
+		return param;
 	}
 
 	/**
@@ -1072,8 +1063,8 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @see #getTemporaryParameterType(String, Class)
 	 */
 	public <T> RelationType<T> getTemporaryParameterType(
-		Class<? super T> rDatatype) {
-		return getTemporaryParameterType(null, rDatatype);
+		Class<? super T> datatype) {
+		return getTemporaryParameterType(null, datatype);
 	}
 
 	/**
@@ -1087,27 +1078,27 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * constants. The parameters will only be valid for the current process
 	 * execution and will be removed when the process ends.</p>
 	 *
-	 * @param sName     The name of the parameter type or NULL for a default
-	 *                  name
-	 * @param rDatatype The datatype class of the type
+	 * @param name     The name of the parameter type or NULL for a default
+	 *                 name
+	 * @param datatype The datatype class of the type
 	 * @return The temporary relation type instance
 	 */
-	public <T> RelationType<T> getTemporaryParameterType(String sName,
-		Class<? super T> rDatatype) {
-		sName = getTemporaryParameterName(sName);
+	public <T> RelationType<T> getTemporaryParameterType(String name,
+		Class<? super T> datatype) {
+		name = getTemporaryParameterName(name);
 
 		@SuppressWarnings("unchecked")
-		RelationType<T> rParam = (RelationType<T>) RelationType.valueOf(sName);
+		RelationType<T> param = (RelationType<T>) RelationType.valueOf(name);
 
-		if (rParam == null) {
-			rParam = newRelationType(sName, rDatatype);
+		if (param == null) {
+			param = newRelationType(name, datatype);
 		} else {
-			assert rParam.getTargetType() == rDatatype;
+			assert param.getTargetType() == datatype;
 		}
 
-		getProcess().registerTemporaryParameterType(rParam);
+		getProcess().registerTemporaryParameterType(param);
 
-		return rParam;
+		return param;
 	}
 
 	/**
@@ -1116,34 +1107,33 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * type will also contain the original relation type in the meta-relation
 	 * {@link ProcessRelationTypes#ORIGINAL_RELATION_TYPE}.
 	 *
-	 * @param sName         The name of the new relation type or NULL to use
-	 *                        the
-	 *                      simple name of the original type
-	 * @param rOriginalType The original parameter relation type
+	 * @param name         The name of the new relation type or NULL to use the
+	 *                     simple name of the original type
+	 * @param originalType The original parameter relation type
 	 * @return The temporary parameter relation type
 	 */
-	public <T> RelationType<T> getTemporaryParameterType(String sName,
-		RelationType<T> rOriginalType) {
-		if (sName == null) {
-			sName = rOriginalType.getSimpleName();
+	public <T> RelationType<T> getTemporaryParameterType(String name,
+		RelationType<T> originalType) {
+		if (name == null) {
+			name = originalType.getSimpleName();
 		}
 
-		RelationType<T> aDerivedType =
-			getTemporaryParameterType(sName, rOriginalType.getTargetType());
+		RelationType<T> derivedType =
+			getTemporaryParameterType(name, originalType.getTargetType());
 
-		aDerivedType.annotate(ORIGINAL_RELATION_TYPE, rOriginalType);
+		derivedType.annotate(ORIGINAL_RELATION_TYPE, originalType);
 
-		return aDerivedType;
+		return derivedType;
 	}
 
 	/**
 	 * Returns the UI properties for a certain parameter if they exist.
 	 *
-	 * @param rParam The parameter relation type
+	 * @param param The parameter relation type
 	 * @return The UI properties or NULL for none
 	 */
-	public MutableProperties getUIProperties(RelationType<?> rParam) {
-		return getUIProperties(rParam, false);
+	public MutableProperties getUIProperties(RelationType<?> param) {
+		return getUIProperties(param, false);
 	}
 
 	/**
@@ -1152,75 +1142,74 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * will be
 	 * created and set for the parameter.
 	 *
-	 * @param rParam  The parameter relation type
-	 * @param bCreate TRUE to create non-existing properties
-	 * @return The UI properties or NULL for none if bCreate is FALSE
+	 * @param param  The parameter relation type
+	 * @param create TRUE to create non-existing properties
+	 * @return The UI properties or NULL for none if create is FALSE
 	 */
-	public MutableProperties getUIProperties(RelationType<?> rParam,
-		boolean bCreate) {
-		MutableProperties rUiProperties = null;
+	public MutableProperties getUIProperties(RelationType<?> param,
+		boolean create) {
+		MutableProperties uiProperties = null;
 
-		if (hasParameter(rParam)) {
-			rUiProperties =
-				getParameterRelation(rParam).get(DISPLAY_PROPERTIES);
+		if (hasParameter(param)) {
+			uiProperties = getParameterRelation(param).get(DISPLAY_PROPERTIES);
 		}
 
-		if (rUiProperties == null && bCreate) {
-			rUiProperties = new StringProperties();
-			annotateParameter(rParam, null, DISPLAY_PROPERTIES, rUiProperties);
+		if (uiProperties == null && create) {
+			uiProperties = new StringProperties();
+			annotateParameter(param, null, DISPLAY_PROPERTIES, uiProperties);
 		}
 
-		return rUiProperties;
+		return uiProperties;
 	}
 
 	/**
 	 * Returns a certain user interface property value for a particular
 	 * parameter.
 	 *
-	 * @param rProperty The property to return the value of
-	 * @param rParam    The parameter to query for the property
+	 * @param property The property to return the value of
+	 * @param param    The parameter to query for the property
 	 * @return The property value or NULL if not set
 	 */
-	public <T> T getUIProperty(PropertyName<T> rProperty,
-		RelationType<?> rParam) {
-		HasProperties rProperties = getUIProperties(rParam);
-		T rValue = null;
+	public <T> T getUIProperty(PropertyName<T> property,
+		RelationType<?> param) {
+		HasProperties properties = getUIProperties(param);
+		T value = null;
 
-		if (rProperties != null) {
-			rValue = rProperties.getProperty(rProperty, null);
+		if (properties != null) {
+			value = properties.getProperty(property, null);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
 	 * Shortcut method to return a particular value from the settings of the
 	 * current user with a default value of NULL.
 	 *
-	 * @param rSettingsExtraAttr The extra attribute of the setting
+	 * @param settingsExtraAttr The extra attribute of the setting
 	 * @return The settings value or NULL for none
 	 * @throws StorageException If accessing the user settings fails
 	 * @see #getUserSettings(boolean)
 	 */
-	public <T> T getUserSetting(RelationType<T> rSettingsExtraAttr)
+	public <T> T getUserSetting(RelationType<T> settingsExtraAttr)
 		throws StorageException {
 		return Configuration.getSettingsValue(getProcessUser(),
-			rSettingsExtraAttr, null);
+			settingsExtraAttr, null);
 	}
 
 	/**
 	 * Returns the configuration entity that contains the settings for the
 	 * current process user.
 	 *
-	 * @param bCreate TRUE to create the settings object if it doesn't exist
-	 * @return The user's settings or NULL if none exist and bCreate is FALSE
+	 * @param create TRUE to create the settings object if it doesn't exist
+	 * @return The user's settings or NULL if none exist and create is FALSE
 	 * @throws TransactionException If saving a new configuration fails
 	 * @throws StorageException     If retrieving the configuration entity
 	 *                              fails
 	 */
-	public Configuration getUserSettings(boolean bCreate)
+	public Configuration getUserSettings(boolean create)
 		throws StorageException, TransactionException {
-		return Configuration.getSettings(getProcessUser(), bCreate);
+		return Configuration.getSettings(getProcessUser(), create);
 	}
 
 	/**
@@ -1228,13 +1217,13 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * with
 	 * a boolean datatype.
 	 *
-	 * @param rFlagType The flag parameter type
+	 * @param flagType The flag parameter type
 	 * @return TRUE if the flag exists and is set to TRUE
 	 */
-	public final boolean hasFlagParameter(RelationType<Boolean> rFlagType) {
-		Boolean rFlagParam = getParameter(rFlagType);
+	public final boolean hasFlagParameter(RelationType<Boolean> flagType) {
+		Boolean flagParam = getParameter(flagType);
 
-		return rFlagParam != null && rFlagParam.booleanValue() == true;
+		return flagParam != null && flagParam.booleanValue();
 	}
 
 	/**
@@ -1243,41 +1232,41 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see Process#hasParameter(RelationType)
 	 */
-	public boolean hasParameter(RelationType<?> rParamType) {
-		return hasRelation(rParamType) || getProcess().hasParameter(rParamType);
+	public boolean hasParameter(RelationType<?> paramType) {
+		return hasRelation(paramType) || getProcess().hasParameter(paramType);
 	}
 
 	/**
 	 * Convenience method to check the existence and state of a boolean UI
 	 * property of a parameter.
 	 *
-	 * @param rFlagName The name of the flag property
-	 * @param rParam    The parameter to check the flag for
+	 * @param flagName The name of the flag property
+	 * @param param    The parameter to check the flag for
 	 * @return TRUE if the flag property exists and is TRUE
 	 */
-	public boolean hasUIFlag(PropertyName<Boolean> rFlagName,
-		RelationType<?> rParam) {
-		Boolean rFlag = getUIProperty(rFlagName, rParam);
+	public boolean hasUIFlag(PropertyName<Boolean> flagName,
+		RelationType<?> param) {
+		Boolean flag = getUIProperty(flagName, param);
 
-		return rFlag != null ? rFlag.booleanValue() : false;
+		return flag != null && flag.booleanValue();
 	}
 
 	/**
 	 * Shortcut method to check if a boolean flag ist set int the settings of
 	 * the current user.
 	 *
-	 * @param rSettingsFlag The extra attribute of the settings flag
+	 * @param settingsFlag The extra attribute of the settings flag
 	 * @return TRUE if the flag is set, FALSE if not or if it doesn't exist
 	 * @throws StorageException If accessing the user settings fails
 	 * @see #getUserSettings(boolean)
 	 */
-	public boolean hasUserSetting(RelationType<Boolean> rSettingsFlag)
+	public boolean hasUserSetting(RelationType<Boolean> settingsFlag)
 		throws StorageException {
-		Boolean rFlag =
-			Configuration.getSettingsValue(getProcessUser(), rSettingsFlag,
+		Boolean flag =
+			Configuration.getSettingsValue(getProcessUser(), settingsFlag,
 				null);
 
-		return Boolean.TRUE.equals(rFlag);
+		return Boolean.TRUE.equals(flag);
 	}
 
 	/**
@@ -1300,32 +1289,32 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * lock if
 	 * the process is finished.
 	 *
-	 * @param rEntity The entity to lock
+	 * @param entity The entity to lock
 	 * @return TRUE if the lock could be acquired, FALSE if the entity is
 	 * already locked
 	 */
-	public final boolean lockEntity(Entity rEntity) {
-		assert rEntity.isPersistent();
+	public final boolean lockEntity(Entity entity) {
+		assert entity.isPersistent();
 
-		boolean bSuccess = rEntity.lock();
+		boolean success = entity.lock();
 
-		if (bSuccess) {
+		if (success) {
 			addCleanupAction(
-				Process.CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId(),
-				f -> rEntity.unlock());
+				Process.CLEANUP_KEY_UNLOCK_ENTITY + entity.getGlobalId(),
+				f -> entity.unlock());
 		}
 
-		return bSuccess;
+		return success;
 	}
 
 	/**
 	 * Marks a certain parameter as modified to force a UI update in the next
 	 * interaction.
 	 *
-	 * @param rParam The parameter to mark as modified
+	 * @param param The parameter to mark as modified
 	 */
-	public <T> void markParameterAsModified(RelationType<T> rParam) {
-		getProcessStep().parameterModified(rParam);
+	public <T> void markParameterAsModified(RelationType<T> param) {
+		getProcessStep().parameterModified(param);
 	}
 
 	/**
@@ -1333,27 +1322,26 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * element of this step's interaction parameters it will be added as an
 	 * input parameter.
 	 *
-	 * @param rParam        The parameter to initialize
-	 * @param rDate         The current date to initialize the parameter with
-	 * @param rEarliestDate If not NULL an input validation will be added to
-	 *                      ensure that the input date is not before this date
-	 *                      and that the date is set
+	 * @param param        The parameter to initialize
+	 * @param date         The current date to initialize the parameter with
+	 * @param earliestDate If not NULL an input validation will be added to
+	 *                     ensure that the input date is not before this date
+	 *                     and that the date is set
 	 */
-	public void prepareDateInput(RelationType<Date> rParam, Date rDate,
-		Date rEarliestDate) {
-		if (!get(INTERACTION_PARAMS).contains(rParam)) {
-			addInputParameters(rParam);
+	public void prepareDateInput(RelationType<Date> param, Date date,
+		Date earliestDate) {
+		if (!get(INTERACTION_PARAMS).contains(param)) {
+			addInputParameters(param);
 		}
 
-		if (getParameter(rParam) == null) {
-			setParameter(rParam, rDate);
+		if (getParameter(param) == null) {
+			setParameter(param, date);
 		}
 
-		if (rEarliestDate != null) {
-			setParameterValidation(rParam, false,
+		if (earliestDate != null) {
+			setParameterValidation(param, false,
 				doIfElse(isNull(), value(MSG_PARAM_NOT_SET),
-					doIf(lessThan(rEarliestDate),
-						value("DateIsBeforeToday"))));
+					doIf(lessThan(earliestDate), value("DateIsBeforeToday"))));
 		}
 	}
 
@@ -1363,9 +1351,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #prepareDownload(RelationType, String, FileType, Function)
 	 */
-	public String prepareDownload(String sFileName, FileType eFileType,
-		Function<FileType, ?> fDataGenerator) throws Exception {
-		return prepareDownload(null, sFileName, eFileType, fDataGenerator);
+	public String prepareDownload(String fileName, FileType fileType,
+		Function<FileType, ?> dataGenerator) throws Exception {
+		return prepareDownload(null, fileName, fileType, dataGenerator);
 	}
 
 	/**
@@ -1373,55 +1361,56 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * will perform the necessary cleanup operations if the download changes or
 	 * the process step is left.
 	 *
-	 * @param rUrlParam      The interaction parameter to store the URL in or
-	 *                       NULL for none
-	 * @param sFileName      The file name
-	 * @param eFileType      the file type
-	 * @param fDataGenerator The function that generates the download data
+	 * @param urlParam      The interaction parameter to store the URL in or
+	 *                      NULL for none
+	 * @param fileName      The file name
+	 * @param fileType      the file type
+	 * @param dataGenerator The function that generates the download data
 	 * @return The app-relative download URL
 	 * @throws Exception If preparing the download fails
 	 */
-	public String prepareDownload(RelationType<String> rUrlParam,
-		String sFileName, FileType eFileType,
-		Function<FileType, ?> fDataGenerator) throws Exception {
-		final SessionManager rSessionManager =
+	public String prepareDownload(RelationType<String> urlParam,
+		String fileName, FileType fileType,
+		Function<FileType, ?> dataGenerator)
+		throws Exception {
+		final SessionManager sessionManager =
 			getParameter(DataRelationTypes.SESSION_MANAGER);
 
-		DownloadData rDownloadData =
-			new DownloadData(sFileName, eFileType, fDataGenerator, false);
+		DownloadData downloadData =
+			new DownloadData(fileName, fileType, dataGenerator, false);
 
-		if (rUrlParam != null) {
-			String sOldUrl = getParameter(rUrlParam);
+		if (urlParam != null) {
+			String oldUrl = getParameter(urlParam);
 
-			if (sOldUrl != null) {
-				rSessionManager.removeDownload(sOldUrl);
-				getProcessStep().removeCleanupAction(sOldUrl);
+			if (oldUrl != null) {
+				sessionManager.removeDownload(oldUrl);
+				getProcessStep().removeCleanupAction(oldUrl);
 			}
 		}
 
-		final String sDownloadUrl =
-			rSessionManager.prepareDownload(rDownloadData);
+		final String downloadUrl =
+			sessionManager.prepareDownload(downloadData);
 
-		if (rUrlParam != null) {
-			setParameter(rUrlParam, sDownloadUrl);
+		if (urlParam != null) {
+			setParameter(urlParam, downloadUrl);
 		}
 
-		addCleanupAction(sDownloadUrl,
-			f -> rSessionManager.removeDownload(sDownloadUrl));
+		addCleanupAction(downloadUrl,
+			f -> sessionManager.removeDownload(downloadUrl));
 
-		return sDownloadUrl;
+		return downloadUrl;
 	}
 
 	/**
 	 * Removes all sub-fragments from this instance.
 	 */
 	public void removeAllSubFragments() {
-		List<RelationType<List<RelationType<?>>>> aSubFragmentParams =
-			new ArrayList<>(aSubFragments.keySet());
+		List<RelationType<List<RelationType<?>>>> subFragmentParams =
+			new ArrayList<>(subFragments.keySet());
 
-		for (RelationType<List<RelationType<?>>> rSubFragmentParam :
-			aSubFragmentParams) {
-			removeSubFragment(rSubFragmentParam);
+		for (RelationType<List<RelationType<?>>> subFragmentParam :
+			subFragmentParams) {
+			removeSubFragment(subFragmentParam);
 		}
 	}
 
@@ -1429,23 +1418,23 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Completely removes all display properties for one or more process
 	 * parameters.
 	 *
-	 * @param rParams The parameters to remove the display properties from
+	 * @param params The parameters to remove the display properties from
 	 */
-	public void removeAllUIProperties(RelationType<?>... rParams) {
-		removeAllUIProperties(Arrays.asList(rParams));
+	public void removeAllUIProperties(RelationType<?>... params) {
+		removeAllUIProperties(Arrays.asList(params));
 	}
 
 	/**
 	 * Completely removes all display properties for multiple process
 	 * parameters.
 	 *
-	 * @param rParams The parameters to remove the display properties from
+	 * @param params The parameters to remove the display properties from
 	 */
 	public void removeAllUIProperties(
-		Collection<? extends RelationType<?>> rParams) {
-		for (RelationType<?> rParam : rParams) {
-			if (hasParameter(rParam)) {
-				getParameterRelation(rParam).deleteRelation(DISPLAY_PROPERTIES);
+		Collection<? extends RelationType<?>> params) {
+		for (RelationType<?> param : params) {
+			if (hasParameter(param)) {
+				getParameterRelation(param).deleteRelation(DISPLAY_PROPERTIES);
 			}
 		}
 	}
@@ -1454,52 +1443,52 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Removes a cleanup action that has previously been registered through the
 	 * method {@link #addCleanupAction(String, Consumer)}.
 	 *
-	 * @param sKey The key that identifies the action to remove
+	 * @param key The key that identifies the action to remove
 	 * @return The registered action or NULL for none
 	 */
-	public Consumer<ProcessFragment> removeCleanupAction(String sKey) {
-		return aCleanupActions.remove(sKey);
+	public Consumer<ProcessFragment> removeCleanupAction(String key) {
+		return cleanupActions.remove(key);
 	}
 
 	/**
 	 * Removes all parameters for a panel parameter that had previously been
 	 * added through {@link #addPanel(RelationType, LayoutType, List)}.
 	 *
-	 * @param rPanelParam The parameter of the panel to remove
+	 * @param panelParam The parameter of the panel to remove
 	 */
-	public void removePanel(RelationType<List<RelationType<?>>> rPanelParam) {
-		List<RelationType<?>> rPanelElements = getParameter(rPanelParam);
+	public void removePanel(RelationType<List<RelationType<?>>> panelParam) {
+		List<RelationType<?>> panelElements = getParameter(panelParam);
 
-		if (rPanelElements != null) {
-			aPanelParameters.removeAll(rPanelElements);
+		if (panelElements != null) {
+			panelParameters.removeAll(panelElements);
 		}
 
-		deleteParameters(rPanelParam);
+		deleteParameters(panelParam);
 	}
 
 	/**
 	 * Remove an annotation from a certain process parameter.
 	 *
-	 * @param rParam          The parameter to annotate
-	 * @param rAnnotationType The relation type of the annotation
+	 * @param param          The parameter to annotate
+	 * @param annotationType The relation type of the annotation
 	 * @see #annotateParameter(RelationType, Object, RelationType, Object)
 	 */
-	public void removeParameterAnnotation(RelationType<?> rParam,
-		RelationType<?> rAnnotationType) {
-		Relation<?> rRelation = getProcess().getRelation(rParam);
+	public void removeParameterAnnotation(RelationType<?> param,
+		RelationType<?> annotationType) {
+		Relation<?> relation = getProcess().getRelation(param);
 
-		if (rRelation != null) {
-			rRelation.deleteRelation(rAnnotationType);
+		if (relation != null) {
+			relation.deleteRelation(annotationType);
 		}
 	}
 
 	/**
 	 * Removes a certain sub-fragment instance.
 	 *
-	 * @param rSubFragment The sub-fragment to remove
+	 * @param subFragment The sub-fragment to remove
 	 */
-	public void removeSubFragment(InteractionFragment rSubFragment) {
-		removeSubFragment(rSubFragment.getFragmentParameter());
+	public void removeSubFragment(InteractionFragment subFragment) {
+		removeSubFragment(subFragment.getFragmentParameter());
 	}
 
 	/**
@@ -1507,40 +1496,39 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * means of
 	 * {@link #addSubFragment(RelationType, InteractionFragment)}.
 	 *
-	 * @param rFragmentParam The parameter the fragment is stored in
+	 * @param fragmentParam The parameter the fragment is stored in
 	 * @return The removed fragment instance (may be NULL)
 	 */
 	public InteractionFragment removeSubFragment(
-		RelationType<List<RelationType<?>>> rFragmentParam) {
-		InteractionFragment rSubFragment =
-			aSubFragments.remove(rFragmentParam);
+		RelationType<List<RelationType<?>>> fragmentParam) {
+		InteractionFragment subFragment = subFragments.remove(fragmentParam);
 
-		if (rSubFragment != null) {
-			get(INPUT_PARAMS).removeAll(rSubFragment.getInputParameters());
-			removeInteractionParameters(rFragmentParam);
-			deleteParameters(rFragmentParam);
-			rSubFragment.abortFragment();
+		if (subFragment != null) {
+			get(INPUT_PARAMS).removeAll(subFragment.getInputParameters());
+			removeInteractionParameters(fragmentParam);
+			deleteParameters(fragmentParam);
+			subFragment.abortFragment();
 		}
 
-		return rSubFragment;
+		return subFragment;
 	}
 
 	/**
 	 * Removes display properties from a certain parameter.
 	 *
-	 * @param rParam      The parameter
-	 * @param rProperties The properties to remove
+	 * @param param      The parameter
+	 * @param properties The properties to remove
 	 */
-	public <T> void removeUIProperties(RelationType<?> rParam,
-		PropertyName<?>... rProperties) {
-		MutableProperties rUiProperties = getUIProperties(rParam);
+	public <T> void removeUIProperties(RelationType<?> param,
+		PropertyName<?>... properties) {
+		MutableProperties uiProperties = getUIProperties(param);
 
-		if (rUiProperties != null) {
-			for (PropertyName<?> rProperty : rProperties) {
-				rUiProperties.removeProperty(rProperty);
+		if (uiProperties != null) {
+			for (PropertyName<?> property : properties) {
+				uiProperties.removeProperty(property);
 			}
 
-			markParameterAsModified(rParam);
+			markParameterAsModified(param);
 		}
 	}
 
@@ -1552,12 +1540,12 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * the parameter hasn't been set yet it will be initialized with the given
 	 * value.
 	 *
-	 * @param rParam  The parameter to annotate
-	 * @param rValues The list of allowed values for the parameter
+	 * @param param  The parameter to annotate
+	 * @param values The list of allowed values for the parameter
 	 */
 	public <T, C extends Collection<T>, V extends Collection<T>> void setAllowedElements(
-		RelationType<C> rParam, V rValues) {
-		annotateParameter(rParam, null, ALLOWED_VALUES, rValues);
+		RelationType<C> param, V values) {
+		annotateParameter(param, null, ALLOWED_VALUES, values);
 	}
 
 	/**
@@ -1567,13 +1555,13 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * been
 	 * set yet it will be initialized with the given value.
 	 *
-	 * @param rParam  The parameter to annotate
-	 * @param rValues The allowed values for the parameter
+	 * @param param  The parameter to annotate
+	 * @param values The allowed values for the parameter
 	 */
 	@SafeVarargs
-	public final <T> void setAllowedValues(RelationType<T> rParam,
-		T... rValues) {
-		setAllowedValues(rParam, Arrays.asList(rValues));
+	public final <T> void setAllowedValues(RelationType<T> param,
+		T... values) {
+		setAllowedValues(param, Arrays.asList(values));
 	}
 
 	/**
@@ -1584,20 +1572,19 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * been
 	 * set yet it will be initialized with the given value.
 	 *
-	 * @param rParam  The parameter to annotate
-	 * @param rValues The list of allowed values for the parameter
+	 * @param param  The parameter to annotate
+	 * @param values The list of allowed values for the parameter
 	 */
 	public <T, C extends Collection<T>> void setAllowedValues(
-		RelationType<T> rParam, C rValues) {
-		annotateParameter(rParam, null, ALLOWED_VALUES, rValues);
+		RelationType<T> param, C values) {
+		annotateParameter(param, null, ALLOWED_VALUES, values);
 	}
 
 	/**
 	 * @see #setEnabled(boolean, Collection)
 	 */
-	public final void setEnabled(boolean bEnabled,
-		RelationType<?>... rParams) {
-		setEnabled(bEnabled, Arrays.asList(rParams));
+	public final void setEnabled(boolean enabled, RelationType<?>... params) {
+		setEnabled(enabled, Arrays.asList(params));
 	}
 
 	/**
@@ -1605,15 +1592,15 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * by changing the UI flag {@link UserInterfaceProperties#DISABLED}
 	 * accordingly.
 	 *
-	 * @param bEnabled The enabled state to set
-	 * @param rParams  The parameters to set the enabled state of
+	 * @param enabled The enabled state to set
+	 * @param params  The parameters to set the enabled state of
 	 */
-	public final void setEnabled(boolean bEnabled,
-		Collection<? extends RelationType<?>> rParams) {
-		if (bEnabled) {
-			clearUIFlag(DISABLED, rParams);
+	public final void setEnabled(boolean enabled,
+		Collection<? extends RelationType<?>> params) {
+		if (enabled) {
+			clearUIFlag(DISABLED, params);
 		} else {
-			setUIFlag(DISABLED, rParams);
+			setUIFlag(DISABLED, params);
 		}
 	}
 
@@ -1621,15 +1608,15 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Sets the properties {@link UserInterfaceProperties#HTML_WIDTH} and
 	 * {@link UserInterfaceProperties#HTML_HEIGHT} on the given parameters.
 	 *
-	 * @param sWidth  The HTML width string
-	 * @param sHeight sWidth The HTML height string
-	 * @param rParams The parameters to set the size of
+	 * @param width  The HTML width string
+	 * @param height width The HTML height string
+	 * @param params The parameters to set the size of
 	 */
-	public void setHtmlSize(String sWidth, String sHeight,
-		RelationType<?>... rParams) {
-		for (RelationType<?> rParam : rParams) {
-			setUIProperty(HTML_WIDTH, sWidth, rParam);
-			setUIProperty(HTML_HEIGHT, sHeight, rParam);
+	public void setHtmlSize(String width, String height,
+		RelationType<?>... params) {
+		for (RelationType<?> param : params) {
+			setUIProperty(HTML_WIDTH, width, param);
+			setUIProperty(HTML_HEIGHT, height, param);
 		}
 	}
 
@@ -1641,45 +1628,44 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link UserInterfaceProperties#HIDE_LABEL HIDE_LABEL} flag as it is
 	 * typically used with immediate action buttons.
 	 *
-	 * @param rParam   The enum action parameter
-	 * @param nColumns The number of columns
+	 * @param param   The enum action parameter
+	 * @param columns The number of columns
 	 * @see #setInteractive(RelationType, Collection, ListStyle, Object...)
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>> void setImmediateAction(RelationType<E> rParam,
-		int nColumns) {
-		setImmediateAction(rParam);
-		setUIFlag(HIDE_LABEL, rParam);
-		setUIProperty(nColumns, COLUMNS, rParam);
+	public <E extends Enum<E>> void setImmediateAction(RelationType<E> param,
+		int columns) {
+		setImmediateAction(param);
+		setUIFlag(HIDE_LABEL, param);
+		setUIProperty(columns, COLUMNS, param);
 	}
 
 	/**
 	 * Shortcut method to initialize an enum parameter for an immediate action.
 	 * The enum will be displayed as buttons with {@link ListStyle#IMMEDIATE}.
 	 *
-	 * @param rParam         The enum action parameter
-	 * @param rAllowedValues The allowed values
+	 * @param param         The enum action parameter
+	 * @param allowedValues The allowed values
 	 * @see #setInteractive(RelationType, Collection, ListStyle, Object...)
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends Enum<E>> void setImmediateAction(RelationType<E> rParam,
-		E... rAllowedValues) {
-		setInteractive(rParam, null, ListStyle.IMMEDIATE, rAllowedValues);
+	public <E extends Enum<E>> void setImmediateAction(RelationType<E> param,
+		E... allowedValues) {
+		setInteractive(param, null, ListStyle.IMMEDIATE, allowedValues);
 	}
 
 	/**
 	 * Shortcut method to initialize an enum parameter for an immediate action.
 	 * The enum will be displayed as buttons with {@link ListStyle#IMMEDIATE}.
 	 *
-	 * @param rParam         The enum action parameter
-	 * @param rAllowedValues The allowed values (NULL or empty for all
-	 *                          values of
-	 *                       the enum)
+	 * @param param         The enum action parameter
+	 * @param allowedValues The allowed values (NULL or empty for all values of
+	 *                      the enum)
 	 * @see #setInteractive(RelationType, Object, ListStyle, Collection)
 	 */
-	public <E extends Enum<E>> void setImmediateAction(RelationType<E> rParam,
-		Collection<E> rAllowedValues) {
-		setInteractive(rParam, null, ListStyle.IMMEDIATE, rAllowedValues);
+	public <E extends Enum<E>> void setImmediateAction(RelationType<E> param,
+		Collection<E> allowedValues) {
+		setInteractive(param, null, ListStyle.IMMEDIATE, allowedValues);
 	}
 
 	/**
@@ -1687,13 +1673,13 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * property {@link UserInterfaceProperties#INTERACTIVE_INPUT_MODE} to the
 	 * given mode.
 	 *
-	 * @param eMode   The interactive input mode
-	 * @param rParams The parameters
+	 * @param mode   The interactive input mode
+	 * @param params The parameters
 	 */
-	public void setInteractive(InteractiveInputMode eMode,
-		RelationType<?>... rParams) {
-		for (RelationType<?> rParam : rParams) {
-			setUIProperty(INTERACTIVE_INPUT_MODE, eMode, rParam);
+	public void setInteractive(InteractiveInputMode mode,
+		RelationType<?>... params) {
+		for (RelationType<?> param : params) {
+			setUIProperty(INTERACTIVE_INPUT_MODE, mode, param);
 		}
 	}
 
@@ -1703,16 +1689,16 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * will
 	 * be allowed.
 	 *
-	 * @param rParam         The parameter
-	 * @param rInitialValue  The initial parameter value or NULL for none
-	 * @param rListStyle     The style in which to display the list of values
-	 * @param rAllowedValues The allowed values
+	 * @param param         The parameter
+	 * @param initialValue  The initial parameter value or NULL for none
+	 * @param listStyle     The style in which to display the list of values
+	 * @param allowedValues The allowed values
 	 */
 	@SafeVarargs
-	public final <T> void setInteractive(RelationType<T> rParam,
-		T rInitialValue, ListStyle rListStyle, T... rAllowedValues) {
-		setInteractive(rParam, rInitialValue, rListStyle,
-			Arrays.asList(rAllowedValues));
+	public final <T> void setInteractive(RelationType<T> param, T initialValue,
+		ListStyle listStyle, T... allowedValues) {
+		setInteractive(param, initialValue, listStyle,
+			Arrays.asList(allowedValues));
 	}
 
 	/**
@@ -1721,16 +1707,15 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * will
 	 * be allowed.
 	 *
-	 * @param rParam         The parameter
-	 * @param rIntialValue   The initial parameter value or NULL for none
-	 * @param eListStyle     The style in which to display the list of values
-	 * @param rAllowedValues The allowed values (NULL or empty for all
-	 *                          values of
-	 *                       an enum datatype)
+	 * @param param         The parameter
+	 * @param intialValue   The initial parameter value or NULL for none
+	 * @param listStyle     The style in which to display the list of values
+	 * @param allowedValues The allowed values (NULL or empty for all values of
+	 *                      an enum datatype)
 	 */
-	public <T> void setInteractive(RelationType<T> rParam, T rIntialValue,
-		ListStyle eListStyle, Collection<T> rAllowedValues) {
-		setInteractiveImpl(rParam, rIntialValue, eListStyle, rAllowedValues);
+	public <T> void setInteractive(RelationType<T> param, T intialValue,
+		ListStyle listStyle, Collection<T> allowedValues) {
+		setInteractiveImpl(param, intialValue, listStyle, allowedValues);
 	}
 
 	/**
@@ -1739,17 +1724,17 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * allowed values are provided and the parameter datatype is an enum class
 	 * all enum values will be allowed.
 	 *
-	 * @param rParam         The parameter
-	 * @param rDefaultValues The default parameter value or NULL for none
-	 * @param rListStyle     The style in which to display the list of values
-	 * @param rAllowedValues The allowed values
+	 * @param param         The parameter
+	 * @param defaultValues The default parameter value or NULL for none
+	 * @param listStyle     The style in which to display the list of values
+	 * @param allowedValues The allowed values
 	 */
 	@SuppressWarnings("unchecked")
 	public <T, C extends Collection<T>> void setInteractive(
-		RelationType<C> rParam, C rDefaultValues, ListStyle rListStyle,
-		T... rAllowedValues) {
-		setInteractive(rParam, rDefaultValues, rListStyle,
-			Arrays.asList(rAllowedValues));
+		RelationType<C> param, C defaultValues, ListStyle listStyle,
+		T... allowedValues) {
+		setInteractive(param, defaultValues, listStyle,
+			Arrays.asList(allowedValues));
 	}
 
 	/**
@@ -1758,29 +1743,28 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * allowed values are provided and the parameter datatype is an enum class
 	 * all enum values will be allowed.
 	 *
-	 * @param rParam         The parameter
-	 * @param rInitialValues The initial parameter values or NULL for none
-	 * @param eListStyle     The style in which to display the list of values
-	 * @param rAllowedValues The allowed values (NULL or empty for all
-	 *                          values of
-	 *                       an enum datatype)
+	 * @param param         The parameter
+	 * @param initialValues The initial parameter values or NULL for none
+	 * @param listStyle     The style in which to display the list of values
+	 * @param allowedValues The allowed values (NULL or empty for all values of
+	 *                      an enum datatype)
 	 */
 	public <T, C extends Collection<T>> void setInteractive(
-		RelationType<C> rParam, C rInitialValues, ListStyle eListStyle,
-		Collection<T> rAllowedValues) {
-		setInteractiveImpl(rParam, rInitialValues, eListStyle, rAllowedValues);
+		RelationType<C> param, C initialValues, ListStyle listStyle,
+		Collection<T> allowedValues) {
+		setInteractiveImpl(param, initialValues, listStyle, allowedValues);
 	}
 
 	/**
 	 * Sets the {@link UserInterfaceProperties#LAYOUT LAYOUT} property for a
 	 * {@link DataElementList} parameter.
 	 *
-	 * @param eMode  The list display mode
-	 * @param rParam The parameter
+	 * @param mode  The list display mode
+	 * @param param The parameter
 	 */
-	public void setLayout(LayoutType eMode,
-		RelationType<List<RelationType<?>>> rParam) {
-		setUIProperty(LAYOUT, eMode, rParam);
+	public void setLayout(LayoutType mode,
+		RelationType<List<RelationType<?>>> param) {
+		setUIProperty(LAYOUT, mode, param);
 	}
 
 	/**
@@ -1792,17 +1776,17 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @return The relation of the parameter
 	 * @see Process#setParameter(RelationType, Object)
 	 */
-	public <T, R> Relation<T> setParameter(RelationType<T> rParam, T rValue) {
-		Relation<T> rParamRelation = getProcess().setParameter(rParam, rValue);
+	public <T, R> Relation<T> setParameter(RelationType<T> param, T value) {
+		Relation<T> paramRelation = getProcess().setParameter(param, value);
 
-		markParameterAsModified(rParam);
+		markParameterAsModified(param);
 
-		if (rParam.getTargetType() == List.class &&
-			rParam.get(MetaTypes.ELEMENT_DATATYPE) == RelationType.class) {
-			setUIFlag(STRUCTURE_CHANGED, rParam);
+		if (param.getTargetType() == List.class &&
+			param.get(MetaTypes.ELEMENT_DATATYPE) == RelationType.class) {
+			setUIFlag(STRUCTURE_CHANGED, param);
 		}
 
-		return rParamRelation;
+		return paramRelation;
 	}
 
 	/**
@@ -1810,24 +1794,23 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setParameter(RelationType, Object)
 	 */
-	public final Relation<Boolean> setParameter(RelationType<Boolean> rParam,
-		boolean bValue) {
-		return setParameter(rParam, Boolean.valueOf(bValue));
+	public final Relation<Boolean> setParameter(RelationType<Boolean> param,
+		boolean value) {
+		return setParameter(param, Boolean.valueOf(value));
 	}
 
 	/**
 	 * Sets the minimum and maximum values of an integer parameter.
 	 *
-	 * @param rParam The parameter
-	 * @param nMin   The minimum value
-	 * @param nMax   The maximum value
+	 * @param param The parameter
+	 * @param min   The minimum value
+	 * @param max   The maximum value
 	 */
 	@SuppressWarnings("boxing")
-	public final void setParameterBounds(RelationType<Integer> rParam,
-		int nMin,
-		int nMax) {
-		annotateParameter(rParam, null, MINIMUM, nMin);
-		annotateParameter(rParam, null, MAXIMUM, nMax);
+	public final void setParameterBounds(RelationType<Integer> param, int min,
+		int max) {
+		annotateParameter(param, null, MINIMUM, min);
+		annotateParameter(param, null, MAXIMUM, max);
 	}
 
 	/**
@@ -1837,30 +1820,30 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link #setProcessStepMessage(String) process message} exists, as the
 	 * second.
 	 *
-	 * @param sInfo The information string or a resource ID or NULL to reset
-	 * @param nRows The number of rows to display (&gt; 1 for a multi-line
-	 *              display) or -1 to calculate the number of rows in the input
-	 *              text
+	 * @param info The information string or a resource ID or NULL to reset
+	 * @param rows The number of rows to display (&gt; 1 for a multi-line
+	 *             display) or -1 to calculate the number of rows in the input
+	 *             text
 	 */
-	public void setProcessStepInfo(String sInfo, int nRows) {
-		if (sInfo != null) {
-			List<RelationType<?>> rInteractionParams = get(INTERACTION_PARAMS);
+	public void setProcessStepInfo(String info, int rows) {
+		if (info != null) {
+			List<RelationType<?>> interactionParams = get(INTERACTION_PARAMS);
 
-			if (!rInteractionParams.contains(PROCESS_STEP_INFO)) {
-				int nPosition =
-					rInteractionParams.contains(PROCESS_STEP_MESSAGE) ? 1 : 0;
+			if (!interactionParams.contains(PROCESS_STEP_INFO)) {
+				int position =
+					interactionParams.contains(PROCESS_STEP_MESSAGE) ? 1 : 0;
 
-				rInteractionParams.add(nPosition, PROCESS_STEP_INFO);
+				interactionParams.add(position, PROCESS_STEP_INFO);
 			}
 
-			if (nRows == -1) {
-				nRows = TextUtil.count(sInfo, "\n");
+			if (rows == -1) {
+				rows = TextUtil.count(info, "\n");
 			}
 
-			setParameter(PROCESS_STEP_INFO, sInfo);
+			setParameter(PROCESS_STEP_INFO, info);
 			setUIFlag(HIDE_LABEL, PROCESS_STEP_INFO);
 			setUIFlag(WRAP, PROCESS_STEP_INFO);
-			setUIProperty(nRows, ROWS, PROCESS_STEP_INFO);
+			setUIProperty(rows, ROWS, PROCESS_STEP_INFO);
 			setUIProperty(CONTENT_TYPE, ContentType.HTML, PROCESS_STEP_INFO);
 		} else {
 			removeInteractionParameters(PROCESS_STEP_INFO);
@@ -1873,17 +1856,17 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * displayed
 	 * as the first parameter if it doesn't exist already.
 	 *
-	 * @param sMessage The message or message resource ID or NULL to reset
+	 * @param message The message or message resource ID or NULL to reset
 	 */
-	public void setProcessStepMessage(String sMessage) {
-		if (sMessage != null) {
-			List<RelationType<?>> rInteractionParams = get(INTERACTION_PARAMS);
+	public void setProcessStepMessage(String message) {
+		if (message != null) {
+			List<RelationType<?>> interactionParams = get(INTERACTION_PARAMS);
 
-			if (!rInteractionParams.contains(PROCESS_STEP_MESSAGE)) {
-				rInteractionParams.add(0, PROCESS_STEP_MESSAGE);
+			if (!interactionParams.contains(PROCESS_STEP_MESSAGE)) {
+				interactionParams.add(0, PROCESS_STEP_MESSAGE);
 			}
 
-			setParameter(PROCESS_STEP_MESSAGE, sMessage);
+			setParameter(PROCESS_STEP_MESSAGE, message);
 			setUIFlag(HIDE_LABEL, PROCESS_STEP_MESSAGE);
 			setUIFlag(WRAP, PROCESS_STEP_MESSAGE);
 			setUIProperty(CONTENT_TYPE, ContentType.HTML,
@@ -1897,14 +1880,14 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * A convenience method to set a selection dependency with the property
 	 * {@link UserInterfaceProperties#SELECTION_DEPENDENCY}.
 	 *
-	 * @param rParam           The parameter to set the dependency for
-	 * @param bReverseState    TRUE to reverse the selection state of buttons
-	 * @param rDependentParams The dependent parameters
+	 * @param param           The parameter to set the dependency for
+	 * @param reverseState    TRUE to reverse the selection state of buttons
+	 * @param dependentParams The dependent parameters
 	 */
-	public final void setSelectionDependency(RelationType<?> rParam,
-		boolean bReverseState, RelationType<?>... rDependentParams) {
-		setSelectionDependency(rParam, bReverseState,
-			Arrays.asList(rDependentParams));
+	public final void setSelectionDependency(RelationType<?> param,
+		boolean reverseState, RelationType<?>... dependentParams) {
+		setSelectionDependency(param, reverseState,
+			Arrays.asList(dependentParams));
 	}
 
 	/**
@@ -1913,17 +1896,17 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link UserInterfaceProperties#SELECTION_DEPENDENCY}. Empty parameter
 	 * lists will be ignored.
 	 *
-	 * @param rParam           The parameter to set the dependency for
-	 * @param bReverseState    TRUE to reverse the selection state of buttons
-	 * @param rDependentParams The dependent parameters
+	 * @param param           The parameter to set the dependency for
+	 * @param reverseState    TRUE to reverse the selection state of buttons
+	 * @param dependentParams The dependent parameters
 	 */
-	public final void setSelectionDependency(RelationType<?> rParam,
-		boolean bReverseState,
-		Collection<? extends RelationType<?>> rDependentParams) {
-		removeUIProperties(rParam, SELECTION_DEPENDENCY);
+	public final void setSelectionDependency(RelationType<?> param,
+		boolean reverseState,
+		Collection<? extends RelationType<?>> dependentParams) {
+		removeUIProperties(param, SELECTION_DEPENDENCY);
 
-		if (rDependentParams.size() > 0) {
-			addSelectionDependency(rParam, bReverseState, rDependentParams);
+		if (dependentParams.size() > 0) {
+			addSelectionDependency(param, reverseState, dependentParams);
 		}
 	}
 
@@ -1933,9 +1916,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setUIProperty(PropertyName, Object, RelationType...)
 	 */
-	public final void setUIFlag(PropertyName<Boolean> rProperty,
-		RelationType<?>... rParams) {
-		setUIProperty(rProperty, Boolean.TRUE, rParams);
+	public final void setUIFlag(PropertyName<Boolean> property,
+		RelationType<?>... params) {
+		setUIProperty(property, Boolean.TRUE, params);
 	}
 
 	/**
@@ -1944,9 +1927,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setUIProperty(PropertyName, Object, Collection)
 	 */
-	public final void setUIFlag(PropertyName<Boolean> rProperty,
-		Collection<? extends RelationType<?>> rParams) {
-		setUIProperty(rProperty, Boolean.TRUE, rParams);
+	public final void setUIFlag(PropertyName<Boolean> property,
+		Collection<? extends RelationType<?>> params) {
+		setUIProperty(property, Boolean.TRUE, params);
 	}
 
 	/**
@@ -1954,9 +1937,9 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setUIProperty(PropertyName, Object, Collection)
 	 */
-	public void setUIProperty(int nValue, PropertyName<Integer> rProperty,
-		Collection<? extends RelationType<?>> rParams) {
-		setUIProperty(rProperty, Integer.valueOf(nValue), rParams);
+	public void setUIProperty(int value, PropertyName<Integer> property,
+		Collection<? extends RelationType<?>> params) {
+		setUIProperty(property, Integer.valueOf(value), params);
 	}
 
 	/**
@@ -1964,52 +1947,52 @@ public abstract class ProcessFragment extends ProcessElement {
 	 *
 	 * @see #setUIProperty(PropertyName, Object, RelationType...)
 	 */
-	public void setUIProperty(int nValue, PropertyName<Integer> rProperty,
-		RelationType<?>... rParams) {
-		setUIProperty(rProperty, Integer.valueOf(nValue), rParams);
+	public void setUIProperty(int value, PropertyName<Integer> property,
+		RelationType<?>... params) {
+		setUIProperty(property, Integer.valueOf(value), params);
 	}
 
 	/**
 	 * Sets a certain display property on one or more process parameters. This
 	 * method will create the display properties object if necessary.
 	 *
-	 * @param rProperty The property to set
-	 * @param rValue    The property value
-	 * @param rParams   The parameter to set the property on
+	 * @param property The property to set
+	 * @param value    The property value
+	 * @param params   The parameter to set the property on
 	 */
-	public <T> void setUIProperty(PropertyName<T> rProperty, T rValue,
-		RelationType<?>... rParams) {
-		setUIProperty(rProperty, rValue, Arrays.asList(rParams));
+	public <T> void setUIProperty(PropertyName<T> property, T value,
+		RelationType<?>... params) {
+		setUIProperty(property, value, Arrays.asList(params));
 	}
 
 	/**
 	 * Sets a certain display property on multiple process parameters. This
 	 * method will create the display properties object if necessary.
 	 *
-	 * @param rProperty The property to set
-	 * @param rValue    The property value
-	 * @param rParams   The parameters to set the property on
+	 * @param property The property to set
+	 * @param value    The property value
+	 * @param params   The parameters to set the property on
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void setUIProperty(PropertyName<T> rProperty, T rValue,
-		Collection<? extends RelationType<?>> rParams) {
+	public <T> void setUIProperty(PropertyName<T> property, T value,
+		Collection<? extends RelationType<?>> params) {
 		// check whether the deprecated input mode needs to be converted into
 		// the corresponding event types
-		if (rProperty == INTERACTIVE_INPUT_MODE) {
-			rProperty = (PropertyName<T>) INTERACTION_EVENT_TYPES;
-			rValue =
-				(T) convertInputModeToEventTypes((InteractiveInputMode) rValue);
+		if (property == INTERACTIVE_INPUT_MODE) {
+			property = (PropertyName<T>) INTERACTION_EVENT_TYPES;
+			value =
+				(T) convertInputModeToEventTypes((InteractiveInputMode) value);
 		}
 
-		for (RelationType<?> rParam : rParams) {
-			MutableProperties rUiProperties = getUIProperties(rParam, true);
+		for (RelationType<?> param : params) {
+			MutableProperties uiProperties = getUIProperties(param, true);
 
-			rUiProperties.setProperty(rProperty, rValue);
+			uiProperties.setProperty(property, value);
 
-			if (NON_MODIFYING_PROPERTIES.contains(rProperty)) {
-				rUiProperties.setFlag(StateProperties.PROPERTIES_CHANGED);
+			if (NON_MODIFYING_PROPERTIES.contains(property)) {
+				uiProperties.setFlag(StateProperties.PROPERTIES_CHANGED);
 			} else {
-				markParameterAsModified(rParam);
+				markParameterAsModified(param);
 			}
 		}
 	}
@@ -2018,27 +2001,26 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * A convenience method to hide or show certain interaction parameter by
 	 * changing the UI flag {@link UserInterfaceProperties#HIDDEN} accordingly.
 	 *
-	 * @param bVisible The new visible
-	 * @param rParams  The new visible
+	 * @param visible The new visible
+	 * @param params  The new visible
 	 */
-	public final void setVisible(boolean bVisible,
-		RelationType<?>... rParams) {
-		setVisible(bVisible, Arrays.asList(rParams));
+	public final void setVisible(boolean visible, RelationType<?>... params) {
+		setVisible(visible, Arrays.asList(params));
 	}
 
 	/**
 	 * A convenience method to hide or show certain interaction parameter by
 	 * changing the UI flag {@link UserInterfaceProperties#HIDDEN} accordingly.
 	 *
-	 * @param bVisible The new visible
-	 * @param rParams  The new visible
+	 * @param visible The new visible
+	 * @param params  The new visible
 	 */
-	public final void setVisible(boolean bVisible,
-		Collection<? extends RelationType<?>> rParams) {
-		if (bVisible) {
-			clearUIFlag(HIDDEN, rParams);
+	public final void setVisible(boolean visible,
+		Collection<? extends RelationType<?>> params) {
+		if (visible) {
+			clearUIFlag(HIDDEN, params);
 		} else {
-			setUIFlag(HIDDEN, rParams);
+			setUIFlag(HIDDEN, params);
 		}
 	}
 
@@ -2049,19 +2031,19 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * and registered in {@link ProcessRelationTypes#SPAWN_PROCESSES} so that
 	 * it's interaction can be displayed on the client side.
 	 *
-	 * @param rDescription The process description
-	 * @param rInitParams  The optional initialization parameters or NULL for
-	 *                     none
+	 * @param description The process description
+	 * @param initParams  The optional initialization parameters or NULL for
+	 *                    none
 	 * @throws Exception If the process execution fails
 	 */
-	public void spawnProcess(ProcessDescription rDescription,
-		Relatable rInitParams) throws Exception {
-		ProcessState rProcessState =
-			getParameter(PROCESS_EXECUTOR).executeProcess(rDescription,
-				rInitParams);
+	public void spawnProcess(ProcessDescription description,
+		Relatable initParams) throws Exception {
+		ProcessState processState =
+			getParameter(PROCESS_EXECUTOR).executeProcess(description,
+				initParams);
 
-		if (rProcessState != null) {
-			getParameter(SPAWN_PROCESSES).add(rProcessState);
+		if (processState != null) {
+			getParameter(SPAWN_PROCESSES).add(processState);
 		}
 	}
 
@@ -2069,11 +2051,11 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Stores an entity through the {@link EntityManager} with the current
 	 * process user as the change origin.
 	 *
-	 * @param rEntity The entity to store
+	 * @param entity The entity to store
 	 * @throws TransactionException If storing the entity fails
 	 */
-	public void storeEntity(Entity rEntity) throws TransactionException {
-		EntityManager.storeEntity(rEntity, getProcessUser());
+	public void storeEntity(Entity entity) throws TransactionException {
+		EntityManager.storeEntity(entity, getProcessUser());
 	}
 
 	/**
@@ -2082,30 +2064,29 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * cleanup
 	 * action.
 	 *
-	 * @param rEntity The entity to unlock
+	 * @param entity The entity to unlock
 	 */
-	public final void unlockEntity(Entity rEntity) {
+	public final void unlockEntity(Entity entity) {
 		removeCleanupAction(
-			Process.CLEANUP_KEY_UNLOCK_ENTITY + rEntity.getGlobalId());
-		rEntity.unlock();
+			Process.CLEANUP_KEY_UNLOCK_ENTITY + entity.getGlobalId());
+		entity.unlock();
 	}
 
 	/**
 	 * Marks a parameter as an element of a subordinate panel in this fragment.
 	 *
-	 * @param rPanelParams The parameters to mark as panel elements
+	 * @param panelParams The parameters to mark as panel elements
 	 */
-	protected void addPanelParameters(
-		Collection<RelationType<?>> rPanelParams) {
-		if (aPanelParameters == null) {
-			aPanelParameters = new HashSet<>();
+	protected void addPanelParameters(Collection<RelationType<?>> panelParams) {
+		if (panelParameters == null) {
+			panelParameters = new HashSet<>();
 		}
 
-		aPanelParameters.addAll(rPanelParams);
+		panelParameters.addAll(panelParams);
 
 		// if the parameters have already been added to this fragment remove
 		// them because they are already displayed as members of their panel
-		get(INTERACTION_PARAMS).removeAll(rPanelParams);
+		get(INTERACTION_PARAMS).removeAll(panelParams);
 	}
 
 	/**
@@ -2118,19 +2099,19 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * instead of {@link #getParameter(RelationType)} unless circumventing the
 	 * parameters checks is explicitly needed.
 	 *
-	 * @param rParamType The type of the parameter to check and return
+	 * @param paramType The type of the parameter to check and return
 	 * @return The parameter value (may be NULL for non-mandatory parameters)
 	 * @throws IllegalStateException If the parameter has been marked as
 	 *                               mandatory but is NULL
 	 */
-	protected <T> T checkParameter(RelationType<T> rParamType) {
-		T rParam = getParameter(rParamType);
+	protected <T> T checkParameter(RelationType<T> paramType) {
+		T param = getParameter(paramType);
 
-		if (rParam == null) {
-			throwMissingParameterException(rParamType);
+		if (param == null) {
+			throwMissingParameterException(paramType);
 		}
 
-		return rParam;
+		return param;
 	}
 
 	/**
@@ -2138,17 +2119,17 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * method {@link #addCleanupAction(String, Consumer)}.
 	 */
 	protected void executeCleanupActions() {
-		for (String sKey : aCleanupActions.keySet()) {
-			Consumer<ProcessFragment> rAction = aCleanupActions.get(sKey);
+		for (String key : cleanupActions.keySet()) {
+			Consumer<ProcessFragment> action = cleanupActions.get(key);
 
 			try {
-				rAction.accept(this);
+				action.accept(this);
 			} catch (Exception e) {
-				Log.errorf(e, "Fragment cleanup action failed: %s", sKey);
+				Log.errorf(e, "Fragment cleanup action failed: %s", key);
 			}
 		}
 
-		aCleanupActions.clear();
+		cleanupActions.clear();
 	}
 
 	/**
@@ -2157,18 +2138,18 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * process parameter {@link DataRelationTypes#SESSION_MANAGER}. Otherwise
 	 * the input path is returned unchanged.
 	 *
-	 * @param sFileName The relative path to the file
+	 * @param fileName The relative path to the file
 	 * @return The absolute file path
 	 */
-	protected String getAbsoluteFilePath(String sFileName) {
-		SessionManager rSessionManager =
+	protected String getAbsoluteFilePath(String fileName) {
+		SessionManager sessionManager =
 			getParameter(DataRelationTypes.SESSION_MANAGER);
 
-		if (rSessionManager != null) {
-			sFileName = rSessionManager.getAbsoluteFileName(sFileName);
+		if (sessionManager != null) {
+			fileName = sessionManager.getAbsoluteFileName(fileName);
 		}
 
-		return sFileName;
+		return fileName;
 	}
 
 	/**
@@ -2176,22 +2157,22 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link UserInterfaceProperties#RESOURCE_ID} to the given string
 	 * parameter.
 	 *
-	 * @param sResourceId  The resource id to use.
-	 * @param rElementType The collection element data type
+	 * @param resourceId  The resource id to use.
+	 * @param elementType The collection element data type
 	 * @return a temporary list type with a random unique name and sets the
 	 * {@link UserInterfaceProperties#RESOURCE_ID} to the given string
 	 * parameter.
 	 */
-	protected <T> RelationType<List<T>> getNamedTmpListType(String sResourceId,
-		Class<? super T> rElementType) {
-		String sReleationTypeName = sResourceId + UUID.randomUUID().toString();
+	protected <T> RelationType<List<T>> getNamedTmpListType(String resourceId,
+		Class<? super T> elementType) {
+		String releationTypeName = resourceId + UUID.randomUUID();
 
-		RelationType<List<T>> rTemporaryListType =
-			getTemporaryListType(sReleationTypeName, rElementType);
+		RelationType<List<T>> temporaryListType =
+			getTemporaryListType(releationTypeName, elementType);
 
-		setUIProperty(RESOURCE_ID, sResourceId, rTemporaryListType);
+		setUIProperty(RESOURCE_ID, resourceId, temporaryListType);
 
-		return rTemporaryListType;
+		return temporaryListType;
 	}
 
 	/**
@@ -2200,42 +2181,42 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * {@link UserInterfaceProperties#RESOURCE_ID} to the given string
 	 * parameter.
 	 *
-	 * @param sResourceId The resource id to use.
-	 * @param rDatatype   rElementType The collection element data type
+	 * @param resourceId The resource id to use.
+	 * @param datatype   elementType The collection element data type
 	 * @return a temporary parameter type with a random unique name and sets
 	 * the
 	 * {@link UserInterfaceProperties#RESOURCE_ID} to the given string
 	 * parameter.
 	 */
-	protected <T> RelationType<T> getNamedTmpParameterType(String sResourceId,
-		Class<? super T> rDatatype) {
-		String sRelationTypeName = sResourceId + UUID.randomUUID().toString();
+	protected <T> RelationType<T> getNamedTmpParameterType(String resourceId,
+		Class<? super T> datatype) {
+		String relationTypeName = resourceId + UUID.randomUUID();
 
-		RelationType<T> rTemporaryParameterType =
-			getTemporaryParameterType(sRelationTypeName, rDatatype);
+		RelationType<T> temporaryParameterType =
+			getTemporaryParameterType(relationTypeName, datatype);
 
-		setUIProperty(RESOURCE_ID, sResourceId, rTemporaryParameterType);
+		setUIProperty(RESOURCE_ID, resourceId, temporaryParameterType);
 
-		return rTemporaryParameterType;
+		return temporaryParameterType;
 	}
 
 	/**
 	 * A helper method for subclasses that returns the selection index for a
 	 * selection data element parameter.
 	 *
-	 * @param rSelectionParam The selection data element parameter type
+	 * @param selectionParam The selection data element parameter type
 	 * @return The selection index for the parameter (-1 for no selection)
 	 */
 	protected int getSelectionIndex(
-		RelationType<SelectionDataElement> rSelectionParam) {
-		SelectionDataElement rSelection = getParameter(rSelectionParam);
-		int nSelection = -1;
+		RelationType<SelectionDataElement> selectionParam) {
+		SelectionDataElement selectionElement = getParameter(selectionParam);
+		int selection = -1;
 
-		if (rSelection != null) {
-			nSelection = Integer.parseInt(rSelection.getValue());
+		if (selectionElement != null) {
+			selection = Integer.parseInt(selectionElement.getValue());
 		}
 
-		return nSelection;
+		return selection;
 	}
 
 	/**
@@ -2244,7 +2225,7 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @return The subordinate fragments
 	 */
 	protected final Collection<InteractionFragment> getSubFragments() {
-		return aSubFragments.values();
+		return subFragments.values();
 	}
 
 	/**
@@ -2264,30 +2245,30 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * from a certain base name. The name will be local to the current
 	 * fragment.
 	 *
-	 * @param sBaseName The temporary parameter base name
+	 * @param baseName The temporary parameter base name
 	 * @return The temporary parameter name
 	 */
-	protected String getTemporaryParameterName(String sBaseName) {
-		StringBuilder aParamName =
+	protected String getTemporaryParameterName(String baseName) {
+		StringBuilder paramName =
 			new StringBuilder(getTemporaryParameterPackage());
 
-		aParamName.append('.');
+		paramName.append('.');
 
-		if (sBaseName == null) {
-			aParamName
+		if (baseName == null) {
+			paramName
 				.append(DataElement.ANONYMOUS_ELEMENT_PREFIX)
 				.append(getTemporaryParameterId());
 		} else {
-			if (Character.isDigit(sBaseName.charAt(0))) {
-				aParamName.append('_');
+			if (Character.isDigit(baseName.charAt(0))) {
+				paramName.append('_');
 			}
 
-			aParamName.append(TextConvert
-				.uppercaseIdentifier(sBaseName)
+			paramName.append(TextConvert
+				.uppercaseIdentifier(baseName)
 				.replaceAll("[.-]", "_"));
 		}
 
-		return aParamName.toString();
+		return paramName.toString();
 	}
 
 	/**
@@ -2302,13 +2283,13 @@ public abstract class ProcessFragment extends ProcessElement {
 	 */
 	@SuppressWarnings("boxing")
 	protected String getTemporaryParameterPackage() {
-		if (sFragmentParamPackage == null) {
-			sFragmentParamPackage =
+		if (fragmentParamPackage == null) {
+			fragmentParamPackage =
 				String.format("P%d.F%d", getProcess().getId(),
 					getFragmentId());
 		}
 
-		return sFragmentParamPackage;
+		return fragmentParamPackage;
 	}
 
 	/**
@@ -2317,55 +2298,54 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * with a certain element datatype. The parameter will have an empty set as
 	 * it's initial value.
 	 *
-	 * @param sName        The name of the parameter
-	 * @param rElementType The set element datatype
-	 * @param bOrdered     TRUE for a set that keeps the order of it's elements
+	 * @param name        The name of the parameter
+	 * @param elementType The set element datatype
+	 * @param ordered     TRUE for a set that keeps the order of it's elements
 	 * @return The temporary set parameter type
 	 * @see #getTemporaryParameterType(String, Class)
 	 */
-	protected <T> RelationType<Set<T>> getTemporarySetType(String sName,
-		Class<? super T> rElementType, boolean bOrdered) {
-		sName = getTemporaryParameterName(sName);
+	protected <T> RelationType<Set<T>> getTemporarySetType(String name,
+		Class<? super T> elementType, boolean ordered) {
+		name = getTemporaryParameterName(name);
 
 		@SuppressWarnings("unchecked")
-		RelationType<Set<T>> rParam =
-			(RelationType<Set<T>>) RelationType.valueOf(sName);
+		RelationType<Set<T>> param =
+			(RelationType<Set<T>>) RelationType.valueOf(name);
 
-		if (rParam == null) {
-			rParam = newSetType(sName, rElementType, true, bOrdered);
+		if (param == null) {
+			param = newSetType(name, elementType, true, ordered);
 
-			getParameter(TEMPORARY_PARAM_TYPES).add(rParam);
+			getParameter(TEMPORARY_PARAM_TYPES).add(param);
 		} else {
-			assert rParam.getTargetType() == Set.class &&
-				rParam.get(ELEMENT_DATATYPE) == rElementType;
+			assert param.getTargetType() == Set.class &&
+				param.get(ELEMENT_DATATYPE) == elementType;
 		}
 
-		getProcess().registerTemporaryParameterType(rParam);
+		getProcess().registerTemporaryParameterType(param);
 
-		return rParam;
+		return param;
 	}
 
 	/**
 	 * Creates a new data set data element with chart data and sets the
 	 * corresponding process parameter.
 	 *
-	 * @param rTargetParam     The parameter to store the chart data element in
-	 * @param aDataSet         The chart data
-	 * @param eChartType       The chart type
-	 * @param eLegendPosition  The legend position
-	 * @param sBackgroundColor The chart background color
-	 * @param b3D              TRUE for a 3D chart
+	 * @param targetParam     The parameter to store the chart data element in
+	 * @param dataSet         The chart data
+	 * @param chartType       The chart type
+	 * @param legendPosition  The legend position
+	 * @param backgroundColor The chart background color
+	 * @param b3D             TRUE for a 3D chart
 	 */
 	protected void initChartParameter(
-		RelationType<DataSetDataElement> rTargetParam, DataSet<?> aDataSet,
-		ChartType eChartType, LegendPosition eLegendPosition,
-		String sBackgroundColor, boolean b3D) {
-		DataSetDataElement aChartElement =
-			new DataSetDataElement(rTargetParam.getName(), aDataSet,
-				eChartType,
-				eLegendPosition, sBackgroundColor, b3D);
+		RelationType<DataSetDataElement> targetParam, DataSet<?> dataSet,
+		ChartType chartType, LegendPosition legendPosition,
+		String backgroundColor, boolean b3D) {
+		DataSetDataElement chartElement =
+			new DataSetDataElement(targetParam.getName(), dataSet, chartType,
+				legendPosition, backgroundColor, b3D);
 
-		setParameter(rTargetParam, aChartElement);
+		setParameter(targetParam, chartElement);
 	}
 
 	/**
@@ -2373,31 +2353,31 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * elements. The chart data is defined as a mapping from string names that
 	 * are used as labels to the corresponding integer count values.
 	 *
-	 * @param rTargetParam     The target {@link DataSet} parameter
-	 * @param aDataMap         The mapping from data labels to counts
-	 * @param eChartType       The type of chart to display
-	 * @param sRowAxisLabel    The label for the data row (x) axis
-	 * @param sValueAxisLabel  The label for the data value (y) axis
-	 * @param eLegendPosition  The legend position
-	 * @param sBackgroundColor The chart background color
-	 * @param b3D              TRUE for a 3D chart
+	 * @param targetParam     The target {@link DataSet} parameter
+	 * @param dataMap         The mapping from data labels to counts
+	 * @param chartType       The type of chart to display
+	 * @param rowAxisLabel    The label for the data row (x) axis
+	 * @param valueAxisLabel  The label for the data value (y) axis
+	 * @param legendPosition  The legend position
+	 * @param backgroundColor The chart background color
+	 * @param b3D             TRUE for a 3D chart
 	 */
 	protected void initCountChartParameter(
-		RelationType<DataSetDataElement> rTargetParam,
-		Map<String, Integer> aDataMap, ChartType eChartType,
-		String sRowAxisLabel, String sValueAxisLabel,
-		LegendPosition eLegendPosition, String sBackgroundColor, boolean b3D) {
-		IntDataSet aDataSet =
-			new IntDataSet(null, sRowAxisLabel, sValueAxisLabel, "");
+		RelationType<DataSetDataElement> targetParam,
+		Map<String, Integer> dataMap, ChartType chartType, String rowAxisLabel,
+		String valueAxisLabel, LegendPosition legendPosition,
+		String backgroundColor, boolean b3D) {
+		IntDataSet dataSet =
+			new IntDataSet(null, rowAxisLabel, valueAxisLabel, "");
 
-		aDataMap = CollectionUtil.sort(aDataMap);
+		dataMap = CollectionUtil.sort(dataMap);
 
-		for (Entry<String, Integer> rRow : aDataMap.entrySet()) {
-			aDataSet.addRow(rRow.getKey(), rRow.getValue());
+		for (Entry<String, Integer> row : dataMap.entrySet()) {
+			dataSet.addRow(row.getKey(), row.getValue());
 		}
 
-		initChartParameter(rTargetParam, aDataSet, eChartType, eLegendPosition,
-			sBackgroundColor, b3D);
+		initChartParameter(targetParam, dataSet, chartType, legendPosition,
+			backgroundColor, b3D);
 	}
 
 	/**
@@ -2421,11 +2401,11 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * Checks whether a certain parameter is contained in a subordinate
 	 * parameter list of a panel instead of directly in this fragment.
 	 *
-	 * @param rParam The parameter relation type to check
+	 * @param param The parameter relation type to check
 	 * @return TRUE if the given parameter is an element of a panel
 	 */
-	protected boolean isPanelParameter(RelationType<?> rParam) {
-		return aPanelParameters != null && aPanelParameters.contains(rParam);
+	protected boolean isPanelParameter(RelationType<?> param) {
+		return panelParameters != null && panelParameters.contains(param);
 	}
 
 	/**
@@ -2438,48 +2418,47 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * the corresponding error message. The map will never be empty and may be
 	 * modified by the receiver.
 	 *
-	 * @param rValidations The mapping from parameters to validation functions
+	 * @param validations The mapping from parameters to validation functions
 	 * @return A mapping for all invalid parameters to the corresponding error
 	 * messages (may be empty but will never be NULL)
 	 */
 	@SuppressWarnings("unchecked")
 	protected Map<RelationType<?>, String> performParameterValidations(
-		Map<RelationType<?>, Function<?, String>> rValidations) {
-		Map<RelationType<?>, String> aInvalidParams =
+		Map<RelationType<?>, Function<?, String>> validations) {
+		Map<RelationType<?>, String> invalidParams =
 			new HashMap<RelationType<?>, String>();
 
-		for (Entry<RelationType<?>, Function<?, String>> rEntry :
-			rValidations.entrySet()) {
-			RelationType<Object> rParam =
-				(RelationType<Object>) rEntry.getKey();
-			Function<Object, String> fValidate =
-				(Function<Object, String>) rEntry.getValue();
+		for (Entry<RelationType<?>, Function<?, String>> entry :
+			validations.entrySet()) {
+			RelationType<Object> param = (RelationType<Object>) entry.getKey();
+			Function<Object, String> validate =
+				(Function<Object, String>) entry.getValue();
 
-			Object rParamValue = getParameter(rParam);
-			String sInvalidInfo;
+			Object paramValue = getParameter(param);
+			String invalidInfo;
 
 			try {
-				sInvalidInfo = fValidate.evaluate(rParamValue);
+				invalidInfo = validate.evaluate(paramValue);
 			} catch (Exception e) {
-				sInvalidInfo = "ParamValidationFailed";
+				invalidInfo = "ParamValidationFailed";
 			}
 
-			if (sInvalidInfo != null) {
-				aInvalidParams.put(rParam, sInvalidInfo);
+			if (invalidInfo != null) {
+				invalidParams.put(param, invalidInfo);
 			}
 		}
 
-		return aInvalidParams;
+		return invalidParams;
 	}
 
 	/**
 	 * Removes a temporary parameter type that has previously been created by
 	 * invoking {@link #getTemporaryParameterType(String, Class)}.
 	 *
-	 * @param rTempParam The temporary parameter type
+	 * @param tempParam The temporary parameter type
 	 */
-	protected void removeTemporaryParameterType(RelationType<?> rTempParam) {
-		getProcess().unregisterTemporaryParameterType(rTempParam, true);
+	protected void removeTemporaryParameterType(RelationType<?> tempParam) {
+		getProcess().unregisterTemporaryParameterType(tempParam, true);
 	}
 
 	/**
@@ -2488,56 +2467,55 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * exclusive
 	 * of the requested date range.
 	 *
-	 * @param rAroundDate     The date to calculate the period around
-	 * @param rStartDateParam The parameter type for the start date
-	 * @param rEndDateParam   The parameter type for the end date
-	 * @param nCalendarField  The calendar field to calculate the period for
-	 * @param nPeriodSize     The size of the period
+	 * @param aroundDate     The date to calculate the period around
+	 * @param startDateParam The parameter type for the start date
+	 * @param endDateParam   The parameter type for the end date
+	 * @param calendarField  The calendar field to calculate the period for
+	 * @param periodSize     The size of the period
 	 */
-	protected void setDatePeriod(Date rAroundDate,
-		RelationType<Date> rStartDateParam, RelationType<Date> rEndDateParam,
-		int nCalendarField, int nPeriodSize) {
-		Calendar rCalendar = Calendar.getInstance();
+	protected void setDatePeriod(Date aroundDate,
+		RelationType<Date> startDateParam, RelationType<Date> endDateParam,
+		int calendarField, int periodSize) {
+		Calendar calendar = Calendar.getInstance();
 
-		rCalendar.setTime(rAroundDate);
-		CalendarFunctions.clearTime(rCalendar);
-		rCalendar.setFirstDayOfWeek(Calendar.MONDAY);
+		calendar.setTime(aroundDate);
+		CalendarFunctions.clearTime(calendar);
+		calendar.setFirstDayOfWeek(Calendar.MONDAY);
 
-		int nCurrentValue = rCalendar.get(nCalendarField);
-		int nBoundaryField = -1;
+		int currentValue = calendar.get(calendarField);
+		int boundaryField = -1;
 
-		if (nCalendarField == Calendar.WEEK_OF_YEAR) {
-			nBoundaryField = Calendar.DAY_OF_WEEK;
-		} else if (nCalendarField == Calendar.WEEK_OF_MONTH) {
-			nBoundaryField = Calendar.DAY_OF_WEEK_IN_MONTH;
-		} else if (nCalendarField == Calendar.MONTH) {
-			nBoundaryField = Calendar.DAY_OF_MONTH;
-		} else if (nCalendarField == Calendar.YEAR) {
-			nBoundaryField = Calendar.DAY_OF_YEAR;
+		if (calendarField == Calendar.WEEK_OF_YEAR) {
+			boundaryField = Calendar.DAY_OF_WEEK;
+		} else if (calendarField == Calendar.WEEK_OF_MONTH) {
+			boundaryField = Calendar.DAY_OF_WEEK_IN_MONTH;
+		} else if (calendarField == Calendar.MONTH) {
+			boundaryField = Calendar.DAY_OF_MONTH;
+		} else if (calendarField == Calendar.YEAR) {
+			boundaryField = Calendar.DAY_OF_YEAR;
 		}
 
 		// convert other fields than MONTH to zero-based value
-		if (nCalendarField != Calendar.MONTH) {
-			nCurrentValue =
-				((nCurrentValue - 1) / nPeriodSize * nPeriodSize) + 1;
+		if (calendarField != Calendar.MONTH) {
+			currentValue = ((currentValue - 1) / periodSize * periodSize) + 1;
 		} else {
-			nCurrentValue = nCurrentValue / nPeriodSize * nPeriodSize;
+			currentValue = currentValue / periodSize * periodSize;
 		}
 
-		rCalendar.set(nCalendarField, nCurrentValue);
+		calendar.set(calendarField, currentValue);
 
-		if (nBoundaryField >= 0) {
-			rCalendar.set(nBoundaryField, 1);
+		if (boundaryField >= 0) {
+			calendar.set(boundaryField, 1);
 		}
 
-		Date rStartDate = rCalendar.getTime();
+		Date startDate = calendar.getTime();
 
-		rCalendar.add(nCalendarField, nPeriodSize);
+		calendar.add(calendarField, periodSize);
 
-		Date rEndDate = rCalendar.getTime();
+		Date endDate = calendar.getTime();
 
-		setParameter(rStartDateParam, rStartDate);
-		setParameter(rEndDateParam, rEndDate);
+		setParameter(startDateParam, startDate);
+		setParameter(endDateParam, endDate);
 	}
 
 	/**
@@ -2556,80 +2534,79 @@ public abstract class ProcessFragment extends ProcessElement {
 	/**
 	 * Throws a runtime exception that signals a missing process parameter.
 	 *
-	 * @param rParamType The relation type of the missing parameter
+	 * @param paramType The relation type of the missing parameter
 	 */
 	protected <T> void throwMissingParameterException(
-		RelationType<T> rParamType) {
+		RelationType<T> paramType) {
 		throw new IllegalStateException(
-			String.format("Parameter %s not set", rParamType));
+			String.format("Parameter %s not set", paramType));
 	}
 
 	/**
 	 * Converts (deprecated) {@link InteractiveInputMode} values into a set of
 	 * {@link InteractionEventType InteractionEventTypes}.
 	 *
-	 * @param eMode The interactive input mode to convert
+	 * @param mode The interactive input mode to convert
 	 * @return The set of event types
 	 */
 	private Set<InteractionEventType> convertInputModeToEventTypes(
-		InteractiveInputMode eMode) {
-		EnumSet<InteractionEventType> aEventTypes =
+		InteractiveInputMode mode) {
+		EnumSet<InteractionEventType> eventTypes =
 			EnumSet.noneOf(InteractionEventType.class);
 
-		switch (eMode) {
+		switch (mode) {
 			case ACTION:
-				aEventTypes.add(InteractionEventType.ACTION);
+				eventTypes.add(InteractionEventType.ACTION);
 				break;
 
 			case CONTINUOUS:
-				aEventTypes.add(InteractionEventType.UPDATE);
+				eventTypes.add(InteractionEventType.UPDATE);
 				break;
 
 			case BOTH:
-				aEventTypes.add(InteractionEventType.ACTION);
-				aEventTypes.add(InteractionEventType.UPDATE);
+				eventTypes.add(InteractionEventType.ACTION);
+				eventTypes.add(InteractionEventType.UPDATE);
 				break;
 		}
 
-		return aEventTypes;
+		return eventTypes;
 	}
 
 	/**
 	 * Internal implementation to initialize an interactive enum parameter.
 	 *
-	 * @param rParam         The parameter to initialize
-	 * @param rIntialValue   The initial parameter value or NULL for none
-	 * @param eListStyle     The style in which to display the list of values
-	 * @param rAllowedValues The allowed enum values (NULL or empty for all
-	 *                       values of the given enum)
+	 * @param param         The parameter to initialize
+	 * @param intialValue   The initial parameter value or NULL for none
+	 * @param listStyle     The style in which to display the list of values
+	 * @param allowedValues The allowed enum values (NULL or empty for all
+	 *                      values of the given enum)
 	 */
 	@SuppressWarnings("unchecked")
-	private <E, T> void setInteractiveImpl(RelationType<T> rParam,
-		T rIntialValue, ListStyle eListStyle, Collection<E> rAllowedValues) {
-		if (rAllowedValues == null || rAllowedValues.size() == 0) {
-			Collection<E> rExistingValues =
-				(Collection<E>) getAllowedValues(rParam);
+	private <E, T> void setInteractiveImpl(RelationType<T> param,
+		T intialValue,
+		ListStyle listStyle, Collection<E> allowedValues) {
+		if (allowedValues == null || allowedValues.size() == 0) {
+			Collection<E> existingValues =
+				(Collection<E>) getAllowedValues(param);
 
-			if (rExistingValues == null || rExistingValues.size() == 0) {
-				Class<?> rDatatype = rParam.getTargetType();
+			if (existingValues == null || existingValues.size() == 0) {
+				Class<?> datatype = param.getTargetType();
 
-				if (Collection.class.isAssignableFrom(rDatatype)) {
-					rDatatype = rParam.get(ELEMENT_DATATYPE);
+				if (Collection.class.isAssignableFrom(datatype)) {
+					datatype = param.get(ELEMENT_DATATYPE);
 				}
 
-				if (rDatatype.isEnum()) {
-					rAllowedValues =
-						Arrays.asList((E[]) rDatatype.getEnumConstants());
+				if (datatype.isEnum()) {
+					allowedValues =
+						Arrays.asList((E[]) datatype.getEnumConstants());
 				}
 			} else {
-				rAllowedValues = rExistingValues;
+				allowedValues = existingValues;
 			}
 		}
 
-		annotateParameter(rParam, rIntialValue, ALLOWED_VALUES,
-			rAllowedValues);
-		setUIProperty(INTERACTIVE_INPUT_MODE, getInputMode(eListStyle),
-			rParam);
-		setUIProperty(LIST_STYLE, eListStyle, rParam);
+		annotateParameter(param, intialValue, ALLOWED_VALUES, allowedValues);
+		setUIProperty(INTERACTIVE_INPUT_MODE, getInputMode(listStyle), param);
+		setUIProperty(LIST_STYLE, listStyle, param);
 	}
 }

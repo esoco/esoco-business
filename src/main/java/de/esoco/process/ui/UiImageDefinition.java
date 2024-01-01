@@ -31,11 +31,11 @@ public abstract class UiImageDefinition<E extends UiImageDefinition<E>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void applyPropertiesTo(UiComponent<?, ?> rComponent) {
+	protected void applyPropertiesTo(UiComponent<?, ?> component) {
 		// remove properties related to image-data to prevent conflict when
 		// the image type has changed
-		rComponent.remove(IMAGE, ICON);
+		component.remove(IMAGE, ICON);
 
-		super.applyPropertiesTo(rComponent);
+		super.applyPropertiesTo(component);
 	}
 }

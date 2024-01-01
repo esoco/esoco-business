@@ -17,7 +17,6 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.property.PropertyName;
 
 import java.util.Date;
@@ -58,30 +57,30 @@ public class DateDataElement extends DataElement<Date> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Date rValue;
+	private Date value;
 
 	/**
 	 * Creates a new modifiable instance without a validator.
 	 *
-	 * @param sName  The name of this element
-	 * @param rValue The value of this element
+	 * @param name  The name of this element
+	 * @param value The value of this element
 	 */
-	public DateDataElement(String sName, Date rValue) {
-		this(sName, rValue, null, null);
+	public DateDataElement(String name, Date value) {
+		this(name, value, null, null);
 	}
 
 	/**
 	 * Creates a new instance with a certain initial value.
 	 *
-	 * @param sName      The element name
-	 * @param rValue     The initial value
-	 * @param rValidator The validator for the date value or NULL for none
-	 * @param rFlags     The optional flags for this data element
+	 * @param name      The element name
+	 * @param value     The initial value
+	 * @param validator The validator for the date value or NULL for none
+	 * @param flags     The optional flags for this data element
 	 */
-	public DateDataElement(String sName, Date rValue,
-		Validator<? super Date> rValidator, Set<Flag> rFlags) {
-		super(sName, rValidator, rFlags);
-		this.rValue = rValue;
+	public DateDataElement(String name, Date value,
+		Validator<? super Date> validator, Set<Flag> flags) {
+		super(name, validator, flags);
+		this.value = value;
 	}
 
 	/**
@@ -101,9 +100,9 @@ public class DateDataElement extends DataElement<Date> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DateDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (DateDataElement) super.copy(eMode, rCopyProperties);
+	public DateDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (DateDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -113,7 +112,7 @@ public class DateDataElement extends DataElement<Date> {
 	 */
 	@Override
 	public final Date getValue() {
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -128,7 +127,7 @@ public class DateDataElement extends DataElement<Date> {
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected void updateValue(Date rNewValue) {
-		rValue = rNewValue;
+	protected void updateValue(Date newValue) {
+		value = newValue;
 	}
 }

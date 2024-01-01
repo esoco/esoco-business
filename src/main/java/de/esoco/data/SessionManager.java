@@ -32,10 +32,10 @@ public interface SessionManager {
 	/**
 	 * Returns the absolute path name for a relative path.
 	 *
-	 * @param sFileName The relative file name
+	 * @param fileName The relative file name
 	 * @return The absolute file name for the given path
 	 */
-	public String getAbsoluteFileName(String sFileName);
+	String getAbsoluteFileName(String fileName);
 
 	/**
 	 * Returns an object containing information about the context of the
@@ -45,7 +45,7 @@ public interface SessionManager {
 	 * @return The session context (NULL if not available)
 	 * @throws Exception If the session context cannot be accessed
 	 */
-	public SessionContext getSessionContext() throws Exception;
+	SessionContext getSessionContext() throws Exception;
 
 	/**
 	 * Returns the data for the current session. How exactly that will be
@@ -54,14 +54,14 @@ public interface SessionManager {
 	 * @return The session data for the current session
 	 * @throws Exception If the session data cannot be accessed
 	 */
-	public SessionData getSessionData() throws Exception;
+	SessionData getSessionData() throws Exception;
 
 	/**
 	 * Returns a unique ID string that identifies the current session.
 	 *
 	 * @return The session ID
 	 */
-	public String getSessionId();
+	String getSessionId();
 
 	/**
 	 * Returns a collection with all active sessions if available.
@@ -69,7 +69,7 @@ public interface SessionManager {
 	 * @return The active sessions or NULL if not available
 	 * @throws Exception If the session data cannot be accessed
 	 */
-	public Collection<SessionData> getSessions() throws Exception;
+	Collection<SessionData> getSessions() throws Exception;
 
 	/**
 	 * Performs the login of a certain user. The data element parameter must
@@ -77,31 +77,30 @@ public interface SessionManager {
 	 * may also carry application-specific properties that are needed by the
 	 * respective implementation.
 	 *
-	 * @param rLoginData  A data element containing the login credentials
-	 * @param sClientInfo Information about the connecting client
+	 * @param loginData  A data element containing the login credentials
+	 * @param clientInfo Information about the connecting client
 	 * @return A data element list containing the user data if the
 	 * authentication was successful
 	 * @throws Exception May throw any kind of exception if the authentication
 	 *                   fails
 	 */
-	public DataElementList loginUser(StringDataElement rLoginData,
-		String sClientInfo) throws Exception;
+	DataElementList loginUser(StringDataElement loginData, String clientInfo) throws Exception;
 
 	/**
 	 * Terminates the current session to logout the associated user.
 	 */
-	public void logoutCurrentUser();
+	void logoutCurrentUser();
 
 	/**
 	 * Prepares the download of a certain data object. Each prepared download
 	 * must be removed if it is no longer needed by invoking the method
 	 * {@link #removeDownload(String)} with the URL returned by this method.
 	 *
-	 * @param rData The download data object
+	 * @param data The download data object
 	 * @return The download URL
 	 * @throws Exception If the download cannot be prepared
 	 */
-	public String prepareDownload(DownloadData rData) throws Exception;
+	String prepareDownload(DownloadData data) throws Exception;
 
 	/**
 	 * Prepares the upload of data from the client. The returned value is an
@@ -109,19 +108,19 @@ public interface SessionManager {
 	 * target and to remove the upload when it is no longer needed with a call
 	 * to {@link #removeUpload(String)}.
 	 *
-	 * @param rUploadHandler The handler to process the uploaded data
+	 * @param uploadHandler The handler to process the uploaded data
 	 * @return An application-relative upload URL
 	 * @throws Exception If the preparation fails
 	 */
-	public String prepareUpload(UploadHandler rUploadHandler) throws Exception;
+	String prepareUpload(UploadHandler uploadHandler) throws Exception;
 
 	/**
 	 * Removes the download data that has previously been registered by a call
 	 * to {@link #prepareDownload(DownloadData)}.
 	 *
-	 * @param sUrl The URL the download data had been registered for
+	 * @param url The URL the download data had been registered for
 	 */
-	public void removeDownload(String sUrl);
+	void removeDownload(String url);
 
 	/**
 	 * Removes an upload handler that has previously been registered by a call
@@ -129,7 +128,7 @@ public interface SessionManager {
 	 * implementations handle failures in the removal process without throwing
 	 * an exception.
 	 *
-	 * @param sUrl The URL the upload handler had been registered with
+	 * @param url The URL the upload handler had been registered with
 	 */
-	public void removeUpload(String sUrl);
+	void removeUpload(String url);
 }

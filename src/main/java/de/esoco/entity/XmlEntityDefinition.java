@@ -16,8 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.entity;
 
-import java.io.File;
+import org.obrel.core.RelationType;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,14 +30,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.parsers.SAXParserFactory;
-
-import org.obrel.core.RelationType;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * This class can be used to create an entity definition based on a given XML
@@ -45,58 +42,58 @@ public class XmlEntityDefinition extends EntityDefinition<Entity> {
 	private static final long serialVersionUID = 1L;
 
 	// A set of all future entities that are contained in the XML file
-	static Set<String> aEntitySet = new HashSet<String>();
+	static Set<String> entitySet = new HashSet<String>();
 
 	// A list of all elements that are contained in the XML file
-	static List<String> aElementsList = new LinkedList<String>();
+	static List<String> elementsList = new LinkedList<String>();
 
 	// A mapping of entity names to sets of attribute values
-	static Map<String, Set<String>> aResultMap =
+	static Map<String, Set<String>> resultMap =
 		new HashMap<String, Set<String>>();
 
 	// A map that is used to count the number of attributes for each entity.
-	static Map<String, Integer> aHelpMap = new HashMap<String, Integer>();
+	static Map<String, Integer> helpMap = new HashMap<String, Integer>();
 
-	static boolean bCheck = true;
+	static boolean check = true;
 
-	static String sRootElement = null;
+	static String rootElement = null;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sXmlFile sEntityName rReference sName The name of the definition
+	 * @param xmlFile entityName reference name The name of the definition
 	 */
-	XmlEntityDefinition(String sXmlFile) {
+	XmlEntityDefinition(String xmlFile) {
 		// TODO: read ID prefix and entity class from XML
-		init("", "", Entity.class, readAttributes(sXmlFile));
+		init("", "", Entity.class, readAttributes(xmlFile));
 	}
 
 	/**
 	 * Returns a List of relation types that will be used as attributes in the
 	 * entity definition.
 	 *
-	 * @param sFile The XML file
+	 * @param file The XML file
 	 * @return List of relation types
 	 */
-	private static List<RelationType<?>> readAttributes(String sFile) {
-		List<RelationType<?>> aAttributeTypes =
+	private static List<RelationType<?>> readAttributes(String file) {
+		List<RelationType<?>> attributeTypes =
 			new ArrayList<RelationType<?>>();
 
 		DefaultHandler handler = new XmlHandler();
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 
 		try {
-			factory.newSAXParser().parse(new File(sFile), handler);
+			factory.newSAXParser().parse(new File(file), handler);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("XML parsing error: " + sFile,
+			throw new IllegalArgumentException("XML parsing error: " + file,
 				e);
 		}
 
-		System.out.println(aEntitySet);
-		System.out.println(aResultMap);
-		System.out.println("ROOT: " + sRootElement);
+		System.out.println(entitySet);
+		System.out.println(resultMap);
+		System.out.println("ROOT: " + rootElement);
 
-		return aAttributeTypes;
+		return attributeTypes;
 	}
 
 	/**
@@ -112,20 +109,20 @@ public class XmlEntityDefinition extends EntityDefinition<Entity> {
 		@Override
 		@SuppressWarnings("boxing")
 		public void endElement(String namespaceURI, String localName,
-			String qName) {
-			System.out.println("end: " + qName);
+			String name) {
+			System.out.println("end: " + name);
 
-			// If bCheck is false at this point, two endElements follow one
+			// If check is false at this point, two endElements follow one
 			// another, which means that an
 			// entity element was found!
-			if (!bCheck) {
-				int nListSize = aElementsList.size();
-				Set<String> aAttributeSet = new HashSet<String>();
+			if (!check) {
+				int listSize = elementsList.size();
+				Set<String> attributeSet = new HashSet<String>();
 
-				aEntitySet.add(qName);
+				entitySet.add(name);
 
-				if (aHelpMap.get(qName) == null) {
-					aHelpMap.put(qName, 0);
+				if (helpMap.get(name) == null) {
+					helpMap.put(name, 0);
 				}
 
 				// find the attributes of the current element
@@ -133,40 +130,39 @@ public class XmlEntityDefinition extends EntityDefinition<Entity> {
 					// iterate backwards thru the whole list of elements until
 					// the current element is equal
 					// to an element in the list.
-					if (!aElementsList.get(nListSize - 1).equals(qName)) {
-						Set<String> aSet = new HashSet<String>();
+					if (!elementsList.get(listSize - 1).equals(name)) {
+						Set<String> set = new HashSet<String>();
 
 						// go thru the set of already found entities and check
 						// if an entity is contained in the List
-						for (String sEntity : aEntitySet) {
-							if (sEntity.equals(
-								aElementsList.get(nListSize - 1))) {
-								aSet = aResultMap.get(sEntity);
+						for (String entity : entitySet) {
+							if (entity.equals(elementsList.get(listSize - 1))) {
+								set = resultMap.get(entity);
 							}
 						}
 
-						aAttributeSet.add(aElementsList.get(nListSize - 1));
+						attributeSet.add(elementsList.get(listSize - 1));
 
 						//remove the attributes of contained entities
-						if (aSet.size() != 0) {
-							for (String string : aSet) {
-								aAttributeSet.remove(string);
+						if (set.size() != 0) {
+							for (String string : set) {
+								attributeSet.remove(string);
 							}
 						}
 
-						nListSize--;
+						listSize--;
 					} else {
 						break;
 					}
 
-					if (aAttributeSet.size() > aHelpMap.get(qName)) {
-						aHelpMap.put(qName, aAttributeSet.size());
-						aResultMap.put(qName, aAttributeSet);
+					if (attributeSet.size() > helpMap.get(name)) {
+						helpMap.put(name, attributeSet.size());
+						resultMap.put(name, attributeSet);
 					}
 				}
 			}
 
-			bCheck = false;
+			check = false;
 		}
 
 		/**
@@ -174,15 +170,15 @@ public class XmlEntityDefinition extends EntityDefinition<Entity> {
 		 */
 		@Override
 		public void startElement(String namespaceURI, String localName,
-			String qName, Attributes atts) throws SAXException {
-			bCheck = true;
+			String name, Attributes atts) throws SAXException {
+			check = true;
 
-			if (sRootElement == null) {
-				sRootElement = qName;
+			if (rootElement == null) {
+				rootElement = name;
 			}
 
-			System.out.println("start: " + qName);
-			aElementsList.add(qName);
+			System.out.println("start: " + name);
+			elementsList.add(name);
 		}
 	}
 }

@@ -17,7 +17,6 @@
 package de.esoco.process.ui.container;
 
 import de.esoco.lib.property.LayoutType;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
 import de.esoco.process.ui.UiSwitchPanel;
@@ -34,10 +33,10 @@ public class UiDeckPanel extends UiSwitchPanel<UiDeckPanel> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent container
+	 * @param parent The parent container
 	 */
-	public UiDeckPanel(UiContainer<?> rParent) {
-		super(rParent, new DeckLayout());
+	public UiDeckPanel(UiContainer<?> parent) {
+		super(parent, new DeckLayout());
 	}
 
 	/**
@@ -47,8 +46,8 @@ public class UiDeckPanel extends UiSwitchPanel<UiDeckPanel> {
 	 *
 	 * @see #addPage(String, UiLayout)
 	 */
-	public UiLayoutPanel addPage(UiLayout eLayout) {
-		return addPage("", eLayout);
+	public UiLayoutPanel addPage(UiLayout layout) {
+		return addPage("", layout);
 	}
 
 	/**

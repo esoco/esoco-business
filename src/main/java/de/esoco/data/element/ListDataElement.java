@@ -18,7 +18,6 @@ package de.esoco.data.element;
 
 import de.esoco.data.validate.HasValueList;
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.model.DataModel;
 
 import java.util.ArrayList;
@@ -42,17 +41,16 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 
 	private static final long serialVersionUID = 1;
 
-	private Validator<? super E> rElementValidator;
+	private Validator<? super E> elementValidator;
 
 	/**
 	 * @see DataElement#DataElement(String, Validator, Set)
 	 */
-	public ListDataElement(String sName,
-		Validator<? super E> rElementValidator,
-		Set<Flag> rFlags) {
-		super(sName, null, rFlags);
+	public ListDataElement(String name, Validator<? super E> elementValidator,
+		Set<Flag> flags) {
+		super(name, null, flags);
 
-		this.rElementValidator = rElementValidator;
+		this.elementValidator = elementValidator;
 	}
 
 	/**
@@ -64,16 +62,16 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	/**
 	 * Adds a collection of new elements to this instance.
 	 *
-	 * @param rNewElements The element value to add
+	 * @param newElements The element value to add
 	 */
-	public void addAll(Collection<E> rNewElements) {
-		List<E> rList = getList();
+	public void addAll(Collection<E> newElements) {
+		List<E> list = getList();
 
 		checkImmutable();
 
-		for (E rElement : rNewElements) {
-			checkValidValue(rElementValidator, rElement);
-			rList.add(rElement);
+		for (E element : newElements) {
+			checkValidValue(elementValidator, element);
+			list.add(element);
 		}
 
 		setModified(true);
@@ -82,32 +80,32 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	/**
 	 * Adds allowed values to the element validator.
 	 *
-	 * @param rValues The values to add
+	 * @param values The values to add
 	 */
 	@SuppressWarnings("unchecked")
-	public void addAllowedValues(Collection<E> rValues) {
-		((List<E>) getAllowedValues()).addAll(rValues);
+	public void addAllowedValues(Collection<E> values) {
+		((List<E>) getAllowedValues()).addAll(values);
 	}
 
 	/**
 	 * Adds a new element value to this instance.
 	 *
-	 * @param rElement The element value to add
+	 * @param element The element value to add
 	 */
-	public final void addElement(E rElement) {
-		addElement(getList().size(), rElement);
+	public final void addElement(E element) {
+		addElement(getList().size(), element);
 	}
 
 	/**
 	 * Adds a new element value at a certain position of this instance.
 	 *
-	 * @param nIndex   The position index
-	 * @param rElement The element value to add
+	 * @param index   The position index
+	 * @param element The element value to add
 	 */
-	public void addElement(int nIndex, E rElement) {
+	public void addElement(int index, E element) {
 		checkImmutable();
-		checkValidValue(rElementValidator, rElement);
-		getList().add(nIndex, rElement);
+		checkValidValue(elementValidator, element);
+		getList().add(index, element);
 		setModified(true);
 	}
 
@@ -123,11 +121,11 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	/**
 	 * Checks whether this instance contains a certain value.
 	 *
-	 * @param rElement The element value to check
+	 * @param element The element value to check
 	 * @return TRUE if this element contains the given element
 	 */
-	public boolean containsElement(E rElement) {
-		return getList().contains(rElement);
+	public boolean containsElement(E element) {
+		return getList().contains(element);
 	}
 
 	/**
@@ -138,20 +136,20 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<?> getAllowedValues() {
-		return rElementValidator instanceof HasValueList ?
-		       ((HasValueList<?>) rElementValidator).getValues() :
+		return elementValidator instanceof HasValueList ?
+		       ((HasValueList<?>) elementValidator).getValues() :
 		       null;
 	}
 
 	/**
 	 * Returns an element value of this instance.
 	 *
-	 * @param nIndex The index
+	 * @param index The index
 	 * @return The element
 	 */
 	@Override
-	public E getElement(int nIndex) {
-		return getList().get(nIndex);
+	public E getElement(int index) {
+		return getList().get(index);
 	}
 
 	/**
@@ -167,12 +165,12 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	/**
 	 * Returns the index of a certain data element of this instance.
 	 *
-	 * @param rElement The data element to return the index of
+	 * @param element The data element to return the index of
 	 * @return The element index (starting at zero) or -1 if the element
 	 * couldn't be found
 	 */
-	public int getElementIndex(E rElement) {
-		return getList().indexOf(rElement);
+	public int getElementIndex(E element) {
+		return getList().indexOf(element);
 	}
 
 	/**
@@ -180,7 +178,7 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	 */
 	@Override
 	public Validator<? super E> getElementValidator() {
-		return rElementValidator;
+		return elementValidator;
 	}
 
 	/**
@@ -211,11 +209,11 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	/**
 	 * Removes a certain element from this instance.
 	 *
-	 * @param rElement The element to remove
+	 * @param element The element to remove
 	 */
-	public void removeElement(E rElement) {
+	public void removeElement(E element) {
 		checkImmutable();
-		getList().remove(rElement);
+		getList().remove(element);
 		setModified(true);
 	}
 
@@ -231,8 +229,8 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void copyValue(DataElement<List<E>> aCopy) {
-		((ListDataElement<E>) aCopy).getList().addAll(getList());
+	protected void copyValue(DataElement<List<E>> copy) {
+		((ListDataElement<E>) copy).getList().addAll(getList());
 	}
 
 	/**
@@ -255,7 +253,7 @@ public abstract class ListDataElement<E> extends DataElement<List<E>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean hasEqualValueAs(DataElement<?> rOther) {
-		return getList().equals(((ListDataElement<?>) rOther).getList());
+	protected boolean hasEqualValueAs(DataElement<?> other) {
+		return getList().equals(((ListDataElement<?>) other).getList());
 	}
 }

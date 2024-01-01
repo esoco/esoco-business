@@ -38,39 +38,40 @@ public class QueryResultElement<T> extends ListDataElement<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<T> rRows;
+	private List<T> rows;
 
-	private int nQuerySize;
+	private int querySize;
 
 	/**
 	 * Creates a new instance for a certain query result.
 	 *
-	 * @param sName      The element name
-	 * @param rRows      A list containing lists of strings that contains the
-	 *                   the query rows
-	 * @param nQuerySize The full size of the query represented by this result
+	 * @param name      The element name
+	 * @param rows      A list containing lists of strings that contains the
+	 *                    the
+	 *                  query rows
+	 * @param querySize The full size of the query represented by this result
 	 */
-	public QueryResultElement(String sName, List<T> rRows, int nQuerySize) {
-		super(sName, null, null);
+	public QueryResultElement(String name, List<T> rows, int querySize) {
+		super(name, null, null);
 
-		this.rRows = rRows;
-		this.nQuerySize = nQuerySize;
+		this.rows = rows;
+		this.querySize = querySize;
 	}
 
 	/**
 	 * Default constructor for serialization.
 	 */
 	QueryResultElement() {
-		rRows = new ArrayList<>();
+		rows = new ArrayList<>();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public QueryResultElement<T> copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (QueryResultElement<T>) super.copy(eMode, rCopyProperties);
+	public QueryResultElement<T> copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (QueryResultElement<T>) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -79,7 +80,7 @@ public class QueryResultElement<T> extends ListDataElement<T> {
 	 * @return The full query size
 	 */
 	public final int getQuerySize() {
-		return nQuerySize;
+		return querySize;
 	}
 
 	/**
@@ -89,7 +90,7 @@ public class QueryResultElement<T> extends ListDataElement<T> {
 	 */
 	@Override
 	protected List<T> getList() {
-		return rRows;
+		return rows;
 	}
 
 	/**
@@ -104,7 +105,7 @@ public class QueryResultElement<T> extends ListDataElement<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<T> rNewRows) {
-		rRows = rNewRows;
+	protected void updateValue(List<T> newRows) {
+		rows = newRows;
 	}
 }

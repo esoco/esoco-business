@@ -28,19 +28,19 @@ public class StringListValidator extends ListValidator<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean bResourceIds;
+	private boolean resourceIds;
 
 	/**
 	 * Creates a new instance that validates against a certain list.
 	 *
-	 * @param rStrings     The list of strings to be validated against or an
-	 *                     empty list to allow any value
-	 * @param bResourceIds TRUE to interpret the string values as resource IDs
+	 * @param strings     The list of strings to be validated against or an
+	 *                    empty list to allow any value
+	 * @param resourceIds TRUE to interpret the string values as resource IDs
 	 */
-	public StringListValidator(List<String> rStrings, boolean bResourceIds) {
-		super(rStrings);
+	public StringListValidator(List<String> strings, boolean resourceIds) {
+		super(strings);
 
-		this.bResourceIds = bResourceIds;
+		this.resourceIds = resourceIds;
 	}
 
 	/**
@@ -56,6 +56,6 @@ public class StringListValidator extends ListValidator<String> {
 	 * @return TRUE to interpret the string values as resource IDs
 	 */
 	public final boolean isResourceIds() {
-		return bResourceIds;
+		return resourceIds;
 	}
 }

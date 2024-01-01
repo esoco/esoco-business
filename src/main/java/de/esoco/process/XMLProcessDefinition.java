@@ -16,12 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.process;
 
-import java.io.File;
+import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
+import java.io.File;
 
 /**
  * Defines a process from an XML process description.
@@ -35,37 +34,36 @@ public class XMLProcessDefinition extends StepListProcessDefinition {
 	/**
 	 * Creates a new XML process definition from a specific XML file.
 	 *
-	 * @param sXMLFile The XML file name
+	 * @param mLFile The XML file name
 	 */
-	public XMLProcessDefinition(String sXMLFile) {
-		this(new File(sXMLFile));
+	public XMLProcessDefinition(String mLFile) {
+		this(new File(mLFile));
 	}
 
 	/**
 	 * Creates a new XML process definition from a specific XML file.
 	 *
-	 * @param rXMLFile The XML file name
+	 * @param mLFile The XML file name
 	 * @throws IllegalArgumentException If the file doesn't exist or if it has
 	 *                                  an invalid format
 	 */
-	public XMLProcessDefinition(File rXMLFile) {
-		if (!rXMLFile.exists()) {
+	public XMLProcessDefinition(File mLFile) {
+		if (!mLFile.exists()) {
 			throw new IllegalArgumentException(
-				"Process definition file not found: " + rXMLFile);
+				"Process definition file not found: " + mLFile);
 		}
 
 		try {
-			DocumentBuilder aBuilder =
+			DocumentBuilder builder =
 				DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document aDocument = aBuilder.parse(rXMLFile);
+			Document document = builder.parse(mLFile);
 
-			parseXML(aDocument);
+			parseXML(document);
 		} catch (Exception e) {
-			IllegalArgumentException eIA = new IllegalArgumentException(
-				"Error parsing process definition file: " + rXMLFile);
+			IllegalArgumentException iA = new IllegalArgumentException(
+				"Error parsing process definition file: " + mLFile, e);
 
-			eIA.initCause(e);
-			throw eIA;
+			throw iA;
 		}
 	}
 
@@ -73,7 +71,7 @@ public class XMLProcessDefinition extends StepListProcessDefinition {
 	 * Parses the XML representation of the process definition and creates the
 	 * corresponding internal process step list.
 	 */
-	private void parseXML(Document rDocument) {
+	private void parseXML(Document document) {
 		// TODO: Auto-generated method stub
 	}
 }

@@ -37,23 +37,23 @@ public class ProcessRunnerTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testRun() {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("Transfer");
 
-		aDef.invoke("STEP1", TestStep.class);
-		aDef.invoke("STEP2", TestStep.class);
-		aDef.invoke("STEP3", TestStep.class);
+		def.invoke("STEP1", TestStep.class);
+		def.invoke("STEP2", TestStep.class);
+		def.invoke("STEP3", TestStep.class);
 
-		aDef.set(TEST_INT_PARAM, 0);
+		def.set(TEST_INT_PARAM, 0);
 
 		// assert correct results of copy and move steps
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(3));
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("123"));
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(3));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("123"));
 
-		ProcessRunner aRunner = new ProcessRunner(aDef);
+		ProcessRunner runner = new ProcessRunner(def);
 
-		aRunner.executeOnce();
+		runner.executeOnce();
 
-		assertPostconditions(aRunner.getProcess());
+		assertPostconditions(runner.getProcess());
 	}
 }

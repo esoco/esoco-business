@@ -27,9 +27,9 @@ public interface ProcessListener {
 	/**
 	 * Will be notified when the process execution has been canceled.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processCanceled(Process rProcess);
+	void processCanceled(Process process);
 
 	/**
 	 * Will be notified when the process execution failed. If the failure was
@@ -39,39 +39,39 @@ public interface ProcessListener {
 	 * throwing
 	 * a runtime exception.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processFailed(Process rProcess);
+	void processFailed(Process process);
 
 	/**
 	 * Will be notified when the process execution has finished. If the method
 	 * wants to prevent the process from committing it's transaction it should
 	 * throw a runtime exception.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processFinished(Process rProcess);
+	void processFinished(Process process);
 
 	/**
 	 * Will be notified when the process execution is resumed after a previous
 	 * suspension.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processResumed(Process rProcess);
+	void processResumed(Process process);
 
 	/**
 	 * Will be notified when the process execution has started.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processStarted(Process rProcess);
+	void processStarted(Process process);
 
 	/**
 	 * Will be notified when the process execution has been suspended
 	 * temporarily.
 	 *
-	 * @param rProcess The process
+	 * @param process The process
 	 */
-	public void processSuspended(Process rProcess);
+	void processSuspended(Process process);
 }

@@ -20,7 +20,6 @@ import de.esoco.lib.property.Alignment;
 import de.esoco.lib.property.HasCssName;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Orientation;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -43,27 +42,27 @@ public class UiFlexLayout extends UiLayout {
 		STRETCH("stretch"), SPACE_BETWEEN("space-between"),
 		SPACE_AROUND("space-around"), BASELINE("baseline");
 
-		private final String sCssName;
+		private final String cssName;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param sCssName The CSS name of this alignment
+		 * @param cssName The CSS name of this alignment
 		 */
-		private FlexAlign(String sCssName) {
-			this.sCssName = sCssName;
+		FlexAlign(String cssName) {
+			this.cssName = cssName;
 		}
 
 		/**
 		 * Returns the value that corresponds to the given {@link Alignment}.
 		 *
-		 * @param eAlignment The alignment to map
-		 * @param bCrossAxis TRUE if the mapping is for the cross-axis
+		 * @param alignment The alignment to map
+		 * @param crossAxis TRUE if the mapping is for the cross-axis
 		 * @return The matching instance
 		 */
-		public static FlexAlign valueOf(Alignment eAlignment,
-			boolean bCrossAxis) {
-			switch (eAlignment) {
+		public static FlexAlign valueOf(Alignment alignment,
+			boolean crossAxis) {
+			switch (alignment) {
 				case BEGIN:
 					return START;
 
@@ -74,7 +73,7 @@ public class UiFlexLayout extends UiLayout {
 					return END;
 
 				case FILL:
-					return bCrossAxis ? STRETCH : SPACE_BETWEEN;
+					return crossAxis ? STRETCH : SPACE_BETWEEN;
 
 				default:
 					return null;
@@ -88,7 +87,7 @@ public class UiFlexLayout extends UiLayout {
 		 */
 		@Override
 		public String getCssName() {
-			return sCssName;
+			return cssName;
 		}
 	}
 
@@ -98,15 +97,15 @@ public class UiFlexLayout extends UiLayout {
 	public enum FlexWrap implements HasCssName {
 		NONE("nowrap"), WRAP("wrap"), REVERSE("wrap-reverse");
 
-		private String sCssName;
+		private final String cssName;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param sCssName The CSS name
+		 * @param cssName The CSS name
 		 */
-		private FlexWrap(String sCssName) {
-			this.sCssName = sCssName;
+		FlexWrap(String cssName) {
+			this.cssName = cssName;
 		}
 
 		/**
@@ -116,21 +115,21 @@ public class UiFlexLayout extends UiLayout {
 		 */
 		@Override
 		public String getCssName() {
-			return sCssName;
+			return cssName;
 		}
 	}
 
-	private Orientation eDirection;
+	private final Orientation direction;
 
-	private boolean bReverse;
+	private final boolean reverse;
 
-	private FlexAlign eJustifyContent = null;
+	private FlexAlign justifyContent = null;
 
-	private FlexAlign eAlignContent = null;
+	private FlexAlign alignContent = null;
 
-	private FlexAlign eAlignItems = null;
+	private FlexAlign alignItems = null;
 
-	private FlexWrap eWrap = null;
+	private FlexWrap wrap = null;
 
 	/**
 	 * Creates a new instance with a horizontal flow direction.
@@ -142,23 +141,23 @@ public class UiFlexLayout extends UiLayout {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param eDirection The direction of the layout
+	 * @param direction The direction of the layout
 	 */
-	public UiFlexLayout(Orientation eDirection) {
-		this(eDirection, false);
+	public UiFlexLayout(Orientation direction) {
+		this(direction, false);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param eDirection The direction of the layout
-	 * @param bReverse   TRUE to reverse the flow along the given direction
+	 * @param direction The direction of the layout
+	 * @param reverse   TRUE to reverse the flow along the given direction
 	 */
-	public UiFlexLayout(Orientation eDirection, boolean bReverse) {
+	public UiFlexLayout(Orientation direction, boolean reverse) {
 		super(LayoutType.FLEX);
 
-		this.eDirection = eDirection;
-		this.bReverse = bReverse;
+		this.direction = direction;
+		this.reverse = reverse;
 	}
 
 	/**
@@ -169,11 +168,11 @@ public class UiFlexLayout extends UiLayout {
 	 * {@link FlexAlign#BASELINE BASELINE} is not supported for the content,
 	 * only for {@link #alignItems(FlexAlign)}.
 	 *
-	 * @param eAlign The cross-axis alignment
+	 * @param align The cross-axis alignment
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout alignContent(FlexAlign eAlign) {
-		eAlignContent = eAlign;
+	public UiFlexLayout alignContent(FlexAlign align) {
+		alignContent = align;
 
 		return this;
 	}
@@ -185,12 +184,12 @@ public class UiFlexLayout extends UiLayout {
 	 * better readability and because they support additional Flexbox
 	 * alignments.
 	 *
-	 * @param eAlign The horizontal alignment
+	 * @param align The horizontal alignment
 	 * @return This instance for fluent invocation
 	 */
 	@Override
-	public UiFlexLayout alignHorizontal(Alignment eAlign) {
-		return align(Orientation.HORIZONTAL, eAlign);
+	public UiFlexLayout alignHorizontal(Alignment align) {
+		return align(Orientation.HORIZONTAL, align);
 	}
 
 	/**
@@ -203,11 +202,11 @@ public class UiFlexLayout extends UiLayout {
 	 * precedence over the content alignment although that should not be relied
 	 * upon.
 	 *
-	 * @param eAlign The cross-axis alignment
+	 * @param align The cross-axis alignment
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout alignItems(FlexAlign eAlign) {
-		eAlignItems = eAlign;
+	public UiFlexLayout alignItems(FlexAlign align) {
+		alignItems = align;
 
 		return this;
 	}
@@ -219,12 +218,12 @@ public class UiFlexLayout extends UiLayout {
 	 * better readability and because they support additional Flexbox
 	 * alignments.
 	 *
-	 * @param eAlignment The horizontal alignment
+	 * @param alignment The horizontal alignment
 	 * @return This instance for fluent invocation
 	 */
 	@Override
-	public UiFlexLayout alignVertical(Alignment eAlignment) {
-		return align(Orientation.VERTICAL, eAlignment);
+	public UiFlexLayout alignVertical(Alignment alignment) {
+		return align(Orientation.VERTICAL, alignment);
 	}
 
 	/**
@@ -235,11 +234,11 @@ public class UiFlexLayout extends UiLayout {
 	 * layout
 	 * axis.
 	 *
-	 * @param eAlign The element alignment
+	 * @param align The element alignment
 	 * @return This instance for fluent invocation
 	 */
-	public UiFlexLayout justifyContent(FlexAlign eAlign) {
-		eJustifyContent = eAlign;
+	public UiFlexLayout justifyContent(FlexAlign align) {
+		justifyContent = align;
 
 		return this;
 	}
@@ -250,7 +249,7 @@ public class UiFlexLayout extends UiLayout {
 	 * @return This instance for fluent invocation
 	 */
 	public UiFlexLayout noWrap() {
-		this.eWrap = FlexWrap.NONE;
+		this.wrap = FlexWrap.NONE;
 
 		return this;
 	}
@@ -261,7 +260,7 @@ public class UiFlexLayout extends UiLayout {
 	 * @return This instance for fluent invocation
 	 */
 	public UiFlexLayout wrap() {
-		this.eWrap = FlexWrap.WRAP;
+		this.wrap = FlexWrap.WRAP;
 
 		return this;
 	}
@@ -272,7 +271,7 @@ public class UiFlexLayout extends UiLayout {
 	 * @return This instance for fluent invocation
 	 */
 	public UiFlexLayout wrapReverve() {
-		this.eWrap = FlexWrap.REVERSE;
+		this.wrap = FlexWrap.REVERSE;
 
 		return this;
 	}
@@ -281,22 +280,21 @@ public class UiFlexLayout extends UiLayout {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void applyToContainer(UiContainer<?> rContainer) {
-		super.applyToContainer(rContainer);
+	protected void applyToContainer(UiContainer<?> container) {
+		super.applyToContainer(container);
 
-		UiStyle rStyle = rContainer.style();
+		UiStyle style = container.style();
 
-		if (eDirection == Orientation.VERTICAL) {
-			rStyle.css("flexDirection", bReverse ? "column-reverse" :
-			                            "column");
-		} else if (bReverse) {
-			rStyle.css("flexDirection", "row-reverse");
+		if (direction == Orientation.VERTICAL) {
+			style.css("flexDirection", reverse ? "column-reverse" : "column");
+		} else if (reverse) {
+			style.css("flexDirection", "row-reverse");
 		}
 
-		rStyle.css("justifyContent", eJustifyContent);
-		rStyle.css("alignContent", eAlignContent);
-		rStyle.css("alignItems", eAlignItems);
-		rStyle.css("flexWrap", eWrap);
+		style.css("justifyContent", justifyContent);
+		style.css("alignContent", alignContent);
+		style.css("alignItems", alignItems);
+		style.css("flexWrap", wrap);
 	}
 
 	/**
@@ -305,24 +303,24 @@ public class UiFlexLayout extends UiLayout {
 	 * @see UiLayout#createCell(Row, Column)
 	 */
 	@Override
-	protected Cell createCell(Row rRow, Column rColumn) {
-		return new FlexCell(rRow, rColumn);
+	protected Cell createCell(Row row, Column column) {
+		return new FlexCell(row, column);
 	}
 
 	/**
 	 * Internal implementation for {@link #alignHorizontal(Alignment)} and
 	 * {@link #alignVertical(Alignment)}.
 	 *
-	 * @param eAlignDirection The alignment direction
-	 * @param eAlignment      The alignment
+	 * @param alignDirection The alignment direction
+	 * @param alignment      The alignment
 	 * @return This instance for fluent invocation
 	 */
-	private UiFlexLayout align(Orientation eAlignDirection,
-		Alignment eAlignment) {
-		if (eDirection == eAlignDirection) {
-			justifyContent(FlexAlign.valueOf(eAlignment, false));
+	private UiFlexLayout align(Orientation alignDirection,
+		Alignment alignment) {
+		if (direction == alignDirection) {
+			justifyContent(FlexAlign.valueOf(alignment, false));
 		} else {
-			alignItems(FlexAlign.valueOf(eAlignment, true));
+			alignItems(FlexAlign.valueOf(alignment, true));
 		}
 
 		return this;
@@ -336,22 +334,22 @@ public class UiFlexLayout extends UiLayout {
 	 */
 	public class FlexCell extends Cell {
 
-		private FlexAlign eAlign = null;
+		private FlexAlign align = null;
 
-		private String sBaseSize = null;
+		private String baseSize = null;
 
-		private int nGrow = -1;
+		private int grow = -1;
 
-		private int nShrink = 0;
+		private int shrink = 0;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rRow    The row
-		 * @param rColumn the column
+		 * @param row    The row
+		 * @param column the column
 		 */
-		protected FlexCell(Row rRow, Column rColumn) {
-			super(rRow, rColumn);
+		protected FlexCell(Row row, Column column) {
+			super(row, column);
 		}
 
 		/**
@@ -359,11 +357,11 @@ public class UiFlexLayout extends UiLayout {
 		 * perpendicular to the layout flow. This overrides the general item
 		 * alignment of the layout.
 		 *
-		 * @param eAlign The element alignment for this cell
+		 * @param align The element alignment for this cell
 		 * @return This instance for fluent invocation
 		 */
-		public FlexCell align(FlexAlign eAlign) {
-			this.eAlign = eAlign;
+		public FlexCell align(FlexAlign align) {
+			this.align = align;
 
 			return this;
 		}
@@ -372,20 +370,20 @@ public class UiFlexLayout extends UiLayout {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void applyPropertiesTo(UiComponent<?, ?> rComponent) {
-			UiStyle rStyle = rComponent.style();
+		public void applyPropertiesTo(UiComponent<?, ?> component) {
+			UiStyle style = component.style();
 
-			super.applyPropertiesTo(rComponent);
+			super.applyPropertiesTo(component);
 
-			rStyle.css("alignSelf", eAlign);
-			rStyle.css("flexBasis", sBaseSize);
+			style.css("alignSelf", align);
+			style.css("flexBasis", baseSize);
 
-			if (nGrow >= 0) {
-				rStyle.css("flexGrow", Integer.toString(nGrow));
+			if (grow >= 0) {
+				style.css("flexGrow", Integer.toString(grow));
 			}
 
-			if (nShrink > 0) {
-				rStyle.css("flexShrink", Integer.toString(nShrink));
+			if (shrink > 0) {
+				style.css("flexShrink", Integer.toString(shrink));
 			}
 		}
 
@@ -394,11 +392,11 @@ public class UiFlexLayout extends UiLayout {
 		 * layout flow. This will set the "flex-basis" attribute of the
 		 * element.
 		 *
-		 * @param sHtmlSize A valid HTML size for Flexbox layouts
+		 * @param htmlSize A valid HTML size for Flexbox layouts
 		 * @return This instance for fluent invocation
 		 */
-		public FlexCell baseSize(String sHtmlSize) {
-			sBaseSize = sHtmlSize;
+		public FlexCell baseSize(String htmlSize) {
+			baseSize = htmlSize;
 
 			return this;
 		}
@@ -407,13 +405,13 @@ public class UiFlexLayout extends UiLayout {
 		 * Sets the base size of the element in this cell along the axis of the
 		 * layout flow.
 		 *
-		 * @param nSize The size integer
-		 * @param eUnit The size unit
+		 * @param size The size integer
+		 * @param unit The size unit
 		 * @return This instance for fluent invocation
 		 * @see #baseSize(String)
 		 */
-		public FlexCell baseSize(int nSize, SizeUnit eUnit) {
-			return baseSize(eUnit.getHtmlSize(nSize));
+		public FlexCell baseSize(int size, SizeUnit unit) {
+			return baseSize(unit.getHtmlSize(size));
 		}
 
 		/**
@@ -428,11 +426,11 @@ public class UiFlexLayout extends UiLayout {
 		 * of it's grow factor to the sum. A factor of zero stands for the
 		 * minimum size of the cell's element.
 		 *
-		 * @param nGrow The grow factor (a positive integer or zero)
+		 * @param grow The grow factor (a positive integer or zero)
 		 * @return This instance for fluent invocation
 		 */
-		public FlexCell grow(int nGrow) {
-			this.nGrow = nGrow;
+		public FlexCell grow(int grow) {
+			this.grow = grow;
 
 			return this;
 		}
@@ -444,12 +442,11 @@ public class UiFlexLayout extends UiLayout {
 		 * will reduce the size cells with a high shrink factor more when the
 		 * available layout space is reduced.
 		 *
-		 * @param nShrink nGrow The shrink factor (a positive, non-zero
-		 *                integer)
+		 * @param shrink grow The shrink factor (a positive, non-zero integer)
 		 * @return This instance for fluent invocation
 		 */
-		public FlexCell shrink(int nShrink) {
-			this.nShrink = nShrink;
+		public FlexCell shrink(int shrink) {
+			this.shrink = shrink;
 
 			return this;
 		}
@@ -458,15 +455,15 @@ public class UiFlexLayout extends UiLayout {
 		 * {@inheritDoc}
 		 */
 		@Override
-		protected void updateFrom(UiComponent<?, ?> rComponent) {
-			super.updateFrom(rComponent);
+		protected void updateFrom(UiComponent<?, ?> component) {
+			super.updateFrom(component);
 
-			FlexCell rOther = rComponent.cell(FlexCell.class);
+			FlexCell other = component.cell(FlexCell.class);
 
-			eAlign = rOther.eAlign;
-			sBaseSize = rOther.sBaseSize;
-			nGrow = rOther.nGrow;
-			nShrink = rOther.nShrink;
+			align = other.align;
+			baseSize = other.baseSize;
+			grow = other.grow;
+			shrink = other.shrink;
 		}
 	}
 }

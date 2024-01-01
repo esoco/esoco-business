@@ -34,19 +34,19 @@ public class QueryValidator extends TabularDataValidator {
 
 	private static final long serialVersionUID = 1L;
 
-	private String sQueryId;
+	private String queryId;
 
 	/**
 	 * Creates a new instance for a certain query.
 	 *
-	 * @param sQueryId      The ID to identify the query
-	 * @param rQueryColumns The definitions of the query columns
+	 * @param queryId      The ID to identify the query
+	 * @param queryColumns The definitions of the query columns
 	 */
-	public QueryValidator(String sQueryId,
-		List<ColumnDefinition> rQueryColumns) {
-		super(rQueryColumns);
+	public QueryValidator(String queryId,
+		List<ColumnDefinition> queryColumns) {
+		super(queryColumns);
 
-		this.sQueryId = sQueryId;
+		this.queryId = queryId;
 	}
 
 	/**
@@ -59,9 +59,9 @@ public class QueryValidator extends TabularDataValidator {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		return (rObj instanceof QueryValidator) &&
-			sQueryId.equals(((QueryValidator) rObj).sQueryId);
+	public boolean equals(Object obj) {
+		return (obj instanceof QueryValidator) &&
+			queryId.equals(((QueryValidator) obj).queryId);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class QueryValidator extends TabularDataValidator {
 	 * @return The query ID string
 	 */
 	public final String getQueryId() {
-		return sQueryId;
+		return queryId;
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class QueryValidator extends TabularDataValidator {
 	 */
 	@Override
 	public int hashCode() {
-		return 37 * sQueryId.hashCode();
+		return 37 * queryId.hashCode();
 	}
 
 	/**
@@ -88,8 +88,8 @@ public class QueryValidator extends TabularDataValidator {
 	 * @see Validator#isValid(Object)
 	 */
 	@Override
-	public boolean isValid(String sEntityId) {
-		return sEntityId != null;
+	public boolean isValid(String entityId) {
+		return entityId != null;
 	}
 
 	/**
@@ -97,6 +97,6 @@ public class QueryValidator extends TabularDataValidator {
 	 */
 	@Override
 	public String toString() {
-		return sQueryId;
+		return queryId;
 	}
 }

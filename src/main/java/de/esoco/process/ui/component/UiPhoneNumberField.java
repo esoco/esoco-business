@@ -18,7 +18,6 @@ package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ContentType;
 import de.esoco.lib.property.UserInterfaceProperties;
-
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiTextInputField;
 
@@ -35,8 +34,8 @@ public class UiPhoneNumberField extends UiTextInputField<UiPhoneNumberField> {
 	 *
 	 * @see UiTextInputField#UiTextInputField(UiContainer, String)
 	 */
-	public UiPhoneNumberField(UiContainer<?> rContainer, String sText) {
-		super(rContainer, sText);
+	public UiPhoneNumberField(UiContainer<?> container, String text) {
+		super(container, text);
 
 		set(UserInterfaceProperties.CONTENT_TYPE, ContentType.PHONE_NUMBER);
 	}

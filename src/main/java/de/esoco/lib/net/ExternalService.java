@@ -17,14 +17,12 @@
 package de.esoco.lib.net;
 
 import de.esoco.entity.Entity;
-
-import java.math.BigInteger;
-
-import java.security.SecureRandom;
-
 import org.obrel.core.ProvidesConfiguration;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 /**
  * The base class for the access to external services.
@@ -38,34 +36,34 @@ public abstract class ExternalService extends RelatedObject {
 	 */
 	public enum AccessType {GET, POST, DELETE, PUT, PATCH}
 
-	private final String sServiceId =
+	private final String serviceId =
 		new BigInteger(130, new SecureRandom()).toString(32);
 
-	private Entity rUser;
+	private Entity user;
 
-	private ProvidesConfiguration rConfig;
+	private ProvidesConfiguration config;
 
 	/**
 	 * Factory method to create a new service instance of a certain type for a
 	 * user.
 	 *
-	 * @param rServiceDefinition The type of service to create
-	 * @param rUser              The user entity the service access shall be
-	 *                           performed for
-	 * @param rConfig            The configuration entity to read configuration
-	 *                           values from
+	 * @param serviceDefinition The type of service to create
+	 * @param user              The user entity the service access shall be
+	 *                          performed for
+	 * @param config            The configuration entity to read configuration
+	 *                          values from
 	 * @return The new service instance
 	 * @throws Exception If the service creation fails
 	 */
 	public static ExternalService create(
-		ExternalServiceDefinition rServiceDefinition, Entity rUser,
-		ProvidesConfiguration rConfig) throws Exception {
-		ExternalService aService =
-			rServiceDefinition.getServiceClass().newInstance();
+		ExternalServiceDefinition serviceDefinition, Entity user,
+		ProvidesConfiguration config) throws Exception {
+		ExternalService service =
+			serviceDefinition.getServiceClass().newInstance();
 
-		aService.init(rUser, rConfig);
+		service.init(user, config);
 
-		return aService;
+		return service;
 	}
 
 	/**
@@ -86,29 +84,29 @@ public abstract class ExternalService extends RelatedObject {
 	 *     service in subsequent requests.</li>
 	 * </ul>
 	 *
-	 * @param sCallbackUrl  The callback URL to be notified if the user
-	 *                         needs to
-	 *                      manually verify the request before the service
-	 *                      access can be authorized
-	 * @param bForceAuth    TRUE to force the authorization even if cached
-	 *                      authorization tokens or similar exist
-	 * @param rAccessScopes The optional access scopes
+	 * @param callbackUrl  The callback URL to be notified if the user needs to
+	 *                     manually verify the request before the service
+	 *                     access
+	 *                     can be authorized
+	 * @param forceAuth    TRUE to force the authorization even if cached
+	 *                     authorization tokens or similar exist
+	 * @param accessScopes The optional access scopes
 	 * @return Either a verification URL or an access token string
 	 * @throws Exception If the authorization fails
 	 */
-	public abstract Object authorizeAccess(String sCallbackUrl,
-		boolean bForceAuth, Object... rAccessScopes) throws Exception;
+	public abstract Object authorizeAccess(String callbackUrl,
+		boolean forceAuth, Object... accessScopes) throws Exception;
 
 	/**
 	 * Prepares a request to the external service.
 	 *
-	 * @param eAccessType The access type
-	 * @param sRequestUrl The request URL
+	 * @param accessType The access type
+	 * @param requestUrl The request URL
 	 * @return The request object
 	 * @throws Exception If creating the request fails
 	 */
-	public abstract ExternalServiceRequest createRequest(AccessType eAccessType,
-		String sRequestUrl) throws Exception;
+	public abstract ExternalServiceRequest createRequest(AccessType accessType,
+		String requestUrl) throws Exception;
 
 	/**
 	 * Returns the name of the parameter that must be read from a callback HTTP
@@ -124,7 +122,7 @@ public abstract class ExternalService extends RelatedObject {
 	 * @return The configuration
 	 */
 	public final ProvidesConfiguration getConfig() {
-		return rConfig;
+		return config;
 	}
 
 	/**
@@ -141,7 +139,7 @@ public abstract class ExternalService extends RelatedObject {
 	 * @return The unique service Id
 	 */
 	public final String getServiceId() {
-		return sServiceId;
+		return serviceId;
 	}
 
 	/**
@@ -150,7 +148,7 @@ public abstract class ExternalService extends RelatedObject {
 	 * @return The service user
 	 */
 	public final Entity getUser() {
-		return rUser;
+		return user;
 	}
 
 	/**
@@ -159,11 +157,11 @@ public abstract class ExternalService extends RelatedObject {
 	 * method must be invoked on the same service instance on which the
 	 * authorization has been initiated.
 	 *
-	 * @param sCallbackCode sRequestParam The HTTP request of the callback
+	 * @param callbackCode requestParam The HTTP request of the callback
 	 * @return The access token string received by the callback
 	 * @throws Exception If the processing fails
 	 */
-	public abstract String processCallback(String sCallbackCode)
+	public abstract String processCallback(String callbackCode)
 		throws Exception;
 
 	/**
@@ -178,32 +176,31 @@ public abstract class ExternalService extends RelatedObject {
 	 * Queries a value from the configuration returned by {@link #getConfig()}
 	 * and throws an exception if the value doesn't exist.
 	 *
-	 * @param rConfigKey The relation type to query from the configuration
+	 * @param configKey The relation type to query from the configuration
 	 * @return The configuration value
 	 * @throws IllegalStateException If the value doesn't exist or if access to
 	 *                               it fails
 	 */
-	protected String getRequiredConfigValue(RelationType<String> rConfigKey) {
-		String sConfigValue = getConfig().getConfigValue(rConfigKey, null);
+	protected String getRequiredConfigValue(RelationType<String> configKey) {
+		String configValue = getConfig().getConfigValue(configKey, null);
 
-		if (sConfigValue == null) {
+		if (configValue == null) {
 			throw new IllegalStateException(
 				"Service configuration value undefined: " +
-					rConfigKey.getSimpleName());
+					configKey.getSimpleName());
 		}
 
-		return sConfigValue;
+		return configValue;
 	}
 
 	/**
 	 * Initializes this instance.
 	 *
-	 * @param rUser   The user entity the service access shall be performed for
-	 * @param rConfig The configuration entity to read configuration values
-	 *                from
+	 * @param user   The user entity the service access shall be performed for
+	 * @param config The configuration entity to read configuration values from
 	 */
-	private void init(Entity rUser, ProvidesConfiguration rConfig) {
-		this.rUser = rUser;
-		this.rConfig = rConfig;
+	private void init(Entity user, ProvidesConfiguration config) {
+		this.user = user;
+		this.config = config;
 	}
 }

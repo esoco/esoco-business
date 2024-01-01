@@ -18,7 +18,6 @@ package de.esoco.process.ui.layout;
 
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.Orientation;
-
 import de.esoco.process.ui.UiComponent;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiLayout;
@@ -38,44 +37,44 @@ import static de.esoco.lib.property.StyleProperties.ORIENTATION;
  */
 public class UiDockLayout extends UiLayout {
 
-	private Orientation eOrientation;
+	private final Orientation orientation;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param eOrientation The layout orientation
-	 * @param bAllowResize TRUE to provide controls for the resizing of the
-	 *                     components in the layout direction (split panel)
+	 * @param orientation The layout orientation
+	 * @param allowResize TRUE to provide controls for the resizing of the
+	 *                    components in the layout direction (split panel)
 	 */
-	public UiDockLayout(Orientation eOrientation, boolean bAllowResize) {
-		super(bAllowResize ? LayoutType.SPLIT : LayoutType.DOCK,
-			eOrientation == Orientation.VERTICAL ? 1 : 3);
+	public UiDockLayout(Orientation orientation, boolean allowResize) {
+		super(allowResize ? LayoutType.SPLIT : LayoutType.DOCK,
+			orientation == Orientation.VERTICAL ? 1 : 3);
 
-		this.eOrientation = eOrientation;
+		this.orientation = orientation;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void addComponent(UiComponent<?, ?> rComponent) {
-		if (rComponent.getParent().getComponents().size() > 3) {
+	protected void addComponent(UiComponent<?, ?> component) {
+		if (component.getParent().getComponents().size() > 3) {
 			throw new IllegalStateException(
 				"UiDockLayout can contain a maxium of 3 components");
 		}
 
-		super.addComponent(rComponent);
+		super.addComponent(component);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void applyToContainer(UiContainer<?> rContainer) {
-		super.applyToContainer(rContainer);
+	protected void applyToContainer(UiContainer<?> container) {
+		super.applyToContainer(container);
 
-		if (eOrientation == Orientation.VERTICAL) {
-			rContainer.set(ORIENTATION, eOrientation);
+		if (orientation == Orientation.VERTICAL) {
+			container.set(ORIENTATION, orientation);
 		}
 	}
 
@@ -83,8 +82,8 @@ public class UiDockLayout extends UiLayout {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Cell createCell(Row rRow, Column rColumn) {
-		return new DockCell(rRow, rColumn);
+	protected Cell createCell(Row row, Column column) {
+		return new DockCell(row, column);
 	}
 
 	/**
@@ -100,24 +99,24 @@ public class UiDockLayout extends UiLayout {
 		 *
 		 * @see Cell#Cell(Row, Column, UiComponent)
 		 */
-		protected DockCell(Row rRow, Column rColumn) {
-			super(rRow, rColumn);
+		protected DockCell(Row row, Column column) {
+			super(row, column);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Cell height(int nHeight, SizeUnit eUnit) {
-			return set(HEIGHT, nHeight);
+		public Cell height(int height, SizeUnit unit) {
+			return set(HEIGHT, height);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Cell width(int nWidth, SizeUnit eUnit) {
-			return set(WIDTH, nWidth);
+		public Cell width(int width, SizeUnit unit) {
+			return set(WIDTH, width);
 		}
 	}
 }

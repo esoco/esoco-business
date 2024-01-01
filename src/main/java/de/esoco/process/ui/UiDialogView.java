@@ -17,11 +17,11 @@
 package de.esoco.process.ui;
 
 import de.esoco.lib.property.ViewDisplayType;
-
 import de.esoco.process.InvalidParametersException;
 import de.esoco.process.ui.component.UiPushButtons;
 import de.esoco.process.ui.container.UiLayoutPanel;
 import de.esoco.process.ui.layout.UiFlowLayout;
+import org.obrel.core.RelationType;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,8 +30,6 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import org.obrel.core.RelationType;
 
 /**
  * The base class for dialog views.
@@ -69,16 +67,16 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 		public static final Set<Button> YES_NO_CANCEL =
 			Collections.unmodifiableSet(EnumSet.of(YES, NO, CANCEL));
 
-		private final boolean bValidated;
+		private final boolean validated;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param bValidated TRUE if the dialog needs to be validated if closed
-		 *                   by this action
+		 * @param validated TRUE if the dialog needs to be validated if closed
+		 *                  by this action
 		 */
-		Button(boolean bValidated) {
-			this.bValidated = bValidated;
+		Button(boolean validated) {
+			this.validated = validated;
 		}
 
 		/**
@@ -88,30 +86,30 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 		 * action
 		 */
 		public final boolean isValidated() {
-			return bValidated;
+			return validated;
 		}
 	}
 
-	private Collection<Button> rButtons = Button.OK_CANCEL;
+	private Collection<Button> buttons = Button.OK_CANCEL;
 
-	private UiPushButtons<Button> aDialogButtons;
+	private UiPushButtons<Button> dialogButtons;
 
-	private Consumer<Button> fDialogListener;
+	private Consumer<Button> dialogListener;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent The parent view
-	 * @param sTitle  The dialog title
-	 * @param rLayout The layout of the dialog content
-	 * @param bModal  TRUE for a modal view
+	 * @param parent The parent view
+	 * @param title  The dialog title
+	 * @param layout The layout of the dialog content
+	 * @param modal  TRUE for a modal view
 	 */
-	public UiDialogView(UiView<?> rParent, String sTitle, UiLayout rLayout,
-		boolean bModal) {
-		super(rParent, new UiFlowLayout(),
-			bModal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
+	public UiDialogView(UiView<?> parent, String title, UiLayout layout,
+		boolean modal) {
+		super(parent, new UiFlowLayout(),
+			modal ? ViewDisplayType.MODAL_DIALOG : ViewDisplayType.DIALOG);
 
-		setTitle(sTitle);
+		setTitle(title);
 	}
 
 	/**
@@ -123,12 +121,12 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	 * Validations will only be performed if a button returns TRUE from it's
 	 * {@link Button#isValidated()} method.
 	 *
-	 * @param fListener The listener function
+	 * @param listener The listener function
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public V onDialogButton(Consumer<Button> fListener) {
-		fDialogListener = fListener;
+	public V onDialogButton(Consumer<Button> listener) {
+		dialogListener = listener;
 
 		return (V) this;
 	}
@@ -138,15 +136,15 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	 * dialog
 	 * has OK and Cancel buttons.
 	 *
-	 * @param rButtons The new buttons
+	 * @param buttons The new buttons
 	 * @return This instance
 	 */
 	@SuppressWarnings("unchecked")
-	public V setButtons(Collection<Button> rButtons) {
-		this.rButtons = rButtons;
+	public V setButtons(Collection<Button> buttons) {
+		this.buttons = buttons;
 
-		if (aDialogButtons != null) {
-			aDialogButtons.setButtons(rButtons);
+		if (dialogButtons != null) {
+			dialogButtons.setButtons(buttons);
 		}
 
 		return (V) this;
@@ -155,29 +153,28 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	/**
 	 * Sets the dialog buttons. By default a dialog has OK and Cancel buttons.
 	 *
-	 * @param rButtons The new buttons
+	 * @param buttons The new buttons
 	 * @return This instance
 	 */
-	public V setButtons(Button... rButtons) {
-		return setButtons(Arrays.asList(rButtons));
+	public V setButtons(Button... buttons) {
+		return setButtons(Arrays.asList(buttons));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void buildContent(UiBuilder<?> rBuilder) {
-		if (aDialogButtons == null) {
-			UiLayoutPanel aButtonPanel = rBuilder.addPanel(new UiFlowLayout());
+	protected void buildContent(UiBuilder<?> builder) {
+		if (dialogButtons == null) {
+			UiLayoutPanel buttonPanel = builder.addPanel(new UiFlowLayout());
 
-			aButtonPanel.style().addStyleName("UiDialogButtonPanel");
+			buttonPanel.style().addStyleName("UiDialogButtonPanel");
 
-			aDialogButtons =
-				aButtonPanel.builder().addPushButtons(Button.class);
+			dialogButtons = buttonPanel.builder().addPushButtons(Button.class);
 
-			aDialogButtons
+			dialogButtons
 				.resid("UiDialogButton")
-				.setButtons(rButtons)
+				.setButtons(buttons)
 				.onClick(this::handleButton);
 		}
 	}
@@ -185,21 +182,21 @@ public abstract class UiDialogView<V extends UiDialogView<V>>
 	/**
 	 * Handles button events.
 	 *
-	 * @param eButton The selected button
+	 * @param button The selected button
 	 */
-	private void handleButton(Button eButton) {
-		if (eButton.isValidated()) {
-			Map<RelationType<?>, String> rInvalidParams =
+	private void handleButton(Button button) {
+		if (button.isValidated()) {
+			Map<RelationType<?>, String> invalidParams =
 				fragment().validateFragmentParameters(false);
 
-			if (!rInvalidParams.isEmpty()) {
+			if (!invalidParams.isEmpty()) {
 				throw new InvalidParametersException(fragment(),
-					rInvalidParams);
+					invalidParams);
 			}
 		}
 
-		if (fDialogListener != null) {
-			fDialogListener.accept(eButton);
+		if (dialogListener != null) {
+			dialogListener.accept(button);
 		}
 
 		hide();

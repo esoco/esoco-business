@@ -18,11 +18,10 @@ package de.esoco.service;
 
 import de.esoco.lib.app.RestService;
 import de.esoco.lib.security.AuthenticationService;
-
-import java.util.Map;
-
 import org.obrel.core.RelationType;
 import org.obrel.space.ObjectSpace;
+
+import java.util.Map;
 
 import static org.obrel.core.RelationTypes.newType;
 
@@ -43,19 +42,19 @@ public abstract class InteractiveProcessRenderer extends RestService
 	 */
 	@Override
 	protected ObjectSpace<Object> buildRestServerSpace() {
-		ObjectSpace<Object> rRootSpace = super.buildRestServerSpace();
-		ObjectSpace<String> rApiSpace = rRootSpace.get(API);
+		ObjectSpace<Object> rootSpace = super.buildRestServerSpace();
+		ObjectSpace<String> apiSpace = rootSpace.get(API);
 
-		rApiSpace.init(REGISTER_PROCESSES).onUpdate(this::registerProcesses);
+		apiSpace.init(REGISTER_PROCESSES).onUpdate(this::registerProcesses);
 
-		return rRootSpace;
+		return rootSpace;
 	}
 
 	/**
 	 * Registers interactive processes that can be executed.
 	 *
-	 * @param rRequest The registration request
+	 * @param request The registration request
 	 */
-	private void registerProcesses(Map<String, String> rRequest) {
+	private void registerProcesses(Map<String, String> request) {
 	}
 }

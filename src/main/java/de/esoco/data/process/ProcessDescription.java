@@ -30,45 +30,44 @@ public class ProcessDescription extends StringDataElement {
 
 	private static final String SEPARATOR_NAME = "Separator";
 
-	private int nId;
+	private int id;
 
-	private boolean bInputRequired;
+	private boolean inputRequired;
 
-	private DataElement<?> rProcessInput = null;
+	private DataElement<?> processInput = null;
 
-	private String sClientInfo;
+	private String clientInfo;
 
-	private String sClientLocale;
+	private String clientLocale;
 
-	private int nClientWidth;
+	private int clientWidth;
 
-	private int nClientHeight;
+	private int clientHeight;
 
 	/**
 	 * Copy constructor for subclasses.
 	 *
-	 * @param rOther The other instance to copy the state of
+	 * @param other The other instance to copy the state of
 	 */
-	public ProcessDescription(ProcessDescription rOther) {
-		this(rOther.getName(), rOther.getValue(), rOther.nId,
-			rOther.bInputRequired);
+	public ProcessDescription(ProcessDescription other) {
+		this(other.getName(), other.getValue(), other.id, other.inputRequired);
 	}
 
 	/**
 	 * Creates a new instance with certain attributes.
 	 *
-	 * @param sName          The process name
-	 * @param sDescription   The process description
-	 * @param nId            The internal process definition ID
-	 * @param bInputRequired TRUE if the process can only be executed with an
-	 *                       input value
+	 * @param name          The process name
+	 * @param description   The process description
+	 * @param id            The internal process definition ID
+	 * @param inputRequired TRUE if the process can only be executed with an
+	 *                      input value
 	 */
-	public ProcessDescription(String sName, String sDescription, int nId,
-		boolean bInputRequired) {
-		super(sName, sDescription, null, null);
+	public ProcessDescription(String name, String description, int id,
+		boolean inputRequired) {
+		super(name, description, null, null);
 
-		this.nId = nId;
-		this.bInputRequired = bInputRequired;
+		this.id = id;
+		this.inputRequired = inputRequired;
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return The client area height
 	 */
 	public final int getClientHeight() {
-		return nClientHeight;
+		return clientHeight;
 	}
 
 	/**
@@ -103,7 +102,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return The client information
 	 */
 	public final String getClientInfo() {
-		return sClientInfo;
+		return clientInfo;
 	}
 
 	/**
@@ -112,7 +111,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return The name of the client locale
 	 */
 	public final String getClientLocale() {
-		return sClientLocale;
+		return clientLocale;
 	}
 
 	/**
@@ -121,7 +120,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return The client area width
 	 */
 	public final int getClientWidth() {
-		return nClientWidth;
+		return clientWidth;
 	}
 
 	/**
@@ -131,7 +130,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return The ID
 	 */
 	public final int getDescriptionId() {
-		return nId;
+		return id;
 	}
 
 	/**
@@ -141,7 +140,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return The entity ID or -1 for none
 	 */
 	public final DataElement<?> getProcessInput() {
-		return rProcessInput;
+		return processInput;
 	}
 
 	/**
@@ -151,7 +150,7 @@ public class ProcessDescription extends StringDataElement {
 	 * @return TRUE if a process input value is required
 	 */
 	public final boolean isInputRequired() {
-		return bInputRequired;
+		return inputRequired;
 	}
 
 	/**
@@ -167,19 +166,19 @@ public class ProcessDescription extends StringDataElement {
 	/**
 	 * Sets a string with information about the client (web browser).
 	 *
-	 * @param sInfo The client information
+	 * @param info The client information
 	 */
-	public final void setClientInfo(String sInfo) {
-		sClientInfo = sInfo;
+	public final void setClientInfo(String info) {
+		clientInfo = info;
 	}
 
 	/**
 	 * Sets the name of the client's locale (e.g. 'en_US' or 'de_DE'.
 	 *
-	 * @param sLocale The name of the client locale
+	 * @param locale The name of the client locale
 	 */
-	public final void setClientLocale(String sLocale) {
-		sClientLocale = sLocale;
+	public final void setClientLocale(String locale) {
+		clientLocale = locale;
 	}
 
 	/**
@@ -187,12 +186,12 @@ public class ProcessDescription extends StringDataElement {
 	 * will be used to transfer the available UI area and it's proportions to
 	 * the server upon and during a process execution.
 	 *
-	 * @param nWidth  The width of the client area
-	 * @param nHeight The height of the client area
+	 * @param width  The width of the client area
+	 * @param height The height of the client area
 	 */
-	public final void setClientSize(int nWidth, int nHeight) {
-		nClientWidth = nWidth;
-		nClientHeight = nHeight;
+	public final void setClientSize(int width, int height) {
+		clientWidth = width;
+		clientHeight = height;
 	}
 
 	/**
@@ -200,9 +199,9 @@ public class ProcessDescription extends StringDataElement {
 	 * is started. This allows to execute a process for an entity that has been
 	 * selected on the client.
 	 *
-	 * @param rInput rProcessInput rEntityId The entityId value
+	 * @param input processInput entityId The entityId value
 	 */
-	public final void setProcessInput(DataElement<?> rInput) {
-		rProcessInput = rInput;
+	public final void setProcessInput(DataElement<?> input) {
+		processInput = input;
 	}
 }

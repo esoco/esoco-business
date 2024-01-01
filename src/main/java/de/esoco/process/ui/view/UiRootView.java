@@ -35,14 +35,14 @@ public abstract class UiRootView extends UiView<UiRootView> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rFragment The fragment this view shall be rendered in
-	 * @param rLayout   The view layout
+	 * @param fragment The fragment this view shall be rendered in
+	 * @param layout   The view layout
 	 */
-	public UiRootView(InteractionFragment rFragment, UiLayout rLayout) {
-		super(null, rLayout);
+	public UiRootView(InteractionFragment fragment, UiLayout layout) {
+		super(null, layout);
 
-		setFragment(rFragment);
-		setParameterType(rFragment.getFragmentParameter());
+		setFragment(fragment);
+		setParameterType(fragment.getFragmentParameter());
 	}
 
 	/**
@@ -51,8 +51,8 @@ public abstract class UiRootView extends UiView<UiRootView> {
 	 * @see UiContainer#setVisible(boolean)
 	 */
 	@Override
-	public UiRootView setVisible(boolean bVisible) {
-		if (bVisible) {
+	public UiRootView setVisible(boolean visible) {
+		if (visible) {
 			applyProperties();
 		}
 
@@ -63,5 +63,5 @@ public abstract class UiRootView extends UiView<UiRootView> {
 	 * Overridden to be abstract as it must be implemented.
 	 */
 	@Override
-	protected abstract void buildContent(UiBuilder<?> rBuilder);
+	protected abstract void buildContent(UiBuilder<?> builder);
 }

@@ -19,7 +19,6 @@ package de.esoco.entity;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.logging.Log;
 import de.esoco.lib.manage.Closeable;
-
 import de.esoco.storage.Query;
 import de.esoco.storage.QueryPredicate;
 import de.esoco.storage.QueryResult;
@@ -46,39 +45,37 @@ import java.util.Iterator;
 public class EntityIterator<E extends Entity>
 	implements Iterator<E>, Closeable {
 
-	private QueryPredicate<E> qEntities;
+	private final QueryPredicate<E> entities;
 
-	private boolean bUseNewStorage;
+	private final boolean useNewStorage;
 
-	private Storage rStorage = null;
+	private Storage storage = null;
 
-	private Query<E> rQuery;
+	private Query<E> query;
 
-	private QueryResult<E> rQueryResult;
+	private QueryResult<E> queryResult;
 
 	/**
 	 * Creates a new instance that performs a certain query on the default
 	 * storage for the queried entity type and current thread.
 	 *
-	 * @param qEntities The entity query
+	 * @param entities The entity query
 	 */
-	public EntityIterator(QueryPredicate<E> qEntities) {
-		this(qEntities, false);
+	public EntityIterator(QueryPredicate<E> entities) {
+		this(entities, false);
 	}
 
 	/**
 	 * Creates a new instance that performs a certain query.
 	 *
-	 * @param qEntities      The entity query to perform
-	 * @param bUseNewStorage TRUE to perform the query on a new storage
-	 *                          instance
-	 *                       (instead of the shared storage for the current
-	 *                       thread)
+	 * @param entities      The entity query to perform
+	 * @param useNewStorage TRUE to perform the query on a new storage instance
+	 *                      (instead of the shared storage for the current
+	 *                      thread)
 	 */
-	public EntityIterator(QueryPredicate<E> qEntities,
-		boolean bUseNewStorage) {
-		this.qEntities = qEntities;
-		this.bUseNewStorage = bUseNewStorage;
+	public EntityIterator(QueryPredicate<E> entities, boolean useNewStorage) {
+		this.entities = entities;
+		this.useNewStorage = useNewStorage;
 	}
 
 	/**
@@ -89,14 +86,14 @@ public class EntityIterator<E extends Entity>
 	 */
 	@Override
 	public void close() {
-		if (rStorage != null) {
+		if (storage != null) {
 			try {
-				if (rQuery != null) {
-					rQuery.close();
+				if (query != null) {
+					query.close();
 				}
 			} finally {
-				rStorage.release();
-				rStorage = null;
+				storage.release();
+				storage = null;
 			}
 		}
 	}
@@ -106,12 +103,12 @@ public class EntityIterator<E extends Entity>
 	 * afterwards. Like in the iterator methods a storage exception that occurs
 	 * will be wrapped into a {@link StorageRuntimeException}.
 	 *
-	 * @param fAction The function to invoke on each entity
+	 * @param action The function to invoke on each entity
 	 */
-	public void forEach(Action<E> fAction) {
+	public void forEach(Action<E> action) {
 		try {
 			while (hasNext()) {
-				fAction.evaluate(next());
+				action.evaluate(next());
 			}
 		} finally {
 			close();
@@ -126,7 +123,7 @@ public class EntityIterator<E extends Entity>
 		try {
 			checkPrepareQuery();
 
-			return rQueryResult.hasNext();
+			return queryResult.hasNext();
 		} catch (StorageException e) {
 			handleError(e);
 
@@ -141,13 +138,13 @@ public class EntityIterator<E extends Entity>
 	@Override
 	public E next() {
 		try {
-			E rEntity = rQueryResult.next();
+			E entity = queryResult.next();
 
-			if (rEntity.isRoot()) {
-				rEntity = EntityManager.checkCaching(rEntity);
+			if (entity.isRoot()) {
+				entity = EntityManager.checkCaching(entity);
 			}
 
-			return rEntity;
+			return entity;
 		} catch (StorageException e) {
 			handleError(e);
 
@@ -165,15 +162,15 @@ public class EntityIterator<E extends Entity>
 	 * limitations
 	 * apply.
 	 *
-	 * @param nIndex    The new position of this iterator
-	 * @param bRelative TRUE to set the position relative to the current
-	 *                  position, FALSE to set an absolute position relative to
-	 *                  the full query
+	 * @param index    The new position of this iterator
+	 * @param relative TRUE to set the position relative to the current
+	 *                 position, FALSE to set an absolute position relative to
+	 *                 the full query
 	 */
-	public void setPosition(int nIndex, boolean bRelative) {
+	public void setPosition(int index, boolean relative) {
 		try {
 			checkPrepareQuery();
-			rQueryResult.setPosition(nIndex, bRelative);
+			queryResult.setPosition(index, relative);
 		} catch (StorageException e) {
 			handleError(e);
 		}
@@ -189,7 +186,7 @@ public class EntityIterator<E extends Entity>
 		try {
 			checkPrepareQuery();
 
-			return rQuery.size();
+			return query.size();
 		} catch (StorageException e) {
 			handleError(e);
 
@@ -204,15 +201,15 @@ public class EntityIterator<E extends Entity>
 	 * @throws StorageException If the storage access fails
 	 */
 	protected void checkPrepareQuery() throws StorageException {
-		if (rStorage == null) {
-			Class<E> rQueryType = qEntities.getQueryType();
+		if (storage == null) {
+			Class<E> queryType = entities.getQueryType();
 
-			rStorage = bUseNewStorage ?
-			           StorageManager.newStorage(rQueryType) :
-			           StorageManager.getStorage(rQueryType);
+			storage = useNewStorage ?
+			          StorageManager.newStorage(queryType) :
+			          StorageManager.getStorage(queryType);
 
-			rQuery = rStorage.query(qEntities);
-			rQueryResult = rQuery.execute();
+			query = storage.query(entities);
+			queryResult = query.execute();
 		}
 	}
 
@@ -220,10 +217,10 @@ public class EntityIterator<E extends Entity>
 	 * Performs the error handling if an exception occurred in another iterator
 	 * method.
 	 *
-	 * @param eStorage e The exception
+	 * @param storage e The exception
 	 * @throws StorageRuntimeException The converted exception
 	 */
-	protected void handleError(StorageException eStorage)
+	protected void handleError(StorageException storage)
 		throws StorageRuntimeException {
 		try {
 			close();
@@ -232,6 +229,6 @@ public class EntityIterator<E extends Entity>
 			// continue with original exception
 		}
 
-		throw new StorageRuntimeException(eStorage);
+		throw new StorageRuntimeException(storage);
 	}
 }

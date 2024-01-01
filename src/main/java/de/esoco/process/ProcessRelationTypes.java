@@ -18,19 +18,22 @@ package de.esoco.process;
 
 import de.esoco.data.element.DataElement;
 import de.esoco.data.process.ProcessState;
-
 import de.esoco.entity.Entity;
-
 import de.esoco.history.HistoryManager;
-
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.net.ExternalServiceAccess;
 import de.esoco.lib.property.InteractionEventType;
 import de.esoco.lib.property.ListStyle;
 import de.esoco.lib.property.Updatable;
-
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.Annotations.RelationTypeNamespace;
+import org.obrel.core.ProvidesConfiguration;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.ListenerType;
+import org.obrel.type.ListenerTypes;
+import org.obrel.type.MetaTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,16 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.obrel.core.Annotations.RelationTypeNamespace;
-import org.obrel.core.ProvidesConfiguration;
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.ListenerType;
-import org.obrel.type.ListenerTypes;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.entity.EntityRelationTypes.entityAttribute;
-
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newListType;
@@ -623,34 +617,35 @@ public class ProcessRelationTypes {
 	 * on the derived type. The prefix must be in relation type notation, i.e.
 	 * upper case words separated by underscores.
 	 *
-	 * @param sPrefix       The optional prefix to prepend to the original
-	 *                      type's name (can be NULL or empty for none)
-	 * @param rRelationType The relation type to derive the parameter from
+	 * @param prefix       The optional prefix to prepend to the original
+	 *                        type's
+	 *                     name (can be NULL or empty for none)
+	 * @param relationType The relation type to derive the parameter from
 	 * @return The new derived parameter type
 	 */
-	public static <T> RelationType<T> deriveParameter(String sPrefix,
-		RelationType<T> rRelationType) {
-		StringBuilder aName =
+	public static <T> RelationType<T> deriveParameter(String prefix,
+		RelationType<T> relationType) {
+		StringBuilder name =
 			new StringBuilder(Process.class.getPackage().getName());
 
-		aName.append('.');
+		name.append('.');
 
-		if (sPrefix != null && sPrefix.length() > 0) {
-			aName.append(sPrefix);
-			aName.append('_');
+		if (prefix != null && prefix.length() > 0) {
+			name.append(prefix);
+			name.append('_');
 		}
 
-		aName.append(rRelationType.getSimpleName());
+		name.append(relationType.getSimpleName());
 
-		RelationType<T> aDerivedType =
-			RelationTypes.<T>newRelationType(aName.toString(),
-				rRelationType.getTargetType(),
-				rRelationType.getDefaultValueFunction(),
-				rRelationType.getInitialValueFunction());
+		RelationType<T> derivedType =
+			RelationTypes.newRelationType(name.toString(),
+				relationType.getTargetType(),
+				relationType.getDefaultValueFunction(),
+				relationType.getInitialValueFunction());
 
-		aDerivedType.set(ORIGINAL_RELATION_TYPE, rRelationType);
+		derivedType.set(ORIGINAL_RELATION_TYPE, relationType);
 
-		return aDerivedType;
+		return derivedType;
 	}
 
 	/**
@@ -658,15 +653,14 @@ public class ProcessRelationTypes {
 	 * method {@link #deriveParameter(String, RelationType)}. The returned list
 	 * can be manipulated freely.
 	 *
-	 * @param sPrefix        The optional prefix to prepend to the original
-	 *                          type
-	 *                       names (can be NULL or empty for none)
-	 * @param rRelationTypes The relation types to derive the parameters from
+	 * @param prefix        The optional prefix to prepend to the original type
+	 *                      names (can be NULL or empty for none)
+	 * @param relationTypes The relation types to derive the parameters from
 	 * @return A list of new derived parameters types
 	 */
-	public static List<RelationType<?>> deriveParameters(String sPrefix,
-		RelationType<?>... rRelationTypes) {
-		return deriveParameters(sPrefix, Arrays.asList(rRelationTypes));
+	public static List<RelationType<?>> deriveParameters(String prefix,
+		RelationType<?>... relationTypes) {
+		return deriveParameters(prefix, Arrays.asList(relationTypes));
 	}
 
 	/**
@@ -674,38 +668,37 @@ public class ProcessRelationTypes {
 	 * method {@link #deriveParameter(String, RelationType)}. The returned list
 	 * can be manipulated freely.
 	 *
-	 * @param sPrefix        The optional prefix to prepend to the original
-	 *                          type
-	 *                       names (can be NULL or empty for none)
-	 * @param rRelationTypes The relation types to derive the parameters from
+	 * @param prefix        The optional prefix to prepend to the original type
+	 *                      names (can be NULL or empty for none)
+	 * @param relationTypes The relation types to derive the parameters from
 	 * @return A list of new derived parameters types
 	 */
-	public static List<RelationType<?>> deriveParameters(String sPrefix,
-		List<RelationType<?>> rRelationTypes) {
-		List<RelationType<?>> aDerivedTypes =
-			new ArrayList<RelationType<?>>(rRelationTypes.size());
+	public static List<RelationType<?>> deriveParameters(String prefix,
+		List<RelationType<?>> relationTypes) {
+		List<RelationType<?>> derivedTypes =
+			new ArrayList<RelationType<?>>(relationTypes.size());
 
-		for (RelationType<?> rRelationType : rRelationTypes) {
-			aDerivedTypes.add(deriveParameter(sPrefix, rRelationType));
+		for (RelationType<?> relationType : relationTypes) {
+			derivedTypes.add(deriveParameter(prefix, relationType));
 		}
 
-		return aDerivedTypes;
+		return derivedTypes;
 	}
 
 	/**
 	 * Returns the derived parameter relation type for a certain original
 	 * relation type from a list of derived types.
 	 *
-	 * @param rOriginalType  The original relation type
-	 * @param rDerivedParams A list of derived parameter types
+	 * @param originalType  The original relation type
+	 * @param derivedParams A list of derived parameter types
 	 * @return The derived parameter relation type or NULL if not found
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> RelationType<T> getDerivedParameter(
-		RelationType<T> rOriginalType, List<RelationType<?>> rDerivedParams) {
-		for (RelationType<?> rParam : rDerivedParams) {
-			if (rParam.get(ORIGINAL_RELATION_TYPE) == rOriginalType) {
-				return (RelationType<T>) rParam;
+		RelationType<T> originalType, List<RelationType<?>> derivedParams) {
+		for (RelationType<?> param : derivedParams) {
+			if (param.get(ORIGINAL_RELATION_TYPE) == originalType) {
+				return (RelationType<T>) param;
 			}
 		}
 

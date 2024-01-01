@@ -17,17 +17,14 @@
 package de.esoco.process.step;
 
 import de.esoco.lib.manage.Disposable;
-
 import de.esoco.process.ProcessException;
 import de.esoco.process.ProcessStep;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.io.Closeable;
 import java.io.IOException;
-
 import java.net.Socket;
-
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypes.newRelationType;
 
@@ -77,18 +74,18 @@ public class DisposeResource extends ProcessStep {
 	 */
 	@Override
 	protected void execute() throws ProcessException, IOException {
-		RelationType<?> rParam = checkParameter(DISPOSE_RESOURCE);
-		Object rResource = checkParameter(rParam);
+		RelationType<?> param = checkParameter(DISPOSE_RESOURCE);
+		Object resource = checkParameter(param);
 
-		if (rResource instanceof Closeable) {
-			((Closeable) rResource).close();
-		} else if (rResource instanceof Disposable) {
-			((Disposable) rResource).dispose();
-		} else if (rResource instanceof Socket) {
-			((Socket) rResource).close();
+		if (resource instanceof Closeable) {
+			((Closeable) resource).close();
+		} else if (resource instanceof Disposable) {
+			((Disposable) resource).dispose();
+		} else if (resource instanceof Socket) {
+			((Socket) resource).close();
 		} else {
 			throw new ProcessException(this,
-				"Invalid resource in " + rParam + ": " + rResource);
+				"Invalid resource in " + param + ": " + resource);
 		}
 	}
 }

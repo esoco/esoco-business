@@ -33,22 +33,22 @@ public class UiWebPageFooter extends UiComposite<UiWebPageFooter> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent the parent container
+	 * @param parent the parent container
 	 */
-	public UiWebPageFooter(UiContainer<?> rParent) {
-		super(rParent, new UiFooterLayout());
+	public UiWebPageFooter(UiContainer<?> parent) {
+		super(parent, new UiFooterLayout());
 	}
 
 	/**
 	 * Adds a copyright message to the footer that includes the current year.
 	 * The label has the style name {@link DefaultStyleNames#FOOTER_COPYRIGHT}.
 	 *
-	 * @param sCopyrightHolder The display name of the copyright holder(s)
+	 * @param copyrightHolder The display name of the copyright holder(s)
 	 */
-	public void addCopyrightMessage(String sCopyrightHolder) {
+	public void addCopyrightMessage(String copyrightHolder) {
 		builder()
 			.addLabel(String.format("$$Copyright %tY {%s}", new Date(),
-				sCopyrightHolder))
+				copyrightHolder))
 			.styleName(DefaultStyleNames.FOOTER_COPYRIGHT);
 	}
 }

@@ -70,24 +70,24 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testBinaryFunctionStep() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("BinaryFunctionStep");
 
-		aDef.invokeBinaryFunction("STEP1", TEST_INT_PARAM, TEST_INT_PARAM2,
+		def.invokeBinaryFunction("STEP1", TEST_INT_PARAM, TEST_INT_PARAM2,
 			INT_RESULT, MathFunctions.add(0));
 
 		try {
-			executeProcess(aDef);
+			executeProcess(def);
 			fail();
 		} catch (ProcessException e) {
 			// correct execution path, input parameter is missing
 		}
 
-		aDef.set(TEST_INT_PARAM, 20);
-		aDef.set(TEST_INT_PARAM2, 22);
-		aDef.get(POSTCONDITIONS).put(INT_RESULT, equalTo(42));
+		def.set(TEST_INT_PARAM, 20);
+		def.set(TEST_INT_PARAM2, 22);
+		def.get(POSTCONDITIONS).put(INT_RESULT, equalTo(42));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -98,17 +98,17 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testBranchStep() throws Exception {
-		StepListProcessDefinition aDef = createBranchProcess();
+		StepListProcessDefinition def = createBranchProcess();
 
 		// precondition
-		aDef.set(TEST_INT_PARAM, 100);
+		def.set(TEST_INT_PARAM, 100);
 
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(105));
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(105));
 
 		// assert correct execution sequence of process steps
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("12434"));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("12434"));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -119,23 +119,23 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testFunctionStep() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("FunctionStep");
 
-		aDef.invokeFunction("STEP1", TEST_INT_PARAM, INT_RESULT,
+		def.invokeFunction("STEP1", TEST_INT_PARAM, INT_RESULT,
 			MathFunctions.add(21));
 
 		try {
-			executeProcess(aDef);
+			executeProcess(def);
 			fail();
 		} catch (ProcessException e) {
 			// correct execution path, input parameter is missing
 		}
 
-		aDef.set(TEST_INT_PARAM, 21);
-		aDef.get(POSTCONDITIONS).put(INT_RESULT, equalTo(42));
+		def.set(TEST_INT_PARAM, 21);
+		def.get(POSTCONDITIONS).put(INT_RESULT, equalTo(42));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -147,45 +147,43 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testInteractionHandler() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("InteractionHandler");
 
-		aDef.invoke("STEP1", TestStep.class);
-		aDef.invoke("STEP2", TestStep.class).set(INTERACTIVE);
-		aDef.invoke("STEP3", TestStep.class);
-		aDef.invoke("STEP4", TestStep.class);
+		def.invoke("STEP1", TestStep.class);
+		def.invoke("STEP2", TestStep.class).set(INTERACTIVE);
+		def.invoke("STEP3", TestStep.class);
+		def.invoke("STEP4", TestStep.class);
 
-		StepListEntry aLastStep = aDef.invoke("STEP5", TestStep.class);
+		StepListEntry lastStep = def.invoke("STEP5", TestStep.class);
 
-		aLastStep.set(INTERACTIVE);
-		aLastStep.addInputParameters(TEST_RESULT2, TEST_RESULT3);
+		lastStep.set(INTERACTIVE);
+		lastStep.addInputParameters(TEST_RESULT2, TEST_RESULT3);
 
-		assertEquals(2, aLastStep.get(INPUT_PARAMS).size());
+		assertEquals(2, lastStep.get(INPUT_PARAMS).size());
 
-		Process aProcess = aDef.createProcess();
+		Process process = def.createProcess();
 
-		aProcess.setParameter(TEST_INT_PARAM, Integer.valueOf(0));
-		aProcess.setInteractionHandler(new ProcessInteractionHandler() {
+		process.setParameter(TEST_INT_PARAM, Integer.valueOf(0));
+		process.setInteractionHandler(new ProcessInteractionHandler() {
 			@Override
-			public void performInteraction(ProcessFragment rProcessStep)
+			public void performInteraction(ProcessFragment processStep)
 				throws Exception {
-				int nValue = rProcessStep.checkParameter(TEST_INT_PARAM);
-				String sResult =
-					rProcessStep.checkParameter(TEST_STRING_RESULT);
+				int value = processStep.checkParameter(TEST_INT_PARAM);
+				String result = processStep.checkParameter(TEST_STRING_RESULT);
 
-				nValue += 1;
-				sResult += "-";
+				value += 1;
+				result += "-";
 
-				rProcessStep.setParameter(TEST_INT_PARAM, nValue);
-				rProcessStep.setParameter(TEST_STRING_RESULT, sResult);
+				processStep.setParameter(TEST_INT_PARAM, value);
+				processStep.setParameter(TEST_STRING_RESULT, result);
 			}
 		});
 
-		aProcess.execute();
+		process.execute();
 
-		assertEquals(Integer.valueOf(7),
-			aProcess.getParameter(TEST_INT_PARAM));
-		assertEquals("1-234-5", aProcess.getParameter(TEST_STRING_RESULT));
+		assertEquals(Integer.valueOf(7), process.getParameter(TEST_INT_PARAM));
+		assertEquals("1-234-5", process.getParameter(TEST_STRING_RESULT));
 	}
 
 	/**
@@ -196,34 +194,33 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testInteractiveProcess() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("Interactive");
 
-		aDef.invoke("STEP1", TestStep.class);
+		def.invoke("STEP1", TestStep.class);
 
-		StepListEntry aSecondStep = aDef.invoke("STEP2", TestStep.class);
+		StepListEntry secondStep = def.invoke("STEP2", TestStep.class);
 
-		aDef.invoke("STEP3", TestStep.class);
-		aDef.invoke("STEP4", TestStep.class);
+		def.invoke("STEP3", TestStep.class);
+		def.invoke("STEP4", TestStep.class);
 
-		StepListEntry aLastStep = aDef.invoke("STEP5", TestStep.class);
+		StepListEntry lastStep = def.invoke("STEP5", TestStep.class);
 
-		aDef.set(TEST_INT_PARAM, 0);
-		aSecondStep.set(INTERACTIVE);
-		aSecondStep.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(1));
-		aSecondStep.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("1"));
-		aSecondStep.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT,
-			equalTo(0));
-		aLastStep.set(INTERACTIVE);
-		aLastStep.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(4));
-		aLastStep.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("1234"));
-		aLastStep.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(1));
+		def.set(TEST_INT_PARAM, 0);
+		secondStep.set(INTERACTIVE);
+		secondStep.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(1));
+		secondStep.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("1"));
+		secondStep.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(0));
+		lastStep.set(INTERACTIVE);
+		lastStep.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(4));
+		lastStep.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("1234"));
+		lastStep.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(1));
 
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(5));
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("12345"));
-		aDef.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(2));
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(5));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("12345"));
+		def.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(2));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -234,37 +231,37 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testInteractiveSubProcess() throws Exception {
-		StepListEntry[] aSubSteps =
+		StepListEntry[] subSteps =
 			new StepListEntry[] { new StepListEntry("STEP3", TestStep.class),
 				new StepListEntry("STEP4", TestStep.class),
 				new StepListEntry("STEP5", TestStep.class), };
 
-		aSubSteps[1].set(INTERACTIVE);
+		subSteps[1].set(INTERACTIVE);
 
-		ProcessDefinition aSubDef =
-			new StepListProcessDefinition("SubProcess", aSubSteps);
+		ProcessDefinition subDef =
+			new StepListProcessDefinition("SubProcess", subSteps);
 
-		StepListEntry[] aSteps =
+		StepListEntry[] steps =
 			new StepListEntry[] { new StepListEntry("STEP1", TestStep.class),
 				new StepListEntry("STEP2", TestStep.class),
 				new StepListEntry("SUBSTEP", SubProcessStep.class),
 				new StepListEntry("STEP6", TestStep.class),
 				new StepListEntry("STEP7", TestStep.class), };
 
-		aSteps[1].set(INTERACTIVE, true);
-		aSteps[2].set(ProcessRelationTypes.SUB_PROCESS_DEFINITION, aSubDef);
-		aSteps[4].set(INTERACTIVE, true);
+		steps[1].set(INTERACTIVE, true);
+		steps[2].set(ProcessRelationTypes.SUB_PROCESS_DEFINITION, subDef);
+		steps[4].set(INTERACTIVE, true);
 
-		ProcessDefinition aDef =
-			new StepListProcessDefinition("TestInteractiveSubProcess", aSteps);
+		ProcessDefinition def =
+			new StepListProcessDefinition("TestInteractiveSubProcess", steps);
 
-		aDef.set(TEST_INT_PARAM, 0);
+		def.set(TEST_INT_PARAM, 0);
 
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(7));
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("1234567"));
-		aDef.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(3));
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(7));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("1234567"));
+		def.get(POSTCONDITIONS).put(TEST_INTERACTION_COUNT, equalTo(3));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -275,24 +272,23 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testProcessCancel() throws ProcessException {
-		StepListEntry[] aSteps =
+		StepListEntry[] steps =
 			new StepListEntry[] { new StepListEntry("STEP1", TestStep.class),
 				new StepListEntry("STEP2", TestStep.class),
 				new StepListEntry("STEP3", TestStep.class), };
 
-		aSteps[2].set(INTERACTIVE);
+		steps[2].set(INTERACTIVE);
 
-		Process aProcess =
-			new StepListProcessDefinition("Cancel", aSteps).createProcess();
+		Process process =
+			new StepListProcessDefinition("Cancel", steps).createProcess();
 
-		aProcess.setParameter(TEST_INT_PARAM, 0);
+		process.setParameter(TEST_INT_PARAM, 0);
 
-		aProcess.execute();
-		aProcess.cancel();
-		assertTrue(aProcess.isFinished());
-		assertEquals(Integer.valueOf(2),
-			aProcess.getParameter(TEST_INT_PARAM));
-		assertEquals("12", aProcess.getParameter(TEST_STRING_RESULT));
+		process.execute();
+		process.cancel();
+		assertTrue(process.isFinished());
+		assertEquals(Integer.valueOf(2), process.getParameter(TEST_INT_PARAM));
+		assertEquals("12", process.getParameter(TEST_STRING_RESULT));
 	}
 
 	/**
@@ -301,91 +297,91 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testProcessListener() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("ProcessListener");
 
-		final List<ProcessEventType> aListenerMethods =
+		final List<ProcessEventType> listenerMethods =
 			new ArrayList<ProcessEventType>();
 
-		ProcessListener aTestListener = new ProcessListener() {
+		ProcessListener testListener = new ProcessListener() {
 			@Override
-			public void processCanceled(Process rProcess) {
-				aListenerMethods.add(ProcessEventType.CANCELED);
+			public void processCanceled(Process process) {
+				listenerMethods.add(ProcessEventType.CANCELED);
 			}
 
 			@Override
-			public void processFailed(Process rProcess) {
-				aListenerMethods.add(ProcessEventType.FAILED);
+			public void processFailed(Process process) {
+				listenerMethods.add(ProcessEventType.FAILED);
 			}
 
 			@Override
-			public void processFinished(Process rProcess) {
-				aListenerMethods.add(ProcessEventType.FINISHED);
+			public void processFinished(Process process) {
+				listenerMethods.add(ProcessEventType.FINISHED);
 			}
 
 			@Override
-			public void processResumed(Process rProcess) {
-				aListenerMethods.add(ProcessEventType.RESUMED);
+			public void processResumed(Process process) {
+				listenerMethods.add(ProcessEventType.RESUMED);
 			}
 
 			@Override
-			public void processStarted(Process rProcess) {
-				aListenerMethods.add(ProcessEventType.STARTED);
+			public void processStarted(Process process) {
+				listenerMethods.add(ProcessEventType.STARTED);
 			}
 
 			@Override
-			public void processSuspended(Process rProcess) {
-				aListenerMethods.add(ProcessEventType.SUSPENDED);
+			public void processSuspended(Process process) {
+				listenerMethods.add(ProcessEventType.SUSPENDED);
 			}
 		};
 
-		aDef.invoke("STEP1", TestStep.class);
-		aDef.invoke("STEP2", TestStep.class).set(INTERACTIVE);
-		aDef.invoke("STEP3", TestStep.class);
+		def.invoke("STEP1", TestStep.class);
+		def.invoke("STEP2", TestStep.class).set(INTERACTIVE);
+		def.invoke("STEP3", TestStep.class);
 
-		Process aProcess = aDef.createProcess();
+		Process process = def.createProcess();
 
-		aProcess.setParameter(TEST_INT_PARAM, 0);
-		aProcess.get(ProcessRelationTypes.PROCESS_LISTENERS).add(aTestListener);
+		process.setParameter(TEST_INT_PARAM, 0);
+		process.get(ProcessRelationTypes.PROCESS_LISTENERS).add(testListener);
 
-		aProcess.execute();
-		assertEquals(2, aListenerMethods.size());
-		assertTrue(aListenerMethods.contains(ProcessEventType.STARTED));
-		assertTrue(aListenerMethods.contains(ProcessEventType.SUSPENDED));
-		aProcess.execute();
-		assertEquals(4, aListenerMethods.size());
-		assertTrue(aListenerMethods.contains(ProcessEventType.RESUMED));
-		assertTrue(aListenerMethods.contains(ProcessEventType.FINISHED));
+		process.execute();
+		assertEquals(2, listenerMethods.size());
+		assertTrue(listenerMethods.contains(ProcessEventType.STARTED));
+		assertTrue(listenerMethods.contains(ProcessEventType.SUSPENDED));
+		process.execute();
+		assertEquals(4, listenerMethods.size());
+		assertTrue(listenerMethods.contains(ProcessEventType.RESUMED));
+		assertTrue(listenerMethods.contains(ProcessEventType.FINISHED));
 
-		aListenerMethods.clear();
+		listenerMethods.clear();
 
-		aProcess = aDef.createProcess();
-		aProcess.setParameter(TEST_INT_PARAM, 0);
-		aProcess.get(ProcessRelationTypes.PROCESS_LISTENERS).add(aTestListener);
-		aProcess.execute();
-		aProcess.cancel();
-		assertEquals(3, aListenerMethods.size());
-		assertTrue(aListenerMethods.contains(ProcessEventType.STARTED));
-		assertTrue(aListenerMethods.contains(ProcessEventType.SUSPENDED));
-		assertTrue(aListenerMethods.contains(ProcessEventType.CANCELED));
+		process = def.createProcess();
+		process.setParameter(TEST_INT_PARAM, 0);
+		process.get(ProcessRelationTypes.PROCESS_LISTENERS).add(testListener);
+		process.execute();
+		process.cancel();
+		assertEquals(3, listenerMethods.size());
+		assertTrue(listenerMethods.contains(ProcessEventType.STARTED));
+		assertTrue(listenerMethods.contains(ProcessEventType.SUSPENDED));
+		assertTrue(listenerMethods.contains(ProcessEventType.CANCELED));
 
-		aListenerMethods.clear();
+		listenerMethods.clear();
 
-		aProcess = aDef.createProcess();
+		process = def.createProcess();
 
 		// not setting TEST_INT_PARAM will cause an exception
-		aProcess.get(ProcessRelationTypes.PROCESS_LISTENERS).add(aTestListener);
+		process.get(ProcessRelationTypes.PROCESS_LISTENERS).add(testListener);
 
 		try {
-			aProcess.execute();
+			process.execute();
 			fail();
 		} catch (Exception e) {
 			// correct execution path, input parameter is missing
 		}
 
-		assertEquals(2, aListenerMethods.size());
-		assertTrue(aListenerMethods.contains(ProcessEventType.STARTED));
-		assertTrue(aListenerMethods.contains(ProcessEventType.FAILED));
+		assertEquals(2, listenerMethods.size());
+		assertTrue(listenerMethods.contains(ProcessEventType.STARTED));
+		assertTrue(listenerMethods.contains(ProcessEventType.FAILED));
 	}
 
 	/**
@@ -396,38 +392,34 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testProcessRollbackInteraction() throws ProcessException {
-		StepListProcessDefinition aDef =
-			new StepListProcessDefinition("Cancel");
+		StepListProcessDefinition def = new StepListProcessDefinition(
+			"Cancel");
 
-		aDef.invoke("STEP1", TestStep.class).set(INTERACTIVE);
-		aDef.invoke("STEP2", TestStep.class);
-		aDef.invoke("STEP3", TestStep.class).set(INTERACTIVE);
+		def.invoke("STEP1", TestStep.class).set(INTERACTIVE);
+		def.invoke("STEP2", TestStep.class);
+		def.invoke("STEP3", TestStep.class).set(INTERACTIVE);
 
-		Process aProcess = aDef.createProcess();
+		Process process = def.createProcess();
 
-		aProcess.setParameter(TEST_INT_PARAM, 0);
+		process.setParameter(TEST_INT_PARAM, 0);
 
-		aProcess.execute(); // to first interactive step
-		aProcess.execute(); // to second interactive step
-		assertEquals(Integer.valueOf(2),
-			aProcess.getParameter(TEST_INT_PARAM));
-		assertEquals("12", aProcess.getParameter(TEST_STRING_RESULT));
+		process.execute(); // to first interactive step
+		process.execute(); // to second interactive step
+		assertEquals(Integer.valueOf(2), process.getParameter(TEST_INT_PARAM));
+		assertEquals("12", process.getParameter(TEST_STRING_RESULT));
 
-		aProcess.rollbackToPreviousInteraction();
-		aProcess.execute(); // rollback to and re-run first interactive step
-		assertEquals(Integer.valueOf(0),
-			aProcess.getParameter(TEST_INT_PARAM));
-		assertEquals("", aProcess.getParameter(TEST_STRING_RESULT));
+		process.rollbackToPreviousInteraction();
+		process.execute(); // rollback to and re-run first interactive step
+		assertEquals(Integer.valueOf(0), process.getParameter(TEST_INT_PARAM));
+		assertEquals("", process.getParameter(TEST_STRING_RESULT));
 
-		aProcess.execute(); // to second interactive step
-		assertEquals(Integer.valueOf(2),
-			aProcess.getParameter(TEST_INT_PARAM));
-		assertEquals("12", aProcess.getParameter(TEST_STRING_RESULT));
+		process.execute(); // to second interactive step
+		assertEquals(Integer.valueOf(2), process.getParameter(TEST_INT_PARAM));
+		assertEquals("12", process.getParameter(TEST_STRING_RESULT));
 
-		aProcess.execute(); // finish process
-		assertEquals(Integer.valueOf(3),
-			aProcess.getParameter(TEST_INT_PARAM));
-		assertEquals("123", aProcess.getParameter(TEST_STRING_RESULT));
+		process.execute(); // finish process
+		assertEquals(Integer.valueOf(3), process.getParameter(TEST_INT_PARAM));
+		assertEquals("123", process.getParameter(TEST_STRING_RESULT));
 	}
 
 	/**
@@ -438,22 +430,22 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testSubProcess() throws Exception {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("TestSubProcess");
 
-		aDef.invokeSubProcess("SUB", createBranchProcess());
-		aDef.copyParam(TEST_STRING_RESULT, TEST_RESULT2);
-		aDef.invoke("STEP!", TestStep.class);
+		def.invokeSubProcess("SUB", createBranchProcess());
+		def.copyParam(TEST_STRING_RESULT, TEST_RESULT2);
+		def.invoke("STEP!", TestStep.class);
 
 		// precondition
-		aDef.set(TEST_INT_PARAM, 100);
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(106));
+		def.set(TEST_INT_PARAM, 100);
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(106));
 
 		// assert correct execution sequence of process steps
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("12434!"));
-		aDef.get(POSTCONDITIONS).put(TEST_RESULT2, equalTo("12434"));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("12434!"));
+		def.get(POSTCONDITIONS).put(TEST_RESULT2, equalTo("12434"));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -465,31 +457,31 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testSwitchStep() throws Exception {
-		StepListProcessDefinition aDef =
-			new StepListProcessDefinition("Switch");
+		StepListProcessDefinition def = new StepListProcessDefinition(
+			"Switch");
 
-		Map<Integer, Object> aSwitchMap = new HashMap<Integer, Object>();
+		Map<Integer, Object> switchMap = new HashMap<Integer, Object>();
 
-		aSwitchMap.put(101, "STEP3");
-		aSwitchMap.put(104, "STEP4");
-		aSwitchMap.put(106, Process.PROCESS_END);
+		switchMap.put(101, "STEP3");
+		switchMap.put(104, "STEP4");
+		switchMap.put(106, Process.PROCESS_END);
 
-		aDef.invoke("STEP1", TestStep.class);
-		aDef.switchOnParam(TEST_INT_PARAM, aSwitchMap);
-		aDef.invoke("STEP2", TestStep.class);
-		aDef.invoke("STEP3", TestStep.class);
-		aDef.invoke("STEP4", TestStep.class);
-		aDef.goTo("STEP1");
+		def.invoke("STEP1", TestStep.class);
+		def.switchOnParam(TEST_INT_PARAM, switchMap);
+		def.invoke("STEP2", TestStep.class);
+		def.invoke("STEP3", TestStep.class);
+		def.invoke("STEP4", TestStep.class);
+		def.goTo("STEP1");
 
 		// precondition
-		aDef.set(TEST_INT_PARAM, 100);
+		def.set(TEST_INT_PARAM, 100);
 
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(106));
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(106));
 
 		// assert correct execution sequence of process steps
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("134141"));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("134141"));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -497,24 +489,24 @@ public class ProcessTest extends AbstractProcessTest {
 	 */
 	@Test
 	public void testTransferStep() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("Transfer");
 
-		aDef.invoke("STEP1", TestStep.class);
-		aDef.invoke("STEP2", TestStep.class);
-		aDef.invoke("STEP3", TestStep.class);
-		aDef.copyParam(TEST_STRING_RESULT, TEST_RESULT2);
-		aDef.moveParam(TEST_RESULT2, TEST_RESULT3);
+		def.invoke("STEP1", TestStep.class);
+		def.invoke("STEP2", TestStep.class);
+		def.invoke("STEP3", TestStep.class);
+		def.copyParam(TEST_STRING_RESULT, TEST_RESULT2);
+		def.moveParam(TEST_RESULT2, TEST_RESULT3);
 
 		// precondition
-		aDef.set(TEST_INT_PARAM, 100);
+		def.set(TEST_INT_PARAM, 100);
 
 		// assert correct results of copy and move steps
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("123"));
-		aDef.get(POSTCONDITIONS).put(TEST_RESULT2, null);
-		aDef.get(POSTCONDITIONS).put(TEST_RESULT3, equalTo("123"));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("123"));
+		def.get(POSTCONDITIONS).put(TEST_RESULT2, null);
+		def.get(POSTCONDITIONS).put(TEST_RESULT3, equalTo("123"));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -525,19 +517,19 @@ public class ProcessTest extends AbstractProcessTest {
 	@SuppressWarnings("boxing")
 	@Test
 	public void testUnorderedProcess() throws ProcessException {
-		StepListProcessDefinition aDef =
+		StepListProcessDefinition def =
 			new StepListProcessDefinition("Unordered");
 
-		aDef.invoke("STEP1", TestStep.class).thenGoTo("STEP3");
-		aDef.invoke("STEP2", TestStep.class).thenGoTo(PROCESS_END);
-		aDef.invoke("STEP3", TestStep.class).thenGoTo("STEP2");
+		def.invoke("STEP1", TestStep.class).thenGoTo("STEP3");
+		def.invoke("STEP2", TestStep.class).thenGoTo(PROCESS_END);
+		def.invoke("STEP3", TestStep.class).thenGoTo("STEP2");
 
-		aDef.set(TEST_INT_PARAM, 0);
+		def.set(TEST_INT_PARAM, 0);
 
-		aDef.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(3));
-		aDef.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("132"));
+		def.get(POSTCONDITIONS).put(TEST_INT_PARAM, equalTo(3));
+		def.get(POSTCONDITIONS).put(TEST_STRING_RESULT, equalTo("132"));
 
-		executeProcess(aDef);
+		executeProcess(def);
 	}
 
 	/**
@@ -547,16 +539,16 @@ public class ProcessTest extends AbstractProcessTest {
 	 */
 	@SuppressWarnings("boxing")
 	private StepListProcessDefinition createBranchProcess() {
-		StepListProcessDefinition aDef =
-			new StepListProcessDefinition("Branch");
+		StepListProcessDefinition def = new StepListProcessDefinition(
+			"Branch");
 
-		aDef.invoke("STEP1", TestStep.class);
-		aDef.invoke("STEP2", TestStep.class);
-		aDef.branchTo("STEP4", TEST_INT_PARAM, equalTo(102));
-		aDef.invoke("STEP3", TestStep.class);
-		aDef.invoke("STEP4", TestStep.class);
-		aDef.branchTo("STEP3", TEST_INT_PARAM, equalTo(103));
+		def.invoke("STEP1", TestStep.class);
+		def.invoke("STEP2", TestStep.class);
+		def.branchTo("STEP4", TEST_INT_PARAM, equalTo(102));
+		def.invoke("STEP3", TestStep.class);
+		def.invoke("STEP4", TestStep.class);
+		def.branchTo("STEP3", TEST_INT_PARAM, equalTo(103));
 
-		return aDef;
+		return def;
 	}
 }

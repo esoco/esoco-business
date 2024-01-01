@@ -30,9 +30,9 @@ public class UiWebPageContent extends UiComposite<UiWebPageContent> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent the parent container
+	 * @param parent the parent container
 	 */
-	public UiWebPageContent(UiContainer<?> rParent) {
-		super(rParent, new UiContentLayout());
+	public UiWebPageContent(UiContainer<?> parent) {
+		super(parent, new UiContentLayout());
 	}
 }

@@ -29,19 +29,19 @@ public class BooleanDataElement extends DataElement<Boolean> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Boolean rValue;
+	private Boolean value;
 
 	/**
 	 * Creates a new instance with a certain initial value and read-only state.
 	 *
-	 * @param sName  The name of this element
-	 * @param rValue The initial value
-	 * @param rFlags The optional flags for this data element
+	 * @param name  The name of this element
+	 * @param value The initial value
+	 * @param flags The optional flags for this data element
 	 */
-	public BooleanDataElement(String sName, Boolean rValue, Set<Flag> rFlags) {
-		super(sName, null, rFlags);
+	public BooleanDataElement(String name, Boolean value, Set<Flag> flags) {
+		super(name, null, flags);
 
-		this.rValue = rValue;
+		this.value = value;
 	}
 
 	/**
@@ -54,9 +54,9 @@ public class BooleanDataElement extends DataElement<Boolean> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BooleanDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (BooleanDataElement) super.copy(eMode, rCopyProperties);
+	public BooleanDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (BooleanDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -64,17 +64,17 @@ public class BooleanDataElement extends DataElement<Boolean> {
 	 */
 	@Override
 	public final Boolean getValue() {
-		return rValue;
+		return value;
 	}
 
 	/**
 	 * Sets the string value.
 	 *
-	 * @param sValue The new string value
+	 * @param value The new string value
 	 */
 	@Override
-	public void setStringValue(String sValue) {
-		setValue(Boolean.valueOf(sValue));
+	public void setStringValue(String value) {
+		setValue(Boolean.valueOf(value));
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class BooleanDataElement extends DataElement<Boolean> {
 	 * @see DataElement#updateValue(Object)
 	 */
 	@Override
-	protected final void updateValue(Boolean rNewValue) {
-		rValue = rNewValue;
+	protected final void updateValue(Boolean newValue) {
+		value = newValue;
 	}
 }

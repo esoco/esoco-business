@@ -19,21 +19,18 @@ package de.esoco.entity;
 import de.esoco.lib.expression.predicate.ElementPredicate;
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.SortDirection;
-
 import de.esoco.storage.StorageException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 import static de.esoco.entity.EntityPredicates.hasExtraAttribute;
 import static de.esoco.entity.EntityPredicates.ifAttribute;
@@ -45,14 +42,12 @@ import static de.esoco.entity.TestPerson.CONTACTS;
 import static de.esoco.entity.TestPerson.FORENAME;
 import static de.esoco.entity.TestPerson.LASTNAME;
 import static de.esoco.entity.TestPerson.PARENT;
-
 import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 import static de.esoco.lib.expression.Predicates.alwaysTrue;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.greaterOrEqual;
 import static de.esoco.lib.expression.Predicates.greaterThan;
 import static de.esoco.lib.expression.Predicates.lessOrEqual;
-
 import static de.esoco.storage.StoragePredicates.like;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -92,40 +87,14 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 		TEST_DATA = new String[TEST_DATA_SIZE][];
 
 		for (int i = 1; i <= TEST_DATA_SIZE; i++) {
-			String sEmail =
-				i < TEST_DATA_SIZE ? "test" + i + "@test.com" : null;
+			String email = i < TEST_DATA_SIZE ? "test" + i + "@test.com" :
+			               null;
 
 			TEST_DATA[i - 1] =
 				new String[] { "Test" + i, "First" + (TEST_DATA_SIZE - i + 1),
-					"Street" + i, "Postal" + i, "City" + i, "4" + i, sEmail,
+					"Street" + i, "Postal" + i, "City" + i, "4" + i, email,
 					i + "23-456789" };
 		}
-	}
-
-	/**
-	 * Creates a new instance.
-	 *
-	 * @param nCacheLevel1 Size of the first cache level
-	 * @param nCacheLevel2 Size of the second cache level
-	 * @param nCacheLevel3 Size of the third cache level
-	 */
-	public EntityStorageTest(int nCacheLevel1, int nCacheLevel2,
-		int nCacheLevel3) {
-		EntityManager.setCacheCapacity(nCacheLevel1, nCacheLevel2,
-			nCacheLevel3);
-	}
-
-	/**
-	 * Returns the cache size parameters for different test runs.
-	 *
-	 * @return The list of cache sizes
-	 */
-	public static List<Object[]> cacheSizes() {
-		return Arrays.asList(
-			new Object[][] { { 0, 0, 0 }, { 1, 1, 1 }, { 1, 2, 3 }, { 2, 2,
-				2 },
-				{ 5, 10, 15 }, { 3, 2, 1 }, { 0, 2, 2 }, { 2, 0, 2 },
-				{ 2, 2, 0 }, });
 	}
 
 	/**
@@ -144,13 +113,8 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		List<TestPerson> aInitData = new ArrayList<TestPerson>();
-		TestPerson aPerson;
-
-		for (String[] rTestPersonData : TEST_DATA) {
-			aPerson = createPerson(rTestPersonData);
-			aInitData.add(aPerson);
-			EntityManager.storeEntity(aPerson, null);
+		for (String[] testPersonData : TEST_DATA) {
+			EntityManager.storeEntity(createPerson(testPersonData), null);
 		}
 	}
 
@@ -162,20 +126,20 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 		throws StorageException, TransactionException {
 		setupExtraAttributes();
 
-		Entity rEntity =
+		Entity entity =
 			EntityManager.queryEntityByExtraAttribute(XA_INT, 42, true);
 
-		assertEquals(TestPerson.class, rEntity.getClass());
-		assertEquals("Test1", rEntity.get(LASTNAME));
-		assertEquals("XA1-Test", rEntity.getExtraAttribute(XA1, null));
-		assertEquals(TEST_DATE, rEntity.getExtraAttribute(XA_DATE, null));
+		assertEquals(TestPerson.class, entity.getClass());
+		assertEquals("Test1", entity.get(LASTNAME));
+		assertEquals("XA1-Test", entity.getExtraAttribute(XA1, null));
+		assertEquals(TEST_DATE, entity.getExtraAttribute(XA_DATE, null));
 		assertEquals(Integer.valueOf(42),
-			rEntity.getExtraAttribute(XA_INT, null));
+			entity.getExtraAttribute(XA_INT, null));
 
-		rEntity =
+		entity =
 			EntityManager.queryEntityByExtraAttribute(XA_FLAG, false, true);
 
-		assertEquals("Test" + TEST_DATA_SIZE, rEntity.get(LASTNAME));
+		assertEquals("Test" + TEST_DATA_SIZE, entity.get(LASTNAME));
 
 		try {
 			EntityManager.queryEntityByExtraAttribute(XA2, "XA2-Test", true);
@@ -184,24 +148,24 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 			// this should happen
 		}
 
-		Collection<? extends Entity> rEntities =
+		Collection<? extends Entity> entities =
 			EntityManager.queryEntitiesByExtraAttribute(XA1, "XA1-Test",
 				Integer.MAX_VALUE);
 
-		assertEquals(2, rEntities.size());
+		assertEquals(2, entities.size());
 
-		rEntities = EntityManager.queryEntitiesByExtraAttribute(XA_LIST,
+		entities = EntityManager.queryEntitiesByExtraAttribute(XA_LIST,
 			Arrays.asList("L1", "L2"), Integer.MAX_VALUE);
 
-		assertEquals(1, rEntities.size());
+		assertEquals(1, entities.size());
 		assertEquals("Test" + TEST_DATA_SIZE,
-			rEntities.iterator().next().get(LASTNAME));
+			entities.iterator().next().get(LASTNAME));
 
-		rEntities =
+		entities =
 			EntityManager.queryEntitiesByExtraAttribute(TestPerson.class, XA1,
 				"XA1-Test", Integer.MAX_VALUE);
 
-		assertEquals(2, rEntities.size());
+		assertEquals(2, entities.size());
 	}
 
 	/**
@@ -212,24 +176,24 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 		throws StorageException, TransactionException {
 		setupExtraAttributes();
 
-		List<TestPerson> rEntities =
+		List<TestPerson> entities =
 			EntityManager.queryEntities(TestPerson.class,
 				hasExtraAttribute(TestPerson.class, ExtraAttribute.KEY
 					.is(equalTo(XA1))
 					.and(ExtraAttribute.VALUE.is(
 						elementOf("XA1-Test", "XA2-Test")))), 10);
 
-		assertEquals(2, rEntities.size());
+		assertEquals(2, entities.size());
 
-		rEntities = EntityManager.queryEntities(TestPerson.class,
+		entities = EntityManager.queryEntities(TestPerson.class,
 			hasExtraAttribute(TestPerson.class,
 				ExtraAttribute.VALUE.is(like("%-Test"))), 10);
-		assertEquals(2, rEntities.size());
+		assertEquals(2, entities.size());
 
-		rEntities = EntityManager.queryEntities(TestPerson.class,
+		entities = EntityManager.queryEntities(TestPerson.class,
 			hasExtraAttribute(TestPerson.class,
 				ExtraAttribute.VALUE.is(equalTo("42"))), 10);
-		assertEquals(1, rEntities.size());
+		assertEquals(1, entities.size());
 	}
 
 	/**
@@ -240,33 +204,33 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 		throws StorageException, TransactionException {
 		setupExtraAttributes();
 
-		Entity rPerson = queryPersonByLastName("Test1");
+		Entity person = queryPersonByLastName("Test1");
 
-		assertEquals("XA1-Test", rPerson.getExtraAttribute(XA1, null));
-		assertEquals("XA2-Test", rPerson.getExtraAttribute(XA2, null));
+		assertEquals("XA1-Test", person.getExtraAttribute(XA1, null));
+		assertEquals("XA2-Test", person.getExtraAttribute(XA2, null));
 		assertEquals(Integer.valueOf(42),
-			rPerson.getExtraAttribute(XA_INT, null));
-		assertTrue(rPerson.getExtraAttribute(XA_FLAG, null));
-		assertEquals(3, rPerson.getExtraAttribute(XA_LIST, null).size());
+			person.getExtraAttribute(XA_INT, null));
+		assertTrue(person.getExtraAttribute(XA_FLAG, null));
+		assertEquals(3, person.getExtraAttribute(XA_LIST, null).size());
 		assertEquals(Arrays.asList("L1", "L2", "L3"),
-			rPerson.getExtraAttribute(XA_LIST, null));
+			person.getExtraAttribute(XA_LIST, null));
 
-		rPerson.setExtraAttribute(XA1, "XA1-Updated");
-		rPerson.setExtraAttribute(XA_INT, -42);
-		rPerson.setExtraAttribute(XA_FLAG, false);
-		rPerson.setExtraAttribute(XA_LIST, Arrays.asList("L1", "L2"));
-		EntityManager.storeEntity(rPerson, null);
+		person.setExtraAttribute(XA1, "XA1-Updated");
+		person.setExtraAttribute(XA_INT, -42);
+		person.setExtraAttribute(XA_FLAG, false);
+		person.setExtraAttribute(XA_LIST, Arrays.asList("L1", "L2"));
+		EntityManager.storeEntity(person, null);
 
-		rPerson = queryPersonByLastName("Test1");
+		person = queryPersonByLastName("Test1");
 
-		assertEquals("XA1-Updated", rPerson.getExtraAttribute(XA1, null));
-		assertEquals("XA2-Test", rPerson.getExtraAttribute(XA2, null));
+		assertEquals("XA1-Updated", person.getExtraAttribute(XA1, null));
+		assertEquals("XA2-Test", person.getExtraAttribute(XA2, null));
 		assertEquals(Integer.valueOf(-42),
-			rPerson.getExtraAttribute(XA_INT, null));
-		assertFalse(rPerson.getExtraAttribute(XA_FLAG, null));
-		assertEquals(2, rPerson.getExtraAttribute(XA_LIST, null).size());
+			person.getExtraAttribute(XA_INT, null));
+		assertFalse(person.getExtraAttribute(XA_FLAG, null));
+		assertEquals(2, person.getExtraAttribute(XA_LIST, null).size());
 		assertEquals(Arrays.asList("L1", "L2"),
-			rPerson.getExtraAttribute(XA_LIST, null));
+			person.getExtraAttribute(XA_LIST, null));
 	}
 
 	/**
@@ -276,15 +240,15 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	public void testHierarchy() throws StorageException, TransactionException {
 		createHierarchy(1);
 
-		TestPerson rPerson;
+		TestPerson person;
 
-		rPerson = queryPersonByLastName("Test1");
+		person = queryPersonByLastName("Test1");
 
-		TestPerson rSubPerson = queryPersonByLastName("SubTest11");
+		TestPerson subPerson = queryPersonByLastName("SubTest11");
 
-		assertEquals(rPerson, rSubPerson.get(PARENT));
-		assertEquals("SubFirst11", rSubPerson.get(FORENAME));
-		assertEquals(2, rSubPerson.get(CONTACTS).size());
+		assertEquals(person, subPerson.get(PARENT));
+		assertEquals("SubFirst11", subPerson.get(FORENAME));
+		assertEquals(2, subPerson.get(CONTACTS).size());
 	}
 
 	/**
@@ -316,20 +280,19 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	 */
 	@Test
 	public void testSortedQuery() throws StorageException {
-		ElementPredicate<Entity, String> aSortPredicate =
+		ElementPredicate<Entity, String> sortPredicate =
 			ifAttribute(FORENAME, alwaysTrue());
 
-		aSortPredicate.set(MetaTypes.SORT_DIRECTION, SortDirection.ASCENDING);
+		sortPredicate.set(MetaTypes.SORT_DIRECTION, SortDirection.ASCENDING);
 
-		List<TestPerson> aEntities = executePersonQuery(aSortPredicate);
+		List<TestPerson> entities = executePersonQuery(sortPredicate);
 
-		assertTrue(aEntities.get(0).get(FORENAME).equals("First1"));
+		assertEquals("First1", entities.get(0).get(FORENAME));
 
-		aSortPredicate.set(MetaTypes.SORT_DIRECTION, SortDirection.DESCENDING);
+		sortPredicate.set(MetaTypes.SORT_DIRECTION, SortDirection.DESCENDING);
 
-		aEntities = executePersonQuery(aSortPredicate);
-		assertTrue(
-			aEntities.get(0).get(FORENAME).equals("First" + TEST_DATA_SIZE));
+		entities = executePersonQuery(sortPredicate);
+		assertEquals("First" + TEST_DATA_SIZE, entities.get(0).get(FORENAME));
 	}
 
 	/**
@@ -338,25 +301,25 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	@Test
 	public void testSubContacts()
 		throws StorageException, TransactionException {
-		Entity rPerson = queryPersonByLastName("Test1");
+		Entity person = queryPersonByLastName("Test1");
 
-		addContacts(rPerson.get(CONTACTS).get(0), "sub@test.net", "12345");
+		addContacts(person.get(CONTACTS).get(0), "sub@test.net", "12345");
 		assertEquals(2,
-			rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN).size());
-		EntityManager.storeEntity(rPerson, null);
+			person.get(CONTACTS).get(0).get(TestContact.CHILDREN).size());
+		EntityManager.storeEntity(person, null);
 		assertEquals(2,
-			rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN).size());
+			person.get(CONTACTS).get(0).get(TestContact.CHILDREN).size());
 
-		rPerson = queryPersonByLastName("Test1");
+		person = queryPersonByLastName("Test1");
 		assertEquals(2,
-			rPerson.get(CONTACTS).get(0).get(TestContact.CHILDREN).size());
-		assertEquals("sub@test.net", rPerson
+			person.get(CONTACTS).get(0).get(TestContact.CHILDREN).size());
+		assertEquals("sub@test.net", person
 			.get(CONTACTS)
 			.get(0)
 			.get(TestContact.CHILDREN)
 			.get(0)
 			.get(CONTACT_VALUE));
-		assertEquals("12345", rPerson
+		assertEquals("12345", person
 			.get(CONTACTS)
 			.get(0)
 			.get(TestContact.CHILDREN)
@@ -369,12 +332,12 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	 */
 	@Test
 	public void testUpdate() throws StorageException, TransactionException {
-		Entity rPerson = queryPersonByLastName("Test1");
+		Entity person = queryPersonByLastName("Test1");
 
-		rPerson.set(AGE, 24);
-		EntityManager.storeEntity(rPerson, null);
-		rPerson = queryPersonByLastName("Test1");
-		assertEquals(new Integer(24), rPerson.get(AGE));
+		person.set(AGE, 24);
+		EntityManager.storeEntity(person, null);
+		person = queryPersonByLastName("Test1");
+		assertEquals(Integer.valueOf(24), person.get(AGE));
 	}
 
 	/**
@@ -383,42 +346,42 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	@Test
 	public void testUpdateChildren()
 		throws StorageException, TransactionException {
-		Entity rPerson = queryPersonByLastName("Test1");
+		Entity person = queryPersonByLastName("Test1");
 
-		rPerson.get(CONTACTS).get(0).set(CONTACT_VALUE, "sub@update.com");
-		EntityManager.storeEntity(rPerson, null);
-		rPerson = queryPersonByLastName("Test1");
+		person.get(CONTACTS).get(0).set(CONTACT_VALUE, "sub@update.com");
+		EntityManager.storeEntity(person, null);
+		person = queryPersonByLastName("Test1");
 		assertEquals("sub@update.com",
-			rPerson.get(CONTACTS).get(0).get(CONTACT_VALUE));
+			person.get(CONTACTS).get(0).get(CONTACT_VALUE));
 	}
 
 	/**
 	 * Query an entity by it's last name.
 	 *
-	 * @param sName The name
+	 * @param name The name
 	 * @return The entity
 	 */
-	protected TestPerson queryPersonByLastName(String sName)
+	protected TestPerson queryPersonByLastName(String name)
 		throws StorageException {
 		return EntityManager.queryEntity(TestPerson.class,
-			ifAttribute(LASTNAME, equalTo(sName)), true);
+			ifAttribute(LASTNAME, equalTo(name)), true);
 	}
 
 	/**
 	 * Creates a hierarchy of test persons.
 	 */
-	private void createHierarchy(int nParent)
+	private void createHierarchy(int parent)
 		throws StorageException, TransactionException {
-		TestPerson rPerson = queryPersonByLastName("Test" + nParent);
+		TestPerson person = queryPersonByLastName("Test" + parent);
 
-		TestPerson aSubPerson = createPerson(
-			new String[] { "SubTest1" + nParent, "SubFirst1" + nParent,
-				"SubStreet1" + nParent, "SubPostal1" + nParent,
-				"SubCity1" + nParent, "1" + nParent,
-				"subtest1" + nParent + "@test.com", "111-222333-" + nParent });
+		TestPerson subPerson = createPerson(
+			new String[] { "SubTest1" + parent, "SubFirst1" + parent,
+				"SubStreet1" + parent, "SubPostal1" + parent,
+				"SubCity1" + parent, "1" + parent,
+				"subtest1" + parent + "@test.com", "111-222333-" + parent });
 
-		rPerson.addChild(TestPerson.CHILDREN, aSubPerson);
-		EntityManager.storeEntity(rPerson, null);
+		person.addChild(TestPerson.CHILDREN, subPerson);
+		EntityManager.storeEntity(person, null);
 	}
 
 	/**
@@ -426,28 +389,28 @@ public class EntityStorageTest extends AbstractEntityStorageTest {
 	 */
 	private void setupExtraAttributes()
 		throws StorageException, TransactionException {
-		Entity rPerson = queryPersonByLastName("Test1");
+		Entity person = queryPersonByLastName("Test1");
 
-		assertFalse(rPerson.hasExtraAttribute(XA_FLAG));
+		assertFalse(person.hasExtraAttribute(XA_FLAG));
 
-		rPerson.setExtraAttribute(XA1, "XA1-Test");
-		rPerson.setExtraAttribute(XA2, "XA2-Test");
-		rPerson.setExtraAttribute(XA_INT, 42);
-		rPerson.setExtraAttribute(XA_FLAG, true);
-		rPerson.setExtraAttribute(XA_DATE, TEST_DATE);
-		rPerson.setExtraAttribute(XA_LIST, Arrays.asList("L1", "L2", "L3"));
-		rStorage.store(rPerson);
+		person.setExtraAttribute(XA1, "XA1-Test");
+		person.setExtraAttribute(XA2, "XA2-Test");
+		person.setExtraAttribute(XA_INT, 42);
+		person.setExtraAttribute(XA_FLAG, true);
+		person.setExtraAttribute(XA_DATE, TEST_DATE);
+		person.setExtraAttribute(XA_LIST, Arrays.asList("L1", "L2", "L3"));
+		storage.store(person);
 
-		rPerson = queryPersonByLastName("Test" + TEST_DATA_SIZE);
+		person = queryPersonByLastName("Test" + TEST_DATA_SIZE);
 
-		assertFalse(rPerson.hasExtraAttribute(XA_FLAG));
+		assertFalse(person.hasExtraAttribute(XA_FLAG));
 
-		rPerson.setExtraAttribute(XA1, "XA1-Test");
-		rPerson.setExtraAttribute(XA2, "XA2-Test");
-		rPerson.setExtraAttribute(XA_INT, 99);
-		rPerson.setExtraAttribute(XA_FLAG, false);
-		rPerson.setExtraAttribute(XA_DATE, TEST_DATE);
-		rPerson.setExtraAttribute(XA_LIST, Arrays.asList("L1", "L2"));
-		rStorage.store(rPerson);
+		person.setExtraAttribute(XA1, "XA1-Test");
+		person.setExtraAttribute(XA2, "XA2-Test");
+		person.setExtraAttribute(XA_INT, 99);
+		person.setExtraAttribute(XA_FLAG, false);
+		person.setExtraAttribute(XA_DATE, TEST_DATE);
+		person.setExtraAttribute(XA_LIST, Arrays.asList("L1", "L2"));
+		storage.store(person);
 	}
 }

@@ -16,9 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.net;
 
-import java.util.Collection;
-
 import org.obrel.core.RelatedObject;
+
+import java.util.Collection;
 
 /**
  * An implementation of the {@link ExternalServiceDefinition} interface.
@@ -28,22 +28,22 @@ import org.obrel.core.RelatedObject;
 public class ServiceDefinitionImpl extends RelatedObject
 	implements ExternalServiceDefinition {
 
-	private final Class<? extends ExternalService> rServiceClass;
+	private final Class<? extends ExternalService> serviceClass;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rServiceClass      The implementation class of the service type
-	 * @param sAccessScopePrefix A prefix for the full access scope names
-	 * @param rAccessScopes      The access scopes the service supports (can be
-	 *                           empty)
+	 * @param serviceClass      The implementation class of the service type
+	 * @param accessScopePrefix A prefix for the full access scope names
+	 * @param accessScopes      The access scopes the service supports (can be
+	 *                          empty)
 	 */
-	public ServiceDefinitionImpl(Class<? extends ExternalService> rServiceClass,
-		String sAccessScopePrefix, Collection<String> rAccessScopes) {
-		this.rServiceClass = rServiceClass;
+	public ServiceDefinitionImpl(Class<? extends ExternalService> serviceClass,
+		String accessScopePrefix, Collection<String> accessScopes) {
+		this.serviceClass = serviceClass;
 
-		set(ExternalServices.ACCESS_SCOPE_PREFIX, sAccessScopePrefix);
-		get(ExternalServices.ACCESS_SCOPES).addAll(rAccessScopes);
+		set(ExternalServices.ACCESS_SCOPE_PREFIX, accessScopePrefix);
+		get(ExternalServices.ACCESS_SCOPES).addAll(accessScopes);
 	}
 
 	/**
@@ -51,6 +51,6 @@ public class ServiceDefinitionImpl extends RelatedObject
 	 */
 	@Override
 	public Class<? extends ExternalService> getServiceClass() {
-		return rServiceClass;
+		return serviceClass;
 	}
 }

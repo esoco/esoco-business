@@ -17,7 +17,6 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.property.PropertyName;
 
 import java.util.ArrayList;
@@ -33,32 +32,32 @@ public class StringListDataElement extends ListDataElement<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<String> rValues = new ArrayList<String>();
+	private List<String> values = new ArrayList<String>();
 
 	/**
 	 * Creates a new instance with a list of values.
 	 *
-	 * @param sName   The name of this element
-	 * @param rValues The string values for this element
+	 * @param name   The name of this element
+	 * @param values The string values for this element
 	 */
-	public StringListDataElement(String sName, List<String> rValues) {
-		this(sName, rValues, null, null);
+	public StringListDataElement(String name, List<String> values) {
+		this(name, values, null, null);
 	}
 
 	/**
 	 * Creates a new instance with a list of values.
 	 *
-	 * @param sName      The name of this element
-	 * @param rValues    The string values for this element or NULL for none
-	 * @param rValidator The validator for the list elements or NULL for none
-	 * @param rFlags     The optional flags for this data element
+	 * @param name      The name of this element
+	 * @param values    The string values for this element or NULL for none
+	 * @param validator The validator for the list elements or NULL for none
+	 * @param flags     The optional flags for this data element
 	 */
-	public StringListDataElement(String sName, List<String> rValues,
-		Validator<? super String> rValidator, Set<Flag> rFlags) {
-		super(sName, rValidator, rFlags);
+	public StringListDataElement(String name, List<String> values,
+		Validator<? super String> validator, Set<Flag> flags) {
+		super(name, validator, flags);
 
-		if (rValues != null) {
-			this.rValues.addAll(rValues);
+		if (values != null) {
+			this.values.addAll(values);
 		}
 	}
 
@@ -72,9 +71,9 @@ public class StringListDataElement extends ListDataElement<String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StringListDataElement copy(CopyMode eMode,
-		PropertyName<?>... rCopyProperties) {
-		return (StringListDataElement) super.copy(eMode, rCopyProperties);
+	public StringListDataElement copy(CopyMode mode,
+		PropertyName<?>... copyProperties) {
+		return (StringListDataElement) super.copy(mode, copyProperties);
 	}
 
 	/**
@@ -82,7 +81,7 @@ public class StringListDataElement extends ListDataElement<String> {
 	 */
 	@Override
 	public final List<String> getList() {
-		return rValues;
+		return values;
 	}
 
 	/**
@@ -97,7 +96,7 @@ public class StringListDataElement extends ListDataElement<String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void updateValue(List<String> rNewValues) {
-		rValues = rNewValues;
+	protected void updateValue(List<String> newValues) {
+		values = newValues;
 	}
 }

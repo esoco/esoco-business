@@ -17,12 +17,10 @@
 package de.esoco.process.param;
 
 import de.esoco.entity.Entity;
-
 import de.esoco.process.step.InteractionFragment;
+import org.obrel.core.RelationType;
 
 import java.util.Objects;
-
-import org.obrel.core.RelationType;
 
 /**
  * A parameter subclass that manages the relation between the process parameter
@@ -33,22 +31,22 @@ import org.obrel.core.RelationType;
 public class EntityAttributeParameter<E extends Entity, T>
 	extends ParameterBase<T, EntityAttributeParameter<E, T>> {
 
-	private E rEntity;
+	private E entity;
 
 	/**
 	 * @see ParameterBase#ParameterBase(InteractionFragment, RelationType)
 	 */
-	public EntityAttributeParameter(InteractionFragment rFragment,
-		RelationType<T> rEntityAttribute) {
-		super(rFragment, rEntityAttribute);
+	public EntityAttributeParameter(InteractionFragment fragment,
+		RelationType<T> entityAttribute) {
+		super(fragment, entityAttribute);
 	}
 
 	/**
 	 * Applies the current process parameter value to an entity.
 	 */
 	public void apply() {
-		if (rEntity != null) {
-			fragment().applyDerivedParameter(type(), rEntity);
+		if (entity != null) {
+			fragment().applyDerivedParameter(type(), entity);
 		}
 	}
 
@@ -58,26 +56,25 @@ public class EntityAttributeParameter<E extends Entity, T>
 	 * @return The value changed
 	 */
 	public boolean isValueChanged() {
-		boolean bChanged = false;
+		boolean changed = false;
 
-		if (rEntity != null) {
-			T rAttrValue = fragment().getDerivedParameterValue(rEntity,
-				type());
-			T rParamValue = value();
+		if (entity != null) {
+			T attrValue = fragment().getDerivedParameterValue(entity, type());
+			T paramValue = value();
 
-			bChanged = !Objects.equals(rParamValue, rAttrValue) &&
-				!(rAttrValue == null && "".equals(rParamValue));
+			changed = !Objects.equals(paramValue, attrValue) &&
+				!(attrValue == null && "".equals(paramValue));
 		}
 
-		return bChanged;
+		return changed;
 	}
 
 	/**
 	 * Resets the value of this parameter to the entity attribute value.
 	 */
 	public void reset() {
-		if (rEntity != null) {
-			fragment().collectDerivedParameter(rEntity, type(), false);
+		if (entity != null) {
+			fragment().collectDerivedParameter(entity, type(), false);
 		} else {
 			value(null);
 		}
@@ -86,10 +83,10 @@ public class EntityAttributeParameter<E extends Entity, T>
 	/**
 	 * Sets the entity of which the attribute value shall be displayed.
 	 *
-	 * @param rEntity The entity this parameter references
+	 * @param entity The entity this parameter references
 	 */
-	public void setEntity(E rEntity) {
-		this.rEntity = rEntity;
+	public void setEntity(E entity) {
+		this.entity = entity;
 
 		reset();
 	}

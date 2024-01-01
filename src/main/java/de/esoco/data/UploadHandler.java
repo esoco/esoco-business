@@ -31,12 +31,12 @@ public interface UploadHandler {
 	 * read from the given input stream and stored as needed by the
 	 * implementation.
 	 *
-	 * @param sFilename    The file name of the upload
-	 * @param sContentType The MIME type of the uploaded data
-	 * @param rDataStream  The input stream that provides the upload data
+	 * @param filename    The file name of the upload
+	 * @param contentType The MIME type of the uploaded data
+	 * @param dataStream  The input stream that provides the upload data
 	 * @throws Exception Any kind of exception may be thrown if the data
 	 *                   processing fails
 	 */
-	public void processUploadData(String sFilename, String sContentType,
-		InputStream rDataStream) throws Exception;
+	void processUploadData(String filename, String contentType,
+		InputStream dataStream) throws Exception;
 }

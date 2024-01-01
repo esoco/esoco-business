@@ -19,7 +19,6 @@ package de.esoco.process.step.entity;
 import de.esoco.entity.Entity;
 import de.esoco.entity.EntityManager;
 import de.esoco.entity.EntityRelationTypes;
-
 import de.esoco.lib.manage.TransactionException;
 import de.esoco.lib.property.LayoutType;
 import de.esoco.lib.property.StyleProperties;
@@ -27,7 +26,6 @@ import de.esoco.process.RuntimeProcessException;
 import de.esoco.process.ValueEventHandler;
 import de.esoco.process.param.CollectionParameter.SetParameter;
 import de.esoco.process.step.InteractionFragment;
-
 import de.esoco.storage.StorageException;
 
 import java.util.Collections;
@@ -48,27 +46,27 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 
 	private static final long serialVersionUID = 1L;
 
-	private Class<E> rEntityType;
+	private Class<E> entityType;
 
-	private Entity rTagOwner;
+	private final Entity tagOwner;
 
-	private FilterEntityTags<?> rFilterEntityTags;
+	private final FilterEntityTags<?> filterEntityTags;
 
-	private String sLabel;
+	private final String label;
 
-	private boolean bAutoStore;
+	private final boolean autoStore;
 
-	private TagEditListener rEditListener;
+	private TagEditListener editListener;
 
-	private boolean bUseHeaderLabel;
+	private boolean useHeaderLabel;
 
-	private E rEntity;
+	private E entity;
 
-	private Set<String> rCurrentEntityTags;
+	private Set<String> currentEntityTags;
 
-	private Set<String> aInputTags = new LinkedHashSet<>();
+	private final Set<String> inputTags = new LinkedHashSet<>();
 
-	private SetParameter<String> aTagInput;
+	private SetParameter<String> tagInput;
 
 	/**
 	 * Creates a new instance with a certain collection of pre-set tags the
@@ -76,59 +74,59 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * can choose from (or input new tags). If the argument collection is NULL
 	 * the fragment will be in read-only mode so that tags cannot be edited.
 	 *
-	 * @param rEntityType       The entity class to edit the tags of
-	 * @param rTagOwner         The owner of the tags or NULL for global tags
-	 * @param rFilterEntityTags An optional {@link FilterEntityTags}
-	 *                            fragment to
-	 *                          be notified of tag changes or NULL for none
-	 * @param sLabel            An optional label for this fragment (empty
-	 *                          string for none, NULL for the default)
-	 * @param bAutoStore        TRUE to automatically store each tag change
+	 * @param entityType       The entity class to edit the tags of
+	 * @param tagOwner         The owner of the tags or NULL for global tags
+	 * @param filterEntityTags An optional {@link FilterEntityTags} fragment to
+	 *                         be notified of tag changes or NULL for none
+	 * @param label            An optional label for this fragment (empty
+	 *                            string
+	 *                         for none, NULL for the default)
+	 * @param autoStore        TRUE to automatically store each tag change
 	 */
-	public EditEntityTags(Class<E> rEntityType, Entity rTagOwner,
-		FilterEntityTags<?> rFilterEntityTags, String sLabel,
-		boolean bAutoStore) {
-		this.rEntityType = rEntityType;
-		this.rTagOwner = rTagOwner;
-		this.sLabel = sLabel;
-		this.rFilterEntityTags = rFilterEntityTags;
-		this.bAutoStore = bAutoStore;
+	public EditEntityTags(Class<E> entityType, Entity tagOwner,
+		FilterEntityTags<?> filterEntityTags, String label,
+		boolean autoStore) {
+		this.entityType = entityType;
+		this.tagOwner = tagOwner;
+		this.label = label;
+		this.filterEntityTags = filterEntityTags;
+		this.autoStore = autoStore;
 
-		rEditListener = rFilterEntityTags;
+		editListener = filterEntityTags;
 	}
 
 	/**
 	 * Displays the tags of a certain entity or clears the tag display if the
 	 * entity is NULL.
 	 *
-	 * @param rEntity The entity to display the tags of or NULL for none
+	 * @param entity The entity to display the tags of or NULL for none
 	 * @throws StorageException If accessing the entity's tags fails
 	 */
-	public void displayEntityTags(E rEntity) throws StorageException {
-		this.rEntity = rEntity;
+	public void displayEntityTags(E entity) throws StorageException {
+		this.entity = entity;
 
-		aInputTags.clear();
+		inputTags.clear();
 
-		if (rEntity != null) {
-			if (rTagOwner != null) {
-				rCurrentEntityTags =
-					rEntity.getExtraAttributeFor(rTagOwner, ENTITY_TAGS, null,
+		if (entity != null) {
+			if (tagOwner != null) {
+				currentEntityTags =
+					entity.getExtraAttributeFor(tagOwner, ENTITY_TAGS, null,
 						false);
 			} else {
-				rCurrentEntityTags =
-					rEntity.getExtraAttribute(ENTITY_TAGS, null);
+				currentEntityTags = entity.getExtraAttribute(ENTITY_TAGS,
+					null);
 			}
 
-			if (rCurrentEntityTags != null) {
-				aInputTags.addAll(rCurrentEntityTags);
+			if (currentEntityTags != null) {
+				inputTags.addAll(currentEntityTags);
 			}
 		}
 
-		if (aTagInput != null) {
-			aTagInput.value(aInputTags);
+		if (tagInput != null) {
+			tagInput.value(inputTags);
 		}
 
-		enableEdit(rEntity != null);
+		enableEdit(entity != null);
 	}
 
 	/**
@@ -138,16 +136,16 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * @throws StorageException If querying the tags fails
 	 */
 	public Set<String> getAllowedTags() throws StorageException {
-		Set<String> aAllowedTags;
+		Set<String> allowedTags;
 
-		if (rFilterEntityTags != null) {
-			aAllowedTags = rFilterEntityTags.getAllowedTags();
+		if (filterEntityTags != null) {
+			allowedTags = filterEntityTags.getAllowedTags();
 		} else {
-			aAllowedTags =
-				FilterEntityTags.getAllEntityTags(rEntityType, rTagOwner);
+			allowedTags =
+				FilterEntityTags.getAllEntityTags(entityType, tagOwner);
 		}
 
-		return aAllowedTags;
+		return allowedTags;
 	}
 
 	/**
@@ -156,19 +154,19 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * @return The entity type
 	 */
 	public Class<E> getEntityType() {
-		return rEntityType;
+		return entityType;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void handleValueUpdate(Set<String> aValues) {
+	public void handleValueUpdate(Set<String> values) {
 		try {
 			updateEntityTags();
 
-			if (rCurrentEntityTags != null) {
-				aTagInput.allowedElements().addAll(rCurrentEntityTags);
+			if (currentEntityTags != null) {
+				tagInput.allowedElements().addAll(currentEntityTags);
 			}
 		} catch (Exception e) {
 			throw new RuntimeProcessException(this, e);
@@ -184,23 +182,23 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 
 		layout(LayoutType.TABLE).resid("EditEntityTagsFragment");
 
-		Set<String> aAllowedTags = getAllowedTags();
+		Set<String> allowedTags = getAllowedTags();
 
-		aTagInput = inputTags(aAllowedTags)
+		tagInput = inputTags(allowedTags)
 			.resid("SelectedEntityTags")
 			.tooltip("$ttSelectedEntityTags")
-			.value(aInputTags)
+			.value(inputTags)
 			.onUpdate(this);
 
-		if (bUseHeaderLabel) {
-			aTagInput.set(StyleProperties.HEADER_LABEL);
+		if (useHeaderLabel) {
+			tagInput.set(StyleProperties.HEADER_LABEL);
 		}
 
-		if (sLabel != null) {
-			if (sLabel.length() > 0) {
-				aTagInput.label(sLabel);
+		if (label != null) {
+			if (label.length() > 0) {
+				tagInput.label(label);
 			} else {
-				aTagInput.hideLabel();
+				tagInput.hideLabel();
 			}
 		}
 	}
@@ -208,10 +206,10 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	/**
 	 * Sets the tags that can be selected during editing.
 	 *
-	 * @param rTags The selectable tags
+	 * @param tags The selectable tags
 	 */
-	public void setAllowedTags(Set<String> rTags) {
-		aTagInput.allowElements(rTags);
+	public void setAllowedTags(Set<String> tags) {
+		tagInput.allowElements(tags);
 	}
 
 	/**
@@ -222,24 +220,24 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * filter or propagate the even, e.g. when managing multiple tag editor
 	 * instances.
 	 *
-	 * @param rEditListener The edit listener or NULL for none
+	 * @param editListener The edit listener or NULL for none
 	 */
-	public void setEditListener(TagEditListener rEditListener) {
-		this.rEditListener =
-			rEditListener != null ? rEditListener : rFilterEntityTags;
+	public void setEditListener(TagEditListener editListener) {
+		this.editListener =
+			editListener != null ? editListener : filterEntityTags;
 	}
 
 	/**
 	 * Sets the entity type of which this tag editor displays the tags.
 	 *
-	 * @param rEntityType The new entity type
+	 * @param entityType The new entity type
 	 * @throws StorageException If querying the allowed tags fails
 	 */
-	public void setEntityType(Class<E> rEntityType) throws StorageException {
-		this.rEntityType = rEntityType;
+	public void setEntityType(Class<E> entityType) throws StorageException {
+		this.entityType = entityType;
 
-		if (aTagInput != null) {
-			aTagInput.allowElements(getAllowedTags());
+		if (tagInput != null) {
+			tagInput.allowElements(getAllowedTags());
 		}
 	}
 
@@ -248,10 +246,10 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * the
 	 * field instead of in front.
 	 *
-	 * @param bUseHeaderLabel TRUE to use a header label
+	 * @param useHeaderLabel TRUE to use a header label
 	 */
-	public final void setUseHeaderLabel(boolean bUseHeaderLabel) {
-		this.bUseHeaderLabel = bUseHeaderLabel;
+	public final void setUseHeaderLabel(boolean useHeaderLabel) {
+		this.useHeaderLabel = useHeaderLabel;
 	}
 
 	/**
@@ -262,32 +260,32 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 */
 	public void updateEntityTags()
 		throws StorageException, TransactionException {
-		Set<String> rSelectedTags = aTagInput != null ?
-		                            aTagInput.value() :
-		                            Collections.<String>emptySet();
+		Set<String> selectedTags = tagInput != null ?
+		                           tagInput.value() :
+		                           Collections.emptySet();
 
-		if (rSelectedTags.size() > 0 ||
-			(rCurrentEntityTags != null && rCurrentEntityTags.size() > 0)) {
-			if (rCurrentEntityTags == null ||
-				!rCurrentEntityTags.equals(rSelectedTags)) {
-				Set<String> rNewTags = new LinkedHashSet<>(rSelectedTags);
+		if (selectedTags.size() > 0 ||
+			(currentEntityTags != null && currentEntityTags.size() > 0)) {
+			if (currentEntityTags == null ||
+				!currentEntityTags.equals(selectedTags)) {
+				Set<String> newTags = new LinkedHashSet<>(selectedTags);
 
-				if (rTagOwner != null) {
-					rEntity.setExtraAttributeFor(rTagOwner, ENTITY_TAGS,
-						rNewTags, getProcessUser());
+				if (tagOwner != null) {
+					entity.setExtraAttributeFor(tagOwner, ENTITY_TAGS, newTags,
+						getProcessUser());
 				} else {
-					rEntity.setExtraAttribute(ENTITY_TAGS,
-						Collections.unmodifiableSet(rNewTags));
+					entity.setExtraAttribute(ENTITY_TAGS,
+						Collections.unmodifiableSet(newTags));
 				}
 
-				rCurrentEntityTags = rNewTags;
+				currentEntityTags = newTags;
 
-				if (bAutoStore) {
-					EntityManager.storeEntity(rEntity, getProcessUser());
+				if (autoStore) {
+					EntityManager.storeEntity(entity, getProcessUser());
 				}
 
-				if (rEditListener != null) {
-					setAllowedTags(rEditListener.tagsEdited(rNewTags));
+				if (editListener != null) {
+					setAllowedTags(editListener.tagsEdited(newTags));
 				}
 			}
 		}
@@ -300,15 +298,15 @@ public class EditEntityTags<E extends Entity> extends InteractionFragment
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface TagEditListener {
+	public interface TagEditListener {
 
 		/**
 		 * Will be invoked after the tags have been edited.
 		 *
-		 * @param aEditedTags The current tags of the editor the listener is
-		 *                    registered on
+		 * @param editedTags The current tags of the editor the listener is
+		 *                   registered on
 		 * @return The set of allowed tags after the editing
 		 */
-		public Set<String> tagsEdited(Set<String> aEditedTags);
+		Set<String> tagsEdited(Set<String> editedTags);
 	}
 }

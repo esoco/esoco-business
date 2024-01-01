@@ -23,25 +23,25 @@ public enum SizeUnit {
 	CHAR("em"), FRACTION("fr"), PERCENT("%"), PIXEL("px"), POINT("pt"),
 	ROOT_CHAR("rem");
 
-	private final String sHtmlSizeUnit;
+	private final String htmlSizeUnit;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sHtmlSizeUnit The HTML size unit token
+	 * @param htmlSizeUnit The HTML size unit token
 	 */
-	private SizeUnit(String sHtmlSizeUnit) {
-		this.sHtmlSizeUnit = sHtmlSizeUnit;
+	SizeUnit(String htmlSizeUnit) {
+		this.htmlSizeUnit = htmlSizeUnit;
 	}
 
 	/**
 	 * Generates a HTML size string with this unit from a certain integer
 	 * value.
 	 *
-	 * @param nSizeValue The integer size value
+	 * @param sizeValue The integer size value
 	 * @return The HTML size string
 	 */
-	public final String getHtmlSize(int nSizeValue) {
-		return nSizeValue + sHtmlSizeUnit;
+	public final String getHtmlSize(int sizeValue) {
+		return sizeValue + htmlSizeUnit;
 	}
 }

@@ -29,31 +29,31 @@ public interface ExternalServiceRequest {
 	 * @return The response of the service
 	 * @throws Exception If sending the request fails
 	 */
-	public ExternalServiceResponse send() throws Exception;
+	ExternalServiceResponse send() throws Exception;
 
 	/**
 	 * Sets the full body of this request. This is mutual exclusive to the
 	 * method {@link #setParameter(String, String)} and will override any
 	 * existing parameters.
 	 *
-	 * @param sBodyData The request body
+	 * @param bodyData The request body
 	 */
-	public void setBody(String sBodyData);
+	void setBody(String bodyData);
 
 	/**
 	 * Sets a certain request header field.
 	 *
-	 * @param sName  The name of the header field
-	 * @param sValue The header field value
+	 * @param name  The name of the header field
+	 * @param value The header field value
 	 */
-	public void setHeader(String sName, String sValue);
+	void setHeader(String name, String value);
 
 	/**
 	 * Sets a certain request parameter. To set the complete request body for
 	 * POST and PUT requests use {@link #setBody(String)} instead.
 	 *
-	 * @param sName  The name of the parameter
-	 * @param sValue The parameter value
+	 * @param name  The name of the parameter
+	 * @param value The parameter value
 	 */
-	public void setParameter(String sName, String sValue);
+	void setParameter(String name, String value);
 }

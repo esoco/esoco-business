@@ -35,21 +35,21 @@ public class UiMessageBox extends UiDialogView<UiMessageBox> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent  The parent view
-	 * @param sTitle   The message box title
-	 * @param rImage   The image
-	 * @param sMessage The message
+	 * @param parent  The parent view
+	 * @param title   The message box title
+	 * @param image   The image
+	 * @param message The message
 	 */
-	public UiMessageBox(UiView<?> rParent, String sTitle,
-		UiImageDefinition<?> rImage, String sMessage) {
-		super(rParent, sTitle, new UiFlowLayout(), true);
+	public UiMessageBox(UiView<?> parent, String title,
+		UiImageDefinition<?> image, String message) {
+		super(parent, title, new UiFlowLayout(), true);
 
-		UiBuilder<?> aMessageBuilder =
+		UiBuilder<?> messageBuilder =
 			builder().addPanel(new UiFlowLayout()).builder();
 
-		aMessageBuilder.addImage(rImage).style().styleName("UiMessageBoxIcon");
-		aMessageBuilder
-			.addLabel(sMessage)
+		messageBuilder.addImage(image).style().styleName("UiMessageBoxIcon");
+		messageBuilder
+			.addLabel(message)
 			.style()
 			.styleName("UiMessageBoxMessage");
 	}
@@ -59,28 +59,29 @@ public class UiMessageBox extends UiDialogView<UiMessageBox> {
 	 * icon (from resource "imUiMessageBoxConfirm") and YES and No buttons. The
 	 * view title will be the resource "tiUiMessageBoxConfirm".
 	 *
-	 * @param rParentView        The parent view
-	 * @param sMessage           The message text
-	 * @param fRunOnConfirmation A runnable that should be executed if the
-	 *                           message box is confirmed (i.e. the YES button
-	 *                           is pressed)
+	 * @param parentView        The parent view
+	 * @param message           The message text
+	 * @param runOnConfirmation A runnable that should be executed if the
+	 *                          message box is confirmed (i.e. the YES
+	 *                          button is
+	 *                          pressed)
 	 * @return The message box instance
 	 */
-	public static UiMessageBox showConfirmation(UiView<?> rParentView,
-		String sMessage, Runnable fRunOnConfirmation) {
-		UiMessageBox aMessageBox =
-			new UiMessageBox(rParentView, "$tiUiMessageBoxConfirm",
-				new UiImageResource("$imUiMessageBoxConfirm"), sMessage);
+	public static UiMessageBox showConfirmation(UiView<?> parentView,
+		String message, Runnable runOnConfirmation) {
+		UiMessageBox messageBox =
+			new UiMessageBox(parentView, "$tiUiMessageBoxConfirm",
+				new UiImageResource("$imUiMessageBoxConfirm"), message);
 
-		aMessageBox.setButtons(Button.YES_NO);
-		aMessageBox.onDialogButton(b -> {
+		messageBox.setButtons(Button.YES_NO);
+		messageBox.onDialogButton(b -> {
 			if (b.isValidated()) {
-				fRunOnConfirmation.run();
+				runOnConfirmation.run();
 			}
 		});
-		aMessageBox.show();
+		messageBox.show();
 
-		return aMessageBox;
+		return messageBox;
 	}
 
 	/**
@@ -88,20 +89,20 @@ public class UiMessageBox extends UiDialogView<UiMessageBox> {
 	 * (from resource "imUiMessageBoxError") and a single OK button. The view
 	 * title will be the resource "tiUiMessageBoxError".
 	 *
-	 * @param rParentView The parent view
-	 * @param sMessage    The message text
+	 * @param parentView The parent view
+	 * @param message    The message text
 	 * @return The message box instance
 	 */
-	public static UiMessageBox showError(UiView<?> rParentView,
-		String sMessage) {
-		UiMessageBox aMessageBox =
-			new UiMessageBox(rParentView, "$tiUiMessageBoxError",
-				new UiImageResource("$imUiMessageBoxError"), sMessage);
+	public static UiMessageBox showError(UiView<?> parentView,
+		String message) {
+		UiMessageBox messageBox =
+			new UiMessageBox(parentView, "$tiUiMessageBoxError",
+				new UiImageResource("$imUiMessageBoxError"), message);
 
-		aMessageBox.setButtons(Button.OK);
-		aMessageBox.show();
+		messageBox.setButtons(Button.OK);
+		messageBox.show();
 
-		return aMessageBox;
+		return messageBox;
 	}
 
 	/**
@@ -109,20 +110,19 @@ public class UiMessageBox extends UiDialogView<UiMessageBox> {
 	 * icon (from resource "imUiMessageBoxInfo") and a single OK button. The
 	 * view title will be the resource "tiUiMessageBoxInfo".
 	 *
-	 * @param rParentView The parent view
-	 * @param sMessage    The message text
+	 * @param parentView The parent view
+	 * @param message    The message text
 	 * @return The message box instance
 	 */
-	public static UiMessageBox showInfo(UiView<?> rParentView,
-		String sMessage) {
-		UiMessageBox aMessageBox =
-			new UiMessageBox(rParentView, "$tiUiMessageBoxInfo",
-				new UiImageResource("$imUiMessageBoxInfo"), sMessage);
+	public static UiMessageBox showInfo(UiView<?> parentView, String message) {
+		UiMessageBox messageBox =
+			new UiMessageBox(parentView, "$tiUiMessageBoxInfo",
+				new UiImageResource("$imUiMessageBoxInfo"), message);
 
-		aMessageBox.setButtons(Button.OK);
-		aMessageBox.show();
+		messageBox.setButtons(Button.OK);
+		messageBox.show();
 
-		return aMessageBox;
+		return messageBox;
 	}
 
 	/**
@@ -132,27 +132,27 @@ public class UiMessageBox extends UiDialogView<UiMessageBox> {
 	 * Cancel buttons. The view title will be the resource
 	 * "tiUiMessageBoxWarning".
 	 *
-	 * @param rParentView        The parent view
-	 * @param sMessage           The message text
-	 * @param fRunOnConfirmation A runnable that should be executed if the
-	 *                           message box is confirmed (i.e. the OK
-	 *                           button is
-	 *                           pressed)
+	 * @param parentView        The parent view
+	 * @param message           The message text
+	 * @param runOnConfirmation A runnable that should be executed if the
+	 *                          message box is confirmed (i.e. the OK button is
+	 *                          pressed)
 	 * @return The message box instance
 	 */
-	public static UiMessageBox showWarning(UiView<?> rParentView,
-		String sMessage, Runnable fRunOnConfirmation) {
-		UiMessageBox aMessageBox =
-			new UiMessageBox(rParentView, "$tiUiMessageBoxWarning",
-				new UiImageResource("$imUiMessageBoxWarning"), sMessage);
+	public static UiMessageBox showWarning(UiView<?> parentView,
+		String message,
+		Runnable runOnConfirmation) {
+		UiMessageBox messageBox =
+			new UiMessageBox(parentView, "$tiUiMessageBoxWarning",
+				new UiImageResource("$imUiMessageBoxWarning"), message);
 
-		aMessageBox.onDialogButton(b -> {
+		messageBox.onDialogButton(b -> {
 			if (b.isValidated()) {
-				fRunOnConfirmation.run();
+				runOnConfirmation.run();
 			}
 		});
-		aMessageBox.show();
+		messageBox.show();
 
-		return aMessageBox;
+		return messageBox;
 	}
 }

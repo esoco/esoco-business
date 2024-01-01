@@ -17,7 +17,6 @@
 package de.esoco.data.element;
 
 import de.esoco.data.validate.Validator;
-
 import de.esoco.lib.text.TextConvert;
 
 import java.util.Collection;
@@ -44,16 +43,16 @@ public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Validator<? super V> rValueValidator;
+	private Validator<? super V> valueValidator;
 
 	/**
 	 * @see MapDataElement#MapDataElement(String, Validator, Set)
 	 */
-	public MapDataElement(String sName, Validator<? super V> rValueValidator,
-		Set<Flag> rFlags) {
-		super(sName, null, rFlags);
+	public MapDataElement(String name, Validator<? super V> valueValidator,
+		Set<Flag> flags) {
+		super(name, null, flags);
 
-		this.rValueValidator = rValueValidator;
+		this.valueValidator = valueValidator;
 	}
 
 	/**
@@ -73,32 +72,32 @@ public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>> {
 	/**
 	 * Checks whether this element contains a mapping with a certain key.
 	 *
-	 * @param rKey The key to check
+	 * @param key The key to check
 	 * @return TRUE if a mapping exists for the given key
 	 */
-	public boolean containsKey(K rKey) {
-		return getMap().containsKey(rKey);
+	public boolean containsKey(K key) {
+		return getMap().containsKey(key);
 	}
 
 	/**
 	 * Checks whether this element contains at least one mapping with a certain
 	 * value.
 	 *
-	 * @param rValue The value to check
+	 * @param value The value to check
 	 * @return TRUE if at least one mapping exists for the given value
 	 */
-	public boolean containsValue(V rValue) {
-		return getMap().containsValue(rValue);
+	public boolean containsValue(V value) {
+		return getMap().containsValue(value);
 	}
 
 	/**
 	 * Returns a certain value from this element's map.
 	 *
-	 * @param rKey The key to return the value for
+	 * @param key The key to return the value for
 	 * @return The value associated with the key or NULL for none
 	 */
-	public V get(K rKey) {
-		return getMap().get(rKey);
+	public V get(K key) {
+		return getMap().get(key);
 	}
 
 	/**
@@ -145,7 +144,7 @@ public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>> {
 	 * @return The map value validator or NULL for none
 	 */
 	public Validator<? super V> getValueValidator() {
-		return rValueValidator;
+		return valueValidator;
 	}
 
 	/**
@@ -161,45 +160,45 @@ public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>> {
 	/**
 	 * Puts a new key-value mapping into the map.
 	 *
-	 * @param rKey   The key to store the value under
-	 * @param rValue The value to store
+	 * @param key   The key to store the value under
+	 * @param value The value to store
 	 * @return The previous value stored under the key or NULL for none
 	 */
-	public V put(K rKey, V rValue) {
+	public V put(K key, V value) {
 		checkImmutable();
-		checkValidValue(rValueValidator, rValue);
+		checkValidValue(valueValidator, value);
 
-		return getMap().put(rKey, rValue);
+		return getMap().put(key, value);
 	}
 
 	/**
 	 * Copies all mappings from the argument map to this element.
 	 *
-	 * @param rSourceMap The map to copy the mappings from
+	 * @param sourceMap The map to copy the mappings from
 	 */
-	public void putAll(Map<? extends K, ? extends V> rSourceMap) {
-		Map<K, V> rMap = getMap();
+	public void putAll(Map<? extends K, ? extends V> sourceMap) {
+		Map<K, V> map = getMap();
 
 		checkImmutable();
 
-		for (K rKey : rSourceMap.keySet()) {
-			V rValue = rSourceMap.get(rKey);
+		for (K key : sourceMap.keySet()) {
+			V value = sourceMap.get(key);
 
-			checkValidValue(rValueValidator, rValue);
-			rMap.put(rKey, rValue);
+			checkValidValue(valueValidator, value);
+			map.put(key, value);
 		}
 	}
 
 	/**
 	 * Removes a certain key-value mapping from this element.
 	 *
-	 * @param rKey The key to remove the mapping for
+	 * @param key The key to remove the mapping for
 	 * @return The value associated with the key or NULL for none
 	 */
-	public V remove(K rKey) {
+	public V remove(K key) {
 		checkImmutable();
 
-		return getMap().remove(rKey);
+		return getMap().remove(key);
 	}
 
 	/**
@@ -215,8 +214,8 @@ public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>> {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void copyValue(DataElement<Map<K, V>> aCopy) {
-		((MapDataElement<K, V>) aCopy).getMap().putAll(getMap());
+	protected void copyValue(DataElement<Map<K, V>> copy) {
+		((MapDataElement<K, V>) copy).getMap().putAll(getMap());
 	}
 
 	/**
@@ -231,18 +230,18 @@ public abstract class MapDataElement<K, V> extends DataElement<Map<K, V>> {
 	 * @see DataElement#hasEqualValueAs(DataElement)
 	 */
 	@Override
-	protected boolean hasEqualValueAs(DataElement<?> rOther) {
-		return getMap().equals(((MapDataElement<?, ?>) rOther).getMap());
+	protected boolean hasEqualValueAs(DataElement<?> other) {
+		return getMap().equals(((MapDataElement<?, ?>) other).getMap());
 	}
 
 	/**
 	 * Overridden to always throw a runtime exception. Manipulations of a map
 	 * data element must always be done through the map manipulation methods.
 	 *
-	 * @param rNewValue Ignored
+	 * @param newValue Ignored
 	 */
 	@Override
-	protected final void updateValue(Map<K, V> rNewValue) {
+	protected final void updateValue(Map<K, V> newValue) {
 		throw new UnsupportedOperationException(
 			"Use element manipulation methods instead");
 	}

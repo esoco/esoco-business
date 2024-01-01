@@ -17,7 +17,6 @@
 package de.esoco.process.ui.component;
 
 import de.esoco.lib.property.ListStyle;
-
 import de.esoco.process.ProcessRelationTypes;
 import de.esoco.process.ui.UiContainer;
 import de.esoco.process.ui.UiListControl;
@@ -39,16 +38,15 @@ public class UiMultiSelectionList<T>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent      The parent container
-	 * @param rElementType The datatype of the list elements
+	 * @param parent      The parent container
+	 * @param elementType The datatype of the list elements
 	 */
-	public UiMultiSelectionList(UiContainer<?> rParent,
-		Class<T> rElementType) {
-		super(rParent, rParent.fragment().getTemporaryListType(rElementType),
+	public UiMultiSelectionList(UiContainer<?> parent, Class<T> elementType) {
+		super(parent, parent.fragment().getTemporaryListType(elementType),
 			ListStyle.LIST);
 
-		if (rElementType.isEnum()) {
-			resid(rElementType.getSimpleName());
+		if (elementType.isEnum()) {
+			resid(elementType.getSimpleName());
 		}
 	}
 
@@ -65,20 +63,20 @@ public class UiMultiSelectionList<T>
 	/**
 	 * Sets the values to be displayed in this list.
 	 *
-	 * @param rValues The list values
+	 * @param values The list values
 	 */
 	@SuppressWarnings("unchecked")
-	public void setListValues(T... rValues) {
-		setListValues(Arrays.asList(rValues));
+	public void setListValues(T... values) {
+		setListValues(Arrays.asList(values));
 	}
 
 	/**
 	 * Sets a collection of values to be displayed in this list.
 	 *
-	 * @param rValues The list values
+	 * @param values The list values
 	 */
-	public void setListValues(Collection<T> rValues) {
+	public void setListValues(Collection<T> values) {
 		fragment().annotateParameter(type(), null,
-			ProcessRelationTypes.ALLOWED_VALUES, rValues);
+			ProcessRelationTypes.ALLOWED_VALUES, values);
 	}
 }

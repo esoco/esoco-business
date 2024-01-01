@@ -17,6 +17,10 @@
 package de.esoco.entity;
 
 import de.esoco.lib.expression.Action;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -24,13 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypeModifier;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.MetaTypes;
-
 import static de.esoco.storage.impl.jdbc.JdbcRelationTypes.SQL_OMIT_NAMESPACE;
-
 import static org.obrel.core.RelationTypes.newType;
 import static org.obrel.type.MetaTypes.RELATION_TYPE_INIT_ACTION;
 import static org.obrel.type.MetaTypes.RELATION_TYPE_NAMESPACE;
@@ -57,9 +55,9 @@ public final class ExtraAttributes {
 
 	private static final Action<RelationType<?>> EXTRA_ATTR_INIT_ACTION =
 		xa -> {
-			RelationType<?> rType = RelationType.valueOf(xa.getSimpleName());
+			RelationType<?> type = RelationType.valueOf(xa.getSimpleName());
 
-			assert rType == null || rType == xa :
+			assert type == null || type == xa :
 				"ExtraAttribute has same name as RelationType " +
 					xa.getSimpleName();
 		};
@@ -77,12 +75,12 @@ public final class ExtraAttributes {
 	/**
 	 * Adds the necessary annotations to a new extra attribute relation type.
 	 *
-	 * @param rType The relation type
+	 * @param type The relation type
 	 * @return The annotated relation type
 	 */
 	private static <T> RelationType<T> annotateExtraAttribute(
-		RelationType<T> rType) {
-		return rType
+		RelationType<T> type) {
+		return type
 			.annotate(RELATION_TYPE_NAMESPACE, EXTRA_ATTRIBUTES_NAMESPACE)
 			.annotate(EXTRA_ATTRIBUTE_FLAG)
 			.annotate(SQL_OMIT_NAMESPACE)
@@ -92,24 +90,24 @@ public final class ExtraAttributes {
 	/**
 	 * Factory method to create a new extra attribute with a boolean datatype.
 	 *
-	 * @param sName The name of the key
+	 * @param name The name of the key
 	 * @return A new extra attribute instance with the given name
 	 */
-	public static RelationType<Boolean> newBooleanExtraAttribute(String sName) {
-		return newExtraAttribute(sName, Boolean.class);
+	public static RelationType<Boolean> newBooleanExtraAttribute(String name) {
+		return newExtraAttribute(name, Boolean.class);
 	}
 
 	/**
 	 * Factory method to create a new extra attribute with a certain enum
 	 * datatype.
 	 *
-	 * @param sName      The name of the key
-	 * @param rEnumClass The enum class of the attribute
+	 * @param name      The name of the key
+	 * @param enumClass The enum class of the attribute
 	 * @return A new extra attribute instance with the given name
 	 */
 	public static <E extends Enum<E>> RelationType<E> newEnumExtraAttribute(
-		String sName, Class<E> rEnumClass) {
-		return newExtraAttribute(sName, rEnumClass);
+		String name, Class<E> enumClass) {
+		return newExtraAttribute(name, enumClass);
 	}
 
 	/**
@@ -124,7 +122,7 @@ public final class ExtraAttributes {
 	 * @return A new extra attribute instance with the given name and datatype
 	 */
 	public static <T> RelationType<T> newExtraAttribute() {
-		return annotateExtraAttribute(RelationTypes.<T>newType());
+		return annotateExtraAttribute(RelationTypes.newType());
 	}
 
 	/**
@@ -136,24 +134,24 @@ public final class ExtraAttributes {
 	 * {@code List.class} would otherwise not be a valid argument to define a
 	 * key with the datatype {@code List<T>}.
 	 *
-	 * @param sName     The name of the key
-	 * @param rDatatype The class of the key datatype
+	 * @param name     The name of the key
+	 * @param datatype The class of the key datatype
 	 * @return A new extra attribute instance with the given name and datatype
 	 */
-	public static <T> RelationType<T> newExtraAttribute(String sName,
-		Class<? super T> rDatatype) {
+	public static <T> RelationType<T> newExtraAttribute(String name,
+		Class<? super T> datatype) {
 		return annotateExtraAttribute(
-			RelationTypes.newRelationType(sName, rDatatype));
+			RelationTypes.newRelationType(name, datatype));
 	}
 
 	/**
 	 * Factory method to create a new extra attribute with an integer datatype.
 	 *
-	 * @param sName The name of the key
+	 * @param name The name of the key
 	 * @return A new extra attribute instance with the given name
 	 */
-	public static RelationType<Integer> newIntegerExtraAttribute(String sName) {
-		return newExtraAttribute(sName, Integer.class);
+	public static RelationType<Integer> newIntegerExtraAttribute(String name) {
+		return newExtraAttribute(name, Integer.class);
 	}
 
 	/**
@@ -161,30 +159,29 @@ public final class ExtraAttributes {
 	 * datatype. The element datatype must be of type ? super E to support
 	 * collections of generic types.
 	 *
-	 * @param sName        The name of the key
-	 * @param rElementType The class of the list element datatype
+	 * @param name        The name of the key
+	 * @param elementType The class of the list element datatype
 	 * @return A new extra attribute instance with the given name
 	 */
-	public static <E> RelationType<List<E>> newListExtraAttribute(String sName,
-		Class<? super E> rElementType) {
+	public static <E> RelationType<List<E>> newListExtraAttribute(String name,
+		Class<? super E> elementType) {
 		return annotateExtraAttribute(
-			RelationTypes.newListType(sName, rElementType));
+			RelationTypes.newListType(name, elementType));
 	}
 
 	/**
 	 * Factory method to create a new extra attribute with a {@link Map}
 	 * datatype.
 	 *
-	 * @param sName      The name of the key
-	 * @param rKeyType   The datatype of the map keys
-	 * @param rValueType The datatype of the map values
+	 * @param name      The name of the key
+	 * @param keyType   The datatype of the map keys
+	 * @param valueType The datatype of the map values
 	 * @return A new extra attribute instance with the given name
 	 */
 	public static <K, V> RelationType<Map<K, V>> newMapExtraAttribute(
-		String sName, Class<K> rKeyType, Class<V> rValueType) {
+		String name, Class<K> keyType, Class<V> valueType) {
 		return annotateExtraAttribute(
-			RelationTypes.newMapType(sName, rKeyType, rValueType, false,
-				false));
+			RelationTypes.newMapType(name, keyType, valueType, false, false));
 	}
 
 	/**
@@ -222,10 +219,10 @@ public final class ExtraAttributes {
 	/**
 	 * Factory method to create a new extra attribute with a string datatype.
 	 *
-	 * @param sName The name of the key
+	 * @param name The name of the key
 	 * @return A new extra attribute instance with the given name
 	 */
-	public static RelationType<String> newStringExtraAttribute(String sName) {
-		return newExtraAttribute(sName, String.class);
+	public static RelationType<String> newStringExtraAttribute(String name) {
+		return newExtraAttribute(name, String.class);
 	}
 }
