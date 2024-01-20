@@ -284,13 +284,13 @@ public abstract class ProcessFragment extends ProcessElement {
 	 * @param centerParam firstParam The center (main) parameter in the panel
 	 * @param lastParam   The last parameter in the panel or NULL for none
 	 * @param resizable   TRUE to make the panel resizable as a split panel
-	 * @param iFlags      Boolean properties to be set on the panel parameter
+	 * @param flags       Boolean properties to be set on the panel parameter
 	 */
 	@SafeVarargs
 	public final void addPanel(RelationType<List<RelationType<?>>> panelParam,
 		RelationType<?> firstParam, RelationType<?> centerParam,
 		RelationType<?> lastParam, boolean resizable,
-		PropertyName<Boolean>... iFlags) {
+		PropertyName<Boolean>... flags) {
 		List<RelationType<?>> panelContentParams = new ArrayList<>(3);
 
 		if (firstParam != null) {
@@ -306,7 +306,7 @@ public abstract class ProcessFragment extends ProcessElement {
 		addPanel(panelParam, resizable ? LayoutType.SPLIT : LayoutType.DOCK,
 			panelContentParams);
 
-		for (PropertyName<Boolean> flag : iFlags) {
+		for (PropertyName<Boolean> flag : flags) {
 			setUIFlag(flag, panelParam);
 		}
 	}
